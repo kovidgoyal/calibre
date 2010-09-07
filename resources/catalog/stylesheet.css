@@ -6,7 +6,7 @@ p.title  {
 	text-align:center;
 	font-style:italic;
 	font-size:xx-large;
-    border-bottom: solid black 4px;
+    border-bottom: solid black 2px;
 	}
 
 p.author {
@@ -16,6 +16,15 @@ p.author {
 	text-indent: 1em;
 	font-size:large;
   	}
+
+p.author_index {
+	font-size:large;
+	font-weight:bold;
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:0px;
+	text-indent: 0em;
+	}
 
 p.tags {
 	margin-top:0em;
@@ -47,19 +56,12 @@ p.letter_index {
 	margin-bottom:0px;
 	}
 
-p.author_index {
-	font-size:large;
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;
-	text-indent: 0em;
-	}
-
 p.series {
-	text-align: left;
+	font-style:italic;
 	margin-top:0px;
 	margin-bottom:0px;
 	margin-left:2em;
+	text-align: left;
 	text-indent:-2em;
 	}
 
@@ -88,6 +90,8 @@ p.date_read {
 	}
 
 hr.series_divider {
+	border-style:solid;
+	border-width:thin;
 	width:50%;
 	margin-left:1em;
 	margin-top:0em;

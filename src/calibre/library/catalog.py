@@ -1760,12 +1760,13 @@ class EPUB_MOBI(CatalogPlugin):
             if not self.__generateForKindle:
                 # We don't need this because the Kindle shows section titles
                 #<h2><a name="byalphatitle" id="byalphatitle"></a>By Title</h2>
-                h2Tag = Tag(soup, "h2")
+                pTag = Tag(soup, "p")
+                pTag['class'] = 'title'
                 aTag = Tag(soup, "a")
                 aTag['name'] = "bytitle"
-                h2Tag.insert(0,aTag)
-                h2Tag.insert(1,NavigableString('By Title (%d)' % len(self.booksByTitle)))
-                body.insert(btc,h2Tag)
+                pTag.insert(0,aTag)
+                pTag.insert(1,NavigableString('By Title'))
+                body.insert(btc,pTag)
                 btc += 1
 
             # <p class="letter_index">
@@ -1938,12 +1939,10 @@ class EPUB_MOBI(CatalogPlugin):
                     current_series = None
                     pAuthorTag = Tag(soup, "p")
                     pAuthorTag['class'] = "author_index"
-                    emTag = Tag(soup, "em")
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%s" % self.generateAuthorAnchor(current_author)
                     aTag.insert(0,NavigableString(current_author))
-                    emTag.insert(0,aTag)
-                    pAuthorTag.insert(0,emTag)
+                    pAuthorTag.insert(0,aTag)
                     divTag.insert(dtc,pAuthorTag)
                     dtc += 1
 
@@ -1961,7 +1960,17 @@ class EPUB_MOBI(CatalogPlugin):
                     current_series = book['series']
                     pSeriesTag = Tag(soup,'p')
                     pSeriesTag['class'] = "series"
-                    pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + '%s' % book['series']))
+
+                    if self.opts.generate_series:
+                        aTag = Tag(soup,'a')
+                        aTag['href'] = "%s.html#%s_series" % ('BySeries',
+                                                       re.sub('\W','',book['series']).lower())
+                        aTag.insert(0, book['series'])
+                        pSeriesTag.insert(0, NavigableString(self.NOT_READ_SYMBOL))
+                        pSeriesTag.insert(1, aTag)
+                    else:
+                        pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + '%s' % book['series']))
+
                     divTag.insert(dtc,pSeriesTag)
                     dtc += 1
                 if current_series and not book['series']:
@@ -2004,13 +2013,15 @@ class EPUB_MOBI(CatalogPlugin):
             if not self.__generateForKindle:
                 # Insert the <h2> tag with book_count at the head
                 #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
-                h2Tag = Tag(soup, "h2")
+                pTag = Tag(soup, "p")
+                pTag['class'] = 'title'
                 aTag = Tag(soup, "a")
                 anchor_name = friendly_name.lower()
                 aTag['name'] = anchor_name.replace(" ","")
-                h2Tag.insert(0,aTag)
-                h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, book_count)))
-                body.insert(btc,h2Tag)
+                pTag.insert(0,aTag)
+                #h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, book_count)))
+                pTag.insert(1,NavigableString('%s' % (friendly_name)))
+                body.insert(btc,pTag)
                 btc += 1
 
             # Add the divTag to the body
@@ -2590,7 +2601,22 @@ class EPUB_MOBI(CatalogPlugin):
                 aTag = Tag(soup, "a")
                 aTag['href'] = "book_%d.html" % (int(float(book['id'])))
                 # Use series, series index if avail else just title
-                aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
+                #aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
+
+                # Link to book
+                aTag.insert(0,'%d. %s' % (book['series_index'],escape(book['title'])))
+                pBookTag.insert(ptc, aTag)
+                ptc += 1
+
+                # &middot;
+                pBookTag.insert(ptc, NavigableString(' &middot; '))
+                ptc += 1
+
+                # Link to author
+                aTag = Tag(soup, "a")
+                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
+                                                self.generateAuthorAnchor(' & '.join(book['authors'])))
+                aTag.insert(0, NavigableString(' & '.join(book['authors'])))
                 pBookTag.insert(ptc, aTag)
                 ptc += 1
 
@@ -2600,13 +2626,15 @@ class EPUB_MOBI(CatalogPlugin):
             if not self.__generateForKindle:
                 # Insert the <h2> tag with book_count at the head
                 #<h2><a name="byseries" id="byseries"></a>By Series</h2>
-                h2Tag = Tag(soup, "h2")
+                pTag = Tag(soup, "p")
+                pTag['class'] = 'title'
                 aTag = Tag(soup, "a")
                 anchor_name = friendly_name.lower()
                 aTag['name'] = anchor_name.replace(" ","")
-                h2Tag.insert(0,aTag)
-                h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, series_count)))
-                body.insert(btc,h2Tag)
+                pTag.insert(0,aTag)
+                #h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, series_count)))
+                pTag.insert(1,NavigableString('%s' % friendly_name))
+                body.insert(btc,pTag)
                 btc += 1
 
             # Add the divTag to the body
@@ -4003,12 +4031,10 @@ class EPUB_MOBI(CatalogPlugin):
                     current_series = None
                     pAuthorTag = Tag(soup, "p")
                     pAuthorTag['class'] = "author_index"
-                    emTag = Tag(soup, "em")
                     aTag = Tag(soup, "a")
                     aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(book['author']))
                     aTag.insert(0, book['author'])
-                    emTag.insert(0,aTag)
-                    pAuthorTag.insert(0,emTag)
+                    pAuthorTag.insert(0,aTag)
                     divTag.insert(dtc,pAuthorTag)
                     dtc += 1
 
