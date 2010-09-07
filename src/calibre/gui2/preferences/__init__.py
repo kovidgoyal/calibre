@@ -36,6 +36,10 @@ class ConfigWidgetInterface(object):
     restore_defaults_desc = _('Restore settings to default values. '
             'You have to click Apply to actually save the default settings.')
 
+    #: If True the Preferences dialog will not allow the user to set any more
+    #: preferences. Only has effect if :meth:`commit` returns True.
+    restart_critical = False
+
     def genesis(self, gui):
         '''
         Called once before the widget is displayed, should perform any
@@ -218,6 +222,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
 
     changed_signal = pyqtSignal()
     supports_restoring_to_defaults = True
+    restart_critical = False
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)

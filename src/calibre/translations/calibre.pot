@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.7.17\n"
-"POT-Creation-Date: 2010-09-07 12:36+MDT\n"
-"PO-Revision-Date: 2010-09-07 12:36+MDT\n"
+"POT-Creation-Date: 2010-09-07 13:11+MDT\n"
+"PO-Revision-Date: 2010-09-07 13:11+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -178,7 +178,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:22
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:187
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:251
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:272
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:273
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
 msgstr ""
@@ -2888,7 +2888,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:53
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:100
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:102
 msgid "Are you sure?"
 msgstr ""
 
@@ -7073,15 +7073,15 @@ msgstr ""
 msgid "Use internal &viewer for:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:94
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:96
 msgid "You must select a column to delete it"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:99
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:101
 msgid "The selected column is not a custom column"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:101
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:103
 msgid "Do you really want to delete column %s and all its data?"
 msgstr ""
 
@@ -7429,13 +7429,17 @@ msgstr ""
 msgid "Restoring to defaults not supported for"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:291
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
-msgid "Restart needed"
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:294
+msgid "Some of the changes you made require a restart. Please restart calibre as soon as possible."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:292
-msgid "Some of the changes you made require a restart. Please restart calibre as soon as possible."
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:297
+msgid "The changes you have made require calibre be restarted immediately. You will not be allowed set any more preferences, until you restart."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
+msgid "Restart needed"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:49
