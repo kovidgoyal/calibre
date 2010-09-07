@@ -9,7 +9,7 @@ import os
 from functools import partial
 
 from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
-    QModelIndex
+    QModelIndex, QIcon
 
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
@@ -172,6 +172,7 @@ class BooksView(QTableView): # {{{
 
             if self.can_add_columns:
                 self.column_header_context_menu.addAction(
+                        QIcon(I('column.png')),
                         _('Add your own columns'),
                         partial(self.column_header_context_handler,
                             action='addcustcol', column=col))
