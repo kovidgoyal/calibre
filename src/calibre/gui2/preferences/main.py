@@ -13,7 +13,7 @@ from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
         QToolBar, QSize, pyqtSignal, QPixmap, QToolButton, QAction, \
         QDialogButtonBox, QHBoxLayout
 
-from calibre.constants import __appname__, __version__, islinux, isosx
+from calibre.constants import __appname__, __version__, islinux
 from calibre.gui2 import gprefs, min_available_height, available_width, \
     warning_dialog
 from calibre.gui2.preferences import init_gui, AbortCommit, get_plugin
@@ -164,7 +164,7 @@ class Preferences(QMainWindow):
         self.must_restart = False
         self.committed = False
 
-        self.resize(900, 760 if isosx else 710)
+        self.resize(900, 720)
         nh, nw = min_available_height()-25, available_width()-10
         if nh < 0:
             nh = 800
@@ -201,7 +201,6 @@ class Preferences(QMainWindow):
         self.cw.layout().addWidget(self.bb)
         self.bb.rejected.connect(self.close, type=Qt.QueuedConnection)
         self.setCentralWidget(self.cw)
-        self.bb.setVisible(isosx)
         self.browser = Browser(self)
         self.browser.show_plugin.connect(self.show_plugin)
         self.stack.addWidget(self.browser)
