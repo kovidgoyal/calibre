@@ -105,7 +105,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return
         self.opt_columns.item(idx).setCheckState(False)
         self.opt_columns.takeItem(idx)
-        self.custcols[col]['*deleteme'] = True
+        if self.custcols[col]['colnum'] is None:
+            del self.custcols[col] # A newly-added column was deleted
+        else:
+            self.custcols[col]['*deleteme'] = True
         self.changed_signal.emit()
 
     def add_custcol(self):
