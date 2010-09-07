@@ -1370,8 +1370,8 @@ class DeviceMixin(object): # {{{
                     # the if just above should have found them. Mark the book
                     # anyway, and print a message about the situation
                     loc[i] = True
-                    print 'book_on_device: matched title/author but not db_id!', \
-                            mi.title, authors_to_string(mi.authors)
+                    prints('book_on_device: matched title/author but not db_id!',
+                            mi.title, authors_to_string(mi.authors))
                     continue
                 # Also check author sort, because it can be used as author in
                 # some formats

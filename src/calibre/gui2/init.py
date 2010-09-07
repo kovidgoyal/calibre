@@ -145,20 +145,23 @@ class StatusBar(QStatusBar): # {{{
         self._font = QFont()
         self._font.setBold(True)
         self.setFont(self._font)
+        self.defmsg = QLabel(self.default_message)
+        self.defmsg.setFont(self._font)
+        self.addWidget(self.defmsg)
 
     def initialize(self, systray=None):
         self.systray = systray
         self.notifier = get_notifier(systray)
-        self.messageChanged.connect(self.message_changed,
-                type=Qt.QueuedConnection)
-        self.message_changed('')
 
     def device_connected(self, devname):
         self.device_string = _('Connected ') + devname
+        self.defmsg.setText(self.default_message + ' ..::.. ' +
+                self.device_string)
         self.clearMessage()
 
     def device_disconnected(self):
         self.device_string = ''
+        self.defmsg.setText(self.default_message)
         self.clearMessage()
 
     def new_version_available(self, ver, url):
@@ -187,15 +190,6 @@ class StatusBar(QStatusBar): # {{{
 
     def clear_message(self):
         self.clearMessage()
-
-    def message_changed(self, msg):
-        if not msg or msg.isEmpty() or msg.isNull() or \
-                not unicode(msg).strip():
-            extra = ''
-            if self.device_string:
-                extra = ' ..::.. ' + self.device_string
-            self.showMessage(self.default_message + extra)
-
 
 # }}}
 

@@ -18,6 +18,11 @@ class AbortCommit(Exception):
 
 class ConfigWidgetInterface(object):
 
+    '''
+    This class defines the interface that all widgets displayed in the
+    Preferences dialog must implement. To create a plugin for a new
+    '''
+
     changed_signal = None
     supports_restoring_to_defaults = True
     restore_defaults_desc = _('Restore settings to default values. '
