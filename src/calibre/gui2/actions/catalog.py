@@ -34,11 +34,10 @@ class GenerateCatalogAction(InterfaceAction):
 		db = self.gui.library_view.model().db
 		dbspec = {}
 		for id in ids:
-			dbspec[id] = {'ondevice':db.ondevice(id, index_is_id=True)}
-		db.catalog_plugin_on_device_temp_mapping = dbspec
+			dbspec[id] = {'ondevice': db.ondevice(id, index_is_id=True)}
 
         # Calling gui2.tools:generate_catalog()
-        ret = generate_catalog(self.gui, db, ids, self.gui.device_manager)
+        ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager)
         if ret is None:
             return
 

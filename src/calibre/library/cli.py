@@ -676,7 +676,7 @@ def command_catalog(args, dbpath):
     # Parallel initialization in calibre.gui2.tools:generate_catalog()
     opts.connected_device = {
                              'is_device_connected': False,
-                             'kind': device_manager.connected_device_kind,
+                             'kind': None,
                              'name': None,
                              'save_template': None,
                              'serial': None,

@@ -20,7 +20,7 @@ from calibre.utils.date import isoformat, now as nowf
 from calibre.utils.logging import default_log as log
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
-          'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
+          'cover', 'formats', 'id', 'isbn', 'ondevice', 'pubdate', 'publisher', 'rating',
           'series_index', 'series', 'size', 'tags', 'timestamp', 'title',
           'uuid']
 
@@ -96,6 +96,11 @@ class CSV_XML(CatalogPlugin):
         # Get the requested output fields as a list
         fields = self.get_output_fields(opts)
 
+        # If connected device, add 'On Device' values to data
+        if opts.connected_device['is_device_connected'] and 'ondevice' in fields:
+            for entry in data:
+                entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[entry['id']]['ondevice']
+
         if self.fmt == 'csv':
             outfile = codecs.open(path_to_output, 'w', 'utf8')
 
@@ -104,7 +109,6 @@ class CSV_XML(CatalogPlugin):
 
             # Output the entry fields
             for entry in data:
-                print "%s [%s] ondevice: %s" % (entry['title'],entry['id'], repr(db.catalog_plugin_on_device_temp_mapping[entry['id']]))
                 outstr = []
                 for field in fields:
                     item = entry[field]
@@ -142,10 +146,10 @@ class CSV_XML(CatalogPlugin):
                 root.append(record)
 
                 for field in ('id', 'uuid', 'title', 'publisher', 'rating', 'size',
-                        'isbn'):
+                              'isbn','ondevice'):
                     if field in fields:
                         val = r[field]
-                        if val is None:
+                        if not val:
                             continue
                         if not isinstance(val, (str, unicode)):
                             val = unicode(val)
@@ -563,6 +567,13 @@ class EPUB_MOBI(CatalogPlugin):
                           help=_("Include 'Titles' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
+                   Option('--generate-series',
+                          default=False,
+                          dest='generate_series',
+                          action = 'store_true',
+                          help=_("Include 'Series' section in catalog.\n"
+                          "Default: '%default'\n"
+                          "Applies to: ePub, MOBI output formats")),
                    Option('--generate-recently-added',
                           default=False,
                           dest='generate_recently_added',
@@ -888,6 +899,9 @@ class EPUB_MOBI(CatalogPlugin):
                 self.__totalSteps += 2
                 if self.generateRecentlyRead:
                     self.__totalSteps += 2
+            if self.opts.generate_series:
+                self.__totalSteps += 2
+
 
         # Accessors
         if True:
@@ -1198,6 +1212,8 @@ class EPUB_MOBI(CatalogPlugin):
             self.generateHTMLByAuthor()
             if self.opts.generate_titles:
                 self.generateHTMLByTitle()
+            if self.opts.generate_series:
+                self.generateHTMLBySeries()
             if self.opts.generate_recently_added:
                 self.generateHTMLByDateAdded()
                 if self.generateRecentlyRead:
@@ -1211,6 +1227,8 @@ class EPUB_MOBI(CatalogPlugin):
             self.generateNCXByAuthor("Authors")
             if self.opts.generate_titles:
                 self.generateNCXByTitle("Titles")
+            if self.opts.generate_series:
+                self.generateNCXBySeries("Series")
             if self.opts.generate_recently_added:
                 self.generateNCXByDateAdded("Recently Added")
                 if self.generateRecentlyRead:
@@ -1571,13 +1589,26 @@ class EPUB_MOBI(CatalogPlugin):
                 emTag = Tag(soup, "em")
                 if title['series']:
                     # title<br />series series_index
-                    brTag = Tag(soup,'br')
-                    title_tokens = list(title['title'].partition(':'))
-                    emTag.insert(0, escape(NavigableString(title_tokens[2].strip())))
-                    emTag.insert(1, brTag)
-                    smallTag = Tag(soup,'small')
-                    smallTag.insert(0, escape(NavigableString(title_tokens[0])))
-                    emTag.insert(2, smallTag)
+                    if self.opts.generate_series:
+                        brTag = Tag(soup,'br')
+                        title_tokens = list(title['title'].partition(':'))
+                        emTag.insert(0, escape(NavigableString(title_tokens[2].strip())))
+                        emTag.insert(1, brTag)
+                        smallTag = Tag(soup,'small')
+                        aTag = Tag(soup,'a')
+                        aTag['href'] = "%s.html#%s_series" % ('BySeries',
+                                                       re.sub('\W','',title['series']).lower())
+                        aTag.insert(0, title_tokens[0])
+                        smallTag.insert(0, aTag)
+                        emTag.insert(2, smallTag)
+                    else:
+                        brTag = Tag(soup,'br')
+                        title_tokens = list(title['title'].partition(':'))
+                        emTag.insert(0, escape(NavigableString(title_tokens[2].strip())))
+                        emTag.insert(1, brTag)
+                        smallTag = Tag(soup,'small')
+                        smallTag.insert(0, escape(NavigableString(title_tokens[0])))
+                        emTag.insert(2, smallTag)
                 else:
                     emTag.insert(0, NavigableString(escape(title['title'])))
                 titleTag = body.find(attrs={'class':'title'})
@@ -1726,17 +1757,16 @@ class EPUB_MOBI(CatalogPlugin):
             body.insert(btc, aTag)
             btc += 1
 
-            '''
-            # We don't need this because the Kindle shows section titles
-            #<h2><a name="byalphatitle" id="byalphatitle"></a>By Title</h2>
-            h2Tag = Tag(soup, "h2")
-            aTag = Tag(soup, "a")
-            aTag['name'] = "bytitle"
-            h2Tag.insert(0,aTag)
-            h2Tag.insert(1,NavigableString('By Title (%d)' % len(self.booksByTitle)))
-            body.insert(btc,h2Tag)
-            btc += 1
-            '''
+            if not self.__generateForKindle:
+                # We don't need this because the Kindle shows section titles
+                #<h2><a name="byalphatitle" id="byalphatitle"></a>By Title</h2>
+                h2Tag = Tag(soup, "h2")
+                aTag = Tag(soup, "a")
+                aTag['name'] = "bytitle"
+                h2Tag.insert(0,aTag)
+                h2Tag.insert(1,NavigableString('By Title (%d)' % len(self.booksByTitle)))
+                body.insert(btc,h2Tag)
+                btc += 1
 
             # <p class="letter_index">
             # <p class="book_title">
@@ -1931,7 +1961,7 @@ class EPUB_MOBI(CatalogPlugin):
                     current_series = book['series']
                     pSeriesTag = Tag(soup,'p')
                     pSeriesTag['class'] = "series"
-                    pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + '%s Series' % book['series']))
+                    pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + '%s' % book['series']))
                     divTag.insert(dtc,pSeriesTag)
                     dtc += 1
                 if current_series and not book['series']:
@@ -1971,18 +2001,17 @@ class EPUB_MOBI(CatalogPlugin):
                 divTag.insert(dtc, pBookTag)
                 dtc += 1
 
-            '''
-            # Insert the <h2> tag with book_count at the head
-            #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
-            h2Tag = Tag(soup, "h2")
-            aTag = Tag(soup, "a")
-            anchor_name = friendly_name.lower()
-            aTag['name'] = anchor_name.replace(" ","")
-            h2Tag.insert(0,aTag)
-            h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, book_count)))
-            body.insert(btc,h2Tag)
-            btc += 1
-            '''
+            if not self.__generateForKindle:
+                # Insert the <h2> tag with book_count at the head
+                #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
+                h2Tag = Tag(soup, "h2")
+                aTag = Tag(soup, "a")
+                anchor_name = friendly_name.lower()
+                aTag['name'] = anchor_name.replace(" ","")
+                h2Tag.insert(0,aTag)
+                h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, book_count)))
+                body.insert(btc,h2Tag)
+                btc += 1
 
             # Add the divTag to the body
             body.insert(btc, divTag)
@@ -2048,7 +2077,7 @@ class EPUB_MOBI(CatalogPlugin):
                             current_series = new_entry['series']
                             pSeriesTag = Tag(soup,'p')
                             pSeriesTag['class'] = "series"
-                            pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + '%s Series' % new_entry['series']))
+                            pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + '%s' % new_entry['series']))
                             divTag.insert(dtc,pSeriesTag)
                             dtc += 1
                         if current_series and not new_entry['series']:
@@ -2162,18 +2191,17 @@ class EPUB_MOBI(CatalogPlugin):
             aTag['name'] = anchor_name.replace(" ","")
             body.insert(btc, aTag)
             btc += 1
-            '''
-            # We don't need this because the kindle inserts section titles
-            #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
-            h2Tag = Tag(soup, "h2")
-            aTag = Tag(soup, "a")
-            anchor_name = friendly_name.lower()
-            aTag['name'] = anchor_name.replace(" ","")
-            h2Tag.insert(0,aTag)
-            h2Tag.insert(1,NavigableString('%s' % friendly_name))
-            body.insert(btc,h2Tag)
-            btc += 1
-            '''
+
+            if not self.__generateForKindle:
+                #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
+                h2Tag = Tag(soup, "h2")
+                aTag = Tag(soup, "a")
+                anchor_name = friendly_name.lower()
+                aTag['name'] = anchor_name.replace(" ","")
+                h2Tag.insert(0,aTag)
+                h2Tag.insert(1,NavigableString('%s' % friendly_name))
+                body.insert(btc,h2Tag)
+                btc += 1
 
             # <p class="letter_index">
             # <p class="author_index">
@@ -2438,6 +2466,158 @@ class EPUB_MOBI(CatalogPlugin):
             outfile.write(soup.prettify())
             outfile.close()
             self.htmlFileList.append("content/ByDateRead.html")
+
+        def generateHTMLBySeries(self):
+            '''
+            Generate a list of series
+            '''
+            self.updateProgressFullStep("Fetching series")
+
+            self.opts.sort_by = 'series'
+
+            # Merge opts.exclude_tags with opts.search_text
+            # Updated to use exact match syntax
+            empty_exclude_tags = False if len(self.opts.exclude_tags) else True
+            search_phrase = 'series:true '
+            if not empty_exclude_tags:
+                exclude_tags = self.opts.exclude_tags.split(',')
+                search_terms = []
+                for tag in exclude_tags:
+                    search_terms.append("tag:=%s" % tag)
+                search_phrase += "not (%s)" % " or ".join(search_terms)
+
+            # If a list of ids are provided, don't use search_text
+            if self.opts.ids:
+                self.opts.search_text = search_phrase
+            else:
+                if self.opts.search_text:
+                    self.opts.search_text += " " + search_phrase
+                else:
+                    self.opts.search_text = search_phrase
+
+            # Fetch the database as a dictionary
+            self.booksBySeries = self.plugin.search_sort_db(self.db, self.opts)
+
+            for series_item in self.booksBySeries:
+                print ' %s %s %s' % (series_item['series'],series_item['series_index'],series_item['title'])
+
+            friendly_name = "By Series"
+
+            soup = self.generateHTMLEmptyHeader(friendly_name)
+            body = soup.find('body')
+
+            btc = 0
+
+            # Insert section tag
+            aTag = Tag(soup,'a')
+            aTag['name'] = 'section_start'
+            body.insert(btc, aTag)
+            btc += 1
+
+            # Insert the anchor
+            aTag = Tag(soup, "a")
+            anchor_name = friendly_name.lower()
+            aTag['name'] = anchor_name.replace(" ","")
+            body.insert(btc, aTag)
+            btc += 1
+
+            # <p class="letter_index">
+            # <p class="author_index">
+            divTag = Tag(soup, "div")
+            dtc = 0
+            current_letter = ""
+            current_series = None
+
+            # Loop through booksBySeries
+            series_count = 0
+            for book in self.booksBySeries:
+                # Check for initial letter change
+                sort_title = self.generateSortTitle(book['series'])
+                if self.letter_or_symbol(sort_title[0].upper()) != current_letter :
+                    '''
+                    # Start a new letter - anchor only, hidden
+                    current_letter = book['author_sort'][0].upper()
+                    aTag = Tag(soup, "a")
+                    aTag['name'] = "%sseries" % current_letter
+                    divTag.insert(dtc, aTag)
+                    dtc += 1
+                    '''
+                    # Start a new letter with Index letter
+                    current_letter = self.letter_or_symbol(sort_title[0].upper())
+                    pIndexTag = Tag(soup, "p")
+                    pIndexTag['class'] = "letter_index"
+                    aTag = Tag(soup, "a")
+                    aTag['name'] = "%s_series" % self.letter_or_symbol(current_letter)
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(self.letter_or_symbol(sort_title[0].upper())))
+                    divTag.insert(dtc,pIndexTag)
+                    dtc += 1
+
+                # Check for series change
+                if book['series'] != current_series:
+                    # Start a new series
+                    series_count += 1
+                    current_series = book['series']
+                    pSeriesTag = Tag(soup,'p')
+                    pSeriesTag['class'] = "series"
+                    aTag = Tag(soup, 'a')
+                    aTag['name'] = "%s_series" % re.sub('\W','',book['series']).lower()
+                    pSeriesTag.insert(0,aTag)
+                    pSeriesTag.insert(1,NavigableString(self.NOT_READ_SYMBOL + '%s' % book['series']))
+                    divTag.insert(dtc,pSeriesTag)
+                    dtc += 1
+
+                # Add books
+                pBookTag = Tag(soup, "p")
+                ptc = 0
+
+                #  book with read/reading/unread symbol
+                if 'read' in book and book['read']:
+                    # check mark
+                    pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                    pBookTag['class'] = "read_book"
+                    ptc += 1
+                elif book['id'] in self.bookmarked_books:
+                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
+                    pBookTag['class'] = "read_book"
+                    ptc += 1
+                else:
+                    # hidden check mark
+                    pBookTag['class'] = "unread_book"
+                    pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                    ptc += 1
+
+                aTag = Tag(soup, "a")
+                aTag['href'] = "book_%d.html" % (int(float(book['id'])))
+                # Use series, series index if avail else just title
+                aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
+                pBookTag.insert(ptc, aTag)
+                ptc += 1
+
+                divTag.insert(dtc, pBookTag)
+                dtc += 1
+
+            if not self.__generateForKindle:
+                # Insert the <h2> tag with book_count at the head
+                #<h2><a name="byseries" id="byseries"></a>By Series</h2>
+                h2Tag = Tag(soup, "h2")
+                aTag = Tag(soup, "a")
+                anchor_name = friendly_name.lower()
+                aTag['name'] = anchor_name.replace(" ","")
+                h2Tag.insert(0,aTag)
+                h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, series_count)))
+                body.insert(btc,h2Tag)
+                btc += 1
+
+            # Add the divTag to the body
+            body.insert(btc, divTag)
+
+            # Write the generated file to contentdir
+            outfile_spec = "%s/BySeries.html" % (self.contentDir)
+            outfile = open(outfile_spec, 'w')
+            outfile.write(soup.prettify())
+            outfile.close()
+            self.htmlFileList.append("content/BySeries.html")
 
         def generateHTMLByTags(self):
             # Generate individual HTML files for each tag, e.g. Fiction, Nonfiction ...
@@ -2883,6 +3063,98 @@ class EPUB_MOBI(CatalogPlugin):
             btc += 1
 
             self.ncxSoup = ncx_soup
+
+        def generateNCXBySeries(self, tocTitle):
+            self.updateProgressFullStep("NCX 'Series'")
+
+            def add_to_series_by_letter(current_series_list):
+                current_series_list = " &bull; ".join(current_series_list)
+                current_series_list = self.formatNCXText(current_series_list, dest="description")
+                series_by_letter.append(current_series_list)
+
+            soup = self.ncxSoup
+            output = "BySeries"
+            body = soup.find("navPoint")
+            btc = len(body.contents)
+
+            # --- Construct the 'Books By Series' section ---
+            navPointTag = Tag(soup, 'navPoint')
+            navPointTag['class'] = "section"
+            navPointTag['id'] = "byseries-ID"
+            navPointTag['playOrder'] = self.playOrder
+            self.playOrder += 1
+            navLabelTag = Tag(soup, 'navLabel')
+            textTag = Tag(soup, 'text')
+            textTag.insert(0, NavigableString(tocTitle))
+            navLabelTag.insert(0, textTag)
+            nptc = 0
+            navPointTag.insert(nptc, navLabelTag)
+            nptc += 1
+            contentTag = Tag(soup,"content")
+            contentTag['src'] = "content/%s.html#section_start" % (output)
+            navPointTag.insert(nptc, contentTag)
+            nptc += 1
+
+            series_by_letter = []
+
+            # Loop over the series titles, find start of each letter, add description_preview_count books
+            # Special switch for using different title list
+            title_list = self.booksBySeries
+            current_letter = self.letter_or_symbol(title_list[0]['series'][0])
+            title_letters = [current_letter]
+            current_series_list = []
+            current_series = ""
+            for book in title_list:
+                sort_title = self.generateSortTitle(book['series'])
+                if self.letter_or_symbol(sort_title[0]) != current_letter:
+                    # Save the old list
+                    add_to_series_by_letter(current_series_list)
+
+                    # Start the new list
+                    current_letter = self.letter_or_symbol(sort_title[0])
+                    title_letters.append(current_letter)
+                    current_series = book['series']
+                    current_series_list = [book['series']]
+                else:
+                    if len(current_series_list) < self.descriptionClip and \
+                       book['series'] != current_series :
+                        current_series = book['series']
+                        current_series_list.append(book['series'])
+
+            # Add the last book list
+            add_to_series_by_letter(current_series_list)
+
+            # Add *article* entries for each populated series title letter
+            for (i,books) in enumerate(series_by_letter):
+                navPointByLetterTag = Tag(soup, 'navPoint')
+                navPointByLetterTag['class'] = "article"
+                navPointByLetterTag['id'] = "%sSeries-ID" % (title_letters[i].upper())
+                navPointTag['playOrder'] = self.playOrder
+                self.playOrder += 1
+                navLabelTag = Tag(soup, 'navLabel')
+                textTag = Tag(soup, 'text')
+                textTag.insert(0, NavigableString(u"Series beginning with %s" % \
+                    (title_letters[i] if len(title_letters[i])>1 else "'" + title_letters[i] + "'")))
+                navLabelTag.insert(0, textTag)
+                navPointByLetterTag.insert(0,navLabelTag)
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/%s.html#%s_series" % (output, title_letters[i])
+                navPointByLetterTag.insert(1,contentTag)
+
+                if self.generateForKindle:
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "description"
+                    cmTag.insert(0, NavigableString(self.formatNCXText(books, dest='description')))
+                    navPointByLetterTag.insert(2, cmTag)
+
+                navPointTag.insert(nptc, navPointByLetterTag)
+                nptc += 1
+
+            # Add this section to the body
+            body.insert(btc, navPointTag)
+            btc += 1
+
+            self.ncxSoup = soup
 
         def generateNCXByTitle(self, tocTitle):
             self.updateProgressFullStep("NCX 'Titles'")
@@ -3754,7 +4026,7 @@ class EPUB_MOBI(CatalogPlugin):
                     current_series = book['series']
                     pSeriesTag = Tag(soup,'p')
                     pSeriesTag['class'] = "series"
-                    pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + '%s Series' % book['series']))
+                    pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + '%s' % book['series']))
                     divTag.insert(dtc,pSeriesTag)
                     dtc += 1
 

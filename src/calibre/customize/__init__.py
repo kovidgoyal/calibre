@@ -294,7 +294,7 @@ class CatalogPlugin(Plugin): # {{{
         # Return a list of requested fields, with opts.sort_by first
         all_fields = set(
                           ['author_sort','authors','comments','cover','formats',
-                           'id','isbn','pubdate','publisher','rating',
+                           'id','isbn','ondevice','pubdate','publisher','rating',
                            'series_index','series','size','tags','timestamp',
                            'title','uuid'])
 
@@ -305,6 +305,9 @@ class CatalogPlugin(Plugin): # {{{
             fields = list(all_fields & requested_fields)
         else:
             fields = list(all_fields)
+
+        if not opts.connected_device['is_device_connected'] and 'ondevice' in fields:
+            fields.pop(int(fields.index('ondevice')))
 
         fields.sort()
         if opts.sort_by and opts.sort_by in fields:
