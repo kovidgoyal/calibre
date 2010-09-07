@@ -1393,10 +1393,12 @@ class DeviceMixin(object): # {{{
                 self.db_book_uuid_cache[mi.uuid] = mi
 
         # Now iterate through all the books on the device, setting the
-        # in_library field Fastest and most accurate key is the uuid. Second is
+        # in_library field. Fastest and most accurate key is the uuid. Second is
         # the application_id, which is really the db key, but as this can
         # accidentally match across libraries we also verify the title. The
-        # db_id exists on Sony devices. Fallback is title and author match
+        # db_id exists on Sony devices. Fallback is title and author match.
+        # We set the application ID so that we can reproduce book matching,
+        # necessary for identifying copies of books.
 
         update_metadata = prefs['manage_device_metadata'] == 'on_connect'
         for booklist in booklists:
@@ -1418,12 +1420,15 @@ class DeviceMixin(object): # {{{
                 if d is not None:
                     if getattr(book, 'application_id', None) in d['db_ids']:
                         book.in_library = True
+                        # application already matches db_id, so no need to set it
                         if update_metadata:
                             book.smart_update(d['db_ids'][book.application_id],
                                               replace_metadata=True)
                         continue
                     if book.db_id in d['db_ids']:
                         book.in_library = True
+                        book.application_id = \
+                            d['db_ids'][book.db_id].application_id
                         if update_metadata:
                             book.smart_update(d['db_ids'][book.db_id],
                                               replace_metadata=True)
@@ -1435,11 +1440,15 @@ class DeviceMixin(object): # {{{
                         book_authors = re.sub('(?u)\W|[_]', '', book_authors)
                         if book_authors in d['authors']:
                             book.in_library = True
+                            book.application_id = \
+                                d['authors'][book_authors].application_id
                             if update_metadata:
                                 book.smart_update(d['authors'][book_authors],
                                                   replace_metadata=True)
                         elif book_authors in d['author_sort']:
                             book.in_library = True
+                            book.application_id = \
+                                d['author_sort'][book_authors].application_id
                             if update_metadata:
                                 book.smart_update(d['author_sort'][book_authors],
                                                   replace_metadata=True)
