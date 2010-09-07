@@ -63,7 +63,7 @@ class ConfigWidgetInterface(object):
         Save any changed settings. Return True if the changes require a
         restart, False otherwise. Raise an :class:`AbortCommit` exception
         to indicate that an error occurred. You are responsible for giving the
-        suer feedback about what the error is and how to correct it.
+        user feedback about what the error is and how to correct it.
         '''
         return False
 
