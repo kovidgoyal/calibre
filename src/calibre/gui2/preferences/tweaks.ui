@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label_18">
      <property name="text">
-      <string>Values for the tweaks are shown below. Edit them to change the behavior of calibre</string>
+      <string>Values for the tweaks are shown below. Edit them to change the behavior of calibre. Your changes will only take effect after a restart of calibre.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

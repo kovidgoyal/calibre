@@ -28,7 +28,7 @@ Command Line Interface
 
 .. image:: ../images/cli.png
 
-On OS X you have to go to Preferences->Advanced and click install command line
+On OS X you have to go to Preferences->Advanced->Miscellaneous and click install command line
 tools to make the command line tools available.  On other platforms, just start
 a terminal and type the command.
 

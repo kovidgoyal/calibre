@@ -173,3 +173,11 @@ Preferences Plugins
    :members:
    :member-order: bysource
 
+.. autoclass:: calibre.gui2.preferences.ConfigWidgetInterface
+   :members:
+   :member-order: bysource
+
+.. autoclass:: calibre.gui2.preferences.ConfigWidgetBase
+   :members:
+   :member-order: bysource
+

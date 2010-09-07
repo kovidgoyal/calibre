@@ -20,21 +20,46 @@ class ConfigWidgetInterface(object):
 
     '''
     This class defines the interface that all widgets displayed in the
-    Preferences dialog must implement. To create a plugin for a new
+    Preferences dialog must implement. See :class:`ConfigWidgetBase` for
+    a base class that implements this interface and defines various conveninece
+    methods as well.
     '''
 
+    #: This signal must be emitted whenever the user changes a value in this
+    #: widget
     changed_signal = None
+
+    #: Set to True iff the :meth:`restore_to_defaults` method is implemented.
     supports_restoring_to_defaults = True
+
+    #: The tooltip for the Restore to defaults button
     restore_defaults_desc = _('Restore settings to default values. '
             'You have to click Apply to actually save the default settings.')
 
+    #: If True the Preferences dialog will not allow the user to set any more
+    #: preferences. Only has effect if :meth:`commit` returns True.
+    restart_critical = False
+
     def genesis(self, gui):
+        '''
+        Called once before the widget is displayed, should perform any
+        necessary setup.
+
+        :param gui: The main calibre graphical user interface
+        '''
         raise NotImplementedError()
 
     def initialize(self):
+        '''
+        Should set all config values to their initial values (the values
+        stored in the config files).
+        '''
         raise NotImplementedError()
 
     def restore_defaults(self):
+        '''
+        Should set all config values to their defaults.
+        '''
         pass
 
     def commit(self):
@@ -42,11 +67,17 @@ class ConfigWidgetInterface(object):
         Save any changed settings. Return True if the changes require a
         restart, False otherwise. Raise an :class:`AbortCommit` exception
         to indicate that an error occurred. You are responsible for giving the
-        suer feedback about what the error is and how to correct it.
+        user feedback about what the error is and how to correct it.
         '''
         return False
 
     def refresh_gui(self, gui):
+        '''
+        Called once after this widget is committed. Responsible for causing the
+        gui to reread any changed settings. Note that by default the GUI
+        re-initializes various elements anyway, so most widgets won't need to
+        use this method.
+        '''
         pass
 
 class Setting(object):
@@ -175,8 +206,23 @@ class CommaSeparatedList(Setting):
 
 class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
 
+    '''
+    Base class that contains code to easily add standard config widgets like
+    checkboxes, combo boxes, text fields and so on. See the :meth:`register`
+    method.
+
+    This class automatically handles change notification, resetting to default,
+    translation between gui objects and config objects, etc. for registered
+    settings.
+
+    If your config widget inherits from this class but includes setting that
+    are not registered, you should override the :class:`ConfigWidgetInterface` methods
+    and call the base class methods inside the overrides.
+    '''
+
     changed_signal = pyqtSignal()
     supports_restoring_to_defaults = True
+    restart_critical = False
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -186,6 +232,21 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
 
     def register(self, name, config_obj, gui_name=None, choices=None,
             restart_required=False, empty_string_is_None=True, setting=Setting):
+        '''
+        Register a setting.
+
+        :param name: The setting name
+        :param config: The config object that reads/writes the setting
+        :param gui_name: The name of the GUI object that presents an interface
+                         to change the setting. By default it is assumed to be
+                         ``'opt_' + name``.
+        :param choices: If this setting is a multiple choice (combobox) based
+                        setting, the list of choices. The list is a list of two
+                        element tuples of the form: ``[(gui name, value), ...]``
+        :param setting: The class responsible for managing this setting. The
+                        default class handles almost all cases, so this param
+                        is rarely used.
+        '''
         setting = setting(name, config_obj, self, gui_name=gui_name,
                 choices=choices, restart_required=restart_required,
                 empty_string_is_None=empty_string_is_None)

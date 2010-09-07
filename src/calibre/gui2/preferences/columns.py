@@ -16,6 +16,8 @@ from calibre.gui2 import error_dialog, question_dialog, ALL_COLUMNS
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
+    restart_critical = True
+
     def genesis(self, gui):
         self.gui = gui
         db = self.gui.library_view.model().db
