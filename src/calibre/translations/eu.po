@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-05 23:43+0000\n"
-"PO-Revision-Date: 2010-09-04 23:37+0000\n"
-"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
+"PO-Revision-Date: 2010-09-06 22:12+0000\n"
+"Last-Translator: Unai <Unknown>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-06 04:57+0000\n"
+"X-Launchpad-Export-Date: 2010-09-07 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -280,7 +280,7 @@ msgstr "Jokabidea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:700
 msgid "Change the way calibre behaves"
-msgstr ""
+msgstr "Calibre-ren jokatzeko era aldatu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:705
 msgid "Add your own columns"
@@ -288,17 +288,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:711
 msgid "Add/remove your own columns to the calibre book list"
-msgstr ""
+msgstr "Calibre-ren liburu zerrendan zuk egindako zutabeak gehitu/ezabatu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:716
 msgid "Customize the toolbar"
-msgstr ""
+msgstr "Tresna-barra pertsonalizatu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:722
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
+"Tresna-barra eta kontextuaren araberako menuak pertsonalizatu, bakoitzean "
+"aukeragarri agertuko diren ekintzak aldatuz."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:728
 msgid "Input Options"
@@ -316,11 +318,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:739
 msgid "Common Options"
-msgstr ""
+msgstr "Aukera komunak"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Set conversion options common to all formats"
-msgstr ""
+msgstr "Formatu guztientzako eraldatze aukera komunak ezartzea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Output Options"
@@ -343,10 +345,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
+"Liburuak gehitzean, calibre-k fitxategietako metadatuak zelan irakurriko "
+"dituen kontrolatzea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:773
 msgid "Saving books to disk"
-msgstr ""
+msgstr "Liburuak diskan gordetzen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:779
 msgid ""
@@ -361,21 +365,25 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Control how calibre transfers files to your ebook reader"
 msgstr ""
+"calibre-k zure liburu elektronikoen irakurgailura fitxategiak zelan igaroko "
+"dituen kontrolatzen du"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 msgid "Sharing books by email"
-msgstr ""
+msgstr "elektropostaz liburuak elkarbanatzea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:799
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:811
 msgid "Sharing"
-msgstr ""
+msgstr "Elkarbanatzea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:803
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
+"Elektropostaz liburuak elkarbanatzea arautzen du. Saretik jaitsitako "
+"albisteak norbere gailuetara automatikoki bidaltzeko erabil daiteke"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid "Sharing over the net"
@@ -386,6 +394,9 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"Calibre-ren edukin zerbitzaria arautu, zeinak calibreren liburutegira "
+"interneten bidezko sarbidea emango dizun edozein lekutan eta edozein "
+"gailuren bidez"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
 msgid "Plugins"
@@ -411,7 +422,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:845
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Denetarik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:851
 msgid "Miscellaneous advanced configuration"
@@ -8227,6 +8238,8 @@ msgid ""
 "Restore settings to default values. You have to click Apply to actually save "
 "the default settings."
 msgstr ""
+"Ezarpenak programaren berezko balioetara bueltatzea. \"Aplikatu\" klikatu "
+"behar da, ezarpen lehenetsiak egitan berreskuratzeko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:49
 msgid ""
@@ -8445,6 +8458,8 @@ msgid ""
 "Restore settings to default values. Only settings for the currently selected "
 "section are restored."
 msgstr ""
+"Ezarpenak programaren berezko balioetara bueltatzea. Orain hautatuta dagoen "
+"ataleko ezarpenak baino ez dira aldatuko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:19
 msgid "Text, column shown in the tag browser"
@@ -8759,7 +8774,7 @@ msgstr "Erakutsi &testua ikonoen azpian:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:172
 msgid "&Apply"
-msgstr ""
+msgstr "&Aplikatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:175
 msgid "&Cancel"
@@ -8771,11 +8786,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:185
 msgid "Save changes"
-msgstr ""
+msgstr "Aldaketak gorde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:186
 msgid "Cancel and return to overview"
-msgstr ""
+msgstr "Bertanbehera utzi eta ikuspegi orokorrera itzuli"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:221
 msgid "Restoring to defaults not supported for"
@@ -8784,7 +8799,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:247
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
 msgid "Restart needed"
-msgstr ""
+msgstr "berrabiaraztea beharrezkoa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:248
 msgid ""
