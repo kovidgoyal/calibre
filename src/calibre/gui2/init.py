@@ -32,6 +32,9 @@ class LibraryViewMixin(object): # {{{
 
     def __init__(self, db):
         self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.QueuedConnection)
+        self.library_view.add_column_signal.connect(partial(self.iactions['Preferences'].do_config,
+            initial_plugin=('Interface', 'Custom Columns')),
+                type=Qt.QueuedConnection)
         for func, args in [
                              ('connect_to_search_box', (self.search,
                                  self.search_done)),
