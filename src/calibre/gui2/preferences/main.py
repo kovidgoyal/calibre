@@ -33,18 +33,13 @@ class StatusBar(QStatusBar): # {{{
         self._font.setBold(True)
         self.setFont(self._font)
 
-        self.messageChanged.connect(self.message_changed,
-                type=Qt.QueuedConnection)
-        self.message_changed('')
-
-    def message_changed(self, msg):
-        if not msg or msg.isEmpty() or msg.isNull() or \
-                not unicode(msg).strip():
-            self.showMessage(self.default_message)
+        self.w = QLabel(self.default_message)
+        self.w.setFont(self._font)
+        self.addWidget(self.w)
 
 # }}}
 
-class BarTitle(QWidget):
+class BarTitle(QWidget): # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -69,6 +64,8 @@ class BarTitle(QWidget):
         tt = textwrap.fill(tt)
         self.setToolTip(tt)
         self.setWhatsThis(tt)
+
+# }}}
 
 class Category(QWidget): # {{{
 
