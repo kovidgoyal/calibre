@@ -646,7 +646,7 @@
                     <item>
                      <widget class="QPushButton" name="fetch_cover_button">
                       <property name="text">
-                       <string>Download &amp;cover</string>
+                       <string>Download co&amp;ver</string>
                       </property>
                      </widget>
                     </item>

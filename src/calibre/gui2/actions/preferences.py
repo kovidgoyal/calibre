@@ -42,15 +42,4 @@ class PreferencesAction(InterfaceAction):
         d = Preferences(self.gui, initial_plugin=initial_plugin)
         d.show()
 
-        if d.committed:
-            self.gui.must_restart_before_config = d.must_restart
-            self.gui.tags_view.set_new_model() # in case columns changed
-            self.gui.tags_view.recount()
-            self.gui.create_device_menu()
-            self.gui.set_device_menu_items_state(bool(self.gui.device_connected))
-            self.gui.tool_bar.build_bar()
-            self.gui.build_context_menus()
-            self.gui.tool_bar.apply_settings()
-
-
 

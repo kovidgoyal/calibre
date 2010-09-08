@@ -9,7 +9,7 @@ import os
 from functools import partial
 
 from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
-    QModelIndex
+    QModelIndex, QIcon
 
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
@@ -23,6 +23,7 @@ from calibre.gui2.library import DEFAULT_SORT
 class BooksView(QTableView): # {{{
 
     files_dropped = pyqtSignal(object)
+    add_column_signal = pyqtSignal()
 
     def __init__(self, parent, modelcls=BooksModel):
         QTableView.__init__(self, parent)
@@ -54,6 +55,7 @@ class BooksView(QTableView): # {{{
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
 
         # {{{ Column Header setup
+        self.can_add_columns = True
         self.was_restored = False
         self.column_header = self.horizontalHeader()
         self.column_header.setMovable(True)
@@ -93,6 +95,8 @@ class BooksView(QTableView): # {{{
             self.sortByColumn(idx, Qt.DescendingOrder)
         elif action == 'defaults':
             self.apply_state(self.get_default_state())
+        elif action == 'addcustcol':
+            self.add_column_signal.emit()
         elif action.startswith('align_'):
             alignment = action.partition('_')[-1]
             self._model.change_alignment(column, alignment)
@@ -165,6 +169,13 @@ class BooksView(QTableView): # {{{
                     _('Restore default layout'),
                     partial(self.column_header_context_handler,
                         action='defaults', column=col))
+
+            if self.can_add_columns:
+                self.column_header_context_menu.addAction(
+                        QIcon(I('column.png')),
+                        _('Add your own columns'),
+                        partial(self.column_header_context_handler,
+                            action='addcustcol', column=col))
 
             self.column_header_context_menu.popup(self.column_header.mapToGlobal(pos))
     # }}}
@@ -494,6 +505,7 @@ class DeviceBooksView(BooksView): # {{{
 
     def __init__(self, parent):
         BooksView.__init__(self, parent, DeviceBooksModel)
+        self.can_add_columns = False
         self.columns_resized = False
         self.resize_on_select = False
         self.rating_delegate = None
