@@ -22,7 +22,7 @@ p.author_index {
 	font-weight:bold;
 	text-align:left;
 	margin-top:0px;
-	margin-bottom:0px;
+	margin-bottom:-2px;
 	text-indent: 0em;
 	}
 
@@ -58,10 +58,10 @@ p.letter_index {
 
 p.series {
 	font-style:italic;
-	margin-top:0px;
+	margin-top:2px;
 	margin-bottom:0px;
 	margin-left:2em;
-	text-align: left;
+	text-align:left;
 	text-indent:-2em;
 	}
 
@@ -89,13 +89,13 @@ p.date_read {
 	text-indent:-6em;
 	}
 
-hr.series_divider {
-	border-style:solid;
-	border-width:thin;
-	width:50%;
-	margin-left:1em;
-	margin-top:0em;
-	margin-bottom:0em;
+hr.description_divider {
+	width:90%;
+	margin-left:5%;
+	border-top: solid white 0px;
+	border-right: solid white 0px;
+    border-bottom: solid black 1px;
+    border-left: solid white 0px;
 	}
 
 hr.annotations_divider {
