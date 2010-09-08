@@ -26,14 +26,18 @@ class GenerateCatalogAction(InterfaceAction):
             rows = xrange(self.gui.library_view.model().rowCount(QModelIndex()))
         ids = map(self.gui.library_view.model().id, rows)
 
-        dbspec = None
         if not ids:
             return error_dialog(self.gui, _('No books selected'),
                     _('No books selected to generate catalog for'),
                     show=True)
 
+		db = self.gui.library_view.model().db
+		dbspec = {}
+		for id in ids:
+			dbspec[id] = {'ondevice': db.ondevice(id, index_is_id=True)}
+
         # Calling gui2.tools:generate_catalog()
-        ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager.device)
+        ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager)
         if ret is None:
             return
 
