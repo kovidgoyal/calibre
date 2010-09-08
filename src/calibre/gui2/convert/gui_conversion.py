@@ -29,6 +29,7 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, conne
         log = Log()
     from calibre.library import db
     db = db()
+    db.catalog_plugin_on_device_temp_mapping = dbspec
 
     # Create a minimal OptionParser that we can append to
     parser = OptionParser()
