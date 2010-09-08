@@ -47,7 +47,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     det_msg=traceback.format_exc(), show=True)
             raise AbortCommit('abort')
         write_tweaks(raw)
-        return ConfigWidgetBase.commit(self)
+        ConfigWidgetBase.commit(self)
+        return True
 
 
 if __name__ == '__main__':

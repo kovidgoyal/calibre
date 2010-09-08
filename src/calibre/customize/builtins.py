@@ -461,7 +461,7 @@ from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS
 from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN
+from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, GEMEI
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
@@ -570,6 +570,7 @@ plugins += [
     KOGAN,
     PDNOVEL,
     SPECTRA,
+    GEMEI,
     ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \

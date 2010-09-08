@@ -62,7 +62,7 @@ How do I convert my file containing non-English characters, or smart quotes?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 There are two aspects to this problem:
   1. Knowing the encoding of the source file: |app| tries to guess what character encoding your source files use, but often, this is impossible, so you need to tell it what encoding to use. This can be done in the GUI via the :guilabel:`Input character encoding` field in the :guilabel:`Look & Feel` section. The command-line tools all have an :option:`--input-encoding` option.
-  2. When adding HTML files to |app|, you may need to tell |app| what encoding the files are in. To do this go to Preferences->Plugins->File Type plugins and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. Now when you add HTML files to |app| they will be correctly processed. HTML files from different sources often have different encodings, so you may have to change this setting repeatedly. A common encoding for many files from the web is ``cp1252`` and I would suggest you try that first. Note that when converting HTML files, leave the input encoding setting mentioned above blank. This is because the HTML2ZIP plugin automatically converts the HTML files to a standard encoding (utf-8).
+  2. When adding HTML files to |app|, you may need to tell |app| what encoding the files are in. To do this go to :guilabel:`Preferences->Advanced->Plugins->File Type plugins` and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. Now when you add HTML files to |app| they will be correctly processed. HTML files from different sources often have different encodings, so you may have to change this setting repeatedly. A common encoding for many files from the web is ``cp1252`` and I would suggest you try that first. Note that when converting HTML files, leave the input encoding setting mentioned above blank. This is because the HTML2ZIP plugin automatically converts the HTML files to a standard encoding (utf-8).
   3. Embedding fonts: If you are generating an LRF file to read on your SONY Reader, you are limited by the fact that the Reader only supports a few non-English characters in the fonts it comes pre-loaded with. You can work around this problem by embedding a unicode-aware font that supports the character set your file uses into the LRF file. You should embed atleast a serif and a sans-serif font. Be aware that embedding fonts significantly slows down page-turn speed on the reader.
 
 
@@ -92,7 +92,7 @@ We just need some information from you:
   * What e-book formats does your device support?
   * Is there a special directory on the device in which all e-book files should be placed?
   * We also need information about your device that |app| will collect automatically. First, if your
-    device supports SD cards, insert them. Then connect your device. In calibre go to Preferences->Advanced
+    device supports SD cards, insert them. Then connect your device. In calibre go to :guilabel:`Preferences->Advanced->Miscellaneous`
     and click the "Debug device detection" button. This will create some debug output. Copy it to a file
     and repeat the process, this time with your device disconnected.
   * Send both the above outputs to us with the other information and we will write a device driver for your
@@ -109,11 +109,11 @@ of which books are members are shown on the device view.
 
 When you send a book to the reader, |app| will add the book to collections based on the metadata for that book. By
 default, collections are created from tags and series. You can control what metadata is used by going to
-Preferences->Plugins->Device Interface plugins and customizing the SONY device interface plugin. If you remove all
+:guilabel:`Preferences->Advanced->Plugins->Device Interface plugins` and customizing the SONY device interface plugin. If you remove all
 values, |app| will not add the book to any collection.
 
 Collection management is largely controlled by the 'Metadata management' option found at
-Preferences->Add/Save->Sending to device. If set to 'Manual' (the default), managing collections is left to
+:guilabel:`Preferences->Import/Export->Sending books to devices`. If set to 'Manual' (the default), managing collections is left to
 the user; |app| will not delete already existing collections for a book on your reader when you resend the
 book to the reader, but |app| will add the book to collections if necessary.  To ensure that the collections
 for a book are based only on current |app| metadata, first delete the books from the reader, then resend the
@@ -185,8 +185,8 @@ The easiest way to browse your |app| collection on your Apple device (iPad/iPhon
 
 First perform the following steps in |app|
 
-  * Set the Preferred Output Format in |app| to EPUB (The output format can be set under Preferences->General)
-  * Set the output profile to iPad (this will work for iPhone/iPods as well), under Preferences->Conversion->Page Setup
+  * Set the Preferred Output Format in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
+  * Set the output profile to iPad (this will work for iPhone/iPods as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
   * Convert the books you want to read on your iPhone to EPUB format by selecting them and clicking the Convert button.
   * Turn on the Content Server in |app|'s preferences and leave |app| running.
 
@@ -217,7 +217,7 @@ Can I access my |app| books using the web browser in my Kindle or other reading 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |app| has a *Content Server* that exports the books in |app| as a web page. You can turn it on under
-Preferences->Content Server. Then just point the web browser on your device to the computer running
+:guilabel:`Preferences->Network->Sharing over the net`. Then just point the web browser on your device to the computer running
 the Content Server and you will be able to browse your book collection. For example, if the computer running
 the server has IP address 63.45.128.5, in the browser, you would type::
 
@@ -277,14 +277,14 @@ In |app|, you would instead use tags to mark genre and read status and then just
 
 Why doesn't |app| have a column for foo?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| is designed to have columns for the most frequently and widely used fields. In addition, you can add any columns you like. Columns can be added via Preferences->Interface.
+|app| is designed to have columns for the most frequently and widely used fields. In addition, you can add any columns you like. Columns can be added via :guilabel:`Preferences->Interface->Add your own columns`.
 Watch the tutorial `UI Power tips <http://calibre-ebook.com/demo#tutorials>`_ to learn how to create your own columns.
 
 How do I move my |app| library from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder.
 
-Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also go to Preferences->Advanced and click the Check database integrity button. It will warn you about missing files, if any, which you should then transfer by hand.
+Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also go to :guilabel:`Preferences->Advanced->Miscellaneous` and click the "Check database integrity button". It will warn you about missing files, if any, which you should then transfer by hand.
 
 
 Content From The Web

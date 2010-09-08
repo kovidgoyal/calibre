@@ -83,7 +83,7 @@ class ITUNES(DriverBase):
     '''
 
     name = 'Apple device interface'
-    gui_name = 'Apple device'
+    gui_name = _('Apple device')
     icon = I('devices/ipad.png')
     description    = _('Communicate with iTunes/iBooks.')
     supported_platforms = ['osx','windows']
@@ -2304,9 +2304,9 @@ class ITUNES(DriverBase):
             # Delete existing from Device|Books, add to self.update_list
             # for deletion from booklist[0] during add_books_to_metadata
             for book in self.cached_books:
-                if self.cached_books[book]['uuid'] == metadata.uuid   and \
-                   self.cached_books[book]['title'] == metadata.title and \
-                   self.cached_books[book]['author'] == metadata.authors[0]:
+                if self.cached_books[book]['uuid'] == metadata.uuid   or \
+                   (self.cached_books[book]['title'] == metadata.title and \
+                   self.cached_books[book]['author'] == metadata.authors[0]):
                     self.update_list.append(self.cached_books[book])
                     self._remove_from_device(self.cached_books[book])
                     if DEBUG:
@@ -2323,9 +2323,9 @@ class ITUNES(DriverBase):
             # Delete existing from Library|Books, add to self.update_list
             # for deletion from booklist[0] during add_books_to_metadata
             for book in self.cached_books:
-                if self.cached_books[book]['uuid'] == metadata.uuid   and \
-                   self.cached_books[book]['title'] == metadata.title and \
-                    self.cached_books[book]['author'] == metadata.authors[0]:
+                if self.cached_books[book]['uuid'] == metadata.uuid   or \
+                   (self.cached_books[book]['title'] == metadata.title and \
+                    self.cached_books[book]['author'] == metadata.authors[0]):
                     self.update_list.append(self.cached_books[book])
                     self._remove_from_iTunes(self.cached_books[book])
                     if DEBUG:
@@ -2489,7 +2489,7 @@ class ITUNES(DriverBase):
             zf_opf.close()
 
             # If 'News' in tags, tweak the title/author for friendlier display in iBooks
-            if _('News') in metadata.tags:
+            if _('News') or _('Catalog') in metadata.tags:
                 if metadata.title.find('[') > 0:
                     metadata.title = metadata.title[:metadata.title.find('[')-1]
                 date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))

@@ -145,6 +145,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.initialize_dynamic()
 
     def initialize_dynamic(self):
+        self.field_metadata = FieldMetadata() #Ensure we start with a clean copy
         self.prefs = DBPrefs(self)
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
@@ -290,10 +291,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         # Reconstruct the user categories, putting them into field_metadata
         # Assumption is that someone else will fix them if they change.
+        self.field_metadata.remove_dynamic_categories()
         tb_cats = self.field_metadata
-        for k in tb_cats.keys():
-            if tb_cats[k]['kind'] in ['user', 'search']:
-                del tb_cats[k]
         for user_cat in sorted(self.prefs.get('user_categories', {}).keys()):
             cat_name = user_cat+':' # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
@@ -332,7 +331,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
-                     'title', 'timestamp', 'uuid', 'pubdate'):
+                     'title', 'timestamp', 'uuid', 'pubdate', 'ondevice'):
             setattr(self, prop, functools.partial(get_property,
                     loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
         setattr(self, 'title_sort', functools.partial(get_property,
@@ -647,16 +646,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def book_on_device_string(self, id):
         loc = []
+        count = 0
         on = self.book_on_device(id)
         if on is not None:
-            m, a, b = on
+            m, a, b, count = on
             if m is not None:
                 loc.append(_('Main'))
             if a is not None:
                 loc.append(_('Card A'))
             if b is not None:
                 loc.append(_('Card B'))
-        return ', '.join(loc)
+        return ', '.join(loc) + ((' (%s books)'%count) if count > 1 else '')
 
     def set_book_on_device_func(self, func):
         self.book_on_device_func = func
@@ -1155,7 +1155,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not authors:
             authors = [_('Unknown')]
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
-        self.conn.execute('DELETE FROM authors WHERE (SELECT COUNT(id) FROM books_authors_link WHERE author=authors.id) < 1')
         for a in authors:
             if not a:
                 continue
@@ -2181,8 +2180,6 @@ books_series_link      feeds
             os.remove(self.dbpath)
             shutil.copyfile(dest, self.dbpath)
             self.connect()
-            self.field_metadata.remove_dynamic_categories()
-            self.field_metadata.remove_custom_fields()
             self.initialize_dynamic()
             self.refresh()
         if os.path.exists(dest):
