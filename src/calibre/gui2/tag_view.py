@@ -424,10 +424,8 @@ class TagsModel(QAbstractItemModel): # {{{
         self.categories = []
 
         # Reconstruct the user categories, putting them into metadata
+        self.db.field_metadata.remove_dynamic_categories()
         tb_cats = self.db.field_metadata
-        for k in tb_cats.keys():
-            if tb_cats[k]['kind'] in ['user', 'search']:
-                del tb_cats[k]
         for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys()):
             cat_name = user_cat+':' # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)

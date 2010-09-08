@@ -576,6 +576,9 @@ def command_add_custom_column(args, dbpath):
         return 1
     do_add_custom_column(get_db(dbpath, opts), args[0], args[1], args[2],
             opts.is_multiple, json.loads(opts.display))
+    # Re-open the DB so that  field_metadata is reflects the column changes
+    db = get_db(dbpath, opts)
+    db.prefs['field_metadata'] = db.field_metadata.all_metadata()
     return 0
 
 def catalog_option_parser(args):
@@ -799,6 +802,9 @@ def command_remove_custom_column(args, dbpath):
         return 1
 
     do_remove_custom_column(get_db(dbpath, opts), args[0], opts.force)
+    # Re-open the DB so that  field_metadata is reflects the column changes
+    db = get_db(dbpath, opts)
+    db.prefs['field_metadata'] = db.field_metadata.all_metadata()
     return 0
 
 def saved_searches_option_parser():

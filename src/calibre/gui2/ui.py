@@ -523,11 +523,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
     def shutdown(self, write_settings=True):
         try:
-            cf = self.library_view.model().db.clean
+            db = self.library_view.model().db
+            cf = db.clean
         except:
             pass
         else:
             cf()
+            # Save the current field_metadata for applications like calibre2opds
+            # Goes here, because if cf is valid, db is valid.
+            db.field_metadata.remove_dynamic_categories()
+            db.prefs['field_metadata'] = db.field_metadata.all_metadata()
         for action in self.iactions.values():
             if not action.shutting_down():
                 return
