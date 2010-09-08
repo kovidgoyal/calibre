@@ -338,7 +338,11 @@ class Metadata(object):
             fmt('Published', isoformat(self.pubdate))
         if self.rights is not None:
             fmt('Rights', unicode(self.rights))
-        # TODO: NEWMETA: What to do about custom fields?
+        for key in self.user_metadata_keys:
+            val = self.get(key, None)
+            if val is not None:
+                (name, val) = self.format_custom_field(key)
+                fmt(name, unicode(val))
         return u'\n'.join(ans)
 
     def to_html(self):
