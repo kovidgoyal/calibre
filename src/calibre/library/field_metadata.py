@@ -371,6 +371,12 @@ class FieldMetadata(dict):
     def get_custom_fields(self):
         return [l for l in self._tb_cats if self._tb_cats[l]['is_custom']]
 
+    def all_metadata(self):
+        l = {}
+        for k in self._tb_cats:
+            l[k] = self._tb_cats[k]
+        return l
+
     def get_custom_field_metadata(self):
         l = {}
         for k in self._tb_cats:
@@ -407,6 +413,12 @@ class FieldMetadata(dict):
                                  'is_editable': False,}
             self._add_search_terms_to_map(key, [key])
             self.custom_label_to_key_map[label+'_index'] = key
+
+    def remove_dynamic_categories(self):
+        for key in list(self._tb_cats.keys()):
+            val = self._tb_cats[key]
+            if val['is_category'] and val['kind'] in ('user', 'search'):
+                del self._tb_cats[key]
 
     def cc_series_index_column_for(self, key):
         return self._tb_cats[key]['rec_index'] + 1
