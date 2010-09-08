@@ -531,7 +531,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             cf()
             # Save the current field_metadata for applications like calibre2opds
             # Goes here, because if cf is valid, db is valid.
-            db.field_metadata.remove_dynamic_categories()
             db.prefs['field_metadata'] = db.field_metadata.all_metadata()
         for action in self.iactions.values():
             if not action.shutting_down():
