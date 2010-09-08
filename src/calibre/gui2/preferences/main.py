@@ -13,7 +13,7 @@ from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
         QToolBar, QSize, pyqtSignal, QPixmap, QToolButton, QAction, \
         QDialogButtonBox, QHBoxLayout
 
-from calibre.constants import __appname__, __version__, islinux, isosx
+from calibre.constants import __appname__, __version__, islinux
 from calibre.gui2 import gprefs, min_available_height, available_width, \
     warning_dialog
 from calibre.gui2.preferences import init_gui, AbortCommit, get_plugin
@@ -33,18 +33,13 @@ class StatusBar(QStatusBar): # {{{
         self._font.setBold(True)
         self.setFont(self._font)
 
-        self.messageChanged.connect(self.message_changed,
-                type=Qt.QueuedConnection)
-        self.message_changed('')
-
-    def message_changed(self, msg):
-        if not msg or msg.isEmpty() or msg.isNull() or \
-                not unicode(msg).strip():
-            self.showMessage(self.default_message)
+        self.w = QLabel(self.default_message)
+        self.w.setFont(self._font)
+        self.addWidget(self.w)
 
 # }}}
 
-class BarTitle(QWidget):
+class BarTitle(QWidget): # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -69,6 +64,8 @@ class BarTitle(QWidget):
         tt = textwrap.fill(tt)
         self.setToolTip(tt)
         self.setWhatsThis(tt)
+
+# }}}
 
 class Category(QWidget): # {{{
 
@@ -164,7 +161,7 @@ class Preferences(QMainWindow):
         self.must_restart = False
         self.committed = False
 
-        self.resize(900, 760 if isosx else 710)
+        self.resize(900, 720)
         nh, nw = min_available_height()-25, available_width()-10
         if nh < 0:
             nh = 800
@@ -201,7 +198,6 @@ class Preferences(QMainWindow):
         self.cw.layout().addWidget(self.bb)
         self.bb.rejected.connect(self.close, type=Qt.QueuedConnection)
         self.setCentralWidget(self.cw)
-        self.bb.setVisible(isosx)
         self.browser = Browser(self)
         self.browser.show_plugin.connect(self.show_plugin)
         self.stack.addWidget(self.browser)
@@ -268,6 +264,7 @@ class Preferences(QMainWindow):
         self.bar_title.show_plugin(plugin)
         self.setWindowIcon(QIcon(plugin.icon))
         self.bar.setVisible(True)
+        self.bb.setVisible(False)
 
 
     def hide_plugin(self):
@@ -277,6 +274,7 @@ class Preferences(QMainWindow):
         self.bar.setVisible(False)
         self.stack.setCurrentIndex(0)
         self.setWindowIcon(QIcon(I('config.png')))
+        self.bb.setVisible(True)
 
     def esc(self, *args):
         if self.stack.currentIndex() == 1:
@@ -289,15 +287,24 @@ class Preferences(QMainWindow):
             must_restart = self.showing_widget.commit()
         except AbortCommit:
             return
+        rc = self.showing_widget.restart_critical
         self.committed = True
         if must_restart:
             self.must_restart = True
-            warning_dialog(self, _('Restart needed'),
-                    _('Some of the changes you made require a restart.'
-                        ' Please restart calibre as soon as possible.'),
-                    show=True, show_copy_button=False)
+            msg = _('Some of the changes you made require a restart.'
+                    ' Please restart calibre as soon as possible.')
+            if rc:
+                msg = _('The changes you have made require calibre be '
+                        'restarted immediately. You will not be allowed '
+                        'set any more preferences, until you restart.')
+
+
+            warning_dialog(self, _('Restart needed'), msg, show=True,
+                    show_copy_button=False)
         self.showing_widget.refresh_gui(self.gui)
         self.hide_plugin()
+        if must_restart and rc:
+            self.close()
 
 
     def cancel(self, *args):
@@ -309,6 +316,16 @@ class Preferences(QMainWindow):
     def closeEvent(self, *args):
         gprefs.set('preferences_window_geometry',
                 bytearray(self.saveGeometry()))
+        if self.committed:
+            self.gui.must_restart_before_config = self.must_restart
+            self.gui.tags_view.set_new_model() # in case columns changed
+            self.gui.tags_view.recount()
+            self.gui.create_device_menu()
+            self.gui.set_device_menu_items_state(bool(self.gui.device_connected))
+            self.gui.tool_bar.build_bar()
+            self.gui.build_context_menus()
+            self.gui.tool_bar.apply_settings()
+
         return QMainWindow.closeEvent(self, *args)
 
 if __name__ == '__main__':

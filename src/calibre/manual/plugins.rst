@@ -165,3 +165,19 @@ User Interface Actions
    :members:
    :member-order: bysource
 
+Preferences Plugins
+--------------------------
+
+.. autoclass:: calibre.customize.PreferencesPlugin
+   :show-inheritance:
+   :members:
+   :member-order: bysource
+
+.. autoclass:: calibre.gui2.preferences.ConfigWidgetInterface
+   :members:
+   :member-order: bysource
+
+.. autoclass:: calibre.gui2.preferences.ConfigWidgetBase
+   :members:
+   :member-order: bysource
+
