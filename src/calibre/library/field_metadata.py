@@ -371,6 +371,12 @@ class FieldMetadata(dict):
     def get_custom_fields(self):
         return [l for l in self._tb_cats if self._tb_cats[l]['is_custom']]
 
+    def all_metadata(self):
+        l = {}
+        for k in self._tb_cats:
+            l[k] = self._tb_cats[k]
+        return l
+
     def get_custom_field_metadata(self):
         l = {}
         for k in self._tb_cats:

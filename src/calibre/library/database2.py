@@ -338,6 +338,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         setattr(self, 'title_sort', functools.partial(get_property,
                 loc=self.FIELD_MAP['sort']))
 
+        # Save the current field_metadata for applications like calibre2opds
+        self.prefs['field_metadata'] = self.field_metadata.all_metadata()
+
     def initialize_database(self):
         metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
         self.conn.executescript(metadata_sqlite)
