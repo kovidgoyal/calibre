@@ -118,7 +118,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         to_lowercase=False):
     library_order = tweaks['save_template_title_series_sorting'] == 'library_order'
     tsfmt = title_sort if library_order else lambda x: x
-    format_args = dict(**FORMAT_ARGS)
+    format_args = FORMAT_ARGS.copy()
     format_args.update(mi.get_all_non_none_attributes())
     if mi.title:
         format_args['title'] = tsfmt(mi.title)
