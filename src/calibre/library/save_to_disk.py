@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, cStringIO, re
+import os, traceback, cStringIO, re, string
 
 from calibre.utils.config import Config, StringConfig, tweaks
 from calibre.utils.filenames import shorten_components_to, supports_long_names, \
@@ -98,17 +98,20 @@ def preprocess_template(template):
         template = template.decode(preferred_encoding, 'replace')
     return template
 
+class SafeFormat(string.Formatter):
+    '''
+    Provides a format function that substitutes '' for any missing value
+    '''
+    def get_value(self, key, args, kwargs):
+        try:
+            return kwargs[key]
+        except:
+            return ''
+safe_formatter = SafeFormat()
+
 def safe_format(x, format_args):
-    try:
-        ans = x.format(**format_args).strip()
-        return re.sub(r'\s+', ' ', ans)
-    except IndexError: # Thrown if user used [] and index is out of bounds
-        pass
-    except AttributeError: # Thrown if user used a non existing attribute
-        pass
-    except KeyError: # Thrown if user used custom field w/value None
-        pass
-    return ''
+    ans = safe_formatter.vformat(x, [], format_args).strip()
+    return re.sub(r'\s+', ' ', ans)
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,

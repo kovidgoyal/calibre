@@ -201,6 +201,11 @@ class Metadata(object):
         Merge the information in C{other} into self. In case of conflicts, the information
         in C{other} takes precedence, unless the information in other is NULL.
         '''
+        def copy_not_none(dest, src, attr):
+            v = getattr(src, attr, None)
+            if v is not None:
+                setattr(dest, attr, copy.deepcopy(v))
+
         if other.title and other.title != _('Unknown'):
             self.title = other.title
             if hasattr(other, 'title_sort'):
@@ -220,21 +225,19 @@ class Metadata(object):
             self.tags = other.tags
             self.cover_data = getattr(other, 'cover_data', '')
             self.set_all_user_metadata(other.get_all_user_metadata(make_copy=True))
-            self.comments = getattr(other, 'comments', '')
-            self.language = getattr(other, 'language', None)
-            lpath = getattr(other, 'lpath', None)
-            if lpath is not None:
-                self.lpath = lpath
+            copy_not_none(self, other, 'lpath')
+            copy_not_none(self, other, 'size')
+            copy_not_none(self, other, 'comments')
+            # language is handled below
         else:
             for attr in COPYABLE_METADATA_FIELDS:
                 if hasattr(other, attr):
+                    copy_not_none(self, other, attr)
                     val = getattr(other, attr)
                     if val is not None:
                         setattr(self, attr, copy.deepcopy(val))
-
             if other.tags:
                 self.tags += list(set(self.tags + other.tags))
-
             if getattr(other, 'cover_data', False):
                 other_cover = other.cover_data[-1]
                 self_cover = self.cover_data[-1] if self.cover_data else ''
@@ -242,13 +245,11 @@ class Metadata(object):
                 if not other_cover: other_cover = ''
                 if len(other_cover) > len(self_cover):
                     self.cover_data = other.cover_data
-
             if getattr(other, 'user_metadata_keys', None):
                 for x in other.user_metadata_keys:
                     meta = other.get_user_metadata(x, make_copy=True)
                     if meta is not None:
                         self.set_user_metadata(x, meta) # get... did the deepcopy
-
             my_comments = getattr(self, 'comments', '')
             other_comments = getattr(other, 'comments', '')
             if not my_comments:
@@ -257,10 +258,9 @@ class Metadata(object):
                 other_comments = ''
             if len(other_comments.strip()) > len(my_comments.strip()):
                 self.comments = other_comments
-
-            other_lang = getattr(other, 'language', None)
-            if other_lang and other_lang.lower() != 'und':
-                self.language = other_lang
+        other_lang = getattr(other, 'language', None)
+        if other_lang and other_lang.lower() != 'und':
+            self.language = other_lang
 
     def format_series_index(self, val=None):
         from calibre.ebooks.metadata import fmt_sidx
