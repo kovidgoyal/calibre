@@ -1365,13 +1365,10 @@ class DeviceMixin(object): # {{{
                 if mi.authors and \
                         re.sub('(?u)\W|[_]', '', authors_to_string(mi.authors).lower()) \
                         in cache['authors']:
-                    # We really shouldn't get here, because set_books_in_library
-                    # should have set the db_ids for the books, and therefore
-                    # the if just above should have found them. Mark the book
-                    # anyway, and print a message about the situation
+                    # If we get here, then two library books have the same title
+                    # and author. This can happen, especially in the case of
+                    # news. Mark a match and go on.
                     loc[i] = True
-                    prints('book_on_device: matched title/author but not db_id!',
-                            mi.title, authors_to_string(mi.authors))
                     continue
                 # Also check author sort, because it can be used as author in
                 # some formats
