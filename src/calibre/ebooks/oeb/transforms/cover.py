@@ -89,19 +89,22 @@ class CoverManager(object):
         '''
         Create a generic cover for books that dont have a cover
         '''
-        from calibre.ebooks.metadata import authors_to_string
+        from calibre.ebooks.metadata import authors_to_string, fmt_sidx
         if self.no_default_cover:
             return None
         self.log('Generating default cover')
         m = self.oeb.metadata
         title = unicode(m.title[0])
         authors = [unicode(x) for x in m.creator if x.role == 'aut']
+        series_string = None
+        if m.series and m.series_index:
+            series_string = _('Book %s of %s')%(
+                    fmt_sidx(m.series_index[0], use_roman=True), m.series[0])
 
         try:
-            from calibre.utils.magick.draw import create_cover_page, TextLine
-            lines = [TextLine(title, 44), TextLine(authors_to_string(authors),
-                32)]
-            img_data = create_cover_page(lines, I('library.png'))
+            from calibre.ebooks import calibre_cover
+            img_data = calibre_cover(title, authors_to_string(authors),
+                    series_string=series_string)
             id, href = self.oeb.manifest.generate('cover_image',
                     'cover_image.jpg')
             item = self.oeb.manifest.add(id, href, guess_type('t.jpg')[0],

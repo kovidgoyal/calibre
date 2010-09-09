@@ -2248,7 +2248,6 @@ class EPUB_MOBI(CatalogPlugin):
 
             date_range_list = []
             today_time = nowf().replace(hour=23, minute=59, second=59)
-            books_added_in_date_range = False
             for (i, date) in enumerate(self.DATE_RANGE):
                 date_range_limit = self.DATE_RANGE[i]
                 if i:
@@ -2261,7 +2260,6 @@ class EPUB_MOBI(CatalogPlugin):
                     delta = today_time-book_time
                     if delta.days <= date_range_limit:
                         date_range_list.append(book)
-                        books_added_in_date_range = True
                     else:
                         break
 
