@@ -1343,7 +1343,8 @@ class DeviceMixin(object): # {{{
                     if book_title not in self.book_db_title_cache[i]:
                         self.book_db_title_cache[i][book_title] = \
                                 {'authors':set(), 'db_ids':set(),
-                                 'uuids':set(), 'paths':set()}
+                                 'uuids':set(), 'paths':set(),
+                                 'uuid_in_library':False}
                     book_authors = clean_string(authors_to_string(book.authors))
                     self.book_db_title_cache[i][book_title]['authors'].add(book_authors)
                     db_id = getattr(book, 'application_id', None)
@@ -1359,6 +1360,9 @@ class DeviceMixin(object): # {{{
                     if uuid is not None:
                         self.book_db_uuid_cache[i].add(uuid)
                         self.book_db_uuid_path_map[uuid] = book.path
+                        if uuid in self.db_book_uuid_cache:
+                            self.book_db_title_cache[i][book_title]\
+                                    ['uuid_in_library'] = True
                     self.book_db_title_cache[i][book_title]['paths'].add(book.path)
 
         mi = self.library_view.model().db.get_metadata(id, index_is_id=True)
@@ -1370,7 +1374,7 @@ class DeviceMixin(object): # {{{
                 continue
             db_title = clean_string(mi.title)
             cache = self.book_db_title_cache[i].get(db_title, None)
-            if cache:
+            if cache and not cache['uuid_in_library']:
                 if id in cache['db_ids']:
                     loc[i] = True
                     loc[4] = 'db_id'
