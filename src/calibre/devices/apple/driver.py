@@ -82,7 +82,7 @@ class ITUNES(DriverBase):
     '''
 
     name = 'Apple device interface'
-    gui_name = 'Apple device'
+    gui_name = _('Apple device')
     icon = I('devices/ipad.png')
     description    = _('Communicate with iTunes/iBooks.')
     supported_platforms = ['osx','windows']

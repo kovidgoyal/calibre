@@ -215,6 +215,7 @@ class ToolBar(QToolBar): # {{{
         self.location_manager.locations_changed.connect(self.build_bar)
         donate.setAutoRaise(True)
         donate.setCursor(Qt.PointingHandCursor)
+        self.added_actions = []
         self.build_bar()
         self.preferred_width = self.sizeHint().width()
 
@@ -237,7 +238,13 @@ class ToolBar(QToolBar): # {{{
         actions = '-device' if showing_device else ''
         actions = gprefs['action-layout-toolbar'+actions]
 
+        for ac in self.added_actions:
+            m = ac.menu()
+            if m is not None:
+                m.setVisible(False)
+
         self.clear()
+        self.added_actions = []
 
         for what in actions:
             if what is None:
@@ -245,6 +252,7 @@ class ToolBar(QToolBar): # {{{
             elif what == 'Location Manager':
                 for ac in self.location_manager.available_actions:
                     self.addAction(ac)
+                    self.added_actions.append(ac)
                     self.setup_tool_button(ac, QToolButton.MenuButtonPopup)
             elif what == 'Donate':
                 self.d_widget = QWidget()
@@ -255,6 +263,7 @@ class ToolBar(QToolBar): # {{{
             elif what in self.gui.iactions:
                 action = self.gui.iactions[what]
                 self.addAction(action.qaction)
+                self.added_actions.append(action.qaction)
                 self.setup_tool_button(action.qaction, action.popup_type)
 
     def setup_tool_button(self, ac, menu_mode=None):
