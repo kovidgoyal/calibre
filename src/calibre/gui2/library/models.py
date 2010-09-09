@@ -323,7 +323,11 @@ class BooksModel(QAbstractTableModel): # {{{
             data[_('Series')] = \
                 _('Book <font face="serif">%s</font> of %s.')%\
                     (sidx, prepare_string_for_xml(series))
-
+        mi = self.db.get_metadata(idx)
+        for key in mi.user_metadata_keys:
+            name, val = mi.format_custom_field(key)
+            if val is not None:
+                data[name] = val
         return data
 
     def set_cache(self, idx):
@@ -372,7 +376,6 @@ class BooksModel(QAbstractTableModel): # {{{
         return ans
 
     def get_metadata(self, rows, rows_are_ids=False, full_metadata=False):
-        # Should this add the custom columns? It doesn't at the moment
         metadata, _full_metadata = [], []
         if not rows_are_ids:
             rows = [self.db.id(row.row()) for row in rows]
@@ -1053,7 +1056,7 @@ class DeviceBooksModel(BooksModel): # {{{
             if hasattr(cdata, 'image_path'):
                 img.load(cdata.image_path)
             else:
-                img.loadFromData(cdata)
+                img.loadFromData(cdata[2])
             if img.isNull():
                 img = self.default_image
             data['cover'] = img

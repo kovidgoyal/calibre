@@ -29,7 +29,7 @@ class MetadataSource(Plugin): # {{{
     future use.
 
     The fetch method must store the results in `self.results` as a list of
-    :class:`MetaInformation` objects. If there is an error, it should be stored
+    :class:`Metadata` objects. If there is an error, it should be stored
     in `self.exception` and `self.tb` (for the traceback).
     '''
 

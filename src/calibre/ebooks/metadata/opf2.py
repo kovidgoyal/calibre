@@ -16,7 +16,8 @@ from lxml import etree
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from calibre.ebooks.metadata import string_to_authors, MetaInformation
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang
 
@@ -926,16 +927,16 @@ class OPF(object):
                 setattr(self, attr, val)
 
 
-class OPFCreator(MetaInformation):
+class OPFCreator(Metadata):
 
-    def __init__(self, base_path, *args, **kwargs):
+    def __init__(self, base_path, other):
         '''
         Initialize.
         @param base_path: An absolute path to the directory in which this OPF file
         will eventually be. This is used by the L{create_manifest} method
         to convert paths to files into relative paths.
         '''
-        MetaInformation.__init__(self, *args, **kwargs)
+        Metadata.__init__(self, title='', other=other)
         self.base_path = os.path.abspath(base_path)
         if self.application_id is None:
             self.application_id = str(uuid.uuid4())
@@ -1187,7 +1188,7 @@ def metadata_to_opf(mi, as_string=True):
     factory(DC('contributor'), mi.book_producer, __appname__, 'bkp')
     if hasattr(mi.pubdate, 'isoformat'):
         factory(DC('date'), isoformat(mi.pubdate))
-    if mi.category:
+    if hasattr(mi, 'category') and mi.category:
         factory(DC('type'), mi.category)
     if mi.comments:
         factory(DC('description'), mi.comments)

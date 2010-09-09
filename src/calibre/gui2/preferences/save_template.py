@@ -8,10 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import QWidget, pyqtSignal
 
-from calibre.gui2 import error_dialog
 from calibre.gui2.preferences.save_template_ui import Ui_Form
-from calibre.library.save_to_disk import FORMAT_ARG_DESCS, \
-        preprocess_template
+from calibre.library.save_to_disk import FORMAT_ARG_DESCS
 
 class SaveTemplate(QWidget, Ui_Form):
 
@@ -41,18 +39,21 @@ class SaveTemplate(QWidget, Ui_Form):
         self.changed_signal.emit()
 
     def validate(self):
-        tmpl = preprocess_template(self.opt_template.text())
-        fa = {}
-        for x in FORMAT_ARG_DESCS.keys():
-            fa[x]='random long string'
-        try:
-            tmpl.format(**fa)
-        except Exception, err:
-            error_dialog(self, _('Invalid template'),
-                    '<p>'+_('The template %s is invalid:')%tmpl + \
-                    '<br>'+str(err), show=True)
-            return False
+        # TODO: NEWMETA: I haven't figured out how to get the custom columns
+        # into here, so for the moment make all templates valid.
         return True
+#        tmpl = preprocess_template(self.opt_template.text())
+#        fa = {}
+#        for x in FORMAT_ARG_DESCS.keys():
+#            fa[x]='random long string'
+#        try:
+#            tmpl.format(**fa)
+#        except Exception, err:
+#            error_dialog(self, _('Invalid template'),
+#                    '<p>'+_('The template %s is invalid:')%tmpl + \
+#                    '<br>'+str(err), show=True)
+#            return False
+#        return True
 
     def set_value(self, val):
         self.opt_template.set_value(val)

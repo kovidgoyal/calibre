@@ -28,6 +28,8 @@ WEIGHTS[_('Tags')] = 4
 
 def render_rows(data):
     keys = data.keys()
+    # First sort by name. The WEIGHTS sort will preserve this sub-order
+    keys.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
     keys.sort(cmp=lambda x, y: cmp(WEIGHTS[x], WEIGHTS[y]))
     rows = []
     for key in keys:
