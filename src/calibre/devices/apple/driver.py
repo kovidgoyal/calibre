@@ -2488,7 +2488,8 @@ class ITUNES(DriverBase):
             zf_opf.close()
 
             # If 'News' in tags, tweak the title/author for friendlier display in iBooks
-            if _('News') or _('Catalog') in metadata.tags:
+            if _('News') in metadata.tags or \
+               _('Catalog') in metadata.tags:
                 if metadata.title.find('[') > 0:
                     metadata.title = metadata.title[:metadata.title.find('[')-1]
                 date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
