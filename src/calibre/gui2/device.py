@@ -1308,35 +1308,43 @@ class DeviceMixin(object): # {{{
     def book_on_device(self, id, format=None, reset=False):
         '''
         Return an indication of whether the given book represented by its db id
-        is on the currently connected device. It returns a 4 element list. The
+        is on the currently connected device. It returns a 6 element list. The
         first three elements represent memory locations main, carda, and cardb,
         and are true if the book is identifiably in that memory. The fourth
-        is the a count of how many instances of the book were found across all
-        the memory locations.
+        is a count of how many instances of the book were found across all
+        the memory locations. The fifth is the type of match. The type can be
+        one of: None, 'uuid', 'db_id', 'metadata'. The sixth is a set of paths to the
+        matching books on the device.
         '''
-        loc = [None, None, None, 0]
+        loc = [None, None, None, 0, None, set([])]
 
         if reset:
             self.book_db_title_cache = None
             self.book_db_uuid_cache = None
             self.book_db_id_counts = None
+            self.book_db_uuid_path_map = None
             return
+
+        string_pat = re.compile('(?u)\W|[_]')
+        def clean_string(x):
+            x = x.lower() if x else ''
+            return string_pat.sub('', x)
 
         if self.book_db_title_cache is None:
             self.book_db_title_cache = []
             self.book_db_uuid_cache = []
+            self.book_db_uuid_path_map = {}
             self.book_db_id_counts = {}
             for i, l in enumerate(self.booklists()):
                 self.book_db_title_cache.append({})
                 self.book_db_uuid_cache.append(set())
                 for book in l:
-                    book_title = book.title.lower() if book.title else ''
-                    book_title = re.sub('(?u)\W|[_]', '', book_title)
+                    book_title = clean_string(book.title)
                     if book_title not in self.book_db_title_cache[i]:
                         self.book_db_title_cache[i][book_title] = \
-                                {'authors':set(), 'db_ids':set(), 'uuids':set()}
-                    book_authors = authors_to_string(book.authors).lower()
-                    book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+                                {'authors':set(), 'db_ids':set(),
+                                 'uuids':set(), 'paths':set()}
+                    book_authors = clean_string(authors_to_string(book.authors))
                     self.book_db_title_cache[i][book_title]['authors'].add(book_authors)
                     db_id = getattr(book, 'application_id', None)
                     if db_id is None:
@@ -1350,35 +1358,36 @@ class DeviceMixin(object): # {{{
                     uuid = getattr(book, 'uuid', None)
                     if uuid is not None:
                         self.book_db_uuid_cache[i].add(uuid)
+                        self.book_db_uuid_path_map[uuid] = book.path
+                    self.book_db_title_cache[i][book_title]['paths'].add(book.path)
 
         mi = self.library_view.model().db.get_metadata(id, index_is_id=True)
         for i, l in enumerate(self.booklists()):
             if mi.uuid in self.book_db_uuid_cache[i]:
                 loc[i] = True
+                loc[4] = 'uuid'
+                loc[5].add(self.book_db_uuid_path_map[mi.uuid])
                 continue
-            db_title = re.sub('(?u)\W|[_]', '', mi.title.lower())
+            db_title = clean_string(mi.title)
             cache = self.book_db_title_cache[i].get(db_title, None)
             if cache:
                 if id in cache['db_ids']:
                     loc[i] = True
+                    loc[4] = 'db_id'
+                    loc[5] = cache['paths']
                     continue
-                if mi.authors and \
-                        re.sub('(?u)\W|[_]', '', authors_to_string(mi.authors).lower()) \
-                        in cache['authors']:
+                # Also check author sort, because it can be used as author in
+                # some formats
+                if (mi.authors and clean_string(authors_to_string(mi.authors))
+                        in cache['authors']) or (mi.author_sort and
+                        clean_string(mi.author_sort) in cache['authors']):
                     # We really shouldn't get here, because set_books_in_library
                     # should have set the db_ids for the books, and therefore
                     # the if just above should have found them. Mark the book
                     # anyway, and print a message about the situation
                     loc[i] = True
-                    prints('book_on_device: matched title/author but not db_id!',
-                            mi.title, authors_to_string(mi.authors))
-                    continue
-                # Also check author sort, because it can be used as author in
-                # some formats
-                if mi.author_sort and \
-                        re.sub('(?u)\W|[_]', '', mi.author_sort.lower()) \
-                        in cache['authors']:
-                    loc[i] = True
+                    loc[4] = 'metadata'
+                    loc[5] = cache['paths']
                     continue
         loc[3] = self.book_db_id_counts.get(id, 0)
         return loc
@@ -1394,10 +1403,9 @@ class DeviceMixin(object): # {{{
         if reset or not hasattr(self, 'db_book_title_cache'):
             # It might be possible to get here without having initialized the
             # library view. In this case, simply give up
-            if not hasattr(self, 'library_view') or self.library_view is None:
-                return
-            db = getattr(self.library_view.model(), 'db', None)
-            if db is None:
+            try:
+                db = self.library_view.model().db
+            except:
                 return
             # Build a cache (map) of the library, so the search isn't On**2
             self.db_book_title_cache = {}
