@@ -1399,6 +1399,12 @@ class DeviceMixin(object): # {{{
         it sets the application_id for matched books. Book_on_device uses that
         to both speed up matching and to count matches.
         '''
+
+        string_pat = re.compile('(?u)\W|[_]')
+        def clean_string(x):
+            x = x.lower() if x else ''
+            return string_pat.sub('', x)
+
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
             # It might be possible to get here without having initialized the
@@ -1412,17 +1418,15 @@ class DeviceMixin(object): # {{{
             self.db_book_uuid_cache = {}
             for id in db.data.iterallids():
                 mi = db.get_metadata(id, index_is_id=True)
-                title = re.sub('(?u)\W|[_]', '', mi.title.lower())
+                title = clean_string(mi.title)
                 if title not in self.db_book_title_cache:
                     self.db_book_title_cache[title] = \
                                 {'authors':{}, 'author_sort':{}, 'db_ids':{}}
                 if mi.authors:
-                    authors = authors_to_string(mi.authors).lower()
-                    authors = re.sub('(?u)\W|[_]', '', authors)
+                    authors = clean_string(authors_to_string(mi.authors))
                     self.db_book_title_cache[title]['authors'][authors] = mi
                 if mi.author_sort:
-                    aus = mi.author_sort.lower()
-                    aus = re.sub('(?u)\W|[_]', '', aus)
+                    aus = clean_string(mi.author_sort)
                     self.db_book_title_cache[title]['author_sort'][aus] = mi
                 self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
                 self.db_book_uuid_cache[mi.uuid] = mi
@@ -1448,8 +1452,7 @@ class DeviceMixin(object): # {{{
                         self.db_book_uuid_cache[book.uuid].application_id
                     continue
 
-                book_title = book.title.lower() if book.title else ''
-                book_title = re.sub('(?u)\W|[_]', '', book_title)
+                book_title = clean_string(book.title)
                 book.in_library = None
                 d = self.db_book_title_cache.get(book_title, None)
                 if d is not None:
@@ -1471,8 +1474,7 @@ class DeviceMixin(object): # {{{
                     if book.authors:
                         # Compare against both author and author sort, because
                         # either can appear as the author
-                        book_authors = authors_to_string(book.authors).lower()
-                        book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+                        book_authors = clean_string(authors_to_string(book.authors))
                         if book_authors in d['authors']:
                             book.in_library = True
                             book.application_id = \
