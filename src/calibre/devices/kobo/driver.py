@@ -231,21 +231,9 @@ class KOBO(USBMS):
             path = self.normalize_path(path)
             # print "Delete file normalized path: " + path
             extension =  os.path.splitext(path)[1]
-
-            if extension == '.kobo':
-                # Kobo books do not have book files.  They do have some images though
-                #print "kobo book"
-                ContentType = 6
-                ContentID = self.contentid_from_path(path, ContentType)
-            elif extension == '.pdf' or extension == '.epub':
-                # print "ePub or pdf"
-                ContentType = 16
-                #print "Path: " + path
-                ContentID = self.contentid_from_path(path, ContentType)
-                # print "ContentID: " + ContentID
-            else: # if extension == '.html' or extension == '.txt':
-                ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
-                ContentID = self.contentid_from_path(path, ContentType)
+            ContentType = self.get_content_type_from_extension(extension)
+            
+            ContentID = self.contentid_from_path(path, ContentType)
 
             ImageID = self.delete_via_sql(ContentID, ContentType)
             #print " We would now delete the Images for" + ImageID
@@ -343,6 +331,17 @@ class KOBO(USBMS):
         ContentID = ContentID.replace("\\", '/')
         return ContentID
 
+    def get_content_type_from_extension(self, extension):
+        if extension == '.kobo':
+            # Kobo books do not have book files.  They do have some images though
+            #print "kobo book"
+            ContentType = 6
+        elif extension == '.pdf' or extension == '.epub':
+            # print "ePub or pdf"
+            ContentType = 16
+        else: # if extension == '.html' or extension == '.txt':
+            ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
+        return ContentType
 
     def path_from_contentid(self, ContentID, ContentType, oncard):
         path = ContentID
