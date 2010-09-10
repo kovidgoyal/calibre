@@ -6,14 +6,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap
+import os, textwrap
 from xml.sax.saxutils import escape
 from itertools import repeat
 
 from lxml import etree
 
+from calibre import guess_type, strftime
 from calibre.ebooks.oeb.base import XPath, XPNSMAP
-from calibre import guess_type
 from calibre.library.comments import comments_to_html
 class Jacket(object):
     '''
@@ -24,22 +24,18 @@ class Jacket(object):
     JACKET_TEMPLATE = textwrap.dedent(u'''\
     <html xmlns="%(xmlns)s">
         <head>
-            <title>%(title)s</title>
+            <title>%(title_str)s</title>
             <meta name="calibre-content" content="jacket"/>
+            <style type="text/css" media="screen">%(css)s</style>
         </head>
         <body>
-            <div class="calibre_rescale_100">
-                <div style="text-align:center">
-                    <h1 class="calibre_rescale_180">%(title)s</h1>
-                    <h2 class="calibre_rescale_140">%(jacket)s</h2>
-                    <div class="calibre_rescale_100">%(series)s</div>
-                    <div class="calibre_rescale_100">%(rating)s</div>
-                    <div class="calibre_rescale_100">%(tags)s</div>
-                </div>
-                <div style="margin-top:2em" class="calibre_rescale_100">
-                    %(comments)s
-                </div>
+            <div class="banner">
+                <div class="meta_div">%(title)s</div>
+                <div class="meta_div">%(series)s</div>
+                <div class="meta_div">%(rating)s</div>
+                <div class="meta_div">%(tags)s</div>
             </div>
+            <div class="comments">%(comments)s</div>
         </body>
     </html>
     ''')
@@ -71,11 +67,18 @@ class Jacket(object):
             return ans
         id, href = self.oeb.manifest.generate('star', 'star.png')
         self.oeb.manifest.add(id, href, 'image/png', data=I('star.png', data=True))
-        ans = 'Rating: ' + ''.join(repeat('<img style="vertical-align:text-top" alt="star" src="%s" />'%href, num))
+        ans = '<span class="rating">Rating: </span> ' + ''.join(repeat('<img style="vertical-align:text-top" alt="star" src="%s" />'%href, num))
         return ans
 
     def insert_metadata(self, mi):
         self.log('Inserting metadata into book...')
+        jacket_resources = P("jacket")
+
+        if os.path.isdir(jacket_resources):
+            stylesheet = os.path.join(jacket_resources, 'stylesheet.css')
+            with open(stylesheet) as f:
+                css_data = f.read()
+
         comments = mi.comments
         if not comments:
             try:
@@ -87,11 +90,13 @@ class Jacket(object):
         orig_comments = comments
         if comments:
             comments = comments_to_html(comments)
-        series = '<b>Series: </b>' + escape(mi.series if mi.series else '')
+
+        series = '<span class="meta_label">Series: </span><span class="series">%s</span>' % escape(mi.series if mi.series else '')
         if mi.series and mi.series_index is not None:
-            series += escape(' [%s]'%mi.format_series_index())
+            series += '<span class="series">%s</span>' % escape(' [%s]'%mi.format_series_index())
         if not mi.series:
             series = ''
+
         tags = mi.tags
         if not tags:
             try:
@@ -99,23 +104,30 @@ class Jacket(object):
             except:
                 tags = []
         if tags:
-            tags = '<b>Tags: </b>' + self.opts.dest.tags_to_string(tags)
+            tags = '<span class="meta_label">Tags:</span><span class="tags">%s</span>' % self.opts.dest.tags_to_string(tags)
         else:
             tags = ''
+
         try:
-            title = mi.title if mi.title else unicode(self.oeb.metadata.title[0])
+            title_str = mi.title if mi.title else unicode(self.oeb.metadata.title[0])
         except:
-            title = _('Unknown')
+            title_str = _('Unknown')
+        title = '<span class="title">%s</span><span class="pubdate"> (%s)</span>' % (escape(title_str), strftime(u'%Y', mi.pubdate.timetuple()))
+
 
         def generate_html(comments):
             return self.JACKET_TEMPLATE%dict(xmlns=XPNSMAP['h'],
-                title=escape(title), comments=comments,
-                jacket=escape(_('Book Jacket')), series=series,
-                tags=tags, rating=self.get_rating(mi.rating))
+                title=title, comments=comments,
+                series=series,
+                tags=tags, rating=self.get_rating(mi.rating),
+                css=css_data, title_str=title_str)
+
         id, href = self.oeb.manifest.generate('jacket', 'jacket.xhtml')
         from calibre.ebooks.oeb.base import RECOVER_PARSER, XPath
         try:
             root = etree.fromstring(generate_html(comments), parser=RECOVER_PARSER)
+#             print "root: %s" % etree.tostring(root, encoding='utf-8',
+#                     xml_declaration=True, pretty_print=True)
         except:
             root = etree.fromstring(generate_html(escape(orig_comments)),
                     parser=RECOVER_PARSER)
@@ -137,8 +149,22 @@ class Jacket(object):
 
 
     def __call__(self, oeb, opts, metadata):
+        '''
+        Add metadata in jacket.xhtml if specifed in opts
+        If not specified, remove previous jacket instance
+        '''
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         if opts.remove_first_image:
             self.remove_first_image()
         if opts.insert_metadata:
             self.insert_metadata(metadata)
+        else:
+            jacket = XPath('//h:meta[@name="calibre-content" and @content="jacket"]')
+            for item in list(self.oeb.spine)[:4]:
+                if jacket(item.data):
+                    try:
+                        self.log.info("Removing previous jacket instance")
+                        self.oeb.manifest.remove(item)
+                        break
+                    except:
+                        continue
