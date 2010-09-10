@@ -122,6 +122,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.device_connected = is_connected
         self.db.refresh_ondevice()
         self.refresh()
+        self.research()
         if is_connected and self.sorted_on[0] == 'ondevice':
             self.resort()
 
