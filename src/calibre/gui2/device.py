@@ -1325,6 +1325,9 @@ class DeviceMixin(object): # {{{
             self.book_db_uuid_path_map = None
             return
 
+        if not hasattr(self, 'db_book_uuid_cache'):
+            return loc
+
         string_pat = re.compile('(?u)\W|[_]')
         def clean_string(x):
             x = x.lower() if x else ''
