@@ -106,7 +106,10 @@ class KOBO(USBMS):
                             changed = True
                     bl[idx].device_collections = playlist_map.get(lpath, [])
                 else:
-                    book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
+                    if ContentType == '6':
+                        book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
+                    else:
+                        book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
                     # print 'Update booklist'
                     if bl.add_book(book, replace_metadata=False):
                         changed = True
