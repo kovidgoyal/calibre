@@ -1306,15 +1306,14 @@ class DeviceMixin(object): # {{{
     def book_on_device(self, id, format=None, reset=False):
         '''
         Return an indication of whether the given book represented by its db id
-        is on the currently connected device. It returns a 6 element list. The
+        is on the currently connected device. It returns a 5 element list. The
         first three elements represent memory locations main, carda, and cardb,
         and are true if the book is identifiably in that memory. The fourth
         is a count of how many instances of the book were found across all
-        the memory locations. The fifth is the type of match. The type can be
-        one of: None, 'uuid', 'db_id', 'metadata'. The sixth is a set of paths to the
+        the memory locations. The fifth is a set of paths to the
         matching books on the device.
         '''
-        loc = [None, None, None, 0, None, set([])]
+        loc = [None, None, None, 0, set([])]
 
         if reset:
             self.book_db_id_cache = None
@@ -1322,10 +1321,8 @@ class DeviceMixin(object): # {{{
             self.book_db_uuid_path_map = None
             return
 
-        string_pat = re.compile('(?u)\W|[_]')
-        def clean_string(x):
-            x = x.lower() if x else ''
-            return string_pat.sub('', x)
+        if not hasattr(self, 'db_book_uuid_cache'):
+            return loc
 
         if self.book_db_id_cache is None:
             self.book_db_id_cache = []
@@ -1343,7 +1340,8 @@ class DeviceMixin(object): # {{{
                         self.book_db_id_cache[i].add(db_id)
                         if db_id not in self.book_db_uuid_path_map:
                             self.book_db_uuid_path_map[db_id] = set()
-                        self.book_db_uuid_path_map[db_id].add(book.lpath)
+                        if getattr(book, 'lpath', False):
+                            self.book_db_uuid_path_map[db_id].add(book.lpath)
                         c = self.book_db_id_counts.get(db_id, 0)
                         self.book_db_id_counts[db_id] = c + 1
 
@@ -1351,9 +1349,7 @@ class DeviceMixin(object): # {{{
             if id in self.book_db_id_cache[i]:
                 loc[i] = True
                 loc[3] = self.book_db_id_counts.get(id, 0)
-                loc[4] = 'uuid'
-                loc[5] |= self.book_db_uuid_path_map[id]
-                continue
+                loc[4] |= self.book_db_uuid_path_map[id]
         return loc
 
     def set_books_in_library(self, booklists, reset=False):
@@ -1434,7 +1430,7 @@ class DeviceMixin(object): # {{{
                         continue
                     # Sonys know their db_id independent of the application_id
                     # in the metadata cache. Check that as well.
-                    if book.db_id in d['db_ids']:
+                    if getattr(book, 'db_id', None) in d['db_ids']:
                         book.in_library = True
                         book.application_id = \
                                     d['db_ids'][book.db_id].application_id
