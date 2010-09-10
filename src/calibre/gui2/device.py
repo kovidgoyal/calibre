@@ -1317,8 +1317,7 @@ class DeviceMixin(object): # {{{
         loc = [None, None, None, 0, None, set([])]
 
         if reset:
-            self.book_db_title_cache = None
-            self.book_db_uuid_cache = None
+            self.book_db_id_cache = None
             self.book_db_id_counts = None
             self.book_db_uuid_path_map = None
             return
@@ -1328,83 +1327,33 @@ class DeviceMixin(object): # {{{
             x = x.lower() if x else ''
             return string_pat.sub('', x)
 
-        if self.book_db_title_cache is None:
-            self.book_db_title_cache = []
-            self.book_db_uuid_cache = []
-            self.book_db_uuid_path_map = {}
+        if self.book_db_id_cache is None:
+            self.book_db_id_cache = []
             self.book_db_id_counts = {}
+            self.book_db_uuid_path_map = {}
             for i, l in enumerate(self.booklists()):
-                self.book_db_title_cache.append({})
-                self.book_db_uuid_cache.append(set())
+                self.book_db_id_cache.append(set())
                 for book in l:
-                    book_title = clean_string(book.title)
-                    if book_title not in self.book_db_title_cache[i]:
-                        self.book_db_title_cache[i][book_title] = \
-                                {'authors':set(), 'db_ids':set(),
-                                 'uuids':set(), 'paths':set(),
-                                 'uuid_in_library':False}
-                    book_authors = clean_string(authors_to_string(book.authors))
-                    self.book_db_title_cache[i][book_title]['authors'].add(book_authors)
                     db_id = getattr(book, 'application_id', None)
                     if db_id is None:
                         db_id = book.db_id
                     if db_id is not None:
-                        self.book_db_title_cache[i][book_title]['db_ids'].add(db_id)
                         # increment the count of books on the device with this
                         # db_id.
+                        self.book_db_id_cache[i].add(db_id)
+                        if db_id not in self.book_db_uuid_path_map:
+                            self.book_db_uuid_path_map[db_id] = set()
+                        self.book_db_uuid_path_map[db_id].add(book.lpath)
                         c = self.book_db_id_counts.get(db_id, 0)
                         self.book_db_id_counts[db_id] = c + 1
-                    uuid = getattr(book, 'uuid', None)
-                    if uuid is None and db_id is not None:
-                        # Catch the case where a book on the device has no UUID
-                        # but was matched against some book in the library.
-                        try:
-                            uuid = self.library_view.model().db.uuid(db_id,
-                                                               index_is_id=True)
-                        except:
-                            pass
-                    if uuid is not None:
-                        self.book_db_uuid_cache[i].add(uuid)
-                        self.book_db_uuid_path_map[uuid] = book.path
-                        if uuid in self.db_book_uuid_cache:
-                            # This book exactly matches a book on the device.
-                            # Set the flag that prevents the book from
-                            # participating in metadata matching
-                            self.book_db_title_cache[i][book_title]\
-                                    ['uuid_in_library'] = True
-                    self.book_db_title_cache[i][book_title]['paths'].add(book.path)
 
-        mi = self.library_view.model().db.get_metadata(id, index_is_id=True)
         for i, l in enumerate(self.booklists()):
-            if mi.uuid in self.book_db_uuid_cache[i]:
+            if id in self.book_db_id_cache[i]:
                 loc[i] = True
+                loc[3] = self.book_db_id_counts.get(id, 0)
                 loc[4] = 'uuid'
-                loc[5].add(self.book_db_uuid_path_map[mi.uuid])
+                loc[5] |= self.book_db_uuid_path_map[id]
                 continue
-            db_title = clean_string(mi.title)
-            cache = self.book_db_title_cache[i].get(db_title, None)
-            if cache and not cache['uuid_in_library']:
-                # We really shouldn't get here, because set_books_in_library
-                # should have set the db_ids for the books, the cache-builder
-                # will add the uuid for those matched books to the cache, and
-                # therefore the if just above should have found them. Check
-                # anyway, just in case. Also print that we got here...
-                prints('checking metadata matches:', mi.title)
-                if id in cache['db_ids']:
-                    loc[i] = True
-                    loc[4] = 'db_id'
-                    loc[5] = cache['paths']
-                    continue
-                # Also check author sort, because it can be used as author in
-                # some formats
-                if (mi.authors and clean_string(authors_to_string(mi.authors))
-                        in cache['authors']) or (mi.author_sort and
-                        clean_string(mi.author_sort) in cache['authors']):
-                    loc[i] = True
-                    loc[4] = 'metadata'
-                    loc[5] = cache['paths']
-                    continue
-        loc[3] = self.book_db_id_counts.get(id, 0)
         return loc
 
     def set_books_in_library(self, booklists, reset=False):
@@ -1451,11 +1400,10 @@ class DeviceMixin(object): # {{{
                 self.db_book_uuid_cache[mi.uuid] = mi
 
         # Now iterate through all the books on the device, setting the
-        # in_library field. Fastest and most accurate key is the uuid. Second is
-        # the application_id, which is really the db key, but as this can
-        # accidentally match across libraries we also verify the title. Fallback
-        # is title and author match. We set the application ID so that we can
-        # reproduce book matching, necessary for identifying copies of books.
+        # in_library field. If the UUID matches a book in the library, then
+        # do not consider that book for other matching. In all cases set
+        # the application_id to the db_id of the matching book. This value
+        # will be used by books_on_device to indicate matches.
 
         update_metadata = prefs['manage_device_metadata'] == 'on_connect'
         for booklist in booklists:
@@ -1469,23 +1417,8 @@ class DeviceMixin(object): # {{{
                     # ensure that the correct application_id is set
                     book.application_id = \
                         self.db_book_uuid_cache[book.uuid].application_id
-                    # We had an exact UUID match. The rules are that once the
-                    # uuid of a book on the device exactly matches the uuid of a
-                    # book in the database, don't do metadata matching for that
-                    # book. This prevents the device-book from matching other
-                    # instances of library-books that happen to have the same
-                    # metadata. Of course, this means that if there are more
-                    # copies of the book on the device, then they must also
-                    # exactly match.
-                    book_title = clean_string(book.title)
-                    if book_title in self.db_book_title_cache:
-                        del self.db_book_title_cache[book_title]
                     continue
-
-        for booklist in booklists:
-            for book in booklist:
-                if book.in_library:
-                    continue
+                # No UUID exact match. Try metadata matching.
                 book_title = clean_string(book.title)
                 d = self.db_book_title_cache.get(book_title, None)
                 if d is not None:
