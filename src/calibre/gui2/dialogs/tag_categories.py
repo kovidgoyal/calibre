@@ -36,11 +36,11 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.db = db
         self.applied_items = []
 
-        cc_icon = QIcon(I('column.svg'))
+        cc_icon = QIcon(I('column.png'))
 
         self.category_labels = self.category_labels_orig[:]
-        category_icons  = [None, QIcon(I('user_profile.svg')), QIcon(I('series.svg')),
-                           QIcon(I('publisher.png')), QIcon(I('tags.svg'))]
+        category_icons  = [None, QIcon(I('user_profile.png')), QIcon(I('series.png')),
+                           QIcon(I('publisher.png')), QIcon(I('tags.png'))]
         category_values = [None,
                            lambda: [n.replace('|', ',') for (id, n) in self.db.all_authors()],
                            lambda: [n for (id, n) in self.db.all_series()],

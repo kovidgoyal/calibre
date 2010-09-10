@@ -50,6 +50,8 @@ class JETBOOK(USBMS):
 
     def filename_callback(self, fname, mi):
         fileext = os.path.splitext(os.path.basename(fname))[1]
+        if fileext.lower() not in ('txt', 'pdf', 'fb2'):
+            return fname
         title = mi.title if mi.title else 'Unknown'
         title = title.replace(' ', '_')
         au = mi.format_authors()
@@ -85,7 +87,7 @@ class MIBUK(USBMS):
     name           = 'MiBuk Wolder Device Interface'
     description    = _('Communicate with the MiBuk Wolder reader.')
     author         = 'Kovid Goyal'
-    supported_platforms = ['windows', 'osx', 'linux']
+    supported_platforms = ['windows']
 
     FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'txt', 'rtf', 'pdf']
 

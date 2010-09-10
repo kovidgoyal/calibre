@@ -173,6 +173,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pending_anchor    = None
         self.pending_reference = None
         self.pending_bookmark  = None
+        self.existing_bookmarks= []
         self.selected_text     = None
         self.read_settings()
         self.dictionary_box.hide()
@@ -266,7 +267,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_full_screen.setCheckable(True)
 
         self.print_menu = QMenu()
-        self.print_menu.addAction(QIcon(I('print-preview.svg')), _('Print Preview'))
+        self.print_menu.addAction(QIcon(I('print-preview.png')), _('Print Preview'))
         self.action_print.setMenu(self.print_menu)
         self.tool_bar.widgetForAction(self.action_print).setPopupMode(QToolButton.MenuButtonPopup)
         self.connect(self.action_print, SIGNAL("triggered(bool)"), partial(self.print_book, preview=False))
@@ -415,15 +416,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_font_size_smaller.setEnabled(self.view.multiplier() > 0.2)
         self.set_page_number(frac)
 
-    def bookmark(self, *args):
-        title, ok = QInputDialog.getText(self, _('Add bookmark'), _('Enter title for bookmark:'))
-        title = unicode(title).strip()
-        if ok and title:
-            pos = self.view.bookmark()
-            bookmark = '%d#%s'%(self.current_index, pos)
-            self.iterator.add_bookmark((title, bookmark))
-            self.set_bookmarks(self.iterator.bookmarks)
-
 
     def find(self, text, repeat=False, backwards=False):
         if not text:
@@ -539,15 +531,34 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             getattr(self, o).setEnabled(False)
         self.setCursor(Qt.BusyCursor)
 
+    def bookmark(self, *args):
+        num = 1
+        bm = None
+        while True:
+            bm = _('Bookmark #%d')%num
+            if bm not in self.existing_bookmarks:
+                break
+            num += 1
+        title, ok = QInputDialog.getText(self, _('Add bookmark'),
+                _('Enter title for bookmark:'), text=bm)
+        title = unicode(title).strip()
+        if ok and title:
+            pos = self.view.bookmark()
+            bookmark = '%d#%s'%(self.current_index, pos)
+            self.iterator.add_bookmark((title, bookmark))
+            self.set_bookmarks(self.iterator.bookmarks)
+
     def set_bookmarks(self, bookmarks):
         self.bookmarks_menu.clear()
         self.bookmarks_menu.addAction(_("Manage Bookmarks"), self.manage_bookmarks)
         self.bookmarks_menu.addSeparator()
         current_page = None
+        self.existing_bookmarks = []
         for bm in bookmarks:
             if bm[0] == 'calibre_current_page_bookmark':
                 current_page = bm
             else:
+                self.existing_bookmarks.append(bm[0])
                 self.bookmarks_menu.addAction(bm[0], partial(self.goto_bookmark, bm))
         return current_page
 
@@ -694,7 +705,7 @@ def main(args=sys.argv):
     pid = os.fork() if False and (islinux or isfreebsd) else -1
     if pid <= 0:
         app = Application(args)
-        app.setWindowIcon(QIcon(I('viewer.svg')))
+        app.setWindowIcon(QIcon(I('viewer.png')))
         QApplication.setOrganizationName(ORG_NAME)
         QApplication.setApplicationName(APP_UID)
         main = EbookViewer(args[1] if len(args) > 1 else None,

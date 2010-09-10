@@ -11,6 +11,7 @@ import cherrypy
 
 from calibre import strftime as _strftime, prints
 from calibre.utils.date import now as nowf
+from calibre.utils.config import tweaks
 
 
 def expose(func):
@@ -43,4 +44,14 @@ def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
     except:
         return _strftime(fmt, nowf().timetuple())
 
+def format_tag_string(tags, sep):
+    MAX = tweaks['max_content_server_tags_shown']
+    if tags:
+        tlist = [t.strip() for t in tags.split(sep)]
+    else:
+        tlist = []
+    tlist.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+    if len(tlist) > MAX:
+        tlist = tlist[:MAX]+['...']
+    return u'%s'%(', '.join(tlist)) if tlist else ''
 

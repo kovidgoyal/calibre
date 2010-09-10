@@ -324,6 +324,7 @@ def do_remove(db, ids):
                 db.delete_book(y)
 
         send_message()
+    db.clean()
 
 def remove_option_parser():
     return get_parser(_(
@@ -449,6 +450,7 @@ def command_show_metadata(args, dbpath):
 def do_set_metadata(db, id, stream):
     mi = OPF(stream)
     db.set_metadata(id, mi)
+    db.clean()
     do_show_metadata(db, id, False)
     send_message()
 
@@ -574,6 +576,9 @@ def command_add_custom_column(args, dbpath):
         return 1
     do_add_custom_column(get_db(dbpath, opts), args[0], args[1], args[2],
             opts.is_multiple, json.loads(opts.display))
+    # Re-open the DB so that  field_metadata is reflects the column changes
+    db = get_db(dbpath, opts)
+    db.prefs['field_metadata'] = db.field_metadata.all_metadata()
     return 0
 
 def catalog_option_parser(args):
@@ -672,7 +677,14 @@ def command_catalog(args, dbpath):
 
     # No support for connected device in CLI environment
     # Parallel initialization in calibre.gui2.tools:generate_catalog()
-    opts.connected_device = { 'storage':None,'serial':None,'save_template':None,'name':None}
+    opts.connected_device = {
+                             'is_device_connected': False,
+                             'kind': None,
+                             'name': None,
+                             'save_template': None,
+                             'serial': None,
+                             'storage': None,
+                            }
 
     with plugin:
         plugin.run(args[1], opts, get_db(dbpath, opts))
@@ -797,6 +809,9 @@ def command_remove_custom_column(args, dbpath):
         return 1
 
     do_remove_custom_column(get_db(dbpath, opts), args[0], opts.force)
+    # Re-open the DB so that  field_metadata is reflects the column changes
+    db = get_db(dbpath, opts)
+    db.prefs['field_metadata'] = db.field_metadata.all_metadata()
     return 0
 
 def saved_searches_option_parser():

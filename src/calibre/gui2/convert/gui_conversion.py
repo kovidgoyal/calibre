@@ -27,13 +27,9 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, conne
         notification=DummyReporter(), log=None):
     if log is None:
         log = Log()
-    if dbspec is None:
-        from calibre.utils.config import prefs
-        from calibre.library.database2 import LibraryDatabase2
-        dbpath = prefs['library_path']
-        db = LibraryDatabase2(dbpath)
-    else: # To be implemented in the future
-        pass
+    from calibre.library import db
+    db = db()
+    db.catalog_plugin_on_device_temp_mapping = dbspec
 
     # Create a minimal OptionParser that we can append to
     parser = OptionParser()

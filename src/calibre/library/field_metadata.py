@@ -306,7 +306,7 @@ class FieldMetadata(dict):
             self._tb_cats[k]['label'] = k
             self._tb_cats[k]['display'] = {}
             self._tb_cats[k]['is_editable'] = True
-            self._add_search_terms_to_map(k, self._tb_cats[k]['search_terms'])
+            self._add_search_terms_to_map(k, v['search_terms'])
         self.custom_field_prefix = '#'
         self.get = self._tb_cats.get
 
@@ -371,6 +371,12 @@ class FieldMetadata(dict):
     def get_custom_fields(self):
         return [l for l in self._tb_cats if self._tb_cats[l]['is_custom']]
 
+    def all_metadata(self):
+        l = {}
+        for k in self._tb_cats:
+            l[k] = self._tb_cats[k]
+        return l
+
     def get_custom_field_metadata(self):
         l = {}
         for k in self._tb_cats:
@@ -407,10 +413,6 @@ class FieldMetadata(dict):
                                  'is_editable': False,}
             self._add_search_terms_to_map(key, [key])
             self.custom_label_to_key_map[label+'_index'] = key
-
-    def remove_custom_fields(self):
-        for key in self.get_custom_fields():
-            del self._tb_cats[key]
 
     def remove_dynamic_categories(self):
         for key in list(self._tb_cats.keys()):
@@ -475,9 +477,7 @@ class FieldMetadata(dict):
 #                 ])
 
     def get_search_terms(self):
-        s_keys = []
-        for v in self._tb_cats.itervalues():
-            map((lambda x:s_keys.append(x)), v['search_terms'])
+        s_keys = sorted(self._search_term_map.keys())
         for v in self.search_items:
             s_keys.append(v)
 #        if set(s_keys) != self.DEFAULT_LOCATIONS:
@@ -488,6 +488,9 @@ class FieldMetadata(dict):
     def _add_search_terms_to_map(self, key, terms):
         if terms is not None:
             for t in terms:
+                t = t.lower()
+                if t in self._search_term_map:
+                    raise ValueError('Attempt to add duplicate search term "%s"'%t)
                 self._search_term_map[t] = key
 
     def search_term_to_key(self, term):

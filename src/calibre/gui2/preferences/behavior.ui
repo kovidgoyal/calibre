@@ -29,21 +29,21 @@
     </widget>
    </item>
    <item row="2" column="0" colspan="2">
-    <widget class="QCheckBox" name="new_version_notification">
+    <widget class="QCheckBox" name="opt_new_version_notification">
      <property name="text">
       <string>Show notification when &amp;new version is available</string>
      </property>
     </widget>
    </item>
    <item row="3" column="0" colspan="2">
-    <widget class="QCheckBox" name="sync_news">
+    <widget class="QCheckBox" name="opt_upload_news_to_device">
      <property name="text">
       <string>Automatically send downloaded &amp;news to ebook reader</string>
      </property>
     </widget>
    </item>
    <item row="4" column="0" colspan="2">
-    <widget class="QCheckBox" name="delete_news">
+    <widget class="QCheckBox" name="opt_delete_news_from_library_on_upload">
      <property name="text">
       <string>&amp;Delete news from library when it is automatically sent to reader</string>
      </property>
@@ -57,12 +57,12 @@
         <string>Default network &amp;timeout:</string>
        </property>
        <property name="buddy">
-        <cstring>timeout</cstring>
+        <cstring>opt_network_timeout</cstring>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QSpinBox" name="timeout">
+      <widget class="QSpinBox" name="opt_network_timeout">
        <property name="toolTip">
         <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
        </property>
@@ -81,7 +81,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QComboBox" name="priority">
+      <widget class="QComboBox" name="opt_worker_process_priority">
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
        </property>
@@ -111,7 +111,7 @@
         <string>Job &amp;priority:</string>
        </property>
        <property name="buddy">
-        <cstring>priority</cstring>
+        <cstring>opt_worker_process_priority</cstring>
        </property>
       </widget>
      </item>
@@ -121,12 +121,12 @@
         <string>Preferred &amp;output format:</string>
        </property>
        <property name="buddy">
-        <cstring>output_format</cstring>
+        <cstring>opt_output_format</cstring>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QComboBox" name="output_format">
+      <widget class="QComboBox" name="opt_output_format">
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
        </property>
@@ -164,6 +164,20 @@
        </property>
       </widget>
      </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="opt_new_book_tags">
+       <property name="toolTip">
+        <string>A comma-separated list of tags that will be applied to books added to the library</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_230">
+       <property name="text">
+        <string>Tags to apply when adding a book:</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="6" column="0" colspan="2">
@@ -182,7 +196,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_10">
         <item>
-         <widget class="QListWidget" name="input_order">
+         <widget class="QListWidget" name="opt_input_order">
           <property name="alternatingRowColors">
            <bool>true</bool>
           </property>
@@ -194,13 +208,13 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_10">
           <item>
-           <widget class="QToolButton" name="input_up">
+           <widget class="QToolButton" name="input_up_button">
             <property name="text">
              <string>...</string>
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
+              <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
             </property>
            </widget>
           </item>
@@ -218,13 +232,13 @@
            </spacer>
           </item>
           <item>
-           <widget class="QToolButton" name="input_down">
+           <widget class="QToolButton" name="input_down_button">
             <property name="text">
              <string>...</string>
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
+              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
             </property>
            </widget>
           </item>
@@ -242,7 +256,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="0" column="0">
-       <widget class="QListWidget" name="viewer">
+       <widget class="QListWidget" name="opt_internally_viewed_formats">
         <property name="alternatingRowColors">
          <bool>true</bool>
         </property>

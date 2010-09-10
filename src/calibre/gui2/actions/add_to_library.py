@@ -10,7 +10,7 @@ from calibre.gui2.actions import InterfaceAction
 class AddToLibraryAction(InterfaceAction):
 
     name = 'Add To Library'
-    action_spec = (_('Add books to library'), 'add_book.svg',
+    action_spec = (_('Add books to library'), 'add_book.png',
             _('Add books to your calibre library from the connected device'), None)
     dont_add_to = frozenset(['toolbar', 'context-menu'])
 

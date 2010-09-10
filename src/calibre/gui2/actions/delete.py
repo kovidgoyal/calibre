@@ -15,7 +15,7 @@ from calibre.gui2.actions import InterfaceAction
 class DeleteAction(InterfaceAction):
 
     name = 'Remove Books'
-    action_spec = (_('Remove books'), 'trash.svg', None, _('Del'))
+    action_spec = (_('Remove books'), 'trash.png', None, _('Del'))
 
     def genesis(self):
         self.qaction.triggered.connect(self.delete_books)
@@ -159,7 +159,7 @@ class DeleteAction(InterfaceAction):
         if self.gui.stack.currentIndex() == 0:
             if not confirm('<p>'+_('The selected books will be '
                                    '<b>permanently deleted</b> and the files '
-                                   'removed from your computer. Are you sure?')
+                                   'removed from your calibre library. Are you sure?')
                                 +'</p>', 'library_delete_books', self.gui):
                 return
             ci = view.currentIndex()

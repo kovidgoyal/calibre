@@ -1,7 +1,7 @@
 '''
 UI for adding books to the database and saving books to disk
 '''
-import os, shutil, time, re
+import os, shutil, time
 from Queue import Queue, Empty
 from threading import Thread
 
@@ -94,14 +94,6 @@ class DBAdder(Thread): # {{{
         self.daemon = True
         self.input_queue = Queue()
         self.output_queue = Queue()
-        self.fuzzy_title_patterns = [(re.compile(pat), repl) for pat, repl in
-                [
-                    (r'[\[\](){}<>\'";,:#]', ''),
-                    (r'^(the|a|an) ', ''),
-                    (r'[-._]', ' '),
-                    (r'\s+', ' ')
-                ]
-        ]
         self.merged_books = set([])
 
     def run(self):
@@ -138,33 +130,6 @@ class DBAdder(Thread): # {{{
                 fmts[-1] = fmt
         return fmts
 
-    def fuzzy_title(self, title):
-        title = title.strip().lower()
-        for pat, repl in self.fuzzy_title_patterns:
-            title = pat.sub(repl, title)
-        return title
-
-    def find_identical_books(self, mi):
-        identical_book_ids = set([])
-        if mi.authors:
-            try:
-                query = u' and '.join([u'author:"=%s"'%(a.replace('"', '')) for a in
-                    mi.authors])
-            except ValueError:
-                return identical_book_ids
-            try:
-                book_ids = self.db.data.parse(query)
-            except:
-                import traceback
-                traceback.print_exc()
-                return identical_book_ids
-            for book_id in book_ids:
-                fbook_title = self.db.title(book_id, index_is_id=True)
-                fbook_title = self.fuzzy_title(fbook_title)
-                mbook_title = self.fuzzy_title(mi.title)
-                if fbook_title == mbook_title:
-                    identical_book_ids.add(book_id)
-        return identical_book_ids
 
     def add(self, id, opf, cover, name):
         formats = self.ids.pop(id)
@@ -191,7 +156,7 @@ class DBAdder(Thread): # {{{
             orig_formats = formats
             formats = [f for f in formats if not f.lower().endswith('.opf')]
             if prefs['add_formats_to_existing']:
-                identical_book_list = self.find_identical_books(mi)
+                identical_book_list = self.db.find_identical_books(mi)
 
                 if identical_book_list: # books with same author and nearly same title exist in db
                     self.merged_books.add(mi.title)

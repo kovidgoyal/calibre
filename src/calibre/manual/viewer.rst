@@ -18,7 +18,7 @@ Starting the viewer
 You can view any of the books in your |app| library by selecting the book and pressing the View button. This
 will open up the book in the e-book viewer. You can also launch the viewer by itself, from the Start menu in windows
 or using the command :command:`ebook-viewer` in Linux and OS X (you have to install the command line tools on OS X
-first by going to Preferences->Advanced).
+first by going to :guilabel:`Preferences->Advanced->Miscellaneous`).
 
 Navigating around an e-book
 -----------------------------

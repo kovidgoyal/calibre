@@ -238,7 +238,7 @@ def fetch_scheduled_recipe(arg):
 
     return 'gui_convert', args, _('Fetch news from ')+arg['title'], fmt.upper(), [pt]
 
-def generate_catalog(parent, dbspec, ids, device):
+def generate_catalog(parent, dbspec, ids, device_manager):
     from calibre.gui2.dialogs.catalog import Catalog
 
     # Build the Catalog dialog in gui2.dialogs.catalog
@@ -252,9 +252,18 @@ def generate_catalog(parent, dbspec, ids, device):
 
     # Profile the connected device
     # Parallel initialization in calibre.library.cli:command_catalog()
-    connected_device = { 'storage':None,'serial':None,'save_template':None,'name':None}
+    connected_device = {
+                         'is_device_connected': device_manager.is_device_connected,
+                         'kind': device_manager.connected_device_kind,
+                         'name': None,
+                         'save_template': None,
+                         'serial': None,
+                         'storage': None
+                       }
 
-    if device:
+    if device_manager.is_device_connected:
+        device = device_manager.device
+        connected_device['name'] = device.gui_name
         try:
             storage = []
             if device._main_prefix:
@@ -263,11 +272,10 @@ def generate_catalog(parent, dbspec, ids, device):
                 storage.append(os.path.join(device._card_a_prefix, device.EBOOK_DIR_CARD_A))
             if device._card_b_prefix:
                 storage.append(os.path.join(device._card_b_prefix, device.EBOOK_DIR_CARD_B))
-            connected_device = {      'storage': storage,
-                                       'serial': device.detected_device.serial if \
-                                                 hasattr(device.detected_device,'serial') else None,
-                                'save_template': device.save_template(),
-                                         'name': device.gui_name}
+            connected_device['storage'] = storage
+            connected_device['serial'] = device.detected_device.serial if \
+                                          hasattr(device.detected_device,'serial') else None
+            connected_device['save_template'] = device.save_template()
         except:
             pass
 
