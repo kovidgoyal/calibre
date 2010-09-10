@@ -44,16 +44,17 @@ class Book(MetaInformation):
         self.mime = mime
 
         self.size = size # will be set later if None
-        try:
-            if ContentType == '6':
-                self.datetime = time.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
-            else:
-                self.datetime = time.gmtime(os.path.getctime(self.path))
-        except:
-             self.datetime = time.gmtime()
 
-	if thumbnail_name is not None:
-	    self.thumbnail = ImageWrapper(thumbnail_name)
+        if ContentType == '6':
+            self.datetime = time.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+        else:
+            try:
+                self.datetime = time.gmtime(os.path.getctime(self.path))
+            except:
+                self.datetime = time.gmtime()
+
+        if thumbnail_name is not None:
+            self.thumbnail = ImageWrapper(thumbnail_name)
         self.tags = []
         if other:
             self.smart_update(other)
