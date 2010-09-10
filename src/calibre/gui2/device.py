@@ -1357,6 +1357,14 @@ class DeviceMixin(object): # {{{
                         c = self.book_db_id_counts.get(db_id, 0)
                         self.book_db_id_counts[db_id] = c + 1
                     uuid = getattr(book, 'uuid', None)
+                    if uuid is None and db_id is not None:
+                        # Catch the case where a book on the device has no UUID
+                        # but was matched against some book in the library.
+                        try:
+                            uuid = self.library_view.model().db.uuid(db_id,
+                                                               index_is_id=True)
+                        except:
+                            pass
                     if uuid is not None:
                         self.book_db_uuid_cache[i].add(uuid)
                         self.book_db_uuid_path_map[uuid] = book.path
