@@ -144,15 +144,23 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     self.cover_data = cover
 
     def generate_cover(self, *args):
-        from calibre.utils.magick.draw import create_cover_page, TextLine
+        from calibre.ebooks import calibre_cover
+        from calibre.ebooks.metadata import fmt_sidx
+        from calibre.gui2 import config
         title = unicode(self.title.text()).strip()
         author = unicode(self.authors.text()).strip()
         if not title or not author:
             return error_dialog(self, _('Specify title and author'),
                     _('You must specify a title and author before generating '
                         'a cover'), show=True)
-        lines = [TextLine(title, 44), TextLine(author, 32)]
-        self.cover_data = create_cover_page(lines, I('library.png'))
+        series = unicode(self.series.text()).strip()
+        series_string = None
+        if series:
+            series_string = _('Book %s of %s')%(
+                    fmt_sidx(self.series_index.value(),
+                        use_roman=config['use_roman_numerals_for_series_number']), series)
+        self.cover_data = calibre_cover(title, author,
+                series_string=series_string)
         pix = QPixmap()
         pix.loadFromData(self.cover_data)
         self.cover.setPixmap(pix)

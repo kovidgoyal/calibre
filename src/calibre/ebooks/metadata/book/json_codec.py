@@ -7,7 +7,6 @@ Created on 4 Jun 2010
 from base64 import b64encode, b64decode
 import json
 import traceback
-from PIL import Image
 
 from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.constants import filesystem_encoding, preferred_encoding

@@ -10,10 +10,9 @@ import os, mimetypes, sys, re
 from urllib import unquote, quote
 from urlparse import urlparse
 
-from calibre import relpath, prints
+from calibre import relpath
 
 from calibre.utils.config import tweaks
-from calibre.utils.date import isoformat
 
 _author_pat = re.compile(',?\s+(and|with)\s+', re.IGNORECASE)
 def string_to_authors(raw):

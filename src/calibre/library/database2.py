@@ -22,7 +22,6 @@ from calibre.library.sqlite import connect, IntegrityError, DBThread
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
                                     MetaInformation
-from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile

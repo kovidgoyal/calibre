@@ -16,7 +16,7 @@ from lxml import etree
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata import string_to_authors
+from calibre.ebooks.metadata import string_to_authors, MetaInformation
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang

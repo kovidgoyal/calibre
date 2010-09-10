@@ -13,7 +13,7 @@ from calibre.devices.errors import UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.ebooks.metadata import authors_to_string
+from calibre.ebooks.metadata import authors_to_string, MetaInformation
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
@@ -2489,7 +2489,8 @@ class ITUNES(DriverBase):
             zf_opf.close()
 
             # If 'News' in tags, tweak the title/author for friendlier display in iBooks
-            if _('News') or _('Catalog') in metadata.tags:
+            if _('News') in metadata.tags or \
+               _('Catalog') in metadata.tags:
                 if metadata.title.find('[') > 0:
                     metadata.title = metadata.title[:metadata.title.find('[')-1]
                 date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
