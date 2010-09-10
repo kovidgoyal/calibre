@@ -641,7 +641,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         count = 0
         on = self.book_on_device(id)
         if on is not None:
-            m, a, b, count = on
+            m, a, b, count = on[:4]
             if m is not None:
                 loc.append(_('Main'))
             if a is not None:

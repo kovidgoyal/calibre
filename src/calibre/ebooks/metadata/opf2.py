@@ -1105,7 +1105,8 @@ class OPFCreator(MetaInformation):
             spine.set('toc', 'ncx')
         if self.spine is not None:
             for ref in self.spine:
-                spine.append(E.itemref(idref=ref.id))
+                if ref.id is not None:
+                    spine.append(E.itemref(idref=ref.id))
         guide = E.guide()
         if self.guide is not None:
             for ref in self.guide:
