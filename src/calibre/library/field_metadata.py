@@ -69,6 +69,8 @@ class FieldMetadata(dict):
     VALID_DATA_TYPES = frozenset([None, 'rating', 'text', 'comments', 'datetime',
                                   'int', 'float', 'bool', 'series'])
 
+    # Builtin metadata {{{
+
     _field_metadata = [
             ('authors',   {'table':'authors',
                            'column':'name',
@@ -287,7 +289,8 @@ class FieldMetadata(dict):
                            'search_terms':[],
                            'is_custom':False,
                            'is_category':False}),
-            ]
+        ]
+    # }}}
 
     # search labels that are not db columns
     search_items = [    'all',
