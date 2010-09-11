@@ -121,10 +121,8 @@ class BooksModel(QAbstractTableModel): # {{{
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
         self.db.refresh_ondevice()
-        self.refresh()
+        self.refresh() # does a resort()
         self.research()
-        if is_connected and self.sorted_on[0] == 'ondevice':
-            self.resort()
 
     def set_book_on_device_func(self, func):
         self.book_on_device = func
@@ -249,7 +247,7 @@ class BooksModel(QAbstractTableModel): # {{{
             # the search and count records for restrictions
             self.searched.emit(True)
 
-    def sort(self, col, order, reset=True):
+    def sort(self, col, order, reset=True, update_history=True):
         if not self.db:
             return
         self.about_to_be_sorted.emit(self.db.id)
@@ -260,23 +258,23 @@ class BooksModel(QAbstractTableModel): # {{{
             self.clear_caches()
             self.reset()
         self.sorted_on = (label, order)
-        self.sort_history.insert(0, self.sorted_on)
+        if update_history:
+            self.sort_history.insert(0, self.sorted_on)
         self.sorting_done.emit(self.db.index)
 
     def refresh(self, reset=True):
-        try:
-            col = self.column_map.index(self.sorted_on[0])
-        except:
-            col = 0
         self.db.refresh(field=None)
-        self.sort(col, self.sorted_on[1], reset=reset)
+        self.resort(reset=reset)
 
-    def resort(self, reset=True):
-        try:
-            col = self.column_map.index(self.sorted_on[0])
-        except ValueError:
-            col = 0
-        self.sort(col, self.sorted_on[1], reset=reset)
+    def resort(self, reset=True, history=5): # Bug report needed history=4 :)
+        for col,ord in reversed(self.sort_history[:history]):
+            try:
+                col = self.column_map.index(col)
+            except ValueError:
+                col = 0
+            self.sort(col, ord, reset=False, update_history=False)
+        if reset:
+            self.reset()
 
     def research(self, reset=True):
         self.search(self.last_search, reset=reset)
