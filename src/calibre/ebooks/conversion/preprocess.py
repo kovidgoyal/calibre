@@ -214,7 +214,6 @@ class HTMLPreProcessor(object):
                   (re.compile(u'˙\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ż'),
                   (re.compile(u'˙\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ż'),
 
-
                   # If pdf printed from a browser then the header/footer has a reliable pattern
                   (re.compile(r'((?<=</a>)\s*file:////?[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
 
@@ -225,13 +224,6 @@ class HTMLPreProcessor(object):
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
                   # Remove <hr> tags
                   (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br />'),
-                  # Replace <br><br> with <p>
-                  # (re.compile(r'<br>\s*<br>', re.IGNORECASE), lambda match: '\n<p>'),
-
-                  # unwrap hyphenation - don't delete the hyphen (often doesn't split words)
-                  #(re.compile(u'(?<=[-–—])\s*<br>\s*(?=[[a-z\d])'), lambda match: ''),
-                  # unwrap/delete soft hyphens
-                  #(re.compile(u'[­]\s*<br>\s*(?=[[a-z\d])'), lambda match: ''),
 
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
