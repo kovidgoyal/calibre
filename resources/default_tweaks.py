@@ -121,3 +121,4 @@ max_content_server_tags_shown=5
 # books) the penalty might be noticeable. If you are not concerned about multi-
 # level sorts, and if you are seeing a slowdown, reduce the value of this tweak.
 maximum_resort_levels = 5
+
