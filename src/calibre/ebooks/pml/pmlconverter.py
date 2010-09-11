@@ -556,7 +556,7 @@ class PML_HTMLizer(object):
                             text = t
                         else:
                             self.toc.add_item(os.path.basename(self.file_name), id, value)
-                            text = '<span id="%s"></span>%s' % (id, t)
+                            text = '%s<span id="%s"></span>' % (t, id)
                     elif c == 'm':
                         empty = False
                         src = self.code_value(line)
