@@ -207,6 +207,7 @@ class PML_HTMLizer(object):
         while html != old:
             old = html
             html = self.cleanup_html_remove_redundant(html)
+        html = re.sub(r'(?imu)^\s*', '', html)
         return html
 
     def cleanup_html_remove_redundant(self, html):
