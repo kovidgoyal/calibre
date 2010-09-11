@@ -231,7 +231,7 @@ def MetaInformation(title, authors=(_('Unknown'),)):
         mi = title
         title = mi.title
         authors = mi.authors
-    return Metadata(title, authors, mi)
+    return Metadata(title, authors, other=mi)
 
 def check_isbn10(isbn):
     try:
