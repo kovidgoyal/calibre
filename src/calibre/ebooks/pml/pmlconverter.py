@@ -207,6 +207,7 @@ class PML_HTMLizer(object):
         while html != old:
             old = html
             html = self.cleanup_html_remove_redundant(html)
+        html = re.sub(r'(?imu)^\s*', '', html)
         return html
 
     def cleanup_html_remove_redundant(self, html):
@@ -216,7 +217,7 @@ class PML_HTMLizer(object):
                 html = re.sub(r'(?u)%s\s*%s' % (open % '.*?', close), '', html)
             else:
                 html = re.sub(r'(?u)%s\s*%s' % (open, close), '', html)
-        html = re.sub(r'<p>\s*</p>', '', html)
+        html = re.sub(r'(?imu)<p>\s*</p>', '', html)
         return html
 
     def start_line(self):
@@ -556,7 +557,7 @@ class PML_HTMLizer(object):
                             text = t
                         else:
                             self.toc.add_item(os.path.basename(self.file_name), id, value)
-                            text = '<span id="%s"></span>%s' % (id, t)
+                            text = '%s<span id="%s"></span>' % (t, id)
                     elif c == 'm':
                         empty = False
                         src = self.code_value(line)
