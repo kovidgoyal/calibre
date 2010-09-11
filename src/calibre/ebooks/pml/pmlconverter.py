@@ -216,7 +216,7 @@ class PML_HTMLizer(object):
                 html = re.sub(r'(?u)%s\s*%s' % (open % '.*?', close), '', html)
             else:
                 html = re.sub(r'(?u)%s\s*%s' % (open, close), '', html)
-        html = re.sub(r'<p>\s*</p>', '', html)
+        html = re.sub(r'(?imu)<p>\s*</p>', '', html)
         return html
 
     def start_line(self):
