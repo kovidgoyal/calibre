@@ -549,7 +549,7 @@ class ResultCache(SearchQueryParser):
             self.sort(field, ascending)
         self._map_filtered = list(self._map)
         if self.search_restriction:
-            self.search('', return_matches=False, ignore_search_restriction=False)
+            self.search('', return_matches=False)
 
     def seriescmp(self, sidx, siidx, x, y, library_order=None):
         try:
