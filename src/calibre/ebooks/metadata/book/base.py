@@ -156,8 +156,12 @@ class Metadata(object):
         the key name not the label
         '''
         if field is not None:
+            if not field.startswith('#'):
+                raise AttributeError(
+                        'Custom field name %s must begin with \'#\''%repr(field))
             if metadata is None:
                 traceback.print_stack()
+                return
             metadata = copy.deepcopy(metadata)
             if '#value#' not in metadata:
                 if metadata['datatype'] == 'text' and metadata['is_multiple']:
