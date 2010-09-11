@@ -55,6 +55,9 @@ def shorten_components_to(length, components):
         else:
             if x is components[-1]:
                 b, _, e = x.rpartition('.')
+                if not b and e:
+                    b = e
+                    e = ''
                 r = b[:-delta]+e
                 if r.startswith('.'): r = x[0]+r
             else:

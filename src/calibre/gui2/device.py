@@ -760,8 +760,8 @@ class DeviceMixin(object): # {{{
 
     def refresh_ondevice_info(self, device_connected, reset_only = False):
         '''
-        Force the library view to refresh, taking into consideration
-        books information
+        Force the library view to refresh, taking into consideration new
+        device books information
         '''
         self.book_on_device(None, reset=True)
         if reset_only:
@@ -791,12 +791,14 @@ class DeviceMixin(object): # {{{
                     self.booklists())
             model.paths_deleted(paths)
             self.upload_booklists()
-        # Clear the ondevice info so it will be recomputed
+        # Force recomputation the library's ondevice info. We need to call
+        # set_books_in_library even though books were not added because
+        # the deleted book might have been an exact match.
+        self.set_books_in_library(self.booklists(), reset=True)
         self.book_on_device(None, None, reset=True)
-        # We want to reset all the ondevice flags in the library. Use a big
-        # hammer, so we don't need to worry about whether some succeeded or not
-        self.library_view.model().refresh()
-
+        # We need to reset the ondevice flags in the library. Use a big hammer,
+        # so we don't need to worry about whether some succeeded or not.
+        self.refresh_ondevice_info(device_connected=True, reset_only=False)
 
     def dispatch_sync_event(self, dest, delete, specific):
         rows = self.library_view.selectionModel().selectedRows()
@@ -1286,8 +1288,14 @@ class DeviceMixin(object): # {{{
             books_to_be_deleted = memory[1]
             self.library_view.model().delete_books_by_id(books_to_be_deleted)
 
-        self.set_books_in_library(self.booklists(),
-                reset=bool(books_to_be_deleted))
+        # There are some cases where sending a book to the device overwrites a
+        # book already there with a different book. This happens frequently in
+        # news. When this happens, the book match indication will be wrong
+        # because the UUID changed. Force both the device and the library view
+        # to refresh the flags.
+        self.set_books_in_library(self.booklists(), reset=True)
+        self.book_on_device(None, reset=True)
+        self.refresh_ondevice_info(device_connected = True)
 
         view = self.card_a_view if on_card == 'carda' else self.card_b_view if on_card == 'cardb' else self.memory_view
         view.model().resort(reset=False)
@@ -1295,92 +1303,53 @@ class DeviceMixin(object): # {{{
         for f in files:
             getattr(f, 'close', lambda : True)()
 
-        self.book_on_device(None, reset=True)
-        if metadata:
-            changed = set([])
-            for mi in metadata:
-                id_ = getattr(mi, 'application_id', None)
-                if id_ is not None:
-                    changed.add(id_)
-            if changed:
-                self.library_view.model().refresh_ids(list(changed))
-
     def book_on_device(self, id, format=None, reset=False):
         '''
         Return an indication of whether the given book represented by its db id
-        is on the currently connected device. It returns a 4 element list. The
+        is on the currently connected device. It returns a 5 element list. The
         first three elements represent memory locations main, carda, and cardb,
         and are true if the book is identifiably in that memory. The fourth
-        is the a count of how many instances of the book were found across all
-        the memory locations.
+        is a count of how many instances of the book were found across all
+        the memory locations. The fifth is a set of paths to the
+        matching books on the device.
         '''
-        loc = [None, None, None, 0]
+        loc = [None, None, None, 0, set([])]
 
         if reset:
-            self.book_db_title_cache = None
-            self.book_db_uuid_cache = None
+            self.book_db_id_cache = None
             self.book_db_id_counts = None
+            self.book_db_uuid_path_map = None
             return
 
-        if self.book_db_title_cache is None:
-            self.book_db_title_cache = []
-            self.book_db_uuid_cache = []
+        if not hasattr(self, 'db_book_uuid_cache'):
+            return loc
+
+        if self.book_db_id_cache is None:
+            self.book_db_id_cache = []
             self.book_db_id_counts = {}
+            self.book_db_uuid_path_map = {}
             for i, l in enumerate(self.booklists()):
-                self.book_db_title_cache.append({})
-                self.book_db_uuid_cache.append(set())
+                self.book_db_id_cache.append(set())
                 for book in l:
-                    book_title = book.title.lower() if book.title else ''
-                    book_title = re.sub('(?u)\W|[_]', '', book_title)
-                    if book_title not in self.book_db_title_cache[i]:
-                        self.book_db_title_cache[i][book_title] = \
-                                {'authors':set(), 'db_ids':set(), 'uuids':set()}
-                    book_authors = authors_to_string(book.authors).lower()
-                    book_authors = re.sub('(?u)\W|[_]', '', book_authors)
-                    self.book_db_title_cache[i][book_title]['authors'].add(book_authors)
                     db_id = getattr(book, 'application_id', None)
                     if db_id is None:
                         db_id = book.db_id
                     if db_id is not None:
-                        self.book_db_title_cache[i][book_title]['db_ids'].add(db_id)
                         # increment the count of books on the device with this
                         # db_id.
+                        self.book_db_id_cache[i].add(db_id)
+                        if db_id not in self.book_db_uuid_path_map:
+                            self.book_db_uuid_path_map[db_id] = set()
+                        if getattr(book, 'lpath', False):
+                            self.book_db_uuid_path_map[db_id].add(book.lpath)
                         c = self.book_db_id_counts.get(db_id, 0)
                         self.book_db_id_counts[db_id] = c + 1
-                    uuid = getattr(book, 'uuid', None)
-                    if uuid is not None:
-                        self.book_db_uuid_cache[i].add(uuid)
 
-        mi = self.library_view.model().db.get_metadata(id, index_is_id=True)
         for i, l in enumerate(self.booklists()):
-            if mi.uuid in self.book_db_uuid_cache[i]:
+            if id in self.book_db_id_cache[i]:
                 loc[i] = True
-                continue
-            db_title = re.sub('(?u)\W|[_]', '', mi.title.lower())
-            cache = self.book_db_title_cache[i].get(db_title, None)
-            if cache:
-                if id in cache['db_ids']:
-                    loc[i] = True
-                    continue
-                if mi.authors and \
-                        re.sub('(?u)\W|[_]', '', authors_to_string(mi.authors).lower()) \
-                        in cache['authors']:
-                    # We really shouldn't get here, because set_books_in_library
-                    # should have set the db_ids for the books, and therefore
-                    # the if just above should have found them. Mark the book
-                    # anyway, and print a message about the situation
-                    loc[i] = True
-                    prints('book_on_device: matched title/author but not db_id!',
-                            mi.title, authors_to_string(mi.authors))
-                    continue
-                # Also check author sort, because it can be used as author in
-                # some formats
-                if mi.author_sort and \
-                        re.sub('(?u)\W|[_]', '', mi.author_sort.lower()) \
-                        in cache['authors']:
-                    loc[i] = True
-                    continue
-        loc[3] = self.book_db_id_counts.get(id, 0)
+                loc[3] = self.book_db_id_counts.get(id, 0)
+                loc[4] |= self.book_db_uuid_path_map[id]
         return loc
 
     def set_books_in_library(self, booklists, reset=False):
@@ -1390,46 +1359,52 @@ class DeviceMixin(object): # {{{
         it sets the application_id for matched books. Book_on_device uses that
         to both speed up matching and to count matches.
         '''
+
+        string_pat = re.compile('(?u)\W|[_]')
+        def clean_string(x):
+            x = x.lower() if x else ''
+            return string_pat.sub('', x)
+
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
             # It might be possible to get here without having initialized the
             # library view. In this case, simply give up
-            if not hasattr(self, 'library_view') or self.library_view is None:
-                return
-            db = getattr(self.library_view.model(), 'db', None)
-            if db is None:
+            try:
+                db = self.library_view.model().db
+            except:
                 return
             # Build a cache (map) of the library, so the search isn't On**2
             self.db_book_title_cache = {}
             self.db_book_uuid_cache = {}
             for id in db.data.iterallids():
                 mi = db.get_metadata(id, index_is_id=True)
-                title = re.sub('(?u)\W|[_]', '', mi.title.lower())
+                title = clean_string(mi.title)
                 if title not in self.db_book_title_cache:
                     self.db_book_title_cache[title] = \
                                 {'authors':{}, 'author_sort':{}, 'db_ids':{}}
+                # If there are multiple books in the library with the same title
+                # and author, then remember the last one. That is OK, because as
+                # we can't tell the difference between the books, one is as good
+                # as another.
                 if mi.authors:
-                    authors = authors_to_string(mi.authors).lower()
-                    authors = re.sub('(?u)\W|[_]', '', authors)
+                    authors = clean_string(authors_to_string(mi.authors))
                     self.db_book_title_cache[title]['authors'][authors] = mi
                 if mi.author_sort:
-                    aus = mi.author_sort.lower()
-                    aus = re.sub('(?u)\W|[_]', '', aus)
+                    aus = clean_string(mi.author_sort)
                     self.db_book_title_cache[title]['author_sort'][aus] = mi
                 self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
                 self.db_book_uuid_cache[mi.uuid] = mi
 
         # Now iterate through all the books on the device, setting the
-        # in_library field. Fastest and most accurate key is the uuid. Second is
-        # the application_id, which is really the db key, but as this can
-        # accidentally match across libraries we also verify the title. The
-        # db_id exists on Sony devices. Fallback is title and author match.
-        # We set the application ID so that we can reproduce book matching,
-        # necessary for identifying copies of books.
+        # in_library field. If the UUID matches a book in the library, then
+        # do not consider that book for other matching. In all cases set
+        # the application_id to the db_id of the matching book. This value
+        # will be used by books_on_device to indicate matches.
 
         update_metadata = prefs['manage_device_metadata'] == 'on_connect'
         for booklist in booklists:
             for book in booklist:
+                book.in_library = None
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
                     if update_metadata:
                         book.smart_update(self.db_book_uuid_cache[book.uuid],
@@ -1439,20 +1414,23 @@ class DeviceMixin(object): # {{{
                     book.application_id = \
                         self.db_book_uuid_cache[book.uuid].application_id
                     continue
-
-                book_title = book.title.lower() if book.title else ''
-                book_title = re.sub('(?u)\W|[_]', '', book_title)
-                book.in_library = None
+                # No UUID exact match. Try metadata matching.
+                book_title = clean_string(book.title)
                 d = self.db_book_title_cache.get(book_title, None)
                 if d is not None:
+                    # At this point we know that the title matches. The book
+                    # will match if any of the db_id, author, or author_sort
+                    # also match.
                     if getattr(book, 'application_id', None) in d['db_ids']:
                         book.in_library = True
-                        # application already matches db_id, so no need to set it
+                        # app_id already matches a db_id. No need to set it.
                         if update_metadata:
                             book.smart_update(d['db_ids'][book.application_id],
                                               replace_metadata=True)
                         continue
-                    if book.db_id in d['db_ids']:
+                    # Sonys know their db_id independent of the application_id
+                    # in the metadata cache. Check that as well.
+                    if getattr(book, 'db_id', None) in d['db_ids']:
                         book.in_library = True
                         book.application_id = \
                                     d['db_ids'][book.db_id].application_id
@@ -1460,11 +1438,15 @@ class DeviceMixin(object): # {{{
                             book.smart_update(d['db_ids'][book.db_id],
                                               replace_metadata=True)
                         continue
+                    # We now know that the application_id is not right. Set it
+                    # to None to prevent book_on_device from accidentally
+                    # matching on it. It will be set to a correct value below if
+                    # the book is matched with one in the library
+                    book.application_id = None
                     if book.authors:
                         # Compare against both author and author sort, because
                         # either can appear as the author
-                        book_authors = authors_to_string(book.authors).lower()
-                        book_authors = re.sub('(?u)\W|[_]', '', book_authors)
+                        book_authors = clean_string(authors_to_string(book.authors))
                         if book_authors in d['authors']:
                             book.in_library = True
                             book.application_id = \
@@ -1479,6 +1461,9 @@ class DeviceMixin(object): # {{{
                             if update_metadata:
                                 book.smart_update(d['author_sort'][book_authors],
                                                   replace_metadata=True)
+                else:
+                    # Book definitely not matched. Clear its application ID
+                    book.application_id = None
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
