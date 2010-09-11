@@ -372,19 +372,19 @@ class TagsModel(QAbstractItemModel): # {{{
         # before a QPaintDevice'. The ':' in front avoids polluting either the
         # user-defined categories (':' at end) or columns namespaces (no ':').
         self.category_icon_map = TagsIcons({
-                    'authors'   : QIcon(I('user_profile.svg')),
-                    'series'    : QIcon(I('series.svg')),
-                    'formats'   : QIcon(I('book.svg')),
+                    'authors'   : QIcon(I('user_profile.png')),
+                    'series'    : QIcon(I('series.png')),
+                    'formats'   : QIcon(I('book.png')),
                     'publisher' : QIcon(I('publisher.png')),
                     'rating'    : QIcon(I('star.png')),
-                    'news'      : QIcon(I('news.svg')),
-                    'tags'      : QIcon(I('tags.svg')),
-                    ':custom'   : QIcon(I('column.svg')),
-                    ':user'     : QIcon(I('drawer.svg')),
-                    'search'    : QIcon(I('search.svg'))})
+                    'news'      : QIcon(I('news.png')),
+                    'tags'      : QIcon(I('tags.png')),
+                    ':custom'   : QIcon(I('column.png')),
+                    ':user'     : QIcon(I('drawer.png')),
+                    'search'    : QIcon(I('search.png'))})
         self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
 
-        self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
+        self.icon_state_map = [None, QIcon(I('plus.png')), QIcon(I('minus.png'))]
         self.db = db
         self.tags_view = parent
         self.hidden_categories = hidden_categories
@@ -424,10 +424,8 @@ class TagsModel(QAbstractItemModel): # {{{
         self.categories = []
 
         # Reconstruct the user categories, putting them into metadata
+        self.db.field_metadata.remove_dynamic_categories()
         tb_cats = self.db.field_metadata
-        for k in tb_cats.keys():
-            if tb_cats[k]['kind'] in ['user', 'search']:
-                del tb_cats[k]
         for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys()):
             cat_name = user_cat+':' # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)

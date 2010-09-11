@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
+    <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
   </property>
   <layout class="QGridLayout">
    <item row="0" column="0">
@@ -61,7 +61,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
+             <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -81,7 +81,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
+             <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
            </property>
            <property name="iconSize">
             <size>

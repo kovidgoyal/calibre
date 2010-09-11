@@ -164,13 +164,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             self.system_tray_icon.show()
         self.system_tray_menu = QMenu(self)
         self.restore_action = self.system_tray_menu.addAction(
-                QIcon(I('page.svg')), _('&Restore'))
+                QIcon(I('page.png')), _('&Restore'))
         self.donate_action  = self.system_tray_menu.addAction(
-                QIcon(I('donate.svg')), _('&Donate to support calibre'))
+                QIcon(I('donate.png')), _('&Donate to support calibre'))
         self.donate_button.setDefaultAction(self.donate_action)
         self.donate_button.setStatusTip(self.donate_button.toolTip())
         self.eject_action = self.system_tray_menu.addAction(
-                QIcon(I('eject.svg')), _('&Eject connected device'))
+                QIcon(I('eject.png')), _('&Eject connected device'))
         self.eject_action.setEnabled(False)
         self.addAction(self.quit_action)
         self.system_tray_menu.addAction(self.quit_action)
@@ -514,7 +514,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
             d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
                             QMessageBox.Yes|QMessageBox.No, self)
-            d.setIconPixmap(QPixmap(I('dialog_warning.svg')))
+            d.setIconPixmap(QPixmap(I('dialog_warning.png')))
             d.setDefaultButton(QMessageBox.No)
             if d.exec_() != QMessageBox.Yes:
                 return False
@@ -522,6 +522,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
 
     def shutdown(self, write_settings=True):
+        try:
+            db = self.library_view.model().db
+            cf = db.clean
+        except:
+            pass
+        else:
+            cf()
+            # Save the current field_metadata for applications like calibre2opds
+            # Goes here, because if cf is valid, db is valid.
+            db.prefs['field_metadata'] = db.field_metadata.all_metadata()
         for action in self.iactions.values():
             if not action.shutting_down():
                 return

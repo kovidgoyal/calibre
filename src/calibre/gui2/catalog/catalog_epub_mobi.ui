@@ -108,17 +108,24 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
+   <item row="10" column="0">
     <widget class="QCheckBox" name="generate_recently_added">
      <property name="text">
       <string>Include 'Recently Added' Section</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
+   <item row="11" column="0">
     <widget class="QCheckBox" name="numbers_as_text">
      <property name="text">
       <string>Sort numbers as text</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QCheckBox" name="generate_series">
+     <property name="text">
+      <string>Include 'Series' Section</string>
      </property>
     </widget>
    </item>

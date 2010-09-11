@@ -106,11 +106,14 @@ class KOBO(USBMS):
                             changed = True
                     bl[idx].device_collections = playlist_map.get(lpath, [])
                 else:
-                    book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
+                    if ContentType == '6':
+                        book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
+                    else:
+                        book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
                     # print 'Update booklist'
+                    book.device_collections = playlist_map.get(book.lpath, [])
                     if bl.add_book(book, replace_metadata=False):
                         changed = True
-                    book.device_collections = playlist_map.get(book.lpath, [])
             except: # Probably a path encoding error
                 import traceback
                 traceback.print_exc()
@@ -231,21 +234,9 @@ class KOBO(USBMS):
             path = self.normalize_path(path)
             # print "Delete file normalized path: " + path
             extension =  os.path.splitext(path)[1]
-
-            if extension == '.kobo':
-                # Kobo books do not have book files.  They do have some images though
-                #print "kobo book"
-                ContentType = 6
-                ContentID = self.contentid_from_path(path, ContentType)
-            elif extension == '.pdf' or extension == '.epub':
-                # print "ePub or pdf"
-                ContentType = 16
-                #print "Path: " + path
-                ContentID = self.contentid_from_path(path, ContentType)
-                # print "ContentID: " + ContentID
-            else: # if extension == '.html' or extension == '.txt':
-                ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
-                ContentID = self.contentid_from_path(path, ContentType)
+            ContentType = self.get_content_type_from_extension(extension)
+            
+            ContentID = self.contentid_from_path(path, ContentType)
 
             ImageID = self.delete_via_sql(ContentID, ContentType)
             #print " We would now delete the Images for" + ImageID
@@ -343,6 +334,17 @@ class KOBO(USBMS):
         ContentID = ContentID.replace("\\", '/')
         return ContentID
 
+    def get_content_type_from_extension(self, extension):
+        if extension == '.kobo':
+            # Kobo books do not have book files.  They do have some images though
+            #print "kobo book"
+            ContentType = 6
+        elif extension == '.pdf' or extension == '.epub':
+            # print "ePub or pdf"
+            ContentType = 16
+        else: # if extension == '.html' or extension == '.txt':
+            ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
+        return ContentType
 
     def path_from_contentid(self, ContentID, ContentType, oncard):
         path = ContentID

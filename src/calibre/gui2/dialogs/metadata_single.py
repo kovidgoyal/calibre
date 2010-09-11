@@ -30,7 +30,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import qt_to_dt, local_tz, utcfromtimestamp
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
-from calibre.gui2.dialogs.config.social import SocialMetadata
+from calibre.gui2.preferences.social import SocialMetadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre import strftime
 
@@ -102,7 +102,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     view_format = pyqtSignal(object)
 
     def do_reset_cover(self, *args):
-        pix = QPixmap(I('default_cover.svg'))
+        pix = QPixmap(I('default_cover.png'))
         self.cover.setPixmap(pix)
         self.cover_changed = True
         self.cover_data = None
@@ -144,15 +144,23 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     self.cover_data = cover
 
     def generate_cover(self, *args):
-        from calibre.utils.magick.draw import create_cover_page, TextLine
+        from calibre.ebooks import calibre_cover
+        from calibre.ebooks.metadata import fmt_sidx
+        from calibre.gui2 import config
         title = unicode(self.title.text()).strip()
         author = unicode(self.authors.text()).strip()
         if not title or not author:
             return error_dialog(self, _('Specify title and author'),
                     _('You must specify a title and author before generating '
                         'a cover'), show=True)
-        lines = [TextLine(title, 44), TextLine(author, 32)]
-        self.cover_data = create_cover_page(lines, I('library.png'))
+        series = unicode(self.series.text()).strip()
+        series_string = None
+        if series:
+            series_string = _('Book %s of %s')%(
+                    fmt_sidx(self.series_index.value(),
+                        use_roman=config['use_roman_numerals_for_series_number']), series)
+        self.cover_data = calibre_cover(title, author,
+                series_string=series_string)
         pix = QPixmap()
         pix.loadFromData(self.cover_data)
         self.cover.setPixmap(pix)
@@ -432,7 +440,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if cover:
             pm.loadFromData(cover)
         if pm.isNull():
-            pm = QPixmap(I('default_cover.svg'))
+            pm = QPixmap(I('default_cover.png'))
         else:
             self.cover_data = cover
         self.cover.setPixmap(pm)

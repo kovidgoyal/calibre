@@ -14,7 +14,7 @@ from calibre.gui2 import error_dialog
 class TOCWidget(Widget, Ui_Form):
 
     TITLE = _('Table of\nContents')
-    ICON  = I('series.svg')
+    ICON  = I('series.png')
     HELP  = _('Control the creation/conversion of the Table of Contents.')
     COMMIT_NAME = 'toc'
 

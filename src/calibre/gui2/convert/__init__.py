@@ -7,9 +7,10 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap
+from functools import partial
 
 from PyQt4.Qt import QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit, \
-    QCheckBox, QComboBox, Qt, QIcon, SIGNAL
+    QCheckBox, QComboBox, Qt, QIcon, pyqtSignal
 
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.conversion.config import load_defaults, \
@@ -39,9 +40,12 @@ def bulk_defaults_for_input_format(fmt):
 class Widget(QWidget):
 
     TITLE = _('Unknown')
-    ICON  = I('config.svg')
+    ICON  = I('config.png')
     HELP  = ''
     COMMIT_NAME = None
+
+    changed_signal = pyqtSignal()
+    set_help = pyqtSignal(object)
 
     def __init__(self, parent, options):
         QWidget.__init__(self, parent)
@@ -54,6 +58,7 @@ class Widget(QWidget):
             if not hasattr(self, 'opt_'+name):
                 raise Exception('Option %s missing in %s'%(name,
                     self.__class__.__name__))
+            self.connect_gui_obj(getattr(self, 'opt_'+name))
 
     def initialize_options(self, get_option, get_help, db=None, book_id=None):
         '''
@@ -75,6 +80,12 @@ class Widget(QWidget):
 
         self.apply_recommendations(defaults)
         self.setup_help(get_help)
+
+    def restore_defaults(self, get_option):
+        defaults = GuiRecommendations()
+        defaults.merge_recommendations(get_option, OptionRecommendation.LOW,
+                self._options)
+        self.apply_recommendations(defaults)
 
     def commit_options(self, save_defaults=False):
         recs = self.create_recommendations()
@@ -124,6 +135,35 @@ class Widget(QWidget):
         else:
             raise Exception('Can\'t get value from %s'%type(g))
 
+    def gui_obj_changed(self, gui_obj, *args):
+        self.changed_signal.emit()
+
+    def connect_gui_obj(self, g):
+        f = partial(self.gui_obj_changed, g)
+        try:
+            self.connect_gui_obj_handler(g, f)
+            return
+        except NotImplementedError:
+            pass
+        from calibre.gui2.convert.xpath_wizard import XPathEdit
+        from calibre.gui2.convert.regex_builder import RegexEdit
+        if isinstance(g, (QSpinBox, QDoubleSpinBox)):
+            g.valueChanged.connect(f)
+        elif isinstance(g, (QLineEdit, QTextEdit)):
+            g.textChanged.connect(f)
+        elif isinstance(g, QComboBox):
+            g.editTextChanged.connect(f)
+            g.currentIndexChanged.connect(f)
+        elif isinstance(g, QCheckBox):
+            g.stateChanged.connect(f)
+        elif isinstance(g, (XPathEdit, RegexEdit)):
+            g.edit.editTextChanged.connect(f)
+            g.edit.currentIndexChanged.connect(f)
+        else:
+            raise Exception('Can\'t connect %s'%type(g))
+
+    def connect_gui_obj_handler(self, gui_obj, slot):
+        raise NotImplementedError()
 
     def set_value(self, g, val):
         from calibre.gui2.convert.xpath_wizard import XPathEdit
@@ -154,7 +194,7 @@ class Widget(QWidget):
     def set_help(self, msg):
         if msg and getattr(msg, 'strip', lambda:True)():
             try:
-                self.emit(SIGNAL('set_help(PyQt_PyObject)'), msg)
+                self.set_help.emit(msg)
             except:
                 pass
 

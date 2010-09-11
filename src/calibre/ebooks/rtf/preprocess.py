@@ -1,344 +1,390 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, Gerendi Sandor Attila'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-"""
-RTF tokenizer and token parser. v.1.0 (1/17/2010)
-Author: Gerendi Sandor Attila
+import functools, re
 
-At this point this will tokenize a RTF file then rebuild it from the tokens.
-In the process the UTF8 tokens are altered to be supported by the RTF2XML and also remain RTF specification compilant.
-"""
+from calibre import entity_to_unicode
 
-class tokenDelimitatorStart():
-    def __init__(self):
-        pass
-    def toRTF(self):
-        return b'{'
-    def __repr__(self):
-        return '{'
+XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
+SVG_NS       = 'http://www.w3.org/2000/svg'
+XLINK_NS     = 'http://www.w3.org/1999/xlink'
 
-class tokenDelimitatorEnd():
-    def __init__(self):
-        pass
-    def toRTF(self):
-        return b'}'
-    def __repr__(self):
-        return '}'
+convert_entities = functools.partial(entity_to_unicode,
+        result_exceptions = {
+            u'<' : '&lt;',
+            u'>' : '&gt;',
+            u"'" : '&apos;',
+            u'"' : '&quot;',
+            u'&' : '&amp;',
+        })
+_span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
 
-class tokenControlWord():
-    def __init__(self, name, separator = ''):
-        self.name = name
-        self.separator = separator
-    def toRTF(self):
-        return self.name + self.separator
-    def __repr__(self):
-        return self.name + self.separator
+LIGATURES = {
+#        u'\u00c6': u'AE',
+#        u'\u00e6': u'ae',
+#        u'\u0152': u'OE',
+#        u'\u0153': u'oe',
+#        u'\u0132': u'IJ',
+#        u'\u0133': u'ij',
+#        u'\u1D6B': u'ue',
+        u'\uFB00': u'ff',
+        u'\uFB01': u'fi',
+        u'\uFB02': u'fl',
+        u'\uFB03': u'ffi',
+        u'\uFB04': u'ffl',
+        u'\uFB05': u'ft',
+        u'\uFB06': u'st',
+        }
 
-class tokenControlWordWithNumericArgument():
-    def __init__(self, name, argument, separator = ''):
-        self.name = name
-        self.argument = argument
-        self.separator = separator
-    def toRTF(self):
-        return self.name + repr(self.argument) + self.separator
-    def __repr__(self):
-        return self.name + repr(self.argument) + self.separator
+_ligpat = re.compile(u'|'.join(LIGATURES))
 
-class tokenControlSymbol():
-    def __init__(self, name):
-        self.name = name
-    def toRTF(self):
-        return self.name
-    def __repr__(self):
-        return self.name
+def sanitize_head(match):
+    x = match.group(1)
+    x = _span_pat.sub('', x)
+    return '<head>\n%s\n</head>' % x
 
-class tokenData():
-    def __init__(self, data):
-        self.data = data
-    def toRTF(self):
-        return self.data
-    def __repr__(self):
-        return self.data
+def chap_head(match):
+    chap = match.group('chap')
+    title = match.group('title')
+    if not title:
+               return '<h1>'+chap+'</h1><br/>\n'
+    else:
+               return '<h1>'+chap+'</h1>\n<h3>'+title+'</h3>\n'
 
-class tokenBinN():
-    def __init__(self, data, separator = ''):
-        self.data = data
-        self.separator = separator
-    def toRTF(self):
-        return "\\bin" + repr(len(self.data)) + self.separator + self.data
-    def __repr__(self):
-        return "\\bin" + repr(len(self.data)) + self.separator + self.data
-
-class token8bitChar():
-    def __init__(self, data):
-        self.data = data
-    def toRTF(self):
-        return "\\'" + self.data
-    def __repr__(self):
-        return "\\'" + self.data
-
-class tokenUnicode():
-    def __init__(self, data, separator = '', current_ucn = 1, eqList = []):
-        self.data = data
-        self.separator = separator
-        self.current_ucn = current_ucn
-        self.eqList = eqList
-    def toRTF(self):
-        result = '\\u' + repr(self.data) + ' '
-        ucn = self.current_ucn
-        if len(self.eqList) < ucn:
-            ucn = len(self.eqList)
-            result =  tokenControlWordWithNumericArgument('\\uc', ucn).toRTF() + result
-        i = 0
-        for eq in self.eqList:
-            if i >= ucn:
-                break
-            result = result + eq.toRTF()
-        return result
-    def __repr__(self):
-        return '\\u' + repr(self.data)
+def wrap_lines(match):
+    ital = match.group('ital')
+    if not ital:
+               return ' '
+    else:
+               return ital+' '
 
 
-def isAsciiLetter(value):
-    return ((value >= 'a') and (value <= 'z')) or ((value >= 'A') and (value <= 'Z'))
+def line_length(format, raw, percent):
+    '''
+    raw is the raw text to find the line length to use for wrapping.
+    percentage is a decimal number, 0 - 1 which is used to determine
+    how far in the list of line lengths to use. The list of line lengths is
+    ordered smallest to larged and does not include duplicates. 0.5 is the
+    median value.
+    '''
+    raw = raw.replace('&nbsp;', ' ')
+    if format == 'html':
+        linere = re.compile('(?<=<p).*?(?=</p>)', re.DOTALL)
+    elif format == 'pdf':
+        linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
+    lines = linere.findall(raw)
+    print "percent is " + str(percent)
 
-def isDigit(value):
-    return (value >= '0') and (value <= '9')
+    lengths = []
+    for line in lines:
+        if len(line) > 0:
+            lengths.append(len(line))
 
-def isChar(value, char):
-    return value == char
+    if not lengths:
+        return 0
 
-def isString(buffer, string):
-    return buffer == string
+    lengths = list(set(lengths))
+    total = sum(lengths)
+    avg = total / len(lengths)
+    max_line = avg * 2
 
+    lengths = sorted(lengths)
+    for i in range(len(lengths) - 1, -1, -1):
+        if lengths[i] > max_line:
+            del lengths[i]
 
-class RtfTokenParser():
-    def __init__(self, tokens):
-        self.tokens = tokens
-        self.process()
-        self.processUnicode()
+    if percent > 1:
+        percent = 1
+    if percent < 0:
+        percent = 0
 
-    def process(self):
-        i = 0
-        newTokens = []
-        while i < len(self.tokens):
-            if isinstance(self.tokens[i], tokenControlSymbol):
-                if isString(self.tokens[i].name, "\\'"):
-                    i = i + 1
-                    if not isinstance(self.tokens[i], tokenData):
-                        raise Exception('Error: token8bitChar without data.')
-                    if len(self.tokens[i].data) < 2:
-                        raise Exception('Error: token8bitChar without data.')
-                    newTokens.append(token8bitChar(self.tokens[i].data[0:2]))
-                    if len(self.tokens[i].data) > 2:
-                        newTokens.append(tokenData(self.tokens[i].data[2:]))
-                    i = i + 1
-                    continue
+    index = int(len(lengths) * percent) - 1
 
-            newTokens.append(self.tokens[i])
-            i = i + 1
-
-        self.tokens = list(newTokens)
-
-    def processUnicode(self):
-        i = 0
-        newTokens = []
-        ucNbStack = [1]
-        while i < len(self.tokens):
-            if isinstance(self.tokens[i], tokenDelimitatorStart):
-                ucNbStack.append(ucNbStack[len(ucNbStack) - 1])
-                newTokens.append(self.tokens[i])
-                i = i + 1
-                continue
-            if isinstance(self.tokens[i], tokenDelimitatorEnd):
-                ucNbStack.pop()
-                newTokens.append(self.tokens[i])
-                i = i + 1
-                continue
-            if isinstance(self.tokens[i], tokenControlWordWithNumericArgument):
-                if isString(self.tokens[i].name, '\\uc'):
-                    ucNbStack[len(ucNbStack) - 1] = self.tokens[i].argument
-                    newTokens.append(self.tokens[i])
-                    i = i + 1
-                    continue
-                if isString(self.tokens[i].name, '\\u'):
-                    x = i
-                    j = 0
-                    i = i + 1
-                    replace = []
-                    partialData = None
-                    ucn = ucNbStack[len(ucNbStack) - 1]
-                    while (i < len(self.tokens)) and (j < ucn):
-                        if isinstance(self.tokens[i], tokenDelimitatorStart):
-                            break
-                        if isinstance(self.tokens[i], tokenDelimitatorEnd):
-                            break
-                        if isinstance(self.tokens[i], tokenData):
-                            if len(self.tokens[i].data) >= ucn - j:
-                                replace.append(tokenData(self.tokens[i].data[0 : ucn - j]))
-                                if len(self.tokens[i].data) > ucn - j:
-                                    partialData = tokenData(self.tokens[i].data[ucn - j:])
-                                i = i + 1
-                                break
-                            else:
-                                replace.append(self.tokens[i])
-                                j = j + len(self.tokens[i].data)
-                                i = i + 1
-                                continue
-                        if isinstance(self.tokens[i], token8bitChar) or isinstance(self.tokens[i], tokenBinN):
-                            replace.append(self.tokens[i])
-                            i = i + 1
-                            j = j + 1
-                            continue
-                        raise Exception('Error: incorect utf replacement.')
-
-                    #calibre rtf2xml does not support utfreplace
-                    replace = []
-
-                    newTokens.append(tokenUnicode(self.tokens[x].argument, self.tokens[x].separator, ucNbStack[len(ucNbStack) - 1], replace))
-                    if partialData != None:
-                        newTokens.append(partialData)
-                    continue
-
-            newTokens.append(self.tokens[i])
-            i = i + 1
-
-        self.tokens = list(newTokens)
+    return lengths[index]
 
 
-    def toRTF(self):
-        result = []
-        for token in self.tokens:
-            result.append(token.toRTF())
-        return "".join(result)
+class CSSPreProcessor(object):
 
+    PAGE_PAT   = re.compile(r'@page[^{]*?{[^}]*?}')
 
-class RtfTokenizer():
-    def __init__(self, rtfData):
-        self.rtfData = []
-        self.tokens = []
-        self.rtfData = rtfData
-        self.tokenize()
+    def __call__(self, data, add_namespace=False):
+        from calibre.ebooks.oeb.base import XHTML_CSS_NAMESPACE
+        data = self.PAGE_PAT.sub('', data)
+        if not add_namespace:
+            return data
+        ans, namespaced = [], False
+        for line in data.splitlines():
+            ll = line.lstrip()
+            if not (namespaced or ll.startswith('@import') or
+                        ll.startswith('@charset')):
+                ans.append(XHTML_CSS_NAMESPACE.strip())
+                namespaced = True
+            ans.append(line)
 
-    def tokenize(self):
-        i = 0
-        lastDataStart = -1
-        while i < len(self.rtfData):
+        return u'\n'.join(ans)
 
-            if isChar(self.rtfData[i], '{'):
-                if lastDataStart > -1:
-                    self.tokens.append(tokenData(self.rtfData[lastDataStart : i]))
-                    lastDataStart = -1
-                self.tokens.append(tokenDelimitatorStart())
-                i = i + 1
-                continue
+class HTMLPreProcessor(object):
 
-            if isChar(self.rtfData[i], '}'):
-                if lastDataStart > -1:
-                    self.tokens.append(tokenData(self.rtfData[lastDataStart : i]))
-                    lastDataStart = -1
-                self.tokens.append(tokenDelimitatorEnd())
-                i = i + 1
-                continue
+    PREPROCESS = [
+                  # Some idiotic HTML generators (Frontpage I'm looking at you)
+                  # Put all sorts of crap into <head>. This messes up lxml
+                  (re.compile(r'<head[^>]*>\n*(.*?)\n*</head>', re.IGNORECASE|re.DOTALL),
+                   sanitize_head),
+                  # Convert all entities, since lxml doesn't handle them well
+                  (re.compile(r'&(\S+?);'), convert_entities),
+                  # Remove the <![if/endif tags inserted by everybody's darling, MS Word
+                  (re.compile(r'</{0,1}!\[(end){0,1}if\]{0,1}>', re.IGNORECASE),
+                   lambda match: ''),
+                  ]
 
-            if isChar(self.rtfData[i], '\\'):
-                if i + 1 >= len(self.rtfData):
-                    raise Exception('Error: Control character found at the end of the document.')
+    # Fix pdftohtml markup
+    PDFTOHTML  = [
+                  # Fix umlauts
+                  # ¨
+                  (re.compile(u'¨\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'ä'),
+                  (re.compile(u'¨\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Ä'),
+                  (re.compile(u'¨\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'ë'),
+                  (re.compile(u'¨\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'Ë'),
+                  (re.compile(u'¨\s*(<br.*?>)*\s*i', re.UNICODE), lambda match: u'ï'),
+                  (re.compile(u'¨\s*(<br.*?>)*\s*I', re.UNICODE), lambda match: u'Ï'),
+                  (re.compile(u'¨\s*(<br.*?>)*\s*o', re.UNICODE), lambda match: u'ö'),
+                  (re.compile(u'¨\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ö'),
+                  (re.compile(u'¨\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ü'),
+                  (re.compile(u'¨\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Ü'),
 
-                if lastDataStart > -1:
-                    self.tokens.append(tokenData(self.rtfData[lastDataStart : i]))
-                    lastDataStart = -1
+                  # Fix accents
+                  # `
+                  (re.compile(u'`\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'à'),
+                  (re.compile(u'`\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'À'),
+                  (re.compile(u'`\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'è'),
+                  (re.compile(u'`\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'È'),
+                  (re.compile(u'`\s*(<br.*?>)*\s*i', re.UNICODE), lambda match: u'ì'),
+                  (re.compile(u'`\s*(<br.*?>)*\s*I', re.UNICODE), lambda match: u'Ì'),
+                  (re.compile(u'`\s*(<br.*?>)*\s*o', re.UNICODE), lambda match: u'ò'),
+                  (re.compile(u'`\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ò'),
+                  (re.compile(u'`\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ù'),
+                  (re.compile(u'`\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Ù'),
 
-                tokenStart = i
-                i = i + 1
+                  # ´
+                  (re.compile(u'´\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'á'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Á'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*c', re.UNICODE), lambda match: u'ć'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*C', re.UNICODE), lambda match: u'Ć'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'é'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'É'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*i', re.UNICODE), lambda match: u'í'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*I', re.UNICODE), lambda match: u'Í'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*o', re.UNICODE), lambda match: u'ó'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ó'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*n', re.UNICODE), lambda match: u'ń'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*N', re.UNICODE), lambda match: u'Ń'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*s', re.UNICODE), lambda match: u'ś'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*S', re.UNICODE), lambda match: u'Ś'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ú'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Ú'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ź'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ź'),
 
-                #Control Words
-                if isAsciiLetter(self.rtfData[i]):
-                    #consume <ASCII Letter Sequence>
-                    consumed = False
-                    while i < len(self.rtfData):
-                        if not isAsciiLetter(self.rtfData[i]):
-                            tokenEnd = i
-                            consumed = True
-                            break
-                        i = i + 1
+                  # ˆ
+                  (re.compile(u'ˆ\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'â'),
+                  (re.compile(u'ˆ\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Â'),
+                  (re.compile(u'ˆ\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'ê'),
+                  (re.compile(u'ˆ\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'Ê'),
+                  (re.compile(u'ˆ\s*(<br.*?>)*\s*i', re.UNICODE), lambda match: u'î'),
+                  (re.compile(u'ˆ\s*(<br.*?>)*\s*I', re.UNICODE), lambda match: u'Î'),
+                  (re.compile(u'ˆ\s*(<br.*?>)*\s*o', re.UNICODE), lambda match: u'ô'),
+                  (re.compile(u'ˆ\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ô'),
+                  (re.compile(u'ˆ\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'û'),
+                  (re.compile(u'ˆ\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Û'),
 
-                    if not consumed:
-                        raise Exception('Error (at:%d): Control Word without end.'%(tokenStart))
+                  # ¸
+                  (re.compile(u'¸\s*(<br.*?>)*\s*c', re.UNICODE), lambda match: u'ç'),
+                  (re.compile(u'¸\s*(<br.*?>)*\s*C', re.UNICODE), lambda match: u'Ç'),
 
-                    #we have numeric argument before delimiter
-                    if isChar(self.rtfData[i], '-') or isDigit(self.rtfData[i]):
-                        #consume the numeric argument
-                        consumed = False
-                        l = 0
-                        while i < len(self.rtfData):
-                            if not isDigit(self.rtfData[i]):
-                                consumed = True
-                                break
-                            l = l + 1
-                            i = i + 1
-                            if l > 10 :
-                                raise Exception('Error (at:%d): Too many digits in control word numeric argument.'%[tokenStart])
+                  # ˛
+                  (re.compile(u'˛\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'ą'),
+                  (re.compile(u'˛\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Ą'),
+                  (re.compile(u'˛\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'ę'),
+                  (re.compile(u'˛\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'Ę'),
+                  
+                  # ˙
+                  (re.compile(u'˙\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ż'),
+                  (re.compile(u'˙\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ż'),
+                  
 
-                        if not consumed:
-                            raise Exception('Error (at:%d): Control Word without numeric argument end.'%[tokenStart])
+                  # If pdf printed from a browser then the header/footer has a reliable pattern
+                  (re.compile(r'((?<=</a>)\s*file:////?[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
 
-                    separator = ''
-                    if isChar(self.rtfData[i], ' '):
-                        separator = ' '
+                  # Center separator lines
+                  (re.compile(u'<br>\s*(?P<break>([*#•]+\s*)+)\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group(1) + '</p>'),
 
-                    controlWord = self.rtfData[tokenStart: tokenEnd]
-                    if tokenEnd < i:
-                        value = int(self.rtfData[tokenEnd: i])
-                        if isString(controlWord, "\\bin"):
-                            i = i + value
-                            self.tokens.append(tokenBinN(self.rtfData[tokenStart:i], separator))
-                        else:
-                            self.tokens.append(tokenControlWordWithNumericArgument(controlWord, value, separator))
-                    else:
-                        self.tokens.append(tokenControlWord(controlWord, separator))
-                    #space delimiter, we should discard it
-                    if self.rtfData[i] == ' ':
-                        i = i + 1
+                  # Remove page links
+                  (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
+                  # Remove <hr> tags
+                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br />'),
+                  # Replace <br><br> with <p>
+                  # (re.compile(r'<br>\s*<br>', re.IGNORECASE), lambda match: '\n<p>'),
 
-                #Control Symbol
-                else:
-                    self.tokens.append(tokenControlSymbol(self.rtfData[tokenStart : i + 1]))
-                    i = i + 1
-                continue
+                  # unwrap hyphenation - don't delete the hyphen (often doesn't split words)
+                  (re.compile(u'(?<=[-–—])\s*<br>\s*(?=[[a-z\d])'), lambda match: ''),
 
-            if lastDataStart < 0:
-                lastDataStart = i
-            i = i + 1
+                  # Remove gray background
+                  (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
 
-    def toRTF(self):
-        result = []
-        for token in self.tokens:
-            result.append(token.toRTF())
-        return "".join(result)
+                  # Detect Chapters to match default XPATH in GUI
+                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?.?(Introduction|Chapter|Epilogue|Prologue|Book|Part|Dedication|Volume|Preface|Acknowledgments)\s*([\d\w-]+\s*){0,3}\s*(</(i|b)>(</(i|b)>)?)?)\s*(</?(br|p)[^>]*>\s*){1,3}\s*(?P<title>(<(i|b)>)?(\s*\w+){1,4}\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
 
+                  # Have paragraphs show better
+                  (re.compile(r'<br.*?>'), lambda match : '<p>'),
+                  # Clean up spaces
+                  (re.compile(u'(?<=[\.,;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
+                  # Add space before and after italics
+                  (re.compile(u'(?<!“)<i>'), lambda match: ' <i>'),
+                  (re.compile(r'</i>(?=\w)'), lambda match: '</i> '),
+                                   
+                 ]
 
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) < 2:
-        print ("Usage %prog rtfFileToConvert")
-        sys.exit()
-    f = open(sys.argv[1], 'rb')
-    data = f.read()
-    f.close()
+    # Fix Book Designer markup
+    BOOK_DESIGNER = [
+                     # HR
+                     (re.compile('<hr>', re.IGNORECASE),
+                      lambda match : '<span style="page-break-after:always"> </span>'),
+                     # Create header tags
+                     (re.compile('<h2[^><]*?id=BookTitle[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
+                      lambda match : '<h1 id="BookTitle" align="%s">%s</h1>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
+                     (re.compile('<h2[^><]*?id=BookAuthor[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
+                      lambda match : '<h2 id="BookAuthor" align="%s">%s</h2>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
+                     (re.compile('<span[^><]*?id=title[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+                      lambda match : '<h2 class="title">%s</h2>'%(match.group(1),)),
+                     (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+                      lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
+                     ]
+    def __init__(self, input_plugin_preprocess, plugin_preprocess,
+            extra_opts=None):
+        self.input_plugin_preprocess = input_plugin_preprocess
+        self.plugin_preprocess = plugin_preprocess
+        self.extra_opts = extra_opts
 
-    tokenizer = RtfTokenizer(data)
-    parsedTokens = RtfTokenParser(tokenizer.tokens)
+    def is_baen(self, src):
+        return re.compile(r'<meta\s+name="Publisher"\s+content=".*?Baen.*?"',
+                          re.IGNORECASE).search(src) is not None
 
-    data = parsedTokens.toRTF()
+    def is_book_designer(self, raw):
+        return re.search('<H2[^><]*id=BookTitle', raw) is not None
 
-    f = open(sys.argv[1], 'w')
-    f.write(data)
-    f.close()
+    def is_pdftohtml(self, src):
+        return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
 
+    def __call__(self, html, remove_special_chars=None,
+            get_preprocess_html=False):
+        if remove_special_chars is not None:
+            html = remove_special_chars.sub('', html)
+        html = html.replace('\0', '')
+        is_pdftohtml = self.is_pdftohtml(html)
+        if self.is_baen(html):
+            rules = []
+        elif self.is_book_designer(html):
+            rules = self.BOOK_DESIGNER
+        elif is_pdftohtml:
+            rules = self.PDFTOHTML
+        else:
+            rules = []
+
+        start_rules = []
+        if is_pdftohtml:
+            # Remove non breaking spaces
+            start_rules.append((re.compile(ur'\u00a0'), lambda match : ' '))
+
+        if not getattr(self.extra_opts, 'keep_ligatures', False):
+            html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
+
+        end_rules = []
+        if getattr(self.extra_opts, 'remove_header', None):
+            try:
+                rules.insert(0,
+                    (re.compile(self.extra_opts.header_regex), lambda match : '')
+                )
+            except:
+                import traceback
+                print 'Failed to parse remove_header regexp'
+                traceback.print_exc()
+
+        if getattr(self.extra_opts, 'remove_footer', None):
+            try:
+                rules.insert(0,
+                    (re.compile(self.extra_opts.footer_regex), lambda match : '')
+                )
+            except:
+                import traceback
+                print 'Failed to parse remove_footer regexp'
+                traceback.print_exc()
+
+        # Make the more aggressive chapter marking regex optional with the preprocess option to reduce false positives
+        if getattr(self.extra_opts, 'preprocess_html', None):
+            if is_pdftohtml:
+                end_rules.append(
+                    (re.compile(r'(?=<(/?br|p|hr))(<(/?br|p|hr)[^>]*)?>\s*(<(i|b)>(<(i|b)>)?)?\s*(?P<chap>([A-Z-\'"!]{3,})\s*(\d+|[A-Z]+(\s*[A-Z]+)?)?|\d+\.?\s*([\d\w-]+\s*){0,4}\s*)\s*(</(i|b)>(</(i|b)>)?)?\s*(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
+                )
+
+        if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
+            length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'))
+            if length:
+                print "The pdf line length returned is " + str(length)
+                end_rules.append(
+                    # Un wrap using punctuation
+                    (re.compile(r'(?<=.{%i}[a-z,;:)\-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
+                )
+
+        for rule in self.PREPROCESS + start_rules:
+            html = rule[0].sub(rule[1], html)
+
+        if get_preprocess_html:
+            return html
+
+        def dump(raw, where):
+            import os
+            dp = getattr(self.extra_opts, 'debug_pipeline', None)
+            if dp and os.path.exists(dp):
+                odir = os.path.join(dp, 'input')
+                if os.path.exists(odir):
+                    odir = os.path.join(odir, where)
+                    if not os.path.exists(odir):
+                        os.makedirs(odir)
+                    name, i = None, 0
+                    while not name or os.path.exists(os.path.join(odir, name)):
+                        i += 1
+                        name = '%04d.html'%i
+                    with open(os.path.join(odir, name), 'wb') as f:
+                        f.write(raw.encode('utf-8'))
+
+        #dump(html, 'pre-preprocess')
+
+        for rule in rules + end_rules:
+            html = rule[0].sub(rule[1], html)
+
+        #dump(html, 'post-preprocess')
+
+        # Handle broken XHTML w/ SVG (ugh)
+        if 'svg:' in html and SVG_NS not in html:
+            html = html.replace(
+                '<html', '<html xmlns:svg="%s"' % SVG_NS, 1)
+        if 'xlink:' in html and XLINK_NS not in html:
+            html = html.replace(
+                '<html', '<html xmlns:xlink="%s"' % XLINK_NS, 1)
+
+        html = XMLDECL_RE.sub('', html)
+
+        if getattr(self.extra_opts, 'asciiize', False):
+            from calibre.ebooks.unidecode.unidecoder import Unidecoder
+            unidecoder = Unidecoder()
+            html = unidecoder.decode(html)
+
+        if self.plugin_preprocess:
+            html = self.input_plugin_preprocess(html)
+
+        return html
 

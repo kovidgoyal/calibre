@@ -22,10 +22,19 @@ class NrcNextRecipe(BasicNewsRecipe):
 
     remove_tags = []
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'meta'}))
+    remove_tags.append(dict(name = 'p', attrs = {'class' : 'meta'}))
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'datumlabel'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'sharing-is-caring'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'navigation'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'reageer'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'comment odd alt thread-odd thread-alt depth-1 reactie '}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'comment even thread-even depth-1 reactie '}))
     remove_tags.append(dict(name = 'ul', attrs = {'class' : 'cats single'}))
     remove_tags.append(dict(name = 'ul', attrs = {'class' : 'cats onderwerpen'}))
     remove_tags.append(dict(name = 'ul', attrs = {'class' : 'cats rubrieken'}))
+    remove_tags.append(dict(name = 'h3', attrs = {'class' : 'reacties'}))
+
+
 
     extra_css = '''
                 body {font-family: verdana, arial, helvetica, geneva, sans-serif; text-align: left;}
@@ -41,20 +50,18 @@ class NrcNextRecipe(BasicNewsRecipe):
         feeds[u'koken'] = u'http://www.nrcnext.nl/koken/'
         feeds[u'geld & werk'] = u'http://www.nrcnext.nl/geld-en-werk/'
         feeds[u'vandaag'] = u'http://www.nrcnext.nl'
-        feeds[u'city life in afrika']  = u'http://www.nrcnext.nl/city-life-in-afrika/'
+        # feeds[u'city life in afrika']  = u'http://www.nrcnext.nl/city-life-in-afrika/'
         answer = []
         articles = {}
         indices = []
 
         for index, feed in feeds.items() :
             soup = self.index_to_soup(feed)
-
-            for post in soup.findAll(True, attrs={'class' : 'post'}) :
+            for post in soup.findAll(True, attrs={'class' : 'post '}) :
                 # Find the links to the actual articles and rember the location they're pointing to and the title
                 a = post.find('a', attrs={'rel' : 'bookmark'})
                 href = a['href']
                 title = self.tag_to_string(a)
-
                 if index == 'columnisten' :
                     # In this feed/page articles can be written by more than one author.
                     # It is nice to see their names in the titles.
@@ -74,7 +81,8 @@ class NrcNextRecipe(BasicNewsRecipe):
             indices.append(index)
 
         # Now, sort the temporary list of feeds in the order they appear on the website
-        indices = self.sort_index_by(indices, {u'columnisten' : 1, u'koken' : 3, u'geld & werk' : 2, u'vandaag' : 0, u'city life in afrika' : 4})
+        # indices = self.sort_index_by(indices, {u'columnisten' : 1, u'koken' : 3, u'geld & werk' : 2, u'vandaag' : 0, u'city life in afrika' : 4})
+        indices = self.sort_index_by(indices, {u'columnisten' : 1, u'koken' : 3, u'geld & werk' : 2, u'vandaag' : 0})
         # Apply this sort order to the actual list of feeds and articles
         answer = [(key, articles[key]) for key in indices if articles.has_key(key)]
 

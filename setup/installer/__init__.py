@@ -18,6 +18,7 @@ class Rsync(Command):
     SYNC_CMD = ('rsync -avz --delete --exclude src/calibre/plugins '
                '--exclude src/calibre/manual --exclude src/calibre/trac '
                '--exclude .bzr --exclude .build --exclude .svn --exclude build --exclude dist '
+               '--exclude imgsrc '
                '--exclude "*.pyc" --exclude "*.pyo" --exclude "*.swp" --exclude "*.swo" '
                'rsync://{host}/work/{project} ..')
 

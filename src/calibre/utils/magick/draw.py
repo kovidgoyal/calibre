@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.utils.magick import Image, DrawingWand, create_canvas
 from calibre.constants import __appname__, __version__
+from calibre import fit_image
 
 def save_cover_data_to(data, path, bgcolor='white', resize_to=None):
     '''
@@ -22,6 +23,17 @@ def save_cover_data_to(data, path, bgcolor='white', resize_to=None):
     canvas = create_canvas(img.size[0], img.size[1], bgcolor)
     canvas.compose(img)
     canvas.save(path)
+
+def thumbnail(data, width=120, height=120, bgcolor='white', fmt='jpg'):
+    img = Image()
+    img.load(data)
+    owidth, oheight = img.size
+    scaled, nwidth, nheight = fit_image(owidth, oheight, width, height)
+    if scaled:
+        img.size = (nwidth, nheight)
+    canvas = create_canvas(img.size[0], img.size[1], bgcolor)
+    canvas.compose(img)
+    return (canvas.size[0], canvas.size[1], canvas.export(fmt))
 
 def identify_data(data):
     '''
@@ -153,12 +165,17 @@ def create_cover_page(top_lines, logo_path, width=590, height=750,
     top  = height - lheight - 10
     canvas.compose(vanity, left, top)
 
-    logo = Image()
-    logo.open(logo_path)
-    lwidth, lheight = logo.size
-    left = int(max(0, (width - lwidth)/2.))
-    top  = max(int((height - lheight)/2.), bottom+20)
-    canvas.compose(logo, left, top)
+    available = (width, int(top - bottom)-20)
+    if available[1] > 40:
+        logo = Image()
+        logo.open(logo_path)
+        lwidth, lheight = logo.size
+        scaled, lwidth, lheight = fit_image(lwidth, lheight, *available)
+        if scaled:
+            logo.size = (lwidth, lheight)
+        left = int(max(0, (width - lwidth)/2.))
+        top  = bottom+10
+        canvas.compose(logo, left, top)
 
     return canvas.export(output_format)
 

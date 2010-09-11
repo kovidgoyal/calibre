@@ -50,7 +50,7 @@ class LocationManager(QObject): # {{{
                 a = m.addAction(icon, tooltip)
                 a.triggered.connect(receiver)
                 self._mem.append(a)
-                a = m.addAction(QIcon(I('eject.svg')), _('Eject this device'))
+                a = m.addAction(QIcon(I('eject.png')), _('Eject this device'))
                 a.triggered.connect(self._eject_requested)
                 ac.setMenu(m)
                 self._mem.append(a)
@@ -61,11 +61,11 @@ class LocationManager(QObject): # {{{
 
         ac('library', _('Library'), 'lt.png',
                 _('Show books in calibre library'))
-        ac('main', _('Reader'), 'reader.svg',
+        ac('main', _('Reader'), 'reader.png',
                 _('Show books in the main memory of the device'))
-        ac('carda', _('Card A'), 'sd.svg',
+        ac('carda', _('Card A'), 'sd.png',
                 _('Show books in storage card A'))
-        ac('cardb', _('Card B'), 'sd.svg',
+        ac('cardb', _('Card B'), 'sd.png',
                 _('Show books in storage card B'))
 
     def _location_selected(self, location, *args):
@@ -80,7 +80,7 @@ class LocationManager(QObject): # {{{
 
     def update_devices(self, cp=(None, None), fs=[-1, -1, -1], icon=None):
         if icon is None:
-            icon = I('reader.svg')
+            icon = I('reader.png')
         self.location_main.setIcon(QIcon(icon))
         had_device = self.has_device
         if cp is None:
@@ -148,7 +148,7 @@ class SearchBar(QWidget): # {{{
         x.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         parent.advanced_search_button = x = QToolButton(self)
-        x.setIcon(QIcon(I('search.svg')))
+        x.setIcon(QIcon(I('search.png')))
         l.addWidget(x)
         x.setToolTip(_("Advanced search"))
 
@@ -163,7 +163,7 @@ class SearchBar(QWidget): # {{{
         l.addWidget(x)
 
         x = parent.clear_button = QToolButton(self)
-        x.setIcon(QIcon(I('clear_left.svg')))
+        x.setIcon(QIcon(I('clear_left.png')))
         x.setObjectName("clear_button")
         l.addWidget(x)
         x.setToolTip(_("Reset Quick Search"))
@@ -175,19 +175,19 @@ class SearchBar(QWidget): # {{{
         l.addWidget(x)
 
         x = parent.copy_search_button = QToolButton(self)
-        x.setIcon(QIcon(I("search_copy_saved.svg")))
+        x.setIcon(QIcon(I("search_copy_saved.png")))
         x.setObjectName("copy_search_button")
         l.addWidget(x)
         x.setToolTip(_("Copy current search text (instead of search name)"))
 
         x = parent.save_search_button = QToolButton(self)
-        x.setIcon(QIcon(I("search_add_saved.svg")))
+        x.setIcon(QIcon(I("search_add_saved.png")))
         x.setObjectName("save_search_button")
         l.addWidget(x)
         x.setToolTip(_("Save current search under the name shown in the box"))
 
         x = parent.delete_search_button = QToolButton(self)
-        x.setIcon(QIcon(I("search_delete_saved.svg")))
+        x.setIcon(QIcon(I("search_delete_saved.png")))
         x.setObjectName("delete_search_button")
         l.addWidget(x)
         x.setToolTip(_("Delete current saved search"))
@@ -215,6 +215,7 @@ class ToolBar(QToolBar): # {{{
         self.location_manager.locations_changed.connect(self.build_bar)
         donate.setAutoRaise(True)
         donate.setCursor(Qt.PointingHandCursor)
+        self.added_actions = []
         self.build_bar()
         self.preferred_width = self.sizeHint().width()
 
@@ -237,7 +238,13 @@ class ToolBar(QToolBar): # {{{
         actions = '-device' if showing_device else ''
         actions = gprefs['action-layout-toolbar'+actions]
 
+        for ac in self.added_actions:
+            m = ac.menu()
+            if m is not None:
+                m.setVisible(False)
+
         self.clear()
+        self.added_actions = []
 
         for what in actions:
             if what is None:
@@ -245,6 +252,7 @@ class ToolBar(QToolBar): # {{{
             elif what == 'Location Manager':
                 for ac in self.location_manager.available_actions:
                     self.addAction(ac)
+                    self.added_actions.append(ac)
                     self.setup_tool_button(ac, QToolButton.MenuButtonPopup)
             elif what == 'Donate':
                 self.d_widget = QWidget()
@@ -255,6 +263,7 @@ class ToolBar(QToolBar): # {{{
             elif what in self.gui.iactions:
                 action = self.gui.iactions[what]
                 self.addAction(action.qaction)
+                self.added_actions.append(action.qaction)
                 self.setup_tool_button(action.qaction, action.popup_type)
 
     def setup_tool_button(self, ac, menu_mode=None):

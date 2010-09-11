@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
+    <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
   </property>
   <layout class="QGridLayout">
    <item row="2" column="0" colspan="2">
@@ -90,7 +90,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>:/images/minus.svg</normaloff>:/images/minus.svg</iconset>
+         <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
        </property>
       </widget>
      </item>
@@ -130,7 +130,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
+         <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
        </property>
       </widget>
      </item>

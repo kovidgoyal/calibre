@@ -20,7 +20,7 @@ from calibre.utils.date import isoformat, now as nowf
 from calibre.utils.logging import default_log as log
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
-          'cover', 'formats', 'id', 'isbn', 'pubdate', 'publisher', 'rating',
+          'cover', 'formats', 'id', 'isbn', 'ondevice', 'pubdate', 'publisher', 'rating',
           'series_index', 'series', 'size', 'tags', 'timestamp', 'title',
           'uuid']
 
@@ -67,6 +67,8 @@ class CSV_XML(CatalogPlugin):
         if opts.verbose:
             opts_dict = vars(opts)
             log("%s(): Generating %s" % (self.name,self.fmt))
+            if opts.connected_device['is_device_connected']:
+                log(" connected_device: %s" % opts.connected_device['name'])
             if opts_dict['search_text']:
                 log(" --search='%s'" % opts_dict['search_text'])
 
@@ -81,7 +83,6 @@ class CSV_XML(CatalogPlugin):
                 else:
                     log(" Fields: %s" % opts_dict['fields'])
 
-
         # If a list of ids are provided, don't use search_text
         if opts.ids:
             opts.search_text = None
@@ -94,6 +95,11 @@ class CSV_XML(CatalogPlugin):
 
         # Get the requested output fields as a list
         fields = self.get_output_fields(opts)
+
+        # If connected device, add 'On Device' values to data
+        if opts.connected_device['is_device_connected'] and 'ondevice' in fields:
+            for entry in data:
+                entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[entry['id']]['ondevice']
 
         if self.fmt == 'csv':
             outfile = codecs.open(path_to_output, 'w', 'utf8')
@@ -140,10 +146,10 @@ class CSV_XML(CatalogPlugin):
                 root.append(record)
 
                 for field in ('id', 'uuid', 'title', 'publisher', 'rating', 'size',
-                        'isbn'):
+                              'isbn','ondevice'):
                     if field in fields:
                         val = r[field]
-                        if val is None:
+                        if not val:
                             continue
                         if not isinstance(val, (str, unicode)):
                             val = unicode(val)
@@ -561,6 +567,13 @@ class EPUB_MOBI(CatalogPlugin):
                           help=_("Include 'Titles' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
+                   Option('--generate-series',
+                          default=False,
+                          dest='generate_series',
+                          action = 'store_true',
+                          help=_("Include 'Series' section in catalog.\n"
+                          "Default: '%default'\n"
+                          "Applies to: ePub, MOBI output formats")),
                    Option('--generate-recently-added',
                           default=False,
                           dest='generate_recently_added',
@@ -886,304 +899,307 @@ class EPUB_MOBI(CatalogPlugin):
                 self.__totalSteps += 2
                 if self.generateRecentlyRead:
                     self.__totalSteps += 2
+            if self.opts.generate_series:
+                self.__totalSteps += 2
+
 
         # Accessors
-        '''
-        @dynamic_property
-        def xxxx(self):
-            def fget(self):
-                return self.__
-            def fset(self, val):
-                self.__ = val
-            return property(fget=fget, fset=fset)
-        '''
+        if True:
+            '''
+            @dynamic_property
+            def xxxx(self):
+                def fget(self):
+                    return self.__
+                def fset(self, val):
+                    self.__ = val
+                return property(fget=fget, fset=fset)
+            '''
+            @dynamic_property
+            def authorClip(self):
+                def fget(self):
+                    return self.__authorClip
+                def fset(self, val):
+                    self.__authorClip = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def authors(self):
+                def fget(self):
+                    return self.__authors
+                def fset(self, val):
+                    self.__authors = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def basename(self):
+                def fget(self):
+                    return self.__basename
+                def fset(self, val):
+                    self.__basename = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def bookmarked_books(self):
+                def fget(self):
+                    return self.__bookmarked_books
+                def fset(self, val):
+                    self.__bookmarked_books = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def booksByAuthor(self):
+                def fget(self):
+                    return self.__booksByAuthor
+                def fset(self, val):
+                    self.__booksByAuthor = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def booksByDateRead(self):
+                def fget(self):
+                    return self.__booksByDateRead
+                def fset(self, val):
+                    self.__booksByDateRead = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def booksByTitle(self):
+                def fget(self):
+                    return self.__booksByTitle
+                def fset(self, val):
+                    self.__booksByTitle = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def booksByTitle_noSeriesPrefix(self):
+                def fget(self):
+                    return self.__booksByTitle_noSeriesPrefix
+                def fset(self, val):
+                    self.__booksByTitle_noSeriesPrefix = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def catalogPath(self):
+                def fget(self):
+                    return self.__catalogPath
+                def fset(self, val):
+                    self.__catalogPath = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def contentDir(self):
+                def fget(self):
+                    return self.__contentDir
+                def fset(self, val):
+                    self.__contentDir = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def currentStep(self):
+                def fget(self):
+                    return self.__currentStep
+                def fset(self, val):
+                    self.__currentStep = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def creator(self):
+                def fget(self):
+                    return self.__creator
+                def fset(self, val):
+                    self.__creator = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def db(self):
+                def fget(self):
+                    return self.__db
+                return property(fget=fget)
+            @dynamic_property
+            def descriptionClip(self):
+                def fget(self):
+                    return self.__descriptionClip
+                def fset(self, val):
+                    self.__descriptionClip = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def error(self):
+                def fget(self):
+                    return self.__error
+                return property(fget=fget)
+            @dynamic_property
+            def generateForKindle(self):
+                def fget(self):
+                    return self.__generateForKindle
+                def fset(self, val):
+                    self.__generateForKindle = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def generateRecentlyRead(self):
+                def fget(self):
+                    return self.__generateRecentlyRead
+                def fset(self, val):
+                    self.__generateRecentlyRead = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def genres(self):
+                def fget(self):
+                    return self.__genres
+                def fset(self, val):
+                    self.__genres = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def genre_tags_dict(self):
+                def fget(self):
+                    return self.__genre_tags_dict
+                def fset(self, val):
+                    self.__genre_tags_dict = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def htmlFileList(self):
+                def fget(self):
+                    return self.__htmlFileList
+                def fset(self, val):
+                    self.__htmlFileList = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def libraryPath(self):
+                def fget(self):
+                    return self.__libraryPath
+                def fset(self, val):
+                    self.__libraryPath = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def markerTags(self):
+                def fget(self):
+                    return self.__markerTags
+                def fset(self, val):
+                    self.__markerTags = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def ncxSoup(self):
+                def fget(self):
+                    return self.__ncxSoup
+                def fset(self, val):
+                    self.__ncxSoup = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def opts(self):
+                def fget(self):
+                    return self.__opts
+                return property(fget=fget)
+            @dynamic_property
+            def playOrder(self):
+                def fget(self):
+                    return self.__playOrder
+                def fset(self,val):
+                    self.__playOrder = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def plugin(self):
+                def fget(self):
+                    return self.__plugin
+                return property(fget=fget)
+            @dynamic_property
+            def progressInt(self):
+                def fget(self):
+                    return self.__progressInt
+                def fset(self, val):
+                    self.__progressInt = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def progressString(self):
+                def fget(self):
+                    return self.__progressString
+                def fset(self, val):
+                    self.__progressString = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def reporter(self):
+                def fget(self):
+                    return self.__reporter
+                def fset(self, val):
+                    self.__reporter = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def stylesheet(self):
+                def fget(self):
+                    return self.__stylesheet
+                def fset(self, val):
+                    self.__stylesheet = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def thumbs(self):
+                def fget(self):
+                    return self.__thumbs
+                def fset(self, val):
+                    self.__thumbs = val
+                return property(fget=fget, fset=fset)
+            def thumbWidth(self):
+                def fget(self):
+                    return self.__thumbWidth
+                def fset(self, val):
+                    self.__thumbWidth = val
+                return property(fget=fget, fset=fset)
+            def thumbHeight(self):
+                def fget(self):
+                    return self.__thumbHeight
+                def fset(self, val):
+                    self.__thumbHeight = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def title(self):
+                def fget(self):
+                    return self.__title
+                def fset(self, val):
+                    self.__title = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def totalSteps(self):
+                def fget(self):
+                    return self.__totalSteps
+                return property(fget=fget)
+            @dynamic_property
+            def useSeriesPrefixInTitlesSection(self):
+                def fget(self):
+                    return self.__useSeriesPrefixInTitlesSection
+                def fset(self, val):
+                    self.__useSeriesPrefixInTitlesSection = val
+                return property(fget=fget, fset=fset)
+            @dynamic_property
+            def verbose(self):
+                def fget(self):
+                    return self.__verbose
+                def fset(self, val):
+                    self.__verbose = val
+                return property(fget=fget, fset=fset)
 
-        @dynamic_property
-        def authorClip(self):
-            def fget(self):
-                return self.__authorClip
-            def fset(self, val):
-                self.__authorClip = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def authors(self):
-            def fget(self):
-                return self.__authors
-            def fset(self, val):
-                self.__authors = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def basename(self):
-            def fget(self):
-                return self.__basename
-            def fset(self, val):
-                self.__basename = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def bookmarked_books(self):
-            def fget(self):
-                return self.__bookmarked_books
-            def fset(self, val):
-                self.__bookmarked_books = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def booksByAuthor(self):
-            def fget(self):
-                return self.__booksByAuthor
-            def fset(self, val):
-                self.__booksByAuthor = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def booksByDateRead(self):
-            def fget(self):
-                return self.__booksByDateRead
-            def fset(self, val):
-                self.__booksByDateRead = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def booksByTitle(self):
-            def fget(self):
-                return self.__booksByTitle
-            def fset(self, val):
-                self.__booksByTitle = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def booksByTitle_noSeriesPrefix(self):
-            def fget(self):
-                return self.__booksByTitle_noSeriesPrefix
-            def fset(self, val):
-                self.__booksByTitle_noSeriesPrefix = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def catalogPath(self):
-            def fget(self):
-                return self.__catalogPath
-            def fset(self, val):
-                self.__catalogPath = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def contentDir(self):
-            def fget(self):
-                return self.__contentDir
-            def fset(self, val):
-                self.__contentDir = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def currentStep(self):
-            def fget(self):
-                return self.__currentStep
-            def fset(self, val):
-                self.__currentStep = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def creator(self):
-            def fget(self):
-                return self.__creator
-            def fset(self, val):
-                self.__creator = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def db(self):
-            def fget(self):
-                return self.__db
-            return property(fget=fget)
-        @dynamic_property
-        def descriptionClip(self):
-            def fget(self):
-                return self.__descriptionClip
-            def fset(self, val):
-                self.__descriptionClip = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def error(self):
-            def fget(self):
-                return self.__error
-            return property(fget=fget)
-        @dynamic_property
-        def generateForKindle(self):
-            def fget(self):
-                return self.__generateForKindle
-            def fset(self, val):
-                self.__generateForKindle = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def generateRecentlyRead(self):
-            def fget(self):
-                return self.__generateRecentlyRead
-            def fset(self, val):
-                self.__generateRecentlyRead = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def genres(self):
-            def fget(self):
-                return self.__genres
-            def fset(self, val):
-                self.__genres = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def genre_tags_dict(self):
-            def fget(self):
-                return self.__genre_tags_dict
-            def fset(self, val):
-                self.__genre_tags_dict = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def htmlFileList(self):
-            def fget(self):
-                return self.__htmlFileList
-            def fset(self, val):
-                self.__htmlFileList = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def libraryPath(self):
-            def fget(self):
-                return self.__libraryPath
-            def fset(self, val):
-                self.__libraryPath = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def markerTags(self):
-            def fget(self):
-                return self.__markerTags
-            def fset(self, val):
-                self.__markerTags = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def ncxSoup(self):
-            def fget(self):
-                return self.__ncxSoup
-            def fset(self, val):
-                self.__ncxSoup = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def opts(self):
-            def fget(self):
-                return self.__opts
-            return property(fget=fget)
-        @dynamic_property
-        def playOrder(self):
-            def fget(self):
-                return self.__playOrder
-            def fset(self,val):
-                self.__playOrder = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def plugin(self):
-            def fget(self):
-                return self.__plugin
-            return property(fget=fget)
-        @dynamic_property
-        def progressInt(self):
-            def fget(self):
-                return self.__progressInt
-            def fset(self, val):
-                self.__progressInt = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def progressString(self):
-            def fget(self):
-                return self.__progressString
-            def fset(self, val):
-                self.__progressString = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def reporter(self):
-            def fget(self):
-                return self.__reporter
-            def fset(self, val):
-                self.__reporter = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def stylesheet(self):
-            def fget(self):
-                return self.__stylesheet
-            def fset(self, val):
-                self.__stylesheet = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def thumbs(self):
-            def fget(self):
-                return self.__thumbs
-            def fset(self, val):
-                self.__thumbs = val
-            return property(fget=fget, fset=fset)
-        def thumbWidth(self):
-            def fget(self):
-                return self.__thumbWidth
-            def fset(self, val):
-                self.__thumbWidth = val
-            return property(fget=fget, fset=fset)
-        def thumbHeight(self):
-            def fget(self):
-                return self.__thumbHeight
-            def fset(self, val):
-                self.__thumbHeight = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def title(self):
-            def fget(self):
-                return self.__title
-            def fset(self, val):
-                self.__title = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def totalSteps(self):
-            def fget(self):
-                return self.__totalSteps
-            return property(fget=fget)
-        @dynamic_property
-        def useSeriesPrefixInTitlesSection(self):
-            def fget(self):
-                return self.__useSeriesPrefixInTitlesSection
-            def fset(self, val):
-                self.__useSeriesPrefixInTitlesSection = val
-            return property(fget=fget, fset=fset)
-        @dynamic_property
-        def verbose(self):
-            def fget(self):
-                return self.__verbose
-            def fset(self, val):
-                self.__verbose = val
-            return property(fget=fget, fset=fset)
-
-        @dynamic_property
-        def NOT_READ_SYMBOL(self):
-            def fget(self):
-                return '<span style="color:white">&#x2713;</span>' if self.generateForKindle else \
-                       '<span style="color:white">%s</span>' % self.opts.read_tag
-            return property(fget=fget)
-        @dynamic_property
-        def READING_SYMBOL(self):
-            def fget(self):
-                return '<span style="color:black">&#x25b7;</span>' if self.generateForKindle else \
-                       '<span style="color:white">%s</span>' % self.opts.read_tag
-            return property(fget=fget)
-        @dynamic_property
-        def READ_SYMBOL(self):
-            def fget(self):
-                return '<span style="color:black">&#x2713;</span>' if self.generateForKindle else \
-                       '<span style="color:black">%s</span>' % self.opts.read_tag
-            return property(fget=fget)
-        @dynamic_property
-        def FULL_RATING_SYMBOL(self):
-            def fget(self):
-                return "&#9733;" if self.generateForKindle else "*"
-            return property(fget=fget)
-        @dynamic_property
-        def EMPTY_RATING_SYMBOL(self):
-            def fget(self):
-                return "&#9734;" if self.generateForKindle else ' '
-            return property(fget=fget)
-        @dynamic_property
-        def READ_PROGRESS_SYMBOL(self):
-            def fget(self):
-                return "&#9642;" if self.generateForKindle else '+'
-            return property(fget=fget)
-        @dynamic_property
-        def UNREAD_PROGRESS_SYMBOL(self):
-            def fget(self):
-                return "&#9643;" if self.generateForKindle else '-'
-            return property(fget=fget)
+            @dynamic_property
+            def NOT_READ_SYMBOL(self):
+                def fget(self):
+                    return '<span style="color:white">&#x2713;</span>' if self.generateForKindle else \
+                           '<span style="color:white">%s</span>' % self.opts.read_tag
+                return property(fget=fget)
+            @dynamic_property
+            def READING_SYMBOL(self):
+                def fget(self):
+                    return '<span style="color:black">&#x25b7;</span>' if self.generateForKindle else \
+                           '<span style="color:white">%s</span>' % self.opts.read_tag
+                return property(fget=fget)
+            @dynamic_property
+            def READ_SYMBOL(self):
+                def fget(self):
+                    return '<span style="color:black">&#x2713;</span>' if self.generateForKindle else \
+                           '<span style="color:black">%s</span>' % self.opts.read_tag
+                return property(fget=fget)
+            @dynamic_property
+            def FULL_RATING_SYMBOL(self):
+                def fget(self):
+                    return "&#9733;" if self.generateForKindle else "*"
+                return property(fget=fget)
+            @dynamic_property
+            def EMPTY_RATING_SYMBOL(self):
+                def fget(self):
+                    return "&#9734;" if self.generateForKindle else ' '
+                return property(fget=fget)
+            @dynamic_property
+            def READ_PROGRESS_SYMBOL(self):
+                def fget(self):
+                    return "&#9642;" if self.generateForKindle else '+'
+                return property(fget=fget)
+            @dynamic_property
+            def UNREAD_PROGRESS_SYMBOL(self):
+                def fget(self):
+                    return "&#9643;" if self.generateForKindle else '-'
+                return property(fget=fget)
 
         # Methods
         def buildSources(self):
@@ -1196,6 +1212,8 @@ class EPUB_MOBI(CatalogPlugin):
             self.generateHTMLByAuthor()
             if self.opts.generate_titles:
                 self.generateHTMLByTitle()
+            if self.opts.generate_series:
+                self.generateHTMLBySeries()
             if self.opts.generate_recently_added:
                 self.generateHTMLByDateAdded()
                 if self.generateRecentlyRead:
@@ -1206,15 +1224,17 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.generateOPF()
             self.generateNCXHeader()
-            self.generateNCXDescriptions("Descriptions")
             self.generateNCXByAuthor("Authors")
             if self.opts.generate_titles:
                 self.generateNCXByTitle("Titles")
+            if self.opts.generate_series:
+                self.generateNCXBySeries("Series")
             if self.opts.generate_recently_added:
                 self.generateNCXByDateAdded("Recently Added")
                 if self.generateRecentlyRead:
                     self.generateNCXByDateRead("Recently Read")
             self.generateNCXByGenre("Genres")
+            self.generateNCXDescriptions("Descriptions")
             self.writeNCX()
             return True
 
@@ -1569,13 +1589,26 @@ class EPUB_MOBI(CatalogPlugin):
                 emTag = Tag(soup, "em")
                 if title['series']:
                     # title<br />series series_index
-                    brTag = Tag(soup,'br')
-                    title_tokens = title['title'].split(': ')
-                    emTag.insert(0, escape(NavigableString(title_tokens[1])))
-                    emTag.insert(1, brTag)
-                    smallTag = Tag(soup,'small')
-                    smallTag.insert(0, escape(NavigableString(title_tokens[0])))
-                    emTag.insert(2, smallTag)
+                    if self.opts.generate_series:
+                        brTag = Tag(soup,'br')
+                        title_tokens = list(title['title'].partition(':'))
+                        emTag.insert(0, escape(NavigableString(title_tokens[2].strip())))
+                        emTag.insert(1, brTag)
+                        smallTag = Tag(soup,'small')
+                        aTag = Tag(soup,'a')
+                        aTag['href'] = "%s.html#%s_series" % ('BySeries',
+                                                       re.sub('\W','',title['series']).lower())
+                        aTag.insert(0, title_tokens[0])
+                        smallTag.insert(0, aTag)
+                        emTag.insert(2, smallTag)
+                    else:
+                        brTag = Tag(soup,'br')
+                        title_tokens = list(title['title'].partition(':'))
+                        emTag.insert(0, escape(NavigableString(title_tokens[2].strip())))
+                        emTag.insert(1, brTag)
+                        smallTag = Tag(soup,'small')
+                        smallTag.insert(0, escape(NavigableString(title_tokens[0])))
+                        emTag.insert(2, smallTag)
                 else:
                     emTag.insert(0, NavigableString(escape(title['title'])))
                 titleTag = body.find(attrs={'class':'title'})
@@ -1724,17 +1757,17 @@ class EPUB_MOBI(CatalogPlugin):
             body.insert(btc, aTag)
             btc += 1
 
-            '''
-            # We don't need this because the Kindle shows section titles
-            #<h2><a name="byalphatitle" id="byalphatitle"></a>By Title</h2>
-            h2Tag = Tag(soup, "h2")
-            aTag = Tag(soup, "a")
-            aTag['name'] = "bytitle"
-            h2Tag.insert(0,aTag)
-            h2Tag.insert(1,NavigableString('By Title (%d)' % len(self.booksByTitle)))
-            body.insert(btc,h2Tag)
-            btc += 1
-            '''
+            if not self.__generateForKindle:
+                # We don't need this because the Kindle shows section titles
+                #<h2><a name="byalphatitle" id="byalphatitle"></a>By Title</h2>
+                pTag = Tag(soup, "p")
+                pTag['class'] = 'title'
+                aTag = Tag(soup, "a")
+                aTag['name'] = "bytitle"
+                pTag.insert(0,aTag)
+                pTag.insert(1,NavigableString('Titles'))
+                body.insert(btc,pTag)
+                btc += 1
 
             # <p class="letter_index">
             # <p class="book_title">
@@ -1742,13 +1775,13 @@ class EPUB_MOBI(CatalogPlugin):
             dtc = 0
             current_letter = ""
 
-            # 2/14/10 7:11 AM Experimental: re-sort title list without leading series/series_index
+            # Re-sort title list without leading series/series_index
             if not self.useSeriesPrefixInTitlesSection:
                 nspt = deepcopy(self.booksByTitle)
                 for book in nspt:
                     if book['series']:
-                        tokens = book['title'].split(': ')
-                        book['title'] = '%s (%s)' % (tokens[1], tokens[0])
+                        tokens = book['title'].partition(':')
+                        book['title'] = '%s (%s)' % (tokens[2].strip(), tokens[0])
                         book['title_sort'] = self.generateSortTitle(book['title'])
                 nspt = sorted(nspt,
                                      key=lambda x:(x['title_sort'].upper(), x['title_sort'].upper()))
@@ -1835,7 +1868,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Write books by author A-Z
             self.updateProgressFullStep("'Authors'")
 
-            friendly_name = "By Author"
+            friendly_name = "Authors"
 
             soup = self.generateHTMLEmptyHeader(friendly_name)
             body = soup.find('body')
@@ -1906,15 +1939,14 @@ class EPUB_MOBI(CatalogPlugin):
                     current_series = None
                     pAuthorTag = Tag(soup, "p")
                     pAuthorTag['class'] = "author_index"
-                    emTag = Tag(soup, "em")
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%s" % self.generateAuthorAnchor(current_author)
                     aTag.insert(0,NavigableString(current_author))
-                    emTag.insert(0,aTag)
-                    pAuthorTag.insert(0,emTag)
+                    pAuthorTag.insert(0,aTag)
                     divTag.insert(dtc,pAuthorTag)
                     dtc += 1
 
+                '''
                 # Insert an <hr /> between non-series and series
                 if not current_series and non_series_books and book['series']:
                     # Insert an <hr />
@@ -1922,6 +1954,7 @@ class EPUB_MOBI(CatalogPlugin):
                     hrTag['class'] = "series_divider"
                     divTag.insert(dtc,hrTag)
                     dtc += 1
+                '''
 
                 # Check for series
                 if book['series'] and book['series'] != current_series:
@@ -1929,7 +1962,18 @@ class EPUB_MOBI(CatalogPlugin):
                     current_series = book['series']
                     pSeriesTag = Tag(soup,'p')
                     pSeriesTag['class'] = "series"
-                    pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + book['series']))
+
+                    if self.opts.generate_series:
+                        aTag = Tag(soup,'a')
+                        aTag['href'] = "%s.html#%s_series" % ('BySeries',
+                                                       re.sub('\W','',book['series']).lower())
+                        aTag.insert(0, book['series'])
+                        #pSeriesTag.insert(0, NavigableString(self.NOT_READ_SYMBOL))
+                        pSeriesTag.insert(0, aTag)
+                    else:
+                        #pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + '%s' % book['series']))
+                        pSeriesTag.insert(0,NavigableString('%s' % book['series']))
+
                     divTag.insert(dtc,pSeriesTag)
                     dtc += 1
                 if current_series and not book['series']:
@@ -1957,30 +2001,34 @@ class EPUB_MOBI(CatalogPlugin):
 
                 aTag = Tag(soup, "a")
                 aTag['href'] = "book_%d.html" % (int(float(book['id'])))
-                # Use series, series index if avail else just title
+                # Use series, series index if avail else just title, + year of publication
                 if current_series:
-                    aTag.insert(0,escape(book['title'][len(book['series'])+1:]))
+                    aTag.insert(0,'%s (%s)' % (escape(book['title'][len(book['series'])+1:]),
+                                               book['date'].split()[1]))
                 else:
-                    aTag.insert(0,escape(book['title']))
+                    aTag.insert(0,'%s (%s)' % (escape(book['title']),
+                                               book['date'].split()[1]))
                     non_series_books += 1
                 pBookTag.insert(ptc, aTag)
                 ptc += 1
 
+
                 divTag.insert(dtc, pBookTag)
                 dtc += 1
 
-            '''
-            # Insert the <h2> tag with book_count at the head
-            #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
-            h2Tag = Tag(soup, "h2")
-            aTag = Tag(soup, "a")
-            anchor_name = friendly_name.lower()
-            aTag['name'] = anchor_name.replace(" ","")
-            h2Tag.insert(0,aTag)
-            h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, book_count)))
-            body.insert(btc,h2Tag)
-            btc += 1
-            '''
+            if not self.__generateForKindle:
+                # Insert the <h2> tag with book_count at the head
+                #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
+                pTag = Tag(soup, "p")
+                pTag['class'] = 'title'
+                aTag = Tag(soup, "a")
+                anchor_name = friendly_name.lower()
+                aTag['name'] = anchor_name.replace(" ","")
+                pTag.insert(0,aTag)
+                #h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, book_count)))
+                pTag.insert(1,NavigableString('%s' % (friendly_name)))
+                body.insert(btc,pTag)
+                btc += 1
 
             # Add the divTag to the body
             body.insert(btc, divTag)
@@ -2023,15 +2071,14 @@ class EPUB_MOBI(CatalogPlugin):
                             current_series = None
                             pAuthorTag = Tag(soup, "p")
                             pAuthorTag['class'] = "author_index"
-                            emTag = Tag(soup, "em")
                             aTag = Tag(soup, "a")
                             aTag['name'] = "%s" % self.generateAuthorAnchor(current_author)
                             aTag.insert(0,NavigableString(current_author))
-                            emTag.insert(0,aTag)
-                            pAuthorTag.insert(0,emTag)
+                            pAuthorTag.insert(0,aTag)
                             divTag.insert(dtc,pAuthorTag)
                             dtc += 1
 
+                        '''
                         # Insert an <hr /> between non-series and series
                         if not current_series and non_series_books and new_entry['series']:
                             # Insert an <hr />
@@ -2039,6 +2086,7 @@ class EPUB_MOBI(CatalogPlugin):
                             hrTag['class'] = "series_divider"
                             divTag.insert(dtc,hrTag)
                             dtc += 1
+                        '''
 
                         # Check for series
                         if new_entry['series'] and new_entry['series'] != current_series:
@@ -2046,7 +2094,14 @@ class EPUB_MOBI(CatalogPlugin):
                             current_series = new_entry['series']
                             pSeriesTag = Tag(soup,'p')
                             pSeriesTag['class'] = "series"
-                            pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + new_entry['series']))
+                            if self.opts.generate_series:
+                                aTag = Tag(soup,'a')
+                                aTag['href'] = "%s.html#%s_series" % ('BySeries',
+                                                               re.sub('\W','',new_entry['series']).lower())
+                                aTag.insert(0, new_entry['series'])
+                                pSeriesTag.insert(0, aTag)
+                            else:
+                                pSeriesTag.insert(0,NavigableString('%s' % new_entry['series']))
                             divTag.insert(dtc,pSeriesTag)
                             dtc += 1
                         if current_series and not new_entry['series']:
@@ -2160,18 +2215,18 @@ class EPUB_MOBI(CatalogPlugin):
             aTag['name'] = anchor_name.replace(" ","")
             body.insert(btc, aTag)
             btc += 1
-            '''
-            # We don't need this because the kindle inserts section titles
-            #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
-            h2Tag = Tag(soup, "h2")
-            aTag = Tag(soup, "a")
-            anchor_name = friendly_name.lower()
-            aTag['name'] = anchor_name.replace(" ","")
-            h2Tag.insert(0,aTag)
-            h2Tag.insert(1,NavigableString('%s' % friendly_name))
-            body.insert(btc,h2Tag)
-            btc += 1
-            '''
+
+            if not self.__generateForKindle:
+                #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
+                pTag = Tag(soup, "p")
+                pTag['class'] = 'title'
+                aTag = Tag(soup, "a")
+                anchor_name = friendly_name.lower()
+                aTag['name'] = anchor_name.replace(" ","")
+                pTag.insert(0,aTag)
+                pTag.insert(1,NavigableString('%s' % friendly_name))
+                body.insert(btc,pTag)
+                btc += 1
 
             # <p class="letter_index">
             # <p class="author_index">
@@ -2186,14 +2241,13 @@ class EPUB_MOBI(CatalogPlugin):
                 nspt = deepcopy(self.booksByTitle)
                 for book in nspt:
                     if book['series']:
-                        tokens = book['title'].split(': ')
-                        book['title'] = '%s (%s)' % (tokens[1], tokens[0])
+                        tokens = book['title'].partition(':')
+                        book['title'] = '%s (%s)' % (tokens[2].strip(), tokens[0])
                         book['title_sort'] = self.generateSortTitle(book['title'])
                 self.booksByDateRange = sorted(nspt, key=lambda x:(x['timestamp'], x['timestamp']),reverse=True)
 
             date_range_list = []
             today_time = nowf().replace(hour=23, minute=59, second=59)
-            books_added_in_date_range = False
             for (i, date) in enumerate(self.DATE_RANGE):
                 date_range_limit = self.DATE_RANGE[i]
                 if i:
@@ -2206,18 +2260,20 @@ class EPUB_MOBI(CatalogPlugin):
                     delta = today_time-book_time
                     if delta.days <= date_range_limit:
                         date_range_list.append(book)
-                        books_added_in_date_range = True
                     else:
                         break
 
                 dtc = add_books_to_HTML_by_date_range(date_range_list, date_range, dtc)
                 date_range_list = [book]
 
+            '''
             if books_added_in_date_range:
                 # Add an <hr> separating date ranges from months
                 hrTag = Tag(soup,'hr')
+                hrTag['class'] = "description_divider"
                 divTag.insert(dtc,hrTag)
                 dtc += 1
+            '''
 
             # >>>> Books by month <<<<
             # Sort titles case-insensitive for by month using series prefix
@@ -2437,6 +2493,174 @@ class EPUB_MOBI(CatalogPlugin):
             outfile.close()
             self.htmlFileList.append("content/ByDateRead.html")
 
+        def generateHTMLBySeries(self):
+            '''
+            Generate a list of series
+            '''
+            self.updateProgressFullStep("Fetching series")
+
+            self.opts.sort_by = 'series'
+
+            # Merge opts.exclude_tags with opts.search_text
+            # Updated to use exact match syntax
+            empty_exclude_tags = False if len(self.opts.exclude_tags) else True
+            search_phrase = 'series:true '
+            if not empty_exclude_tags:
+                exclude_tags = self.opts.exclude_tags.split(',')
+                search_terms = []
+                for tag in exclude_tags:
+                    search_terms.append("tag:=%s" % tag)
+                search_phrase += "not (%s)" % " or ".join(search_terms)
+
+            # If a list of ids are provided, don't use search_text
+            if self.opts.ids:
+                self.opts.search_text = search_phrase
+            else:
+                if self.opts.search_text:
+                    self.opts.search_text += " " + search_phrase
+                else:
+                    self.opts.search_text = search_phrase
+
+            # Fetch the database as a dictionary
+            self.booksBySeries = self.plugin.search_sort_db(self.db, self.opts)
+
+            friendly_name = "Series"
+
+            soup = self.generateHTMLEmptyHeader(friendly_name)
+            body = soup.find('body')
+
+            btc = 0
+
+            # Insert section tag
+            aTag = Tag(soup,'a')
+            aTag['name'] = 'section_start'
+            body.insert(btc, aTag)
+            btc += 1
+
+            # Insert the anchor
+            aTag = Tag(soup, "a")
+            anchor_name = friendly_name.lower()
+            aTag['name'] = anchor_name.replace(" ","")
+            body.insert(btc, aTag)
+            btc += 1
+
+            # <p class="letter_index">
+            # <p class="author_index">
+            divTag = Tag(soup, "div")
+            dtc = 0
+            current_letter = ""
+            current_series = None
+
+            # Loop through booksBySeries
+            series_count = 0
+            for book in self.booksBySeries:
+                # Check for initial letter change
+                sort_title = self.generateSortTitle(book['series'])
+                if self.letter_or_symbol(sort_title[0].upper()) != current_letter :
+                    '''
+                    # Start a new letter - anchor only, hidden
+                    current_letter = book['author_sort'][0].upper()
+                    aTag = Tag(soup, "a")
+                    aTag['name'] = "%sseries" % current_letter
+                    divTag.insert(dtc, aTag)
+                    dtc += 1
+                    '''
+                    # Start a new letter with Index letter
+                    current_letter = self.letter_or_symbol(sort_title[0].upper())
+                    pIndexTag = Tag(soup, "p")
+                    pIndexTag['class'] = "letter_index"
+                    aTag = Tag(soup, "a")
+                    aTag['name'] = "%s_series" % self.letter_or_symbol(current_letter)
+                    pIndexTag.insert(0,aTag)
+                    pIndexTag.insert(1,NavigableString(self.letter_or_symbol(sort_title[0].upper())))
+                    divTag.insert(dtc,pIndexTag)
+                    dtc += 1
+
+                # Check for series change
+                if book['series'] != current_series:
+                    # Start a new series
+                    series_count += 1
+                    current_series = book['series']
+                    pSeriesTag = Tag(soup,'p')
+                    pSeriesTag['class'] = "series"
+                    aTag = Tag(soup, 'a')
+                    aTag['name'] = "%s_series" % re.sub('\W','',book['series']).lower()
+                    pSeriesTag.insert(0,aTag)
+                    pSeriesTag.insert(1,NavigableString(self.NOT_READ_SYMBOL + '%s' % book['series']))
+                    divTag.insert(dtc,pSeriesTag)
+                    dtc += 1
+
+                # Add books
+                pBookTag = Tag(soup, "p")
+                ptc = 0
+
+                #  book with read/reading/unread symbol
+                if 'read' in book and book['read']:
+                    # check mark
+                    pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                    pBookTag['class'] = "read_book"
+                    ptc += 1
+                elif book['id'] in self.bookmarked_books:
+                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
+                    pBookTag['class'] = "read_book"
+                    ptc += 1
+                else:
+                    # hidden check mark
+                    pBookTag['class'] = "unread_book"
+                    pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                    ptc += 1
+
+                aTag = Tag(soup, "a")
+                aTag['href'] = "book_%d.html" % (int(float(book['id'])))
+                # Use series, series index if avail else just title
+                #aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
+
+                # Link to book
+                aTag.insert(0,'%d. %s (%s)' % (book['series_index'],
+                                               escape(book['title']),
+                                               strftime(u'%Y', book['pubdate'].timetuple())))
+                pBookTag.insert(ptc, aTag)
+                ptc += 1
+
+                # &middot;
+                pBookTag.insert(ptc, NavigableString(' &middot; '))
+                ptc += 1
+
+                # Link to author
+                aTag = Tag(soup, "a")
+                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
+                                                self.generateAuthorAnchor(escape(' & '.join(book['authors']))))
+                aTag.insert(0, NavigableString(' &amp; '.join(book['authors'])))
+                pBookTag.insert(ptc, aTag)
+                ptc += 1
+
+                divTag.insert(dtc, pBookTag)
+                dtc += 1
+
+            if not self.__generateForKindle:
+                # Insert the <h2> tag with book_count at the head
+                #<h2><a name="byseries" id="byseries"></a>By Series</h2>
+                pTag = Tag(soup, "p")
+                pTag['class'] = 'title'
+                aTag = Tag(soup, "a")
+                anchor_name = friendly_name.lower()
+                aTag['name'] = anchor_name.replace(" ","")
+                pTag.insert(0,aTag)
+                #h2Tag.insert(1,NavigableString('%s (%d)' % (friendly_name, series_count)))
+                pTag.insert(1,NavigableString('%s' % friendly_name))
+                body.insert(btc,pTag)
+                btc += 1
+
+            # Add the divTag to the body
+            body.insert(btc, divTag)
+
+            # Write the generated file to contentdir
+            outfile_spec = "%s/BySeries.html" % (self.contentDir)
+            outfile = open(outfile_spec, 'w')
+            outfile.write(soup.prettify())
+            outfile.close()
+            self.htmlFileList.append("content/BySeries.html")
+
         def generateHTMLByTags(self):
             # Generate individual HTML files for each tag, e.g. Fiction, Nonfiction ...
             # Note that special tags - ~+*[] -  have already been filtered from books[]
@@ -2587,24 +2811,8 @@ class EPUB_MOBI(CatalogPlugin):
                     # Check to see if thumbnail exists
                     thumb_fp = "%s/thumbnail_default.jpg" % (image_dir)
                     cover = "%s/DefaultCover.png" % (self.catalogPath)
-
-                    # Init Qt for image conversion
-                    from calibre.gui2 import is_ok_to_use_qt
-                    if is_ok_to_use_qt():
-                        from PyQt4.Qt import QImage, QColor, QPainter, Qt
-
-                        # Convert .svg to .jpg
-                        cover_img = QImage(I('book.svg'))
-                        i = QImage(cover_img.size(),
-                                QImage.Format_ARGB32_Premultiplied)
-                        i.fill(QColor(Qt.white).rgb())
-                        p = QPainter(i)
-                        p.drawImage(0, 0, cover_img)
-                        p.end()
-                        i.save(cover)
-                    else:
-                        if not os.path.exists(cover):
-                            shutil.copyfile(I('library.png'), cover)
+                    if not os.path.exists(cover):
+                        shutil.copyfile(I('book.png'), cover)
 
                     if os.path.isfile(thumb_fp):
                         # Check to see if default cover is newer than thumbnail
@@ -2699,22 +2907,7 @@ class EPUB_MOBI(CatalogPlugin):
             # HTML files - add books to manifest and spine
             sort_descriptions_by = self.booksByAuthor if self.opts.sort_descriptions_by_author \
                                                       else self.booksByTitle
-            for book in sort_descriptions_by:
-                # manifest
-                itemTag = Tag(soup, "item")
-                itemTag['href'] = "content/book_%d.html" % int(book['id'])
-                itemTag['id'] = "book%d" % int(book['id'])
-                itemTag['media-type'] = "application/xhtml+xml"
-                manifest.insert(mtc, itemTag)
-                mtc += 1
-
-                # spine
-                itemrefTag = Tag(soup, "itemref")
-                itemrefTag['idref'] = "book%d" % int(book['id'])
-                spine.insert(stc, itemrefTag)
-                stc += 1
-
-            # Add other html_files to manifest and spine
+            # Add html_files to manifest and spine
 
             for file in self.htmlFileList:
                 itemTag = Tag(soup, "item")
@@ -2747,6 +2940,21 @@ class EPUB_MOBI(CatalogPlugin):
                 # spine
                 itemrefTag = Tag(soup, "itemref")
                 itemrefTag['idref'] = genre['file'][start:end].lower()
+                spine.insert(stc, itemrefTag)
+                stc += 1
+
+            for book in sort_descriptions_by:
+                # manifest
+                itemTag = Tag(soup, "item")
+                itemTag['href'] = "content/book_%d.html" % int(book['id'])
+                itemTag['id'] = "book%d" % int(book['id'])
+                itemTag['media-type'] = "application/xhtml+xml"
+                manifest.insert(mtc, itemTag)
+                mtc += 1
+
+                # spine
+                itemrefTag = Tag(soup, "itemref")
+                itemrefTag['idref'] = "book%d" % int(book['id'])
                 spine.insert(stc, itemrefTag)
                 stc += 1
 
@@ -2785,7 +2993,8 @@ class EPUB_MOBI(CatalogPlugin):
             navLabelTag.insert(0, textTag)
             navPointTag.insert(0, navLabelTag)
             contentTag = Tag(soup, 'content')
-            contentTag['src'] = "content/book_%d.html" % int(self.booksByTitle[0]['id'])
+            #contentTag['src'] = "content/book_%d.html" % int(self.booksByTitle[0]['id'])
+            contentTag['src'] = "content/ByAlphaAuthor.html"
             navPointTag.insert(1, contentTag)
             cmiTag = Tag(soup, '%s' % 'calibre:meta-img')
             cmiTag['name'] = "mastheadImage"
@@ -2837,15 +3046,15 @@ class EPUB_MOBI(CatalogPlugin):
                 navLabelTag = Tag(ncx_soup, "navLabel")
                 textTag = Tag(ncx_soup, "text")
                 if book['series']:
-                    tokens = book['title'].split(': ')
+                    tokens = list(book['title'].partition(':'))
                     if self.generateForKindle:
                         # Don't include Author for Kindle
                         textTag.insert(0, NavigableString(self.formatNCXText('%s (%s)' % \
-                                                      (tokens[1], tokens[0]), dest='title')))
+                                                      (tokens[2].strip(), tokens[0]), dest='title')))
                     else:
                         # Include Author for non-Kindle
                         textTag.insert(0, NavigableString(self.formatNCXText('%s &middot; %s (%s)' % \
-                                                      (tokens[1], book['author'], tokens[0]), dest='title')))
+                                                      (tokens[2].strip(), book['author'], tokens[0]), dest='title')))
                 else:
                     if self.generateForKindle:
                         # Don't include Author for Kindle
@@ -2897,6 +3106,98 @@ class EPUB_MOBI(CatalogPlugin):
             btc += 1
 
             self.ncxSoup = ncx_soup
+
+        def generateNCXBySeries(self, tocTitle):
+            self.updateProgressFullStep("NCX 'Series'")
+
+            def add_to_series_by_letter(current_series_list):
+                current_series_list = " &bull; ".join(current_series_list)
+                current_series_list = self.formatNCXText(current_series_list, dest="description")
+                series_by_letter.append(current_series_list)
+
+            soup = self.ncxSoup
+            output = "BySeries"
+            body = soup.find("navPoint")
+            btc = len(body.contents)
+
+            # --- Construct the 'Books By Series' section ---
+            navPointTag = Tag(soup, 'navPoint')
+            navPointTag['class'] = "section"
+            navPointTag['id'] = "byseries-ID"
+            navPointTag['playOrder'] = self.playOrder
+            self.playOrder += 1
+            navLabelTag = Tag(soup, 'navLabel')
+            textTag = Tag(soup, 'text')
+            textTag.insert(0, NavigableString(tocTitle))
+            navLabelTag.insert(0, textTag)
+            nptc = 0
+            navPointTag.insert(nptc, navLabelTag)
+            nptc += 1
+            contentTag = Tag(soup,"content")
+            contentTag['src'] = "content/%s.html#section_start" % (output)
+            navPointTag.insert(nptc, contentTag)
+            nptc += 1
+
+            series_by_letter = []
+
+            # Loop over the series titles, find start of each letter, add description_preview_count books
+            # Special switch for using different title list
+            title_list = self.booksBySeries
+            current_letter = self.letter_or_symbol(title_list[0]['series'][0])
+            title_letters = [current_letter]
+            current_series_list = []
+            current_series = ""
+            for book in title_list:
+                sort_title = self.generateSortTitle(book['series'])
+                if self.letter_or_symbol(sort_title[0]) != current_letter:
+                    # Save the old list
+                    add_to_series_by_letter(current_series_list)
+
+                    # Start the new list
+                    current_letter = self.letter_or_symbol(sort_title[0])
+                    title_letters.append(current_letter)
+                    current_series = book['series']
+                    current_series_list = [book['series']]
+                else:
+                    if len(current_series_list) < self.descriptionClip and \
+                       book['series'] != current_series :
+                        current_series = book['series']
+                        current_series_list.append(book['series'])
+
+            # Add the last book list
+            add_to_series_by_letter(current_series_list)
+
+            # Add *article* entries for each populated series title letter
+            for (i,books) in enumerate(series_by_letter):
+                navPointByLetterTag = Tag(soup, 'navPoint')
+                navPointByLetterTag['class'] = "article"
+                navPointByLetterTag['id'] = "%sSeries-ID" % (title_letters[i].upper())
+                navPointTag['playOrder'] = self.playOrder
+                self.playOrder += 1
+                navLabelTag = Tag(soup, 'navLabel')
+                textTag = Tag(soup, 'text')
+                textTag.insert(0, NavigableString(u"Series beginning with %s" % \
+                    (title_letters[i] if len(title_letters[i])>1 else "'" + title_letters[i] + "'")))
+                navLabelTag.insert(0, textTag)
+                navPointByLetterTag.insert(0,navLabelTag)
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/%s.html#%s_series" % (output, title_letters[i])
+                navPointByLetterTag.insert(1,contentTag)
+
+                if self.generateForKindle:
+                    cmTag = Tag(soup, '%s' % 'calibre:meta')
+                    cmTag['name'] = "description"
+                    cmTag.insert(0, NavigableString(self.formatNCXText(books, dest='description')))
+                    navPointByLetterTag.insert(2, cmTag)
+
+                navPointTag.insert(nptc, navPointByLetterTag)
+                nptc += 1
+
+            # Add this section to the body
+            body.insert(btc, navPointTag)
+            btc += 1
+
+            self.ncxSoup = soup
 
         def generateNCXByTitle(self, tocTitle):
             self.updateProgressFullStep("NCX 'Titles'")
@@ -3729,7 +4030,7 @@ class EPUB_MOBI(CatalogPlugin):
             btc += 1
 
             titleTag = body.find(attrs={'class':'title'})
-            titleTag.insert(0,NavigableString('<b><i>%s</i></b>' % escape(self.getFriendlyGenreTag(genre))))
+            titleTag.insert(0,NavigableString('%s' % escape(self.getFriendlyGenreTag(genre))))
 
             # Insert the books by author list
             divTag = body.find(attrs={'class':'authors'})
@@ -3745,15 +4046,14 @@ class EPUB_MOBI(CatalogPlugin):
                     current_series = None
                     pAuthorTag = Tag(soup, "p")
                     pAuthorTag['class'] = "author_index"
-                    emTag = Tag(soup, "em")
                     aTag = Tag(soup, "a")
                     aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(book['author']))
                     aTag.insert(0, book['author'])
-                    emTag.insert(0,aTag)
-                    pAuthorTag.insert(0,emTag)
+                    pAuthorTag.insert(0,aTag)
                     divTag.insert(dtc,pAuthorTag)
                     dtc += 1
 
+                '''
                 # Insert an <hr /> between non-series and series
                 if not current_series and non_series_books and book['series']:
                     # Insert an <hr />
@@ -3761,6 +4061,7 @@ class EPUB_MOBI(CatalogPlugin):
                     hrTag['class'] = "series_divider"
                     divTag.insert(dtc,hrTag)
                     dtc += 1
+                '''
 
                 # Check for series
                 if book['series'] and book['series'] != current_series:
@@ -3768,7 +4069,14 @@ class EPUB_MOBI(CatalogPlugin):
                     current_series = book['series']
                     pSeriesTag = Tag(soup,'p')
                     pSeriesTag['class'] = "series"
-                    pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + book['series']))
+                    if self.opts.generate_series:
+                        aTag = Tag(soup,'a')
+                        aTag['href'] = "%s.html#%s_series" % ('BySeries',
+                                                       re.sub('\W','',book['series']).lower())
+                        aTag.insert(0, book['series'])
+                        pSeriesTag.insert(0, aTag)
+                    else:
+                        pSeriesTag.insert(0,NavigableString('%s' % book['series']))
                     divTag.insert(dtc,pSeriesTag)
                     dtc += 1
 
@@ -3825,7 +4133,7 @@ class EPUB_MOBI(CatalogPlugin):
         def generateHTMLDescriptionHeader(self, title):
 
             title_border = '' if self.opts.fmt == 'epub' else \
-                    '<div class="hr"><blockquote><hr/></blockquote></div>'
+                    '<hr class="description_divider"/>'
             header = '''
             <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
             <html xmlns="http://www.w3.org/1999/xhtml" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
@@ -3871,7 +4179,7 @@ class EPUB_MOBI(CatalogPlugin):
                 <td>&nbsp;</td>
               </tr>
             </table>
-            <blockquote><hr/></blockquote>
+            <hr class="description_divider" />
             <div class="description"></div>
             </body>
             </html>
@@ -3913,7 +4221,7 @@ class EPUB_MOBI(CatalogPlugin):
                 </head>
                 <body>
                     <p class="title"></p>
-                    <div class="hr"><blockquote><hr/></blockquote></div>
+                    <!--div class="hr"><blockquote><hr/></blockquote></div-->
                     <div class="authors"></div>
                 </body>
                 </html>
@@ -4065,6 +4373,12 @@ class EPUB_MOBI(CatalogPlugin):
             except:
                 self.opts.log.error("generateThumbnail(): Error with %s" % title['title'])
 
+        def getFriendlyGenreTag(self, genre):
+            # Find the first instance of friendly_tag matching genre
+            for friendly_tag in self.genre_tags_dict:
+                if self.genre_tags_dict[friendly_tag] == genre:
+                    return friendly_tag
+
         def getMarkerTags(self):
             ''' Return a list of special marker tags to be excluded from genre list '''
             markerTags = []
@@ -4078,12 +4392,6 @@ class EPUB_MOBI(CatalogPlugin):
                 return 'Symbols'
             else:
                 return char
-
-        def getFriendlyGenreTag(self, genre):
-            # Find the first instance of friendly_tag matching genre
-            for friendly_tag in self.genre_tags_dict:
-                if self.genre_tags_dict[friendly_tag] == genre:
-                    return friendly_tag
 
         def markdownComments(self, comments):
             '''
@@ -4240,13 +4548,15 @@ class EPUB_MOBI(CatalogPlugin):
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
 
         # Add local options
-        opts.creator = "calibre"
+        opts.creator = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
+        opts.creator_sort_as = '%s %s' % ('calibre', strftime('%Y-%m-%d'))
         opts.connected_kindle = False
 
         # Finalize output_profile
         op = opts.output_profile
         if op is None:
             op = 'default'
+
         if opts.connected_device['name'] and 'kindle' in opts.connected_device['name'].lower():
             opts.connected_kindle = True
             if opts.connected_device['serial'] and opts.connected_device['serial'][:4] in ['B004','B005']:
@@ -4272,7 +4582,8 @@ class EPUB_MOBI(CatalogPlugin):
             opts.exclude_genre = '\[^.\]'
             build_log.append(" converting empty exclude_genre to '\[^.\]'")
 
-        if opts.connected_device['name']:
+        if opts.connected_device['is_device_connected'] and \
+           opts.connected_device['kind'] == 'device':
             if opts.connected_device['serial']:
                 build_log.append(u" connected_device: '%s' #%s%s " % \
                     (opts.connected_device['name'],
@@ -4283,9 +4594,14 @@ class EPUB_MOBI(CatalogPlugin):
                         build_log.append(u"  mount point: %s" % storage)
             else:
                 build_log.append(u" connected_device: '%s'" % opts.connected_device['name'])
-                for storage in opts.connected_device['storage']:
-                    if storage:
-                        build_log.append(u"  mount point: %s" % storage)
+                try:
+                    for storage in opts.connected_device['storage']:
+                        if storage:
+                            build_log.append(u"  mount point: %s" % storage)
+                except:
+                    build_log.append(u"  (no mount points)")
+        else:
+            build_log.append(u" connected_device: '%s'" % opts.connected_device['name'])
 
         opts_dict = vars(opts)
         if opts_dict['ids']:

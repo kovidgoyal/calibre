@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import cStringIO, sys
 from binascii import hexlify, unhexlify
 
-from PyQt4.Qt import QWidget, SIGNAL, QDialog, Qt
+from PyQt4.Qt import QWidget, pyqtSignal, QDialog, Qt
 
 from calibre.gui2.wizard.send_email_ui import Ui_Form
 from calibre.utils.smtp import config as smtp_prefs
@@ -24,7 +24,7 @@ class TestEmail(QDialog, TE_Dialog):
         self.setupUi(self)
         opts = smtp_prefs().parse()
         self.test_func = parent.test_email_settings
-        self.connect(self.test_button, SIGNAL('clicked(bool)'), self.test)
+        self.test_button.clicked.connect(self.test)
         self.from_.setText(unicode(self.from_.text())%opts.from_)
         if pa:
             self.to.setText(pa)
@@ -33,7 +33,7 @@ class TestEmail(QDialog, TE_Dialog):
                     (opts.relay_username, unhexlify(opts.relay_password),
                         opts.relay_host, opts.relay_port, opts.encryption))
 
-    def test(self):
+    def test(self, *args):
         self.log.setPlainText(_('Sending...'))
         self.test_button.setEnabled(False)
         try:
@@ -47,6 +47,8 @@ class TestEmail(QDialog, TE_Dialog):
 
 class SendEmail(QWidget, Ui_Form):
 
+    changed_signal = pyqtSignal()
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
@@ -57,23 +59,31 @@ class SendEmail(QWidget, Ui_Form):
         self.smtp_opts = opts
         if opts.from_:
             self.email_from.setText(opts.from_)
+        self.email_from.textChanged.connect(self.changed)
         if opts.relay_host:
             self.relay_host.setText(opts.relay_host)
+        self.relay_host.textChanged.connect(self.changed)
         self.relay_port.setValue(opts.relay_port)
+        self.relay_port.valueChanged.connect(self.changed)
         if opts.relay_username:
             self.relay_username.setText(opts.relay_username)
+        self.relay_username.textChanged.connect(self.changed)
         if opts.relay_password:
             self.relay_password.setText(unhexlify(opts.relay_password))
+        self.relay_password.textChanged.connect(self.changed)
         (self.relay_tls if opts.encryption == 'TLS' else self.relay_ssl).setChecked(True)
-        self.connect(self.relay_use_gmail, SIGNAL('clicked(bool)'),
-                     self.create_gmail_relay)
-        self.connect(self.relay_show_password, SIGNAL('stateChanged(int)'),
-         lambda
-         state:self.relay_password.setEchoMode(self.relay_password.Password if
-             state == 0 else self.relay_password.Normal))
-        self.connect(self.test_email_button, SIGNAL('clicked(bool)'),
-                self.test_email)
+        self.relay_tls.toggled.connect(self.changed)
 
+        self.relay_use_gmail.clicked.connect(
+                     self.create_gmail_relay)
+        self.relay_show_password.stateChanged.connect(
+         lambda state : self.relay_password.setEchoMode(
+             self.relay_password.Password if
+             state == 0 else self.relay_password.Normal))
+        self.test_email_button.clicked.connect(self.test_email)
+
+    def changed(self, *args):
+        self.changed_signal.emit()
 
     def test_email(self, *args):
         pa = self.preferred_to_address()

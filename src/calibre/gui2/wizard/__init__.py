@@ -668,8 +668,8 @@ class Wizard(QWizard):
         self.setPixmap(self.LogoPixmap, p.scaledToHeight(80,
             Qt.SmoothTransformation))
         self.setPixmap(self.WatermarkPixmap,
-            QPixmap(I('welcome_wizard.svg')))
-        self.setPixmap(self.BackgroundPixmap, QPixmap(I('wizard.svg')))
+            QPixmap(I('welcome_wizard.png')))
+        self.setPixmap(self.BackgroundPixmap, QPixmap(I('wizard.png')))
         self.device_page = DevicePage()
         self.library_page = LibraryPage()
         self.connect(self.library_page, SIGNAL('retranslate()'),

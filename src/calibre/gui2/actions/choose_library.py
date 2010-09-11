@@ -177,7 +177,16 @@ class ChooseLibraryAction(InterfaceAction):
             return error_dialog(self.gui, _('Already exists'),
                     _('The folder %s already exists. Delete it first.') %
                     newloc, show=True)
-        os.rename(loc, newloc)
+        try:
+            os.rename(loc, newloc)
+        except:
+            import traceback
+            error_dialog(self.gui, _('Rename failed'),
+                    _('Failed to rename the library at %s. '
+                'The most common cause for this is if one of the files'
+                ' in the library is open in another program.') % loc,
+                    det_msg=traceback.format_exc(), show=True)
+            return
         self.stats.rename(location, newloc)
         self.build_menus()
 
