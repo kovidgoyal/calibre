@@ -111,9 +111,9 @@ class KOBO(USBMS):
                     else:
                         book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
                     # print 'Update booklist'
+                    book.device_collections = playlist_map.get(book.lpath, [])
                     if bl.add_book(book, replace_metadata=False):
                         changed = True
-                    book.device_collections = playlist_map.get(book.lpath, [])
             except: # Probably a path encoding error
                 import traceback
                 traceback.print_exc()
