@@ -77,6 +77,7 @@ def line_length(format, raw, percent):
     elif format == 'pdf':
         linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
     lines = linere.findall(raw)
+    print "percent is " + str(percent)
 
     lengths = []
     for line in lines:
@@ -165,6 +166,11 @@ class HTMLPreProcessor(object):
                   (re.compile(u'`\s*(<br.*?>)*\s*I', re.UNICODE), lambda match: u'Ì'),
                   (re.compile(u'`\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'à'),
                   (re.compile(u'`\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'À'),
+                  
+                  #(re.compile(u'a\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'à'),
+                  #(re.compile(u'A\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'À'),
+                  #(re.compile(u'o\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'ò'),
+                  #(re.compile(u'O\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'Ò'),
 
                   (re.compile(u'´\s*(<br.*?>)*\s*o', re.UNICODE), lambda match: u'ó'),
                   (re.compile(u'´\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ó'),
@@ -206,13 +212,13 @@ class HTMLPreProcessor(object):
                   # (re.compile(r'<br>\s*<br>', re.IGNORECASE), lambda match: '\n<p>'),
 
                   # unwrap hyphenation - don't delete the hyphen (often doesn't split words)
-                  (re.compile(r'(?<=[-–])\s*<br>\s*(?=[[a-z\d])'), lambda match: ''),
+                  (re.compile(u'(?<=[-–—])\s*<br>\s*(?=[[a-z\d])'), lambda match: ''),
 
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
 
                   # Detect Chapters to match default XPATH in GUI
-                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?(.?Chapter|Epilogue|Prologue|Book|Part|Dedication|Volume|Preface|Acknowledgments)\s*([\d\w-]+(\s\w+)?)?\s*(</(i|b)>(</(i|b)>)?)?)\s*(</?(br|p)[^>]*>\s*){1,3}\s*(?P<title>(<(i|b)>)?(\s*\w+){1,4}\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
+                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?.?(Introduction|Chapter|Epilogue|Prologue|Book|Part|Dedication|Volume|Preface|Acknowledgments)\s*([\d\w-]+\s*){0,3}\s*(</(i|b)>(</(i|b)>)?)?)\s*(</?(br|p)[^>]*>\s*){1,3}\s*(?P<title>(<(i|b)>)?(\s*\w+){1,4}\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
 
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
@@ -303,15 +309,16 @@ class HTMLPreProcessor(object):
         if getattr(self.extra_opts, 'preprocess_html', None):
             if is_pdftohtml:
                 end_rules.append(
-                    (re.compile(r'(?=<(/?br|p|hr))(<(/?br|p|hr)[^>]*)?>\s*(<(i|b)>(<(i|b)>)?)?\s*(?P<chap>([A-Z-\'"!]{3,})\s*(\d+|[A-Z]+(\s*[A-Z]+)?)?)\s*(</(i|b)>(</(i|b)>)?)?\s*(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
+                    (re.compile(r'(?=<(/?br|p|hr))(<(/?br|p|hr)[^>]*)?>\s*(<(i|b)>(<(i|b)>)?)?\s*(?P<chap>([A-Z-\'"!]{3,})\s*(\d+|[A-Z]+(\s*[A-Z]+)?)?|\d+\.?\s*([\d\w-]+\s*){0,4}\s*)\s*(</(i|b)>(</(i|b)>)?)?\s*(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
                 )
 
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
             length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'))
             if length:
+                print "The pdf line length returned is " + str(length)
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(r'(?<=.{%i}[a-z\.,;:)\-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(r'(?<=.{%i}[a-z,;:)\-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + start_rules:

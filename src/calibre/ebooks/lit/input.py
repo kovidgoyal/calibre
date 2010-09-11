@@ -102,7 +102,7 @@ class LITInput(InputFormatPlugin):
                 percent = 0    
     
             min_lns = tot_ln_fds * percent
-            self.log("There must be more than " + str(min_lns) + " unmarked lines to be true")
+            self.log("There must be more than " + str(min_lns) + " unmarked lines to return true")
             if min_lns > tot_htm_ends:
                 return True
                 
@@ -141,24 +141,31 @@ class LITInput(InputFormatPlugin):
         html = chaplink.sub(chapter_link, html)
         # Continue with alternate patterns, start with most typical chapter headings
 		if self.html_preprocess_sections < 10:        
-            chapdetect = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<(i|b|u)>){0,2}.?(\d+\.?|Chapter|Epilogue|Volume|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\s*){0,4}\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<(i|b|u)>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(br|p)>))?', re.IGNORECASE)
+            chapdetect = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<(i|b|u)>){0,2}s*(<span[^>]*>)?\s*.?(\d+\.?|Introduction|Acknowledgements|Chapter|Epilogue|Volume|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,8}\s*(</(i|b|u)>){0,2})\s*(</span>)?s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<(i|b|u)>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(br|p)>))?', re.IGNORECASE)
             html = chapdetect.sub(chapter_head, html)
 		if self.html_preprocess_sections < 10:
 		    self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", trying a more aggressive pattern")
             chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<(i|b|u)>){0,2}\s*.?(([A-Z#]+\s*){1,9}|(CHAPTER\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}))\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<(i|b|u)>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(br|p)>))?', re.UNICODE)
-		    html = chapdetect2.sub(chapter_head, html)
-		    
+		    html = chapdetect2.sub(chapter_head, html)    
+        #    
+		# Unwrap lines using punctation if the median length of all lines is less than 150		
+		length = line_length('html', html, 0.4)
+		self.log("*** Median line length is " + str(length) + " ***")
+		unwrap = re.compile(r"(?<=.{%i}[a-z,;:\IA])\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
+		if length < 150:
+		    self.log("Unwrapping Lines")
+			html = unwrap.sub(' ', html)		
+		# If still no sections after unwrapping lines break on lines with no punctuation
+		if self.html_preprocess_sections < 10:
+		    self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", splitting based on punctuation")
+		    #self.log(html)
+            chapdetect3 = re.compile(r'(<p[^>]*>)\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<(i|b|u)>){0,2}\s*.?([a-z]+\s*){1,5}\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</p>)(?P<title>)?', re.IGNORECASE)
+            html = chapdetect3.sub(chapter_head, html)    	
         # search for places where a first or second level heading is immediately followed by another
         # top level heading.  demote the second heading to h3 to prevent splitting between chapter
         # headings and titles, images, etc
         doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
         html = doubleheading.sub('\g<firsthead>'+'<h3'+'\g<secondhead>'+'</h3>', html)
-		#    
-		# Unwrap lines using punctation if the median length of all lines is less than 150		
-		length = line_length('html', html, 0.4)
-		self.log("*** Median length is " + str(length) + " ***")
-		unwrap = re.compile(r"(?<=.{%i}[a-z,;:\IA])\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
-		if length < 150:
-			html = unwrap.sub(' ', html)
+
         return html
 
