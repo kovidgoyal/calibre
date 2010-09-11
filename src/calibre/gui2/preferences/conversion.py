@@ -34,6 +34,10 @@ class Model(QStringListModel):
 
 class Base(ConfigWidgetBase, Ui_Form):
 
+    restore_defaults_desc = _('Restore settings to default values. '
+            'Only settings for the currently selected section '
+            'are restored.')
+
     def genesis(self, gui):
         log = Log()
         log.outputs = []
@@ -108,6 +112,6 @@ if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     app = QApplication([])
     #test_widget('Conversion', 'Input Options')
-    #test_widget('Conversion', 'Common Options')
-    test_widget('Conversion', 'Output Options')
+    test_widget('Conversion', 'Common Options')
+    #test_widget('Conversion', 'Output Options')
 

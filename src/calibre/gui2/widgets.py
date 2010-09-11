@@ -1032,6 +1032,9 @@ class Splitter(QSplitter):
 
     # Public API {{{
 
+    def update_desired_state(self):
+        self.desired_show = not self.is_side_index_hidden
+
     def save_state(self):
         if self.count() > 1:
             gprefs[self.save_name+'_state'] = self.get_state()

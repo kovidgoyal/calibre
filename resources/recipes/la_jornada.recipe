@@ -1,15 +1,16 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>, Rogelio Domínguez <rogelio.dominguez@gmail.com>'
 '''
 www.jornada.unam.mx
 '''
 
+import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LaJornada_mx(BasicNewsRecipe):
     title                 = 'La Jornada (Mexico)'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Darko Miletic/Rogelio Domínguez'
     description           = 'Noticias del diario mexicano La Jornada'
     publisher             = 'DEMOS, Desarrollo de Medios, S.A. de C.V.'
     category              = 'news, Mexico'
@@ -20,12 +21,26 @@ class LaJornada_mx(BasicNewsRecipe):
     use_embedded_content  = False
     language              = 'es'
     remove_empty_feeds    = True
-    cover_url             = strftime("http://www.jornada.unam.mx/%Y/%m/%d/planitas/portadita.jpg")
+    cover_url             = strftime("http://www.jornada.unam.mx/%Y/%m/%d/portada.pdf")
     masthead_url          = 'http://www.jornada.unam.mx/v7.0/imagenes/la-jornada-trans.png'
+    publication_type      = 'newspaper'
     extra_css             = """
                                 body{font-family: "Times New Roman",serif }
                                 .cabeza{font-size: xx-large; font-weight: bold }
-                                .credito-articulo{font-size: 1.3em}
+                                .documentFirstHeading{font-size: xx-large; font-weight: bold }
+                                .credito-articulo{font-variant: small-caps; font-weight: bold }
+                                .foto{text-align: center}
+                                .pie-foto{font-size: 0.9em}
+                                .credito{font-weight: bold; margin-left: 1em}
+                                .credito-autor{font-variant: small-caps; font-weight: bold }
+                                .credito-titulo{text-align: right}
+                                .hemero{text-align: right; font-size: 0.9em; margin-bottom: 0.5em } 
+                                .loc{font-weight: bold} 
+                                .carton{text-align: center}
+                                .credit{font-weight: bold}
+                                .text{margin-top: 1.4em}
+                                p.inicial{display: inline; font-size: xx-large; font-weight: bold}
+                                p.s-s{display: inline; text-indent: 0}
                             """
 
     conversion_options = {
@@ -35,15 +50,21 @@ class LaJornada_mx(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
+    preprocess_regexps = [
+                          (re.compile(  r'<div class="inicial">(.*)</div><p class="s-s">'
+                                       ,re.DOTALL|re.IGNORECASE)
+                                       ,lambda match: '<p class="inicial">' + match.group(1) + '</p><p class="s-s">')
+                         ]
+                        
     keep_only_tags = [
-                         dict(name='div', attrs={'class':['documentContent','cabeza','sumarios','text']})
+                         dict(name='div', attrs={'class':['documentContent','cabeza','sumarios','credito-articulo','text','carton']})
                         ,dict(name='div', attrs={'id':'renderComments'})
                      ]
-    remove_tags = [dict(name='div', attrs={'class':'buttonbar'})]
+    remove_tags = [dict(name='div', attrs={'class':['buttonbar','comment-cont']})]
 
     feeds = [
-              (u'Ultimas noticias'    , u'http://www.jornada.unam.mx/ultimas/news/RSS'     )
-             ,(u'Opinion'             , u'http://www.jornada.unam.mx/rss/opinion.xml'      )
+              (u'Opinion'             , u'http://www.jornada.unam.mx/rss/opinion.xml'      )
+             ,(u'Cartones'            , u'http://www.jornada.unam.mx/rss/cartones.xml'     )
              ,(u'Politica'            , u'http://www.jornada.unam.mx/rss/politica.xml'     )
              ,(u'Economia'            , u'http://www.jornada.unam.mx/rss/economia.xml'     )
              ,(u'Mundo'               , u'http://www.jornada.unam.mx/rss/mundo.xml'        )
@@ -55,6 +76,7 @@ class LaJornada_mx(BasicNewsRecipe):
              ,(u'Gastronomia'         , u'http://www.jornada.unam.mx/rss/gastronomia.xml'  )
              ,(u'Espectaculos'        , u'http://www.jornada.unam.mx/rss/espectaculos.xml' )
              ,(u'Deportes'            , u'http://www.jornada.unam.mx/rss/deportes.xml'     )
+             ,(u'Ultimas noticias'    , u'http://www.jornada.unam.mx/ultimas/news/RSS'     )
             ]
 
     def preprocess_html(self, soup):
@@ -62,3 +84,7 @@ class LaJornada_mx(BasicNewsRecipe):
             del item['style']
         return soup
 
+    def get_article_url(self, article):
+        rurl = article.get('link',  None)
+        return rurl.rpartition('&partner=')[0]
+        

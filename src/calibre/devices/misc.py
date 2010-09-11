@@ -108,4 +108,23 @@ class PDNOVEL(USBMS):
             with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
                 coverfile.write(coverdata[2])
 
+class GEMEI(USBMS):
+    name           = 'Gemei Device Interface'
+    gui_name       = 'GM2000'
+    description    = _('Communicate with the GM2000')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'chm', 'html', 'pdb', 'pdf', 'txt']
+
+    VENDOR_ID   = [0x07c4]
+    PRODUCT_ID  = [0xa4a5]
+    BCD         = None
+
+    VENDOR_NAME = 'CHINA'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'CHIP'
+
+    EBOOK_DIR_MAIN = 'eBooks'
+    SUPPORTS_SUB_DIRS = True
 

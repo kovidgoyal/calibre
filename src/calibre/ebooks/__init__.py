@@ -138,3 +138,11 @@ def check_ebook_format(stream, current_guess):
         stream.seek(0)
     return ans
 
+def calibre_cover(title, author_string, series_string=None,
+        output_format='jpg', title_size=46, author_size=36):
+    from calibre.utils.magick.draw import create_cover_page, TextLine
+    lines = [TextLine(title, title_size), TextLine(author_string, author_size)]
+    if series_string:
+        lines.append(TextLine(series_string, author_size))
+    return create_cover_page(lines, I('library.png'), output_format='jpg')
+

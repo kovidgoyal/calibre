@@ -6,14 +6,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QWidget
+from PyQt4.Qt import QWidget, pyqtSignal
 
 from calibre.gui2 import error_dialog
-from calibre.gui2.dialogs.config.save_template_ui import Ui_Form
+from calibre.gui2.preferences.save_template_ui import Ui_Form
 from calibre.library.save_to_disk import FORMAT_ARG_DESCS, \
         preprocess_template
 
 class SaveTemplate(QWidget, Ui_Form):
+
+    changed_signal = pyqtSignal()
 
     def __init__(self, *args):
         QWidget.__init__(self, *args)
@@ -31,7 +33,12 @@ class SaveTemplate(QWidget, Ui_Form):
 
         self.opt_template.initialize(name+'_template_history',
                 default, help)
+        self.opt_template.editTextChanged.connect(self.changed)
+        self.opt_template.currentIndexChanged.connect(self.changed)
         self.option_name = name
+
+    def changed(self, *args):
+        self.changed_signal.emit()
 
     def validate(self):
         tmpl = preprocess_template(self.opt_template.text())
@@ -46,6 +53,9 @@ class SaveTemplate(QWidget, Ui_Form):
                     '<br>'+str(err), show=True)
             return False
         return True
+
+    def set_value(self, val):
+        self.opt_template.set_value(val)
 
     def save_settings(self, config, name):
         val = unicode(self.opt_template.text())

@@ -23,7 +23,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('gui_layout', config, restart_required=True, choices=
                 [(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
 
-        r('cover_flow_queue_length', config)
+        r('cover_flow_queue_length', config, restart_required=True)
 
         lang = get_lang()
         if lang is None or lang not in available_translations():
@@ -54,6 +54,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = [(_('Automatic'), 'auto'), (_('Always'), 'always'),
             (_('Never'), 'never')]
         r('toolbar_text', gprefs, choices=choices)
+
+    def refresh_gui(self, gui):
+        gui.search.search_as_you_type(config['search_as_you_type'])
+
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication

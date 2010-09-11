@@ -122,7 +122,7 @@ class ConnectShareAction(InterfaceAction):
         self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
         self.share_conn_menu.config_email.connect(partial(
             self.gui.iactions['Preferences'].do_config,
-            initial_category='email'))
+            initial_plugin=('Sharing', 'Email')))
         self.qaction.setMenu(self.share_conn_menu)
         self.share_conn_menu.connect_to_folder.connect(self.gui.connect_to_folder)
         self.share_conn_menu.connect_to_itunes.connect(self.gui.connect_to_itunes)

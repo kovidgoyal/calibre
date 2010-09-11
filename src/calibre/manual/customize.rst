@@ -11,7 +11,7 @@ Customizing |app|
 *recipes* to add new sources of online content to |app| in the Section :ref:`news`. Here, you will learn,
 first, how to use environment variables and *tweaks* to customize |app|'s behavior,  and then how to
 specify your own static resources like icons and templates to override the defaults and finally how to 
-use *plugins* to add funtionality to |app|.
+use *plugins* to add functionality to |app|.
 
 .. contents::
     :depth: 2
@@ -45,7 +45,7 @@ All static resources are stored in the resources sub-folder of the calibre insta
 from the calibre website it will be :file:`/opt/calibre/resources`. These paths can change depending on where you choose to install |app|. 
 
 You should not change the files in this resources folder, as your changes will get overwritten the next time you update |app|. Instead, go to
-:guilabel:`Preferences->Advanced` and click :guilabel:`Open calibre configuration directory`. In this configuration directory, create a sub-folder called resources and place the files you want to override in it. Place the files in the appropriate sub folders, for example place images in :file:`resources/images`, etc. 
+:guilabel:`Preferences->Advanced->Miscellaneous` and click :guilabel:`Open calibre configuration directory`. In this configuration directory, create a sub-folder called resources and place the files you want to override in it. Place the files in the appropriate sub folders, for example place images in :file:`resources/images`, etc. 
 |app| will automatically use your custom file in preference to the builtin one the next time it is started.
 
 For example, if you wanted to change the icon for the :guilabel:`Remove books` action, you would first look in the builtin resources folder and see that the relevant file is

@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import textwrap
+
 from PyQt4.Qt import QComboBox, QStringList, Qt
 
 from calibre.gui2 import config as gui_conf
@@ -17,14 +19,21 @@ class HistoryBox(QComboBox):
         self.setEditable(True)
 
     def initialize(self, opt_name, default, help=None):
-        history = gui_conf[opt_name]
-        if default not in history:
-            history.append(default)
-        self.addItems(QStringList(history))
-        self.setCurrentIndex(self.findText(default, Qt.MatchFixedString))
-        if help is not None:
+        self.opt_name = opt_name
+        self.set_value(default)
+        if help:
+            self.setStatusTip(help)
+            help = '\n'.join(textwrap.wrap(help))
             self.setToolTip(help)
             self.setWhatsThis(help)
+
+    def set_value(self, val):
+        history = gui_conf[self.opt_name]
+        if val not in history:
+            history.append(val)
+        self.clear()
+        self.addItems(QStringList(history))
+        self.setCurrentIndex(self.findText(val, Qt.MatchFixedString))
 
     def save_history(self, opt_name):
         history = [unicode(self.itemText(i)) for i in range(self.count())]

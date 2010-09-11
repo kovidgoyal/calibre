@@ -161,7 +161,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         else:
             idx = self.parent.opt_columns.currentRow()
             item = self.parent.opt_columns.item(idx)
-            item.setData(Qt.UserRole, QVariant(key))
             item.setText(col_heading)
             self.parent.custcols[self.orig_column_name]['label'] = col
             self.parent.custcols[self.orig_column_name]['name'] = col_heading

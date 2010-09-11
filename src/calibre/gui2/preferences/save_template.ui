@@ -52,7 +52,7 @@
   <customwidget>
    <class>HistoryBox</class>
    <extends>QComboBox</extends>
-   <header>calibre/gui2/dialogs/config/history.h</header>
+   <header>calibre/gui2/preferences/history.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

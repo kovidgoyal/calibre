@@ -461,7 +461,7 @@ from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS
 from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN
+from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, GEMEI
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
@@ -570,6 +570,7 @@ plugins += [
     KOGAN,
     PDNOVEL,
     SPECTRA,
+    GEMEI,
     ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
@@ -678,78 +679,181 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
 
 class LookAndFeel(PreferencesPlugin):
     name = 'Look & Feel'
+    icon = I('lookfeel.png')
     gui_name = _('Look and Feel')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1
     name_order = 1
     config_widget = 'calibre.gui2.preferences.look_feel'
+    description = _('Adjust the look and feel of the calibre interface'
+            ' to suit your tastes')
 
 class Behavior(PreferencesPlugin):
     name = 'Behavior'
+    icon = I('config.png')
     gui_name = _('Behavior')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1
     name_order = 2
     config_widget = 'calibre.gui2.preferences.behavior'
+    description = _('Change the way calibre behaves')
 
 class Columns(PreferencesPlugin):
     name = 'Custom Columns'
+    icon = I('column.png')
     gui_name = _('Add your own columns')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1
     name_order = 3
     config_widget = 'calibre.gui2.preferences.columns'
+    description = _('Add/remove your own columns to the calibre book list')
 
 class Toolbar(PreferencesPlugin):
     name = 'Toolbar'
+    icon = I('wizard.png')
     gui_name = _('Customize the toolbar')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1
     name_order = 4
     config_widget = 'calibre.gui2.preferences.toolbar'
+    description = _('Customize the toolbars and context menus, changing which'
+            ' actions are available in each')
 
 class InputOptions(PreferencesPlugin):
     name = 'Input Options'
+    icon = I('arrow-down.png')
     gui_name = _('Input Options')
     category = 'Conversion'
     gui_category = _('Conversion')
     category_order = 2
     name_order = 1
     config_widget = 'calibre.gui2.preferences.conversion:InputOptions'
+    description = _('Set conversion options specific to each input format')
 
 class CommonOptions(PreferencesPlugin):
     name = 'Common Options'
+    icon = I('convert.png')
     gui_name = _('Common Options')
     category = 'Conversion'
     gui_category = _('Conversion')
     category_order = 2
     name_order = 2
     config_widget = 'calibre.gui2.preferences.conversion:CommonOptions'
+    description = _('Set conversion options common to all formats')
 
 class OutputOptions(PreferencesPlugin):
     name = 'Output Options'
+    icon = I('arrow-up.png')
     gui_name = _('Output Options')
     category = 'Conversion'
     gui_category = _('Conversion')
     category_order = 2
     name_order = 3
     config_widget = 'calibre.gui2.preferences.conversion:OutputOptions'
+    description = _('Set conversion options specific to each output format')
 
 class Adding(PreferencesPlugin):
     name = 'Adding'
+    icon = I('add_book.png')
     gui_name = _('Adding books')
     category = 'Import/Export'
     gui_category = _('Import/Export')
     category_order = 3
     name_order = 1
     config_widget = 'calibre.gui2.preferences.adding'
+    description = _('Control how calibre reads metadata from files when '
+            'adding books')
+
+class Saving(PreferencesPlugin):
+    name = 'Saving'
+    icon = I('save.png')
+    gui_name = _('Saving books to disk')
+    category = 'Import/Export'
+    gui_category = _('Import/Export')
+    category_order = 3
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.saving'
+    description = _('Control how calibre exports files from its database '
+            'to disk when using Save to disk')
+
+class Sending(PreferencesPlugin):
+    name = 'Sending'
+    icon = I('sync.png')
+    gui_name = _('Sending books to devices')
+    category = 'Import/Export'
+    gui_category = _('Import/Export')
+    category_order = 3
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.sending'
+    description = _('Control how calibre transfers files to your '
+            'ebook reader')
+
+class Email(PreferencesPlugin):
+    name = 'Email'
+    icon = I('mail.png')
+    gui_name = _('Sharing books by email')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.emailp'
+    description = _('Setup sharing of books via email. Can be used '
+            'for automatic sending of downloaded news to your devices')
+
+class Server(PreferencesPlugin):
+    name = 'Server'
+    icon = I('network-server.png')
+    gui_name = _('Sharing over the net')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.server'
+    description = _('Setup the calibre Content Server which will '
+            'give you access to your calibre library from anywhere, '
+            'on any device, over the internet')
+
+class Plugins(PreferencesPlugin):
+    name = 'Plugins'
+    icon = I('plugins.png')
+    gui_name = _('Plugins')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 1
+    config_widget = 'calibre.gui2.preferences.plugins'
+    description = _('Add/remove/customize various bits of calibre '
+            'functionality')
+
+class Tweaks(PreferencesPlugin):
+    name = 'Tweaks'
+    icon = I('drawer.png')
+    gui_name = _('Tweaks')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 2
+    config_widget = 'calibre.gui2.preferences.tweaks'
+    description = _('Fine tune how calibre behaves in various contexts')
+
+class Misc(PreferencesPlugin):
+    name = 'Misc'
+    icon = I('exec.png')
+    gui_name = _('Miscellaneous')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.misc'
+    description = _('Miscellaneous advanced configuration')
 
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
-        CommonOptions, OutputOptions, Adding]
+        CommonOptions, OutputOptions, Adding, Saving, Sending, Email, Server,
+        Plugins, Tweaks, Misc]
 
 #}}}
 
