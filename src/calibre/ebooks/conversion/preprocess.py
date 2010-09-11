@@ -168,7 +168,6 @@ class HTMLPreProcessor(object):
                   (re.compile(u'`\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ò'),
                   (re.compile(u'`\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ù'),
                   (re.compile(u'`\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Ù'),
-<<<<<<< TREE
                   (re.compile(u'`\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'è'),
                   (re.compile(u'`\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'È'),
                   (re.compile(u'`\s*(<br.*?>)*\s*i', re.UNICODE), lambda match: u'ì'),
@@ -176,13 +175,6 @@ class HTMLPreProcessor(object):
                   (re.compile(u'`\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'à'),
                   (re.compile(u'`\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'À'),
                   
-                  #(re.compile(u'a\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'à'),
-                  #(re.compile(u'A\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'À'),
-                  #(re.compile(u'o\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'ò'),
-                  #(re.compile(u'O\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'Ò'),
-=======
->>>>>>> MERGE-SOURCE
-
                   # ´
                   (re.compile(u'´\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'á'),
                   (re.compile(u'´\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Á'),
@@ -218,14 +210,7 @@ class HTMLPreProcessor(object):
                   # ¸
                   (re.compile(u'¸\s*(<br.*?>)*\s*c', re.UNICODE), lambda match: u'ç'),
                   (re.compile(u'¸\s*(<br.*?>)*\s*C', re.UNICODE), lambda match: u'Ç'),
-
-<<<<<<< TREE
-                  # If pdf printed from a browser then the header/footer has a reliable pattern
-                  (re.compile(r'((?<=</a>)\s*file:////?[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
-
-                  # Center separator lines
-                  (re.compile(u'<br>\s*(?P<break>([*#•]+\s*)+)\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group(1) + '</p>'),
-=======
+                  
                   # ˛
                   (re.compile(u'˛\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'ą'),
                   (re.compile(u'˛\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Ą'),
@@ -235,8 +220,12 @@ class HTMLPreProcessor(object):
                   # ˙
                   (re.compile(u'˙\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ż'),
                   (re.compile(u'˙\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ż'),
-                  
->>>>>>> MERGE-SOURCE
+
+                  # If pdf printed from a browser then the header/footer has a reliable pattern
+                  (re.compile(r'((?<=</a>)\s*file:////?[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
+
+                  # Center separator lines
+                  (re.compile(u'<br>\s*(?P<break>([*#•]+\s*)+)\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group(1) + '</p>'),
 
                   # Remove page links
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
