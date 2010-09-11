@@ -161,6 +161,7 @@ class Metadata(object):
                         'Custom field name %s must begin with \'#\''%repr(field))
             if metadata is None:
                 traceback.print_stack()
+                return
             metadata = copy.deepcopy(metadata)
             if '#value#' not in metadata:
                 if metadata['datatype'] == 'text' and metadata['is_multiple']:
