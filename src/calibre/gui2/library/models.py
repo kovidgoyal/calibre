@@ -266,8 +266,8 @@ class BooksModel(QAbstractTableModel): # {{{
         self.db.refresh(field=None)
         self.resort(reset=reset)
 
-    def resort(self, reset=True, history=5): # Bug report needed history=4 :)
-        for col,ord in reversed(self.sort_history[:history]):
+    def resort(self, reset=True):
+        for col,ord in reversed(self.sort_history[:tweaks['maximum_resort_levels']]):
             try:
                 col = self.column_map.index(col)
             except ValueError:
