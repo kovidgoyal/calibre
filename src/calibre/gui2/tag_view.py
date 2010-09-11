@@ -512,7 +512,8 @@ class TagsModel(QAbstractItemModel): # {{{
                     _('The saved search name %s is already used.')%val).exec_()
                 return False
             saved_searches().rename(unicode(item.data(role).toString()), val)
-            self.tags_view.search_item_renamed.emit()
+            item.tag.name = val
+            self.tags_view.search_item_renamed.emit() # Does a refresh
         else:
             if key == 'series':
                 self.db.rename_series(item.tag.id, val)
@@ -526,8 +527,8 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.db.rename_custom_item(item.tag.id, val,
                                     label=self.db.field_metadata[key]['label'])
             self.tags_view.tag_item_renamed.emit()
-        item.tag.name = val
-        self.refresh() # Should work, because no categories can have disappeared
+            item.tag.name = val
+            self.refresh() # Should work, because no categories can have disappeared
         if path:
             idx = self.index_for_path(path)
             if idx.isValid():
@@ -669,7 +670,7 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
         self.tags_view.author_sort_edit.connect(self.do_author_sort_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
-        self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
+        self.tags_view.search_item_renamed.connect(self.saved_searches_changed)
         self.edit_categories.clicked.connect(lambda x:
                 self.do_user_categories_edit())
 
