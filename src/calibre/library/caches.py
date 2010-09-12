@@ -112,7 +112,7 @@ class ResultCache(SearchQueryParser):
     '''
     def __init__(self, FIELD_MAP, field_metadata):
         self.FIELD_MAP = FIELD_MAP
-        self._map = self._map_filtered = self._data = []
+        self._map = self._data = self._map_filtered = []
         self.first_sort = True
         self.search_restriction = ''
         self.field_metadata = field_metadata
@@ -480,8 +480,11 @@ class ResultCache(SearchQueryParser):
                 q = u'%s (%s)' % (search_restriction, query)
         if not q:
             return list(self._map)
-        matches = sorted(self.parse(q))
-        return [id for id in self._map if id in matches]
+        matches = self.parse(q)
+        tmap = list(itertools.repeat(False, len(self._data)))
+        for x in matches:
+            tmap[x] = True
+        return [x for x in self._map if tmap[x]]
 
     def set_search_restriction(self, s):
         self.search_restriction = s
@@ -490,10 +493,14 @@ class ResultCache(SearchQueryParser):
 
     def remove(self, id):
         self._data[id] = None
-        if id in self._map:
+        try:
             self._map.remove(id)
-        if id in self._map_filtered:
+        except ValueError:
+            pass
+        try:
             self._map_filtered.remove(id)
+        except ValueError:
+            pass
 
     def set(self, row, col, val, row_is_id=False):
         id = row if row_is_id else self._map_filtered[row]
@@ -548,9 +555,7 @@ class ResultCache(SearchQueryParser):
 
     def books_deleted(self, ids):
         for id in ids:
-            self._data[id] = None
-            if id in self._map: self._map.remove(id)
-            if id in self._map_filtered: self._map_filtered.remove(id)
+            self.remove(id)
 
     def count(self):
         return len(self._map)
@@ -644,28 +649,32 @@ class ResultCache(SearchQueryParser):
                 self.FIELD_MAP['series_index'],
                 library_order=tweaks['title_series_sorting'] == 'library_order')
         else:
-            fcmp = functools.partial(self.cmp, self.FIELD_MAP[field],
+            fcmp = functools.partial(self.cmp, self.field_metadata[field]['rec_index'],
                                      subsort=subsort, asstr=as_string)
         self._map.sort(cmp=fcmp, reverse=not ascending)
-        self._map_filtered = [id for id in self._map if id in self._map_filtered]
+        tmap = list(itertools.repeat(False, len(self._data)))
+        for x in self._map_filtered:
+            tmap[x] = True
+        self._map_filtered = [x for x in self._map if tmap[x]]
 
     def multisort(self, fields=[], subsort=False):
         fields = [(self.sanitize_field_name(x), bool(y)) for x, y in fields]
+        keys = self.field_metadata.field_keys()
+        fields = [x for x in fields if x[0] in keys]
         if subsort and 'sort' not in [x[0] for x in fields]:
             fields += [('sort', True)]
         if not fields:
             fields = [('timestamp', False)]
-        keys = self.field_metadata.keys()
-        for f, order in fields:
-            if f not in keys:
-                raise ValueError(f + ' not an existing field name')
 
         keyg = SortKeyGenerator(fields, self.field_metadata, self._data)
         if len(fields) == 1:
             self._map.sort(key=keyg, reverse=not fields[0][1])
         else:
             self._map.sort(key=keyg)
-        self._map_filtered = [id for id in self._map if id in self._map_filtered]
+        tmap = list(itertools.repeat(False, len(self._data)))
+        for x in self._map_filtered:
+            tmap[x] = True
+        self._map_filtered = [x for x in self._map if tmap[x]]
 
 
 class SortKey(object):
@@ -677,16 +686,14 @@ class SortKey(object):
         for i, ascending in enumerate(self.orders):
             ans = cmp(self.values[i], other.values[i])
             if ans != 0:
-                if not ascending:
-                    ans *= -1
-                return ans
+                return ans * ascending
         return 0
 
 class SortKeyGenerator(object):
 
     def __init__(self, fields, field_metadata, data):
         self.field_metadata = field_metadata
-        self.orders = [x[1] for x in fields]
+        self.orders = [-1 if x[1] else 1 for x in fields]
         self.entries = [(x[0], field_metadata[x[0]]) for x in fields]
         self.library_order = tweaks['title_series_sorting'] == 'library_order'
         self.data = data
@@ -735,7 +742,7 @@ if __name__ == '__main__':
 
     db.refresh()
 
-    fields = db.field_metadata.keys()
+    fields = db.field_metadata.field_keys()
 
     print fields
 
@@ -765,7 +772,7 @@ if __name__ == '__main__':
     print 'Running single sort differentials'
     for field in fields:
         if field in ('search', 'id', 'news', 'flags'): continue
-        print '\t', field
+        print '\t', field, db.field_metadata[field]['datatype']
         old, new = test_single_sort(field)
         if old[1] != new[1] or old[2] != new[2]:
             print '\t\t', 'Sort failure!'
