@@ -110,7 +110,7 @@ COPYABLE_METADATA_FIELDS = SOCIAL_METADATA_FIELDS.union(
                            frozenset(['title', 'title_sort', 'authors',
                                       'author_sort', 'author_sort_map' 'comments',
                                       'cover_data', 'tags', 'language', 'lpath',
-                                      'size'])
+                                      'size', 'thumbnail'])
 
 SERIALIZABLE_FIELDS =      SOCIAL_METADATA_FIELDS.union(
                            USER_METADATA_FIELDS).union(
