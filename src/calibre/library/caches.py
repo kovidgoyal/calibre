@@ -20,7 +20,6 @@ from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import title_sort
 from calibre import fit_image
-from calibre.utils.ordered_dict import OrderedDict
 
 class CoverCache(Thread):
 
@@ -113,8 +112,7 @@ class ResultCache(SearchQueryParser):
     '''
     def __init__(self, FIELD_MAP, field_metadata):
         self.FIELD_MAP = FIELD_MAP
-        self._map = self._data = []
-        self._map_filtered = OrderedDict()
+        self._map = self._data = self._map_filtered = []
         self.first_sort = True
         self.search_restriction = ''
         self.field_metadata = field_metadata
@@ -124,14 +122,14 @@ class ResultCache(SearchQueryParser):
         self.build_numeric_relop_dict()
 
     def __getitem__(self, row):
-        return self._data[self._map_filtered.keys()[row]]
+        return self._data[self._map_filtered[row]]
 
     def __len__(self):
         return len(self._map_filtered)
 
     def __iter__(self):
         for id in self._map_filtered:
-            yield id
+            yield self._data[id]
 
     def iterall(self):
         for x in self._data:
@@ -470,7 +468,7 @@ class ResultCache(SearchQueryParser):
         ans = self.search_getting_ids(query, self.search_restriction)
         if return_matches:
             return ans
-        self._map_filtered = OrderedDict.fromkeys(ans, True)
+        self._map_filtered = ans
 
     def search_getting_ids(self, query, search_restriction):
         q = ''
@@ -483,7 +481,10 @@ class ResultCache(SearchQueryParser):
         if not q:
             return list(self._map)
         matches = self.parse(q)
-        return [id for id in self._map if id in matches]
+        tmap = list(itertools.repeat(False, len(self._data)))
+        for x in matches:
+            tmap[x] = True
+        return [x for x in self._map if tmap[x]]
 
     def set_search_restriction(self, s):
         self.search_restriction = s
@@ -492,21 +493,25 @@ class ResultCache(SearchQueryParser):
 
     def remove(self, id):
         self._data[id] = None
-        if id in self._map:
+        try:
             self._map.remove(id)
-        if id in self._map_filtered:
-            del self._map_filtered[id]
+        except ValueError:
+            pass
+        try:
+            self._map_filtered.remove(id)
+        except ValueError:
+            pass
 
     def set(self, row, col, val, row_is_id=False):
-        id = row if row_is_id else self._map_filtered.keys()[row]
+        id = row if row_is_id else self._map_filtered[row]
         self._data[id][col] = val
 
     def get(self, row, col, row_is_id=False):
-        id = row if row_is_id else self._map_filtered.keys()[row]
+        id = row if row_is_id else self._map_filtered[row]
         return self._data[id][col]
 
     def index(self, id, cache=False):
-        x = self._map if cache else self._map_filtered.keys()
+        x = self._map if cache else self._map_filtered
         return x.index(id)
 
     def row(self, id):
@@ -546,18 +551,11 @@ class ResultCache(SearchQueryParser):
             self._data[id].append(db.has_cover(id, index_is_id=True))
             self._data[id].append(db.book_on_device_string(id))
         self._map[0:0] = ids
-        mf = OrderedDict()
-        for id in ids:
-            mf[id] = True
-        for id in self._map_filtered:
-            mf[id] = True
-        self._map_filtered = mf
+        self._map_filtered[0:0] = ids
 
     def books_deleted(self, ids):
         for id in ids:
-            self._data[id] = None
-            if id in self._map: self._map.remove(id)
-            if id in self._map_filtered: del self._map_filtered[id]
+            self.remove(id)
 
     def count(self):
         return len(self._map)
@@ -580,7 +578,7 @@ class ResultCache(SearchQueryParser):
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)
-        self._map_filtered = OrderedDict.fromkeys(self._map, True)
+        self._map_filtered = list(self._map)
         if self.search_restriction:
             self.search('', return_matches=False)
 
@@ -654,33 +652,29 @@ class ResultCache(SearchQueryParser):
             fcmp = functools.partial(self.cmp, self.field_metadata[field]['rec_index'],
                                      subsort=subsort, asstr=as_string)
         self._map.sort(cmp=fcmp, reverse=not ascending)
-        mf = OrderedDict()
-        for id in self._map:
-            if id in self._map_filtered:
-                mf[id] = True
-        self._map_filtered = mf
+        tmap = list(itertools.repeat(False, len(self._data)))
+        for x in self._map_filtered:
+            tmap[x] = True
+        self._map_filtered = [x for x in self._map if tmap[x]]
 
     def multisort(self, fields=[], subsort=False):
         fields = [(self.sanitize_field_name(x), bool(y)) for x, y in fields]
+        keys = self.field_metadata.field_keys()
+        fields = [x for x in fields if x[0] in keys]
         if subsort and 'sort' not in [x[0] for x in fields]:
             fields += [('sort', True)]
         if not fields:
             fields = [('timestamp', False)]
-        keys = self.field_metadata.field_keys()
-        for f, order in fields:
-            if f not in keys:
-                raise ValueError(f + ' not an existing field name')
 
         keyg = SortKeyGenerator(fields, self.field_metadata, self._data)
         if len(fields) == 1:
             self._map.sort(key=keyg, reverse=not fields[0][1])
         else:
             self._map.sort(key=keyg)
-        mf = OrderedDict()
-        for id in self._map:
-            if id in self._map_filtered:
-                mf[id] = id
-        self._map_filtered = mf
+        tmap = list(itertools.repeat(False, len(self._data)))
+        for x in self._map_filtered:
+            tmap[x] = True
+        self._map_filtered = [x for x in self._map if tmap[x]]
 
 
 class SortKey(object):
