@@ -247,7 +247,7 @@ class BooksModel(QAbstractTableModel): # {{{
             # the search and count records for restrictions
             self.searched.emit(True)
 
-    def sort(self, col, order, reset=True, update_history=True):
+    def sort(self, col, order, reset=True):
         if not self.db:
             return
         self.about_to_be_sorted.emit(self.db.id)
@@ -258,21 +258,17 @@ class BooksModel(QAbstractTableModel): # {{{
             self.clear_caches()
             self.reset()
         self.sorted_on = (label, order)
-        if update_history:
-            self.sort_history.insert(0, self.sorted_on)
+        self.sort_history.insert(0, self.sorted_on)
         self.sorting_done.emit(self.db.index)
 
     def refresh(self, reset=True):
         self.db.refresh(field=None)
         self.resort(reset=reset)
 
-    def resort(self, reset=True, history=5): # Bug report needed history=4 :)
-        for col,ord in reversed(self.sort_history[:history]):
-            try:
-                col = self.column_map.index(col)
-            except ValueError:
-                col = 0
-            self.sort(col, ord, reset=False, update_history=False)
+    def resort(self, reset=True):
+        if not self.db:
+            return
+        self.db.multisort(self.sort_history[:tweaks['maximum_resort_levels']])
         if reset:
             self.reset()
 
@@ -1030,6 +1026,11 @@ class DeviceBooksModel(BooksModel): # {{{
         self.sort_history.insert(0, self.sorted_on)
         if reset:
             self.reset()
+
+    def resort(self, reset=True):
+        if self.sorted_on:
+            self.sort(self.column_map.index(self.sorted_on[0]),
+                      self.sorted_on[1], reset=reset)
 
     def columnCount(self, parent):
         if parent and parent.isValid():

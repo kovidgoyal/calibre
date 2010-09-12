@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, itertools, functools
+import re, itertools
 from itertools import repeat
 from datetime import timedelta
 from threading import Thread, RLock
@@ -112,7 +112,7 @@ class ResultCache(SearchQueryParser):
     '''
     def __init__(self, FIELD_MAP, field_metadata):
         self.FIELD_MAP = FIELD_MAP
-        self._map = self._map_filtered = self._data = []
+        self._map = self._data = self._map_filtered = []
         self.first_sort = True
         self.search_restriction = ''
         self.field_metadata = field_metadata
@@ -480,8 +480,11 @@ class ResultCache(SearchQueryParser):
                 q = u'%s (%s)' % (search_restriction, query)
         if not q:
             return list(self._map)
-        matches = sorted(self.parse(q))
-        return [id for id in self._map if id in matches]
+        matches = self.parse(q)
+        tmap = list(itertools.repeat(False, len(self._data)))
+        for x in matches:
+            tmap[x] = True
+        return [x for x in self._map if tmap[x]]
 
     def set_search_restriction(self, s):
         self.search_restriction = s
@@ -490,10 +493,14 @@ class ResultCache(SearchQueryParser):
 
     def remove(self, id):
         self._data[id] = None
-        if id in self._map:
+        try:
             self._map.remove(id)
-        if id in self._map_filtered:
+        except ValueError:
+            pass
+        try:
             self._map_filtered.remove(id)
+        except ValueError:
+            pass
 
     def set(self, row, col, val, row_is_id=False):
         id = row if row_is_id else self._map_filtered[row]
@@ -548,9 +555,7 @@ class ResultCache(SearchQueryParser):
 
     def books_deleted(self, ids):
         for id in ids:
-            self._data[id] = None
-            if id in self._map: self._map.remove(id)
-            if id in self._map_filtered: self._map_filtered.remove(id)
+            self.remove(id)
 
     def count(self):
         return len(self._map)
@@ -579,69 +584,92 @@ class ResultCache(SearchQueryParser):
 
     # Sorting functions {{{
 
-    def seriescmp(self, sidx, siidx, x, y, library_order=None):
-        try:
-            if library_order:
-                ans = cmp(title_sort(self._data[x][sidx].lower()),
-                                title_sort(self._data[y][sidx].lower()))
-            else:
-                ans = cmp(self._data[x][sidx].lower(),
-                                                self._data[y][sidx].lower())
-        except AttributeError: # Some entries may be None
-            ans = cmp(self._data[x][sidx], self._data[y][sidx])
-        if ans != 0: return ans
-        return cmp(self._data[x][siidx], self._data[y][siidx])
-
-    def cmp(self, loc, x, y, asstr=True, subsort=False):
-        try:
-            ans = cmp(self._data[x][loc].lower(), self._data[y][loc].lower()) if \
-                asstr else cmp(self._data[x][loc], self._data[y][loc])
-        except AttributeError: # Some entries may be None
-            ans = cmp(self._data[x][loc], self._data[y][loc])
-        except TypeError: ## raised when a datetime is None
-            x = self._data[x][loc]
-            if x is None:
-                x = UNDEFINED_DATE
-            y = self._data[y][loc]
-            if y is None:
-                y = UNDEFINED_DATE
-            return cmp(x, y)
-        if subsort and ans == 0:
-            return cmp(self._data[x][11].lower(), self._data[y][11].lower())
-        return ans
+    def sanitize_sort_field_name(self, field):
+        field = field.lower().strip()
+        if field not in self.field_metadata.iterkeys():
+            if field in ('author', 'tag', 'comment'):
+                field += 's'
+            if   field == 'date': field = 'timestamp'
+            elif field == 'title': field = 'sort'
+            elif field == 'authors': field = 'author_sort'
+        return field
 
     def sort(self, field, ascending, subsort=False):
-        field = field.lower().strip()
-        if field in ('author', 'tag', 'comment'):
-            field += 's'
-        if   field == 'date': field = 'timestamp'
-        elif field == 'title': field = 'sort'
-        elif field == 'authors': field = 'author_sort'
-        as_string = field not in ('size', 'rating', 'timestamp')
+        self.multisort([(field, ascending)])
 
-        if self.first_sort:
-            subsort = True
-            self.first_sort = False
-        if self.field_metadata[field]['is_custom']:
-            if self.field_metadata[field]['datatype'] == 'series':
-                fcmp = functools.partial(self.seriescmp,
-                    self.field_metadata[field]['rec_index'],
-                    self.field_metadata.cc_series_index_column_for(field),
-                    library_order=tweaks['title_series_sorting'] == 'library_order')
-            else:
-                as_string = self.field_metadata[field]['datatype'] in ('comments', 'text')
-                field = self.field_metadata[field]['colnum']
-                fcmp = functools.partial(self.cmp, self.FIELD_MAP[field],
-                                     subsort=subsort, asstr=as_string)
-        elif field == 'series':
-            fcmp = functools.partial(self.seriescmp, self.FIELD_MAP['series'],
-                self.FIELD_MAP['series_index'],
-                library_order=tweaks['title_series_sorting'] == 'library_order')
+    def multisort(self, fields=[], subsort=False):
+        fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
+        keys = self.field_metadata.field_keys()
+        fields = [x for x in fields if x[0] in keys]
+        if subsort and 'sort' not in [x[0] for x in fields]:
+            fields += [('sort', True)]
+        if not fields:
+            fields = [('timestamp', False)]
+
+        keyg = SortKeyGenerator(fields, self.field_metadata, self._data)
+        if len(fields) == 1:
+            self._map.sort(key=keyg, reverse=not fields[0][1])
         else:
-            fcmp = functools.partial(self.cmp, self.FIELD_MAP[field],
-                                     subsort=subsort, asstr=as_string)
-        self._map.sort(cmp=fcmp, reverse=not ascending)
-        self._map_filtered = [id for id in self._map if id in self._map_filtered]
+            self._map.sort(key=keyg)
+
+        tmap = list(itertools.repeat(False, len(self._data)))
+        for x in self._map_filtered:
+            tmap[x] = True
+        self._map_filtered = [x for x in self._map if tmap[x]]
+
+
+class SortKey(object):
+
+    def __init__(self, orders, values):
+        self.orders, self.values = orders, values
+
+    def __cmp__(self, other):
+        for i, ascending in enumerate(self.orders):
+            ans = cmp(self.values[i], other.values[i])
+            if ans != 0:
+                return ans * ascending
+        return 0
+
+class SortKeyGenerator(object):
+
+    def __init__(self, fields, field_metadata, data):
+        self.field_metadata = field_metadata
+        self.orders = [-1 if x[1] else 1 for x in fields]
+        self.entries = [(x[0], field_metadata[x[0]]) for x in fields]
+        self.library_order = tweaks['title_series_sorting'] == 'library_order'
+        self.data = data
+
+    def __call__(self, record):
+        values = tuple(self.itervals(self.data[record]))
+        if len(values) == 1:
+            return values[0]
+        return SortKey(self.orders, values)
+
+    def itervals(self, record):
+        for name, fm in self.entries:
+            dt = fm['datatype']
+            val = record[fm['rec_index']]
+
+            if dt == 'datetime':
+                if val is None:
+                    val = UNDEFINED_DATE
+
+            elif dt == 'series':
+                if val is None:
+                    val = ('', 1)
+                else:
+                    val = val.lower()
+                    if self.library_order:
+                        val = title_sort(val)
+                    sidx_fm = self.field_metadata[name + '_index']
+                    sidx = record[sidx_fm['rec_index']]
+                    val = (val, sidx)
+
+            elif dt in ('text', 'comments'):
+                if val is None:
+                    val = ''
+                val = val.lower()
+            yield val
 
     # }}}
 
