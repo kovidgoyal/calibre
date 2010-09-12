@@ -124,6 +124,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
         series = u'[%s - %s]'%(book['series'], book['series_index']) \
                 if book['series'] else ''
         tags = u'Tags=[%s]'%book['tags'] if book['tags'] else ''
+        print tags
 
         ctext = ''
         for key in CKEYS:
@@ -217,7 +218,8 @@ class MobileServer(object):
             book['authors'] = authors
             book['series_index'] = fmt_sidx(float(record[FM['series_index']]))
             book['series'] = record[FM['series']]
-            book['tags'] = format_tag_string(record[FM['tags']], ',')
+            book['tags'] = format_tag_string(record[FM['tags']], ',',
+                                             no_tag_count=True)
             book['title'] = record[FM['title']]
             for x in ('timestamp', 'pubdate'):
                 book[x] = strftime('%Y/%m/%d %H:%M:%S', record[FM[x]])
@@ -233,7 +235,9 @@ class MobileServer(object):
                         continue
                     name = CFM[key]['name']
                     if datatype == 'text' and CFM[key]['is_multiple']:
-                        book[key] = concat(name, format_tag_string(val, '|'))
+                        book[key] = concat(name,
+                                           format_tag_string(val, '|',
+                                                             no_tag_count=True))
                     elif datatype == 'series':
                         book[key] = concat(name, '%s [%s]'%(val,
                             fmt_sidx(record[CFM.cc_series_index_column_for(key)])))
