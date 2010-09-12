@@ -408,10 +408,6 @@ class Page(object):
     # Fraction of text height that two strings' bottoms can differ by
     # for them to be considered to be part of the same text fragment
     LINE_FACTOR = 0.4
-    
-    # Percentage of the page heigth which should be considered header
-    # or footer to be discarded from reflow considerations
-    HEAD_FOOTER_MARGIN
 
     # Multiplies the average line height when determining row height
     # of a particular element to detect columns.

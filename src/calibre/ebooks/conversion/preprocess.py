@@ -319,8 +319,8 @@ class HTMLPreProcessor(object):
       
         # unwrap hyphenation - moved here so it's executed after header/footer removal
         if is_pdftohtml:
-            # unwrap visible dashes and hyphens - don't delete as 50% or more of the time these
-            # hyphens are for compound words, formatting, etc
+            # unwrap visible dashes and hyphens - don't delete they are often hyphens for
+            # for compound words, formatting, etc
             end_rules.append((re.compile(u'(?<=[-–—])\s*<p>\s*(?=[[a-z\d])'), lambda match: ''))
             # unwrap/delete soft hyphens
             end_rules.append((re.compile(u'[­](\s*<p>)+\s*(?=[[a-z\d])'), lambda match: ''))

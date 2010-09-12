@@ -29,16 +29,12 @@ class PreProcessor(object):
                    self.log("marked " + str(self.html_preprocess_sections) + " chapters & titles. - " + str(chap) + ", " + str(title))
                    return '<h2>'+chap+'</h2>\n<h3>'+title+'</h3>\n'
 
-    def chapter_link(self, match):
-        chap = match.group('sectionlink')
-        if not chap:
-                   self.html_preprocess_sections = self.html_preprocess_sections + 1
-                   self.log("marked " + str(self.html_preprocess_sections) + " section markers based on links")
-                   return '<br style="page-break-before:always">'
-        else:
-                   self.html_preprocess_sections = self.html_preprocess_sections + 1
-                   self.log("marked " + str(self.html_preprocess_sections) + " section markers based on links. - " + str(chap))
-                   return '<br clear="all" style="page-break-before:always">\n<h2>'+chap+'</h2>'
+    def chapter_break(self, match):
+        chap = match.group('section')
+        styles = match.group('styles')
+        self.html_preprocess_sections = self.html_preprocess_sections + 1
+        self.log("marked " + str(self.html_preprocess_sections) + " section markers based on punctuation. - " + str(chap))
+        return '<'+styles+' style="page-break-before:always">'+chap
 
     def no_markup(self, raw, percent):
         '''
@@ -74,7 +70,7 @@ class PreProcessor(object):
         html = re.sub(r"\s*<span[^>]*>\s*</span>", " ", html)
         
         # If more than 40% of the lines are empty paragraphs then delete them to clean up spacing
-        linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE)
+        linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
         blankreg = re.compile(r'\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>', re.IGNORECASE)
         blanklines = blankreg.findall(html)
         lines = linereg.findall(html)
@@ -100,8 +96,13 @@ class PreProcessor(object):
         chapdetect = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<(i|b|u)>){0,2}s*(<span[^>]*>)?\s*.?(Introduction|Acknowledgements|Chapter|Epilogue|Volume|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,8}\s*(</(i|b|u)>){0,2})\s*(</span>)?s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<(i|b|u)>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(br|p)>))?', re.IGNORECASE)
         html = chapdetect.sub(self.chapter_head, html)
         if self.html_preprocess_sections < 10:
-            self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", trying a more aggressive pattern")
-            chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<(i|b|u)>){0,2}\s*.?(([A-Z#-]+\s*){1,9}|\d+\.?|(CHAPTER\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}))\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<(i|b|u)>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(br|p)>))?', re.UNICODE)
+            self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", trying numeric chapters")
+            chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<(i|b|u)>){0,2}\s*.?(\d+\.?|(CHAPTER\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}))\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<(i|b|u)>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(br|p)>))?', re.UNICODE)
+            html = chapdetect2.sub(self.chapter_head, html)    
+
+        if self.html_preprocess_sections < 10:
+            self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", trying with uppercase words")
+            chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<(i|b|u)>){0,2}\s*.?(([A-Z#-]+\s*){1,9})\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<(i|b|u)>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</(br|p)>))?', re.UNICODE)
             html = chapdetect2.sub(self.chapter_head, html)    
         #    
         # Unwrap lines using punctation if the median length of all lines is less than 200        
@@ -110,13 +111,14 @@ class PreProcessor(object):
         unwrap = re.compile(r"(?<=.{%i}[a-z,;:\IA])\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
         if length < 200:
             self.log("Unwrapping Lines")
-            html = unwrap.sub(' ', html)        
+            html = unwrap.sub(' ', html)
+            
         # If still no sections after unwrapping lines break on lines with no punctuation
         if self.html_preprocess_sections < 10:
-            self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", splitting based on punctuation")
+            self.log(str(self.html_preprocess_sections) + " split points marked, matching based on punctuation")
             #self.log(html)
-            chapdetect3 = re.compile(r'(<p[^>]*>)\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<(i|b|u)>){0,2}\s*.?([a-z]+\s*){1,5}\s*(</(i|b|u)>){0,2})\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</p>)(?P<title>)?', re.IGNORECASE)
-            html = chapdetect3.sub(self.chapter_head, html)        
+            chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*(<(i|b|u)>){0,2}\s*(<span[^>]*>)?\s*.?([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</(i|b|u)>){0,2}\s*(</span>)?\s*(</(i|b|u)>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
+            html = chapdetect3.sub(self.chapter_break, html)      
         # search for places where a first or second level heading is immediately followed by another
         # top level heading.  demote the second heading to h3 to prevent splitting between chapter
         # headings and titles, images, etc
