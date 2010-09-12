@@ -243,7 +243,7 @@ class Metadata(object):
                 lotags = [t.lower() for t in other.tags]
                 lstags = [t.lower() for t in self.tags]
                 ot, st = map(frozenset, (lotags, lstags))
-                for t in st.interection(ot):
+                for t in st.intersection(ot):
                     sidx = lstags.index(t)
                     oidx = lotags.index(t)
                     self.tags[sidx] = other.tags[oidx]
@@ -259,7 +259,20 @@ class Metadata(object):
                 for x in other.user_metadata_keys:
                     meta = other.get_user_metadata(x, make_copy=True)
                     if meta is not None:
+                        self_tags = self.get(x, [])
                         self.set_user_metadata(x, meta) # get... did the deepcopy
+                        other_tags = other.get(x, [])
+                        if meta['is_multiple']:
+                            # Case-insensitive but case preserving merging
+                            lotags = [t.lower() for t in other_tags]
+                            lstags = [t.lower() for t in self_tags]
+                            ot, st = map(frozenset, (lotags, lstags))
+                            for t in st.intersection(ot):
+                                sidx = lstags.index(t)
+                                oidx = lotags.index(t)
+                                self_tags[sidx] = other.tags[oidx]
+                            self_tags += [t for t in other.tags if t.lower() in ot-st]
+                            setattr(self, x, self_tags)
             my_comments = getattr(self, 'comments', '')
             other_comments = getattr(other, 'comments', '')
             if not my_comments:
