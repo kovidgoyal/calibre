@@ -1056,7 +1056,10 @@ class DeviceBooksModel(BooksModel): # {{{
             if hasattr(cdata, 'image_path'):
                 img.load(cdata.image_path)
             elif cdata:
-                img.loadFromData(cdata)
+                if isinstance(cdata, tuple):
+                    img.loadFromData(cdata[2])
+                else:
+                    img.loadFromData(cdata)
             if img.isNull():
                 img = self.default_image
             data['cover'] = img
