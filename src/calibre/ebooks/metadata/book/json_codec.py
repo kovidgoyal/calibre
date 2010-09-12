@@ -12,23 +12,18 @@ from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date, isoformat, UNDEFINED_DATE
+from calibre import isbytestring
 
 # Translate datetimes to and from strings. The string form is the datetime in
 # UTC. The returned date is also UTC
 def string_to_datetime(src):
     if src == "None":
         return None
-#    dt = strptime(src, '%d %m %Y %H:%M:%S', assume_utc=True, as_utc=True)
-#    if dt == UNDEFINED_DATE:
-#        return None
     return parse_date(src)
 
 def datetime_to_string(dateval):
     if dateval is None or dateval == UNDEFINED_DATE:
         return "None"
-#    tt = date_to_utc(dateval).timetuple()
-#    res = "%02d %02d %04d %02d:%02d:%02d"%(tt.tm_mday, tt.tm_mon, tt.tm_year,
-#                                     tt.tm_hour, tt.tm_min, tt.tm_sec)
     return isoformat(dateval)
 
 def encode_thumbnail(thumbnail):
@@ -46,6 +41,24 @@ def decode_thumbnail(tup):
     if tup is None:
         return None
     return (tup[0], tup[1], b64decode(tup[2]))
+
+def object_to_unicode(obj, enc=preferred_encoding):
+
+    def dec(x):
+        return x.decode(enc, 'replace')
+
+    if isbytestring(obj):
+        return dec(obj)
+    if isinstance(obj, (list, tuple)):
+        return [dec(x) if isbytestring(x) else x for x in obj]
+    if isinstance(obj, dict):
+        ans = {}
+        for k, v in obj.items():
+            k = object_to_unicode(k)
+            v = object_to_unicode(v)
+            ans[k] = v
+        return ans
+    return obj
 
 class JsonCodec(object):
 
@@ -81,16 +94,13 @@ class JsonCodec(object):
         value = book.get(key)
         if key == 'thumbnail':
             return encode_thumbnail(value)
-        elif isinstance(value, str): # str includes bytes
+        elif isbytestring(value): # str includes bytes
             enc = filesystem_encoding if key == 'lpath' else preferred_encoding
-            return value.decode(enc, 'replace')
-        elif isinstance(value, (list, tuple)):
-            return [x.decode(preferred_encoding, 'replace') if
-                    isinstance(x, str) else x for x in value]
+            return object_to_unicode(value, enc=enc)
         elif datatype == 'datetime':
             return datetime_to_string(value)
         else:
-            return value
+            return object_to_unicode(value)
 
     def decode_from_file(self, file, booklist, book_class, prefix):
         js = []
@@ -108,7 +118,6 @@ class JsonCodec(object):
         except:
             print 'exception during JSON decoding'
             traceback.print_exc()
-            booklist = []
 
     def decode_metadata(self, key, value):
         if key == 'user_metadata':
