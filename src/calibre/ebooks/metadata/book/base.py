@@ -223,7 +223,7 @@ class Metadata(object):
                 self.author_sort = other.author_sort
 
         if replace_metadata:
-            SPECIAL_FIELDS = frozenset(['lpath', 'size', 'comments'])
+            SPECIAL_FIELDS = frozenset(['lpath', 'size', 'comments', 'thumbnail'])
             for attr in COPYABLE_METADATA_FIELDS:
                 setattr(self, attr, getattr(other, attr, 1.0 if \
                         attr == 'series_index' else None))
@@ -238,6 +238,7 @@ class Metadata(object):
             for attr in COPYABLE_METADATA_FIELDS:
                 if hasattr(other, attr):
                     copy_not_none(self, other, attr)
+            copy_not_none(self, other, 'thumbnail')
             if other.tags:
                 # Case-insensitive but case preserving merging
                 lotags = [t.lower() for t in other.tags]
