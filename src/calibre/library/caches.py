@@ -141,6 +141,8 @@ class ResultCache(SearchQueryParser):
         for x in self.iterall():
             yield x[idx]
 
+    # Search functions {{{
+
     def universal_set(self):
         return set([i[0] for i in self._data if i is not None])
 
@@ -462,6 +464,30 @@ class ResultCache(SearchQueryParser):
                             continue
         return matches
 
+    def search(self, query, return_matches=False):
+        ans = self.search_getting_ids(query, self.search_restriction)
+        if return_matches:
+            return ans
+        self._map_filtered = ans
+
+    def search_getting_ids(self, query, search_restriction):
+        q = ''
+        if not query or not query.strip():
+            q = search_restriction
+        else:
+            q = query
+            if search_restriction:
+                q = u'%s (%s)' % (search_restriction, query)
+        if not q:
+            return list(self._map)
+        matches = sorted(self.parse(q))
+        return [id for id in self._map if id in matches]
+
+    def set_search_restriction(self, s):
+        self.search_restriction = s
+
+    # }}}
+
     def remove(self, id):
         self._data[id] = None
         if id in self._map:
@@ -551,6 +577,8 @@ class ResultCache(SearchQueryParser):
         if self.search_restriction:
             self.search('', return_matches=False)
 
+    # Sorting functions {{{
+
     def seriescmp(self, sidx, siidx, x, y, library_order=None):
         try:
             if library_order:
@@ -579,16 +607,22 @@ class ResultCache(SearchQueryParser):
                 y = UNDEFINED_DATE
             return cmp(x, y)
         if subsort and ans == 0:
-            return cmp(self._data[x][11].lower(), self._data[y][11].lower())
+            idx = self.FIELD_MAP['sort']
+            return cmp(self._data[x][idx].lower(), self._data[y][idx].lower())
         return ans
 
-    def sort(self, field, ascending, subsort=False):
+    def sanitize_field_name(self, field):
         field = field.lower().strip()
-        if field in ('author', 'tag', 'comment'):
-            field += 's'
-        if   field == 'date': field = 'timestamp'
-        elif field == 'title': field = 'sort'
-        elif field == 'authors': field = 'author_sort'
+        if field not in self.field_metadata.iterkeys():
+            if field in ('author', 'tag', 'comment'):
+                field += 's'
+            if   field == 'date': field = 'timestamp'
+            elif field == 'title': field = 'sort'
+            elif field == 'authors': field = 'author_sort'
+        return field
+
+    def sort(self, field, ascending, subsort=False):
+        field = self.sanitize_field_name(field)
         as_string = field not in ('size', 'rating', 'timestamp')
 
         if self.first_sort:
@@ -615,24 +649,164 @@ class ResultCache(SearchQueryParser):
         self._map.sort(cmp=fcmp, reverse=not ascending)
         self._map_filtered = [id for id in self._map if id in self._map_filtered]
 
-    def search(self, query, return_matches=False):
-        ans = self.search_getting_ids(query, self.search_restriction)
-        if return_matches:
-            return ans
-        self._map_filtered = ans
+    def multisort(self, fields=[], subsort=False):
+        fields = [(self.sanitize_field_name(x), bool(y)) for x, y in fields]
+        if subsort and 'sort' not in [x[0] for x in fields]:
+            fields += [('sort', True)]
+        if not fields:
+            fields = [('timestamp', False)]
+        keys = self.field_metadata.keys()
+        for f, order in fields:
+            if f not in keys:
+                raise ValueError(f + ' not an existing field name')
 
-    def search_getting_ids(self, query, search_restriction):
-        q = ''
-        if not query or not query.strip():
-            q = search_restriction
+        keyg = SortKeyGenerator(fields, self.field_metadata, self._data)
+        if len(fields) == 1:
+            self._map.sort(key=keyg, reverse=not fields[0][1])
         else:
-            q = query
-            if search_restriction:
-                q = u'%s (%s)' % (search_restriction, query)
-        if not q:
-            return list(self._map)
-        matches = sorted(self.parse(q))
-        return [id for id in self._map if id in matches]
+            self._map.sort(key=keyg)
+        self._map_filtered = [id for id in self._map if id in self._map_filtered]
 
-    def set_search_restriction(self, s):
-        self.search_restriction = s
+
+class SortKey(object):
+
+    def __init__(self, orders, values):
+        self.orders, self.values = orders, values
+
+    def __cmp__(self, other):
+        for i, ascending in enumerate(self.orders):
+            ans = cmp(self.values[i], other.values[i])
+            if ans != 0:
+                if not ascending:
+                    ans *= -1
+                return ans
+        return 0
+
+class SortKeyGenerator(object):
+
+    def __init__(self, fields, field_metadata, data):
+        self.field_metadata = field_metadata
+        self.orders = [x[1] for x in fields]
+        self.entries = [(x[0], field_metadata[x[0]]) for x in fields]
+        self.library_order = tweaks['title_series_sorting'] == 'library_order'
+        self.data = data
+
+    def __call__(self, record):
+        values = tuple(self.itervals(self.data[record]))
+        if len(values) == 1:
+            return values[0]
+        return SortKey(self.orders, values)
+
+    def itervals(self, record):
+        for name, fm in self.entries:
+            dt = fm['datatype']
+            val = record[fm['rec_index']]
+
+            if dt == 'datetime':
+                if val is None:
+                    val = UNDEFINED_DATE
+
+            elif dt == 'series':
+                if val is None:
+                    val = ('', 1)
+                else:
+                    val = val.lower()
+                    if self.library_order:
+                        val = title_sort(val)
+                    sidx_fm = self.field_metadata[name + '_index']
+                    sidx = record[sidx_fm['rec_index']]
+                    val = (val, sidx)
+
+            elif dt in ('text', 'comments'):
+                if val is None:
+                    val = ''
+                val = val.lower()
+            yield val
+
+    # }}}
+
+
+if __name__ == '__main__':
+    # Testing.timing for new multi-sort {{{
+    import time
+
+    from calibre.library import db
+    db = db()
+
+    db.refresh()
+
+    fields = db.field_metadata.keys()
+
+    print fields
+
+
+    def do_single_sort(meth, field, order):
+        if meth == 'old':
+            db.data.sort(field, order)
+        else:
+            db.data.multisort([(field, order)])
+
+    def test_single_sort(field):
+        for meth in ('old', 'new'):
+            ttime = 0
+            NUM = 10
+            asc = desc = None
+            for i in range(NUM):
+                db.data.sort('id', False)
+                st = time.time()
+                do_single_sort(meth, field, True)
+                asc = db.data._map
+                do_single_sort(meth, field, False)
+                desc = db.data._map
+                ttime += time.time() - st
+            yield (ttime/NUM, asc, desc)
+
+
+    print 'Running single sort differentials'
+    for field in fields:
+        if field in ('search', 'id', 'news', 'flags'): continue
+        print '\t', field
+        old, new = test_single_sort(field)
+        if old[1] != new[1] or old[2] != new[2]:
+            print '\t\t', 'Sort failure!'
+            raise SystemExit(1)
+        print '\t\t', 'Old:', old[0], 'New:', new[0], 'Ratio: %.2f'%(new[0]/old[0])
+
+    def do_multi_sort(meth, ms):
+        if meth == 'new':
+            db.data.multisort(ms)
+        else:
+            for s in reversed(ms):
+                db.data.sort(*s)
+
+    def test_multi_sort(ms):
+        for meth in ('old', 'new'):
+            ttime = 0
+            NUM = 10
+            for i in range(NUM):
+                db.data.sort('id', False)
+                st = time.time()
+                do_multi_sort(meth, ms)
+                ttime += time.time() - st
+            yield (ttime/NUM, db.data._map)
+
+    print 'Running multi-sort differentials'
+
+    for ms in [
+            [('timestamp', False), ('author', True), ('title', False)],
+            [('size', True), ('tags', True), ('author', False)],
+            [('series', False), ('title', True)],
+            [('size', True), ('tags', True), ('author', False), ('pubdate',
+                True), ('tags', False), ('formats', False), ('uuid', True)],
+
+            ]:
+        print '\t', ms
+        db.data.sort('id', False)
+        old, new = test_multi_sort(ms)
+        if old[1] != new[1]:
+            print '\t\t', 'Sort failure!'
+            raise SystemExit()
+        print '\t\t', 'Old:', old[0], 'New:', new[0], 'Ratio: %.2f'%(new[0]/old[0])
+
+    # }}}
+
