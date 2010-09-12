@@ -202,12 +202,12 @@ class Metadata(object):
 
     def smart_update(self, other, replace_metadata=False):
         '''
-        Merge the information in C{other} into self. In case of conflicts, the information
-        in C{other} takes precedence, unless the information in other is NULL.
+        Merge the information in `other` into self. In case of conflicts, the information
+        in `other` takes precedence, unless the information in `other` is NULL.
         '''
         def copy_not_none(dest, src, attr):
             v = getattr(src, attr, None)
-            if v is not None:
+            if v not in (None, NULL_VALUES.get(attr, None)):
                 setattr(dest, attr, copy.deepcopy(v))
 
         if other.title and other.title != _('Unknown'):
@@ -216,32 +216,38 @@ class Metadata(object):
                 self.title_sort = other.title_sort
 
         if other.authors and other.authors[0] != _('Unknown'):
-            self.authors = other.authors
+            self.authors = list(other.authors)
             if hasattr(other, 'author_sort_map'):
-                self.author_sort_map = other.author_sort_map
+                self.author_sort_map = dict(other.author_sort_map)
             if hasattr(other, 'author_sort'):
                 self.author_sort = other.author_sort
 
         if replace_metadata:
+            SPECIAL_FIELDS = frozenset(['lpath', 'size', 'comments'])
             for attr in COPYABLE_METADATA_FIELDS:
                 setattr(self, attr, getattr(other, attr, 1.0 if \
                         attr == 'series_index' else None))
             self.tags = other.tags
-            self.cover_data = getattr(other, 'cover_data', '')
+            self.cover_data = getattr(other, 'cover_data',
+                    NULL_VALUES['cover_data'])
             self.set_all_user_metadata(other.get_all_user_metadata(make_copy=True))
-            copy_not_none(self, other, 'lpath')
-            copy_not_none(self, other, 'size')
-            copy_not_none(self, other, 'comments')
+            for x in SPECIAL_FIELDS:
+                copy_not_none(self, other, x)
             # language is handled below
         else:
             for attr in COPYABLE_METADATA_FIELDS:
                 if hasattr(other, attr):
                     copy_not_none(self, other, attr)
-                    val = getattr(other, attr)
-                    if val is not None:
-                        setattr(self, attr, copy.deepcopy(val))
             if other.tags:
-                self.tags += list(set(self.tags + other.tags))
+                # Case-insensitive but case preserving merging
+                lotags = [t.lower() for t in other.tags]
+                lstags = [t.lower() for t in self.tags]
+                ot, st = map(frozenset, (lotags, lstags))
+                for t in st.interection(ot):
+                    sidx = lstags.index(t)
+                    oidx = lotags.index(t)
+                    self.tags[sidx] = other.tags[oidx]
+                self.tags += [t for t in other.tags if t.lower() in ot-st]
             if getattr(other, 'cover_data', False):
                 other_cover = other.cover_data[-1]
                 self_cover = self.cover_data[-1] if self.cover_data else ''
@@ -262,6 +268,7 @@ class Metadata(object):
                 other_comments = ''
             if len(other_comments.strip()) > len(my_comments.strip()):
                 self.comments = other_comments
+
         other_lang = getattr(other, 'language', None)
         if other_lang and other_lang.lower() != 'und':
             self.language = other_lang
@@ -383,3 +390,4 @@ class Metadata(object):
         return bool(self.title or self.author or self.comments or self.tags)
 
     # }}}
+
