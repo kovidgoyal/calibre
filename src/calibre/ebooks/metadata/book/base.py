@@ -243,7 +243,7 @@ class Metadata(object):
                 lotags = [t.lower() for t in other.tags]
                 lstags = [t.lower() for t in self.tags]
                 ot, st = map(frozenset, (lotags, lstags))
-                for t in st.interection(ot):
+                for t in st.intersection(ot):
                     sidx = lstags.index(t)
                     oidx = lotags.index(t)
                     self.tags[sidx] = other.tags[oidx]
