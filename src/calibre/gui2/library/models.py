@@ -1055,8 +1055,8 @@ class DeviceBooksModel(BooksModel): # {{{
             img = QImage()
             if hasattr(cdata, 'image_path'):
                 img.load(cdata.image_path)
-            else:
-                img.loadFromData(cdata[2])
+            elif cdata:
+                img.loadFromData(cdata)
             if img.isNull():
                 img = self.default_image
             data['cover'] = img
