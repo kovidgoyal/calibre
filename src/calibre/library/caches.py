@@ -810,7 +810,7 @@ if __name__ == '__main__':
             [('size', True), ('tags', True), ('author', False)],
             [('series', False), ('title', True)],
             [('size', True), ('tags', True), ('author', False), ('pubdate',
-                True), ('series', False), ('formats', False), ('uuid', True)],
+                True), ('tags', False), ('formats', False), ('uuid', True)],
 
             ]:
         print '\t', ms
