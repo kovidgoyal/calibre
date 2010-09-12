@@ -111,7 +111,7 @@ class PreProcessor(object):
              html = add_markup.sub('</p>\n<p>', html)
         
         # detect chapters/sections to match xpath or splitting logic
-        heading = re.compile('<h(1|2)[^>]*>', re.IGNORECASE)
+        heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
         self.log("found " + str(self.html_preprocess_sections) + " pre-existing headings")
         # 
@@ -134,7 +134,7 @@ class PreProcessor(object):
         self.log("Unwrapping Lines")
         # Some OCR sourced files have line breaks in the html using a combination of span & p tags
         # span are used for hard line breaks, p for new paragraphs.  Determine which is used so 
-        # that lines can be wrapped across page boundaries
+        # that lines can be un-wrapped across page boundaries
         paras_reg = re.compile('<p[^>]*>', re.IGNORECASE)
         spans_reg = re.compile('<span[^>]*>', re.IGNORECASE)
         paras = len(paras_reg.findall(html))
