@@ -12,7 +12,7 @@ from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date, isoformat, UNDEFINED_DATE
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.magick import Image
 from calibre import isbytestring
 
 # Translate datetimes to and from strings. The string form is the datetime in
@@ -33,12 +33,15 @@ def encode_thumbnail(thumbnail):
     '''
     if thumbnail is None:
         return None
-    if isinstance(thumbnail, tuple):
+    if not isinstance(thumbnail, tuple):
         try:
-            thumbnail = identify_data(thumbnail)
+            img = Image()
+            img.load(thumbnail)
+            width, height = img.size
+            thumbnail = (width, height, thumbnail)
         except:
             return None
-    return (0, 0, b64encode(str(thumbnail)))
+    return (thumbnail[0], thumbnail[1], b64encode(str(thumbnail[2])))
 
 def decode_thumbnail(tup):
     '''
