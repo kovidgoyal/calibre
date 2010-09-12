@@ -311,6 +311,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.search_getting_ids  = self.data.search_getting_ids
         self.refresh = functools.partial(self.data.refresh, self)
         self.sort    = self.data.sort
+        self.multisort = self.data.multisort
         self.index   = self.data.index
         self.refresh_ids = functools.partial(self.data.refresh_ids, self)
         self.row     = self.data.row

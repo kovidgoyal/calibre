@@ -146,3 +146,10 @@ add_new_book_tags_when_importing_books = False
 max_content_server_tags_shown=5
 
 
+# Set the maximum number of sort 'levels' that calibre will use to resort the
+# library after certain operations such as searches or device insertion. Each
+# sort level adds a performance penalty. If the database is large (thousands of
+# books) the penalty might be noticeable. If you are not concerned about multi-
+# level sorts, and if you are seeing a slowdown, reduce the value of this tweak.
+maximum_resort_levels = 5
+
