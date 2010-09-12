@@ -59,7 +59,7 @@ class Book(Metadata):
         return property(doc=doc, fget=fget)
 
     @dynamic_property
-    def thumbnail(self):'
+    def thumbnail(self):
         return None
 
 class BookList(_BookList):
