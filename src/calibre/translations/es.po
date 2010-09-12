@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-10 19:51+0000\n"
-"PO-Revision-Date: 2010-09-10 21:00+0000\n"
-"Last-Translator: Andres Bracho <andres_bracho@yahoo.com.mx>\n"
+"PO-Revision-Date: 2010-09-11 12:57+0000\n"
+"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-11 04:50+0000\n"
+"X-Launchpad-Export-Date: 2010-09-12 04:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:467
@@ -3669,7 +3669,7 @@ msgstr "%d libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:82
 msgid "Choose calibre library to work with"
-msgstr "Elegir una biblioteca de calibre para trabajar"
+msgstr "Elija una biblioteca de calibre para trabajar con ella"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:91
 msgid "Switch/create library..."

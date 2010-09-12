@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-10 19:51+0000\n"
-"PO-Revision-Date: 2010-09-10 23:04+0000\n"
+"PO-Revision-Date: 2010-09-11 13:11+0000\n"
 "Last-Translator: M. F. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-11 04:49+0000\n"
+"X-Launchpad-Export-Date: 2010-09-12 04:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -363,15 +363,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
 msgid "Control how calibre transfers files to your ebook reader"
 msgstr ""
+"Controller la façon dont calibre exporte les fichiers vers votre lecteur "
+"d'eBook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:798
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Partager des livres par courriel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Sharing"
-msgstr ""
+msgstr "Partage"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:804
 msgid ""
@@ -381,13 +383,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 msgid "Sharing over the net"
-msgstr ""
+msgstr "Partager a travers le réseau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:816
 msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"Mise en place du serveur de contenu de calibre. Il permet l'accès à la "
+"bibliothèque de calibre depuis n'importe où, sur tout les périphérique ou "
+"depuis Internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:823
 msgid "Plugins"
