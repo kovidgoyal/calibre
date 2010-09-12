@@ -17,6 +17,7 @@ import routes
 from calibre.constants import __appname__
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.library.comments import comments_to_html
+from calibre.library.server.utils import format_tag_string
 from calibre import guess_type
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.date import format_date
@@ -147,8 +148,9 @@ def ACQUISITION_ENTRY(item, version, FM, updated, CFM, CKEYS):
         extra.append(_('RATING: %s<br />')%rating)
     tags = item[FM['tags']]
     if tags:
-        extra.append(_('TAGS: %s<br />')%\
-                ', '.join(tags.split(',')))
+        extra.append(_('TAGS: %s<br />')%format_tag_string(tags, ',',
+                                                           ignore_max=True,
+                                                           no_tag_count=True))
     series = item[FM['series']]
     if series:
         extra.append(_('SERIES: %s [%s]<br />')%\
@@ -160,7 +162,9 @@ def ACQUISITION_ENTRY(item, version, FM, updated, CFM, CKEYS):
             name = CFM[key]['name']
             datatype = CFM[key]['datatype']
             if datatype == 'text' and CFM[key]['is_multiple']:
-                extra.append('%s: %s<br />'%(name, ', '.join(val.split('|'))))
+                extra.append('%s: %s<br />'%(name, format_tag_string(val, '|',
+                                                           ignore_max=True,
+                                                           no_tag_count=True)))
             elif datatype == 'series':
                 extra.append('%s: %s [%s]<br />'%(name, val,
                               fmt_sidx(item[CFM.cc_series_index_column_for(key)])))

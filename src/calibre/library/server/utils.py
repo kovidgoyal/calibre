@@ -44,7 +44,7 @@ def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
     except:
         return _strftime(fmt, nowf().timetuple())
 
-def format_tag_string(tags, sep, ignore_max=False):
+def format_tag_string(tags, sep, ignore_max=False, no_tag_count=False):
     MAX = sys.maxint if ignore_max else tweaks['max_content_server_tags_shown']
     if tags:
         tlist = [t.strip() for t in tags.split(sep)]
@@ -53,6 +53,9 @@ def format_tag_string(tags, sep, ignore_max=False):
     tlist.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
     if len(tlist) > MAX:
         tlist = tlist[:MAX]+['...']
-    return u'%s:&:%s'%(tweaks['max_content_server_tags_shown'],
+    if no_tag_count:
+        return ', '.join(tlist) if tlist else ''
+    else:
+        return u'%s:&:%s'%(tweaks['max_content_server_tags_shown'],
                      ', '.join(tlist)) if tlist else ''
 
