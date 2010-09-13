@@ -12,7 +12,6 @@ from calibre.devices.interface import BookList as _BookList
 from calibre.constants import preferred_encoding
 from calibre import isbytestring
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.date import format_date
 
 class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
