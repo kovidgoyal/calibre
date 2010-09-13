@@ -91,3 +91,34 @@ save_template_title_series_sorting = 'library_order'
 #     auto_connect_to_folder = 'C:\\Users\\someone\\Desktop\\testlib'
 #     auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'
 auto_connect_to_folder = ''
+
+
+# Create search terms to apply a query across several built-in search terms.
+# Syntax: {'new term':['existing term 1', 'term 2', ...], 'new':['old'...] ...}
+# Example: create the term 'myseries' that when used as myseries:foo would
+# search all of the search categories 'series', '#myseries', and '#myseries2':
+# grouped_search_terms={'myseries':['series','#myseries', '#myseries2']}
+# Example: two search terms 'a' and 'b' both that search 'tags' and '#mytags':
+# grouped_search_terms={'a':['tags','#mytags'], 'b':['tags','#mytags']}
+# Note: You cannot create a search term that is a duplicate of an existing term.
+# Such duplicates will be silently ignored. Also note that search terms ignore
+# case. 'MySearch' and 'mysearch' are the same term.
+grouped_search_terms = {}
+
+
+# Set this to True (not 'True') to ensure that tags in 'Tags to add when adding
+# a book' are added when copying books to another library
+add_new_book_tags_when_importing_books = False
+
+
+# Set the maximum number of tags to show per book in the content server
+max_content_server_tags_shown=5
+
+
+# Set the maximum number of sort 'levels' that calibre will use to resort the
+# library after certain operations such as searches or device insertion. Each
+# sort level adds a performance penalty. If the database is large (thousands of
+# books) the penalty might be noticeable. If you are not concerned about multi-
+# level sorts, and if you are seeing a slowdown, reduce the value of this tweak.
+maximum_resort_levels = 5
+

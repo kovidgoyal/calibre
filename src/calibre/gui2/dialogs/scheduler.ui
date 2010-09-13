@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/images/scheduler.svg</normaloff>:/images/scheduler.svg</iconset>
+    <normaloff>:/images/scheduler.png</normaloff>:/images/scheduler.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" rowspan="3">

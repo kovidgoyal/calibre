@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../../resources/images.qrc">
-    <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
+    <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
@@ -110,7 +110,7 @@
                     </property>
                     <property name="icon">
                      <iconset resource="../../../../resources/images.qrc">
-                      <normaloff>:/images/swap.svg</normaloff>:/images/swap.svg</iconset>
+                      <normaloff>:/images/swap.png</normaloff>:/images/swap.png</iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -165,7 +165,7 @@
                       </property>
                       <property name="icon">
                        <iconset resource="../../../../resources/images.qrc">
-                        <normaloff>:/images/auto_author_sort.svg</normaloff>:/images/auto_author_sort.svg</iconset>
+                        <normaloff>:/images/auto_author_sort.png</normaloff>:/images/auto_author_sort.png</iconset>
                       </property>
                      </widget>
                     </item>
@@ -248,7 +248,7 @@
                       </property>
                       <property name="icon">
                        <iconset resource="../../../../resources/images.qrc">
-                        <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
+                        <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
                       </property>
                      </widget>
                     </item>
@@ -301,7 +301,7 @@
                       </property>
                       <property name="icon">
                        <iconset resource="../../../../resources/images.qrc">
-                        <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
+                        <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
                       </property>
                      </widget>
                     </item>
@@ -478,7 +478,7 @@
                       </property>
                       <property name="icon">
                        <iconset resource="../../../../resources/images.qrc">
-                        <normaloff>:/images/add_book.svg</normaloff>:/images/add_book.svg</iconset>
+                        <normaloff>:/images/add_book.png</normaloff>:/images/add_book.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -498,7 +498,7 @@
                       </property>
                       <property name="icon">
                        <iconset resource="../../../../resources/images.qrc">
-                        <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
+                        <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -518,7 +518,7 @@
                       </property>
                       <property name="icon">
                        <iconset resource="../../../../resources/images.qrc">
-                        <normaloff>:/images/book.svg</normaloff>:/images/book.svg</iconset>
+                        <normaloff>:/images/book.png</normaloff>:/images/book.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -538,7 +538,7 @@
                       </property>
                       <property name="icon">
                        <iconset resource="../../../../resources/images.qrc">
-                        <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
+                        <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -619,7 +619,7 @@
                         </property>
                         <property name="icon">
                          <iconset resource="../../../../resources/images.qrc">
-                          <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+                          <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
                         </property>
                        </widget>
                       </item>
@@ -633,7 +633,7 @@
                         </property>
                         <property name="icon">
                          <iconset resource="../../../../resources/images.qrc">
-                          <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
+                          <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
                         </property>
                        </widget>
                       </item>
@@ -646,7 +646,7 @@
                     <item>
                      <widget class="QPushButton" name="fetch_cover_button">
                       <property name="text">
-                       <string>Download &amp;cover</string>
+                       <string>Download co&amp;ver</string>
                       </property>
                      </widget>
                     </item>

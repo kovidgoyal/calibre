@@ -23,7 +23,7 @@ class Book(MetaInformation):
         'uuid', 'device_collections',
     ]
 
-    def __init__(self, prefix, lpath, title, authors, mime, date, ContentType, thumbnail_name, other=None):
+    def __init__(self, prefix, lpath, title, authors, mime, date, ContentType, thumbnail_name, size=None, other=None):
 
         MetaInformation.__init__(self, '')
         self.device_collections = []
@@ -42,20 +42,19 @@ class Book(MetaInformation):
         else:
             self.authors = [authors]
         self.mime = mime
-        try:
-            self.size = os.path.getsize(self.path)
-        except OSError:
-            self.size = 0
-        try:
-            if ContentType == '6':
-                self.datetime = time.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
-            else:
-                self.datetime = time.gmtime(os.path.getctime(self.path))
-        except:
-             self.datetime = time.gmtime()
 
-	if thumbnail_name is not None:
-	    self.thumbnail = ImageWrapper(thumbnail_name)
+        self.size = size # will be set later if None
+
+        if ContentType == '6':
+            self.datetime = time.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+        else:
+            try:
+                self.datetime = time.gmtime(os.path.getctime(self.path))
+            except:
+                self.datetime = time.gmtime()
+
+        if thumbnail_name is not None:
+            self.thumbnail = ImageWrapper(thumbnail_name)
         self.tags = []
         if other:
             self.smart_update(other)

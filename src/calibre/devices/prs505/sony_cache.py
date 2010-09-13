@@ -89,6 +89,10 @@ class XMLCache(object):
                         raw, strip_encoding_pats=True, assume_utf8=True,
                         verbose=DEBUG)[0],
                         parser=parser)
+            if self.roots[source_id] is None:
+                raise Exception(('The SONY database at %s is corrupted. Try '
+                        ' disconnecting and reconnecting your reader.')%path)
+
         # }}}
 
         recs = self.roots[0].xpath('//*[local-name()="records"]')

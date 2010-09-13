@@ -32,6 +32,9 @@ class LibraryViewMixin(object): # {{{
 
     def __init__(self, db):
         self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.QueuedConnection)
+        self.library_view.add_column_signal.connect(partial(self.iactions['Preferences'].do_config,
+            initial_plugin=('Interface', 'Custom Columns')),
+                type=Qt.QueuedConnection)
         for func, args in [
                              ('connect_to_search_box', (self.search,
                                  self.search_done)),
@@ -95,7 +98,7 @@ class LibraryWidget(Splitter): # {{{
         idx = 0 if orientation == Qt.Vertical else 1
         size = 300 if orientation == Qt.Vertical else 550
         Splitter.__init__(self, 'cover_browser_splitter', _('Cover Browser'),
-                I('cover_flow.svg'),
+                I('cover_flow.png'),
                 orientation=orientation, parent=parent,
                 connect_button=not config['separate_cover_flow'],
                 side_index=idx, initial_side_size=size, initial_show=False,
@@ -113,7 +116,7 @@ class Stack(QStackedWidget): # {{{
         parent.cb_splitter = LibraryWidget(parent)
         self.tb_widget = TagBrowserWidget(parent)
         parent.tb_splitter = Splitter('tag_browser_splitter',
-                _('Tag Browser'), I('tags.svg'),
+                _('Tag Browser'), I('tags.png'),
                 parent=parent, side_index=0, initial_side_size=200,
                 shortcut=_('Shift+Alt+T'))
         parent.tb_splitter.addWidget(self.tb_widget)
@@ -145,20 +148,23 @@ class StatusBar(QStatusBar): # {{{
         self._font = QFont()
         self._font.setBold(True)
         self.setFont(self._font)
+        self.defmsg = QLabel(self.default_message)
+        self.defmsg.setFont(self._font)
+        self.addWidget(self.defmsg)
 
     def initialize(self, systray=None):
         self.systray = systray
         self.notifier = get_notifier(systray)
-        self.messageChanged.connect(self.message_changed,
-                type=Qt.QueuedConnection)
-        self.message_changed('')
 
     def device_connected(self, devname):
         self.device_string = _('Connected ') + devname
+        self.defmsg.setText(self.default_message + ' ..::.. ' +
+                self.device_string)
         self.clearMessage()
 
     def device_disconnected(self):
         self.device_string = ''
+        self.defmsg.setText(self.default_message)
         self.clearMessage()
 
     def new_version_available(self, ver, url):
@@ -188,15 +194,6 @@ class StatusBar(QStatusBar): # {{{
     def clear_message(self):
         self.clearMessage()
 
-    def message_changed(self, msg):
-        if not msg or msg.isEmpty() or msg.isNull() or \
-                not unicode(msg).strip():
-            extra = ''
-            if self.device_string:
-                extra = ' ..::.. ' + self.device_string
-            self.showMessage(self.default_message + extra)
-
-
 # }}}
 
 class LayoutMixin(object): # {{{
@@ -207,7 +204,7 @@ class LayoutMixin(object): # {{{
             self.book_details = BookDetails(False, self)
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
-                    _('Book Details'), I('book.svg'),
+                    _('Book Details'), I('book.png'),
                     orientation=Qt.Vertical, parent=self, side_index=1,
                     shortcut=_('Alt+D'))
             self.bd_splitter.addWidget(self.stack)
@@ -217,7 +214,7 @@ class LayoutMixin(object): # {{{
             # }}}
         else: # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
-                    _('Book Details'), I('book.svg'), initial_side_size=200,
+                    _('Book Details'), I('book.png'), initial_side_size=200,
                     orientation=Qt.Horizontal, parent=self, side_index=1,
                     shortcut=_('Shift+Alt+D'))
             self.stack = Stack(self)
@@ -258,7 +255,9 @@ class LayoutMixin(object): # {{{
             getattr(self, x+'_view').save_state()
 
         for x in ('cb', 'tb', 'bd'):
-            getattr(self, x+'_splitter').save_state()
+            s = getattr(self, x+'_splitter')
+            s.update_desired_state()
+            s.save_state()
 
     def read_layout_settings(self):
         # View states are restored automatically when set_database is called

@@ -372,19 +372,19 @@ class TagsModel(QAbstractItemModel): # {{{
         # before a QPaintDevice'. The ':' in front avoids polluting either the
         # user-defined categories (':' at end) or columns namespaces (no ':').
         self.category_icon_map = TagsIcons({
-                    'authors'   : QIcon(I('user_profile.svg')),
-                    'series'    : QIcon(I('series.svg')),
-                    'formats'   : QIcon(I('book.svg')),
+                    'authors'   : QIcon(I('user_profile.png')),
+                    'series'    : QIcon(I('series.png')),
+                    'formats'   : QIcon(I('book.png')),
                     'publisher' : QIcon(I('publisher.png')),
                     'rating'    : QIcon(I('star.png')),
-                    'news'      : QIcon(I('news.svg')),
-                    'tags'      : QIcon(I('tags.svg')),
-                    ':custom'   : QIcon(I('column.svg')),
-                    ':user'     : QIcon(I('drawer.svg')),
-                    'search'    : QIcon(I('search.svg'))})
+                    'news'      : QIcon(I('news.png')),
+                    'tags'      : QIcon(I('tags.png')),
+                    ':custom'   : QIcon(I('column.png')),
+                    ':user'     : QIcon(I('drawer.png')),
+                    'search'    : QIcon(I('search.png'))})
         self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
 
-        self.icon_state_map = [None, QIcon(I('plus.svg')), QIcon(I('minus.svg'))]
+        self.icon_state_map = [None, QIcon(I('plus.png')), QIcon(I('minus.png'))]
         self.db = db
         self.tags_view = parent
         self.hidden_categories = hidden_categories
@@ -424,10 +424,8 @@ class TagsModel(QAbstractItemModel): # {{{
         self.categories = []
 
         # Reconstruct the user categories, putting them into metadata
+        self.db.field_metadata.remove_dynamic_categories()
         tb_cats = self.db.field_metadata
-        for k in tb_cats.keys():
-            if tb_cats[k]['kind'] in ['user', 'search']:
-                del tb_cats[k]
         for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys()):
             cat_name = user_cat+':' # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
@@ -514,7 +512,8 @@ class TagsModel(QAbstractItemModel): # {{{
                     _('The saved search name %s is already used.')%val).exec_()
                 return False
             saved_searches().rename(unicode(item.data(role).toString()), val)
-            self.tags_view.search_item_renamed.emit()
+            item.tag.name = val
+            self.tags_view.search_item_renamed.emit() # Does a refresh
         else:
             if key == 'series':
                 self.db.rename_series(item.tag.id, val)
@@ -528,8 +527,8 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.db.rename_custom_item(item.tag.id, val,
                                     label=self.db.field_metadata[key]['label'])
             self.tags_view.tag_item_renamed.emit()
-        item.tag.name = val
-        self.refresh() # Should work, because no categories can have disappeared
+            item.tag.name = val
+            self.refresh() # Should work, because no categories can have disappeared
         if path:
             idx = self.index_for_path(path)
             if idx.isValid():
@@ -671,7 +670,7 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
         self.tags_view.author_sort_edit.connect(self.do_author_sort_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
-        self.tags_view.search_item_renamed.connect(self.saved_search.clear_to_help)
+        self.tags_view.search_item_renamed.connect(self.saved_searches_changed)
         self.edit_categories.clicked.connect(lambda x:
                 self.do_user_categories_edit())
 

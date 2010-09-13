@@ -26,7 +26,7 @@ var current_library_request = null;
 
 ////////////////////////////// GET BOOK LIST //////////////////////////////
 
-var LIBRARY_FETCH_TIMEOUT = 10000; // milliseconds
+var LIBRARY_FETCH_TIMEOUT = 30000; // milliseconds
 
 function create_table_headers() {
     var thead = $('table#book_list thead tr');
@@ -50,7 +50,7 @@ function render_book(book) {
     var comments = $.trim(book.text()).replace(/\n\n/, '<br/>');
     var formats = new Array();
     var size = (parseFloat(book.attr('size'))/(1024*1024)).toFixed(1);
-    var tags = book.attr('tags').replace(/,/g, ', ');
+    var tags = book.attr('tags')
     formats = book.attr("formats").split(",");
     if (formats.length > 0) {
         for (i=0; i < formats.length; i++) {
@@ -59,7 +59,14 @@ function render_book(book) {
         title = title.slice(0, title.length-2);
         title += '&nbsp;({0}&nbsp;MB)&nbsp;'.format(size);
     }
-    if (tags) title += '[{0}]'.format(tags);
+    if (tags) title += 'Tags=[{0}] '.format(tags);
+    custcols = book.attr("custcols").split(',')
+    for ( i = 0; i < custcols.length; i++) {
+        if (custcols[i].length > 0) {
+            vals = book.attr(custcols[i]).split(':#:', 2);
+            title += '{0}=[{1}] '.format(vals[0], vals[1]);
+        }
+    }
     title += '<img style="display:none" alt="" src="get/cover/{0}" /></span>'.format(id);
     title += '<div class="comments">{0}</div>'.format(comments)
     // Render authors cell
@@ -290,7 +297,7 @@ function layout() {
 }
 
 $(function() {
-	// document is ready
+    // document is ready
     create_table_headers();
 
     // Setup widgets

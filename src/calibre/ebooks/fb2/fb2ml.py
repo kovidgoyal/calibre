@@ -153,8 +153,15 @@ class FB2MLizer(object):
         return ''.join(toc)
 
     def sectionize_chapters(self, text):
-        text = re.sub(r'(?imsu)(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(?P<strong>(<p>)*\s*<strong>.+?</strong>\s*(</p>)*)', lambda mo: '</section><section>%s<title>%s</title>' % (mo.group('anchor'), mo.group('strong')), text)
-        text = re.sub(r'(?imsu)<p>\s*(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*</p>\s*(?P<strong>(<p>)*\s*<strong>.+?</strong>\s*(</p>)*)', lambda mo: '</section><section>%s<title>%s</title>' % (mo.group('anchor'), mo.group('strong')), text)
+        def remove_p(t):
+            t = t.replace('<p>', '')
+            t = t.replace('</p>', '')
+            return t
+        text = re.sub(r'(?imsu)(<p>)\s*(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(</p>)\s*(<p>)\s*(?P<strong><strong>.+?</strong>)\s*(</p>)', lambda mo: '</section><section>%s<title><p>%s</p></title>' % (mo.group('anchor'), remove_p(mo.group('strong'))), text)
+        text = re.sub(r'(?imsu)(<p>)\s*(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(</p>)\s*(?P<strong><strong>.+?</strong>)', lambda mo: '</section><section>%s<title><p>%s</p></title>' % (mo.group('anchor'), remove_p(mo.group('strong'))), text)
+        text = re.sub(r'(?imsu)(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(<p>)\s*(?P<strong><strong>.+?</strong>)\s*(</p>)', lambda mo: '</section><section>%s<title><p>%s</p></title>' % (mo.group('anchor'), remove_p(mo.group('strong'))), text)
+        text = re.sub(r'(?imsu)(<p>)\s*(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(?P<strong><strong>.+?</strong>)\s*(</p>)', lambda mo: '</section><section>%s<title><p>%s</p></title>' % (mo.group('anchor'), remove_p(mo.group('strong'))), text)
+        text = re.sub(r'(?imsu)(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(?P<strong><strong>.+?</strong>)', lambda mo: '</section><section>%s<title><p>%s</p></title>' % (mo.group('anchor'), remove_p(mo.group('strong'))), text)
         return text
 
     def get_text(self):

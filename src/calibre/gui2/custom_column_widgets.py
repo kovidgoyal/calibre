@@ -57,7 +57,7 @@ class Bool(Base):
                 QComboBox(parent)]
         w = self.widgets[1]
         items = [_('Yes'), _('No'), _('Undefined')]
-        icons = [I('ok.svg'), I('list_remove.svg'), I('blank.svg')]
+        icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
         if tweaks['bool_custom_columns_are_tristate'] == 'no':
             items = items[:-1]
             icons = icons[:-1]

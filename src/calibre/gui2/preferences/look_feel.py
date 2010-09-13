@@ -20,10 +20,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r = self.register
 
-        r('gui_layout', config, choices=
+        r('gui_layout', config, restart_required=True, choices=
                 [(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
 
-        r('cover_flow_queue_length', config)
+        r('cover_flow_queue_length', config, restart_required=True)
 
         lang = get_lang()
         if lang is None or lang not in available_translations():
@@ -32,19 +32,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                  if l != lang]
         if lang != 'en':
             items.append(('en', get_language('en')))
-        items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        items.sort(cmp=lambda x, y: cmp(x[1].lower(), y[1].lower()))
         choices = [(y, x) for x, y in items]
         # Default language is the autodetected one
-        choices = [get_language(lang), lang] + choices
-        r('language', prefs, choices=choices)
+        choices = [(get_language(lang), lang)] + choices
+        r('language', prefs, choices=choices, restart_required=True)
 
         r('show_avg_rating', config)
         r('disable_animations', config)
-        r('systray_icon', config)
+        r('systray_icon', config, restart_required=True)
         r('show_splash_screen', gprefs)
         r('disable_tray_notification', config)
         r('use_roman_numerals_for_series_number', config)
-        r('separate_cover_flow', config)
+        r('separate_cover_flow', config, restart_required=True)
         r('search_as_you_type', config)
 
         choices = [(_('Small'), 'small'), (_('Medium'), 'medium'),
@@ -54,6 +54,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = [(_('Automatic'), 'auto'), (_('Always'), 'always'),
             (_('Never'), 'never')]
         r('toolbar_text', gprefs, choices=choices)
+
+    def refresh_gui(self, gui):
+        gui.search.search_as_you_type(config['search_as_you_type'])
+
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication

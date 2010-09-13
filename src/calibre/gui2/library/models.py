@@ -49,7 +49,7 @@ _default_image = None
 def default_image():
     global _default_image
     if _default_image is None:
-        _default_image = QImage(I('default_cover.svg'))
+        _default_image = QImage(I('default_cover.png'))
     return _default_image
 
 class BooksModel(QAbstractTableModel): # {{{
@@ -89,9 +89,9 @@ class BooksModel(QAbstractTableModel): # {{{
         self.alignment_map = {}
         self.buffer_size = buffer
         self.cover_cache = None
-        self.bool_yes_icon = QIcon(I('ok.svg'))
-        self.bool_no_icon = QIcon(I('list_remove.svg'))
-        self.bool_blank_icon = QIcon(I('blank.svg'))
+        self.bool_yes_icon = QIcon(I('ok.png'))
+        self.bool_no_icon = QIcon(I('list_remove.png'))
+        self.bool_blank_icon = QIcon(I('blank.png'))
         self.device_connected = False
         self.read_config()
 
@@ -121,9 +121,8 @@ class BooksModel(QAbstractTableModel): # {{{
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
         self.db.refresh_ondevice()
-        if is_connected and self.sorted_on[0] == 'ondevice':
-            self.resort()
-
+        self.refresh() # does a resort()
+        self.research()
 
     def set_book_on_device_func(self, func):
         self.book_on_device = func
@@ -236,8 +235,8 @@ class BooksModel(QAbstractTableModel): # {{{
     def search(self, text, reset=True):
         try:
             self.db.search(text)
-        except ParseException:
-            self.searched.emit(False)
+        except ParseException as e:
+            self.searched.emit(e.msg)
             return
         self.last_search = text
         if reset:
@@ -263,19 +262,15 @@ class BooksModel(QAbstractTableModel): # {{{
         self.sorting_done.emit(self.db.index)
 
     def refresh(self, reset=True):
-        try:
-            col = self.column_map.index(self.sorted_on[0])
-        except:
-            col = 0
         self.db.refresh(field=None)
-        self.sort(col, self.sorted_on[1], reset=reset)
+        self.resort(reset=reset)
 
     def resort(self, reset=True):
-        try:
-            col = self.column_map.index(self.sorted_on[0])
-        except ValueError:
-            col = 0
-        self.sort(col, self.sorted_on[1], reset=reset)
+        if not self.db:
+            return
+        self.db.multisort(self.sort_history[:tweaks['maximum_resort_levels']])
+        if reset:
+            self.reset()
 
     def research(self, reset=True):
         self.search(self.last_search, reset=reset)
@@ -1028,6 +1023,11 @@ class DeviceBooksModel(BooksModel): # {{{
         self.sort_history.insert(0, self.sorted_on)
         if reset:
             self.reset()
+
+    def resort(self, reset=True):
+        if self.sorted_on:
+            self.sort(self.column_map.index(self.sorted_on[0]),
+                      self.sorted_on[1], reset=reset)
 
     def columnCount(self, parent):
         if parent and parent.isValid():

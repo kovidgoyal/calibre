@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 The database used to store ebook metadata
 '''
-import os, sys, shutil, cStringIO, glob, time, functools, traceback
+import os, sys, shutil, cStringIO, glob, time, functools, traceback, re
 from itertools import repeat
 from math import floor
 
@@ -144,7 +144,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.initialize_dynamic()
 
     def initialize_dynamic(self):
+        self.field_metadata = FieldMetadata() #Ensure we start with a clean copy
         self.prefs = DBPrefs(self)
+        defs = self.prefs.defaults
+        defs['gui_restriction'] = defs['cs_restriction'] = ''
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):
@@ -287,15 +290,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         # Reconstruct the user categories, putting them into field_metadata
         # Assumption is that someone else will fix them if they change.
+        self.field_metadata.remove_dynamic_categories()
         tb_cats = self.field_metadata
-        for k in tb_cats.keys():
-            if tb_cats[k]['kind'] in ['user', 'search']:
-                del tb_cats[k]
         for user_cat in sorted(self.prefs.get('user_categories', {}).keys()):
             cat_name = user_cat+':' # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
+
+        gst = tweaks['grouped_search_terms']
+        for t in gst:
+            try:
+                self.field_metadata._add_search_terms_to_map(gst[t], [t])
+            except ValueError:
+                traceback.print_exc()
 
         self.book_on_device_func = None
         self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
@@ -303,6 +311,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.search_getting_ids  = self.data.search_getting_ids
         self.refresh = functools.partial(self.data.refresh, self)
         self.sort    = self.data.sort
+        self.multisort = self.data.multisort
         self.index   = self.data.index
         self.refresh_ids = functools.partial(self.data.refresh_ids, self)
         self.row     = self.data.row
@@ -322,7 +331,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
-                     'title', 'timestamp', 'uuid', 'pubdate'):
+                     'title', 'timestamp', 'uuid', 'pubdate', 'ondevice'):
             setattr(self, prop, functools.partial(get_property,
                     loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
         setattr(self, 'title_sort', functools.partial(get_property,
@@ -550,6 +559,43 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return bool(self.conn.get('SELECT id FROM books where title=?', (title,), all=False))
         return False
 
+    def find_identical_books(self, mi):
+        fuzzy_title_patterns = [(re.compile(pat), repl) for pat, repl in
+                [
+                    (r'[\[\](){}<>\'";,:#]', ''),
+                    (r'^(the|a|an) ', ''),
+                    (r'[-._]', ' '),
+                    (r'\s+', ' ')
+                ]
+        ]
+
+        def fuzzy_title(title):
+            title = title.strip().lower()
+            for pat, repl in fuzzy_title_patterns:
+                title = pat.sub(repl, title)
+            return title
+
+        identical_book_ids = set([])
+        if mi.authors:
+            try:
+                query = u' and '.join([u'author:"=%s"'%(a.replace('"', '')) for a in
+                    mi.authors])
+            except ValueError:
+                return identical_book_ids
+            try:
+                book_ids = self.data.parse(query)
+            except:
+                import traceback
+                traceback.print_exc()
+                return identical_book_ids
+            for book_id in book_ids:
+                fbook_title = self.title(book_id, index_is_id=True)
+                fbook_title = fuzzy_title(fbook_title)
+                mbook_title = fuzzy_title(mi.title)
+                if fbook_title == mbook_title:
+                    identical_book_ids.add(book_id)
+        return identical_book_ids
+
     def has_cover(self, index, index_is_id=False):
         id = index if  index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
@@ -593,16 +639,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def book_on_device_string(self, id):
         loc = []
+        count = 0
         on = self.book_on_device(id)
         if on is not None:
-            m, a, b = on
+            m, a, b, count = on[:4]
             if m is not None:
                 loc.append(_('Main'))
             if a is not None:
                 loc.append(_('Card A'))
             if b is not None:
                 loc.append(_('Card B'))
-        return ', '.join(loc)
+        return ', '.join(loc) + ((' (%s books)'%count) if count > 1 else '')
 
     def set_book_on_device_func(self, func):
         self.book_on_device_func = func
@@ -1079,7 +1126,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not authors:
             authors = [_('Unknown')]
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
-        self.conn.execute('DELETE FROM authors WHERE (SELECT COUNT(id) FROM books_authors_link WHERE author=authors.id) < 1')
         for a in authors:
             if not a:
                 continue
@@ -1681,7 +1727,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path = path_or_stream
         return run_plugins_on_import(path, format)
 
+    def _add_newbook_tag(self, mi):
+        tags = prefs['new_book_tags']
+        if tags:
+            for tag in [t.strip() for t in tags]:
+                if tag:
+                    if mi.tags is None:
+                        mi.tags = [tag]
+                    else:
+                        mi.tags.append(tag)
+
     def create_book_entry(self, mi, cover=None, add_duplicates=True):
+        self._add_newbook_tag(mi)
         if not add_duplicates and self.has_book(mi):
             return None
         series_index = 1.0 if mi.series_index is None else mi.series_index
@@ -1720,6 +1777,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ids = []
         for path in paths:
             mi = metadata.next()
+            self._add_newbook_tag(mi)
             format = formats.next()
             if not add_duplicates and self.has_book(mi):
                 duplicates.append((path, format, mi))
@@ -1758,8 +1816,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return (paths, formats, metadata), len(ids)
         return None, len(ids)
 
-    def import_book(self, mi, formats, notify=True, import_hooks=True):
+    def import_book(self, mi, formats, notify=True, import_hooks=True,
+            apply_import_tags=True):
         series_index = 1.0 if mi.series_index is None else mi.series_index
+        if apply_import_tags:
+            self._add_newbook_tag(mi)
         if not mi.title:
             mi.title = _('Unknown')
         if not mi.authors:
@@ -2090,8 +2151,6 @@ books_series_link      feeds
             os.remove(self.dbpath)
             shutil.copyfile(dest, self.dbpath)
             self.connect()
-            self.field_metadata.remove_dynamic_categories()
-            self.field_metadata.remove_custom_fields()
             self.initialize_dynamic()
             self.refresh()
         if os.path.exists(dest):

@@ -22,7 +22,7 @@ from calibre.gui2.actions import InterfaceAction
 class AddAction(InterfaceAction):
 
     name = 'Add Books'
-    action_spec = (_('Add books'), 'add_book.svg',
+    action_spec = (_('Add books'), 'add_book.png',
             _('Add books to the calibre library/device from files on your computer')
             , _('A'))
 

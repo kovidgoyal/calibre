@@ -21,10 +21,10 @@ from calibre.gui2.dialogs.progress import BlockingBusy
 class EditMetadataAction(InterfaceAction):
 
     name = 'Edit Metadata'
-    action_spec = (_('Edit metadata'), 'edit_input.svg', None, _('E'))
+    action_spec = (_('Edit metadata'), 'edit_input.png', None, _('E'))
 
     def genesis(self):
-        self.create_action(spec=(_('Merge book records'), 'merge_books.svg',
+        self.create_action(spec=(_('Merge book records'), 'merge_books.png',
             None, _('M')), attr='action_merge')
         md = QMenu()
         md.addAction(_('Edit metadata individually'),
@@ -51,7 +51,8 @@ class EditMetadataAction(InterfaceAction):
                 self.merge_books)
         mb.addSeparator()
         mb.addAction(_('Merge into first selected book - keep others'),
-                partial(self.merge_books, safe_merge=True))
+                partial(self.merge_books, safe_merge=True),
+                Qt.AltModifier+Qt.Key_M)
         self.merge_menu = mb
         self.action_merge.setMenu(mb)
         md.addSeparator()
@@ -208,8 +209,9 @@ class EditMetadataAction(InterfaceAction):
         dest_id, src_books, src_ids = self.books_to_merge(rows)
         if safe_merge:
             if not confirm('<p>'+_(
-                'All book formats and metadata from the selected books '
-                'will be added to the <b>first selected book.</b><br><br> '
+                'Book formats and metadata from the selected books '
+                'will be added to the <b>first selected book.</b> '
+                'ISBN will <i>not</i> be merged.<br><br> '
                 'The second and subsequently selected books will not '
                 'be deleted or changed.<br><br>'
                 'Please confirm you want to proceed.')
@@ -219,8 +221,9 @@ class EditMetadataAction(InterfaceAction):
             self.merge_metadata(dest_id, src_ids)
         else:
             if not confirm('<p>'+_(
-                'All book formats and metadata from the selected books will be merged '
-                'into the <b>first selected book</b>.<br><br>'
+                'Book formats and metadata from the selected books will be merged '
+                'into the <b>first selected book</b>. '
+                'ISBN will <i>not</i> be merged.<br><br>'
                 'After merger the second and '
                 'subsequently selected books will be <b>deleted</b>. <br><br>'
                 'All book formats of the first selected book will be kept '

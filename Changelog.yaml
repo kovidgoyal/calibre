@@ -4,6 +4,140 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.18
+  date: 2010-09-10
+
+  new features:
+    - title: "All new Preferences dialog, with nicer layout and the ability to restore settings to defaults"
+      type: major
+
+    - title: "Add series info when available to generated cover. Also auto-resize the logo on the cover to ensure all text fits"
+      tickets: [6724]
+
+    - title: "On device column: Now indicates when multiple copies of the same book are present on the device"
+
+    - title: "Driver for the Gemei GM2000"
+
+    - title: "Extract fb2 files from zip container when adding to calibre. Can be disables by disabling the Archive Extract file type plugin."
+      tickets: [6739]
+
+    - title: "Switch to using raster icons for a small speedup in startup time"
+
+  bug fixes:
+    - title: "On device column: Fix matching bug when multiple books in the library have the same title and author"
+
+    - title: "Content server: Use /mobile version for Kindle browser"
+
+    - title: "E-book viewer: When adding a bookmark, a default name is generated"
+      tickets: [6450]
+
+    - title: "Hide visible menus before clearing toolbar."
+      tickets: [6706]
+
+    - title: "Batch conversion: Don't overwrite the insert page break before setting"
+      tickets: [6729]
+
+    - title: "Catalog generation: Fixed improper title display in catalog when title contains ':'. Added 'ondevice' field to CSV/XML catalog output (only with connected device|folder|iTunes). Added optional 'Series' section to generated catalogs with hyperlinks between books and series. Tweaks to catalog formatting."
+
+    - title: "Fix regression when checking database integrity with custom columns introduced in 0.7.17"
+
+    - title: "Sending email: Ignore geenric records when trying to resolve domain"
+      tickets: [6723]
+
+    - title: "Fix a bug where the open state of the splitter was not being saved on shutdown if the splitter had been closed at startup and was opened by dragging the center line"
+
+    - title: "MOBI Output: Fix bug generating index when chapter names contained non ASCII characters"
+      tickets: [6595]
+
+    - title: "PDF Input: Fix handling of more non ascii characters"
+
+    - title: "Content server: Triple AJAX timeout for main book list to 30 seconds"
+
+    - title: "Use ImageMagick instead of Qt to generate thumbnails when sending covers to device. Should fix corrupted nook covers on some windows installs"
+
+    - title: "FB2 Output: Improve creation of sections and fix a couple of bugs that could result in invalid output"
+
+  new recipes:
+    - title: "Journal Gazette"
+      author: cynvision
+
+    - title: "Milenio"
+      author: bmsleight
+
+    - title: "Winnipeg Free Press"
+      author: buyo
+
+    - title: "Buckmasters in the kitchen, The Walrus Magazine and Kansas City Star"
+      author: Tony Stegall
+
+    - title: "Europa Sur"
+      author: "Darko Miletic"
+
+
+  improved recipes:
+    - El Pais
+    - La Jornada
+    - nrcnext
+    - WSJ (free)
+
+
+- version: 0.7.17
+  date: 2010-09-03
+
+  new features:
+    - title: "Content server: Show custom column data in the book listing"
+
+    - title: "Add preference to automatically set a tag when adding books (Preferences->General)"
+
+    - title: "Add a tweak to create compound search terms. Show error message in tooltip when user inputs an invalid search query."
+
+    - title: "Managing multiple libraries: Allow renaming/deleting libraries from the Choose library menu"
+
+    - title: "Searching on series index is now possible. See the User Manual for details."
+
+  bug fixes:
+    - title: "Fix regression in 0.7.16 that broke conversion of HTML files with preprocess turned on"
+
+    - title: "MOBI Output: When converting an input document that specifies an inline TOC in the <guide> but not in the <spine>, add it correctly. Fixes #6661 (Conversion to MOBI fails to create TOC)"
+      tickets: [6661]
+
+    - title: "JetBook driver: Only use JetBook naming scheme for txt, pdf and fb2 files."
+      tickets: [6638]
+
+    - title: "Copy to library action now respects merge preferences"
+      tickets: [6641]
+
+    - title: "Fix bug in email sending when using an SSL connection"
+
+    - title: "Kobo driver: Fix bug that prevented metadata caching from working correctly"
+      tickets: [6015]
+
+    - title: "Fix regression in 0.7.16 that caused calibre to forget its preferences on each restart for new installs on linux"
+
+    - title: "News downloads: Cut off long downloaded from URLs"
+      tickets: [6649]
+
+  new recipes:
+    - title: "HOY"
+      author: Fco Javier Nieto
+
+    - title: "Milenio"
+      author: bmsleight
+
+    - title: "Winnipeg Free Press"
+      author: buyo
+
+    - title: "Field and stream blog, West Hawaii Today, Marietta Daily Journal"
+      author: Tony Stegall
+
+    - title: "Europa Sur"
+      author: "Darko Miletic"
+
+
+  improved recipes:
+    - La Jornada
+    - Slate
+
 - version: 0.7.16
   date: 2010-08-27
 
