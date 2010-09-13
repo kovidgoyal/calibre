@@ -1056,8 +1056,8 @@ class DeviceBooksModel(BooksModel): # {{{
             if hasattr(cdata, 'image_path'):
                 img.load(cdata.image_path)
             elif cdata:
-                if isinstance(cdata, tuple):
-                    img.loadFromData(cdata[2])
+                if isinstance(cdata, (tuple, list)):
+                    img.loadFromData(cdata[-1])
                 else:
                     img.loadFromData(cdata)
             if img.isNull():
