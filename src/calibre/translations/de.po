@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-10 19:51+0000\n"
-"PO-Revision-Date: 2010-09-11 20:29+0000\n"
-"Last-Translator: Manichean <Unknown>\n"
+"PO-Revision-Date: 2010-09-12 19:48+0000\n"
+"Last-Translator: Tilman Kappe <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-12 04:51+0000\n"
+"X-Launchpad-Export-Date: 2010-09-13 05:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -294,7 +294,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:717
 msgid "Customize the toolbar"
-msgstr ""
+msgstr "Werkzeugleiste anpassen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:723
 msgid ""
@@ -304,7 +304,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 msgid "Input Options"
-msgstr ""
+msgstr "Eingabeoptionen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:731
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:742
@@ -318,7 +318,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Common Options"
-msgstr ""
+msgstr "Allgemeine Einstellungen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:746
 msgid "Set conversion options common to all formats"
@@ -326,7 +326,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
 msgid "Output Options"
-msgstr ""
+msgstr "Ausgabeoptionen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:757
 msgid "Set conversion options specific to each output format"
@@ -340,7 +340,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:776
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:788
 msgid "Import/Export"
-msgstr ""
+msgstr "Import/Export"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:768
 msgid "Control how calibre reads metadata from files when adding books"
