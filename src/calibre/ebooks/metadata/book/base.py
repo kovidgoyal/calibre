@@ -9,7 +9,8 @@ import copy
 import traceback
 
 from calibre import prints
-from calibre.ebooks.metadata.book import COPYABLE_METADATA_FIELDS
+from calibre.ebooks.metadata.book import SC_COPYABLE_FIELDS
+from calibre.ebooks.metadata.book import SC_FIELDS_COPY_NOT_NULL
 from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
 from calibre.ebooks.metadata.book import TOP_LEVEL_CLASSIFIERS
 from calibre.utils.date import isoformat, format_date
@@ -223,22 +224,23 @@ class Metadata(object):
                 self.author_sort = other.author_sort
 
         if replace_metadata:
-            SPECIAL_FIELDS = frozenset(['lpath', 'size', 'comments', 'thumbnail'])
-            for attr in COPYABLE_METADATA_FIELDS:
+            # SPECIAL_FIELDS = frozenset(['lpath', 'size', 'comments', 'thumbnail'])
+            for attr in SC_COPYABLE_FIELDS:
                 setattr(self, attr, getattr(other, attr, 1.0 if \
                         attr == 'series_index' else None))
             self.tags = other.tags
             self.cover_data = getattr(other, 'cover_data',
-                    NULL_VALUES['cover_data'])
+                                      NULL_VALUES['cover_data'])
             self.set_all_user_metadata(other.get_all_user_metadata(make_copy=True))
-            for x in SPECIAL_FIELDS:
+            for x in SC_FIELDS_COPY_NOT_NULL:
                 copy_not_none(self, other, x)
             # language is handled below
         else:
-            for attr in COPYABLE_METADATA_FIELDS:
-                if hasattr(other, attr):
-                    copy_not_none(self, other, attr)
-            copy_not_none(self, other, 'thumbnail')
+            for attr in SC_COPYABLE_FIELDS:
+                copy_not_none(self, other, attr)
+            for x in SC_FIELDS_COPY_NOT_NULL:
+                copy_not_none(self, other, x)
+
             if other.tags:
                 # Case-insensitive but case preserving merging
                 lotags = [t.lower() for t in other.tags]
@@ -249,6 +251,7 @@ class Metadata(object):
                     oidx = lotags.index(t)
                     self.tags[sidx] = other.tags[oidx]
                 self.tags += [t for t in other.tags if t.lower() in ot-st]
+
             if getattr(other, 'cover_data', False):
                 other_cover = other.cover_data[-1]
                 self_cover = self.cover_data[-1] if self.cover_data else ''
@@ -256,6 +259,7 @@ class Metadata(object):
                 if not other_cover: other_cover = ''
                 if len(other_cover) > len(self_cover):
                     self.cover_data = other.cover_data
+
             if getattr(other, 'user_metadata_keys', None):
                 for x in other.user_metadata_keys:
                     meta = other.get_user_metadata(x, make_copy=True)
@@ -274,6 +278,7 @@ class Metadata(object):
                                 self_tags[sidx] = other.tags[oidx]
                             self_tags += [t for t in other.tags if t.lower() in ot-st]
                             setattr(self, x, self_tags)
+
             my_comments = getattr(self, 'comments', '')
             other_comments = getattr(other, 'comments', '')
             if not my_comments:
