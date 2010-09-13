@@ -12,7 +12,6 @@ from calibre.devices.interface import BookList as _BookList
 from calibre.constants import preferred_encoding
 from calibre import isbytestring
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.date import format_date
 
 class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -105,21 +104,7 @@ class CollectionsBookList(BookList):
                 attr_name = ''
         elif attr_name != '':
             attr_name = '(%s)'%attr_name
-
-        if attr not in cust_field_meta:
-            cat_name = '%s %s'%(category, attr_name)
-        else:
-            fm = cust_field_meta[attr]
-            if fm['datatype'] == 'bool':
-                if category:
-                    cat_name = '%s %s'%(_('Yes'), attr_name)
-                else:
-                    cat_name = '%s %s'%(_('No'), attr_name)
-            elif fm['datatype'] == 'datetime':
-                cat_name = '%s %s'%(format_date(category,
-                    fm['display'].get('date_format','dd MMM yyyy')), attr_name)
-            else:
-                cat_name = '%s %s'%(category, attr_name)
+        cat_name = '%s %s'%(category, attr_name)
         return cat_name.strip()
 
     def get_collections(self, collection_attributes):
@@ -156,7 +141,7 @@ class CollectionsBookList(BookList):
             cust_field_meta = book.get_all_user_metadata(make_copy=False)
             for attr in attrs:
                 attr = attr.strip()
-                val = meta_vals.get(attr, None)
+                ign, val = book.format_field(attr, ignore_series_index=True)
                 if not val: continue
                 if isbytestring(val):
                     val = val.decode(preferred_encoding, 'replace')
