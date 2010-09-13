@@ -6,7 +6,7 @@ nspm.rs
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+from calibre.ebooks.BeautifulSoup import NavigableString
 
 class Nspm(BasicNewsRecipe):
     title                 = 'Nova srpska politicka misao'
