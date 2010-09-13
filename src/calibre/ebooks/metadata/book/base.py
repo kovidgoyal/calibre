@@ -13,6 +13,7 @@ from calibre.ebooks.metadata.book import SC_COPYABLE_FIELDS
 from calibre.ebooks.metadata.book import SC_FIELDS_COPY_NOT_NULL
 from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
 from calibre.ebooks.metadata.book import TOP_LEVEL_CLASSIFIERS
+from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date
 
 
@@ -29,6 +30,8 @@ NULL_VALUES = {
                 'title'        : _('Unknown'),
                 'language'     : 'und'
 }
+
+field_metadata = FieldMetadata()
 
 class Metadata(object):
 
@@ -111,6 +114,31 @@ class Metadata(object):
         'The set of user metadata names this object knows about'
         _data = object.__getattribute__(self, '_data')
         return frozenset(_data['user_metadata'].iterkeys())
+
+    def get_standard_metadata(self, field, make_copy):
+        '''
+        return field metadata from the field if it is there. Otherwise return
+        None. field is the key name, not the label. Return a copy if requested,
+        just in case the user wants to change values in the dict.
+        '''
+        if field in field_metadata and field_metadata[field]['kind'] == 'field':
+            if make_copy:
+                return copy.deepcopy(field_metadata[field])
+            return field_metadata[field]
+        return None
+
+    def get_all_standard_metadata(self, make_copy):
+        '''
+        return a dict containing all the standard field metadata associated with
+        the book.
+        '''
+        if not make_copy:
+            return field_metadata
+        res = {}
+        for k in field_metadata:
+            if field_metadata[k]['kind'] == 'field':
+                res[k] = copy.deepcopy(field_metadata[k])
+        return res
 
     def get_all_user_metadata(self, make_copy):
         '''
@@ -315,24 +343,49 @@ class Metadata(object):
     def format_rating(self):
         return unicode(self.rating)
 
-    def format_custom_field(self, key):
+    def format_field(self, key, ignore_series_index=False):
+        from calibre.ebooks.metadata import authors_to_string
         '''
         returns the tuple (field_name, formatted_value)
         '''
-        cmeta = self.get_user_metadata(key, make_copy=False)
-        name = unicode(cmeta['name'])
-        res = self.get(key, None)
-        if res is not None:
+        if key in self.user_metadata_keys:
+            res = self.get(key, None)
+            if res is None or res == '':
+                return (None, None)
+            cmeta = self.get_user_metadata(key, make_copy=False)
+            name = unicode(cmeta['name'])
             datatype = cmeta['datatype']
             if datatype == 'text' and cmeta['is_multiple']:
                 res = u', '.join(res)
             elif datatype == 'series':
-                res = res + ' [%s]'%self.format_series_index(val=self.get_extra(key))
+                if not ignore_series_index:
+                    res = res + \
+                       ' [%s]'%self.format_series_index(val=self.get_extra(key))
             elif datatype == 'datetime':
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
-        return (name, unicode(res))
+            return (name, unicode(res))
+
+        if key in field_metadata and field_metadata[key]['kind'] == 'field':
+            res = self.get(key, None)
+            if res is None or res == '':
+                return (None, None)
+            fmeta = field_metadata[key]
+            name = unicode(fmeta['name'])
+            datatype = fmeta['datatype']
+            if key == 'authors':
+                res = authors_to_string(res)
+            elif datatype == 'text' and fmeta['is_multiple']:
+                res = u', '.join(res)
+            elif datatype == 'series':
+                if not ignore_series_index:
+                    res = res + ' [%s]'%self.format_series_index()
+            elif datatype == 'datetime':
+                res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
+            return (name, unicode(res))
+
+        return (None, None)
 
     def __unicode__(self):
         from calibre.ebooks.metadata import authors_to_string
@@ -371,7 +424,7 @@ class Metadata(object):
         for key in self.user_metadata_keys:
             val = self.get(key, None)
             if val is not None:
-                (name, val) = self.format_custom_field(key)
+                (name, val) = self.format_field(key)
                 fmt(name, unicode(val))
         return u'\n'.join(ans)
 
@@ -396,7 +449,7 @@ class Metadata(object):
         for key in self.user_metadata_keys:
             val = self.get(key, None)
             if val is not None:
-                (name, val) = self.format_custom_field(key)
+                (name, val) = self.format_field(key)
                 ans += [(name, val)]
         for i, x in enumerate(ans):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x

@@ -5,6 +5,7 @@ Created on 25 May 2010
 '''
 
 from calibre.utils.ordered_dict import OrderedDict
+from calibre.utils.config import tweaks
 
 class TagsIcons(dict):
     '''
@@ -213,7 +214,7 @@ class FieldMetadata(dict):
                            'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('On Device'),
                            'search_terms':['ondevice'],
                            'is_custom':False,
                            'is_category':False}),
@@ -231,7 +232,7 @@ class FieldMetadata(dict):
                            'datatype':'datetime',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Published'),
                            'search_terms':['pubdate'],
                            'is_custom':False,
                            'is_category':False}),
@@ -258,7 +259,7 @@ class FieldMetadata(dict):
                            'datatype':'float',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Size (MB)'),
                            'search_terms':['size'],
                            'is_custom':False,
                            'is_category':False}),
@@ -267,7 +268,7 @@ class FieldMetadata(dict):
                            'datatype':'datetime',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Date'),
                            'search_terms':['date'],
                            'is_custom':False,
                            'is_category':False}),
@@ -276,7 +277,7 @@ class FieldMetadata(dict):
                            'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Title'),
                            'search_terms':['title'],
                            'is_custom':False,
                            'is_category':False}),
@@ -310,6 +311,10 @@ class FieldMetadata(dict):
             self._tb_cats[k]['display'] = {}
             self._tb_cats[k]['is_editable'] = True
             self._add_search_terms_to_map(k, v['search_terms'])
+        self._tb_cats['timestamp']['display'] = {
+                        'date_format': tweaks['gui_timestamp_display_format']}
+        self._tb_cats['pubdate']['display'] = {
+                        'date_format': tweaks['gui_pubdate_display_format']}
         self.custom_field_prefix = '#'
         self.get = self._tb_cats.get
 
@@ -410,7 +415,7 @@ class FieldMetadata(dict):
         if datatype == 'series':
             key += '_index'
             self._tb_cats[key] = {'table':None,        'column':None,
-                                 'datatype':'float',   'is_multiple':False,
+                                 'datatype':'float',   'is_multiple':None,
                                  'kind':'field',       'name':'',
                                  'search_terms':[key], 'label':label+'_index',
                                  'colnum':None,        'display':{},
