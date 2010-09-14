@@ -141,7 +141,9 @@ class CollectionsBookList(BookList):
             cust_field_meta = book.get_all_user_metadata(make_copy=False)
             for attr in attrs:
                 attr = attr.strip()
-                ign, val = book.format_field(attr, ignore_series_index=True)
+                ign, val = book.format_field(attr,
+                                             ignore_series_index=True,
+                                             return_multiples_as_list=True)
                 if not val: continue
                 if isbytestring(val):
                     val = val.decode(preferred_encoding, 'replace')
