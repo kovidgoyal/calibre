@@ -146,7 +146,6 @@ class CSSFlattener(object):
                     extra_css=css)
             self.stylizers[item] = stylizer
 
-
     def baseline_node(self, node, stylizer, sizes, csize):
         csize = stylizer.style(node)['font-size']
         if node.text:
@@ -194,7 +193,7 @@ class CSSFlattener(object):
                         value = 0.0
                     cssdict[property] = "%0.5fem" % (value / fsize)
 
-    def flatten_node(self, node, stylizer, names, styles, psize, left=0):
+    def flatten_node(self, node, stylizer, names, styles, psize, item_id, left=0):
         if not isinstance(node.tag, basestring) \
            or namespace(node.tag) != XHTML_NS:
                return
@@ -286,15 +285,18 @@ class CSSFlattener(object):
         if self.lineh and 'line-height' not in cssdict:
             lineh = self.lineh / psize
             cssdict['line-height'] = "%0.5fem" % lineh
+
         if (self.context.remove_paragraph_spacing or
                 self.context.insert_blank_line) and tag in ('p', 'div'):
-            for prop in ('margin', 'padding', 'border'):
-                for edge in ('top', 'bottom'):
-                    cssdict['%s-%s'%(prop, edge)] = '0pt'
+            if item_id != 'jacket' or self.context.output_profile.name == 'Kindle':
+                for prop in ('margin', 'padding', 'border'):
+                    for edge in ('top', 'bottom'):
+                        cssdict['%s-%s'%(prop, edge)] = '0pt'
             if self.context.insert_blank_line:
                 cssdict['margin-top'] = cssdict['margin-bottom'] = '0.5em'
             if self.context.remove_paragraph_spacing:
                 cssdict['text-indent'] =  "%1.1fem" % self.context.remove_paragraph_spacing_indent_size
+
         if cssdict:
             items = cssdict.items()
             items.sort()
@@ -313,7 +315,7 @@ class CSSFlattener(object):
         if 'style' in node.attrib:
             del node.attrib['style']
         for child in node:
-            self.flatten_node(child, stylizer, names, styles, psize, left)
+            self.flatten_node(child, stylizer, names, styles, psize, item_id, left)
 
     def flatten_head(self, item, stylizer, href):
         html = item.data
@@ -360,7 +362,7 @@ class CSSFlattener(object):
             stylizer = self.stylizers[item]
             body = html.find(XHTML('body'))
             fsize = self.context.dest.fbase
-            self.flatten_node(body, stylizer, names, styles, fsize)
+            self.flatten_node(body, stylizer, names, styles, fsize, item.id)
         items = [(key, val) for (val, key) in styles.items()]
         items.sort()
         css = ''.join(".%s {\n%s;\n}\n\n" % (key, val) for key, val in items)
