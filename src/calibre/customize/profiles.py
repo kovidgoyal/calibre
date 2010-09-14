@@ -555,9 +555,11 @@ class KindleOutput(OutputProfile):
     periodical_date_in_title = False
 
     @classmethod
+#     def tags_to_string(cls, tags):
+#         return u'%s <br/><span style="color: white">%s</span>' % (', '.join(tags),
+#                 'ttt '.join(tags)+'ttt ')
     def tags_to_string(cls, tags):
-        return u'%s <br/><span style="color: white">%s</span>' % (', '.join(tags),
-                'ttt '.join(tags)+'ttt ')
+        return u'%s' % (', '.join(tags))
 
 class KindleDXOutput(OutputProfile):
 

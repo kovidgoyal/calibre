@@ -55,10 +55,11 @@ class Jacket(object):
         img = I(fname, data=True)
 
         if self.opts.output_profile.short_name == 'kindle':
+            # Original star.png size: 24x23
+            # Needs to be scaled by half
             fname = 'star.jpg'
             img = save_cover_data_to(img, fname,
-                return_data=True)
-
+                return_data=True, resize_to=[12,12])
 
         id, href = self.oeb.manifest.generate('calibre_jacket_star', fname)
         self.oeb.manifest.add(id, href, guess_type(fname)[0], data=img)
@@ -97,7 +98,7 @@ class Jacket(object):
 
 # Render Jacket {{{
 
-def get_rating(rating, href):
+def get_rating(rating, href, output_profile):
     ans = ''
     try:
         num = float(rating)/2
@@ -114,6 +115,7 @@ def get_rating(rating, href):
             href, int(num)))
     else:
         ans = u' '.join(u'\u2605')
+
     return ans
 
 
@@ -138,7 +140,7 @@ def render_jacket(mi, output_profile, star_href=None,
     except:
         pubdate = ''
 
-    rating = get_rating(mi.rating, star_href)
+    rating = get_rating(mi.rating, star_href, output_profile)
 
     tags = mi.tags if mi.tags else alt_tags
     if tags:
