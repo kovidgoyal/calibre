@@ -27,9 +27,6 @@ class PeriodicalNameHere(BasicNewsRecipe):
     encoding                = None
     language = 'en'
 
-
-
-
     # Method variables for customizing feed parsing
     summary_length          = 250
     use_embedded_content    = None
@@ -45,13 +42,26 @@ class PeriodicalNameHere(BasicNewsRecipe):
     match_regexps           = []
 
     # The second entry is for 'Big Money', which comes from a different site, uses different markup
-    keep_only_tags          = [dict(attrs={   'id':['article_top', 'article_body']}),
+    keep_only_tags          = [dict(attrs={   'id':['article_top', 'article_body', 'story']}),
                                dict(attrs={   'id':['content']})  ]
 
     # The second entry is for 'Big Money', which comes from a different site, uses different markup
-    remove_tags             = [dict(attrs={   'id':['toolbox','recommend_tab','insider_ad_wrapper',
-                                                    'article_bottom_tools_cntr','fray_article_discussion',                                                    'fray_article_links','bottom_sponsored_links','author_bio',
-                                                    'bizbox_links_bottom','ris_links_wrapper','BOXXLE']}),
+    remove_tags             = [dict(attrs={   'id':[
+                                                    'add_comments_button',
+                                                    'article_bottom_tools',
+                                                    'article_bottom_tools_cntr',
+                                                    'bizbox_links_bottom',
+                                                    'BOXXLE',
+                                                    'comments_button',
+                                                    'comments-to-fray',
+                                                    'fbog_article_bottom_cntr',
+                                                    'fray_article_discussion',                                                    'fray_article_links','bottom_sponsored_links','author_bio',
+                                                    'insider_ad_wrapper',
+                                                    'js_kit_cntr',
+                                                    'recommend_tab',
+                                                    'ris_links_wrapper',
+                                                    'toolbox',
+                                                    ]}),
                                dict(attrs={    'id':['content-top','service-links-bottom','hed']})   ]
 
     excludedDescriptionKeywords =   ['Slate V','Twitter feed','podcast']
@@ -339,8 +349,8 @@ class PeriodicalNameHere(BasicNewsRecipe):
 
         # Change <h1> to <h2>
         headline = soup.find("h1")
-        tag = headline.find("span")
-        tag.name = 'div'
+        #tag = headline.find("span")
+        #tag.name = 'div'
 
         if headline is not None :
             h2tag = Tag(soup, "h2")

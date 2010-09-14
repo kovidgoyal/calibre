@@ -1,11 +1,11 @@
 /*
 **	Book Jacket generation
 **
-**	The template for Book Jackets is in ebooks.oeb.transforms.jacket:JACKET_TEMPLATE
+**	The template for Book Jackets is template.xhtml
 **	This CSS is inserted into the generated HTML at conversion time
 **
 **	Users can control parts of the presentation of a generated book jacket by
-** 	editing this file.
+** 	editing this file and template.xhtml
 **
 **	The general form of a generated Book Jacket:
 **
