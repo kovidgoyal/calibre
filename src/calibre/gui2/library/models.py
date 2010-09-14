@@ -121,10 +121,8 @@ class BooksModel(QAbstractTableModel): # {{{
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
         self.db.refresh_ondevice()
-        self.refresh()
+        self.refresh() # does a resort()
         self.research()
-        if is_connected and self.sorted_on[0] == 'ondevice':
-            self.resort()
 
     def set_book_on_device_func(self, func):
         self.book_on_device = func
@@ -264,19 +262,15 @@ class BooksModel(QAbstractTableModel): # {{{
         self.sorting_done.emit(self.db.index)
 
     def refresh(self, reset=True):
-        try:
-            col = self.column_map.index(self.sorted_on[0])
-        except:
-            col = 0
         self.db.refresh(field=None)
-        self.sort(col, self.sorted_on[1], reset=reset)
+        self.resort(reset=reset)
 
     def resort(self, reset=True):
-        try:
-            col = self.column_map.index(self.sorted_on[0])
-        except ValueError:
-            col = 0
-        self.sort(col, self.sorted_on[1], reset=reset)
+        if not self.db:
+            return
+        self.db.multisort(self.sort_history[:tweaks['maximum_resort_levels']])
+        if reset:
+            self.reset()
 
     def research(self, reset=True):
         self.search(self.last_search, reset=reset)
@@ -1029,6 +1023,11 @@ class DeviceBooksModel(BooksModel): # {{{
         self.sort_history.insert(0, self.sorted_on)
         if reset:
             self.reset()
+
+    def resort(self, reset=True):
+        if self.sorted_on:
+            self.sort(self.column_map.index(self.sorted_on[0]),
+                      self.sorted_on[1], reset=reset)
 
     def columnCount(self, parent):
         if parent and parent.isValid():

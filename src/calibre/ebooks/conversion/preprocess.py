@@ -168,6 +168,17 @@ class HTMLPreProcessor(object):
                   (re.compile(u'`\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ò'),
                   (re.compile(u'`\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ù'),
                   (re.compile(u'`\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Ù'),
+                  # ` with letter before
+                  (re.compile(u'a\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'à'),
+                  (re.compile(u'A\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'À'),
+                  (re.compile(u'e\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'è'),
+                  (re.compile(u'E\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'È'),
+                  (re.compile(u'i\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'ì'),
+                  (re.compile(u'I\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'Ì'),
+                  (re.compile(u'o\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'ò'),
+                  (re.compile(u'O\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'Ò'),
+                  (re.compile(u'u\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'ù'),
+                  (re.compile(u'U\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'Ù'),
 
                   # ´
                   (re.compile(u'´\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'á'),

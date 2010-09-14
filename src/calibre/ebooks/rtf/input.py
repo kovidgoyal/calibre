@@ -7,7 +7,6 @@ import os, glob, re, textwrap
 from lxml import etree
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.conversion.preprocess import line_length
 from calibre.ebooks.conversion.utils import PreProcessor
 
 class InlineClass(etree.XSLTExtension):
@@ -230,7 +229,7 @@ class RTFInput(InputFormatPlugin):
             res = transform.tostring(result)
             res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             if self.options.preprocess_html:
-                preprocessor = PreProcessor(res)
+                preprocessor = PreProcessor(log=getattr(self, 'log', None))
                 res = preprocessor(res)
             f.write(res)
         self.write_inline_css(inline_class)

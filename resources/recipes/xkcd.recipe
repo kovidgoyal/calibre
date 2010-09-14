@@ -24,18 +24,18 @@ class XkcdCom(BasicNewsRecipe):
         (re.compile(r'(<img.*title=")([^"]+)(".*>)'),
          lambda m: '%s%s<p>%s</p>' % (m.group(1), m.group(3), m.group(2)))
     ]
-    
+
     def parse_index(self):
         INDEX = 'http://xkcd.com/archive/'
 
-        soup = self.index_to_soup(INDEX) 
+        soup = self.index_to_soup(INDEX)
         articles = []
         for item in soup.findAll('a', title=True):
             articles.append({
                 'date': item['title'],
                 'timestamp': time.mktime(time.strptime(item['title'], '%Y-%m-%d'))+1,
                 'url': 'http://xkcd.com' + item['href'],
-                'title': self.tag_to_string(item).encode('UTF-8'),
+                'title': self.tag_to_string(item),
                 'description': '',
                 'content': '',
             })

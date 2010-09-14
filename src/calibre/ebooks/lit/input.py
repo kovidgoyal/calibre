@@ -54,7 +54,6 @@ class LITInput(InputFormatPlugin):
 
 
 	def preprocess_html(self, html):
-        preprocessor = PreProcessor(html)
-        html = preprocessor(html)
-        return html
+        preprocessor = PreProcessor(log=getattr(self, 'log', None))
+        return preprocessor(html)
 
