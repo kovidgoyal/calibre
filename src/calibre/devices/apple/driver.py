@@ -2342,8 +2342,10 @@ class ITUNES(DriverBase):
         if isosx:
             if DEBUG:
                 self.log.info("  deleting '%s' from iDevice" % cached_book['title'])
-            cached_book['dev_book'].delete()
-
+            try:
+                cached_book['dev_book'].delete()
+            except:
+                self.log.error("  error deleting '%s'" % cached_book['title'])
         elif iswindows:
             hit = self._find_device_book(cached_book)
             if hit:
