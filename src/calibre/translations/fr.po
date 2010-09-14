@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-10 19:51+0000\n"
-"PO-Revision-Date: 2010-09-12 13:08+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-09-13 22:15+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-13 04:59+0000\n"
+"X-Launchpad-Export-Date: 2010-09-14 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -274,6 +274,7 @@ msgstr "Interface"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:689
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
 msgstr ""
+"Ajuster l'aspect et l'ergonomie de l'interface de Calibre à votre convenance"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:695
 msgid "Behavior"
@@ -301,6 +302,8 @@ msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
+"Personnaliser les barres d'outils et les menus contextuels, en changeant les "
+"actions disponibles dans ceux-ci"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 msgid "Input Options"
@@ -315,6 +318,7 @@ msgstr "Conversion"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Set conversion options specific to each input format"
 msgstr ""
+"Définissez les options de conversion spécfiques pour chaque format d'entrée"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Common Options"
@@ -323,6 +327,7 @@ msgstr "Options communes"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:746
 msgid "Set conversion options common to all formats"
 msgstr ""
+"Définisser les options de conversion communes à tous les formats d'entrée"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
 msgid "Output Options"
@@ -330,7 +335,7 @@ msgstr "Formats de sortie"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:757
 msgid "Set conversion options specific to each output format"
-msgstr ""
+msgstr "Définissez des options spécifiques pour chaque format de sortie"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:762
 msgid "Adding books"
@@ -345,20 +350,24 @@ msgstr "Import/Export"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:768
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
+"Définir comment les métadonnées sont lues par Calibre lors de l'ajout de "
+"livres"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:774
 msgid "Saving books to disk"
-msgstr ""
+msgstr "Sauvegarder les livres sur le disque"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
+"Contrôle la manière dont Calibre exporte les fichiers de sa base de données "
+"sur le disque lors des sauvegardes sur disque"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
 msgid "Sending books to devices"
-msgstr ""
+msgstr "Envoyer les livres aux appareils"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
 msgid "Control how calibre transfers files to your ebook reader"
@@ -380,6 +389,8 @@ msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
+"Mise en place du partage de livre par courriel. Peu aussi être utilisé pour "
+"envoyer automatiquement les dernières nouvelles téléchargées à votre appareil"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 msgid "Sharing over the net"
@@ -406,7 +417,7 @@ msgstr "Mode avancé"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:829
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
+msgstr "Ajouter/Retirer/Modifier diverses fonctionalités de Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:835
 msgid "Tweaks"
@@ -668,7 +679,7 @@ msgstr "Communiquer avec les téléphones S60"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:85
 msgid "Apple device"
-msgstr ""
+msgstr "Appareil Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:87
 msgid "Communicate with iTunes/iBooks."
@@ -960,7 +971,7 @@ msgstr "Communiquer avec le Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:114
 msgid "Communicate with the GM2000"
-msgstr ""
+msgstr "Communiquer avec le GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2836,7 +2847,7 @@ msgstr "Les livres au format %s ne sont pas supportés"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:159
 msgid "Book %s of %s"
-msgstr ""
+msgstr "Livre %s de %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
@@ -3711,7 +3722,7 @@ msgstr "Renommer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:169
 msgid "Choose a new name for the library <b>%s</b>. "
-msgstr ""
+msgstr "Choisissez un nouveau nom pour la bibliothèque <b>%s</b>. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:170
 msgid "Note that the actual library folder will be renamed."
@@ -3728,7 +3739,7 @@ msgstr "Le dossier %s existe déjà. Effacez le d'abord."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:184
 msgid "Rename failed"
-msgstr ""
+msgstr "Échec du renommage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:185
 msgid ""
@@ -8366,7 +8377,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:153
 msgid "Tags to apply when adding a book:"
-msgstr ""
+msgstr "Etiquette à attacher, lors de l'ajout de nouveaux livres:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:154
 msgid "Reset all disabled &confirmation dialogs"
@@ -8749,7 +8760,7 @@ msgstr "&Annuler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:222
 msgid "Restore &defaults"
-msgstr ""
+msgstr "Restaurer les réglages par &défaut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:223
 msgid "Save changes"
@@ -8757,7 +8768,7 @@ msgstr "Enregistrer les modifications"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:224
 msgid "Cancel and return to overview"
-msgstr ""
+msgstr "Annuler et retourner à la vue d'ensemble"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:259
 msgid "Restoring to defaults not supported for"
@@ -8778,7 +8789,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
 msgid "Restart needed"
-msgstr ""
+msgstr "Redémarrage nécessaire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:49
 msgid "Checking database integrity"
@@ -9933,7 +9944,7 @@ msgstr "Aménagement de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:538
 msgid "Bookmark #%d"
-msgstr ""
+msgstr "Marque-page #%d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:542
 msgid "Add bookmark"
@@ -11264,7 +11275,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:537
 msgid "No label was provided"
-msgstr "Auncune étiquette n'a été fournie"
+msgstr "Aucune étiquette n'a été fournie"
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:539
 msgid ""

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-10 19:51+0000\n"
-"PO-Revision-Date: 2010-09-12 13:04+0000\n"
+"PO-Revision-Date: 2010-09-13 13:43+0000\n"
 "Last-Translator: Alice Joseph <Unknown>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-13 05:02+0000\n"
+"X-Launchpad-Export-Date: 2010-09-14 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1342,11 +1342,11 @@ msgstr "Các tuỳ chọn điều chỉnh xử lý của tập tin xuất %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
-msgstr ""
+msgstr "Các tuỳ chọn điều chỉnh diện mạo và cảm nhận của tập tin xuất"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:135
 msgid "Control auto-detection of document structure."
-msgstr "Điều chỉnh tự động nhận dạng của cấu trúc văn bản."
+msgstr "Điều chỉnh tự động nhận dạng cấu trúc văn bản."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:145
 msgid ""
@@ -1359,11 +1359,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:155
 msgid "Options to set metadata in the output"
-msgstr "Tuỳ chọn để gán thông tin mô tả trong quá trình xuất"
+msgstr "Tuỳ chọn để gán thông tin mô tả cho tập tin xuất"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:158
 msgid "Options to help with debugging the conversion"
-msgstr ""
+msgstr "Tùy chọn để giúp chỉnh lỗi cho việc chuyển đổi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"
@@ -1383,6 +1383,8 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
+"Lưu dữ liệu xuất từ từng giai đoạn chuyển đổi vào thư mục được chỉ định. Hữu "
+"ích nếu bạn không rõ quá trình chuyển đổi bị lỗi ở giai đoạn nào."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:111
 msgid ""
@@ -1403,10 +1405,10 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
-"Xác định hồ sơ xuất. Hồ sơ xuất giúp hệ thống chuyển đội định dạng biết cách "
-"tối ưu hoá tài liệu được tạo ra cho từng thiết bị phần cứng cụ thể. Trong "
-"một số trường hợp,  hồ sơ xuất là yêu cầu bắt buộc để sản xuất tài liệu cho "
-"một thiết bị cụ thể. Ví dụ EPUB cho thiết bị của SONY. Các lựa chọn bao gồm:"
+"Xác định hồ sơ xuất. Hồ sơ xuất giúp hệ thống chuyển đổi định dạng biết cách "
+"tối ưu hoá tập tin được tạo ra cho từng thiết bị cụ thể. Trong vài trường "
+"hợp, hồ sơ xuất là yêu cầu bắt buộc để tạo tập tin cho một thiết bị cụ thể. "
+"Ví dụ EPUB cho thiết bị đọc sách của SONY. Các lựa chọn gồm:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:133
 msgid ""
@@ -1427,7 +1429,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:155
 msgid "Disable all rescaling of font sizes."
-msgstr ""
+msgstr "Vô hiệu hoá sự thay đổi tỷ lệ cho kích thước phông chữ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:162
 msgid ""
@@ -1474,19 +1476,21 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
-"Thông thường, nếu tập tin nguồn đã có sẵ Mục Lục, nó sẽ được sử dụng thay vì "
-"mục lục tự tạo. Tuỳ chọn này sẽ khiến phần mềm luôn sử dụng Mục Lục tự động "
+"Thông thường, nếu tập tin nguồn đã có sẵ Mục Lục, nó sẽ được sử dụng thay "
+"cho Mục Lục tự tạo. Tuỳ chọn này sẽ khiến phần mềm luôn sử dụng Mục Lục tự "
 "tạo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:213
 msgid "Don't add auto-detected chapters to the Table of Contents."
-msgstr ""
+msgstr "Không thêm những chương được phần mềm tự tìm ra vào Mục Lục."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:220
 msgid ""
 "If fewer than this number of chapters is detected, then links are added to "
 "the Table of Contents. Default: %default"
 msgstr ""
+"Nếu số chương được tìm ra nhỏ hơn ngưỡng này, các liên kết sẽ được thêm vào "
+"Mục Lục. Mặc định: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:227
 msgid ""
@@ -1494,6 +1498,9 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
 msgstr ""
+"Số liên kết được chèn vào Mục Lục. Gán 0 để vô hiệu hóa. Mặc định: %default. "
+"Liên kết chỉ được thêm vào Mục Lục nếu số chương được tìm ra nhỏ hơn ngưỡng "
+"bạn đã chọn."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:235
 msgid ""
@@ -1518,6 +1525,10 @@ msgid ""
 "chapters. A value of \"none\" will disable chapter marking and a value of "
 "\"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
+"Chỉ ra cách đánh dấu chương sách. Giá trị \"pagebreak\" sẽ chèn ngắt trang "
+"trước mỗi chương. Giá trị \"rule\" sẽ chèn một đường kẻ trước mỗi chương. "
+"Giá trị \"none\" vô hiệu hóa việc đánh dấu chương, giá trị \"both\" chèn cả "
+"ngắt trang và đường kẻ để đánh dấu chương."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:270
 msgid ""
@@ -1559,6 +1570,10 @@ msgid ""
 "\"original\" (the default) does not change justification in the source file. "
 "Note that only some output formats support justification."
 msgstr ""
+"Thay đổi cách canh lề chữ. Giá trị \"left\": canh lề trái. Giá trị "
+"\"justify\": canh đều. Giá trị \"original\" (mặc định) giữ nguyên lề tài "
+"liệu trong tập tin đầu vào. Chú ý: Chức năng canh lề chỉ có trong một vài "
+"định dạng xuất."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:316
 msgid ""
@@ -1566,6 +1581,9 @@ msgid ""
 "1.5em. Spacing removal will not work if the source file does not use "
 "paragraphs (<p> or <div> tags)."
 msgstr ""
+"Xóa khoảng trắng giữa các đoạn tài liệu. Đồng thời thụt vào đầu đoạn một "
+"khoảng 1.5em. Nếu tập tin đầu vào không sử dụng đoạn (thẻ <p> hoặc <div>), "
+"phần mềm không thể xóa khoảng trắng."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:323
 msgid ""
@@ -1573,30 +1591,41 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
+"Khi calibre xóa khoảng trắng giữa các đoạn, nó sẽ tự động đặt một khoảng "
+"thụt vào đầu các đoạn để chúng có thể được nhận biết dễ dàng. Lựa chọn này "
+"cho phép điều chỉnh khoảng cách thụt vào đó."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:330
 msgid ""
 "Use the cover detected from the source file in preference to the specified "
 "cover."
 msgstr ""
+"Ưu tiên sử dụng bìa sách được tìm ra từ tập tin đầu vào hơn là bìa đã được "
+"định trước."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:336
 msgid ""
 "Insert a blank line between paragraphs. Will not work if the source file "
 "does not use paragraphs (<p> or <div> tags)."
 msgstr ""
+"Chèn một dòng trắng giữa các đoạn tài liệu. Không có tác dụng nếu tập tin "
+"đầu vào không sử dụng đoạn (thẻ <p> hoặc <div>)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:343
 msgid ""
 "Remove the first image from the input ebook. Useful if the first image in "
 "the source file is a cover and you are specifying an external cover."
 msgstr ""
+"Xóa ảnh đầu tiên trong tập tin đầu vào. Hữu ích nếu ảnh đó là bìa sách và "
+"bạn muốn sử dụng một bìa từ nguồn khác."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
 msgid ""
 "Insert the book metadata at the start of the book. This is useful if your "
 "ebook reader does not support displaying/searching metadata directly."
 msgstr ""
+"Chèn thông tin mô tà vào đầu cuốn sách. Hữu ích nếu thiết bị đọc sách của "
+"bạn không có chức năng hiển thị/tìm kiếm thông tin mô tà trực tiếp."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:359
 msgid ""
@@ -1625,6 +1654,8 @@ msgid ""
 "Read metadata from the specified OPF file. Metadata read from this file will "
 "override any metadata in the source file."
 msgstr ""
+"Đọc thông tin mô tả từ tập tin OPF được chỉ định. Thông tin mô tả được đọc "
+"từ tập tin này sẽ ghi đè thông tin mô tả trong tập tin đầu vào."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:401
 msgid ""
@@ -1654,6 +1685,7 @@ msgstr "Gán Tựa đề"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:432
 msgid "Set the authors. Multiple authors should be separated by ampersands."
 msgstr ""
+"Gán tác giả. Tên các tác giả phải được ngăn cách bằng ký hiệu và (&)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:437
 msgid "The version of the title to be used for sorting. "
@@ -6272,7 +6304,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:119
 msgid "&Password:"
-msgstr ""
+msgstr "&Mật khẩu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
