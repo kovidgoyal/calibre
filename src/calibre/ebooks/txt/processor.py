@@ -77,7 +77,7 @@ def separate_paragraphs_print_formatted(txt):
 
 def preserve_spaces(txt):
     txt = txt.replace(' ', '&nbsp;')
-    txt = txt.replace('\t', '&#09;')
+    txt = txt.replace('\t', '&nbsp;&nbsp;&nbsp;&nbsp;')
     return txt
 
 def opf_writer(path, opf_name, manifest, spine, mi):

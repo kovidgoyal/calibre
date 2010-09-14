@@ -155,6 +155,7 @@ class CoverFlowMixin(object):
             self.cb_splitter.action_toggle.triggered.connect(self.toggle_cover_browser)
             if CoverFlow is not None:
                 self.cover_flow.stop.connect(self.hide_cover_browser)
+            self.cover_flow.setVisible(False)
         else:
             self.cb_splitter.insertWidget(self.cb_splitter.side_index, self.cover_flow)
             if CoverFlow is not None:

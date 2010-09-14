@@ -138,6 +138,7 @@ class CSSFlattener(object):
                     float(self.context.margin_left))
             bs.append('margin-right : %fpt'%\
                     float(self.context.margin_right))
+            bs.extend(['padding-left: 0pt', 'padding-right: 0pt'])
             if self.context.change_justification != 'original':
                 bs.append('text-align: '+ self.context.change_justification)
             body.set('style', '; '.join(bs))

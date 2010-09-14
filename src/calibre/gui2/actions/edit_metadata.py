@@ -209,8 +209,9 @@ class EditMetadataAction(InterfaceAction):
         dest_id, src_books, src_ids = self.books_to_merge(rows)
         if safe_merge:
             if not confirm('<p>'+_(
-                'All book formats and metadata from the selected books '
-                'will be added to the <b>first selected book.</b><br><br> '
+                'Book formats and metadata from the selected books '
+                'will be added to the <b>first selected book.</b> '
+                'ISBN will <i>not</i> be merged.<br><br> '
                 'The second and subsequently selected books will not '
                 'be deleted or changed.<br><br>'
                 'Please confirm you want to proceed.')
@@ -220,8 +221,9 @@ class EditMetadataAction(InterfaceAction):
             self.merge_metadata(dest_id, src_ids)
         else:
             if not confirm('<p>'+_(
-                'All book formats and metadata from the selected books will be merged '
-                'into the <b>first selected book</b>.<br><br>'
+                'Book formats and metadata from the selected books will be merged '
+                'into the <b>first selected book</b>. '
+                'ISBN will <i>not</i> be merged.<br><br>'
                 'After merger the second and '
                 'subsequently selected books will be <b>deleted</b>. <br><br>'
                 'All book formats of the first selected book will be kept '
