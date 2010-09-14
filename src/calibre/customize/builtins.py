@@ -459,7 +459,7 @@ from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
-from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS
+from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, SOVOS
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, GEMEI
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
@@ -557,6 +557,7 @@ plugins += [
     TECLAST_K3,
     NEWSMY,
     IPAPYRUS,
+    SOVOS,
     EDGE,
     SNE,
     ALEX,
