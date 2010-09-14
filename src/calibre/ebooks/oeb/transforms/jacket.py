@@ -81,6 +81,7 @@ class Jacket(object):
             if XPath(JACKET_XPATH)(x.data):
                 self.remove_images(x, limit=sys.maxint)
                 self.oeb.manifest.remove(x)
+                self.log('Removed existing jacket')
                 break
 
     def __call__(self, oeb, opts, metadata):
