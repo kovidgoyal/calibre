@@ -178,7 +178,7 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="4">
+   <item row="10" column="0" colspan="4">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Extra &amp;CSS</string>
@@ -211,6 +211,13 @@
     <widget class="QCheckBox" name="opt_keep_ligatures">
      <property name="text">
       <string>Keep &amp;ligatures</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QCheckBox" name="opt_smarten_punctuation">
+     <property name="text">
+      <string>Smarten &amp;punctuation</string>
      </property>
     </widget>
    </item>

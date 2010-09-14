@@ -221,7 +221,7 @@ class HTMLPreProcessor(object):
                   (re.compile(u'˛\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Ą'),
                   (re.compile(u'˛\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'ę'),
                   (re.compile(u'˛\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'Ę'),
-                  
+
                   # ˙
                   (re.compile(u'˙\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ż'),
                   (re.compile(u'˙\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ż'),
@@ -244,14 +244,14 @@ class HTMLPreProcessor(object):
                   (re.compile(r'<br>\s*(?P<chap>(<[ibu]>){0,2}\s*.?(Introduction|Chapter|Epilogue|Prologue|Book|Part|Dedication|Volume|Preface|Acknowledgments)\s*([\d\w-]+\s*){0,3}\s*(</[ibu]>){0,2})\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<br>)?', re.IGNORECASE), chap_head),
                   # Cover the case where every letter in a chapter title is separated by a space
                   (re.compile(r'<br>\s*(?P<chap>([A-Z]\s+){4,}\s*([\d\w-]+\s*){0,3}\s*)\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*(<br>))?'), chap_head),
-                  
+
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
                   # Clean up spaces
                   (re.compile(u'(?<=[\.,;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
                   # Add space before and after italics
                   (re.compile(u'(?<!“)<i>'), lambda match: ' <i>'),
-                  (re.compile(r'</i>(?=\w)'), lambda match: '</i> '),                            
+                  (re.compile(r'</i>(?=\w)'), lambda match: '</i> '),
                  ]
 
     # Fix Book Designer markup
@@ -328,7 +328,7 @@ class HTMLPreProcessor(object):
                 import traceback
                 print 'Failed to parse remove_footer regexp'
                 traceback.print_exc()
-      
+
         # unwrap hyphenation - moved here so it's executed after header/footer removal
         if is_pdftohtml:
             # unwrap visible dashes and hyphens - don't delete they are often hyphens for
@@ -338,13 +338,13 @@ class HTMLPreProcessor(object):
             end_rules.append((re.compile(u'[­](\s*<p>)+\s*(?=[[a-z\d])'), lambda match: ''))
             # unwrap/delete soft hyphens with formatting
             end_rules.append((re.compile(u'[­]\s*(</(i|u|b)>)+(\s*<p>)+\s*(<(i|u|b)>)+\s*(?=[[a-z\d])'), lambda match: ''))
-        
-        # Make the more aggressive chapter marking regex optional with the preprocess option to 
+
+        # Make the more aggressive chapter marking regex optional with the preprocess option to
         # reduce false positives and move after header/footer removal
         if getattr(self.extra_opts, 'preprocess_html', None):
             if is_pdftohtml:
                 end_rules.append((re.compile(r'<p>\s*(?P<chap>(<[ibu]>){0,2}\s*([A-Z \'"!]{3,})\s*([\dA-Z:]+\s){0,4}\s*(</[ibu]>){0,2})\s*<p>\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<p>)?'), chap_head),)
-                
+
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
             length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'))
             if length:
@@ -401,5 +401,14 @@ class HTMLPreProcessor(object):
         if self.plugin_preprocess:
             html = self.input_plugin_preprocess(html)
 
+        if getattr(self.extra_opts, 'smarten_punctuation', False):
+            html = self.smarten_punctuation(html)
+
         return html
+
+    def smarten_punctuation(self, html):
+        from calibre.utils.smartypants import smartyPants
+        from calibre.ebooks.chardet import substitute_entites
+        html = smartyPants(html)
+        return substitute_entites(html)
 
