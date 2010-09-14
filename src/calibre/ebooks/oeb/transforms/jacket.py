@@ -181,7 +181,7 @@ class Jacket(object):
 
             return soup.renderContents()
 
-        id, href = self.oeb.manifest.generate('jacket', 'jacket.xhtml')
+        id, href = self.oeb.manifest.generate('calibre_jacket', 'jacket.xhtml')
         from calibre.ebooks.oeb.base import RECOVER_PARSER, XPath
 
         try:

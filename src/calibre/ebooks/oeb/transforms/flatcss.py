@@ -289,7 +289,7 @@ class CSSFlattener(object):
 
         if (self.context.remove_paragraph_spacing or
                 self.context.insert_blank_line) and tag in ('p', 'div'):
-            if item_id != 'jacket' or self.context.output_profile.name == 'Kindle':
+            if item_id != 'calibre_jacket' or self.context.output_profile.name == 'Kindle':
                 for prop in ('margin', 'padding', 'border'):
                     for edge in ('top', 'bottom'):
                         cssdict['%s-%s'%(prop, edge)] = '0pt'
