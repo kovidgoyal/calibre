@@ -93,7 +93,7 @@ class Jacket(object):
 
 # Render Jacket {{{
 
-def get_rating(rating):
+def get_rating(rating, rchar):
     ans = ''
     try:
         num = float(rating)/2
@@ -104,7 +104,7 @@ def get_rating(rating):
     if num < 1:
         return ans
 
-    ans = u'\u2605' * int(num)
+    ans = rchar * int(num)
     return ans
 
 
@@ -129,7 +129,7 @@ def render_jacket(mi, output_profile,
     except:
         pubdate = ''
 
-    rating = get_rating(mi.rating)
+    rating = get_rating(mi.rating, output_profile.ratings_char)
 
     tags = mi.tags if mi.tags else alt_tags
     if tags:
