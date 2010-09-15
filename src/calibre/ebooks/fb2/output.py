@@ -28,6 +28,9 @@ class FB2Output(OutputFormatPlugin):
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from calibre.ebooks.oeb.transforms.jacket import linearize_jacket
+        linearize_jacket(oeb_book)
+
         fb2mlizer = FB2MLizer(log)
         fb2_content = fb2mlizer.extract_content(oeb_book, opts)
 

@@ -604,7 +604,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return identical_book_ids
 
     def has_cover(self, index, index_is_id=False):
-        id = index if  index_is_id else self.id(index)
+        id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         return os.access(path, os.R_OK)
 

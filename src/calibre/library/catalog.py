@@ -2523,6 +2523,10 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Fetch the database as a dictionary
             self.booksBySeries = self.plugin.search_sort_db(self.db, self.opts)
+            if not self.booksBySeries:
+                self.opts.generate_series = False
+                self.opts.log(" no series found in selected books, cancelling series generation")
+                return
 
             friendly_name = "Series"
 

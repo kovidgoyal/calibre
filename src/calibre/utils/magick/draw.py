@@ -5,12 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 
 from calibre.utils.magick import Image, DrawingWand, create_canvas
 from calibre.constants import __appname__, __version__
 from calibre import fit_image
 
-def save_cover_data_to(data, path, bgcolor='white', resize_to=None):
+def save_cover_data_to(data, path, bgcolor='white', resize_to=None,
+        return_data=False):
     '''
     Saves image in data to path, in the format specified by the path
     extension. Composes the image onto a blank canvas so as to
@@ -22,6 +24,8 @@ def save_cover_data_to(data, path, bgcolor='white', resize_to=None):
         img.size = (resize_to[0], resize_to[1])
     canvas = create_canvas(img.size[0], img.size[1], bgcolor)
     canvas.compose(img)
+    if return_data:
+        return canvas.export(os.path.splitext(path)[1][1:])
     canvas.save(path)
 
 def thumbnail(data, width=120, height=120, bgcolor='white', fmt='jpg'):
