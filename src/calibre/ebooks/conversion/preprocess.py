@@ -17,7 +17,6 @@ convert_entities = functools.partial(entity_to_unicode,
         result_exceptions = {
             u'<' : '&lt;',
             u'>' : '&gt;',
-            u"'" : '&apos;',
             u'&' : '&amp;',
         })
 _span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
