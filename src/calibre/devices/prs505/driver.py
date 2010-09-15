@@ -35,7 +35,7 @@ class PRS505(USBMS):
 
     VENDOR_NAME        = 'SONY'
     WINDOWS_MAIN_MEM   = re.compile(
-            r'(PRS-(505|300|500))|'
+            r'(PRS-(505|500))|'
             r'(PRS-((700[#/])|((6|9|3)(0|5)0&)))'
             )
     WINDOWS_CARD_A_MEM = re.compile(
