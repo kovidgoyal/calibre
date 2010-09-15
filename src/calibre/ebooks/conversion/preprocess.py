@@ -75,6 +75,8 @@ def line_length(format, raw, percent):
         linere = re.compile('(?<=<p).*?(?=</p>)', re.DOTALL)
     elif format == 'pdf':
         linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
+    elif format == 'spanned_html':
+        linere = re.compile('(?<=<span).*?(?=</span>)', re.DOTALL)
     lines = linere.findall(raw)
 
     lengths = []
@@ -219,35 +221,34 @@ class HTMLPreProcessor(object):
                   (re.compile(u'˛\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Ą'),
                   (re.compile(u'˛\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'ę'),
                   (re.compile(u'˛\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'Ę'),
-                  
+
                   # ˙
                   (re.compile(u'˙\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ż'),
                   (re.compile(u'˙\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ż'),
-                  
+
+                  # If pdf printed from a browser then the header/footer has a reliable pattern
+                  (re.compile(r'((?<=</a>)\s*file:////?[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
+
+                  # Center separator lines
+                  (re.compile(u'<br>\s*(?P<break>([*#•]+\s*)+)\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group(1) + '</p>'),
 
                   # Remove page links
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
                   # Remove <hr> tags
-                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br />'),
-                  # Replace <br><br> with <p>
-                  (re.compile(r'<br.*?>\s*<br.*?>', re.IGNORECASE), lambda match: '<p>'),
-
-                  # Remove hyphenation
-                  (re.compile(r'-<br.*?>\n\r?'), lambda match: ''),
+                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br>'),
 
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
 
                   # Detect Chapters to match default XPATH in GUI
-                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?(.?Chapter|Epilogue|Prologue|Book|Part)\s*([\d\w-]+(\s\w+)?)?(</(i|b)>(</(i|b)>)?)?)</?(br|p)[^>]*>\s*(?P<title>(<(i|b)>)?\s*\w+(\s*\w+)?\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
-                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>([A-Z \'"!]{5,})\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
+                  (re.compile(r'<br>\s*(?P<chap>(<[ibu]>){0,2}\s*.?(Introduction|Chapter|Epilogue|Prologue|Book|Part|Dedication|Volume|Preface|Acknowledgments)\s*([\d\w-]+\s*){0,3}\s*(</[ibu]>){0,2})\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<br>)?', re.IGNORECASE), chap_head),
+                  # Cover the case where every letter in a chapter title is separated by a space
+                  (re.compile(r'<br>\s*(?P<chap>([A-Z]\s+){4,}\s*([\d\w-]+\s*){0,3}\s*)\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*(<br>))?'), chap_head),
 
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
                   # Clean up spaces
                   (re.compile(u'(?<=[\.,;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
-                  # Connect paragraphs split by -
-                  (re.compile(u'(?<=[^\s][-–])[\s]*(</p>)*[\s]*(<p>)*\s*(?=[^\s])'), lambda match: ''),
                   # Add space before and after italics
                   (re.compile(u'(?<!“)<i>'), lambda match: ' <i>'),
                   (re.compile(r'</i>(?=\w)'), lambda match: '</i> '),
@@ -328,12 +329,29 @@ class HTMLPreProcessor(object):
                 print 'Failed to parse remove_footer regexp'
                 traceback.print_exc()
 
+        # unwrap hyphenation - moved here so it's executed after header/footer removal
+        if is_pdftohtml:
+            # unwrap visible dashes and hyphens - don't delete they are often hyphens for
+            # for compound words, formatting, etc
+            end_rules.append((re.compile(u'(?<=[-–—])\s*<p>\s*(?=[[a-z\d])'), lambda match: ''))
+            # unwrap/delete soft hyphens
+            end_rules.append((re.compile(u'[­](\s*<p>)+\s*(?=[[a-z\d])'), lambda match: ''))
+            # unwrap/delete soft hyphens with formatting
+            end_rules.append((re.compile(u'[­]\s*(</(i|u|b)>)+(\s*<p>)+\s*(<(i|u|b)>)+\s*(?=[[a-z\d])'), lambda match: ''))
+
+        # Make the more aggressive chapter marking regex optional with the preprocess option to
+        # reduce false positives and move after header/footer removal
+        if getattr(self.extra_opts, 'preprocess_html', None):
+            if is_pdftohtml:
+                end_rules.append((re.compile(r'<p>\s*(?P<chap>(<[ibu]>){0,2}\s*([A-Z \'"!]{3,})\s*([\dA-Z:]+\s){0,4}\s*(</[ibu]>){0,2})\s*<p>\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<p>)?'), chap_head),)
+
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
             length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'))
             if length:
+                # print "The pdf line length returned is " + str(length)
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(r'(?<=.{%i}[a-z\.,;:)\-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(r'(?<=.{%i}[a-z,;:)\-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + start_rules:
@@ -383,5 +401,14 @@ class HTMLPreProcessor(object):
         if self.plugin_preprocess:
             html = self.input_plugin_preprocess(html)
 
+        if getattr(self.extra_opts, 'smarten_punctuation', False):
+            html = self.smarten_punctuation(html)
+
         return html
+
+    def smarten_punctuation(self, html):
+        from calibre.utils.smartypants import smartyPants
+        from calibre.ebooks.chardet import substitute_entites
+        html = smartyPants(html)
+        return substitute_entites(html)
 

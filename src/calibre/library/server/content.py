@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, cStringIO, operator
+import re, os, cStringIO
 
 import cherrypy
 try:
@@ -16,7 +16,15 @@ except ImportError:
 
 from calibre import fit_image, guess_type
 from calibre.utils.date import fromtimestamp
-from calibre.ebooks.metadata import title_sort
+from calibre.library.caches import SortKeyGenerator
+
+class CSSortKeyGenerator(SortKeyGenerator):
+
+    def __init__(self, fields, fm):
+        SortKeyGenerator.__init__(self, fields, fm, None)
+
+    def __call__(self, record):
+        return self.itervals(record).next()
 
 class ContentServer(object):
 
@@ -47,32 +55,12 @@ class ContentServer(object):
 
 
     def sort(self, items, field, order):
-        field = field.lower().strip()
-        if field == 'author':
-            field = 'authors'
-        if field == 'date':
-            field = 'timestamp'
+        field = self.db.data.sanitize_sort_field_name(field)
         if field not in ('title', 'authors', 'rating', 'timestamp', 'tags', 'size', 'series'):
             raise cherrypy.HTTPError(400, '%s is not a valid sort field'%field)
-        cmpf = cmp if field in ('rating', 'size', 'timestamp') else \
-                lambda x, y: cmp(x.lower() if x else '', y.lower() if y else '')
-        if field == 'series':
-            items.sort(cmp=self.seriescmp, reverse=not order)
-        else:
-            lookup = 'sort' if field == 'title' else field
-            lookup = 'author_sort' if field == 'authors' else field
-            field = self.db.FIELD_MAP[lookup]
-            getter = operator.itemgetter(field)
-            items.sort(cmp=lambda x, y: cmpf(getter(x), getter(y)), reverse=not order)
+        keyg = CSSortKeyGenerator([(field, order)], self.db.field_metadata)
+        items.sort(key=keyg, reverse=not order)
 
-    def seriescmp(self, x, y):
-        si = self.db.FIELD_MAP['series']
-        try:
-            ans = cmp(title_sort(x[si].lower()), title_sort(y[si].lower()))
-        except AttributeError: # Some entries may be None
-            ans = cmp(x[si], y[si])
-        if ans != 0: return ans
-        return cmp(x[self.db.FIELD_MAP['series_index']], y[self.db.FIELD_MAP['series_index']])
     # }}}
 
 

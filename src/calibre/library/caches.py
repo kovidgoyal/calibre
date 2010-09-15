@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, itertools, functools
+import re, itertools
 from itertools import repeat
 from datetime import timedelta
 from threading import Thread, RLock
@@ -584,39 +584,7 @@ class ResultCache(SearchQueryParser):
 
     # Sorting functions {{{
 
-    def seriescmp(self, sidx, siidx, x, y, library_order=None):
-        try:
-            if library_order:
-                ans = cmp(title_sort(self._data[x][sidx].lower()),
-                                title_sort(self._data[y][sidx].lower()))
-            else:
-                ans = cmp(self._data[x][sidx].lower(),
-                                                self._data[y][sidx].lower())
-        except AttributeError: # Some entries may be None
-            ans = cmp(self._data[x][sidx], self._data[y][sidx])
-        if ans != 0: return ans
-        return cmp(self._data[x][siidx], self._data[y][siidx])
-
-    def cmp(self, loc, x, y, asstr=True, subsort=False):
-        try:
-            ans = cmp(self._data[x][loc].lower(), self._data[y][loc].lower()) if \
-                asstr else cmp(self._data[x][loc], self._data[y][loc])
-        except AttributeError: # Some entries may be None
-            ans = cmp(self._data[x][loc], self._data[y][loc])
-        except TypeError: ## raised when a datetime is None
-            x = self._data[x][loc]
-            if x is None:
-                x = UNDEFINED_DATE
-            y = self._data[y][loc]
-            if y is None:
-                y = UNDEFINED_DATE
-            return cmp(x, y)
-        if subsort and ans == 0:
-            idx = self.FIELD_MAP['sort']
-            return cmp(self._data[x][idx].lower(), self._data[y][idx].lower())
-        return ans
-
-    def sanitize_field_name(self, field):
+    def sanitize_sort_field_name(self, field):
         field = field.lower().strip()
         if field not in self.field_metadata.iterkeys():
             if field in ('author', 'tag', 'comment'):
@@ -627,38 +595,10 @@ class ResultCache(SearchQueryParser):
         return field
 
     def sort(self, field, ascending, subsort=False):
-        field = self.sanitize_field_name(field)
-        as_string = field not in ('size', 'rating', 'timestamp')
-
-        if self.first_sort:
-            subsort = True
-            self.first_sort = False
-        if self.field_metadata[field]['is_custom']:
-            if self.field_metadata[field]['datatype'] == 'series':
-                fcmp = functools.partial(self.seriescmp,
-                    self.field_metadata[field]['rec_index'],
-                    self.field_metadata.cc_series_index_column_for(field),
-                    library_order=tweaks['title_series_sorting'] == 'library_order')
-            else:
-                as_string = self.field_metadata[field]['datatype'] in ('comments', 'text')
-                field = self.field_metadata[field]['colnum']
-                fcmp = functools.partial(self.cmp, self.FIELD_MAP[field],
-                                     subsort=subsort, asstr=as_string)
-        elif field == 'series':
-            fcmp = functools.partial(self.seriescmp, self.FIELD_MAP['series'],
-                self.FIELD_MAP['series_index'],
-                library_order=tweaks['title_series_sorting'] == 'library_order')
-        else:
-            fcmp = functools.partial(self.cmp, self.field_metadata[field]['rec_index'],
-                                     subsort=subsort, asstr=as_string)
-        self._map.sort(cmp=fcmp, reverse=not ascending)
-        tmap = list(itertools.repeat(False, len(self._data)))
-        for x in self._map_filtered:
-            tmap[x] = True
-        self._map_filtered = [x for x in self._map if tmap[x]]
+        self.multisort([(field, ascending)])
 
     def multisort(self, fields=[], subsort=False):
-        fields = [(self.sanitize_field_name(x), bool(y)) for x, y in fields]
+        fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
         keys = self.field_metadata.field_keys()
         fields = [x for x in fields if x[0] in keys]
         if subsort and 'sort' not in [x[0] for x in fields]:
@@ -671,6 +611,7 @@ class ResultCache(SearchQueryParser):
             self._map.sort(key=keyg, reverse=not fields[0][1])
         else:
             self._map.sort(key=keyg)
+
         tmap = list(itertools.repeat(False, len(self._data)))
         for x in self._map_filtered:
             tmap[x] = True
@@ -732,88 +673,4 @@ class SortKeyGenerator(object):
 
     # }}}
 
-
-if __name__ == '__main__':
-    # Testing.timing for new multi-sort {{{
-    import time
-
-    from calibre.library import db
-    db = db()
-
-    db.refresh()
-
-    fields = db.field_metadata.field_keys()
-
-    print fields
-
-
-    def do_single_sort(meth, field, order):
-        if meth == 'old':
-            db.data.sort(field, order)
-        else:
-            db.data.multisort([(field, order)])
-
-    def test_single_sort(field):
-        for meth in ('old', 'new'):
-            ttime = 0
-            NUM = 10
-            asc = desc = None
-            for i in range(NUM):
-                db.data.sort('id', False)
-                st = time.time()
-                do_single_sort(meth, field, True)
-                asc = db.data._map
-                do_single_sort(meth, field, False)
-                desc = db.data._map
-                ttime += time.time() - st
-            yield (ttime/NUM, asc, desc)
-
-
-    print 'Running single sort differentials'
-    for field in fields:
-        if field in ('search', 'id', 'news', 'flags'): continue
-        print '\t', field, db.field_metadata[field]['datatype']
-        old, new = test_single_sort(field)
-        if old[1] != new[1] or old[2] != new[2]:
-            print '\t\t', 'Sort failure!'
-            raise SystemExit(1)
-        print '\t\t', 'Old:', old[0], 'New:', new[0], 'Ratio: %.2f'%(new[0]/old[0])
-
-    def do_multi_sort(meth, ms):
-        if meth == 'new':
-            db.data.multisort(ms)
-        else:
-            for s in reversed(ms):
-                db.data.sort(*s)
-
-    def test_multi_sort(ms):
-        for meth in ('old', 'new'):
-            ttime = 0
-            NUM = 10
-            for i in range(NUM):
-                db.data.sort('id', False)
-                st = time.time()
-                do_multi_sort(meth, ms)
-                ttime += time.time() - st
-            yield (ttime/NUM, db.data._map)
-
-    print 'Running multi-sort differentials'
-
-    for ms in [
-            [('timestamp', False), ('author', True), ('title', False)],
-            [('size', True), ('tags', True), ('author', False)],
-            [('series', False), ('title', True)],
-            [('size', True), ('tags', True), ('author', False), ('pubdate',
-                True), ('tags', False), ('formats', False), ('uuid', True)],
-
-            ]:
-        print '\t', ms
-        db.data.sort('id', False)
-        old, new = test_multi_sort(ms)
-        if old[1] != new[1]:
-            print '\t\t', 'Sort failure!'
-            raise SystemExit()
-        print '\t\t', 'Old:', old[0], 'New:', new[0], 'Ratio: %.2f'%(new[0]/old[0])
-
-    # }}}
 

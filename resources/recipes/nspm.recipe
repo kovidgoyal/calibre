@@ -6,6 +6,7 @@ nspm.rs
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import NavigableString
 
 class Nspm(BasicNewsRecipe):
     title                 = 'Nova srpska politicka misao'
@@ -21,6 +22,7 @@ class Nspm(BasicNewsRecipe):
     encoding              = 'utf-8'
     language              = 'sr'
     delay                 = 2
+    remove_empty_feeds    = True
     publication_type      = 'magazine'
     masthead_url          = 'http://www.nspm.rs/templates/jsn_epic_pro/images/logol.jpg'
     extra_css             = """ @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
@@ -45,8 +47,9 @@ class Nspm(BasicNewsRecipe):
                            dict(name=['link','object','embed','script','meta','base','iframe'])
                           ,dict(attrs={'class':'buttonheading'})
                          ]
-    remove_tags_after = dict(attrs={'class':'article_separator'})
-    remove_attributes = ['width','height']
+    remove_tags_before = dict(attrs={'class':'contentheading'})
+    remove_tags_after  = dict(attrs={'class':'article_separator'})
+    remove_attributes  = ['width','height']
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -67,4 +70,8 @@ class Nspm(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for item in soup.body.findAll(style=True):
             del item['style']
+        for item in soup.body.findAll('h1'):
+            nh = NavigableString(item.a.string)
+            item.a.extract()
+            item.insert(0,nh)
         return self.adeify_images(soup)

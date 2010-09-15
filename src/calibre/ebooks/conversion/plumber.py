@@ -362,6 +362,14 @@ OptionRecommendation(name='preprocess_html',
             )
         ),
 
+OptionRecommendation(name='smarten_punctuation',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Convert plain quotes, dashes and ellipsis to their '
+            'typographically correct equivalents. For details, see '
+            'http://daringfireball.net/projects/smartypants'
+            )
+        ),
+
 OptionRecommendation(name='remove_header',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Use a regular expression to try and remove the header.'
