@@ -561,7 +561,7 @@ class KindleOutput(OutputProfile):
 
     @classmethod
     def tags_to_string(cls, tags):
-        return u'%s <br/><span style="color: white">%s</span>' % (', '.join(tags),
+        return u'%s <br/><span style="color:white">%s</span>' % (', '.join(tags),
                 'ttt '.join(tags)+'ttt ')
 
 class KindleDXOutput(OutputProfile):
