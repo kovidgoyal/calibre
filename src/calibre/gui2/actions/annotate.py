@@ -18,6 +18,7 @@ class FetchAnnotationsAction(InterfaceAction):
 
     name = 'Fetch Annotations'
     action_spec = (_('Fetch annotations (experimental)'), None, None, None)
+    action_type = 'current'
 
     def genesis(self):
         pass

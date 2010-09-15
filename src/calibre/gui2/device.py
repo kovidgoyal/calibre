@@ -627,12 +627,11 @@ class DeviceMixin(object): # {{{
     def connect_to_folder(self):
         dir = choose_dir(self, 'Select Device Folder',
                              _('Select folder to open as device'))
-        kls = FOLDER_DEVICE
-        self.device_manager.mount_device(kls=kls, kind='folder', path=dir)
+        if dir is not None:
+            self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder', path=dir)
 
     def connect_to_itunes(self):
-        kls = ITUNES_ASYNC
-        self.device_manager.mount_device(kls=kls, kind='itunes', path=None)
+        self.device_manager.mount_device(kls=ITUNES_ASYNC, kind='itunes', path=None)
 
     # disconnect from both folder and itunes devices
     def disconnect_mounted_device(self):
