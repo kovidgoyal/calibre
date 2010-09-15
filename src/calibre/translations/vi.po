@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-10 19:51+0000\n"
-"PO-Revision-Date: 2010-09-13 13:43+0000\n"
+"PO-Revision-Date: 2010-09-14 13:10+0000\n"
 "Last-Translator: Alice Joseph <Unknown>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-14 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-09-15 04:57+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1363,7 +1363,7 @@ msgstr "Tuỳ chọn để gán thông tin mô tả cho tập tin xuất"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:158
 msgid "Options to help with debugging the conversion"
-msgstr "Tùy chọn để giúp chỉnh lỗi cho việc chuyển đổi"
+msgstr "Tùy chọn giúp gỡ lỗi cho việc chuyển đổi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"
@@ -1697,17 +1697,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:445
 msgid "Set the cover to the specified file or URL"
-msgstr ""
+msgstr "Gán bìa sách từ tập tin hoặc URL được chỉ định"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:449
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
 msgid "Set the ebook description."
-msgstr ""
+msgstr "Gán mô tả"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:453
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:56
 msgid "Set the ebook publisher."
-msgstr ""
+msgstr "Gán nhà xuất bản"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:457
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:60
@@ -1717,22 +1717,22 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:461
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:62
 msgid "Set the index of the book in this series."
-msgstr ""
+msgstr "Gán thứ tự trong bộ sách"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:465
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:64
 msgid "Set the rating. Should be a number between 1 and 5."
-msgstr ""
+msgstr "Gán điểm số. Phài là một số từ 1 đến 5"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:469
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:66
 msgid "Set the ISBN of the book."
-msgstr "Gán số ISBN"
+msgstr "Gán ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:473
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:68
 msgid "Set the tags for the book. Should be a comma separated list."
-msgstr ""
+msgstr "Gán thẻ cho sách. Giữa các thẻ phải có dấu phẩy."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:477
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:70
@@ -1746,15 +1746,15 @@ msgstr "Gán ngôn ngữ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:485
 msgid "Set the publication date."
-msgstr ""
+msgstr "Gán ngày xuất bản"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:489
 msgid "Set the book timestamp (used by the date column in calibre)."
-msgstr ""
+msgstr "Gán mốc thời gian (được sử dụng cho cột ngày trong calibre)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:589
 msgid "Could not find an ebook inside the archive"
-msgstr ""
+msgstr "Không tìm thấy sách điện tử trong tập tin nén"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:647
 msgid "Values of series index and rating must be numbers. Ignoring"
@@ -1766,15 +1766,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:809
 msgid "Converting input to HTML..."
-msgstr ""
+msgstr "Đang chuyển đổi tập tin đầu vào sang HTML..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:836
 msgid "Running transforms on ebook..."
-msgstr ""
+msgstr "Đang thay đổi sách điện tử"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:923
 msgid "Creating"
-msgstr ""
+msgstr "Đang tạo"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
@@ -1809,7 +1809,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
-msgstr ""
+msgstr "Bạn phải chỉ định một tập tin ePub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
@@ -1830,6 +1830,8 @@ msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
 msgstr ""
+"Trích xuất nội dung của tập tin EPUB được tạo vào thư mục chỉ định. Thư mục "
+"sẽ được làm trống trước, vì vậy hãy cẩn thận."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:62
 msgid ""
@@ -1839,6 +1841,11 @@ msgid ""
 "if your source file contains a very large number of page breaks, you should "
 "turn off splitting on page breaks."
 msgstr ""
+"Tắt chia tách ở ngắt trang. Thông thường, các tập tin đầu vào sẽ được tự "
+"động chia nhỏ ở mọi ngắt trang thành hai tập tin. Điều này tạo ra một sách "
+"điện tử có thể được phân tích nhanh hơn và sử dụng tài nguyên ít hơn. Tuy "
+"nhiên, việc chia tách làm chậm quá trình chuyển đổi. Nếu tập tin nguồn của "
+"bạn có chứa một số lượng rất lớn các ngắt trang, bạn nên tắt chức năng này."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:73
 msgid ""
@@ -1846,6 +1853,10 @@ msgid ""
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
 "is the size required for Adobe Digital Editions."
 msgstr ""
+"Chia tách tất cả các tập tin HTML lớn hơn kích thước này (đơn vị KB). Điều "
+"này là cần thiết vì hầu hết thiết bị đọc sách EPUB không thể xử lý kích "
+"thước tập tin lớn. Giá trị mặc định %defaultKB là kích thước cần thiết cho "
+"Adobe Digital Editions."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:80
 msgid ""
@@ -1853,6 +1864,9 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
+"Thông thường, nếu các tập tin nguồn không có bìa sách và bạn không chỉ định "
+"trước, một bìa mặc định được tạo ra với tiêu đề, tác giả,...Chọn để vô hiệu "
+"hóa chức năng này."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
@@ -1861,6 +1875,9 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"Không sử dụng SVG cho bìa sách. Chọn nếu EPUB của bạn sẽ được sử dụng trên "
+"một thiết bị không hỗ trợ SVG, như iPhone hay JetBook Lite. Nếu không chọn, "
+"những thiết bị trên sẽ hiển thị bìa như là một trang trắng."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -1873,7 +1890,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:169
 msgid "Start"
-msgstr ""
+msgstr "Bắt đầu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:147
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
@@ -1899,6 +1916,9 @@ msgid ""
 "experimental. It can cause conversion to fail. It can also produce "
 "unexpected output."
 msgstr ""
+"Thử chuyển các chương thành từng phần riêng lẻ. Chú ý: Đây là chức năng thử "
+"nghiệm. Nó có thể làm việc chuyển đổi thất bại hoặc tạo ra tập tin xuất "
+"không như ý muốn."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:249
 msgid ""
@@ -1929,11 +1949,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
-msgstr "Tạo file LIT từ EPUB"
+msgstr "Đang tạo tập tin LIT từ EPUB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:320
 msgid "\tBook Designer file detected."
-msgstr ""
+msgstr "\ttập tin Book Designer được phát hiện."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:322
 msgid "\tParsing HTML..."
@@ -1941,7 +1961,7 @@ msgstr "\tPhân tích mã HTML"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:345
 msgid "\tBaen file detected. Re-parsing..."
-msgstr ""
+msgstr "\ttập tin Baen được phát hiện. Đang phân tích lại..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:361
 msgid "Written preprocessed HTML to "
@@ -1953,43 +1973,45 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:393
 msgid "\tConverting to BBeB..."
-msgstr ""
+msgstr "\tĐang chuyển đổi sang BBeB..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:539
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:552
 msgid "Could not parse file: %s"
-msgstr ""
+msgstr "Không thể phân tích tập tin: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:544
 msgid "%s is an empty file"
-msgstr ""
+msgstr "%s là một tập tin rỗng"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:564
 msgid "Failed to parse link %s %s"
-msgstr ""
+msgstr "Thất bại khi phân tích liên kết %s %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:608
 msgid "Cannot add link %s to TOC"
-msgstr ""
+msgstr "Không thể thêm liên kết %s vào Mục Lục"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:957
 msgid "Unable to process image %s. Error: %s"
-msgstr ""
+msgstr "Không thể xử lý ảnh %s. Lỗi: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1002
 msgid "Unable to process interlaced PNG %s"
-msgstr ""
+msgstr "Không thể xử lý interlaced PNG %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1017
 msgid ""
 "Could not process image: %s\n"
 "%s"
 msgstr ""
+"Không thể xử lý ảnh: %s\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1772
 msgid ""
 "An error occurred while processing a table: %s. Ignoring table markup."
-msgstr ""
+msgstr "Lỗi xảy ra khi xử lý bảng: %s. Bỏ qua đánh dấu bảng."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1774
 msgid ""
@@ -1999,19 +2021,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1796
 msgid "Table has cell that is too large"
-msgstr ""
+msgstr "Bảng có ô quá lớn"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1862
 msgid "Could not read cover image: %s"
-msgstr ""
+msgstr "Không thể đọc ảnh bìa: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1865
 msgid "Cannot read from: %s"
-msgstr ""
+msgstr "Không thể đọc từ: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1994
 msgid "Failed to process opf file"
-msgstr ""
+msgstr "Thất bại khi xử lý tập tin opf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:136
 msgid ""
@@ -2029,7 +2051,7 @@ msgstr "Không lưu trữ hình ảnh và font kèm theo ra đĩa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
 msgid "Parsing LRF..."
-msgstr ""
+msgstr "Đang phân tich LRF..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:161
 msgid "Creating XML..."
@@ -2041,7 +2063,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:267
 msgid "Could not read from thumbnail file:"
-msgstr "Không đọc từ file"
+msgstr "Không thể đọc từ tập tin hình ảnh thu nhỏ:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:287
 msgid ""
@@ -2051,7 +2073,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:288
 msgid "Path to output file"
-msgstr ""
+msgstr "Đường dẫn đến tập tin xuất"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:290
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:114
@@ -2060,11 +2082,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:292
 msgid "Convert LRS to LRS, useful for debugging."
-msgstr ""
+msgstr "Chuyển đổi LRS sang LRS, hữu ích cho việc gỡ lỗi."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:457
 msgid "Invalid LRF file. Could not set metadata."
-msgstr ""
+msgstr "Tập tin LRF không hợp lệ. Không thể gán thông tin mô tả."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:582
 msgid ""
@@ -2079,34 +2101,39 @@ msgstr ""
 msgid ""
 "Path to a txt file containing the comment to be stored in the lrf file."
 msgstr ""
+"Đường dẫn đến tập tin txt chứa lời bình/chú thích bạn muốn lưu trong tập tin "
+"lrf."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:90
 msgid "Enable autorotation of images that are wider than the screen width."
-msgstr ""
+msgstr "Chọn để tự động xoay những ảnh rộng hơn bề ngang màn hình."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:94
 msgid "Set the space between words in pts. Default is %default"
-msgstr ""
+msgstr "Gán khoảng cách giữa các từ theo đơn vị pt. Mặc định là %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:97
 msgid "Add a header to all the pages with title and author."
-msgstr ""
+msgstr "Thêm dòng đầu trang chứa tựa đề và tác giả vào mỗi trang sách."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:100
 msgid ""
 "Set the format of the header. %a is replaced by the author and %t by the "
 "title. Default is %default"
 msgstr ""
+"Gán mẫu cho dòng đầu trang. %a được thay bằng tên tác giả, %t được thay bằng "
+"tựa đề. Mặc định là %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:104
 msgid "Add extra spacing below the header. Default is %default pt."
-msgstr ""
+msgstr "Thêm khoảng trống dưới dòng đầu trang. Mặc định là %default pt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:107
 msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
 msgstr ""
+"Khoảng cách thụt vào đầu đoạn tối thiểu theo đơn vị pt. Mặc định: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:112
 msgid ""
@@ -2136,7 +2163,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:152
 msgid "Comic"
-msgstr ""
+msgstr "Truyện tranh"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:401
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:45
@@ -2149,7 +2176,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:888
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:589
 msgid "Title"
-msgstr "Tựa"
+msgstr "Tựa đề"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:402
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:59
@@ -2180,7 +2207,7 @@ msgstr "Chủ nhiệm"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:319
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1080
 msgid "Comments"
-msgstr "Bình luận"
+msgstr "Lời bình/chú thích"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:413
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:27
@@ -2200,7 +2227,7 @@ msgstr "Thẻ"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1085
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:91
 msgid "Series"
-msgstr "Loạt sách"
+msgstr "Bộ sách"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:416
 msgid "Language"
@@ -2209,7 +2236,7 @@ msgstr "Ngôn ngữ"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:418
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1068
 msgid "Timestamp"
-msgstr "Nhãn thời gian"
+msgstr "Mốc thời gian"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:420
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:63
@@ -2230,10 +2257,12 @@ msgid ""
 "Extract common e-book formats from archives (zip/rar) files. Also try to "
 "autodetect if they are actually cbz/cbr files."
 msgstr ""
+"Trích xuất các định dạng sách điện tử phổ biến từ các tập tin nén (zip/rar). "
+"Đồng thời tự động phát hiện nếu chúng thực chất là các tập tin cbz/cbr."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:20
 msgid "options"
-msgstr "Tùy chọn"
+msgstr "tùy chọn"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:21
 msgid ""
@@ -2248,28 +2277,43 @@ msgid ""
 "some metadata on a file type that does not support it, the metadata will be\n"
 "silently ignored.\n"
 msgstr ""
+"\n"
+"Đọc/Ghi thông tin mô tả từ/cho tập tin sách điện tử\n"
+"Những định dạng có thể đọc thông tin mô tả: %s\n"
+"Những định dạng có thể ghi thông tin mô tả: %s\n"
+"Định dạng khác nhau hỗ trợ các dạng thông tin mô tả khác nhau. Nếu bạn cố "
+"gán\n"
+"những thông tin mô tả cho một định dạng tập tin không hỗ trợ chúng, các "
+"thông tin ấy\n"
+"sẽ bị phần mềm tự động bỏ qua.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:40
 msgid ""
 "Set the authors. Multiple authors should be separated by the & character. "
 "Author names should be in the order Firstname Lastname."
 msgstr ""
+"Gán tác giả. Tên các tác giả phải được ngăn cách bằng ký hiệu & . Tên tác "
+"giả nên được đặt theo thứ tự Tên TênHọ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:44
 msgid ""
 "The version of the title to be used for sorting. If unspecified, and the "
 "title is specified, it will be auto-generated from the title."
 msgstr ""
+"Chuỗi dùng để sắp xếp theo tựa đề. Nếu không được ghi rõ và tựa đề đã được "
+"định trước, chuỗi này sẽ được tự động tạo từ tựa đề."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:48
 msgid ""
 "String to be used when sorting by author. If unspecified, and the author(s) "
 "are specified, it will be auto-generated from the author(s)."
 msgstr ""
+"Chuỗi dùng để sắp xếp theo tác giả. Nếu không được ghi rõ và tên tác giả đã "
+"được định trước, chuỗi này sẽ được tự động tạo từ tên tác giả."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:52
 msgid "Set the cover to the specified file."
-msgstr "Gán Bìa sách theo file được chỉ định"
+msgstr "Gán bìa sách cho tập tin được chỉ định"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:58
 msgid "Set the book category."
@@ -2277,7 +2321,7 @@ msgstr "Gán Danh mục cho sách"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Set the published date."
-msgstr "Gán Ngày xuất bản"
+msgstr "Gán ngày xuất bản."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
@@ -2288,6 +2332,7 @@ msgid ""
 "Specify the name of an OPF file. The metadata will be written to the OPF "
 "file."
 msgstr ""
+"Chỉ ra tên của một tập tin OPF. Thông tin mô tả sẽ được ghi vào tập tin này."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:83
 msgid ""
@@ -2298,7 +2343,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:88
 msgid "Set the BookID in LRF files"
-msgstr ""
+msgstr "Gán BookID trong tập tin LRF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:153
 msgid "No file specified"
@@ -2306,40 +2351,40 @@ msgstr "Chưa chọn file nào cả"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:168
 msgid "Original metadata"
-msgstr ""
+msgstr "Thông tin mô tả ban đầu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:185
 msgid "Changed metadata"
-msgstr ""
+msgstr "Thông tin mô tả được thay đổi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:197
 msgid "OPF created in"
-msgstr ""
+msgstr "OPF được tạo ở"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:203
 msgid "Cover saved to"
-msgstr ""
+msgstr "Bìa sách được lưu vào"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:205
 msgid "No cover found"
-msgstr "Không tìm thấy Bìa sáchM"
+msgstr "Không tìm thấy bìa sách"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:27
 msgid "Cover download"
-msgstr ""
+msgstr "Tải bìa sách"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:79
 msgid "Download covers from openlibrary.org"
-msgstr ""
+msgstr "Tải bìa sách từ openlibrary.org"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:107
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:136
 msgid "ISBN: %s not found"
-msgstr ""
+msgstr "ISBN: %s không tìm thấy"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:117
 msgid "Download covers from librarything.com"
-msgstr ""
+msgstr "Tải bìa sách từ librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:128
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:68
@@ -2364,35 +2409,35 @@ msgstr "Máy chủ của LibraryThing.com bị lỗi. Vui lòng thử lại sau 
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
-msgstr ""
+msgstr "Tải thông tin mô tả từ Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:51
 msgid "Metadata download"
-msgstr "Tải dữ liệu mô tả sách"
+msgstr "Tải thông tin mô tả"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:128
 msgid "ratings"
-msgstr "Đánh giá"
+msgstr "Điểm số"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:128
 msgid "tags"
-msgstr "Thẻ phân loại"
+msgstr "Thẻ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:129
 msgid "description/reviews"
-msgstr "Mô tả/Bình luận"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:130
 msgid "Download %s from %s"
-msgstr ""
+msgstr "Tải %s từ %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:156
 msgid "Downloads metadata from Google Books"
-msgstr "Tải dữ liệu mô tả từ Google Books"
+msgstr "Tải thông tin mô tả từ Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:173
 msgid "Downloads metadata from isbndb.com"
-msgstr "Tải dữ liệu mô tả từ isbndb.com"
+msgstr "Tải thông tin mô tả từ isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:201
 msgid ""
@@ -2404,11 +2449,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:211
 msgid "Downloads social metadata from amazon.com"
-msgstr "Tải dữ liệu mô tả chung từ amazon.com"
+msgstr "Tải thông tin mô tả mang tính xã hội từ amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:230
 msgid "Downloads series/tags/rating information from librarything.com"
-msgstr ""
+msgstr "Tải thông tin về bộ sách/thẻ/điểm số từ librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:95
 msgid ""
@@ -2426,11 +2471,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:106
 msgid "The ISBN ID of the book you want metadata for."
-msgstr "Số ISBN ID của sách bạn cần dữ liệu mô tả"
+msgstr "Số ISBN ID của sách mà bạn cần thông tin mô tả mô tả"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:108
 msgid "The author whose book to search for."
-msgstr "Tên Tác giả của sách cần tìm kiếm"
+msgstr "Tên tác giả của sách cần tìm kiếm"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:110
 msgid "The title of the book to search for."
@@ -2470,7 +2515,7 @@ msgstr ""
 msgid ""
 "Don't add Table of Contents to end of book. Useful if the book has its own "
 "table of contents."
-msgstr ""
+msgstr "Không thêm Mục Lục vào cuối sách. Hữu ích nếu sách có sẵn mục lục."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:56
@@ -2479,7 +2524,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:37
 msgid "Disable compression of the file contents."
-msgstr ""
+msgstr "Vô hiệu hóa nén nội dung tập tin."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
@@ -2491,7 +2536,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:259
 msgid "This is an Amazon Topaz book. It cannot be processed."
-msgstr ""
+msgstr "Đây là sách loại Amazon Topaz. Phần mềm không thể xử lý."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1400
 msgid "Title Page"
@@ -2534,7 +2579,7 @@ msgstr "Lời đề tặng"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1409
 msgid "Epigraph"
-msgstr ""
+msgstr "Lời đề từ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1410
 msgid "Foreword"
@@ -2542,7 +2587,7 @@ msgstr "Lời nói đầu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1411
 msgid "List of Illustrations"
-msgstr "Danh sách hình ảnh"
+msgstr "Danh sách hình minh họa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1412
 msgid "List of Tables"
@@ -2597,7 +2642,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:128
 msgid "Footnotes"
-msgstr ""
+msgstr "Chú dẫn"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:135
 msgid "Sidebar"
@@ -2959,7 +3004,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:75
 msgid "Sort tags list by name, popularity, or rating"
-msgstr ""
+msgstr "Sắp xếp danh sách thẻ theo tên, mức phổ biến hoặc điểm số"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:77
 msgid "Number of covers to show in the cover browsing mode"
@@ -3021,7 +3066,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:121
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr ""
+msgstr "Tải thông tin mô tả mang tính xã hội (thẻ/điểm số/v.v.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
 msgid "Overwrite author and title with new metadata"
@@ -3041,7 +3086,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:131
 msgid "Show the average rating per item indication in the tag browser"
-msgstr ""
+msgstr "Hiển thị điểm số trung bình cho mỗi mục trong trình duyệt thẻ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:133
 msgid "Disable UI animations"
@@ -4493,24 +4538,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
-msgstr ""
+msgstr "Gỡ lỗi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:21
 msgid "Debug the conversion process."
-msgstr ""
+msgstr "Gỡ lỗi cho quá trình chuyển đổi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:56
 msgid "Choose debug folder"
-msgstr ""
+msgstr "Chọn thư mục gỡ lỗi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:58
 msgid "Invalid debug directory"
-msgstr ""
+msgstr "Thư mục gỡ lỗi không hợp lệ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:59
 msgid "Failed to create debug directory"
-msgstr ""
+msgstr "Thất bại khi tạo thư mục gỡ lỗi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:55
 msgid ""
@@ -5925,6 +5970,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:96
 msgid "Download &social metadata (tags/rating/etc.) for the selected book"
 msgstr ""
+"&Tải thông tin mô tả mang tính xã hội (thẻ/điểm số/v.v.) cho sách được chọn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:97
 msgid "Overwrite author and title with author and title of selected book"
@@ -5980,14 +6026,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:375
 msgid "&Rating:"
-msgstr ""
+msgstr "Điểm &số:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:171
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:377
 msgid "Rating of this book. 0-5 stars"
-msgstr ""
+msgstr "Điểm cho cuốn sách này. 0-5 sao"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:173
 msgid "No change"
@@ -6076,7 +6122,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:154
 msgid "You must specify a title and author before generating a cover"
-msgstr ""
+msgstr "Bạn phải chỉ rõ tựa đề và tên tác giả trước khi tạo bìa sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:172
 msgid "Choose formats for "
@@ -7239,7 +7285,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:71
 msgid "Rating"
-msgstr ""
+msgstr "Điểm số"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:325
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1085
@@ -7749,7 +7795,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:37
 msgid "Ratings, shown with stars"
-msgstr ""
+msgstr "Điểm số, hiển thị bằng sao"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:40
 msgid "Yes/No"
@@ -7852,7 +7898,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
-msgstr ""
+msgstr "Đang lấy thông tin gỡ lỗi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:22
 msgid "Copy to &clipboard"
@@ -7860,7 +7906,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Debug device detection"
-msgstr ""
+msgstr "Gỡ lỗi cho quá trình tìm thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:66
 msgid ""
@@ -7953,7 +7999,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:101
 msgid "Show &average ratings in the tags browser"
-msgstr ""
+msgstr "Hiển thị điểm số trung bình trong trình duyệt thẻ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:102
 msgid "Disable all animations. Useful if you have a slow/old computer."
@@ -8087,7 +8133,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:66
 msgid "Debug &device detection"
-msgstr ""
+msgstr "&Gỡ lỗi cho quá trình tìm thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:67
 msgid "&Check database integrity"
@@ -8639,7 +8685,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:769
 msgid "Sort by average rating"
-msgstr ""
+msgstr "Sắp xếp theo điểm số trung bình"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:772
 msgid "Set the sort order for entries in the Tag Browser"
@@ -9380,6 +9426,9 @@ msgid ""
 "<h2>Demo videos</h2>Videos demonstrating the various features of calibre are "
 "available <a href=\"http://calibre-ebook.com/demo\">online</a>."
 msgstr ""
+"<h2>Những đoạn phim giới thiệu</h2>Những đoạn phim trình diễn nhiều tính "
+"năng khác nhau của calibre có trên <a href=\"http://calibre-"
+"ebook.com/demo\">mạng</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:46
 msgid ""
@@ -10037,7 +10086,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:660
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:505
 msgid "Show detailed output information. Useful for debugging"
-msgstr ""
+msgstr "Hiện thông tin chi tiết về tập tin xuất. Hữu ích cho việc gỡ lỗi"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:673
 msgid "Error: You must specify a catalog output file"
@@ -10205,7 +10254,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:122
 msgid "Ratings"
-msgstr ""
+msgstr "Điểm số"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:24
 msgid "The title"
@@ -10237,7 +10286,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:33
 msgid "The rating"
-msgstr ""
+msgstr "Điểm số"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:34
 msgid "The ISBN"
@@ -10405,7 +10454,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:147
 msgid "RATING: %s<br />"
-msgstr ""
+msgstr "ĐIỂM SỐ: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:150
 msgid "TAGS: %s<br />"

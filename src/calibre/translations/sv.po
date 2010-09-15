@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-10 19:51+0000\n"
-"PO-Revision-Date: 2010-09-12 22:02+0000\n"
+"PO-Revision-Date: 2010-09-14 19:15+0000\n"
 "Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-13 05:01+0000\n"
+"X-Launchpad-Export-Date: 2010-09-15 04:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -275,7 +275,7 @@ msgstr "Gränssnitt"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:689
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
 msgstr ""
-"Justera utseendet och beteendet av eCalibre-gränssnittet så det passar din "
+"Justera utseendet och beteendet av Calibre-gränssnittet så det passar din "
 "smak"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:695
@@ -284,7 +284,7 @@ msgstr "Beteende"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:701
 msgid "Change the way calibre behaves"
-msgstr "Ändra eCalibres beteende"
+msgstr "Ändra Calibres beteende"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:706
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:176
@@ -293,7 +293,7 @@ msgstr "Lägg till dina egna kolumner"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:712
 msgid "Add/remove your own columns to the calibre book list"
-msgstr "Lägga till / ta bort dina egna kolumner till eCalibres boklista"
+msgstr "Lägga till / ta bort dina egna kolumner till Calibres boklista"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:717
 msgid "Customize the toolbar"
@@ -350,7 +350,7 @@ msgstr "Import / Export"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:768
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
-"Kontrollera hur eCalibre läser metadata från filer när du lägger till böcker"
+"Kontrollera hur Calibre läser metadata från filer när du lägger till böcker"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:774
 msgid "Saving books to disk"
@@ -361,41 +361,45 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
-"Kontrollera hur eCalibre exporterar filer från databasen till hårddisken när "
+"Kontrollera hur Calibre exporterar filer från databasen till hårddisken när "
 "du använder Spara till disk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
 msgid "Sending books to devices"
-msgstr ""
+msgstr "Skickar böcker till enheter"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr ""
+msgstr "Kontrollera hur Calibre överför filer till din Ebokläsare"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:798
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Dela böcker via e-post"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Sharing"
-msgstr ""
+msgstr "Delar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:804
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
+"Ställ in delning av böcker via e-post. Kan användas för automatisk sändning "
+"av nedladdade nyheter till dina enheter"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 msgid "Sharing over the net"
-msgstr ""
+msgstr "Dela på nätet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:816
 msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"Ställ in Calibre innehållsserver som ger dig tillgång till din Calibre-"
+"bibliotek från någonstans, på någon enhet på Internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:823
 msgid "Plugins"
@@ -409,15 +413,15 @@ msgstr "Avancerat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:829
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
+msgstr "Lägg till / ta bort / anpassa olika bitar av Calibre-funktionalitet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:835
 msgid "Tweaks"
-msgstr ""
+msgstr "Justeringar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:841
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr ""
+msgstr "Finjustera hur Calibre beter sig i olika sammanhang"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:846
 msgid "Miscellaneous"
@@ -3367,7 +3371,7 @@ msgstr "Lägg till böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:26
 msgid "Add books to the calibre library/device from files on your computer"
-msgstr "Lägg till böcker i eCalibres bibliotek / enhet från filer på datorn"
+msgstr "Lägg till böcker i Calibres bibliotek / enhet från filer på datorn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:27
 msgid "A"
@@ -3497,8 +3501,7 @@ msgstr "Inga böcker har valts"
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
 msgstr ""
-"Följande böcker är virtuella och kan inte läggas till i eCalibres "
-"biblioteket:"
+"Följande böcker är virtuella och kan inte läggas till i Calibres biblioteket:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:258
 msgid "No book files found"
@@ -3510,7 +3513,7 @@ msgstr "Lägg till böcker i biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
-msgstr "Lägg böckerna i ditt eCalibre-bibliotek från den anslutna enheten"
+msgstr "Lägg böckerna i ditt Calibre-bibliotek från den anslutna enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:498
@@ -3684,7 +3687,7 @@ msgid ""
 "No existing calibre library was found at %s. It will be removed from the "
 "list of known libraries."
 msgstr ""
-"Inga befintliga eCalibre-bibliotek hittades på %s. Det kommer att tas bort "
+"Inga befintliga Calibre-bibliotek hittades på %s. Det kommer att tas bort "
 "från listan över kända bibliotek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:249
@@ -3848,7 +3851,7 @@ msgid ""
 "from your calibre library. Are you sure?"
 msgstr ""
 "De utvalda böckerna kommer att <b> tas bort permanent </b> och filerna tas "
-"bort från ditt eCalibre-bibliotek. Är du säker?"
+"bort från ditt Calibre-bibliotek. Är du säker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:179
 msgid ""
@@ -4153,7 +4156,7 @@ msgid ""
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
 msgstr ""
-"Du försöker spara filer i eCalibres-bibliotek. Detta kan orsaka skador på "
+"Du försöker spara filer i Calibres-bibliotek. Detta kan orsaka skador på "
 "ditt bibliotek. Spara till disk är tänkt att exportera filer från ditt "
 "eCalibres-bibliotek till någon annanstans."
 
@@ -6068,10 +6071,10 @@ msgid ""
 "metadata and covers for them.<p>Any invalid ISBNs in the list will be "
 "ignored."
 msgstr ""
-"<p> Ange en lista med ISBN-nummer i rutan till vänster, ett per rad. "
-"eCalibre kommer att automatiskt skapa poster för böcker som bygger på ISBN "
-"och hämta metadata och omslag för dem. <p> Alla ogiltiga ISBN-nummer i "
-"listan kommer att ignoreras."
+"<p> Ange en lista med ISBN-nummer i rutan till vänster, ett per rad. Calibre "
+"kommer att automatiskt skapa poster för böcker som bygger på ISBN och hämta "
+"metadata och omslag för dem. <p> Alla ogiltiga ISBN-nummer i listan kommer "
+"att ignoreras."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:50
 msgid "&Paste from clipboard"
@@ -6612,6 +6615,7 @@ msgstr "Kunde inte hitta omslag för denna bok. Försök ange ISBN först."
 msgid ""
 "For the error message from each cover source, click Show details below."
 msgstr ""
+"För felmeddelandet från varje omslagskälla klickar du på Visa detaljer nedan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:619
 msgid "Bad cover"
@@ -8064,7 +8068,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:50
 msgid "Read metadata from &file contents rather than file name"
-msgstr ""
+msgstr "Läs metadata från &filens innehåll i stället för filnamn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:51
 msgid ""
@@ -8185,7 +8189,7 @@ msgid ""
 "used. Also applied when switching to this library. Note that this setting is "
 "per library. "
 msgstr ""
-"Tillämpa denna begränsning av eCalibre-start om det nuvarande biblioteket "
+"Tillämpa denna begränsning av Calibre-start om det nuvarande biblioteket "
 "används. Tillämpas också vid byte till detta bibliotek. Observera att denna "
 "inställning är per bibliotek. "
 
@@ -8232,7 +8236,7 @@ msgid ""
 "book list. You can hide columns by unchecking them. You can also create your "
 "own, custom columns."
 msgstr ""
-"Här kan du arrangera utformningen på kolumnerna i eCalibre-"
+"Här kan du arrangera utformningen på kolumnerna i Calibre-"
 "biblioteksboklista. Du kan dölja kolumner genom att avmarkera dem. Du kan "
 "också skapa egna, anpassade kolumner"
 
@@ -8579,24 +8583,28 @@ msgstr "Avbryt och återgå till översikten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:259
 msgid "Restoring to defaults not supported for"
-msgstr ""
+msgstr "Återställning till standardvärden stöds inte för"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:294
 msgid ""
 "Some of the changes you made require a restart. Please restart calibre as "
 "soon as possible."
 msgstr ""
+"Några av de ändringar du gjort kräver en omstart. Starta Calibre så snart "
+"som möjligt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:297
 msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed set any more preferences, until you restart."
 msgstr ""
+"De ändringar du har gjort kräver att Calibre startas omedelbart. Du kommer "
+"inte få ändra några fler inställningar, tills du startar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
 msgid "Restart needed"
-msgstr ""
+msgstr "Omstart behövs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:49
 msgid "Checking database integrity"
@@ -8853,6 +8861,14 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
+"<li> <b> Manuell hantering </b>: uppdateringar Calibre metadata och lägger "
+"samlingar endast när en bok skickas. Med detta alternativ kommer Calibre "
+"aldrig ta bort en samling. </li>\n"
+"<li> <b> Endast på skicka </b>: Calibre  uppdateringar metadata och lägger "
+"till / tar bort samlingar för en bok endast när den skickas till enheten. "
+"</li>\n"
+"<li> <b> Automatisk hantering </b>: Calibre håller automatiskt metadata på "
+"enheten i synk med Calibre biblioteket, på alla anslutar </li> </ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:69
 msgid ""
@@ -8860,6 +8876,10 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
+"Här kan du kontrollera hur Calibre kommer att spara dina böcker när du "
+"klickar på Skicka-till-enhet-knappen. Den här inställningen kan upphävas för "
+"enskilda enheter genom att anpassa insticksprogram Device Interface i "
+"Inställningar-> Avancerat-> insticksprogram"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:319
@@ -8876,7 +8896,7 @@ msgstr "Åtkomstlogg:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:121
 msgid "You need to restart the server for changes to take effect"
-msgstr ""
+msgstr "Du måste starta om servern för att ändringarna ska gälla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:124
 msgid "Server &port:"
@@ -8912,7 +8932,7 @@ msgstr "Max. antal ogr&upperade OPDS-poster"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:133
 msgid "Restriction (saved search) to apply:"
-msgstr ""
+msgstr "Begränsning (sparad sökning) gäller:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:134
 msgid ""
@@ -8920,6 +8940,10 @@ msgid ""
 "content server makes available to those matching the search. This setting is "
 "per library (i.e. you can have a different restriction per library)."
 msgstr ""
+"Denna begränsning (baserat på en sparad sökning) kommer att begränsa vilka "
+"böcker innehållsservern ställer till förfogande för dem som motsvarar "
+"sökningen. Denna inställning är per bibliotek (dvs du kan ha en annan "
+"begränsning per bibliotek)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:135
 msgid "&Start Server"
@@ -8974,99 +8998,104 @@ msgstr "Hämtar sociala metadata..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
-msgstr ""
+msgstr "Växla mellan bibliotek och enhetens visningar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:39
 msgid "Separator"
-msgstr ""
+msgstr "Avgränsare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:52
 msgid "Choose library"
-msgstr ""
+msgstr "Välj bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:202
 msgid "The main toolbar"
-msgstr ""
+msgstr "Verktygsfältet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:203
 msgid "The main toolbar when a device is connected"
-msgstr ""
+msgstr "Verktygsfältet när en enhet är ansluten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:204
 msgid "The context menu for the books in the calibre library"
-msgstr ""
+msgstr "Snabbmenyn för böcker i Calibre-biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:206
 msgid "The context menu for the books on the device"
-msgstr ""
+msgstr "Snabbmenyn för de böcker på enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:240
 msgid "Cannot add"
-msgstr ""
+msgstr "Kan inte lägga till"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:241
 msgid "Cannot add the actions %s to this location"
-msgstr ""
+msgstr "Kan inte lägga till åtgärder %s till den här platsen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:259
 msgid "Cannot remove"
-msgstr ""
+msgstr "Kan inte ta bort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:260
 msgid "Cannot remove the actions %s from this location"
-msgstr ""
+msgstr "Kan inte ta bort åtgärder %s från denna plats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:99
 msgid "Customize the actions in:"
-msgstr ""
+msgstr "Anpassa åtgärder:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:100
 msgid "A&vailable actions"
-msgstr ""
+msgstr "&Tilgängliga åtgärder:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:101
 msgid "&Current actions"
-msgstr ""
+msgstr "&Aktuella åtgärder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:102
 msgid "Move selected action up"
-msgstr ""
+msgstr "Flytta valda åtgärden uppåt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:104
 msgid "Move selected action down"
-msgstr ""
+msgstr "Flytta valda åtgärden neråt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:107
 msgid "Add selected actions to toolbar"
-msgstr ""
+msgstr "Lägg till valda åtgärder för verktygsfältet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:109
 msgid "Remove selected actions from toolbar"
-msgstr ""
+msgstr "Ta bort markerade åtgärder från verktygsfältet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:43
 msgid "Invalid tweaks"
-msgstr ""
+msgstr "Ogiltig justering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:44
 msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
 msgstr ""
+"Justeringar du angav är ogiltiga, försöka att återställa justeringar till "
+"grundinställning och ändra dem en efter en tills du hittar den ogiltiga "
+"inställningen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:50
 msgid ""
 "Values for the tweaks are shown below. Edit them to change the behavior of "
 "calibre. Your changes will only take effect after a restart of calibre."
 msgstr ""
+"Värden för justeringen visas nedan. Redigera dem att ändra beteende Calibre. "
+"Dina ändringar kommer att gälla efter en omstart av Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:51
 msgid "All available tweaks"
-msgstr ""
+msgstr "Alla tillgängliga justeringar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:52
 msgid "&Current tweaks"
-msgstr ""
+msgstr "&Aktuella justeringar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:261
@@ -9727,7 +9756,7 @@ msgstr "Formaterar %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:538
 msgid "Bookmark #%d"
-msgstr ""
+msgstr "Bokmärk #%d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:542
 msgid "Add bookmark"
@@ -9899,7 +9928,7 @@ msgstr "Dölj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:936
 msgid "Toggle"
-msgstr ""
+msgstr "Växla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:370
 msgid ""
@@ -10430,6 +10459,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Inkludera serie avsnitt i katalogen.\n"
+"Standard: '%default \"\n"
+"Gäller för: Epub, MOBI utdataformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:581
 msgid ""
@@ -10962,38 +10994,50 @@ msgid ""
 "    replaced.\n"
 "    "
 msgstr ""
+"\n"
+"    %Prog sparade_sökningar [flaggor] lista\n"
+"    %Prog sparade_sökningar lägga namnsökning\n"
+"    %Prog sparade_sökningar bort namn\n"
+"\n"
+"    Hantera sparade sökningar I denna databas.\n"
+"    Om du försöker lägga till en fråga med ett namn som redan finns, kommer "
+"det att\n"
+"    ersättas.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:836
 msgid "Error: You must specify an action (add|remove|list)"
-msgstr ""
+msgstr "Fel: Du måste ange en åtgärd (lägg till | ta bort | lista)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:844
 msgid "Name:"
-msgstr ""
+msgstr "Namn:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:845
 msgid "Search string:"
-msgstr ""
+msgstr "Sök sträng:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:851
 msgid "Error: You must specify a name and a search string"
-msgstr ""
+msgstr "Fel: Du måste ange ett namn och en söksträng"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:854
 msgid "added"
-msgstr ""
+msgstr "tillagd"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:859
 msgid "Error: You must specify a name"
-msgstr ""
+msgstr "Fel: Du måste ange ett namn"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:862
 msgid "removed"
-msgstr ""
+msgstr "borttaget"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:866
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
 msgstr ""
+"Fel: Åtgärd %s kändes inte igen, måste vara en av: (lägg till | ta bort | "
+"lista)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:880
 msgid ""
@@ -11017,13 +11061,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:537
 msgid "No label was provided"
-msgstr ""
+msgstr "Ingen etikett angavs"
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:539
 msgid ""
 "The label must contain only lower case letters, digits and underscores, and "
 "start with a letter"
 msgstr ""
+"Etikett får endast innehålla små bokstäver, siffror och understreck och "
+"börja med en bokstav"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:71
 msgid "%sAverage rating is %3.1f"
@@ -11151,6 +11197,8 @@ msgid ""
 "Comma separated list of formats to save for each book. By default all "
 "available formats are saved."
 msgstr ""
+"Kommaseparerad lista av format att spara för varje bok. Som standard sparas "
+"alla tillgängliga format."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:66
 msgid ""
@@ -11284,10 +11332,12 @@ msgid ""
 "Specifies a restriction to be used for this invocation. This option "
 "overrides any per-library settings specified in the GUI"
 msgstr ""
+"Anger en begränsning som skall användas för denna åkallan. Det här "
+"alternativet åsidosätter någon per-bibliotek inställningar som anges i GUI"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:111
 msgid "%d book"
-msgstr ""
+msgstr "%d bok"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:130
 msgid "%d items"
@@ -11387,7 +11437,7 @@ msgstr "Lägg till nya format till befintliga bokuppgifter"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:723
 msgid "Tags to apply to books added to the library"
-msgstr ""
+msgstr "Märknigar som gäller för böcker som har lagts till biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:727
 msgid "List of named saved searches"
