@@ -13,6 +13,7 @@ class EditCollectionsAction(InterfaceAction):
     action_spec = (_('Manage collections'), None,
             _('Manage the collections on this device'), None)
     dont_add_to = frozenset(['toolbar', 'context-menu'])
+    action_type = 'current'
 
     def genesis(self):
         self.qaction.triggered.connect(self.edit_collections)
