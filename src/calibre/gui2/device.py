@@ -1232,7 +1232,7 @@ class DeviceMixin(object): # {{{
         self.location_manager.update_devices(cp, fs,
                 self.device_manager.device.icon)
         # reset the views so that up-to-date info is shown. These need to be
-        # here because the sony driver updates collections in sync_booklists
+        # here because some drivers update collections in sync_booklists
         self.memory_view.reset()
         self.card_a_view.reset()
         self.card_b_view.reset()

@@ -1030,7 +1030,9 @@ class DeviceBooksModel(BooksModel): # {{{
     def resort(self, reset=True):
         if self.sorted_on:
             self.sort(self.column_map.index(self.sorted_on[0]),
-                      self.sorted_on[1], reset=reset)
+                      self.sorted_on[1], reset=False)
+        if reset:
+            self.reset()
 
     def columnCount(self, parent):
         if parent and parent.isValid():
