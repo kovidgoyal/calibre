@@ -530,7 +530,7 @@ class OPF(object): # {{{
         self.read_user_metadata()
 
     def read_user_metadata(self):
-        self.user_metadata = {}
+        self._user_metadata_ = {}
         from calibre.utils.config import from_json
         elems = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
                 '"calibre:user_metadata:") and @content]')
@@ -547,14 +547,21 @@ class OPF(object): # {{{
                 import traceback
                 traceback.print_exc()
                 continue
-            self.user_metadata[name] = fm
+            self._user_metadata_[name] = fm
 
+    def to_book_metadata(self):
+        ans = MetaInformation(self)
+        for n, v in self._user_metadata_.items():
+            ans.set_user_metadata(n, v)
+        return ans
 
     def write_user_metadata(self):
-        for elem in self.user_metadata_path(self.root):
+        elems = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
+                '"calibre:user_metadata:") and @content]')
+        for elem in elems:
             elem.getparent().remove(elem)
         serialize_user_metadata(self.metadata,
-                self.user_metadata)
+                self._user_metadata_)
 
     def find_toc(self):
         self.toc = None
@@ -983,6 +990,9 @@ class OPF(object): # {{{
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
+        temp = self.to_book_metadata()
+        temp.smart_update(mi, replace_metadata=replace_metadata)
+        self._user_metadata_ = temp.get_all_user_metadata(True)
 
 # }}}
 
@@ -1417,9 +1427,9 @@ def test_user_metadata():
     opf = OPF(f)
     f2 = StringIO(raw2)
     opf2 = OPF(f2)
-    assert um == opf.user_metadata
-    assert um == opf2.user_metadata
-    print raw
+    assert um == opf._user_metadata_
+    assert um == opf2._user_metadata_
+    print opf.render()
 
 if __name__ == '__main__':
     test_user_metadata()

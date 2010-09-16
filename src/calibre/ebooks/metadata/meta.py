@@ -194,7 +194,7 @@ def opf_metadata(opfpath):
     try:
         opf = OPF(f, os.path.dirname(opfpath))
         if opf.application_id is not None:
-            mi = MetaInformation(opf)
+            mi = opf.to_book_metadata()
             if hasattr(opf, 'cover') and opf.cover:
                 cpath = os.path.join(os.path.dirname(opfpath), opf.cover)
                 if os.access(cpath, os.R_OK):

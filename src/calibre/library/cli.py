@@ -448,7 +448,7 @@ def command_show_metadata(args, dbpath):
     return 0
 
 def do_set_metadata(db, id, stream):
-    mi = OPF(stream)
+    mi = OPF(stream).to_book_metadata()
     db.set_metadata(id, mi)
     db.clean()
     do_show_metadata(db, id, False)

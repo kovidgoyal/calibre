@@ -226,8 +226,7 @@ class OPFMetadataReader(MetadataReaderPlugin):
 
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.opf2 import OPF
-        from calibre.ebooks.metadata import MetaInformation
-        return MetaInformation(OPF(stream, os.getcwd()))
+        return OPF(stream, os.getcwd()).to_book_metadata()
 
 class PDBMetadataReader(MetadataReaderPlugin):
 

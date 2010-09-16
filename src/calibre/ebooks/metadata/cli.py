@@ -109,7 +109,7 @@ def do_set_metadata(opts, mi, stream, stream_type):
     from_opf = getattr(opts, 'from_opf', None)
     if from_opf is not None:
         from calibre.ebooks.metadata.opf2 import OPF
-        opf_mi = MetaInformation(OPF(open(from_opf, 'rb')))
+        opf_mi = OPF(open(from_opf, 'rb')).to_book_metadata()
         mi.smart_update(opf_mi)
 
     for pref in config().option_set.preferences:
