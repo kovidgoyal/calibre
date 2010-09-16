@@ -48,17 +48,7 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_preprocess_html">
-     <property name="text">
-      <string>&amp;Preprocess input file to possibly improve structure detection</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0" colspan="2">
-    <widget class="XPathEdit" name="opt_page_breaks_before" native="true"/>
-   </item>
-   <item row="10" column="0" colspan="2">
+   <item row="14" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -88,8 +78,45 @@
    <item row="5" column="0" colspan="2">
     <widget class="RegexEdit" name="opt_header_regex" native="true"/>
    </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="RegexEdit" name="opt_footer_regex" native="true"/>
+   <item row="8" column="0" colspan="2">
+    <widget class="RegexEdit" name="opt_footer_regex" native="true">
+     <zorder>opt_page_breaks_before</zorder>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="2">
+    <widget class="XPathEdit" name="opt_page_breaks_before" native="true">
+     <zorder>opt_footer_regex</zorder>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QCheckBox" name="opt_preprocess_html">
+     <property name="text">
+      <string>&amp;Preprocess input file to possibly improve structure detection</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Line Un-Wrapping Factor</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="1">
+    <widget class="QDoubleSpinBox" name="opt_html_unwrap_factor">
+     <property name="maximum">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.050000000000000</double>
+     </property>
+     <property name="value">
+      <double>0.400000000000000</double>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
