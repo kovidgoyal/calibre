@@ -531,6 +531,7 @@ class OPF(object): # {{{
 
     def read_user_metadata(self):
         self._user_metadata_ = {}
+        temp = Metadata('x', ['x'])
         from calibre.utils.config import from_json
         elems = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
                 '"calibre:user_metadata:") and @content]')
@@ -542,12 +543,13 @@ class OPF(object): # {{{
             fm = elem.get('content')
             try:
                 fm = json.loads(fm, object_hook=from_json)
+                temp.set_user_metadata(name, fm)
             except:
                 prints('Failed to read user metadata:', name)
                 import traceback
                 traceback.print_exc()
                 continue
-            self._user_metadata_[name] = fm
+            self._user_metadata_ = temp.get_all_user_metadata(True)
 
     def to_book_metadata(self):
         ans = MetaInformation(self)
