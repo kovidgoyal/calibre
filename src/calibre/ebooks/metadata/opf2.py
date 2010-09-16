@@ -1415,9 +1415,11 @@ def test_user_metadata():
     mi = Metadata('Test title', ['test author1', 'test author2'])
     um = {
         '#myseries': { '#value#': u'test series\xe4', 'datatype':'text',
-            'is_multiple': False, 'name': u'My Series'},
+            'is_multiple': None, 'name': u'My Series'},
         '#myseries_index': { '#value#': 2.45, 'datatype': 'float',
-            'is_multiple': False}
+            'is_multiple': None},
+        '#mytags': {'#value#':['t1','t2','t3'], 'datatype':'text',
+            'is_multiple': '|', 'name': u'My Tags'}
         }
     mi.set_all_user_metadata(um)
     raw = metadata_to_opf(mi)
