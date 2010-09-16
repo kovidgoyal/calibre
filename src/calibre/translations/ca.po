@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-10 19:51+0000\n"
-"PO-Revision-Date: 2010-09-14 11:03+0000\n"
-"Last-Translator: vitelone <Unknown>\n"
+"PO-Revision-Date: 2010-09-15 07:54+0000\n"
+"Last-Translator: oscarl <ggoscarl@yahoo.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 04:56+0000\n"
+"X-Launchpad-Export-Date: 2010-09-16 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3022,6 +3022,9 @@ msgid ""
 "\n"
 "Decrypt a PDF.\n"
 msgstr ""
+"[opcions] arxiu.pdf password\n"
+"\n"
+"Desencripta un PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
 msgid "Decrypt Options:"
@@ -3033,6 +3036,9 @@ msgid ""
 "\n"
 "Encrypt a PDF.\n"
 msgstr ""
+"[opcions] arxiu.pdf password\n"
+"\n"
+"Encripta un PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:54
 msgid "Encrypt Options:"
@@ -3044,6 +3050,9 @@ msgid ""
 "\n"
 "Get info about a PDF.\n"
 msgstr ""
+"arxiu.pdf ...\n"
+"\n"
+"Obté informació sobre un PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
@@ -3079,6 +3088,11 @@ msgid ""
 "\n"
 "Merges individual PDFs.\n"
 msgstr ""
+"[opcions] arxiu1.pdf arxiu2.pdf ...\n"
+"\n"
+"S'utilitzaran les metadades del primer PDF especificat.\n"
+"\n"
+"Uneix PDFs individuals.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:56
 msgid "Merge Options:"
@@ -3090,6 +3104,9 @@ msgid ""
 "\n"
 "Reverse a PDF.\n"
 msgstr ""
+"[opcions] arxiu.pdf\n"
+"\n"
+"Inverteix un PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:54
 msgid "Reverse Options:"
@@ -3101,6 +3118,9 @@ msgid ""
 "\n"
 "Rotate pages of a PDF clockwise.\n"
 msgstr ""
+"arxiu.pdf graus\n"
+"\n"
+"Rota les pàgines d'un PDF en sentit horari\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 msgid "Rotate Options:"
@@ -3198,6 +3218,8 @@ msgid ""
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
+"Especifica el grau de compressió. Escala 1 - 10. 1 és la compressió mínima "
+"però la més ràpida i 10 és la compressió màxima però la més lenta."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:34
 msgid ""
@@ -3221,12 +3243,18 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
+"Tipus de salt de línia a utilitzar. Les opcions són %s. Per defecte és "
+"'system'. Utilitza 'old_mac' per compatibilitat amb Mac OS 9 i anteriors. "
+"Per Mac OS X utilitza 'unix'. 'system' és el tipus per defecte utilitza per "
+"aquest SO."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:30
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8. "
 "Note: This option is not honored by all formats."
 msgstr ""
+"Especifica la codificació de caracters del document de sortida. Per defecte "
+"és utf-8. Nota: aquesta opció l'utilitzaran tots els formats."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
 msgid ""
@@ -3247,6 +3275,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:65
 msgid "Send file to storage card instead of main memory by default"
 msgstr ""
+"Envia l'arxiu a la targeta de memòria enlloc de a la memòria principal per "
+"defecte."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:67
 msgid "Confirm before deleting"
@@ -3254,27 +3284,28 @@ msgstr "Confirmeu abans d'esborrar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:69
 msgid "Main window geometry"
-msgstr ""
+msgstr "Geometria de la finestra principal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:71
 msgid "Notify when a new version is available"
-msgstr ""
+msgstr "Avisa'm quan hi hagi una nova versió disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:73
 msgid "Use Roman numerals for series number"
-msgstr ""
+msgstr "Utilitza números romans per a sèries de números"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:75
 msgid "Sort tags list by name, popularity, or rating"
-msgstr ""
+msgstr "Ordena la llista d'etiquetes per nom, popularitat o per rànquing"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:77
 msgid "Number of covers to show in the cover browsing mode"
 msgstr ""
+"Número de portades que es mostraran en el mode de navegació per portades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:79
 msgid "Defaults for conversion to LRF"
-msgstr ""
+msgstr "Valors per defecte per a la conversió a LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:81
 msgid "Options for the LRF ebook viewer"
@@ -11137,6 +11168,10 @@ msgid ""
 "can be specified multiple times, in which case as long as a link matches any "
 "one regexp, it will be followed. By default all links are followed."
 msgstr ""
+"Només es seguiran els enllaços que coincideix amb l'expressió regular. "
+"Aquesta opció es pot especificar vàries vegades, llavors un enllaç es "
+"seguirà si coincideix amb alguna expressió regular. Per defecte tots els "
+"enllaços es segueixen-"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:502
 msgid ""
@@ -11149,7 +11184,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:504
 msgid "Do not download CSS stylesheets."
-msgstr ""
+msgstr "No descarreguis fulls d'estil CSS"
 
 #~ msgid "Set the title. Default: filename."
 #~ msgstr "Indique el títol. Per defecte: nom_del_fitxer."

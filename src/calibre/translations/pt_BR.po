@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-10 19:51+0000\n"
-"PO-Revision-Date: 2010-09-14 19:19+0000\n"
+"PO-Revision-Date: 2010-09-15 12:28+0000\n"
 "Last-Translator: Roberto Carlos de Oliveira <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-15 04:57+0000\n"
+"X-Launchpad-Export-Date: 2010-09-16 04:59+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -361,7 +361,7 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
-"Controla como o calibre exporta arquivos do banco de dados para o disco "
+"Controla como o calibre exporta arquivos da base de dados para o disco "
 "usando Salvar para o disco"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
@@ -370,8 +370,7 @@ msgstr "Enviando livros para dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr ""
-"Controla como o calibre tranfere arquivos do seu leitor de livro eletrônico"
+msgstr "Controla como o calibre transfere arquivos do seu leitor de ebook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:798
 msgid "Sharing books by email"
@@ -399,6 +398,8 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"Configurar o servidor de conteúdo permitirá seu acesso á biblioteca do "
+"calibre de qualquer lugar, em qualquer dispositivo conectado à internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:823
 msgid "Plugins"
@@ -751,7 +752,7 @@ msgstr "Catálogo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2730
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Comunicar com iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -2037,7 +2038,7 @@ msgid ""
 msgstr ""
 "Tentar converter capítulos em seções individuais. AVISO: Esta opção é "
 "experimental. Podendo causar uma falha na conversão. Podendo também produzir "
-"uma saída não inesperada."
+"uma saída inesperada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:249
 msgid ""
@@ -2830,7 +2831,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
-msgstr ""
+msgstr "Formato usado dentro de um objeto pdb. As escolhas são:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:27
 msgid ""
@@ -3205,7 +3206,7 @@ msgstr "Usar numerais romanos para números da série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:75
 msgid "Sort tags list by name, popularity, or rating"
-msgstr "Ordenar lista de campos por nome, popularidade ou pontuação"
+msgstr "Ordenar lista de campos por nome, popularidade, ou pontuação"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:77
 msgid "Number of covers to show in the cover browsing mode"
@@ -3234,7 +3235,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:88
 msgid "Oldest news kept in database"
-msgstr "Notícia mais antiga deixada no banco de dados"
+msgstr "Notícia mais antiga é deixada na base de dados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:89
 msgid "Show system tray icon"
@@ -3308,11 +3309,11 @@ msgstr "Copiar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:215
 msgid "Copy to Clipboard"
-msgstr ""
+msgstr "Copiar para a área de transferência"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:433
 msgid "Choose Files"
-msgstr ""
+msgstr "Escolher arquivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:25
 msgid "Add books"
@@ -3452,6 +3453,8 @@ msgstr "Nenhum livro selecionado"
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
 msgstr ""
+"Os livros a seguir são virtuais ou não podem serem adicionados à biblioteca "
+"do calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:258
 msgid "No book files found"
@@ -3464,6 +3467,7 @@ msgstr "Adicionar livros à biblioteca"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
 msgstr ""
+"Adicionar livros para sua biblioteca no calibre de um dispositivo conectado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:498
@@ -3498,7 +3502,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:89
 msgid "Merging user annotations into database"
-msgstr "Mesclar as anotações do usuário no banco de dados"
+msgstr "Mesclar as anotações do usuário na base de dados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:117
 msgid "%s<br />Last Page Read: %d (%d%%)"
@@ -3578,23 +3582,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:101
 msgid "Rename library"
-msgstr ""
+msgstr "Renomear biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:103
 msgid "Delete library"
-msgstr ""
+msgstr "Deletar biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 msgid "Rename"
-msgstr ""
+msgstr "Renomear"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:169
 msgid "Choose a new name for the library <b>%s</b>. "
-msgstr ""
+msgstr "Escolher um nome novo para a biblioteca <b>%s</b>. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:170
 msgid "Note that the actual library folder will be renamed."
-msgstr ""
+msgstr "Observe que a biblioteca atual será renomeada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:185
@@ -3676,7 +3680,7 @@ msgstr "Conversão em massa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:85
 msgid "Cannot convert"
-msgstr "Não for possível converter"
+msgstr "Não foi possível converter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:114
 msgid "Starting conversion of %d book(s)"
@@ -4103,6 +4107,9 @@ msgid ""
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
 msgstr ""
+"Você está tentando salvar arquivos para biblioteca do calibre. Isto pode "
+"causar uma corrupção de sua biblioteca. Salvar para o disco significa "
+"exportar arquivos da sua biblioteca do calibre para algum outro lugar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:135
 msgid "Error while saving"
@@ -4131,11 +4138,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:25
 msgid "No detailed info available"
-msgstr ""
+msgstr "Nenhuma informação detalhada disponível"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:26
 msgid "No detailed information is available for books on the device."
 msgstr ""
+"Nenhuma informação detalhada disponível para os livros no dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
@@ -5139,7 +5147,7 @@ msgstr "<p>Existe um erro durante a leitura do arquivo: <br /><b>"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:189
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:137
 msgid " is not a valid picture"
-msgstr ""
+msgstr " não é uma imagem válida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:405
@@ -5148,7 +5156,7 @@ msgstr "Capa do livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:173
 msgid "Use cover from &source file"
-msgstr ""
+msgstr "Use a capa do arquivo &origem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:174
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:406
@@ -5157,7 +5165,7 @@ msgstr "Mudar imagem da &capa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:175
 msgid "Browse for an image to use as the cover of this book."
-msgstr ""
+msgstr "Escolha uma imagem para usar como capa para este livro."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:366
@@ -5369,7 +5377,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:103
 msgid "Open book"
-msgstr ""
+msgstr "Abrir livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:52
 msgid "Regex Builder"
@@ -5450,7 +5458,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:88
 msgid "Invalid regular expression: %s"
-msgstr ""
+msgstr "Expressão regular inválida: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:39
@@ -5570,7 +5578,7 @@ msgstr "&Máximo comprimento da linha:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:49
 msgid "Force maximum line length"
-msgstr ""
+msgstr "Forçar tamanho máximo para a linha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:70
@@ -5681,13 +5689,13 @@ msgstr "Navegador de Capas não pode ser carregado"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:238
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:242
 msgid "Undefined"
-msgstr ""
+msgstr "Indefinido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:59
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:241
 #: /home/kovid/work/calibre/src/calibre/library/server/xml.py:119
 msgid "Yes"
-msgstr ""
+msgstr "Sim"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:59
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:243
@@ -5731,7 +5739,7 @@ msgstr "tags para remover"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:48
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:136
 msgid "No details available."
-msgstr ""
+msgstr "Nenhum detalhe disponível"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:165
 msgid "Device no longer connected."
@@ -5747,7 +5755,7 @@ msgstr "Obter listagem de livros do dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:304
 msgid "Get annotations from device"
-msgstr ""
+msgstr "Pegar anotações do dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:313
 msgid "Send metadata to device"
@@ -5755,7 +5763,7 @@ msgstr "Enviar metadados ao dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:318
 msgid "Send collections to device"
-msgstr ""
+msgstr "Enviar coleções para dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:342
 msgid "Upload %d books to device"
@@ -5812,11 +5820,11 @@ msgstr "Erro ao se comunicar com o dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:629
 msgid "Select folder to open as device"
-msgstr ""
+msgstr "Selecionar pasta para abrir como dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:677
 msgid "Error talking to device"
-msgstr ""
+msgstr "Erro ao comunicar com o dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:678
 msgid ""
@@ -5893,12 +5901,14 @@ msgstr "Nenhum formato apropriado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:920
 msgid "Auto convert the following books before sending via email?"
-msgstr ""
+msgstr "Auto converter os livros a seguir antes de enviar por e-mail?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:928
 msgid ""
 "Could not email the following books as no suitable formats were found:"
 msgstr ""
+"Não foi possível enviar por e-mail os livros a seguir, porque nenhum formato "
+"aplicável foi encontrado:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:946
 msgid "Failed to email books"
@@ -5910,7 +5920,7 @@ msgstr "Falha ao enviar por e-mail os seguintes livros:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:951
 msgid "Sent by email:"
-msgstr ""
+msgstr "Enviar por e-mail:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:979
 msgid "News:"
@@ -5928,7 +5938,7 @@ msgstr "Enviar notícias para"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1083
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1202
 msgid "Auto convert the following books before uploading to the device?"
-msgstr ""
+msgstr "Auto converter os livros a seguir antes de enviar para dispositivo?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1051
 msgid "Sending catalogs to device."
@@ -10997,7 +11007,7 @@ msgstr "O número máximo de threads de trabalho. O padrão é %default"
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:31
 msgid "Set a password to restrict access. By default access is unrestricted."
 msgstr ""
-"Criar uma senha para acesso restrito. Por padrão, o acesso é restrito"
+"Criar uma senha para acesso restrito. Por padrão, o acesso é irrestrito."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:33
 msgid "Username for access. By default, it is: %default"
@@ -11107,7 +11117,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:697
 msgid "Path to the database in which books are stored"
-msgstr "Caminho para o banco de dados onde os livros são armazenados"
+msgstr "Caminho para a base de dados onde os livros são armazenados"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:699
 msgid "Pattern to guess metadata from filenames"
@@ -11169,7 +11179,7 @@ msgstr "Categorias do Navegador de Tags criadas pelo usuário"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:730
 msgid "How and when calibre updates metadata on the device."
-msgstr "Como e quando calibre atualiza os metadados no dispositivo."
+msgstr "Como e quando o calibre atualiza os metadados no dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
