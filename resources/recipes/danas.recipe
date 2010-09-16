@@ -20,6 +20,7 @@ class Danas(BasicNewsRecipe):
     encoding              = 'utf-8'
     masthead_url          = 'http://www.danas.rs/images/basic/danas.gif'
     language              = 'sr'
+    remove_javascript     = True
     publication_type      = 'newspaper'
     remove_empty_feeds    = True
     extra_css             = """ @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
@@ -29,7 +30,8 @@ class Danas(BasicNewsRecipe):
                                 .antrfileText{border-left: 2px solid #999999; margin-left: 0.8em; padding-left: 1.2em;
                                 margin-bottom: 0; margin-top: 0} h2,.datum,.lokacija,.autor{font-size: small}
                                 .antrfileNaslov{border-left: 2px solid #999999; margin-left: 0.8em; padding-left: 1.2em;
-                                font-weight:bold; margin-bottom: 0; margin-top: 0} img{margin-bottom: 0.8em} """
+                                font-weight:bold; margin-bottom: 0; margin-top: 0} img{margin-bottom: 0.8em}
+                            """
 
     conversion_options = {
                           'comment'          : description
@@ -38,14 +40,26 @@ class Danas(BasicNewsRecipe):
                         , 'language'         : language
                         }
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    preprocess_regexps = [
+                           (re.compile(u'\u0110'), lambda match: u'\u00D0')
+                          ,(re.compile(r'<?xml:namespace prefix = st1 ns = "urn:schemas-microsoft-com:office:smarttags".*?/>',re.DOTALL|re.IGNORECASE), lambda match: r'')
+                          ,(re.compile(r'<st1:place.*?>',re.DOTALL|re.IGNORECASE), lambda match: r'')
+                          ,(re.compile(r'</st1:place>',re.DOTALL|re.IGNORECASE), lambda match: r'')
+                          ,(re.compile(r'<st1:city.*?>',re.DOTALL|re.IGNORECASE), lambda match: r'')
+                          ,(re.compile(r'</st1:city>',re.DOTALL|re.IGNORECASE), lambda match: r'')
+                          ,(re.compile(r'<st1:country-region.*?>',re.DOTALL|re.IGNORECASE), lambda match: r'')
+                          ,(re.compile(r'</st1:country-region>',re.DOTALL|re.IGNORECASE), lambda match: r'')
+                          ,(re.compile(r'<st1:state.*?>',re.DOTALL|re.IGNORECASE), lambda match: r'')
+                          ,(re.compile(r'</st1:state>',re.DOTALL|re.IGNORECASE), lambda match: r'')
+                         ]
 
     keep_only_tags     = [dict(name='div', attrs={'id':'left'})]
     remove_tags = [
                      dict(name='div', attrs={'class':['width_1_4','metaClanka','baner']})
                     ,dict(name='div', attrs={'id':'comments'})
-                    ,dict(name=['object','link','iframe'])
+                    ,dict(name=['object','link','iframe','meta'])
                   ]
+    remove_attributes = ['st']
 
     feeds          = [
                         (u'Politika'             , u'http://www.danas.rs/rss/rss.asp?column_id=27')
@@ -79,7 +93,13 @@ class Danas(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
-        return self.adeify_images(soup)
+        for item in soup.findAll('a'):
+            if item.has_key('name'):
+               item.extract()
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
 
     def print_version(self, url):
         return url + '&action=print'
