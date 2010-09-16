@@ -375,6 +375,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         self.remove_unused_series)
         QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
                         self.deduce_author_sort)
+        self.connect(self.author_sort, SIGNAL('textChanged(const QString&)'),
+                     self.author_sort_box_changed)
+        self.connect(self.authors, SIGNAL('editTextChanged(const QString&)'),
+                     self.authors_box_changed)
         self.connect(self.formats, SIGNAL('itemDoubleClicked(QListWidgetItem*)'),
                 self.show_format)
         self.connect(self.formats, SIGNAL('delete_format()'), self.remove_format)
@@ -466,6 +470,26 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[0])
             for c in range(2, len(ans[i].widgets), 2):
                 w.setTabOrder(ans[i].widgets[c-1], ans[i].widgets[c+1])
+
+    def authors_box_changed(self, txt):
+        aus = unicode(txt)
+        aus = re.sub(r'\s+et al\.$', '', aus)
+        aus = self.db.author_sort_from_authors(string_to_authors(aus))
+        self.mark_author_sort(normal=(unicode(self.author_sort.text()) == aus))
+
+    def author_sort_box_changed(self, txt):
+        au = unicode(self.authors.text())
+        au = re.sub(r'\s+et al\.$', '', au)
+        au = self.db.author_sort_from_authors(string_to_authors(au))
+        self.mark_author_sort(normal=(au == txt))
+
+    def mark_author_sort(self, normal=True):
+        if normal:
+            col = 'rgb(0, 255, 0, 20%)'
+        else:
+            col = 'rgb(255, 0, 0, 20%)'
+        self.author_sort.setStyleSheet('QLineEdit { color: black; '
+                                       'background-color: %s; }'%col)
 
     def validate_isbn(self, isbn):
         isbn = unicode(isbn).strip()
