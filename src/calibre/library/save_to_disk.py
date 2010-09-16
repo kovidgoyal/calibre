@@ -84,6 +84,9 @@ def config(defaults=None):
     x('timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %d - day, %b - month, '
                 '%Y - year. Default is: %b, %Y'))
+    x('send_timefmt', default='%b, %Y',
+            help=_('The format in which to display dates. %d - day, %b - month, '
+                '%Y - year. Default is: %b, %Y'))
     x('to_lowercase', default=False,
             help=_('Convert paths to lowercase.'))
     x('replace_whitespace', default=False,

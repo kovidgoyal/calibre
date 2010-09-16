@@ -829,12 +829,14 @@ class Device(DeviceConfig, DevicePlugin):
         ext = os.path.splitext(fname)[1]
 
         from calibre.library.save_to_disk import get_components
+        from calibre.library.save_to_disk import config
+        opts = config().parse()
         if not isinstance(template, unicode):
             template = template.decode('utf-8')
         app_id = str(getattr(mdata, 'application_id', ''))
         # The db id will be in the created filename
         extra_components = get_components(template, mdata, fname,
-                length=250-len(app_id)-1)
+                timefmt=opts.send_timefmt, length=250-len(app_id)-1)
         if not extra_components:
             extra_components.append(sanitize(self.filename_callback(fname,
                 mdata)))
