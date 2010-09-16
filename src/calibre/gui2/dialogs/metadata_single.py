@@ -328,7 +328,14 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         ResizableDialog.__init__(self, window)
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
         self.cancel_all = False
-        self.normal_aus_tooltip = unicode(self.author_sort.toolTip())
+        base = unicode(self.author_sort.toolTip())
+        self.ok_aus_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
+                            _(' The green color indicates that the current '
+                    'author sort matches the current author'))
+        self.bad_aus_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
+                _(' The red color indicates that the current '
+                    'author sort does not match the current author'))
+
         if cancel_all:
             self.__abort_button = self.button_box.addButton(self.button_box.Abort)
             self.__abort_button.setToolTip(_('Abort the editing of all remaining books'))
@@ -452,9 +459,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         else:
             self.create_custom_column_editors()
         self.generate_cover_button.clicked.connect(self.generate_cover)
-        self.author_sort.setToolTip(textwrap.fill('<p>'+self.normal_aus_tooltip+'<br><br>'+
-                            _(' The green color indicates that the current '
-                    'author sort matches the current author')))
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
@@ -491,11 +495,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             col = 'rgb(255, 0, 0, 20%)'
         self.author_sort.setStyleSheet('QLineEdit { color: black; '
                                        'background-color: %s; }'%col)
-        tt = self.normal_aus_tooltip
-        if not normal:
-            tt = '<p>'+textwrap.fill(tt + '<br><br>'+
-                _(' The red color indicates that the current '
-                    'author sort does not match the current author'))
+        tt = self.ok_aus_tooltip if normal else self.bad_aus_tooltip
         self.author_sort.setToolTip(tt)
 
     def validate_isbn(self, isbn):
