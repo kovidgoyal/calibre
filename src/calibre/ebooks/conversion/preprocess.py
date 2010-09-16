@@ -17,6 +17,8 @@ convert_entities = functools.partial(entity_to_unicode,
         result_exceptions = {
             u'<' : '&lt;',
             u'>' : '&gt;',
+            u"'" : '&apos;',
+            u'"' : '&quot;',
             u'&' : '&amp;',
         })
 _span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
@@ -349,7 +351,7 @@ class HTMLPreProcessor(object):
                 # print "The pdf line length returned is " + str(length)
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(r'(?<=.{%i}[a-z,;:)\-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(r'(?<=.{%i}([a-z,:)\-IA]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + start_rules:
