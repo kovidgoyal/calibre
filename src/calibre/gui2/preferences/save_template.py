@@ -8,8 +8,10 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import QWidget, pyqtSignal
 
+from calibre.gui2 import error_dialog
 from calibre.gui2.preferences.save_template_ui import Ui_Form
-from calibre.library.save_to_disk import FORMAT_ARG_DESCS
+from calibre.library.save_to_disk import FORMAT_ARG_DESCS, preprocess_template,\
+                                         safe_format
 
 class SaveTemplate(QWidget, Ui_Form):
 
@@ -24,8 +26,11 @@ class SaveTemplate(QWidget, Ui_Form):
         variables = sorted(FORMAT_ARG_DESCS.keys())
         rows = []
         for var in variables:
-            rows.append(u'<tr><td>%s</td><td>%s</td></tr>'%
+            rows.append(u'<tr><td>%s</td><td>&nbsp;</td><td>%s</td></tr>'%
                     (var, FORMAT_ARG_DESCS[var]))
+        rows.append(u'<tr><td>%s&nbsp;</td><td>&nbsp;</td><td>%s</td></tr>'%(
+            _('Any custom field'),
+            _('The lookup name of any custom field. These names begin with "#")')))
         table = u'<table>%s</table>'%(u'\n'.join(rows))
         self.template_variables.setText(table)
 
@@ -39,21 +44,21 @@ class SaveTemplate(QWidget, Ui_Form):
         self.changed_signal.emit()
 
     def validate(self):
-        # TODO: NEWMETA: I haven't figured out how to get the custom columns
-        # into here, so for the moment make all templates valid.
+        '''
+        Do a syntax check on the format string. Doing a semantic check
+        (verifying that the fields exist) is not useful in the presence of
+        custom fields, because they may or may not exist.
+        '''
+        tmpl = preprocess_template(self.opt_template.text())
+        fa = {}
+        try:
+            safe_format(tmpl, fa)
+        except Exception, err:
+            error_dialog(self, _('Invalid template'),
+                    '<p>'+_('The template %s is invalid:')%tmpl + \
+                    '<br>'+str(err), show=True)
+            return False
         return True
-#        tmpl = preprocess_template(self.opt_template.text())
-#        fa = {}
-#        for x in FORMAT_ARG_DESCS.keys():
-#            fa[x]='random long string'
-#        try:
-#            tmpl.format(**fa)
-#        except Exception, err:
-#            error_dialog(self, _('Invalid template'),
-#                    '<p>'+_('The template %s is invalid:')%tmpl + \
-#                    '<br>'+str(err), show=True)
-#            return False
-#        return True
 
     def set_value(self, val):
         self.opt_template.set_value(val)
