@@ -362,6 +362,14 @@ OptionRecommendation(name='preprocess_html',
             )
         ),
 
+OptionRecommendation(name='smarten_punctuation',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Convert plain quotes, dashes and ellipsis to their '
+            'typographically correct equivalents. For details, see '
+            'http://daringfireball.net/projects/smartypants'
+            )
+        ),
+
 OptionRecommendation(name='remove_header',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Use a regular expression to try and remove the header.'
@@ -684,7 +692,7 @@ OptionRecommendation(name='timestamp',
                                             self.opts.read_metadata_from_opf)
             opf = OPF(open(self.opts.read_metadata_from_opf, 'rb'),
                       os.path.dirname(self.opts.read_metadata_from_opf))
-            mi = MetaInformation(opf)
+            mi = opf.to_book_metadata()
         self.opts_to_mi(mi)
         if mi.cover:
             if mi.cover.startswith('http:') or mi.cover.startswith('https:'):

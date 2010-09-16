@@ -33,7 +33,7 @@ def encode_thumbnail(thumbnail):
     '''
     if thumbnail is None:
         return None
-    if not isinstance(thumbnail, tuple):
+    if not isinstance(thumbnail, (tuple, list)):
         try:
             img = Image()
             img.load(thumbnail)

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, unittest, functools, os, mimetypes, uuid, glob, cStringIO
+import re, sys, unittest, functools, os, mimetypes, uuid, glob, cStringIO, json
 from urllib import unquote
 from urlparse import urlparse
 
@@ -20,8 +20,9 @@ from calibre.ebooks.metadata import string_to_authors, MetaInformation
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang
+from calibre import prints
 
-class Resource(object):
+class Resource(object): # {{{
     '''
     Represents a resource (usually a file on the filesystem or a URL pointing
     to the web. Such resources are commonly referred to in OPF files.
@@ -102,8 +103,9 @@ class Resource(object):
     def __repr__(self):
         return 'Resource(%s, %s)'%(repr(self.path), repr(self.href()))
 
+# }}}
 
-class ResourceCollection(object):
+class ResourceCollection(object): # {{{
 
     def __init__(self):
         self._resources = []
@@ -154,10 +156,9 @@ class ResourceCollection(object):
         for res in self:
             res.set_basedir(path)
 
+# }}}
 
-
-
-class ManifestItem(Resource):
+class ManifestItem(Resource): # {{{
 
     @staticmethod
     def from_opf_manifest_item(item, basedir):
@@ -195,8 +196,9 @@ class ManifestItem(Resource):
             return self.media_type
         raise IndexError('%d out of bounds.'%index)
 
+# }}}
 
-class Manifest(ResourceCollection):
+class Manifest(ResourceCollection): # {{{
 
     @staticmethod
     def from_opf_manifest_element(items, dir):
@@ -263,7 +265,9 @@ class Manifest(ResourceCollection):
             if i.id == id:
                 return i.mime_type
 
-class Spine(ResourceCollection):
+# }}}
+
+class Spine(ResourceCollection): # {{{
 
     class Item(Resource):
 
@@ -335,7 +339,9 @@ class Spine(ResourceCollection):
         for i in self:
             yield i.path
 
-class Guide(ResourceCollection):
+# }}}
+
+class Guide(ResourceCollection): # {{{
 
     class Reference(Resource):
 
@@ -372,6 +378,7 @@ class Guide(ResourceCollection):
             self[-1].type = type
             self[-1].title = ''
 
+# }}}
 
 class MetadataField(object):
 
@@ -413,7 +420,29 @@ class MetadataField(object):
             elem = obj.create_metadata_element(self.name, is_dc=self.is_dc)
         obj.set_text(elem, unicode(val))
 
-class OPF(object):
+
+def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8)):
+    from calibre.utils.config import to_json
+    from calibre.ebooks.metadata.book.json_codec import object_to_unicode
+
+    for name, fm in all_user_metadata.items():
+        try:
+            fm = object_to_unicode(fm)
+            fm = json.dumps(fm, default=to_json, ensure_ascii=False)
+        except:
+            prints('Failed to write user metadata:', name)
+            import traceback
+            traceback.print_exc()
+            continue
+        meta = metadata_elem.makeelement('meta')
+        meta.set('name', 'calibre:user_metadata:'+name)
+        meta.set('content', fm)
+        meta.tail = tail
+        metadata_elem.append(meta)
+
+
+class OPF(object): # {{{
+
     MIMETYPE         = 'application/oebps-package+xml'
     PARSER           = etree.XMLParser(recover=True)
     NAMESPACES       = {
@@ -498,6 +527,43 @@ class OPF(object):
         self.guide = Guide.from_opf_guide(guide, basedir) if guide else None
         self.cover_data = (None, None)
         self.find_toc()
+        self.read_user_metadata()
+
+    def read_user_metadata(self):
+        self._user_metadata_ = {}
+        temp = Metadata('x', ['x'])
+        from calibre.utils.config import from_json
+        elems = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
+                '"calibre:user_metadata:") and @content]')
+        for elem in elems:
+            name = elem.get('name')
+            name = ':'.join(name.split(':')[2:])
+            if not name or not name.startswith('#'):
+                continue
+            fm = elem.get('content')
+            try:
+                fm = json.loads(fm, object_hook=from_json)
+                temp.set_user_metadata(name, fm)
+            except:
+                prints('Failed to read user metadata:', name)
+                import traceback
+                traceback.print_exc()
+                continue
+            self._user_metadata_ = temp.get_all_user_metadata(True)
+
+    def to_book_metadata(self):
+        ans = MetaInformation(self)
+        for n, v in self._user_metadata_.items():
+            ans.set_user_metadata(n, v)
+        return ans
+
+    def write_user_metadata(self):
+        elems = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
+                '"calibre:user_metadata:") and @content]')
+        for elem in elems:
+            elem.getparent().remove(elem)
+        serialize_user_metadata(self.metadata,
+                self._user_metadata_)
 
     def find_toc(self):
         self.toc = None
@@ -912,6 +978,7 @@ class OPF(object):
         return elem
 
     def render(self, encoding='utf-8'):
+        self.write_user_metadata()
         raw = etree.tostring(self.root, encoding=encoding, pretty_print=True)
         if not raw.lstrip().startswith('<?xml '):
             raw = '<?xml version="1.0"  encoding="%s"?>\n'%encoding.upper()+raw
@@ -925,7 +992,11 @@ class OPF(object):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
+        temp = self.to_book_metadata()
+        temp.smart_update(mi, replace_metadata=replace_metadata)
+        self._user_metadata_ = temp.get_all_user_metadata(True)
 
+# }}}
 
 class OPFCreator(Metadata):
 
@@ -1116,6 +1187,8 @@ class OPFCreator(Metadata):
                     item.set('title', ref.title)
                 guide.append(item)
 
+        serialize_user_metadata(metadata, self.get_all_user_metadata(False))
+
         root = E.package(
                 metadata,
                 manifest,
@@ -1217,6 +1290,8 @@ def metadata_to_opf(mi, as_string=True):
         meta('publication_type', mi.publication_type)
     if mi.title_sort:
         meta('title_sort', mi.title_sort)
+
+    serialize_user_metadata(metadata, mi.get_all_user_metadata(False))
 
     metadata[-1].tail = '\n' +(' '*4)
 
@@ -1335,5 +1410,28 @@ def suite():
 def test():
     unittest.TextTestRunner(verbosity=2).run(suite())
 
+def test_user_metadata():
+    from cStringIO import StringIO
+    mi = Metadata('Test title', ['test author1', 'test author2'])
+    um = {
+        '#myseries': { '#value#': u'test series\xe4', 'datatype':'text',
+            'is_multiple': False, 'name': u'My Series'},
+        '#myseries_index': { '#value#': 2.45, 'datatype': 'float',
+            'is_multiple': False}
+        }
+    mi.set_all_user_metadata(um)
+    raw = metadata_to_opf(mi)
+    opfc = OPFCreator(os.getcwd(), other=mi)
+    out = StringIO()
+    opfc.render(out)
+    raw2 = out.getvalue()
+    f = StringIO(raw)
+    opf = OPF(f)
+    f2 = StringIO(raw2)
+    opf2 = OPF(f2)
+    assert um == opf._user_metadata_
+    assert um == opf2._user_metadata_
+    print opf.render()
+
 if __name__ == '__main__':
-    test()
+    test_user_metadata()

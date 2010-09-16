@@ -80,6 +80,7 @@ class CopyToLibraryAction(InterfaceAction):
             _('Copy selected books to the specified library'), None)
     popup_type = QToolButton.InstantPopup
     dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    action_type = 'current'
 
     def genesis(self):
         self.menu = QMenu(self.gui)

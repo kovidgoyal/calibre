@@ -6,7 +6,6 @@ Support for reading the metadata from a LIT file.
 
 import cStringIO, os
 
-from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
 
 def get_metadata(stream):
@@ -16,7 +15,7 @@ def get_metadata(stream):
     src = litfile.get_metadata().encode('utf-8')
     litfile = litfile._litfile
     opf = OPF(cStringIO.StringIO(src), os.getcwd())
-    mi = MetaInformation(opf)
+    mi = opf.to_book_metadata()
     covers = []
     for item in opf.iterguide():
         if 'cover' not in item.get('type', '').lower():

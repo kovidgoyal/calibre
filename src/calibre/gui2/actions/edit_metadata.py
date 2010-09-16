@@ -22,6 +22,7 @@ class EditMetadataAction(InterfaceAction):
 
     name = 'Edit Metadata'
     action_spec = (_('Edit metadata'), 'edit_input.png', None, _('E'))
+    action_type = 'current'
 
     def genesis(self):
         self.create_action(spec=(_('Merge book records'), 'merge_books.png',

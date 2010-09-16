@@ -604,8 +604,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return identical_book_ids
 
     def has_cover(self, index, index_is_id=False):
-        id = index if  index_is_id else self.id(index)
-        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        id = index if index_is_id else self.id(index)
+        try:
+            path = os.path.join(self.abspath(id, index_is_id=True), 'cover.jpg')
+        except:
+            # Can happen if path has not yet been set
+            return False
         return os.access(path, os.R_OK)
 
     def remove_cover(self, id, notify=True):
@@ -616,6 +620,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except (IOError, OSError):
                 time.sleep(0.2)
                 os.remove(path)
+        self.data.set(id, self.FIELD_MAP['cover'], False, row_is_id=True)
         if notify:
             self.notify('cover', [id])
 
@@ -636,6 +641,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except (IOError, OSError):
                 time.sleep(0.2)
                 save_cover_data_to(data, path)
+        self.data.set(id, self.FIELD_MAP['cover'], True, row_is_id=True)
         if notify:
             self.notify('cover', [id])
 
@@ -1103,8 +1109,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                      label=user_mi[key]['label'])
         self.notify('metadata', [id])
 
-    # Given a book, return the list of author sort strings for the book's authors
     def authors_sort_strings(self, id, index_is_id=False):
+        '''
+        Given a book, return the list of author sort strings
+        for the book's authors
+        '''
         id = id if index_is_id else self.id(id)
         aut_strings = self.conn.get('''
                         SELECT sort
@@ -1773,10 +1782,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         series_index = 1.0 if mi.series_index is None else mi.series_index
         aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
         title = mi.title
-        if isinstance(aus, str):
+        if isbytestring(aus):
             aus = aus.decode(preferred_encoding, 'replace')
-        if isinstance(title, str):
-            title = title.decode(preferred_encoding)
+        if isbytestring(title):
+            title = title.decode(preferred_encoding, 'replace')
         obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
                             (title, series_index, aus))
         id = obj.lastrowid
