@@ -745,6 +745,7 @@ class DeviceMixin(object): # {{{
         if job.failed:
             self.device_job_exception(job)
             return
+        # set_books_in_library might schedule a sync_booklists job
         self.set_books_in_library(job.result, reset=True)
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
@@ -789,11 +790,12 @@ class DeviceMixin(object): # {{{
             self.device_manager.remove_books_from_metadata(paths,
                     self.booklists())
             model.paths_deleted(paths)
-            self.upload_booklists()
         # Force recomputation the library's ondevice info. We need to call
         # set_books_in_library even though books were not added because
-        # the deleted book might have been an exact match.
-        self.set_books_in_library(self.booklists(), reset=True)
+        # the deleted book might have been an exact match. Upload the booklists
+        # if set_books_in_library did not.
+        if not self.set_books_in_library(self.booklists(), reset=True):
+            self.upload_booklists()
         self.book_on_device(None, None, reset=True)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
@@ -1280,8 +1282,6 @@ class DeviceMixin(object): # {{{
         self.device_manager.add_books_to_metadata(job.result,
                 metadata, self.booklists())
 
-        self.upload_booklists()
-
         books_to_be_deleted = []
         if memory and memory[1]:
             books_to_be_deleted = memory[1]
@@ -1291,12 +1291,15 @@ class DeviceMixin(object): # {{{
         # book already there with a different book. This happens frequently in
         # news. When this happens, the book match indication will be wrong
         # because the UUID changed. Force both the device and the library view
-        # to refresh the flags.
-        self.set_books_in_library(self.booklists(), reset=True)
+        # to refresh the flags. Set_books_in_library could upload the booklists.
+        # If it does not, then do it here.
+        if not self.set_books_in_library(self.booklists(), reset=True):
+            self.upload_booklists()
         self.book_on_device(None, reset=True)
         self.refresh_ondevice_info(device_connected = True)
 
-        view = self.card_a_view if on_card == 'carda' else self.card_b_view if on_card == 'cardb' else self.memory_view
+        view = self.card_a_view if on_card == 'carda' else \
+            self.card_b_view if on_card == 'cardb' else self.memory_view
         view.model().resort(reset=False)
         view.model().research()
         for f in files:
@@ -1371,7 +1374,7 @@ class DeviceMixin(object): # {{{
             try:
                 db = self.library_view.model().db
             except:
-                return
+                return False
             # Build a cache (map) of the library, so the search isn't On**2
             self.db_book_title_cache = {}
             self.db_book_uuid_cache = {}
@@ -1466,11 +1469,13 @@ class DeviceMixin(object): # {{{
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
-                    book.author_sort = self.library_view.model().db.author_sort_from_authors(book.authors)
+                    book.author_sort = self.library_view.model().db.\
+                                author_sort_from_authors(book.authors)
 
         if update_metadata:
             if self.device_manager.is_device_connected:
                 self.device_manager.sync_booklists(
                                     Dispatcher(self.metadata_synced), booklists)
+        return update_metadata
     # }}}
 
