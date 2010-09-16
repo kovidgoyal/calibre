@@ -94,12 +94,12 @@ class CollectionsBookList(BookList):
     def supports_collections(self):
         return True
 
-    def compute_category_name(self, attr, category, cust_field_meta):
+    def compute_category_name(self, attr, category, field_meta):
         renames = tweaks['sony_collection_renaming_rules']
         attr_name = renames.get(attr, None)
         if attr_name is None:
-            if attr in cust_field_meta:
-                attr_name = '(%s)'%cust_field_meta[attr]['name']
+            if field_meta['is_custom']:
+                attr_name = '(%s)'%field_meta['name']
             else:
                 attr_name = ''
         elif attr_name != '':
@@ -138,23 +138,23 @@ class CollectionsBookList(BookList):
                 # specified 'on_connect'
                 attrs = collection_attributes
             meta_vals = book.get_all_non_none_attributes()
-            cust_field_meta = book.get_all_user_metadata(make_copy=False)
             for attr in attrs:
                 attr = attr.strip()
-                ign, val = book.format_field(attr,
-                                             ignore_series_index=True,
-                                             return_multiples_as_list=True)
+                ign, val, orig_val, fm = book.format_field_extended(attr)
                 if not val: continue
                 if isbytestring(val):
                     val = val.decode(preferred_encoding, 'replace')
                 if isinstance(val, (list, tuple)):
                     val = list(val)
+                elif fm['datatype'] == 'series':
+                    val = [orig_val]
+                elif fm['datatype'] == 'text' and fm['is_multiple']:
+                    val = orig_val
                 else:
                     val = [val]
                 for category in val:
                     is_series = False
-                    if attr in cust_field_meta: # is a custom field
-                        fm = cust_field_meta[attr]
+                    if fm['is_custom']: # is a custom field
                         if fm['datatype'] == 'text' and len(category) > 1 and \
                                 category[0] == '[' and category[-1] == ']':
                             continue
@@ -168,8 +168,7 @@ class CollectionsBookList(BookList):
                                 ('series' in collection_attributes and
                                  meta_vals.get('series', None) == category):
                             is_series = True
-                    cat_name = self.compute_category_name(attr, category,
-                                                          cust_field_meta)
+                    cat_name = self.compute_category_name(attr, category, fm)
                     if cat_name not in collections:
                         collections[cat_name] = []
                         collections_lpaths[cat_name] = set()
