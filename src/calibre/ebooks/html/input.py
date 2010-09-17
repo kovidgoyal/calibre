@@ -490,7 +490,7 @@ class HTMLInput(InputFormatPlugin):
             return (None, None)
         return (None, raw)
 
-	def preprocess_html(self, options, html):
+    def preprocess_html(self, options, html):
         self.options = options
         preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
         return preprocessor(html)

@@ -96,13 +96,13 @@ class PreProcessor(object):
                  html = convert_basic(html, epub_split_size_kb=0)
              else:
                  # Add markup naively
-                 # TODO - find out if there are cases where there are more than one <pre> tag or 
+                 # TODO - find out if there are cases where there are more than one <pre> tag or
                  # other types of unmarked html and handle them in some better fashion
                  add_markup = re.compile('(?<!>)(\n)')
                  html = add_markup.sub('</p>\n<p>', html)
-        
+
         ###### Mark Indents/Cleanup ######
-        #        
+        #
         # Replace series of non-breaking spaces with text-indent
         txtindent = re.compile(ur'<p(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}', re.IGNORECASE)
         html = txtindent.sub(self.insert_indent, html)
@@ -176,8 +176,8 @@ class PreProcessor(object):
         self.log("*** Median line length is " + str(length) + ", calculated with " + format + " format ***")
         #
         # Unwrap and/or delete soft-hyphens, hyphens
-        html = re.sub(u'­\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
-        html = re.sub(u'(?<=[-–—])\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?=[[a-z\d])', '', html)
+        html = re.sub(u'\xad\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
+        html = re.sub(u'(?<=[-\u2013\u2014])\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?=[[a-z\d])', '', html)
 
         # Unwrap lines using punctation and line length
         unwrap = re.compile(r"(?<=.{%i}([a-z,;):\IA]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
@@ -193,8 +193,8 @@ class PreProcessor(object):
         # headings and titles, images, etc
         doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
         html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
-        
+
         # put back non-breaking spaces in empty paragraphs to preserve original formatting
-        html = blankreg.sub('\n'+'\g<openline>'+' '+'\g<closeline>', html)
-        
+        html = blankreg.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
+
         return html
