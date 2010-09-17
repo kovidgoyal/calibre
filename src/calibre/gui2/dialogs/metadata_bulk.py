@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 from threading import Thread
 import os, re, shutil
 
-from PyQt4.Qt import SIGNAL, QDialog, QGridLayout
+from PyQt4.Qt import QDialog, QGridLayout
 from PyQt4 import QtGui
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
@@ -136,12 +136,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
 
-# Haven't yet figured out how to hide a single tab
-#        if len(db.custom_column_label_map) == 0:
-#            self.central_widget.widget(1).setVisible(False)
-#        else:
-#            self.create_custom_column_editors()
-        self.create_custom_column_editors()
+        if len(db.custom_column_label_map) == 0:
+            self.central_widget.removeTab(1)
+        else:
+            self.create_custom_column_editors()
 
         self.prepare_search_and_replace()
         self.exec_()
@@ -201,21 +199,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.s_r_obj = None
 
         self.replace_func.addItems(sorted(self.s_r_functions.keys()))
-        self.connect(self.search_field,
-                     SIGNAL('currentIndexChanged(const QString &)'),
-                     self.s_r_field_changed)
-        self.connect(self.replace_func,
-                     SIGNAL('currentIndexChanged(const QString &)'),
-                     self.s_r_paint_results)
-        self.connect(self.search_for,
-                     SIGNAL('editTextChanged(const QString &)'),
-                     self.s_r_paint_results)
-        self.connect(self.replace_with,
-                     SIGNAL('editTextChanged(const QString &)'),
-                     self.s_r_paint_results)
-        self.connect(self.test_text,
-                     SIGNAL('editTextChanged(const QString &)'),
-                     self.s_r_paint_results)
+        self.search_field.currentIndexChanged[str].connect(self.s_r_field_changed)
+        self.replace_func.currentIndexChanged[str].connect(self.s_r_paint_results)
+        self.search_for.editTextChanged[str].connect(self.s_r_paint_results)
+        self.replace_with.editTextChanged[str].connect(self.s_r_paint_results)
+        self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
 
     def s_r_field_changed(self, txt):
         txt = unicode(txt)

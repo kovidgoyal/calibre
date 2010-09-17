@@ -144,7 +144,6 @@ class HTMLPreProcessor(object):
     # Fix pdftohtml markup
     PDFTOHTML  = [
                   # Fix umlauts
-                  # ¨
                   (re.compile(u'¨\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'ä'),
                   (re.compile(u'¨\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Ä'),
                   (re.compile(u'¨\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'ë'),
@@ -399,7 +398,7 @@ class HTMLPreProcessor(object):
             html = unidecoder.decode(html)
 
         if self.plugin_preprocess:
-            html = self.input_plugin_preprocess(html)
+            html = self.input_plugin_preprocess(self.extra_opts, html)
 
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = self.smarten_punctuation(html)
