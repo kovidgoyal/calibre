@@ -47,7 +47,7 @@
         </attribute>
         <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="label_20">
            <property name="text">
             <string>&amp;Author(s): </string>
            </property>
@@ -128,7 +128,7 @@
           </widget>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="label_30">
            <property name="text">
             <string>&amp;Publisher: </string>
            </property>
@@ -148,7 +148,7 @@
           </widget>
          </item>
          <item row="5" column="0">
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="label_41">
            <property name="text">
             <string>Add ta&amp;gs: </string>
            </property>
@@ -244,7 +244,7 @@
           </widget>
          </item>
          <item row="9" column="0">
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="label_51">
            <property name="text">
             <string>Remove &amp;format:</string>
            </property>
@@ -338,7 +338,7 @@ Future conversion of these books will use the default settings.</string>
          </item>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="label_21">
            <property name="text">
             <string>Search &amp;field:</string>
            </property>
@@ -348,7 +348,7 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="label_22">
            <property name="text">
             <string>&amp;Search for:</string>
            </property>
@@ -358,7 +358,7 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="3" column="2">
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="label_42">
            <property name="text">
             <string>&amp;Replace with:</string>
            </property>
@@ -377,7 +377,7 @@ Future conversion of these books will use the default settings.</string>
           <widget class="HistoryLineEdit" name="replace_with"/>
          </item>
          <item row="5" column="1">
-          <widget class="QLabel" name="label_41">
+          <widget class="QLabel" name="label_43">
            <property name="text">
             <string>Apply function &amp;after replace:</string>
            </property>
@@ -390,7 +390,7 @@ Future conversion of these books will use the default settings.</string>
           <widget class="QComboBox" name="replace_func"/>
          </item>
          <item row="6" column="1">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="label_31">
            <property name="text">
             <string>Test &amp;text</string>
            </property>
@@ -400,7 +400,7 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="6" column="2">
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="label_52">
            <property name="text">
             <string>Test re&amp;sult</string>
            </property>
@@ -410,7 +410,7 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="7" column="0">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="label_32">
            <property name="text">
             <string>Your test:</string>
            </property>
