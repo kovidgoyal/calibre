@@ -119,7 +119,7 @@ class PreProcessor(object):
 
         # If more than 40% of the lines are empty paragraphs then delete them to clean up spacing
         linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
-        blankreg = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*(?P<closeline></p>)', re.IGNORECASE)
+        blankreg = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         #multi_blank = re.compile(r'(\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>){2,}', re.IGNORECASE)
         blanklines = blankreg.findall(html)
         lines = linereg.findall(html)
