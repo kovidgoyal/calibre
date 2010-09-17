@@ -160,6 +160,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 fields.append(f)
         fields.sort()
         self.search_field.addItems(fields)
+        self.search_field.setMaxVisibleItems(min(len(fields), 20))
         offset = 10
         self.s_r_number_of_books = min(7, len(self.ids))
         for i in range(1,self.s_r_number_of_books+1):
