@@ -102,6 +102,13 @@ class Worker(Thread):
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
+    s_r_functions = {
+                    ''          : lambda x: x,
+                    'lower'     : lambda x: x.lower(),
+                    'upper'     : lambda x: x.upper(),
+                    'title'     : lambda x: x.title(),
+            }
+
     def __init__(self, window, rows, db):
         QDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
@@ -192,7 +199,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.s_r_error = None
         self.s_r_obj = None
 
-        self.replace_func.addItems(['', 'upper', 'lower', 'title'])
+        self.replace_func.addItems(sorted(self.s_r_functions.keys()))
         self.connect(self.search_field,
                      SIGNAL('currentIndexChanged(const QString &)'),
                      self.s_r_field_changed)
@@ -244,16 +251,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             getattr(self, 'book_%d_result'%(i+1)).setText('')
 
     def s_r_func(self, match):
-        rf = unicode(self.replace_func.currentText())
+        rf = self.s_r_functions[unicode(self.replace_func.currentText())]
         rv = unicode(self.replace_with.text())
         val = match.expand(rv)
-        if rf == 'upper':
-            return val.upper()
-        if rf == 'lower':
-            return val.lower()
-        if rf == 'title':
-            return val.title()
-        return val
+        return rf(val)
 
     def s_r_paint_results(self, txt):
         self.s_r_error = None
