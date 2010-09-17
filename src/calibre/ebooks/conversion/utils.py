@@ -92,7 +92,7 @@ class PreProcessor(object):
         # If more than 40% of the lines are empty paragraphs then delete them to clean up spacing
         linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
         blankreg = re.compile(r'\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>', re.IGNORECASE)
-        multi_blank = re.compile(r'(\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>){2,}', re.IGNORECASE)
+        #multi_blank = re.compile(r'(\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>){2,}', re.IGNORECASE)
         blanklines = blankreg.findall(html)
         lines = linereg.findall(html)
         if len(lines) > 1:
@@ -148,12 +148,9 @@ class PreProcessor(object):
         else:
             format = 'html'
 
-        # Calculate Length        
-        #if getattr(self.extra_opts, 'html_unwrap_factor', 0.0) > 0.01:
-        length = line_length('pdf', html, getattr(self.extra_opts, 'html_unwrap_factor'))
-        #else:
-        #    length = line_length(format, html, 0.4)
-        #    self.log("#@#%!$@#$ - didn't find unwrap_factor")
+        # Calculate Length
+        length = line_length('pdf', html, getattr(self.extra_opts,
+            'html_unwrap_factor', 0.4))
         self.log("*** Median line length is " + str(length) + ",calculated with " + format + " format ***")
         #
         # Unwrap and/or delete soft-hyphens, hyphens

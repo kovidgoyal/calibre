@@ -366,7 +366,7 @@ OptionRecommendation(name='html_unwrap_factor',
         recommended_value=0.40, level=OptionRecommendation.LOW,
         help=_('Scale used to determine the length at which a line should '
             'be unwrapped if preprocess is enabled. Valid values are a decimal between 0 and 1. The '
-            'default is 0.40, just below the median line length.  This will unwrap typical books '
+            'default is 0.40, just below the median line length. This will unwrap typical books '
             ' with hard line breaks, but should be reduced if the line length is variable.'
             )
         ),

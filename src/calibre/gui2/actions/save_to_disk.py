@@ -38,6 +38,7 @@ class SaveToDiskAction(InterfaceAction):
 
     name = "Save To Disk"
     action_spec = (_('Save to disk'), 'save.png', None, _('S'))
+    action_type = 'current'
 
     def genesis(self):
         self.qaction.triggered.connect(self.save_to_disk)

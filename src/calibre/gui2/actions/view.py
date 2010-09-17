@@ -22,6 +22,7 @@ class ViewAction(InterfaceAction):
 
     name = 'View'
     action_spec = (_('View'), 'view.png', None, _('V'))
+    action_type = 'current'
 
     def genesis(self):
         self.persistent_files = []

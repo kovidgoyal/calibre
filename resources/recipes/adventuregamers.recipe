@@ -1,7 +1,5 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.adventuregamers.com
 '''
@@ -10,14 +8,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdventureGamers(BasicNewsRecipe):
     title                 = u'Adventure Gamers'
-    language = 'en'
-
+    language              = 'en'
     __author__            = 'Darko Miletic'
-    description           = 'Adventure games portal'    
+    description           = 'Adventure games portal'
     publisher             = 'Adventure Gamers'
-    category              = 'news, games, adventure, technology'    
-    language = 'en'
-
+    category              = 'news, games, adventure, technology'
     oldest_article        = 10
     delay                 = 10
     max_articles_per_feed = 100
@@ -26,14 +21,25 @@ class AdventureGamers(BasicNewsRecipe):
     remove_javascript     = True
     use_embedded_content  = False
     INDEX                 = u'http://www.adventuregamers.com'
-    
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    extra_css             = """
+                                .pageheader_type{font-size: x-large; font-weight: bold; color: #828D74}
+                                .pageheader_title{font-size: xx-large; color: #394128}
+                                .pageheader_byline{font-size: small; font-weight: bold; color: #394128}
+                                .score_bg {display: inline; width: 100%; margin-bottom: 2em}
+                                .score_column_1{ padding-left: 10px; font-size: small; width: 50%}
+                                .score_column_2{ padding-left: 10px; font-size: small; width: 50%}
+                                .score_column_3{ padding-left: 10px; font-size: small; width: 50%}
+                                .score_header{font-size: large; color: #50544A}
+                                .bodytext{display: block}
+                                body{font-family: Helvetica,Arial,sans-serif}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
 
     keep_only_tags = [
                        dict(name='div', attrs={'class':'content_middle'})
@@ -43,14 +49,15 @@ class AdventureGamers(BasicNewsRecipe):
                      dict(name=['object','link','embed','form'])
                     ,dict(name='div', attrs={'class':['related-stories','article_leadout','prev','next','both']})
                   ]
-                  
+
     remove_tags_after = [dict(name='div', attrs={'class':'toolbar_fat'})]
-    
+    remove_attributes = ['width','height']
+
     feeds = [(u'Articles', u'http://feeds2.feedburner.com/AdventureGamers')]
-    
+
     def get_article_url(self, article):
         return article.get('guid',  None)
-    
+
     def append_page(self, soup, appendtag, position):
         pager = soup.find('div',attrs={'class':'toolbar_fat_next'})
         if pager:
@@ -59,19 +66,19 @@ class AdventureGamers(BasicNewsRecipe):
            texttag = soup2.find('div', attrs={'class':'bodytext'})
            for it in texttag.findAll(style=True):
                del it['style']
-           newpos = len(texttag.contents)          
+           newpos = len(texttag.contents)
            self.append_page(soup2,texttag,newpos)
            texttag.extract()
            appendtag.insert(position,texttag)
-        
-    
+
+
     def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Language" content="en-US"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
-        soup.head.insert(0,mtag)    
         for item in soup.findAll(style=True):
             del item['style']
+        for item in soup.findAll('div', attrs={'class':'floatright'}):
+            item.extract()
         self.append_page(soup, soup.body, 3)
         pager = soup.find('div',attrs={'class':'toolbar_fat'})
         if pager:
-           pager.extract()        
-        return soup
+           pager.extract()
+        return self.adeify_images(soup)
