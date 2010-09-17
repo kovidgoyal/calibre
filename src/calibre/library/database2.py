@@ -336,6 +336,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
         setattr(self, 'title_sort', functools.partial(get_property,
                 loc=self.FIELD_MAP['sort']))
+        setattr(self, 'get_property', get_property)
 
     def initialize_database(self):
         metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
@@ -1128,7 +1129,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 result.append(r)
         return ' & '.join(result).replace('|', ',')
 
-    def set_authors(self, id, authors, notify=True):
+    def set_authors(self, id, authors, notify=True, commit=True):
         '''
         `authors`: A list of authors.
         '''
@@ -1156,16 +1157,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ss = self.author_sort_from_book(id, index_is_id=True)
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
                           (ss, id))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['authors'],
                       ','.join([a.replace(',', '|') for a in authors]),
                       row_is_id=True)
         self.data.set(id, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
-        self.set_path(id, True)
+        self.set_path(id, index_is_id=True, commit=commit)
         if notify:
             self.notify('metadata', [id])
 
-    def set_title(self, id, title, notify=True):
+    def set_title(self, id, title, notify=True, commit=True):
         if not title:
             return
         if not isinstance(title, unicode):
@@ -1176,8 +1178,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.data.set(id, self.FIELD_MAP['sort'], title_sort(title), row_is_id=True)
         else:
             self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)
-        self.set_path(id, True)
-        self.conn.commit()
+        self.set_path(id, index_is_id=True, commit=commit)
+        if commit:
+            self.conn.commit()
         if notify:
             self.notify('metadata', [id])
 
