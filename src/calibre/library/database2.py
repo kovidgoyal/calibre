@@ -439,7 +439,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if not f:
                     continue
                 stream = cStringIO.StringIO(f)
-                self.add_format(id, format, stream, index_is_id=True, path=tpath)
+                self.add_format(id, format, stream, index_is_id=True,
+                        path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
         if commit:
             self.conn.commit()
