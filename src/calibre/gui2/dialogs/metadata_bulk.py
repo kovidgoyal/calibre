@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Dialog to edit metadata in bulk'''
 
 from threading import Thread
-import os, re, shutil
+import re
 
 from PyQt4.Qt import QDialog, QGridLayout
 from PyQt4 import QtGui
@@ -203,6 +203,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.search_for.editTextChanged[str].connect(self.s_r_paint_results)
         self.replace_with.editTextChanged[str].connect(self.s_r_paint_results)
         self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
+        self.central_widget.setCurrentIndex(0)
 
     def s_r_field_changed(self, txt):
         txt = unicode(txt)

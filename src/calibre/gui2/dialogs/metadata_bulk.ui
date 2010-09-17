@@ -39,7 +39,7 @@
      <item>
       <widget class="QTabWidget" name="central_widget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tabWidgetPage1">
         <attribute name="title">
@@ -329,16 +329,16 @@ Future conversion of these books will use the default settings.</string>
             <bool>true</bool>
            </property>
           </widget>
+         </item>
          <item row="2" column="0">
           <widget class="QLabel" name="filler">
            <property name="text">
-            <string> </string>
+            <string/>
            </property>
           </widget>
          </item>
-         </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="xlabel_21">
            <property name="text">
             <string>Search &amp;field:</string>
            </property>
@@ -348,7 +348,7 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="xlabel_2">
            <property name="text">
             <string>&amp;Search for:</string>
            </property>
@@ -358,7 +358,7 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="3" column="2">
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="xlabel_4">
            <property name="text">
             <string>&amp;Replace with:</string>
            </property>
@@ -390,7 +390,7 @@ Future conversion of these books will use the default settings.</string>
           <widget class="QComboBox" name="replace_func"/>
          </item>
          <item row="6" column="1">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="xlabel_3">
            <property name="text">
             <string>Test &amp;text</string>
            </property>
@@ -410,7 +410,7 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="7" column="0">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="label_31">
            <property name="text">
             <string>Your test:</string>
            </property>
