@@ -104,9 +104,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     s_r_functions = {
                     ''          : lambda x: x,
-                    'lower'     : lambda x: x.lower(),
-                    'upper'     : lambda x: x.upper(),
-                    'title'     : lambda x: x.title(),
+                    _('Lower Case') : lambda x: x.lower(),
+                    _('Upper Case')     : lambda x: x.upper(),
+                    _('Title Case')     : lambda x: x.title(),
             }
 
     def __init__(self, window, rows, db):
@@ -207,7 +207,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def s_r_field_changed(self, txt):
         txt = unicode(txt)
-        for i in range(0,self.s_r_number_of_books):
+        for i in range(0, self.s_r_number_of_books):
             if txt:
                 fm = self.db.field_metadata[txt]
                 id = self.ids[i]
