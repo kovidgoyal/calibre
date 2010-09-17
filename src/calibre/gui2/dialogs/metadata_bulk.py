@@ -163,7 +163,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.s_r_number_of_books = min(7, len(self.ids))
         for i in range(1,self.s_r_number_of_books+1):
             w = QtGui.QLabel(self.tabWidgetPage3)
-            w.setText(_('Book %d:'%i))
+            w.setText(_('Book %d:')%i)
             self.gridLayout1.addWidget(w, i+offset, 0, 1, 1)
             w = QtGui.QLineEdit(self.tabWidgetPage3)
             w.setReadOnly(True)
