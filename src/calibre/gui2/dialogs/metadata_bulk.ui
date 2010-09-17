@@ -329,16 +329,13 @@ Future conversion of these books will use the default settings.</string>
             <bool>true</bool>
            </property>
           </widget>
-         </item>
-         <item row="2" column="0" colspan="3">
-          <widget class="QCheckBox" name="s_r_backup_db">
+         <item row="2" column="0">
+          <widget class="QLabel" name="filler">
            <property name="text">
-            <string>Backup 'metadata.db' to 'metadata.db.backup' before applying changes</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
+            <string> </string>
            </property>
           </widget>
+         </item>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="label_2">

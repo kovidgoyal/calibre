@@ -193,8 +193,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                              'Note: <b>you can destroy your library</b> '
                              'using this feature. Changes are permanent. There '
                              'is no undo function. You are strongly encouraged '
-                             'to backup the metadata.db file in your library '
-                             'before proceeding.'))
+                             'to back up your library before proceeding.'))
         self.s_r_error = None
         self.s_r_obj = None
 
@@ -278,13 +277,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         field = unicode(self.search_field.currentText())
         if not field or not self.s_r_obj:
             return
-        if self.s_r_backup_db.isChecked():
-            self.db.commit()
-            src = self.db.dbpath
-            dest = self.db.dbpath+'.backup'
-            if os.path.exists(dest):
-                os.remove(dest)
-            shutil.copyfile(src, dest)
 
         fm = self.db.field_metadata[field]
 
