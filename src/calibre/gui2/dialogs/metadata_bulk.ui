@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>572</width>
-    <height>554</height>
+    <height>703</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -295,6 +295,19 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
+         <item row="12" column="0" colspan="3">
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="tab">
@@ -330,21 +343,30 @@ Future conversion of these books will use the default settings.</string>
          <item row="3" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Search field:</string>
+            <string>Search &amp;field:</string>
+           </property>
+           <property name="buddy">
+            <cstring>search_field</cstring>
            </property>
           </widget>
          </item>
          <item row="3" column="1">
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Search for:</string>
+            <string>&amp;Search for:</string>
+           </property>
+           <property name="buddy">
+            <cstring>search_for</cstring>
            </property>
           </widget>
          </item>
          <item row="3" column="2">
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>Replace with:</string>
+            <string>&amp;Replace with:</string>
+           </property>
+           <property name="buddy">
+            <cstring>replace_with</cstring>
            </property>
           </widget>
          </item>
@@ -360,7 +382,10 @@ Future conversion of these books will use the default settings.</string>
          <item row="5" column="1">
           <widget class="QLabel" name="label_41">
            <property name="text">
-            <string>Apply function after replace:</string>
+            <string>Apply function &amp;after replace:</string>
+           </property>
+           <property name="buddy">
+            <cstring>replace_func</cstring>
            </property>
           </widget>
          </item>
@@ -370,14 +395,20 @@ Future conversion of these books will use the default settings.</string>
          <item row="6" column="1">
           <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>Test text</string>
+            <string>Test &amp;text</string>
+           </property>
+           <property name="buddy">
+            <cstring>test_text</cstring>
            </property>
           </widget>
          </item>
          <item row="6" column="2">
           <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Test result</string>
+            <string>Test re&amp;sult</string>
+           </property>
+           <property name="buddy">
+            <cstring>test_result</cstring>
            </property>
           </widget>
          </item>

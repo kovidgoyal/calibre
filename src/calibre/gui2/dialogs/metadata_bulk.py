@@ -178,18 +178,18 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.book_1_text.setObjectName(name)
             self.gridLayout1.addWidget(w, i+offset, 2, 1, 1)
 
-        self.s_r_heading.setText(
+        self.s_r_heading.setText('<p>'+
                            _('Search and replace in text fields using '
                              'regular expressions. The search text is an '
                              'arbitrary python-compatible regular expression. '
                              'The replacement text can contain backreferences '
                              'to parenthesized expressions in the pattern. '
                              'The search is not anchored, and can match and '
-                             'replace times on the same string. See '
+                             'replace multiple times on the same string. See '
                              '<a href="http://docs.python.org/library/re.html"> '
-                             'http://docs.python.org/library/re.html</a> '
+                             'this reference</a> '
                              'for more information, and in particular the \'sub\' '
-                             'function. <br>'
+                             'function.') + '<p>' + _(
                              'Note: <b>you can destroy your library</b> '
                              'using this feature. Changes are permanent. There '
                              'is no undo function. You are strongly encouraged '
