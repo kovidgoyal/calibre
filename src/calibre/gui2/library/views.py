@@ -481,7 +481,7 @@ class BooksView(QTableView): # {{{
 
     def select_rows_with_id(self, ids):
         '''
-        Loop through the visible rows, selecting any that have db_id in ids
+        Loop through the visible rows, selecting any that have db_id in list ids
         '''
         ids = set(ids)
         selmode = self.selectionMode()
