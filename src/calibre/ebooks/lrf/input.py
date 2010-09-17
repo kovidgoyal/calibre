@@ -420,8 +420,9 @@ class LRFInput(InputFormatPlugin):
         styles.write()
         return os.path.abspath('content.opf')
 
-    def preprocess_html(self, html):
-        preprocessor = PreProcessor(log=getattr(self, 'log', None))
+    def preprocess_html(self, options, html):
+        self.options = options
+        preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
         return preprocessor(html)
 
 

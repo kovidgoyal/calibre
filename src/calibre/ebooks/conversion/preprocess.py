@@ -399,7 +399,7 @@ class HTMLPreProcessor(object):
             html = unidecoder.decode(html)
 
         if self.plugin_preprocess:
-            html = self.input_plugin_preprocess(html)
+            html = self.input_plugin_preprocess(self.extra_opts, html)
 
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = self.smarten_punctuation(html)

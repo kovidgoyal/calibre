@@ -229,7 +229,7 @@ class RTFInput(InputFormatPlugin):
             res = transform.tostring(result)
             res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             if self.options.preprocess_html:
-                preprocessor = PreProcessor(log=getattr(self, 'log', None))
+                preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
                 res = preprocessor(res)
             f.write(res)
         self.write_inline_css(inline_class)

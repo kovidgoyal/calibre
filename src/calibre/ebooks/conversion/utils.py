@@ -11,7 +11,7 @@ from calibre.utils.logging import default_log
 
 class PreProcessor(object):
 
-    def __init__(self, log=None, extra_opts=None):
+    def __init__(self, extra_opts=None, log=None):
         self.log = default_log if log is None else log
         self.html_preprocess_sections = 0
         self.found_indents = 0
@@ -77,6 +77,32 @@ class PreProcessor(object):
 
     def __call__(self, html):
         self.log("*********  Preprocessing HTML  *********")
+        ###### Check Markup ######
+        #
+        # some lit files don't have any <p> tags or equivalent (generally just plain text between
+        # <pre> tags), check and  mark up line endings if required before proceeding
+        if self.no_markup(html, 0.1):
+             self.log("not enough paragraph markers, adding now")
+             # check if content is in pre tags, use txt procesor to mark up if so
+             pre = re.compile(r'<pre>', re.IGNORECASE)
+             if len(pre.findall(html)) == 1:
+                 self.log("Running Text Processing")
+                 from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
+                 separate_paragraphs_single_line
+                 outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
+                 html = outerhtml.sub('\g<text>', html)
+                 html = separate_paragraphs_single_line(html)
+                 html = preserve_spaces(html)
+                 html = convert_basic(html, epub_split_size_kb=0)
+             else:
+                 # Add markup naively
+                 # TODO - find out if there are cases where there are more than one <pre> tag or
+                 # other types of unmarked html and handle them in some better fashion
+                 add_markup = re.compile('(?<!>)(\n)')
+                 html = add_markup.sub('</p>\n<p>', html)
+
+        ###### Mark Indents/Cleanup ######
+        #
         # Replace series of non-breaking spaces with text-indent
         txtindent = re.compile(ur'<p(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}', re.IGNORECASE)
         html = txtindent.sub(self.insert_indent, html)
@@ -86,31 +112,27 @@ class PreProcessor(object):
         html = re.sub(ur'\u00a0', ' ', html)
         # Get rid of empty <o:p> tags to simplify other processing
         html = re.sub(ur'\s*<o:p>\s*</o:p>', ' ', html)
-        # Get rid of empty span tags
-        html = re.sub(r"\s*<span[^>]*>\s*</span>", " ", html)
+        # Get rid of empty span, bold, & italics tags
+        html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
+        html = re.sub(r"\s*<[ibu]>\s*(<[ibu]>\s*</[ibu]>\s*){0,2}\s*</[ibu]>", " ", html)
+        html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
 
         # If more than 40% of the lines are empty paragraphs then delete them to clean up spacing
         linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
-        blankreg = re.compile(r'\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>', re.IGNORECASE)
+        blankreg = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         #multi_blank = re.compile(r'(\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>){2,}', re.IGNORECASE)
         blanklines = blankreg.findall(html)
         lines = linereg.findall(html)
         if len(lines) > 1:
             self.log("There are " + str(len(blanklines)) + " blank lines. " + str(float(len(blanklines)) / float(len(lines))) + " percent blank")
-            if float(len(blanklines)) / float(len(lines)) > 0.40:
+            if float(len(blanklines)) / float(len(lines)) > 0.40 and getattr(self.extra_opts,
+            'remove_paragraph_spacing', False):
                 self.log("deleting blank lines")
                 html = blankreg.sub('', html)
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = re.sub(r"\s*</p>", "</p>\n", html)
         html = re.sub(r"\s*<p>\s*", "\n<p>", html)
-
-        # some lit files don't have any <p> tags or equivalent (generally just plain text between
-        # <pre> tags), check and  mark up line endings if required before proceeding
-        if self.no_markup(html, 0.1):
-             self.log("not enough paragraph markers, adding now")
-             add_markup = re.compile('(?<!>)(\n)')
-             html = add_markup.sub('</p>\n<p>', html)
-
+        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")
         # detect chapters/sections to match xpath or splitting logic
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
@@ -118,7 +140,7 @@ class PreProcessor(object):
         #
         # Start with most typical chapter headings, get more aggressive until one works
         if self.html_preprocess_sections < 10:
-            chapdetect = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu]>){0,2}s*(<span[^>]*>)?\s*.?(Introduction|Synopsis|Acknowledgements|Chapter|Epilogue|Volume|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,8}\s*(</[ibu]>){0,2})\s*(</span>)?s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu]>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.IGNORECASE)
+            chapdetect = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu]>){0,2}\s*.?(Introduction|Synopsis|Acknowledgements|Chapter|Epilogue|Volume|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,8}\s*(</[ibu]>){0,2})\s*(</span>)?s*(</[ibu]>){0,2}\s*(</span>)?\s*(</(p|/?br)>)\s*\s*(\s*<p[^>]*>\s*</p>){0,2}\s*(<(/?br|p)[^>]*>\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu]>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.IGNORECASE|re.VERBOSE)
             html = chapdetect.sub(self.chapter_head, html)
         if self.html_preprocess_sections < 10:
             self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", trying numeric chapters")
@@ -127,10 +149,10 @@ class PreProcessor(object):
 
         if self.html_preprocess_sections < 10:
             self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", trying with uppercase words")
-            chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu]>){0,2}\s*.?(([A-Z#-]+\s*){1,9})\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu]>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.UNICODE)
+            chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu]>){0,2}\s*.?([A-Z#\-\s]+)\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu]>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.UNICODE)
             html = chapdetect2.sub(self.chapter_head, html)
 
-        # Unwrap lines
+        ###### Unwrap lines ######
         #
         self.log("Unwrapping Lines")
         # Some OCR sourced files have line breaks in the html using a combination of span & p tags
@@ -149,9 +171,9 @@ class PreProcessor(object):
             format = 'html'
 
         # Calculate Length
-        length = line_length('pdf', html, getattr(self.extra_opts,
+        length = line_length(format, html, getattr(self.extra_opts,
             'html_unwrap_factor', 0.4))
-        self.log("*** Median line length is " + str(length) + ",calculated with " + format + " format ***")
+        self.log("*** Median line length is " + str(length) + ", calculated with " + format + " format ***")
         #
         # Unwrap and/or delete soft-hyphens, hyphens
         html = re.sub(u'­\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
@@ -164,13 +186,15 @@ class PreProcessor(object):
         # If still no sections after unwrapping mark split points on lines with no punctuation
         if self.html_preprocess_sections < 10:
             self.log("Looking for more split points based on punctuation, currently have " + str(self.html_preprocess_sections))
-            #self.log(html)
             chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*.?([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
             html = chapdetect3.sub(self.chapter_break, html)
         # search for places where a first or second level heading is immediately followed by another
         # top level heading.  demote the second heading to h3 to prevent splitting between chapter
         # headings and titles, images, etc
         doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
-        html = doubleheading.sub('\g<firsthead>'+'<h3'+'\g<secondhead>'+'</h3>', html)
+        html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
+
+        # put back non-breaking spaces in empty paragraphs to preserve original formatting
+        html = blankreg.sub('\n'+'\g<openline>'+' '+'\g<closeline>', html)
 
         return html
