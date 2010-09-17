@@ -11,10 +11,11 @@ from calibre.utils.logging import default_log
 
 class PreProcessor(object):
 
-    def __init__(self, log=None):
+    def __init__(self, log=None, extra_opts=None):
         self.log = default_log if log is None else log
         self.html_preprocess_sections = 0
         self.found_indents = 0
+        self.extra_opts = extra_opts
 
     def chapter_head(self, match):
         chap = match.group('chap')
@@ -91,6 +92,7 @@ class PreProcessor(object):
         # If more than 40% of the lines are empty paragraphs then delete them to clean up spacing
         linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
         blankreg = re.compile(r'\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>', re.IGNORECASE)
+        #multi_blank = re.compile(r'(\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>){2,}', re.IGNORECASE)
         blanklines = blankreg.findall(html)
         lines = linereg.findall(html)
         if len(lines) > 1:
@@ -147,15 +149,16 @@ class PreProcessor(object):
             format = 'html'
 
         # Calculate Length
-        length = line_length(format, html, 0.4)
+        length = line_length('pdf', html, getattr(self.extra_opts,
+            'html_unwrap_factor', 0.4))
         self.log("*** Median line length is " + str(length) + ",calculated with " + format + " format ***")
         #
         # Unwrap and/or delete soft-hyphens, hyphens
         html = re.sub(u'­\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
         html = re.sub(u'(?<=[-–—])\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?=[[a-z\d])', '', html)
 
-        # Unwrap lines using punctation if the median length of all lines is less than 200
-        unwrap = re.compile(r"(?<=.{%i}[a-z,;:\IA])\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
+        # Unwrap lines using punctation and line length
+        unwrap = re.compile(r"(?<=.{%i}([a-z,;):\IA]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
         html = unwrap.sub(' ', html)
 
         # If still no sections after unwrapping mark split points on lines with no punctuation

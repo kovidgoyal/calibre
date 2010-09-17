@@ -6,10 +6,7 @@ The dialog used to edit meta information for a book as well as
 add/remove formats
 '''
 
-import os
-import re
-import time
-import traceback
+import os, re, time, traceback, textwrap
 
 from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QThread, QDate, \
     QPixmap, QListWidgetItem, QDialog, pyqtSignal
@@ -331,6 +328,14 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         ResizableDialog.__init__(self, window)
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
         self.cancel_all = False
+        base = unicode(self.author_sort.toolTip())
+        self.ok_aus_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
+                            _(' The green color indicates that the current '
+                    'author sort matches the current author'))
+        self.bad_aus_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
+                _(' The red color indicates that the current '
+                    'author sort does not match the current author'))
+
         if cancel_all:
             self.__abort_button = self.button_box.addButton(self.button_box.Abort)
             self.__abort_button.setToolTip(_('Abort the editing of all remaining books'))
@@ -490,6 +495,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             col = 'rgb(255, 0, 0, 20%)'
         self.author_sort.setStyleSheet('QLineEdit { color: black; '
                                        'background-color: %s; }'%col)
+        tt = self.ok_aus_tooltip if normal else self.bad_aus_tooltip
+        self.author_sort.setToolTip(tt)
 
     def validate_isbn(self, isbn):
         isbn = unicode(isbn).strip()
