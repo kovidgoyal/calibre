@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import re
 from calibre.ebooks.conversion.preprocess import line_length
 from calibre.utils.logging import default_log
-from calibre import entity_to_unicode
 
 class PreProcessor(object):
 
