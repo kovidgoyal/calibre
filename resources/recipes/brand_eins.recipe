@@ -1,0 +1,125 @@
+#!/usr/bin/env  python
+# -*- coding: utf-8 -*-
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Constantin Hofstetter <consti at consti.de>'
+__version__   = '0.95'
+
+''' http://brandeins.de - Wirtschaftsmagazin '''
+import re
+import string
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class BrandEins(BasicNewsRecipe):
+
+  title = u'Brand Eins'
+  __author__ = 'Constantin Hofstetter'
+  description = u'Wirtschaftsmagazin'
+  publisher ='brandeins.de'
+  category = 'politics, business, wirtschaft, Germany'
+  use_embedded_content = False
+  lang = 'de-DE'
+  no_stylesheets = True
+  encoding = 'utf-8'
+  language = 'de'
+
+  # 2 is the last full magazine (default)
+  # 1 is the newest (but not full)
+  # 3 is one before 2 etc.
+  which_ausgabe = 2
+
+  keep_only_tags = [dict(name='div', attrs={'id':'theContent'}), dict(name='div', attrs={'id':'sidebar'}), dict(name='div', attrs={'class':'intro'}), dict(name='p', attrs={'class':'bodytext'}), dict(name='div', attrs={'class':'single_image'})]
+
+  '''
+  brandeins.de
+  '''
+
+  def postprocess_html(self, soup,first):
+
+    # Move the image of the sidebar right below the h3
+    first_h3 = soup.find(name='div', attrs={'id':'theContent'}).find('h3')
+    for imgdiv in soup.findAll(name='div', attrs={'class':'single_image'}):
+      if len(first_h3.findNextSiblings('div', {'class':'intro'})) >= 1:
+        # first_h3.parent.insert(2, imgdiv)
+        first_h3.findNextSiblings('div', {'class':'intro'})[0].parent.insert(4, imgdiv)
+      else:
+        first_h3.parent.insert(2, imgdiv)
+
+    # Now, remove the sidebar
+    soup.find(name='div', attrs={'id':'sidebar'}).extract()
+
+    # Remove the rating-image (stars) from the h3
+    for img in first_h3.findAll(name='img'):
+        img.extract()
+
+    # Mark the intro texts as italic
+    for div in soup.findAll(name='div', attrs={'class':'intro'}):
+      for p in div.findAll('p'):
+        content = self.tag_to_string(p)
+        new_p = "<p><i>"+ content +"</i></p>"
+        p.replaceWith(new_p)
+
+    return soup
+
+  def parse_index(self):
+    feeds = []
+
+    archive = "http://www.brandeins.de/archiv.html"
+
+    soup = self.index_to_soup(archive)
+    latest_jahrgang = soup.findAll('div', attrs={'class': re.compile(r'\bjahrgang-latest\b') })[0].findAll('ul')[0]
+    pre_latest_issue = latest_jahrgang.findAll('a')[len(latest_jahrgang.findAll('a'))-self.which_ausgabe]
+    url = pre_latest_issue.get('href', False)
+    # Get the title for the magazin - build it out of the title of the cover - take the issue and year;
+    self.title = "Brand Eins "+ re.search(r"(?P<date>\d\d\/\d\d\d\d+)", pre_latest_issue.find('img').get('title', False)).group('date')
+    url = 'http://brandeins.de/'+url
+
+    # url = "http://www.brandeins.de/archiv/magazin/tierisch.html"
+    titles_and_articles = self.brand_eins_parse_latest_issue(url)
+    if titles_and_articles:
+      for title, articles in titles_and_articles:
+        feeds.append((title, articles))
+    return feeds
+
+  def brand_eins_parse_latest_issue(self, url):
+    soup = self.index_to_soup(url)
+    article_lists = [soup.find('div', attrs={'class':'subColumnLeft articleList'}), soup.find('div', attrs={'class':'subColumnRight articleList'})]
+
+    titles_and_articles = []
+    current_articles = []
+    chapter_title = "Editorial"
+    self.log('Found Chapter:', chapter_title)
+
+    # Remove last list of links (thats just the impressum and the 'gewinnspiel')
+    article_lists[1].findAll('ul')[len(article_lists[1].findAll('ul'))-1].extract()
+
+    for article_list in article_lists:
+      for chapter in article_list.findAll('ul'):
+        if len(chapter.findPreviousSiblings('h3')) >= 1:
+          new_chapter_title = string.capwords(self.tag_to_string(chapter.findPreviousSiblings('h3')[0]))
+          if new_chapter_title != chapter_title:
+            titles_and_articles.append([chapter_title, current_articles])
+            current_articles = []
+            self.log('Found Chapter:', new_chapter_title)
+          chapter_title = new_chapter_title
+        for li in chapter.findAll('li'):
+          a = li.find('a', href = True)
+          if a is None:
+            continue
+          title = self.tag_to_string(a)
+          url = a.get('href', False)
+          if not url or not title:
+            continue
+          url = 'http://brandeins.de/'+url
+          if len(a.parent.findNextSiblings('p')) >= 1:
+            description = self.tag_to_string(a.parent.findNextSiblings('p')[0])
+          else:
+            description = ''
+
+          self.log('\t\tFound article:', title)
+          self.log('\t\t\t', url)
+          self.log('\t\t\t', description)
+
+          current_articles.append({'title': title, 'url': url, 'description': description, 'date':''})
+    titles_and_articles.append([chapter_title, current_articles])
+    return titles_and_articles

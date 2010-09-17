@@ -10,6 +10,7 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.constants import numeric_version
+from calibre import walk
 
 class RecipeDisabled(Exception):
     pass
@@ -108,6 +109,10 @@ class RecipeInput(InputFormatPlugin):
             setattr(opts, key, val)
 
         for f in os.listdir('.'):
+            if f.endswith('.opf'):
+                return os.path.abspath(f)
+
+        for f in walk('.'):
             if f.endswith('.opf'):
                 return os.path.abspath(f)
 
