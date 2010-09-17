@@ -317,7 +317,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     v = apply_pattern(val).strip()
                     if v:
                         res.append(v)
-                val = fm['is_multiple'].join(res)
+                val = res
+                if fm['is_custom']:
+                    # The standard tags and authors values want to be lists.
+                    # All custom columns are to be strings
+                    val = fm['is_multiple'].join(val)
             else:
                 val = apply_pattern(val)
 
@@ -330,8 +334,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     setter = self.db.set_comment
                 else:
                     setter = getattr(self.db, 'set_'+field)
-                if field == 'authors':
-                    val = string_to_authors(val)
                 setter(id, val, notify=False, commit=False)
         self.db.commit()
 
