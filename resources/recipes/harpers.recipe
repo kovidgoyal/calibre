@@ -4,7 +4,6 @@ __copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 harpers.org
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class Harpers(BasicNewsRecipe):
     title                 = u"Harper's Magazine"
@@ -26,12 +25,12 @@ class Harpers(BasicNewsRecipe):
                         }
 
     extra_css = '''
-                h1{ font-family:georgia ; color:#111111; font-size:large;}                
+                h1{ font-family:georgia ; color:#111111; font-size:large;}
                 .box-of-helpful{ font-family:arial ; font-size:x-small;}
                 p{font-family:georgia ;}
-                .caption{font-family:Verdana,sans-serif;font-size:x-small;color:#666666;}                                
+                .caption{font-family:Verdana,sans-serif;font-size:x-small;color:#666666;}
                 '''
-              
+
     keep_only_tags = [ dict(name='div', attrs={'id':'cached'}) ]
     remove_tags = [
                      dict(name='table', attrs={'class':['rcnt','rcnt topline']})
@@ -47,9 +46,9 @@ class Harpers(BasicNewsRecipe):
         soup = self.index_to_soup(index)
         link_item = soup.find(name = 'img',attrs= {'class':"cover"})
         if link_item:
-           cover_url = 'http://harpers.org' + link_item['src'] 
+           cover_url = 'http://harpers.org' + link_item['src']
         return cover_url
-    
+
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
