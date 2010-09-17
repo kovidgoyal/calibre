@@ -479,6 +479,21 @@ class BooksView(QTableView): # {{{
                 sm = self.selectionModel()
                 sm.select(index, sm.ClearAndSelect|sm.Rows)
 
+    def select_rows_with_id(self, ids):
+        '''
+        Loop through the visible rows, selecting any that have db_id in ids
+        '''
+        ids = set(ids)
+        selmode = self.selectionMode()
+        self.setSelectionMode(QAbstractItemView.MultiSelection)
+        self.clearSelection()
+        db = self.model().db
+        loc = db.FIELD_MAP['id']
+        for i in range(0, len(db.data)):
+            if db.get_property(i, index_is_id=False, loc=loc) in ids:
+                self.selectRow(i)
+        self.setSelectionMode(selmode)
+
     def close(self):
         self._model.close()
 
