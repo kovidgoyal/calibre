@@ -4,15 +4,15 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Dialog to edit metadata in bulk'''
 
 from threading import Thread
-import re
+import re, string
 
-from PyQt4.Qt import QDialog, QGridLayout
+from PyQt4.Qt import Qt, QDialog, QGridLayout
 from PyQt4 import QtGui
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, \
-    authors_to_string
+                                    authors_to_string, MetaInformation
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2.dialogs.progress import BlockingBusy
 from calibre.gui2 import error_dialog, Dispatcher
@@ -99,6 +99,26 @@ class Worker(Thread):
 
         self.callback()
 
+class SafeFormat(string.Formatter):
+    '''
+    Provides a format function that substitutes '' for any missing value
+    '''
+    def get_value(self, key, args, vals):
+        v = vals.get(key, None)
+        if v is None:
+            return ''
+        if isinstance(v, (tuple, list)):
+            v = ','.join(v)
+        return v
+
+composite_formatter = SafeFormat()
+
+def format_composite(x, mi):
+    try:
+        ans = composite_formatter.vformat(x, [], mi).strip()
+    except:
+        ans = x
+    return ans
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
@@ -163,7 +183,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.s_r_number_of_books = min(7, len(self.ids))
         for i in range(1,self.s_r_number_of_books+1):
             w = QtGui.QLabel(self.tabWidgetPage3)
-            w.setText(_('Book %d:'%i))
+            w.setText(_('Book %d:')%i)
             self.gridLayout1.addWidget(w, i+offset, 0, 1, 1)
             w = QtGui.QLineEdit(self.tabWidgetPage3)
             w.setReadOnly(True)
@@ -205,6 +225,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
         self.central_widget.setCurrentIndex(0)
 
+        self.search_for.completer().setCaseSensitivity(Qt.CaseSensitive)
+        self.replace_with.completer().setCaseSensitivity(Qt.CaseSensitive)
+
+
     def s_r_field_changed(self, txt):
         txt = unicode(txt)
         for i in range(0, self.s_r_number_of_books):
@@ -220,6 +244,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     if val:
                         val.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
                         val = val[0]
+                        if txt == 'authors':
+                            val = val.replace('|', ',')
                     else:
                         val = ''
             else:
@@ -239,37 +265,55 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         for i in range(0,self.s_r_number_of_books):
             getattr(self, 'book_%d_result'%(i+1)).setText('')
 
+    field_match_re = re.compile(r'(^|[^\\])(\\g<)([^>]+)(>)')
+
     def s_r_func(self, match):
-        rf = self.s_r_functions[unicode(self.replace_func.currentText())]
-        rv = unicode(self.replace_with.text())
-        val = match.expand(rv)
-        return rf(val)
+        rfunc = self.s_r_functions[unicode(self.replace_func.currentText())]
+        rtext = unicode(self.replace_with.text())
+        mi_data = self.mi.get_all_non_none_attributes()
+
+        def fm_func(m):
+            try:
+                if m.group(3) not in self.mi.all_keys: return m.group(0)
+                else: return '%s{%s}'%(m.group(1), m.group(3))
+            except:
+                import traceback
+                traceback.print_exc()
+                return m.group(0)
+
+        rtext = re.sub(self.field_match_re, fm_func, rtext)
+        rtext = match.expand(rtext)
+        rtext = format_composite(rtext, mi_data)
+        return rfunc(rtext)
 
     def s_r_paint_results(self, txt):
         self.s_r_error = None
         self.s_r_set_colors()
         try:
             self.s_r_obj = re.compile(unicode(self.search_for.text()))
-        except re.error as e:
+        except Exception as e:
             self.s_r_obj = None
             self.s_r_error = e
             self.s_r_set_colors()
             return
 
         try:
+            self.mi = MetaInformation(None, None)
             self.test_result.setText(self.s_r_obj.sub(self.s_r_func,
                                      unicode(self.test_text.text())))
-        except re.error as e:
+        except Exception as e:
             self.s_r_error = e
             self.s_r_set_colors()
             return
 
         for i in range(0,self.s_r_number_of_books):
+            id = self.ids[i]
+            self.mi = self.db.get_metadata(id, index_is_id=True)
             wt = getattr(self, 'book_%d_text'%(i+1))
             wr = getattr(self, 'book_%d_result'%(i+1))
             try:
                 wr.setText(self.s_r_obj.sub(self.s_r_func, unicode(wt.text())))
-            except re.error as e:
+            except Exception as e:
                 self.s_r_error = e
                 self.s_r_set_colors()
                 break
@@ -303,6 +347,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     # The standard tags and authors values want to be lists.
                     # All custom columns are to be strings
                     val = fm['is_multiple'].join(val)
+                elif field == 'authors':
+                    val = [v.replace('|', ',') for v in val]
             else:
                 val = apply_pattern(val)
 

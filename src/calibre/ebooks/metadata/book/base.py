@@ -12,6 +12,7 @@ from calibre.ebooks.metadata.book import SC_COPYABLE_FIELDS
 from calibre.ebooks.metadata.book import SC_FIELDS_COPY_NOT_NULL
 from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
 from calibre.ebooks.metadata.book import TOP_LEVEL_CLASSIFIERS
+from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date
 
@@ -130,6 +131,14 @@ class Metadata(object):
 
     def set(self, field, val, extra=None):
         self.__setattr__(field, val, extra)
+
+    @property
+    def all_keys(self):
+        '''
+        All attribute keys known by this instance, even if their value is None
+        '''
+        _data = object.__getattribute__(self, '_data')
+        return frozenset(ALL_METADATA_FIELDS.union(_data['user_metadata'].iterkeys()))
 
     @property
     def user_metadata_keys(self):
