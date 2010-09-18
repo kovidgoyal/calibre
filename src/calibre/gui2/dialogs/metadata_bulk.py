@@ -220,6 +220,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     if val:
                         val.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
                         val = val[0]
+                        if txt == 'authors':
+                            val = val.replace('|', ',')
                     else:
                         val = ''
             else:
@@ -303,6 +305,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     # The standard tags and authors values want to be lists.
                     # All custom columns are to be strings
                     val = fm['is_multiple'].join(val)
+                elif field == 'authors':
+                    val = [v.replace('|', ',') for v in val]
             else:
                 val = apply_pattern(val)
 
