@@ -8,8 +8,9 @@ __docformat__ = 'restructuredtext de'
 '''
 www.taz.de/digiabo
 '''
-import os, urllib2, zipfile, tempfile
+import os, urllib2, zipfile
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
 
 class TazDigiabo(BasicNewsRecipe):
 
@@ -26,38 +27,39 @@ class TazDigiabo(BasicNewsRecipe):
     }
 
     def build_index(self):
-        if self.username is not None and self.password is not None:
-            domain = "http://www.taz.de"
+        domain = "http://www.taz.de"
 
-            url = domain + "/epub/"
+        url = domain + "/epub/"
 
-            auth_handler = urllib2.HTTPBasicAuthHandler()
-            auth_handler.add_password(realm='TAZ-ABO',
-                                      uri=url,
-                                      user=self.username,
-                                      passwd=self.password)
-            opener = urllib2.build_opener(auth_handler)
-            urllib2.install_opener(opener)
+        auth_handler = urllib2.HTTPBasicAuthHandler()
+        auth_handler.add_password(realm='TAZ-ABO',
+                                    uri=url,
+                                    user=self.username,
+                                    passwd=self.password)
+        opener = urllib2.build_opener(auth_handler)
+        urllib2.install_opener(opener)
 
-            try:
-                f = urllib2.urlopen(url)
-            except urllib2.HTTPError:
-                self.report_progress(0,_('Can\'t login to download issue'))
-                raise ValueError('Failed to login, check your username and'
-                        ' password')
+        try:
+            f = urllib2.urlopen(url)
+        except urllib2.HTTPError:
+            self.report_progress(0,_('Can\'t login to download issue'))
+            raise ValueError('Failed to login, check your username and'
+                    ' password')
 
-            tmp = tempfile.TemporaryFile()
-            self.report_progress(0,_('downloading epub'))
-            tmp.write(f.read())
+        tmp = PersistentTemporaryFile(suffix='.epub')
+        self.report_progress(0,_('downloading epub'))
+        tmp.write(f.read())
+        tmp.close()
 
-            zfile = zipfile.ZipFile(tmp, 'r')
-            self.report_progress(0,_('extracting epub'))
+        zfile = zipfile.ZipFile(tmp.name, 'r')
+        self.report_progress(0,_('extracting epub'))
 
-            zfile.extractall(self.output_dir)
+        zfile.extractall(self.output_dir)
 
-            tmp.close()
-            index = os.path.join(self.output_dir, 'content.opf')
+        tmp.close()
+        index = os.path.join(self.output_dir, 'content.opf')
 
-            self.report_progress(1,_('epub downloaded and extracted'))
+        self.report_progress(1,_('epub downloaded and extracted'))
 
-            return index
+        return index
+

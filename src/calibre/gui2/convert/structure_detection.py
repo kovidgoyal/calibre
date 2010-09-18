@@ -26,8 +26,10 @@ class StructureDetectionWidget(Widget, Ui_Form):
                 'remove_first_image',
                 'insert_metadata', 'page_breaks_before',
                 'preprocess_html', 'remove_header', 'header_regex',
-                'remove_footer', 'footer_regex']
+                'remove_footer', 'footer_regex','html_unwrap_factor']
                 )
+        self.opt_html_unwrap_factor.setEnabled(False)
+        self.huf_label.setEnabled(False)
         self.db, self.book_id = db, book_id
         for x in ('pagebreak', 'rule', 'both', 'none'):
             self.opt_chapter_mark.addItem(x)
@@ -64,3 +66,8 @@ class StructureDetectionWidget(Widget, Ui_Form):
                 _('The XPath expression %s is invalid.')%x.text).exec_()
                 return False
         return True
+
+    def set_value_handler(self, g, val):
+        if val is None and g is self.opt_html_unwrap_factor:
+            g.setValue(0.0)
+            return True

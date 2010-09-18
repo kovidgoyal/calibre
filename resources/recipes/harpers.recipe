@@ -1,18 +1,14 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 harpers.org
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class Harpers(BasicNewsRecipe):
     title                 = u"Harper's Magazine"
     __author__            = u'Darko Miletic'
-    language = 'en'
-
+    language              = 'en'
     description           = u"Harper's Magazine: Founded June 1850."
     publisher             = "Harper's Magazine "
     category              = 'news, politics, USA'
@@ -21,26 +17,26 @@ class Harpers(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
 
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} img {margin-top: 0em; margin-bottom: 0.4em}"'
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
 
     extra_css = '''
-                h1{ font-family:georgia ; color:#111111; font-size:large;}                
+                h1{ font-family:georgia ; color:#111111; font-size:large;}
                 .box-of-helpful{ font-family:arial ; font-size:x-small;}
                 p{font-family:georgia ;}
-                .caption{font-family:Verdana,sans-serif;font-size:x-small;color:#666666;}                                
+                .caption{font-family:Verdana,sans-serif;font-size:x-small;color:#666666;}
                 '''
-              
+
     keep_only_tags = [ dict(name='div', attrs={'id':'cached'}) ]
     remove_tags = [
                      dict(name='table', attrs={'class':['rcnt','rcnt topline']})
-                    ,dict(name=['link','object','embed'])
+                    ,dict(name=['link','object','embed','meta','base'])
                   ]
+    remove_attributes = ['width','height']
 
     feeds       = [(u"Harper's Magazine", u'http://www.harpers.org/rss/frontpage-rss20.xml')]
 
@@ -49,20 +45,13 @@ class Harpers(BasicNewsRecipe):
         index = 'http://harpers.org/'
         soup = self.index_to_soup(index)
         link_item = soup.find(name = 'img',attrs= {'class':"cover"})
-        print link_item
         if link_item:
-           cover_url = 'http://harpers.org' + link_item['src'] 
-        print cover_url   
+           cover_url = 'http://harpers.org' + link_item['src']
         return cover_url
-    
+
     def preprocess_html(self, soup):
-        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
-        soup.head.insert(1,mcharset)
         for item in soup.findAll(style=True):
             del item['style']
         for item in soup.findAll(xmlns=True):
             del item['xmlns']
         return soup
-
-    
-

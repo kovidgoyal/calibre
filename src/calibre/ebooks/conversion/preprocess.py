@@ -144,7 +144,6 @@ class HTMLPreProcessor(object):
     # Fix pdftohtml markup
     PDFTOHTML  = [
                   # Fix umlauts
-                  # ¨
                   (re.compile(u'¨\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'ä'),
                   (re.compile(u'¨\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Ä'),
                   (re.compile(u'¨\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'ë'),
@@ -351,7 +350,7 @@ class HTMLPreProcessor(object):
                 # print "The pdf line length returned is " + str(length)
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(r'(?<=.{%i}[a-z,;:)\-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(r'(?<=.{%i}([a-z,:)\-IA]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + start_rules:
@@ -399,7 +398,7 @@ class HTMLPreProcessor(object):
             html = unidecoder.decode(html)
 
         if self.plugin_preprocess:
-            html = self.input_plugin_preprocess(html)
+            html = self.input_plugin_preprocess(self.extra_opts, html)
 
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = self.smarten_punctuation(html)

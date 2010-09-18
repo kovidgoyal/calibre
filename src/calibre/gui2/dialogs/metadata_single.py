@@ -6,10 +6,7 @@ The dialog used to edit meta information for a book as well as
 add/remove formats
 '''
 
-import os
-import re
-import time
-import traceback
+import os, re, time, traceback, textwrap
 
 from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QThread, QDate, \
     QPixmap, QListWidgetItem, QDialog, pyqtSignal
@@ -331,6 +328,14 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         ResizableDialog.__init__(self, window)
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
         self.cancel_all = False
+        base = unicode(self.author_sort.toolTip())
+        self.ok_aus_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
+                            _(' The green color indicates that the current '
+                    'author sort matches the current author'))
+        self.bad_aus_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
+                _(' The red color indicates that the current '
+                    'author sort does not match the current author'))
+
         if cancel_all:
             self.__abort_button = self.button_box.addButton(self.button_box.Abort)
             self.__abort_button.setToolTip(_('Abort the editing of all remaining books'))
@@ -375,6 +380,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         self.remove_unused_series)
         QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
                         self.deduce_author_sort)
+        self.connect(self.author_sort, SIGNAL('textChanged(const QString&)'),
+                     self.author_sort_box_changed)
+        self.connect(self.authors, SIGNAL('editTextChanged(const QString&)'),
+                     self.authors_box_changed)
         self.connect(self.formats, SIGNAL('itemDoubleClicked(QListWidgetItem*)'),
                 self.show_format)
         self.connect(self.formats, SIGNAL('delete_format()'), self.remove_format)
@@ -466,6 +475,28 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[0])
             for c in range(2, len(ans[i].widgets), 2):
                 w.setTabOrder(ans[i].widgets[c-1], ans[i].widgets[c+1])
+
+    def authors_box_changed(self, txt):
+        aus = unicode(txt)
+        aus = re.sub(r'\s+et al\.$', '', aus)
+        aus = self.db.author_sort_from_authors(string_to_authors(aus))
+        self.mark_author_sort(normal=(unicode(self.author_sort.text()) == aus))
+
+    def author_sort_box_changed(self, txt):
+        au = unicode(self.authors.text())
+        au = re.sub(r'\s+et al\.$', '', au)
+        au = self.db.author_sort_from_authors(string_to_authors(au))
+        self.mark_author_sort(normal=(au == txt))
+
+    def mark_author_sort(self, normal=True):
+        if normal:
+            col = 'rgb(0, 255, 0, 20%)'
+        else:
+            col = 'rgb(255, 0, 0, 20%)'
+        self.author_sort.setStyleSheet('QLineEdit { color: black; '
+                                       'background-color: %s; }'%col)
+        tt = self.ok_aus_tooltip if normal else self.bad_aus_tooltip
+        self.author_sort.setToolTip(tt)
 
     def validate_isbn(self, isbn):
         isbn = unicode(isbn).strip()

@@ -4,6 +4,91 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.19
+  date: 2010-09-17
+
+  new features:
+    - title: "The ability to perform search and replace via regular expressions in the Bulk Edit metadata dialog"
+      type: major
+
+    - title: "Add an option to have calibre automatically convert straight quotes to curly quotes. Also handles em/en-dashes and ellipses. Found under 'Look & Feel' in the conversion options"
+      type: major
+      tickets: [6808]
+
+    - title: "Greatly improve sorting performance on large libraries."
+      type: major
+
+    - title: "Drivers for the SONY PRS-350/PRS-650 and the Sovos E-reader"
+
+    - title: "Kobo driver: Add management of the I'm Reading list on Kobo via an Im_Reading tag in calibre. See http://www.mobileread.com/forums/showthread.php?t=98906 for details"
+
+    - title: "Conversion pipeline: Add an option to control how hard line breaks are removed during preprocessing. See the Structure Detection section in the conversion options"
+
+    - title: "In the Edit metadata dialog, indicate whether the author sort value matches the author value, using a background color"
+
+    - title: "Add an option to split the toolbar into two toolbars in Preferences->Interface->Look and Feel"
+
+    - title: "EPUB Output: Improved design of the 'jacket' page created by calibre when using the 'Insert metadata at start of book' option"
+
+    - title: "PDF Input: Improve line unwrapping, handling of hyphens/dashes and quotes. Also handle more specially encoded non ASCII characters"
+
+  bug fixes:
+    - title: "Fix regression in filename shortening that caused loss of filename extension"
+
+    - title: "Fix various regressions that could be triggered when using search restrictions and/or multi-sorts and connecting a device"
+
+    - title: "Database: Fix possible race condition in windows when changing title/author during move of book files, that could lead to old files not being deleted"
+
+    - title: "Conversion pipeline: Don't die if rescaling of image raises an exception, just ignore and continue"
+
+    - title: "Database: Update has_cover cache when setting/removing covers so that the search returns correct results. Also fix an exception that could occur when adding books with a db that has been upgraded from very old SQL."
+
+    - title: "Workaround for bug that affects some windows installs causing white backgrounds on default covers to be rendered as yellow"
+
+    - title: "Fix handling of non-ASCII chars when rendering series in default EPUB cover"
+
+    - title: "Fix --start-in-tray switch displays hidden windows in metacity, xfwm4 and compiz"
+      tickets: [6806]
+
+    - title: "Conversion pipeline: When setting margins on <body> explicitly set padding to 0 to override and existing padding in the input document"
+
+    - title: "CHM Input: Ignore missing image files in the input document"
+      tickets: [6773]
+
+    - title: "News download: Fix bug that could break some downloads in non ASCII locales"
+
+    - title: "TXT Output: When using preserve spaces, output tab characters as a sequence of four non-breaking spaces as some readers dont handle the 09 char code."
+
+    - title: "PDB Input: Fix bug in conversion of TOC in some PML files"
+
+  new recipes:
+    - title: "taz.de RSS"
+      author: Alexander Schremmer
+
+    - title: "Brand Eins"
+      author: Constantin Hofstetter
+
+    - title: "Winnipeg Free Press"
+      author: buyo
+
+    - title: "Buckmasters in the kitchen, The Walrus Magazine and Kansas City Star"
+      author: Tony Stegall
+
+    - title: "Europa Sur"
+      author: "Darko Miletic"
+
+
+  improved recipes:
+    - Harpers (free)
+    - Danas
+    - Novosti
+    - ESPN
+    - Taz Digiabo
+    - Slate
+    - AJC
+    - Infobae
+    - NSPM
+ 
 - version: 0.7.18
   date: 2010-09-10
 

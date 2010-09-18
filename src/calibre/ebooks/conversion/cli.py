@@ -137,7 +137,7 @@ def add_pipeline_options(parser, plumber):
                       'chapter', 'chapter_mark',
                       'prefer_metadata_cover', 'remove_first_image',
                       'insert_metadata', 'page_breaks_before',
-                      'preprocess_html',
+                      'preprocess_html', 'html_unwrap_factor',
                   ]
                   ),
 
