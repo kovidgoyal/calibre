@@ -143,6 +143,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         SchemaUpgrade.__init__(self)
         self.initialize_dynamic()
 
+    def get_property(self, idx, index_is_id=False, loc=-1):
+        row = self.data._data[idx] if index_is_id else self.data[idx]
+        if row is not None:
+            return row[loc]
+
     def initialize_dynamic(self):
         self.field_metadata = FieldMetadata() #Ensure we start with a clean copy
         self.prefs = DBPrefs(self)
@@ -324,17 +329,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.last_update_check = self.last_modified()
 
 
-        def get_property(idx, index_is_id=False, loc=-1):
-            row = self.data._data[idx] if index_is_id else self.data[idx]
-            if row is not None:
-                return row[loc]
-
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
                      'title', 'timestamp', 'uuid', 'pubdate', 'ondevice'):
-            setattr(self, prop, functools.partial(get_property,
+            setattr(self, prop, functools.partial(self.get_property,
                     loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
-        setattr(self, 'title_sort', functools.partial(get_property,
+        setattr(self, 'title_sort', functools.partial(self.get_property,
                 loc=self.FIELD_MAP['sort']))
 
     def initialize_database(self):
@@ -439,7 +439,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if not f:
                     continue
                 stream = cStringIO.StringIO(f)
-                self.add_format(id, format, stream, index_is_id=True, path=tpath)
+                self.add_format(id, format, stream, index_is_id=True,
+                        path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
         if commit:
             self.conn.commit()
@@ -598,7 +599,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def has_cover(self, index, index_is_id=False):
         id = index if index_is_id else self.id(index)
-        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        try:
+            path = os.path.join(self.abspath(id, index_is_id=True), 'cover.jpg')
+        except:
+            # Can happen if path has not yet been set
+            return False
         return os.access(path, os.R_OK)
 
     def remove_cover(self, id, notify=True):
@@ -609,6 +614,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except (IOError, OSError):
                 time.sleep(0.2)
                 os.remove(path)
+        self.data.set(id, self.FIELD_MAP['cover'], False, row_is_id=True)
         if notify:
             self.notify('cover', [id])
 
@@ -629,6 +635,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except (IOError, OSError):
                 time.sleep(0.2)
                 save_cover_data_to(data, path)
+        self.data.set(id, self.FIELD_MAP['cover'], True, row_is_id=True)
         if notify:
             self.notify('cover', [id])
 
@@ -1087,8 +1094,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.set_path(id, True)
         self.notify('metadata', [id])
 
-    # Given a book, return the list of author sort strings for the book's authors
     def authors_sort_strings(self, id, index_is_id=False):
+        '''
+        Given a book, return the list of author sort strings
+        for the book's authors
+        '''
         id = id if index_is_id else self.id(id)
         aut_strings = self.conn.get('''
                         SELECT sort
@@ -1119,7 +1129,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 result.append(r)
         return ' & '.join(result).replace('|', ',')
 
-    def set_authors(self, id, authors, notify=True):
+    def set_authors(self, id, authors, notify=True, commit=True):
         '''
         `authors`: A list of authors.
         '''
@@ -1147,16 +1157,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ss = self.author_sort_from_book(id, index_is_id=True)
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
                           (ss, id))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['authors'],
                       ','.join([a.replace(',', '|') for a in authors]),
                       row_is_id=True)
         self.data.set(id, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
-        self.set_path(id, True)
+        self.set_path(id, index_is_id=True, commit=commit)
         if notify:
             self.notify('metadata', [id])
 
-    def set_title(self, id, title, notify=True):
+    def set_title(self, id, title, notify=True, commit=True):
         if not title:
             return
         if not isinstance(title, unicode):
@@ -1167,8 +1178,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.data.set(id, self.FIELD_MAP['sort'], title_sort(title), row_is_id=True)
         else:
             self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)
-        self.set_path(id, True)
-        self.conn.commit()
+        self.set_path(id, index_is_id=True, commit=commit)
+        if commit:
+            self.conn.commit()
         if notify:
             self.notify('metadata', [id])
 
@@ -1744,10 +1756,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         series_index = 1.0 if mi.series_index is None else mi.series_index
         aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
         title = mi.title
-        if isinstance(aus, str):
+        if isbytestring(aus):
             aus = aus.decode(preferred_encoding, 'replace')
-        if isinstance(title, str):
-            title = title.decode(preferred_encoding)
+        if isbytestring(title):
+            title = title.decode(preferred_encoding, 'replace')
         obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
                             (title, series_index, aus))
         id = obj.lastrowid

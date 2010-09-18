@@ -16,6 +16,7 @@ class SimilarBooksAction(InterfaceAction):
     name = 'Similar Books'
     action_spec = (_('Similar books...'), None, None, None)
     popup_type = QToolButton.InstantPopup
+    action_type = 'current'
 
     def genesis(self):
         m = QMenu(self.gui)

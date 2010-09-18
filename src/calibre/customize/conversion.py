@@ -155,7 +155,7 @@ class InputFormatPlugin(Plugin):
         '''
         raise NotImplementedError()
 
-    def preprocess_html(self, html):
+    def preprocess_html(self, opts, html):
         '''
         This method is called by the conversion pipeline on all HTML before it
         is parsed. It is meant to be used to do any required preprocessing on
