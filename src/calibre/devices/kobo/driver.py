@@ -424,7 +424,7 @@ class KOBO(USBMS):
                 paths[source_id] = os.path.join(prefix, *(path.split('/')))
         return paths
 
-    def update_device_database_collections(self, booklists, collections_attributes):
+    def update_device_database_collections(self, booklists, collections_attributes, oncard):
 #        debug_print('Starting update_device_database_collections', collections_attributes)
 
         # Force collections_attributes to be 'tags' as no other is currently supported
@@ -433,23 +433,31 @@ class KOBO(USBMS):
 
         collections = booklists.get_collections(collections_attributes)
 #        debug_print('Collections', collections)
+
+        # Create a connection to the sqlite database
+        # Needs to be outside books collection as in the case of removing
+        # the last book from the collection the list of books is empty
+        # and the removal of the last book would not occur
+        connection = sqlite.connect(self._main_prefix + '.kobo/KoboReader.sqlite')
+        cursor = connection.cursor()
+
+        # Reset Im_Reading list in the database
+        if oncard == 'carda':
+            query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID like \'file:///mnt/sd/%\''
+        elif oncard != 'carda' and oncard != 'cardb':
+            query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID not like \'file:///mnt/sd/%\''
+                    
+        try:
+            cursor.execute (query)
+        except:
+            debug_print('Database Exception:  Unable to reset Im_Reading list')
+            raise
+        else:
+#           debug_print('Commit: Reset Im_Reading list')
+            connection.commit()
+
         for category, books in collections.items():
             if category == 'Im_Reading':
-                # Create a connection to the sqlite database
-                connection = sqlite.connect(self._main_prefix + '.kobo/KoboReader.sqlite')
-                cursor = connection.cursor()
-
-                # Reset Im_Reading list in the database
-                query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null'
-                try:
-                    cursor.execute (query)
-                except:
-                    debug_print('Database Exception:  Unable to reset Im_Reading list')
-                    raise
-                else:
-#                    debug_print('Commit: Reset Im_Reading list')
-                    connection.commit()
-
                 for book in books:
 #                    debug_print('Title:', book.title, 'lpath:', book.path)
                     book.device_collections = ['Im_Reading']
@@ -471,8 +479,8 @@ class KOBO(USBMS):
                         connection.commit()
  #                       debug_print('Database: Commit create Im_Reading list')
 
-                cursor.close()
-                connection.close()
+        cursor.close()
+        connection.close()
 
 #        debug_print('Finished update_device_database_collections', collections_attributes)
         
@@ -494,12 +502,16 @@ class KOBO(USBMS):
 
         #debug_print('KOBO: collection fields:', collections)
         for i, blist in blists.items():
-                self.update_device_database_collections(blist, collections)
+            if i == 0:
+                oncard = 'main'
+            else:
+                oncard = 'carda'
+            self.update_device_database_collections(blist, collections, oncard)
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
         #debug_print('KOBO: finished sync_booklists')
 
     def rebuild_collections(self, booklist, oncard):
         collections_attributes = []
-        self.update_device_database_collections(booklist, collections_attributes)
+        self.update_device_database_collections(booklist, collections_attributes, oncard)
 
