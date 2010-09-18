@@ -46,7 +46,10 @@ composite_formatter = SafeFormat()
 compress_spaces = re.compile(r'\s+')
 
 def format_composite(x, mi):
-    ans = composite_formatter.vformat(x, [], mi).strip()
+    try:
+        ans = composite_formatter.vformat(x, [], mi).strip()
+    except:
+        ans = x
     return compress_spaces.sub(' ', ans)
 
 class Metadata(object):
@@ -86,7 +89,10 @@ class Metadata(object):
         except AttributeError:
             pass
         if field in _data['user_metadata'].iterkeys():
-            return _data['user_metadata'][field]['#value#']
+            d = _data['user_metadata'][field]
+            if d['datatype'] != 'composite':
+                return d['#value#']
+            return format_composite(d['display']['composite_template'], self)
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 
@@ -386,8 +392,6 @@ class Metadata(object):
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
-            elif datatype == 'composite':
-                res = format_composite(cmeta['display']['composite_template'], self)
             return (name, res, orig_res, cmeta)
 
         if key in field_metadata and field_metadata[key]['kind'] == 'field':

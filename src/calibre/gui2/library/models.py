@@ -605,7 +605,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
         def composite_type(r, key=None):
             mi = self.get_cached_metadata(r)
-            return QVariant(mi.format_field(key)[1])
+            return QVariant(mi.get(key, ''))
 
         self.dc = {
                    'title'    : functools.partial(text_type,
