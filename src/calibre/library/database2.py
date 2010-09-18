@@ -538,6 +538,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.pubdate     = self.pubdate(idx, index_is_id=index_is_id)
         mi.uuid        = self.uuid(idx, index_is_id=index_is_id)
         mi.title_sort  = self.title_sort(idx, index_is_id=index_is_id)
+        mi.formats     = self.formats(idx, index_is_id=index_is_id).split(',')
         tags = self.tags(idx, index_is_id=index_is_id)
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]

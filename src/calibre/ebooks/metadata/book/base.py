@@ -5,8 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy
-import traceback
+import copy, re, string, traceback
 
 from calibre import prints
 from calibre.ebooks.metadata.book import SC_COPYABLE_FIELDS
@@ -32,6 +31,23 @@ NULL_VALUES = {
 }
 
 field_metadata = FieldMetadata()
+
+class SafeFormat(string.Formatter):
+    '''
+    Provides a format function that substitutes '' for any missing value
+    '''
+    def get_value(self, key, args, mi):
+        ign, v = mi.format_field(key, series_with_index=False)
+        if v is None:
+            return ''
+        return v
+
+composite_formatter = SafeFormat()
+compress_spaces = re.compile(r'\s+')
+
+def format_composite(x, mi):
+    ans = composite_formatter.vformat(x, [], mi).strip()
+    return compress_spaces.sub(' ', ans)
 
 class Metadata(object):
 
@@ -343,18 +359,19 @@ class Metadata(object):
     def format_rating(self):
         return unicode(self.rating)
 
-    def format_field(self, key):
-        name, val, ign, ign = self.format_field_extended(key)
+    def format_field(self, key, series_with_index=True):
+        name, val, ign, ign = self.format_field_extended(key, series_with_index)
         return (name, val)
 
-    def format_field_extended(self, key):
+    def format_field_extended(self, key, series_with_index=True):
         from calibre.ebooks.metadata import authors_to_string
         '''
         returns the tuple (field_name, formatted_value)
         '''
         if key in self.user_metadata_keys:
             res = self.get(key, None)
-            if res is None or res == '':
+            cmeta = self.get_user_metadata(key, make_copy=False)
+            if cmeta['datatype'] != 'composite' and (res is None or res == ''):
                 return (None, None, None, None)
             orig_res = res
             cmeta = self.get_user_metadata(key, make_copy=False)
@@ -362,13 +379,15 @@ class Metadata(object):
             datatype = cmeta['datatype']
             if datatype == 'text' and cmeta['is_multiple']:
                 res = u', '.join(res)
-            elif datatype == 'series':
+            elif datatype == 'series' and series_with_index:
                 res = res + \
                    ' [%s]'%self.format_series_index(val=self.get_extra(key))
             elif datatype == 'datetime':
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
+            elif datatype == 'composite':
+                res = format_composite(cmeta['display']['composite_template'], self)
             return (name, res, orig_res, cmeta)
 
         if key in field_metadata and field_metadata[key]['kind'] == 'field':
@@ -383,7 +402,7 @@ class Metadata(object):
                 res = authors_to_string(res)
             elif datatype == 'text' and fmeta['is_multiple']:
                 res = u', '.join(res)
-            elif datatype == 'series':
+            elif datatype == 'series' and series_with_index:
                 res = res + ' [%s]'%self.format_series_index()
             elif datatype == 'datetime':
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))

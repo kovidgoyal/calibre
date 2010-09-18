@@ -137,7 +137,6 @@ class CollectionsBookList(BookList):
                 # For existing books, modify the collections only if the user
                 # specified 'on_connect'
                 attrs = collection_attributes
-            meta_vals = book.get_all_non_none_attributes()
             for attr in attrs:
                 attr = attr.strip()
                 ign, val, orig_val, fm = book.format_field_extended(attr)
@@ -166,7 +165,7 @@ class CollectionsBookList(BookList):
                             continue
                         if attr == 'series' or \
                                 ('series' in collection_attributes and
-                                 meta_vals.get('series', None) == category):
+                                 book.get('series', None) == category):
                             is_series = True
                     cat_name = self.compute_category_name(attr, category, fm)
                     if cat_name not in collections:
@@ -177,10 +176,10 @@ class CollectionsBookList(BookList):
                     collections_lpaths[cat_name].add(lpath)
                     if is_series:
                         collections[cat_name].append(
-                            (book, meta_vals.get(attr+'_index', sys.maxint)))
+                            (book, book.get(attr+'_index', sys.maxint)))
                     else:
                         collections[cat_name].append(
-                            (book, meta_vals.get('title_sort', 'zzzz')))
+                            (book, book.get('title_sort', 'zzzz')))
         # Sort collections
         result = {}
         for category, books in collections.items():

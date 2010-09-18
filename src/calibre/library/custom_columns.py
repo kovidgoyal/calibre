@@ -18,7 +18,7 @@ from calibre.utils.date import parse_date
 class CustomColumns(object):
 
     CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
-        'int', 'float', 'bool', 'series'])
+        'int', 'float', 'bool', 'series', 'composite'])
 
     def custom_table_names(self, num):
         return 'custom_column_%d'%num, 'books_custom_column_%d_link'%num
@@ -540,7 +540,7 @@ class CustomColumns(object):
         if datatype not in self.CUSTOM_DATA_TYPES:
             raise ValueError('%r is not a supported data type'%datatype)
         normalized  = datatype not in ('datetime', 'comments', 'int', 'bool',
-                'float')
+                'float', 'composite')
         is_multiple = is_multiple and datatype in ('text',)
         num = self.conn.execute(
                 ('INSERT INTO '
@@ -551,7 +551,7 @@ class CustomColumns(object):
 
         if datatype in ('rating', 'int'):
             dt = 'INT'
-        elif datatype in ('text', 'comments', 'series'):
+        elif datatype in ('text', 'comments', 'series', 'composite'):
             dt = 'TEXT'
         elif datatype in ('float',):
             dt = 'REAL'

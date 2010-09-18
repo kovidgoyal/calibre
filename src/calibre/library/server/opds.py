@@ -132,7 +132,8 @@ def CATALOG_GROUP_ENTRY(item, category, base_href, version, updated):
             link
             )
 
-def ACQUISITION_ENTRY(item, version, FM, updated, CFM, CKEYS):
+def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS):
+    FM = db.FIELD_MAP
     title = item[FM['title']]
     if not title:
         title = _('Unknown')
@@ -157,22 +158,16 @@ def ACQUISITION_ENTRY(item, version, FM, updated, CFM, CKEYS):
                 (series,
                 fmt_sidx(float(item[FM['series_index']]))))
     for key in CKEYS:
-        val = item[CFM[key]['rec_index']]
+        mi = db.get_metadata(item[CFM['id']['rec_index']], index_is_id=True)
+        name, val = mi.format_field(key)
         if val is not None:
-            name = CFM[key]['name']
             datatype = CFM[key]['datatype']
             if datatype == 'text' and CFM[key]['is_multiple']:
-                extra.append('%s: %s<br />'%(name, format_tag_string(val, '|',
+                extra.append('%s: %s<br />'%(name, format_tag_string(val, ',',
                                                            ignore_max=True,
                                                            no_tag_count=True)))
-            elif datatype == 'series':
-                extra.append('%s: %s [%s]<br />'%(name, val,
-                              fmt_sidx(item[CFM.cc_series_index_column_for(key)])))
-            elif datatype == 'datetime':
-                extra.append('%s: %s<br />'%(name,
-                    format_date(val, CFM[key]['display'].get('date_format','dd MMM yyyy'))))
             else:
-                extra.append('%s: %s <br />' % (CFM[key]['name'], val))
+                extra.append('%s: %s<br />'%(name, val))
     comments = item[FM['comments']]
     if comments:
         comments = comments_to_html(comments)
@@ -280,13 +275,14 @@ class NavFeed(Feed):
 class AcquisitionFeed(NavFeed):
 
     def __init__(self, updated, id_, items, offsets, page_url, up_url, version,
-            FM, CFM):
+            db):
         NavFeed.__init__(self, id_, updated, version, offsets, page_url, up_url)
+        CFM = db.field_metadata
         CKEYS = [key for key in sorted(CFM.get_custom_fields(),
                  cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
                                      CFM[y]['name'].lower()))]
         for item in items:
-            self.root.append(ACQUISITION_ENTRY(item, version, FM, updated,
+            self.root.append(ACQUISITION_ENTRY(item, version, db, updated,
                                                CFM, CKEYS))
 
 class CategoryFeed(NavFeed):
@@ -384,7 +380,7 @@ class OPDSServer(object):
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'application/atom+xml;profile=opds-catalog'
         return str(AcquisitionFeed(updated, id_, items, offsets,
-            page_url, up_url, version, self.db.FIELD_MAP, self.db.field_metadata))
+                                   page_url, up_url, version, self.db))
 
     def opds_search(self, query=None, version=0, offset=0):
         try:

@@ -86,6 +86,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.last_search = '' # The last search performed on this model
         self.column_map = []
         self.headers = {}
+        self.metadata_cache = {}
         self.alignment_map = {}
         self.buffer_size = buffer
         self.cover_cache = None
@@ -114,6 +115,16 @@ class BooksModel(QAbstractTableModel): # {{{
     def clear_caches(self):
         if self.cover_cache:
             self.cover_cache.clear_cache()
+        self.metadata_cache = {}
+
+    def get_cached_metadata(self, idx):
+        if idx not in self.metadata_cache:
+            self.metadata_cache[idx] = self.db.get_metadata(idx)
+        return self.metadata_cache[idx]
+
+    def remove_cached_metadata(self, idx):
+        if idx in self.metadata_cache:
+            del self.metadata_cache[idx]
 
     def read_config(self):
         self.use_roman_numbers = config['use_roman_numerals_for_series_number']
@@ -146,6 +157,7 @@ class BooksModel(QAbstractTableModel): # {{{
             elif col in self.custom_columns:
                 self.headers[col] = self.custom_columns[col]['name']
 
+        self.metadata_cache = {}
         self.build_data_convertors()
         self.reset()
         self.database_changed.emit(db)
@@ -159,11 +171,13 @@ class BooksModel(QAbstractTableModel): # {{{
         db.add_listener(refresh_cover)
 
     def refresh_ids(self, ids, current_row=-1):
+        self.metadata_cache = {}
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
     def refresh_rows(self, rows, current_row=-1):
+        self.metadata_cache = {}
         for row in rows:
             if row == current_row:
                 self.new_bookdisplay_data.emit(
@@ -193,6 +207,7 @@ class BooksModel(QAbstractTableModel): # {{{
         return ret
 
     def count_changed(self, *args):
+        self.metadata_cache = {}
         self.count_changed_signal.emit(self.db.count())
 
     def row_indices(self, index):
@@ -262,6 +277,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.sorting_done.emit(self.db.index)
 
     def refresh(self, reset=True):
+        self.metadata_cache = {}
         self.db.refresh(field=None)
         self.resort(reset=reset)
 
@@ -318,7 +334,7 @@ class BooksModel(QAbstractTableModel): # {{{
             data[_('Series')] = \
                 _('Book <font face="serif">%s</font> of %s.')%\
                     (sidx, prepare_string_for_xml(series))
-        mi = self.db.get_metadata(idx)
+        mi = self.get_cached_metadata(idx)
         for key in mi.user_metadata_keys:
             name, val = mi.format_field(key)
             if val is not None:
@@ -327,6 +343,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_cache(self, idx):
         l, r = 0, self.count()-1
+        self.remove_cached_metadata(idx)
         if self.cover_cache is not None:
             l = max(l, idx-self.buffer_size)
             r = min(r, idx+self.buffer_size)
@@ -586,6 +603,10 @@ class BooksModel(QAbstractTableModel): # {{{
         def number_type(r, idx=-1):
             return QVariant(self.db.data[r][idx])
 
+        def composite_type(r, key=None):
+            mi = self.get_cached_metadata(r)
+            return QVariant(mi.format_field(key)[1])
+
         self.dc = {
                    'title'    : functools.partial(text_type,
                                 idx=self.db.field_metadata['title']['rec_index'], mult=False),
@@ -620,7 +641,8 @@ class BooksModel(QAbstractTableModel): # {{{
             idx = self.custom_columns[col]['rec_index']
             datatype = self.custom_columns[col]['datatype']
             if datatype in ('text', 'comments'):
-                self.dc[col] = functools.partial(text_type, idx=idx, mult=self.custom_columns[col]['is_multiple'])
+                self.dc[col] = functools.partial(text_type, idx=idx,
+                                                 mult=self.custom_columns[col]['is_multiple'])
             elif datatype in ('int', 'float'):
                 self.dc[col] = functools.partial(number_type, idx=idx)
             elif datatype == 'datetime':
@@ -628,13 +650,15 @@ class BooksModel(QAbstractTableModel): # {{{
             elif datatype == 'bool':
                 self.dc[col] = functools.partial(bool_type, idx=idx)
                 self.dc_decorator[col] = functools.partial(
-                                            bool_type_decorator, idx=idx,
-                                            bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] == 'yes')
+                            bool_type_decorator, idx=idx,
+                            bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] == 'yes')
             elif datatype == 'rating':
                 self.dc[col] = functools.partial(rating_type, idx=idx)
             elif datatype == 'series':
                 self.dc[col] = functools.partial(series_type, idx=idx,
                     siix=self.db.field_metadata.cc_series_index_column_for(col))
+            elif datatype == 'composite':
+                self.dc[col] = functools.partial(composite_type, key=col)
             else:
                 print 'What type is this?', col, datatype
         # build a index column to data converter map, to remove the string lookup in the data loop
@@ -729,6 +753,7 @@ class BooksModel(QAbstractTableModel): # {{{
         if role == Qt.EditRole:
             row, col = index.row(), index.column()
             column = self.column_map[col]
+            self.remove_cached_metadata(row)
             if self.is_custom_column(column):
                 if not self.set_custom_column_data(row, column, value):
                     return False
