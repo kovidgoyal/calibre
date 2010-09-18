@@ -607,9 +607,9 @@ class ResultCache(SearchQueryParser):
         if field not in self.field_metadata.iterkeys():
             if field in ('author', 'tag', 'comment'):
                 field += 's'
-            if   field == 'date': field = 'timestamp'
-            elif field == 'title': field = 'sort'
-            elif field == 'authors': field = 'author_sort'
+        if   field == 'date': field = 'timestamp'
+        elif field == 'title': field = 'sort'
+        elif field == 'authors': field = 'author_sort'
         return field
 
     def sort(self, field, ascending, subsort=False):
