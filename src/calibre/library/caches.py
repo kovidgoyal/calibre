@@ -121,6 +121,11 @@ class ResultCache(SearchQueryParser):
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
 
+        self.composites = []
+        for key in field_metadata:
+            if field_metadata[key]['datatype'] == 'composite':
+                self.composites.append((key, field_metadata[key]['rec_index']))
+
     def __getitem__(self, row):
         return self._data[self._map_filtered[row]]
 
@@ -372,7 +377,7 @@ class ResultCache(SearchQueryParser):
                 if len(self.field_metadata[x]['search_terms']):
                     db_col[x] = self.field_metadata[x]['rec_index']
                     if self.field_metadata[x]['datatype'] not in \
-                                                ['text', 'comments', 'series']:
+                                    ['composite', 'text', 'comments', 'series']:
                         exclude_fields.append(db_col[x])
                     col_datatype[db_col[x]] = self.field_metadata[x]['datatype']
                     is_multiple_cols[db_col[x]] = self.field_metadata[x]['is_multiple']
@@ -534,6 +539,10 @@ class ResultCache(SearchQueryParser):
                 self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
                 self._data[id].append(db.has_cover(id, index_is_id=True))
                 self._data[id].append(db.book_on_device_string(id))
+                if len(self.composites) > 0:
+                    mi = db.get_metadata(id, index_is_id=True)
+                    for k,c in self.composites:
+                        self._data[id][c] = mi.format_field(k)[1]
             except IndexError:
                 return None
         try:
@@ -550,6 +559,10 @@ class ResultCache(SearchQueryParser):
             self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
             self._data[id].append(db.has_cover(id, index_is_id=True))
             self._data[id].append(db.book_on_device_string(id))
+            if len(self.composites) > 0:
+                mi = db.get_metadata(id, index_is_id=True)
+                for k,c in self.composites:
+                    self._data[id][c] = mi.format_field(k)[1]
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -575,6 +588,11 @@ class ResultCache(SearchQueryParser):
             if item is not None:
                 item.append(db.has_cover(item[0], index_is_id=True))
                 item.append(db.book_on_device_string(item[0]))
+                if len(self.composites) > 0:
+                    mi = db.get_metadata(item[0], index_is_id=True)
+                    for k,c in self.composites:
+                        item[c] = mi.format_field(k)[1]
+
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)

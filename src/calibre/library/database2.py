@@ -323,12 +323,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.has_id  = self.data.has_id
         self.count   = self.data.count
 
-        self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
-
-        self.refresh()
-        self.last_update_check = self.last_modified()
-
-
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
                      'title', 'timestamp', 'uuid', 'pubdate', 'ondevice'):
@@ -336,6 +330,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
         setattr(self, 'title_sort', functools.partial(self.get_property,
                 loc=self.FIELD_MAP['sort']))
+
+        self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
+        self.refresh()
+        self.last_update_check = self.last_modified()
+
 
     def initialize_database(self):
         metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
