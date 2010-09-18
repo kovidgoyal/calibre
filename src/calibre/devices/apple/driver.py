@@ -739,7 +739,7 @@ class ITUNES(DriverBase):
 
             # Purge the booklist, self.cached_books, thumb cache
             for i,bl_book in enumerate(booklists[0]):
-                if DEBUG:
+                if False:
                     self.log.info(" evaluating '%s' by '%s' uuid:%s" %
                                   (bl_book.title, bl_book.author,bl_book.uuid))
 
