@@ -328,6 +328,9 @@ Future conversion of these books will use the default settings.</string>
            <property name="wordWrap">
             <bool>true</bool>
            </property>
+           <property name="openExternalLinks">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="2" column="0">
