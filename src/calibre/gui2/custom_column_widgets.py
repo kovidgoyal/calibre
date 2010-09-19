@@ -348,6 +348,8 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     ans = []
     column = row = comments_row = 0
     for col in cols:
+        if not x[col]['editable']:
+            continue
         dt = x[col]['datatype']
         if dt == 'comments':
             continue

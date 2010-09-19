@@ -391,6 +391,9 @@ class BooksView(QTableView): # {{{
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)
                 elif cc['datatype'] == 'rating':
                     self.setItemDelegateForColumn(cm.index(colhead), self.rating_delegate)
+                elif cc['datatype'] == 'composite':
+                    pass
+                    # no delegate for composite columns, as they are not editable
             else:
                 dattr = colhead+'_delegate'
                 delegate = colhead if hasattr(self, dattr) else 'text'

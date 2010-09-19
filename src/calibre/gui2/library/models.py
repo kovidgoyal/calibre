@@ -619,8 +619,9 @@ class BooksModel(QAbstractTableModel): # {{{
         for col in self.custom_columns:
             idx = self.custom_columns[col]['rec_index']
             datatype = self.custom_columns[col]['datatype']
-            if datatype in ('text', 'comments'):
-                self.dc[col] = functools.partial(text_type, idx=idx, mult=self.custom_columns[col]['is_multiple'])
+            if datatype in ('text', 'comments', 'composite'):
+                self.dc[col] = functools.partial(text_type, idx=idx,
+                                                 mult=self.custom_columns[col]['is_multiple'])
             elif datatype in ('int', 'float'):
                 self.dc[col] = functools.partial(number_type, idx=idx)
             elif datatype == 'datetime':
@@ -628,8 +629,8 @@ class BooksModel(QAbstractTableModel): # {{{
             elif datatype == 'bool':
                 self.dc[col] = functools.partial(bool_type, idx=idx)
                 self.dc_decorator[col] = functools.partial(
-                                            bool_type_decorator, idx=idx,
-                                            bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] == 'yes')
+                            bool_type_decorator, idx=idx,
+                            bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] == 'yes')
             elif datatype == 'rating':
                 self.dc[col] = functools.partial(rating_type, idx=idx)
             elif datatype == 'series':

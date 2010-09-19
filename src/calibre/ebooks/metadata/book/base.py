@@ -5,14 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy
-import traceback
+import copy, re, string, traceback
 
 from calibre import prints
 from calibre.ebooks.metadata.book import SC_COPYABLE_FIELDS
 from calibre.ebooks.metadata.book import SC_FIELDS_COPY_NOT_NULL
 from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
 from calibre.ebooks.metadata.book import TOP_LEVEL_CLASSIFIERS
+from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date
 
@@ -32,6 +32,26 @@ NULL_VALUES = {
 }
 
 field_metadata = FieldMetadata()
+
+class SafeFormat(string.Formatter):
+    '''
+    Provides a format function that substitutes '' for any missing value
+    '''
+    def get_value(self, key, args, mi):
+        ign, v = mi.format_field(key, series_with_index=False)
+        if v is None:
+            return ''
+        return v
+
+composite_formatter = SafeFormat()
+compress_spaces = re.compile(r'\s+')
+
+def format_composite(x, mi):
+    try:
+        ans = composite_formatter.vformat(x, [], mi).strip()
+    except:
+        ans = x
+    return compress_spaces.sub(' ', ans)
 
 class Metadata(object):
 
@@ -70,7 +90,10 @@ class Metadata(object):
         except AttributeError:
             pass
         if field in _data['user_metadata'].iterkeys():
-            return _data['user_metadata'][field]['#value#']
+            d = _data['user_metadata'][field]
+            if d['datatype'] != 'composite':
+                return d['#value#']
+            return format_composite(d['display']['composite_template'], self)
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 
@@ -91,6 +114,12 @@ class Metadata(object):
             # Don't abuse this privilege
             self.__dict__[field] = val
 
+    def deepcopy(self):
+        m = Metadata(None)
+        m.__dict__ = copy.deepcopy(self.__dict__)
+        object.__setattr__(m, '_data', copy.deepcopy(object.__getattribute__(self, '_data')))
+        return m
+
     def get(self, field, default=None):
         if default is not None:
             try:
@@ -108,6 +137,14 @@ class Metadata(object):
 
     def set(self, field, val, extra=None):
         self.__setattr__(field, val, extra)
+
+    @property
+    def all_keys(self):
+        '''
+        All attribute keys known by this instance, even if their value is None
+        '''
+        _data = object.__getattribute__(self, '_data')
+        return frozenset(ALL_METADATA_FIELDS.union(_data['user_metadata'].iterkeys()))
 
     @property
     def user_metadata_keys(self):
@@ -354,6 +391,10 @@ class Metadata(object):
         '''
         if key in self.user_metadata_keys:
             res = self.get(key, None)
+            cmeta = self.get_user_metadata(key, make_copy=False)
+            if cmeta['datatype'] != 'composite' and (res is None or res == ''):
+                return (None, None, None, None)
+            orig_res = res
             cmeta = self.get_user_metadata(key, make_copy=False)
             if res is None or res == '':
                 return (None, None, None, None)

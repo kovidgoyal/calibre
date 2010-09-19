@@ -20,8 +20,8 @@ from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
 from calibre.library.sqlite import connect, IntegrityError, DBThread
 from calibre.library.prefs import DBPrefs
-from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
-                                    MetaInformation
+from calibre.ebooks.metadata import string_to_authors, authors_to_string
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
@@ -282,6 +282,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.field_metadata.set_field_record_index('cover', base+1, prefer_custom=False)
         self.FIELD_MAP['ondevice'] = base+2
         self.field_metadata.set_field_record_index('ondevice', base+2, prefer_custom=False)
+        self.FIELD_MAP['all_metadata'] = base+3
+        self.field_metadata.set_field_record_index('all_metadata', base+3, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -323,12 +325,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.has_id  = self.data.has_id
         self.count   = self.data.count
 
-        self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
-
-        self.refresh()
-        self.last_update_check = self.last_modified()
-
-
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
                      'title', 'timestamp', 'uuid', 'pubdate', 'ondevice'):
@@ -336,6 +332,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
         setattr(self, 'title_sort', functools.partial(self.get_property,
                 loc=self.FIELD_MAP['sort']))
+
+        self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
+        self.refresh()
+        self.last_update_check = self.last_modified()
+
 
     def initialize_database(self):
         metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
@@ -521,15 +522,25 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
-        Convenience method to return metadata as a L{MetaInformation} object.
+        Convenience method to return metadata as a :class:`Metadata` object.
         '''
+        mi = self.data.get(idx, self.FIELD_MAP['all_metadata'],
+                           row_is_id = index_is_id)
+        if mi is not None:
+            return mi
+
+        mi = Metadata(None)
+        self.data.set(idx, self.FIELD_MAP['all_metadata'], mi,
+                      row_is_id = index_is_id)
+
         aut_list = self.authors_with_sort_strings(idx, index_is_id=index_is_id)
         aum = []
         aus = {}
         for (author, author_sort) in aut_list:
             aum.append(author)
             aus[author] = author_sort
-        mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
+        mi.title       = self.title(idx, index_is_id=index_is_id)
+        mi.authors     = aum
         mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
         mi.author_sort_map = aus
         mi.comments    = self.comments(idx, index_is_id=index_is_id)
@@ -1057,7 +1068,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_metadata(self, id, mi, ignore_errors=False):
         '''
-        Set metadata for the book `id` from the `MetaInformation` object `mi`
+        Set metadata for the book `id` from the `Metadata` object `mi`
         '''
         def doit(func, *args, **kwargs):
             try:
@@ -1711,7 +1722,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             try:
                 mi = get_metadata(stream, format)
             except:
-                mi = MetaInformation(title, ['calibre'])
+                mi = Metadata(title, ['calibre'])
             stream.seek(0)
             mi.title, mi.authors = title, ['calibre']
             mi.tags = [_('Catalog')]

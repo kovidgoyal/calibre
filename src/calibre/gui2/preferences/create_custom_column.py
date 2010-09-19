@@ -38,6 +38,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                         'is_multiple':False},
                     8:{'datatype':'bool',
                         'text':_('Yes/No'), 'is_multiple':False},
+                    8:{'datatype':'composite',
+                        'text':_('Column built from other columns'), 'is_multiple':False},
                 }
 
     def __init__(self, parent, editing, standard_colheads, standard_colnames):
@@ -86,6 +88,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if ct == 'datetime':
             if c['display'].get('date_format', None):
                 self.date_format_box.setText(c['display'].get('date_format', ''))
+        elif ct == 'composite':
+            self.composite_box.setText(c['display'].get('composite_template', ''))
         self.datatype_changed()
         self.exec_()
 
@@ -94,9 +98,10 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         except:
             col_type = None
-        df_visible = col_type == 'datetime'
         for x in ('box', 'default_label', 'label'):
-            getattr(self, 'date_format_'+x).setVisible(df_visible)
+            getattr(self, 'date_format_'+x).setVisible(col_type == 'datetime')
+        for x in ('box', 'default_label', 'label'):
+            getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
 
 
     def accept(self):
@@ -122,6 +127,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 bad_col = True
         if bad_col:
             return self.simple_error('', _('The lookup name %s is already used')%col)
+
         bad_head = False
         for t in self.parent.custcols:
             if self.parent.custcols[t]['name'] == col_heading:
@@ -133,12 +139,21 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if bad_head:
             return self.simple_error('', _('The heading %s is already used')%col_heading)
 
-        date_format = {}
+        display_dict = {}
         if col_type == 'datetime':
             if self.date_format_box.text():
-                date_format = {'date_format':unicode(self.date_format_box.text())}
+                display_dict = {'date_format':unicode(self.date_format_box.text())}
             else:
-                date_format = {'date_format': None}
+                display_dict = {'date_format': None}
+
+        if col_type == 'composite':
+            if not self.composite_box.text():
+                return self.simple_error('', _('You must enter a template for'
+                    ' composite columns'))
+            display_dict = {'composite_template':unicode(self.composite_box.text())}
+            is_editable = False
+        else:
+            is_editable = True
 
         db = self.parent.gui.library_view.model().db
         key = db.field_metadata.custom_field_prefix+col
@@ -148,8 +163,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'label':col,
                     'name':col_heading,
                     'datatype':col_type,
-                    'editable':True,
-                    'display':date_format,
+                    'editable':is_editable,
+                    'display':display_dict,
                     'normalized':None,
                     'colnum':None,
                     'is_multiple':is_multiple,
@@ -164,7 +179,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             item.setText(col_heading)
             self.parent.custcols[self.orig_column_name]['label'] = col
             self.parent.custcols[self.orig_column_name]['name'] = col_heading
-            self.parent.custcols[self.orig_column_name]['display'].update(date_format)
+            self.parent.custcols[self.orig_column_name]['display'].update(display_dict)
             self.parent.custcols[self.orig_column_name]['*edited'] = True
             self.parent.custcols[self.orig_column_name]['*must_restart'] = True
         QDialog.accept(self)

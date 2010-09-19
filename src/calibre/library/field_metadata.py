@@ -68,7 +68,7 @@ class FieldMetadata(dict):
     '''
 
     VALID_DATA_TYPES = frozenset([None, 'rating', 'text', 'comments', 'datetime',
-                                  'int', 'float', 'bool', 'series'])
+                                  'int', 'float', 'bool', 'series', 'composite'])
 
     # Builtin metadata {{{
 
@@ -209,6 +209,15 @@ class FieldMetadata(dict):
                            'search_terms':[],
                            'is_custom':False,
                            'is_category':False}),
+            ('all_metadata',{'table':None,
+                             'column':None,
+                             'datatype':None,
+                             'is_multiple':None,
+                             'kind':'field',
+                             'name':None,
+                             'search_terms':[],
+                             'is_custom':False,
+                             'is_category':False}),
             ('ondevice',  {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -295,7 +304,6 @@ class FieldMetadata(dict):
 
     # search labels that are not db columns
     search_items = [    'all',
-#                        'date',
                         'search',
                     ]
 
