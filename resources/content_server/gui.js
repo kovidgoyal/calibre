@@ -84,7 +84,10 @@ function render_book(book) {
     }
     title += '</span>'
     title += '<span class="tagdata_long" style="display:none">'
-    if (tags) title += 'Tags=[{0}] '.format(tags);
+    if (tags) {
+        t = tags.split(':&:', 2);
+        title += 'Tags=[{0}] '.format(t[1]);
+    }
     custcols = book.attr("custcols").split(',')
     for ( i = 0; i < custcols.length; i++) {
         if (custcols[i].length > 0) {
