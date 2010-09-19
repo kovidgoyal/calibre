@@ -280,7 +280,7 @@ Why doesn't |app| have a column for foo?
 |app| is designed to have columns for the most frequently and widely used fields. In addition, you can add any columns you like. Columns can be added via :guilabel:`Preferences->Interface->Add your own columns`.
 Watch the tutorial `UI Power tips <http://calibre-ebook.com/demo#tutorials>`_ to learn how to create your own columns.
 
-You can also create "virtual columns" that contain combinations of the metadata from other columns. In the add column dialog choose the option "Column from other columns" and in the template enter the other column names. For example to create a virtual column containing formats or ISBN, enter ``{formats}`` for formats or ``{isbn}`` for ISBN.
+You can also create "virtual columns" that contain combinations of the metadata from other columns. In the add column dialog choose the option "Column from other columns" and in the template enter the other column names. For example to create a virtual column containing formats or ISBN, enter ``{formats}`` for formats or ``{isbn}`` for ISBN. For more details, see :ref:`templatelangcalibre`.
 
 
 Can I have a column showing the formats or the ISBN?
