@@ -15,7 +15,6 @@ from calibre.library.server.utils import strftime, format_tag_string
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import preferred_encoding
 from calibre import isbytestring
-from calibre.utils.date import format_date
 
 E = ElementMaker()
 
