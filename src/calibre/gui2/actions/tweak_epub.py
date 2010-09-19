@@ -11,7 +11,7 @@ class TweakEpubAction(InterfaceAction):
 
     name = 'Tweak ePub'
     action_spec = (_('Edit ePub in situ'), 'document_open.png', None, None)
-    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    #dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
     action_type = 'current'
 
     def genesis(self):
