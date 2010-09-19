@@ -348,8 +348,10 @@ class FieldMetadata(dict):
     def keys(self):
         return self._tb_cats.keys()
 
-    def field_keys(self):
-        return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind']=='field']
+    def sortable_keys(self):
+        return [k for k in self._tb_cats.keys()
+                if self._tb_cats[k]['kind']=='field' and
+                   self._tb_cats[k]['datatype'] is not None]
 
     def iterkeys(self):
         for key in self._tb_cats:

@@ -621,7 +621,7 @@ class ResultCache(SearchQueryParser):
 
     def multisort(self, fields=[], subsort=False):
         fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
-        keys = self.field_metadata.field_keys()
+        keys = self.field_metadata.sortable_keys()
         fields = [x for x in fields if x[0] in keys]
         if subsort and 'sort' not in [x[0] for x in fields]:
             fields += [('sort', True)]
