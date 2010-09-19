@@ -184,7 +184,7 @@ class ContentServer(object):
         if path and os.path.exists(path):
             updated = fromtimestamp(os.stat(path).st_mtime)
             cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        return fmt.read()
+        return fmt
     # }}}
 
 
