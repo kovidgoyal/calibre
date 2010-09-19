@@ -83,7 +83,7 @@ class PreProcessor(object):
         # <pre> tags), check and  mark up line endings if required before proceeding
         if self.no_markup(html, 0.1):
              self.log("not enough paragraph markers, adding now")
-             # check if content is in pre tags, use txt procesor to mark up if so
+             # check if content is in pre tags, use txt processor to mark up if so
              pre = re.compile(r'<pre>', re.IGNORECASE)
              if len(pre.findall(html)) == 1:
                  self.log("Running Text Processing")
