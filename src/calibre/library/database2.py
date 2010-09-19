@@ -529,7 +529,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi is not None:
             return mi
 
-        mi = self.field_metadata.get_empty_metadata_instance()
+        mi = Metadata(None)
         self.data.set(idx, self.FIELD_MAP['all_metadata'], mi,
                       row_is_id = index_is_id)
 
@@ -539,7 +539,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for (author, author_sort) in aut_list:
             aum.append(author)
             aus[author] = author_sort
-        mi = self.field_metadata.get_empty_metadata_instance()
         mi.title       = self.title(idx, index_is_id=index_is_id)
         mi.authors     = aum
         mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)

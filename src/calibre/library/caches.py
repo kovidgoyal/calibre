@@ -509,6 +509,7 @@ class ResultCache(SearchQueryParser):
 
     def set(self, row, col, val, row_is_id=False):
         id = row if row_is_id else self._map_filtered[row]
+        self._data[id][self.FIELD_MAP['all_metadata']] = None
         self._data[id][col] = val
 
     def get(self, row, col, row_is_id=False):

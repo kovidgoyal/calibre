@@ -304,7 +304,6 @@ class FieldMetadata(dict):
 
     # search labels that are not db columns
     search_items = [    'all',
-#                        'date',
                         'search',
                     ]
 
