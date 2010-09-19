@@ -800,7 +800,7 @@ class DeviceMixin(object): # {{{
         # if set_books_in_library did not.
         if not self.set_books_in_library(self.booklists(), reset=True):
             self.upload_booklists()
-        self.book_on_device(None, None, reset=True)
+        self.book_on_device(None, reset=True)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
         self.refresh_ondevice_info(device_connected=True, reset_only=False)
@@ -1309,7 +1309,7 @@ class DeviceMixin(object): # {{{
         for f in files:
             getattr(f, 'close', lambda : True)()
 
-    def book_on_device(self, id, format=None, reset=False):
+    def book_on_device(self, id, reset=False):
         '''
         Return an indication of whether the given book represented by its db id
         is on the currently connected device. It returns a 5 element list. The
@@ -1338,8 +1338,6 @@ class DeviceMixin(object): # {{{
                 self.book_db_id_cache.append(set())
                 for book in l:
                     db_id = getattr(book, 'application_id', None)
-                    if db_id is None:
-                        db_id = book.db_id
                     if db_id is not None:
                         # increment the count of books on the device with this
                         # db_id.
