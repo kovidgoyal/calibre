@@ -27,10 +27,19 @@ class Danas(BasicNewsRecipe):
                                 @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                 .article_description,body,.lokacija{font-family: Tahoma,Arial,Helvetica,sans1,sans-serif}
                                 .nadNaslov,h1,.preamble{font-family: Georgia,"Times New Roman",Times,serif1,serif}
-                                .antrfileText{border-left: 2px solid #999999; margin-left: 0.8em; padding-left: 1.2em;
-                                margin-bottom: 0; margin-top: 0} h2,.datum,.lokacija,.autor{font-size: small}
-                                .antrfileNaslov{border-left: 2px solid #999999; margin-left: 0.8em; padding-left: 1.2em;
-                                font-weight:bold; margin-bottom: 0; margin-top: 0} img{margin-bottom: 0.8em}
+                                .antrfileText{border-left: 2px solid #999999; 
+                                              margin-left: 0.8em; 
+                                              padding-left: 1.2em; 
+                                              margin-bottom: 0; 
+                                              margin-top: 0} 
+                                h2,.datum,.lokacija,.autor{font-size: small}
+                                .antrfileNaslov{border-left: 2px solid #999999; 
+                                                margin-left: 0.8em; 
+                                                padding-left: 1.2em; 
+                                                font-weight:bold; 
+                                                margin-bottom: 0; 
+                                                margin-top: 0} 
+                                img{margin-bottom: 0.8em} 
                             """
 
     conversion_options = {
@@ -40,18 +49,7 @@ class Danas(BasicNewsRecipe):
                         , 'language'         : language
                         }
 
-    preprocess_regexps = [
-                           (re.compile(u'\u0110'), lambda match: u'\u00D0')
-                          ,(re.compile(r'<?xml:namespace prefix = st1 ns = "urn:schemas-microsoft-com:office:smarttags".*?/>',re.DOTALL|re.IGNORECASE), lambda match: r'')
-                          ,(re.compile(r'<st1:place.*?>',re.DOTALL|re.IGNORECASE), lambda match: r'')
-                          ,(re.compile(r'</st1:place>',re.DOTALL|re.IGNORECASE), lambda match: r'')
-                          ,(re.compile(r'<st1:city.*?>',re.DOTALL|re.IGNORECASE), lambda match: r'')
-                          ,(re.compile(r'</st1:city>',re.DOTALL|re.IGNORECASE), lambda match: r'')
-                          ,(re.compile(r'<st1:country-region.*?>',re.DOTALL|re.IGNORECASE), lambda match: r'')
-                          ,(re.compile(r'</st1:country-region>',re.DOTALL|re.IGNORECASE), lambda match: r'')
-                          ,(re.compile(r'<st1:state.*?>',re.DOTALL|re.IGNORECASE), lambda match: r'')
-                          ,(re.compile(r'</st1:state>',re.DOTALL|re.IGNORECASE), lambda match: r'')
-                         ]
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     keep_only_tags     = [dict(name='div', attrs={'id':'left'})]
     remove_tags = [
@@ -59,7 +57,7 @@ class Danas(BasicNewsRecipe):
                     ,dict(name='div', attrs={'id':'comments'})
                     ,dict(name=['object','link','iframe','meta'])
                   ]
-    remove_attributes = ['st']
+    remove_attributes = ['w:st','st']
 
     feeds          = [
                         (u'Politika'             , u'http://www.danas.rs/rss/rss.asp?column_id=27')
@@ -87,10 +85,13 @@ class Danas(BasicNewsRecipe):
                        ,(u'Zvaka u pepeljari'    , u'http://www.danas.rs/rss/rss.asp?column_id=56')
                        ,(u'Vostani Serbie'       , u'http://www.danas.rs/rss/rss.asp?column_id=57')
                        ,(u'Med&Jad-a'            , u'http://www.danas.rs/rss/rss.asp?column_id=58')
-                       ,(u'Svetlosti pozornice'  , u'http://www.danas.rs/rss/rss.asp?column_id=59')
+                       ,(u'Svetlosti pozornice'  , u'http://www.danas.rs/rss/rss.asp?column_id=59')                     
                      ]
 
     def preprocess_html(self, soup):
+        for tagn in ['st1:place','st1:city','st1:country-region','st1:state']:
+            for item in soup.body.findAll(tagn):
+                item.name='span'
         for item in soup.findAll(style=True):
             del item['style']
         for item in soup.findAll('a'):
@@ -98,7 +99,7 @@ class Danas(BasicNewsRecipe):
                item.extract()
         for item in soup.findAll('img'):
             if not item.has_key('alt'):
-               item['alt'] = 'image'
+               item['alt'] = 'image'    
         return soup
 
     def print_version(self, url):

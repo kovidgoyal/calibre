@@ -751,20 +751,22 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         try:
             if self.formats_changed:
                 self.sync_formats()
-            title = unicode(self.title.text())
+            title = unicode(self.title.text()).strip()
             self.db.set_title(self.id, title, notify=False)
-            au = unicode(self.authors.text())
+            au = unicode(self.authors.text()).strip()
             if au:
                 self.db.set_authors(self.id, string_to_authors(au), notify=False)
-            aus = unicode(self.author_sort.text())
+            aus = unicode(self.author_sort.text()).strip()
             if aus:
                 self.db.set_author_sort(self.id, aus, notify=False, commit=False)
             self.db.set_isbn(self.id,
-                             re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())),
+                             re.sub(r'[^0-9a-zA-Z]', '',
+                                 unicode(self.isbn.text()).strip()),
                              notify=False, commit=False)
             self.db.set_rating(self.id, 2*self.rating.value(), notify=False,
                                commit=False)
-            self.db.set_publisher(self.id, unicode(self.publisher.currentText()),
+            self.db.set_publisher(self.id,
+                    unicode(self.publisher.currentText()).strip(),
                                   notify=False, commit=False)
             self.db.set_tags(self.id, [x.strip() for x in
                 unicode(self.tags.text()).split(',')], notify=False, commit=False)
@@ -773,7 +775,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     commit=False)
             self.db.set_series_index(self.id, self.series_index.value(),
                                      notify=False, commit=False)
-            self.db.set_comment(self.id, unicode(self.comments.toPlainText()),
+            self.db.set_comment(self.id,
+                    unicode(self.comments.toPlainText()).strip(),
                                 notify=False, commit=False)
             d = self.pubdate.date()
             d = qt_to_dt(d)

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>526</width>
-    <height>499</height>
+    <width>679</width>
+    <height>685</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -200,14 +200,15 @@
          </item>
          <item row="6" column="2">
           <widget class="QCheckBox" name="remove_all_tags">
-           <property name="text">
-            <string>Remove all</string>
-           </property>
            <property name="toolTip">
             <string>Check this box to remove all tags from the books.</string>
            </property>
+           <property name="text">
+            <string>Remove all</string>
+           </property>
           </widget>
-         </item><item row="7" column="0">
+         </item>
+         <item row="7" column="0">
           <widget class="QLabel" name="label_7">
            <property name="text">
             <string>&amp;Series:</string>
@@ -294,12 +295,150 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
+         <item row="12" column="0" colspan="3">
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="tab">
         <attribute name="title">
          <string>&amp;Custom metadata</string>
         </attribute>
+       </widget>
+       <widget class="QWidget" name="tabWidgetPage3">
+        <attribute name="title">
+         <string>&amp;Search and replace (experimental)</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMinimumSize</enum>
+         </property>
+         <item row="1" column="0" colspan="3">
+          <widget class="QLabel" name="s_r_heading">
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+           <property name="openExternalLinks">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="filler">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="xlabel_21">
+           <property name="text">
+            <string>Search &amp;field:</string>
+           </property>
+           <property name="buddy">
+            <cstring>search_field</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="xlabel_2">
+           <property name="text">
+            <string>&amp;Search for:</string>
+           </property>
+           <property name="buddy">
+            <cstring>search_for</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="xlabel_4">
+           <property name="text">
+            <string>&amp;Replace with:</string>
+           </property>
+           <property name="buddy">
+            <cstring>replace_with</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QComboBox" name="search_field"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="HistoryLineEdit" name="search_for"/>
+         </item>
+         <item row="4" column="2">
+          <widget class="HistoryLineEdit" name="replace_with"/>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLabel" name="label_41">
+           <property name="text">
+            <string>Apply function &amp;after replace:</string>
+           </property>
+           <property name="buddy">
+            <cstring>replace_func</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QComboBox" name="replace_func"/>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLabel" name="xlabel_3">
+           <property name="text">
+            <string>Test &amp;text</string>
+           </property>
+           <property name="buddy">
+            <cstring>test_text</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Test re&amp;sult</string>
+           </property>
+           <property name="buddy">
+            <cstring>test_result</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_31">
+           <property name="text">
+            <string>Your test:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="HistoryLineEdit" name="test_text"/>
+         </item>
+         <item row="7" column="2">
+          <widget class="QLineEdit" name="test_result"/>
+         </item>
+         <item row="20" column="1">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </widget>
       </widget>
      </item>
@@ -330,6 +469,11 @@ Future conversion of these books will use the default settings.</string>
   </customwidget>
   <customwidget>
    <class>TagsLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>HistoryLineEdit</class>
    <extends>QLineEdit</extends>
    <header>widgets.h</header>
   </customwidget>

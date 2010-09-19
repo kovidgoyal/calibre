@@ -8,6 +8,7 @@ espn.com
 '''
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import TemporaryFile
 
 class ESPN(BasicNewsRecipe):
 
@@ -78,12 +79,19 @@ class ESPN(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         br.set_handle_refresh(False)
-        if self.username is not None and self.password is not None:
-            br.open('http://espn.com')#('http://espn.go.com/#myespn')
-            br.select_form(nr=1)
-            br.form.find_control(name='username', type='text').value = self.username
-            br.form['password'] = self.password
-            br.submit()
+        url = ('https://r.espn.go.com/members/v3_1/login')
+        raw = br.open(url).read()
+        raw = re.sub(r'(?s)<form>.*?id="regsigninbtn".*?</form>', '', raw)
+        with TemporaryFile(suffix='.htm') as fname:
+            with open(fname, 'wb') as f:
+                f.write(raw)
+            br.open_local_file(fname)
+
+        br.form = br.forms().next()
+        br.form.find_control(name='username', type='text').value = self.username
+        br.form['password'] = self.password
+        br.submit().read()
+        br.open('http://espn.go.com').read()
         br.set_handle_refresh(True)
         return br
 
