@@ -108,26 +108,28 @@ def line_length(format, raw, percent):
 
 class Dehyphenator(object):
     '''
-    Analyzes words to determine whether hyphens should be retained/removed.  Uses the document 
-    itself is as a dictionary. This method handles all languages along with uncommon, made-up, and 
-    scientific words. The primary disadvantage is that words appearing only once in the document 
+    Analyzes words to determine whether hyphens should be retained/removed.  Uses the document
+    itself is as a dictionary. This method handles all languages along with uncommon, made-up, and
+    scientific words. The primary disadvantage is that words appearing only once in the document
     retain hyphens.
     '''
+
+    def __init__(self):
+        # Add common suffixes to the regex below to increase the likelihood of a match -
+        # don't add suffixes which are also complete words, such as 'able' or 'sex'
+        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)ion(s|al(ly)?)?|ings?|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
+        # remove prefixes if the prefix was not already the point of hyphenation
+        self.prefixes = re.compile(r'^(un|in|ex)$', re.IGNORECASE)
+        self.removeprefix = re.compile(r'^(un|in|ex)', re.IGNORECASE)
 
     def dehyphenate(self, match):
         firsthalf = match.group('firstpart')
         secondhalf = match.group('secondpart')
         hyphenated = str(firsthalf) + "-" + str(secondhalf)
         dehyphenated = str(firsthalf) + str(secondhalf)
-        # Add common suffixes to the regex below to increase the likelihood of a match -   
-        # don't add suffixes which are also complete words, such as 'able' or 'sex'
-        removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)ion(s|al(ly)?)?|ings?|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
-        lookupword = removesuffixes.sub('', dehyphenated)
-        # remove prefixes if the prefix was not already the point of hyphenation
-        prefixes = re.compile(r'^(un|in|ex)$', re.IGNORECASE)
-        removeprefix = re.compile(r'^(un|in|ex)', re.IGNORECASE)
-        if prefixes.match(firsthalf) is None:
-           lookupword = removeprefix.sub('', lookupword)
+        lookupword = self.removesuffixes.sub('', dehyphenated)
+        if self.prefixes.match(firsthalf) is None:
+           lookupword = self.removeprefix.sub('', lookupword)
         booklookup = re.compile(u'%s' % lookupword, re.IGNORECASE)
         #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
         match = booklookup.search(self.html)
@@ -137,7 +139,7 @@ class Dehyphenator(object):
         else:
             #print "returned hyphenated word: " + str(hyphenated)
             return hyphenated
-            
+
     def __call__(self, html, format, length=1):
         self.html = html
         if format == 'html':
