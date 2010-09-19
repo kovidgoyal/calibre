@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-17 21:00+0000\n"
-"PO-Revision-Date: 2010-09-17 22:28+0000\n"
+"PO-Revision-Date: 2010-09-18 08:37+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-18 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-09-19 04:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -916,6 +916,8 @@ msgid ""
 "The Kobo supports only one collection currently: the \"Im_Reading\" list.  "
 "Create a tag called \"Im_Reading\" "
 msgstr ""
+"The Kobo horrek bilduma bati bakarrik ematen dio sostengua: \"Im_Reading\" "
+"zerrendari.  Sor ezazu izena hori, \"Im_Reading\" izena, duen etiketa bat. "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:63
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
@@ -1052,7 +1054,7 @@ msgstr "Jar zaitez harremanetan \"iPapyrus reader\" horrekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:59
 msgid "Communicate with the Sovos reader."
-msgstr ""
+msgstr "Jar zaitez harremanetan Sovos reader enpresako arduradunekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:255
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1809,12 +1811,21 @@ msgid ""
 "books  with hard line breaks, but should be reduced if the line length is "
 "variable."
 msgstr ""
+"Aurre-prozesua gaituta baldin badago erabiliko den neurria, erabakitzeko ea "
+"zein luzerarekin apurtuko den lerroa. 0 eta 1 zenbakien arteko dezimal bat "
+"erabiliko da. Lehenetsitako balioa: 0,40, hau da, lerroaren batez besteko "
+"luzeratik apurtxo bat behera. Honek lerro apurtzeko zailak diren liburu "
+"tipikoen lerroak apurtuko ditu baina zero koma lau hori txikiagotu egin "
+"beharko da lerroaren luzeraren arabera."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:376
 msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
+"Gidoiak, eten puntuak, kakotxoak-eta, bere ordezko tipografiko txukunetara "
+"bihurtzen ditu. Gehiago jakiteko, ikus:  "
+"http://daringfireball.net/projects/smartypants"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:384
 msgid "Use a regular expression to try and remove the header."
@@ -3031,6 +3042,9 @@ msgid ""
 "Valid values are a decimal between 0 and 1. The default is 0.45, just below "
 "the median line length."
 msgstr ""
+"Lerroan non apurtu erabakitzeko erabiliko den eskala. Erabiliko diren "
+"kopuruak zero eta bat arteko dezimalak. Lehenetsitako balioa 0,45 izango da, "
+"batez besteko lerro luzeraren azpitik, apurtxo bat azpitik."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."

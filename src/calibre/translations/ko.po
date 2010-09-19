@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-17 21:00+0000\n"
-"PO-Revision-Date: 2010-09-17 22:28+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-09-18 20:35+0000\n"
+"Last-Translator: ddfddf2k <Unknown>\n"
 "Language-Team: Korean <ko@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-18 04:49+0000\n"
+"X-Launchpad-Export-Date: 2010-09-19 04:50+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -257,7 +257,7 @@ msgstr "%s 파일에서 메타 정보를 지정합니다"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:684
 msgid "Look and Feel"
-msgstr ""
+msgstr "모양새"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:686
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:698
@@ -272,16 +272,16 @@ msgstr "Calibre 인터페이스 모양새를 조정합니다"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:696
 msgid "Behavior"
-msgstr ""
+msgstr "작동"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:702
 msgid "Change the way calibre behaves"
-msgstr ""
+msgstr "Calibre가 동작하는 방식을 변경합니다"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:707
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:176
 msgid "Add your own columns"
-msgstr ""
+msgstr "사용자 정의 열 추가"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:713
 msgid "Add/remove your own columns to the calibre book list"
@@ -289,13 +289,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:718
 msgid "Customize the toolbar"
-msgstr ""
+msgstr "도구 모음 사용자 정의"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:724
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
-msgstr ""
+msgstr "도구 모음과 마우스 우측 버튼 메뉴를 사용자 정의합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:730
 msgid "Input Options"
@@ -376,7 +376,7 @@ msgstr "전자우편을 통해서 책 공유하기를 설정합니다. 다운로
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:811
 msgid "Sharing over the net"
-msgstr ""
+msgstr "네트워크로 공유하기"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid ""
@@ -400,7 +400,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:836
 msgid "Tweaks"
-msgstr ""
+msgstr "트윅"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Fine tune how calibre behaves in various contexts"
@@ -1541,8 +1541,8 @@ msgid ""
 "1.5em. Spacing removal will not work if the source file does not use "
 "paragraphs (<p> or <div> tags)."
 msgstr ""
-"문단 사이에 공백을 지웁니다. 또한 문단에 1.5em의 들여쓰기를 지정합니다. 공백을 지우는 것은 문단(<p>, <div> 태그들)을 "
-"사용하지 않으면 작동하지 않습니다."
+"문단 사이에 공백을 지웁니다. 또한 문단에 1.5em의 들여쓰기를 지정합니다. 공백 지우기는 소스 파일이 문단(<p>, <div> "
+"태그)을 사용하지 않으면 작동하지 않습니다."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:323
 msgid ""
@@ -1584,7 +1584,7 @@ msgid ""
 "Attempt to detect and correct hard line breaks and other problems in the "
 "source file. This may make things worse, so use with care."
 msgstr ""
-"소스 파일에서 어려운 줄 넘김과 다른 문제들을 탐지하고 교정을 시도합니다. 이것은 더 나쁜것을 만들지도 모르니 주의해서 사용하세요."
+"소스 파일에서 강제 줄 넘김과 다른 문제들을 탐지하고 교정을 시도합니다. 이것은 더 나쁜것을 만들지도 모르니 주의해서 사용하세요."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:367
 msgid ""
@@ -3038,7 +3038,7 @@ msgstr "장치로 전송 버튼을 누를 때 수행할 기본 동작입니다"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:120
 msgid "Maximum number of waiting worker processes"
-msgstr ""
+msgstr "작업 프로세스의 최대 대기 수"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:122
 msgid "Download social metadata (tags/rating/etc.)"
@@ -6111,11 +6111,11 @@ msgstr "책에서 지울 태그의 목록입니다. 쉼표(,)로 구분합니다
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:245
 msgid "Check this box to remove all tags from the books."
-msgstr ""
+msgstr "책에서 모든 태그를 지우려면 이 상자를 체크하세요."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:246
 msgid "Remove all"
-msgstr ""
+msgstr "모두 지우기"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:250
 msgid "Remove &format:"
@@ -6190,7 +6190,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:270
 msgid "&Search and replace (experimental)"
-msgstr ""
+msgstr "찾아서 바꾸기(실험 단계) (&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:91
 msgid "Last modified: %s"
@@ -6210,7 +6210,7 @@ msgstr "표지를 생성하기 전에 제목과 저자를 지정해야 합니다
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:169
 msgid "Choose formats for "
-msgstr "다음에 대한 형식을 선택하세요: "
+msgstr "형식을 선택하세요: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:200
 msgid "No permission"
@@ -6423,7 +6423,7 @@ msgstr "메타 정보를 선택한 형식의 메타 정보에서 갱신하기"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:409
 msgid "&Browse"
-msgstr ""
+msgstr "찾기(&B)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:410
 msgid "Reset cover to default"
@@ -6431,7 +6431,7 @@ msgstr "표지를 기본값으로 초기화"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:412
 msgid "Download co&ver"
-msgstr ""
+msgstr "표지 내려받기(&V)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:413
 msgid "Generate a default cover based on the title and author"
@@ -6476,35 +6476,35 @@ msgstr "작업 중"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:54
 msgid ""
 "The current saved search will be <b>permanently deleted</b>. Are you sure?"
-msgstr "현재의 저장된 검색어를 <b>영구적으로 삭제</b>합니다. 확실합니까?"
+msgstr "현재의 저장된 검색을 <b>영구적으로 삭제</b>합니다. 확실합니까?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:88
 msgid "Saved Search Editor"
-msgstr "저장된 검색어 편집기"
+msgstr "저장된 검색 편집기"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:89
 msgid "Saved Search: "
-msgstr "저장된 검색어: "
+msgstr "저장된 검색: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:90
 msgid "Select a saved search to edit"
-msgstr "편집할 저장된 검색어를 선택하세요"
+msgstr "편집할 저장된 검색을 선택하세요"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:91
 msgid "Delete this selected saved search"
-msgstr "선택된 저장된 검색어를 삭제합니다"
+msgstr "선택된 저장된 검색을 삭제합니다"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:93
 msgid "Enter a new saved search name."
-msgstr "새로운 저장된 검색어의 이름을 입력합니다."
+msgstr "새로운 저장된 검색의 이름을 입력합니다."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:94
 msgid "Add the new saved search"
-msgstr "새로운 저장된 검색어 추가"
+msgstr "새로운 저장된 검색 추가"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:96
 msgid "Change the contents of the saved search"
-msgstr "저장된 검색어의 내용을 변경합니다"
+msgstr "저장된 검색의 내용을 변경합니다"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:120
 msgid "Need username and password"
@@ -7383,7 +7383,7 @@ msgstr "빠른 검색 초기화"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:181
 msgid "Copy current search text (instead of search name)"
-msgstr "현재의 검색어를 복사합니다 (검색어 대신에)"
+msgstr "현재의 검색어를 복사합니다 (검색 이름 대신에)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:187
 msgid "Save current search under the name shown in the box"
@@ -7391,7 +7391,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 msgid "Delete current saved search"
-msgstr "현재의 저장된 검색어 삭제하기"
+msgstr "현재의 저장된 검색 삭제"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:284
 msgid "N"
@@ -7418,7 +7418,7 @@ msgstr "%s 제<font face=\"serif\">%s</font>권"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1184
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:401
 msgid "The lookup/search name is \"{0}\""
-msgstr "검색어는 \"{0}\"입니다"
+msgstr "검색 이름은 \"{0}\"입니다"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:881
 msgid "In Library"
@@ -7836,11 +7836,11 @@ msgstr ""
 msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
-msgstr ""
+msgstr "라이브러리에 추가한 책에 적용하게 될 태그의 목록이며, 각각의 태그는 쉼표로 구분합니다."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:153
 msgid "Tags to apply when adding a book:"
-msgstr ""
+msgstr "책을 추가할 때 적용할 태그:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:154
 msgid "Reset all disabled &confirmation dialogs"
@@ -8186,7 +8186,7 @@ msgstr "아이콘 아래에 텍스트 표시(&T):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:121
 msgid "&Split the toolbar into two toolbars"
-msgstr ""
+msgstr "도구 상자를 두 개로 분할합니다(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:215
 msgid "&Apply"
@@ -8270,7 +8270,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:64
 msgid "&Maximum number of waiting worker processes (needs restart):"
-msgstr ""
+msgstr "작업 프로세스의 최대 대기 수 (재시작 필요함) (&M):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:65
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
@@ -8655,7 +8655,7 @@ msgstr "선택한 동작을 도구막대에서 제거"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:43
 msgid "Invalid tweaks"
-msgstr ""
+msgstr "잘못된 트윅"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:44
 msgid ""
@@ -8671,11 +8671,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:51
 msgid "All available tweaks"
-msgstr ""
+msgstr "모든 이용가능한 트윅"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:52
 msgid "&Current tweaks"
-msgstr ""
+msgstr "현재의 트윅(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:261
@@ -8685,7 +8685,7 @@ msgstr "검색"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:313
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
-msgstr "선택된 검색어를 <b>영구적으로 삭제</b>합니다. 확실합니까?"
+msgstr "선택된 검색을 <b>영구적으로 삭제</b>합니다. 확실합니까?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:355
 msgid "Search (For Advanced Search click the button to the left)"
@@ -8693,11 +8693,11 @@ msgstr "검색 (고급 검색은 왼쪽의 버튼을 누르세요)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:397
 msgid "Saved Searches"
-msgstr "저장된 검색어"
+msgstr "저장된 검색"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:405
 msgid "Choose saved search or enter name for new saved search"
-msgstr "저장된 검색어를 선택하거나 새로운 저장된 검색어를 위한 이름을 입력하세요"
+msgstr "저장된 검색을 선택하거나 새로운 저장된 검색을 위한 이름을 입력하세요"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:10
 msgid "Restrict to"
@@ -8803,7 +8803,7 @@ msgstr "%s 관리"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:223
 msgid "Manage Saved Searches"
-msgstr "저장된 검색어 관리"
+msgstr "저장된 검색 관리"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:234
@@ -8817,11 +8817,11 @@ msgstr "검색"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:511
 msgid "Duplicate search name"
-msgstr ""
+msgstr "검색 이름 중복"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:512
 msgid "The saved search name %s is already used."
-msgstr "저장된 검색어 이름 %s 은(는) 이미 사용중입니다."
+msgstr "저장된 검색 이름 %s은(는) 이미 사용중입니다."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:769
 msgid "Sort by name"
@@ -8966,15 +8966,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:56
 msgid "Update available"
-msgstr "이용가능한 업데이트"
+msgstr "업데이트가 가능합니다"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:57
 msgid ""
 "%s has been updated to version %s. See the <a href=\"http://calibre-"
 "ebook.com/whats-new\">new features</a>. Visit the download page?"
 msgstr ""
-"%s 가 %s 버전으로 업데이트되었습니다. <a href=\"http://calibre-ebook.com/whats-new\">새 "
-"기능</a>을 참조하세요. 내려받기 페이지를 방문합니까?"
+"%s가 %s 버전으로 업데이트 되었습니다. <a href=\"http://calibre-ebook.com/whats-new\">새로운 "
+"기능</a>을 참조하세요. 내려받기 페이지를 방문하겠습니까?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -10055,7 +10055,7 @@ msgstr "잘못된 정렬 필드입니다. 이용가능한 필드:"
 msgid ""
 "The following books were not added as they already exist in the database "
 "(see --duplicates option):"
-msgstr "다음의 책들은 이미 데이터베이스에 존재하므로 추가하지 않습니다 (--duplicates 옵션을 참조하세요):"
+msgstr "다음의 책들은 이미 데이터베이스에 존재하므로 추가하지 않습니다 (--duplicates 옵션 참조):"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:267
 msgid ""
@@ -10724,7 +10724,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:709
 msgid "The default output format for ebook conversions."
-msgstr "전자책 변환을 위한 기본 출력 형식입니다."
+msgstr "전자책 변환에 대한 기본 출력 형식입니다."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:713
 msgid "Ordered list of formats to prefer for input."
@@ -10736,7 +10736,7 @@ msgstr "파일에서 메타 정보 읽기"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:717
 msgid "The priority of worker processes"
-msgstr ""
+msgstr "작업 프로세스의 우선 순위"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:719
 msgid "Swap author first and last names when reading metadata"
@@ -10748,11 +10748,11 @@ msgstr "기존의 책 레코드에 새로운 형식 추가하기"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:723
 msgid "Tags to apply to books added to the library"
-msgstr ""
+msgstr "라이브러리에 추가한 책에 적용할 태그"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:727
 msgid "List of named saved searches"
-msgstr "저장된 검색어 이름 목록"
+msgstr "저장된 검색 이름 목록"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:728
 msgid "User-created tag browser categories"

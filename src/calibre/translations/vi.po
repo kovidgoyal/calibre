@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-17 21:00+0000\n"
-"PO-Revision-Date: 2010-09-17 22:33+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-09-18 10:30+0000\n"
+"Last-Translator: Alice Joseph <Unknown>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-18 04:50+0000\n"
+"X-Launchpad-Export-Date: 2010-09-19 04:50+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2677,7 +2677,7 @@ msgstr "Chú dẫn"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:135
 msgid "Sidebar"
-msgstr ""
+msgstr "Thanh bên"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:22
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:23
@@ -2706,6 +2706,8 @@ msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
+"Bảng mã cho tập tin xuất. Mặc định là cp1252. Chú ý: Không phải định dạng "
+"nào cũng hỗ trợ lựa chọn này."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:24
 msgid "Do not extract images from the document"
@@ -2720,7 +2722,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr "Sử dụng cơ chế chuyển đổi định dạng PDF mới."
+msgstr "Sử dụng công cụ chuyển đổi PDF mới."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -2854,7 +2856,7 @@ msgstr "Trang"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:51
 msgid "File Size"
-msgstr "Dung lượng tập tin"
+msgstr "Kích thước tập tin"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:52
 msgid "PDF Version"
@@ -2893,7 +2895,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 msgid "Rotate Options:"
-msgstr ""
+msgstr "Tùy chọn xoay:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:25
 msgid ""
@@ -2912,19 +2914,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Split Options:"
-msgstr ""
+msgstr "Tùy chọn tách:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:31
 msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
 "override the unit for margins!"
 msgstr ""
+"Đơn vị đo. Mặc định là inch. Chọn trong: %s Lưu ý: Lựa chọn này không ghi đè "
+"lên đơn vị cho lợi lề trang!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
 msgid ""
 "The size of the paper. This size will be overridden when an output profile "
 "is used. Default is letter. Choices are %s"
 msgstr ""
+"Khổ giấy. Khổ giấy sẽ bị ghi đè khi một hồ sơ xuất được sủ dụng. Mặc định là "
+"letter. Các lựa chọn: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
 msgid ""
@@ -2944,12 +2950,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
-msgstr ""
+msgstr "Không tìm thấy pdftohtml, xin kiểm tra ĐƯỜNG DẪN"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:33
 msgid ""
 "Specify the character encoding of the output document. The default is cp1252."
-msgstr ""
+msgstr "Bảng mã cho tập tin xuất. Mặc định là cp1252."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:196
 msgid ""
@@ -2957,11 +2963,14 @@ msgid ""
 "first and then try it.\n"
 "%s"
 msgstr ""
+"Tập tin RTF này có chức năng mà calibre không hỗ trợ. Chuyển đổi nó sang "
+"HTML trước rồi thử lại.\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
-msgstr ""
+msgstr "Bảng mã cho tập tin xuất. Mặc định là utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
@@ -2969,12 +2978,16 @@ msgid ""
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
+"Chọn mức độ nén trong khoảng 1 - 10. 1 là mức nén thấp nhất nhưng nhanh nhất "
+"và 10 là mức nén cao nhất nhưng chậm nhất."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:34
 msgid ""
 "Normally extra spaces are condensed into a single space. With this option "
 "all spaces will be displayed."
 msgstr ""
+"Bình thường nhiều khoảng trắng được gộp lại thành một khoảng trắng. Chọn để "
+"giữ nguyên các khoảng trắng."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:37
 msgid ""
@@ -2984,7 +2997,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:40
 msgid "Do not insert a Table of Contents into the output text."
-msgstr ""
+msgstr "Không chèn Mục Lục vào văn bản xuất."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
@@ -2998,6 +3011,8 @@ msgid ""
 "Specify the character encoding of the output document. The default is utf-8. "
 "Note: This option is not honored by all formats."
 msgstr ""
+"Bảng mã cho tập tin xuất. Mặc định là utf-8. Chú ý: Không phải định dạng nào "
+"cũng hỗ trợ lựa chọn này."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
 msgid ""
@@ -3019,7 +3034,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:68
 msgid "Confirm before deleting"
-msgstr ""
+msgstr "Xác nhận trước khi xóa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:70
 msgid "Main window geometry"
@@ -3027,11 +3042,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:72
 msgid "Notify when a new version is available"
-msgstr ""
+msgstr "Thông báo khi có phiên bản mới"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:74
 msgid "Use Roman numerals for series number"
-msgstr ""
+msgstr "Sử dụng chữ số La Mã cho số thứ tự của sách trong bộ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:76
 msgid "Sort tags list by name, popularity, or rating"
@@ -3051,11 +3066,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:85
 msgid "Formats that are viewed using the internal viewer"
-msgstr ""
+msgstr "Các định dạng được xem bằng calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:87
 msgid "Columns to be displayed in the book list"
-msgstr ""
+msgstr "Những cột được hiển thị trong danh mục sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:88
 msgid "Automatically launch content server on application startup"
@@ -3067,7 +3082,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:90
 msgid "Show system tray icon"
-msgstr ""
+msgstr "Hiện biểu tượng trên khay hệ thống"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:92
 msgid "Upload downloaded news to device"
@@ -3085,7 +3100,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:98
 msgid "Disable notifications from the system tray icon"
-msgstr ""
+msgstr "Vô hiệu hoá thông báo từ biểu tượng trên khay hệ thống"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:100
 msgid "Default action to perform when send to device button is clicked"
@@ -3101,7 +3116,7 @@ msgstr "Tải thông tin mô tả mang tính xã hội (thẻ/điểm số/v.v.)
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:124
 msgid "Overwrite author and title with new metadata"
-msgstr ""
+msgstr "Ghi đè tác giả và tựa đề với thông tin mô tả mới"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:126
 msgid "Limit max simultaneous jobs to number of CPUs"
