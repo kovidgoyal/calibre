@@ -82,7 +82,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         ct = c['datatype'] if not c['is_multiple'] else '*text'
         self.orig_column_number = c['colnum']
         self.orig_column_name = col
-        column_numbers = dict(map(lambda x:(self.column_types[x]['datatype'], x), self.column_types))
+        column_numbers = dict(map(lambda x:(self.column_types[x]['datatype'], x),
+                                  self.column_types))
         self.column_type_box.setCurrentIndex(column_numbers[ct])
         self.column_type_box.setEnabled(False)
         if ct == 'datetime':
@@ -109,9 +110,11 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if not col:
             return self.simple_error('', _('No lookup name was provided'))
         if re.match('^\w*$', col) is None or not col[0].isalpha() or col.lower() != col:
-            return self.simple_error('', _('The lookup name must contain only lower case letters, digits and underscores, and start with a letter'))
+            return self.simple_error('', _('The lookup name must contain only '
+                    'lower case letters, digits and underscores, and start with a letter'))
         if col.endswith('_index'):
-            return self.simple_error('', _('Lookup names cannot end with _index, because these names are reserved for the index of a series column.'))
+            return self.simple_error('', _('Lookup names cannot end with _index, '
+                    'because these names are reserved for the index of a series column.'))
         col_heading = unicode(self.column_heading_box.text())
         col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         if col_type == '*text':
@@ -123,7 +126,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             return self.simple_error('', _('No column heading was provided'))
         bad_col = False
         if col in self.parent.custcols:
-            if not self.editing_col or self.parent.custcols[col]['colnum'] != self.orig_column_number:
+            if not self.editing_col or \
+                    self.parent.custcols[col]['colnum'] != self.orig_column_number:
                 bad_col = True
         if bad_col:
             return self.simple_error('', _('The lookup name %s is already used')%col)
@@ -131,7 +135,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         bad_head = False
         for t in self.parent.custcols:
             if self.parent.custcols[t]['name'] == col_heading:
-                if not self.editing_col or self.parent.custcols[t]['colnum'] != self.orig_column_number:
+                if not self.editing_col or \
+                        self.parent.custcols[t]['colnum'] != self.orig_column_number:
                     bad_head = True
         for t in self.standard_colheads:
             if self.standard_colheads[t] == col_heading:
@@ -148,7 +153,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
         if col_type == 'composite':
             if not self.composite_box.text():
-                return self.simple_error('', _('You must enter a template for composite fields')%col_heading)
+                return self.simple_error('', _('You must enter a template for composite fields'))
             display_dict = {'composite_template':unicode(self.composite_box.text())}
             is_editable = False
         else:
