@@ -121,7 +121,7 @@ class Dehyphenator(object):
         dehyphenated = str(firsthalf) + str(secondhalf)
         # Add common suffixes to the regex below to increase the likelihood of a match -   
         # don't add suffixes which are also complete words, such as 'able' or 'sex'
-        removesuffixes = re.compile(r"((ed)?ly|(')?s|a?(t|s)ion(s|al(ly)?)?|ings?|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
+        removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)ion(s|al(ly)?)?|ings?|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
         lookupword = removesuffixes.sub('', dehyphenated)
         # remove prefixes if the prefix was not already the point of hyphenation
         prefixes = re.compile(r'^(un|in|ex)$', re.IGNORECASE)
