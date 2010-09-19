@@ -707,6 +707,10 @@ class DeviceMixin(object): # {{{
         '''
         Called when a device is connected to the computer.
         '''
+        # This can happen as this function is called in a queued connection and
+        # the user could have yanked the device in the meantime
+        if connected and not self.device_manager.is_device_connected:
+            connected = False
         self.set_device_menu_items_state(connected)
         if connected:
             self.device_manager.get_device_information(\
