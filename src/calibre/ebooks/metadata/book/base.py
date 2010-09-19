@@ -114,6 +114,12 @@ class Metadata(object):
             # Don't abuse this privilege
             self.__dict__[field] = val
 
+    def deepcopy(self):
+        m = Metadata(None)
+        m.__dict__ = copy.deepcopy(self.__dict__)
+        object.__setattr__(m, '_data', copy.deepcopy(object.__getattribute__(self, '_data')))
+        return m
+
     def get(self, field, default=None):
         if default is not None:
             try:

@@ -539,6 +539,7 @@ class ResultCache(SearchQueryParser):
                 self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
                 self._data[id].append(db.has_cover(id, index_is_id=True))
                 self._data[id].append(db.book_on_device_string(id))
+                self._data[id].append(None)
                 if len(self.composites) > 0:
                     mi = db.get_metadata(id, index_is_id=True)
                     for k,c in self.composites:
@@ -559,6 +560,7 @@ class ResultCache(SearchQueryParser):
             self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
             self._data[id].append(db.has_cover(id, index_is_id=True))
             self._data[id].append(db.book_on_device_string(id))
+            self._data[id].append(None)
             if len(self.composites) > 0:
                 mi = db.get_metadata(id, index_is_id=True)
                 for k,c in self.composites:
@@ -588,6 +590,7 @@ class ResultCache(SearchQueryParser):
             if item is not None:
                 item.append(db.has_cover(item[0], index_is_id=True))
                 item.append(db.book_on_device_string(item[0]))
+                item.append(None)
                 if len(self.composites) > 0:
                     mi = db.get_metadata(item[0], index_is_id=True)
                     for k,c in self.composites:
