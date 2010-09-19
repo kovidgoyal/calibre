@@ -81,9 +81,8 @@ DEVICE_METADATA_FIELDS = frozenset([
 
 CALIBRE_METADATA_FIELDS = frozenset([
     'application_id',   # An application id, currently set to the db_id.
-    # the calibre primary key of the item.
     'db_id',            # the calibre primary key of the item.
-                        # TODO: NEWMETA: May want to remove once Sony's no longer use it
+    'formats',          # list of formats (extensions) for this book
     ]
 )
 
@@ -124,5 +123,5 @@ SERIALIZABLE_FIELDS =      SOCIAL_METADATA_FIELDS.union(
                            PUBLICATION_METADATA_FIELDS).union(
                            CALIBRE_METADATA_FIELDS).union(
                            DEVICE_METADATA_FIELDS) - \
-                           frozenset(['device_collections'])
-                           # device_collections is rebuilt when needed
+                           frozenset(['device_collections', 'formats'])
+                           # these are rebuilt when needed

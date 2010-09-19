@@ -343,26 +343,26 @@ class Metadata(object):
     def format_rating(self):
         return unicode(self.rating)
 
-    def format_field(self, key):
-        name, val, ign, ign = self.format_field_extended(key)
+    def format_field(self, key, series_with_index=True):
+        name, val, ign, ign = self.format_field_extended(key, series_with_index)
         return (name, val)
 
-    def format_field_extended(self, key):
+    def format_field_extended(self, key, series_with_index=True):
         from calibre.ebooks.metadata import authors_to_string
         '''
         returns the tuple (field_name, formatted_value)
         '''
         if key in self.user_metadata_keys:
             res = self.get(key, None)
+            cmeta = self.get_user_metadata(key, make_copy=False)
             if res is None or res == '':
                 return (None, None, None, None)
             orig_res = res
-            cmeta = self.get_user_metadata(key, make_copy=False)
             name = unicode(cmeta['name'])
             datatype = cmeta['datatype']
             if datatype == 'text' and cmeta['is_multiple']:
                 res = u', '.join(res)
-            elif datatype == 'series':
+            elif datatype == 'series' and series_with_index:
                 res = res + \
                    ' [%s]'%self.format_series_index(val=self.get_extra(key))
             elif datatype == 'datetime':
@@ -383,7 +383,7 @@ class Metadata(object):
                 res = authors_to_string(res)
             elif datatype == 'text' and fmeta['is_multiple']:
                 res = u', '.join(res)
-            elif datatype == 'series':
+            elif datatype == 'series' and series_with_index:
                 res = res + ' [%s]'%self.format_series_index()
             elif datatype == 'datetime':
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))

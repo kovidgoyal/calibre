@@ -228,29 +228,19 @@ class MobileServer(object):
             for key in CKEYS:
                 def concat(name, val):
                     return '%s:#:%s'%(name, unicode(val))
-                val = record[CFM[key]['rec_index']]
-                if val:
-                    datatype = CFM[key]['datatype']
-                    if datatype in ['comments']:
-                        continue
-                    name = CFM[key]['name']
-                    if datatype == 'text' and CFM[key]['is_multiple']:
-                        book[key] = concat(name,
-                                           format_tag_string(val, '|',
-                                                             no_tag_count=True))
-                    elif datatype == 'series':
-                        book[key] = concat(name, '%s [%s]'%(val,
-                            fmt_sidx(record[CFM.cc_series_index_column_for(key)])))
-                    elif datatype == 'datetime':
-                        book[key] = concat(name,
-                            format_date(val, CFM[key]['display'].get('date_format','dd MMM yyyy')))
-                    elif datatype == 'bool':
-                        if val:
-                            book[key] = concat(name, __builtin__._('Yes'))
-                        else:
-                            book[key] = concat(name, __builtin__._('No'))
-                    else:
-                        book[key] = concat(name, val)
+                mi = self.db.get_metadata(record[CFM['id']['rec_index']], index_is_id=True)
+                name, val = mi.format_field(key)
+                if val is None:
+                    continue
+                datatype = CFM[key]['datatype']
+                if datatype in ['comments']:
+                    continue
+                if datatype == 'text' and CFM[key]['is_multiple']:
+                    book[key] = concat(name,
+                                       format_tag_string(val, ',',
+                                                         no_tag_count=True))
+                else:
+                    book[key] = concat(name, val)
 
         updated = self.db.last_modified()
 

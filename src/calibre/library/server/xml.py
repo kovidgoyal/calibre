@@ -102,31 +102,21 @@ class XMLServer(object):
             for key in CKEYS:
                 def concat(name, val):
                     return '%s:#:%s'%(name, unicode(val))
-                val = record[CFM[key]['rec_index']]
-                if val:
-                    datatype = CFM[key]['datatype']
-                    if datatype in ['comments']:
-                        continue
-                    k = str('CF_'+key[1:])
-                    name = CFM[key]['name']
-                    custcols.append(k)
-                    if datatype == 'text' and CFM[key]['is_multiple']:
-                        kwargs[k] = concat('#T#'+name,
-                                           format_tag_string(val,'|',
-                                                             ignore_max=True))
-                    elif datatype == 'series':
-                        kwargs[k] = concat(name, '%s [%s]'%(val,
-                            fmt_sidx(record[CFM.cc_series_index_column_for(key)])))
-                    elif datatype == 'datetime':
-                        kwargs[k] = concat(name,
-                            format_date(val, CFM[key]['display'].get('date_format','dd MMM yyyy')))
-                    elif datatype == 'bool':
-                        if val:
-                            kwargs[k] = concat(name, __builtin__._('Yes'))
-                        else:
-                            kwargs[k] = concat(name, __builtin__._('No'))
-                    else:
-                        kwargs[k] = concat(name, val)
+                mi = self.db.get_metadata(record[CFM['id']['rec_index']], index_is_id=True)
+                name, val = mi.format_field(key)
+                if not val:
+                    continue
+                datatype = CFM[key]['datatype']
+                if datatype in ['comments']:
+                    continue
+                k = str('CF_'+key[1:])
+                name = CFM[key]['name']
+                custcols.append(k)
+                if datatype == 'text' and CFM[key]['is_multiple']:
+                    kwargs[k] = concat('#T#'+name, format_tag_string(val,',',
+                                                            ignore_max=True))
+                else:
+                    kwargs[k] = concat(name, val)
             kwargs['custcols'] = ','.join(custcols)
             books.append(E.book(c, **kwargs))
 
