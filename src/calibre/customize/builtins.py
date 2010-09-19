@@ -666,13 +666,17 @@ class ActionCopyToLibrary(InterfaceActionBase):
     name = 'Copy To Library'
     actual_plugin = 'calibre.gui2.actions.copy_to_library:CopyToLibraryAction'
 
+class ActionTweakEpub(InterfaceActionBase):
+    name = 'Tweak ePub'
+    actual_plugin = 'calibre.gui2.actions.tweak_epub:TweakEpubAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
-        ActionCopyToLibrary]
+        ActionCopyToLibrary, ActionTweakEpub]
 
 # }}}
 
