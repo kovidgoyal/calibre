@@ -123,7 +123,7 @@ class VMInstaller(Command):
         subprocess.check_call(['scp',
             self.VM_NAME+':build/calibre/'+installer, 'dist'])
         if not os.path.exists(installer):
-            self.warn('Failed to download installer')
+            self.warn('Failed to download installer: '+installer)
             raise SystemExit(1)
 
     def clean(self):

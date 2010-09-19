@@ -84,6 +84,9 @@ Send to device
     1. **Send to main memory**: The selected books are transferred to the main memory of the ebook reader.
     2. **Send to card**: The selected books are transferred to the storage card on the ebook reader.
 
+You can control the file name and folder structure of files sent to the device by setting up a template in
+:guilabel:`Preferences->Import/Export->Sending books to devices`. Also see :ref:`templatelangcalibre`.
+
 .. _save_to_disk:
 
 Save to disk
@@ -107,6 +110,10 @@ Save to disk
 All available formats as well as metadata is stored to disk for each selected book. Metadata is stored in an OPF file.
 
 Saved books can be re-imported to the library without any loss of information by using the :ref:`Add books <add_books>` action.
+
+You can control the file name and folder structure of files saved to disk by setting up a template in
+:guilabel:`Preferences->Import/Export->Saving books to disk`. Also see :ref:`templatelangcalibre`.
+
 
 .. _fetch_news:
 

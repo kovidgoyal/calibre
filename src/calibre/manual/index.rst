@@ -39,4 +39,10 @@ Sections
    develop
    glossary
 
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+
+   template_lang
+   portable
 
