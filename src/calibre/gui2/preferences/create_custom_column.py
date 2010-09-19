@@ -39,7 +39,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     8:{'datatype':'bool',
                         'text':_('Yes/No'), 'is_multiple':False},
                     8:{'datatype':'composite',
-                        'text':_('Field built from other fields'), 'is_multiple':False},
+                        'text':_('Column built from other columns'), 'is_multiple':False},
                 }
 
     def __init__(self, parent, editing, standard_colheads, standard_colnames):
@@ -153,7 +153,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
         if col_type == 'composite':
             if not self.composite_box.text():
-                return self.simple_error('', _('You must enter a template for composite fields'))
+                return self.simple_error('', _('You must enter a template for'
+                    ' composite columns'))
             display_dict = {'composite_template':unicode(self.composite_box.text())}
             is_editable = False
         else:

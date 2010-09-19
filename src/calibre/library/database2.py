@@ -522,7 +522,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
-        Convenience method to return metadata as a L{Metadata} object.
+        Convenience method to return metadata as a :class:`Metadata` object.
         '''
         mi = self.data.get(idx, self.FIELD_MAP['all_metadata'],
                            row_is_id = index_is_id)

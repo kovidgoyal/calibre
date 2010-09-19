@@ -280,6 +280,13 @@ Why doesn't |app| have a column for foo?
 |app| is designed to have columns for the most frequently and widely used fields. In addition, you can add any columns you like. Columns can be added via :guilabel:`Preferences->Interface->Add your own columns`.
 Watch the tutorial `UI Power tips <http://calibre-ebook.com/demo#tutorials>`_ to learn how to create your own columns.
 
+You can also create "virtual columns" that contain combinations of the metadata from other columns. In the add column dialog choose the option "Column from other columns" and in the template enter the other column names. For example to create a virtual column containing formats or ISBN, enter ``{formats}`` for formats or ``{isbn}`` for ISBN.
+
+
+Can I have a column showing the formats or the ISBN?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Yes, you can. Follow the instructions in the answer above for adding custom columns. 
+
 How do I move my |app| library from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder.
