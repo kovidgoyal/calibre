@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from calibre.ebooks.conversion.preprocess import line_length
+from calibre.ebooks.conversion.preprocess import line_length, Dehyphenator
 from calibre.utils.logging import default_log
 
 class PreProcessor(object):
@@ -114,7 +114,7 @@ class PreProcessor(object):
         html = re.sub(ur'\s*<o:p>\s*</o:p>', ' ', html)
         # Get rid of empty span, bold, & italics tags
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
-        html = re.sub(r"\s*<[ibu]>\s*(<[ibu]>\s*</[ibu]>\s*){0,2}\s*</[ibu]>", " ", html)
+        html = re.sub(r"\s*<[ibu][^>]*>\s*(<[ibu][^>]*>\s*</[ibu]>\s*){0,2}\s*</[ibu]>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
 
         # If more than 40% of the lines are empty paragraphs then delete them to clean up spacing
@@ -132,7 +132,6 @@ class PreProcessor(object):
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = re.sub(r"\s*</p>", "</p>\n", html)
         html = re.sub(r"\s*<p>\s*", "\n<p>", html)
-        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")
         # detect chapters/sections to match xpath or splitting logic
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
@@ -140,16 +139,16 @@ class PreProcessor(object):
         #
         # Start with most typical chapter headings, get more aggressive until one works
         if self.html_preprocess_sections < 10:
-            chapdetect = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu]>){0,2}\s*.?(Introduction|Synopsis|Acknowledgements|Chapter|Epilogue|Volume|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,8}\s*(</[ibu]>){0,2})\s*(</span>)?s*(</[ibu]>){0,2}\s*(</span>)?\s*(</(p|/?br)>)\s*\s*(\s*<p[^>]*>\s*</p>){0,2}\s*(<(/?br|p)[^>]*>\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu]>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.IGNORECASE|re.VERBOSE)
+            chapdetect = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu][^>]*>){0,2}\s*.?(Introduction|Synopsis|Acknowledgements|Chapter|Epilogue|Volume|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,8}\s*(</[ibu]>){0,2})\s*(</span>)?s*(</[ibu]>){0,2}\s*(</span>)?\s*(</(p|/?br)>)\s*\s*(\s*<p[^>]*>\s*</p>){0,2}\s*(<(/?br|p)[^>]*>\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu][^>]*>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.IGNORECASE|re.VERBOSE)
             html = chapdetect.sub(self.chapter_head, html)
         if self.html_preprocess_sections < 10:
             self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", trying numeric chapters")
-            chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu]>){0,2}\s*.?(\d+\.?|(CHAPTER\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}))\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu]>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.UNICODE)
+            chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu][^>]*>){0,2}\s*.?(\d+\.?|(CHAPTER\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}))\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu][^>]*>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.UNICODE)
             html = chapdetect2.sub(self.chapter_head, html)
 
         if self.html_preprocess_sections < 10:
             self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", trying with uppercase words")
-            chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu]>){0,2}\s*.?([A-Z#\-\s]+)\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu]>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.UNICODE)
+            chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu][^>]*>){0,2}\s*.?([A-Z#\-\s]+)\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu][^>]*>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.UNICODE)
             html = chapdetect2.sub(self.chapter_head, html)
 
         ###### Unwrap lines ######
@@ -174,10 +173,16 @@ class PreProcessor(object):
         length = line_length(format, html, getattr(self.extra_opts,
             'html_unwrap_factor', 0.4))
         self.log("*** Median line length is " + str(length) + ", calculated with " + format + " format ***")
+        max_length = length * 1.4
+        min_max = str("(?<=.{"+str(length)+"})(?<!.{"+str(max_length)+"})")
         #
-        # Unwrap and/or delete soft-hyphens, hyphens
+        # Unwrap em/en dashes, delete soft-hyphens
+        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")
         html = re.sub(u'\xad\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
-        html = re.sub(u'(?<=[-\u2013\u2014])\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?=[[a-z\d])', '', html)
+        html = re.sub(u'%s(?<=[\u2013\u2014])\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?=[[a-z\d])' % min_max, '', html)
+        # Dehyphenate
+        dehyphenator = Dehyphenator()
+        html = dehyphenator(html,'html', length)
 
         # Unwrap lines using punctation and line length
         unwrap = re.compile(r"(?<=.{%i}([a-z,;):\IA]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
@@ -186,7 +191,7 @@ class PreProcessor(object):
         # If still no sections after unwrapping mark split points on lines with no punctuation
         if self.html_preprocess_sections < 10:
             self.log("Looking for more split points based on punctuation, currently have " + str(self.html_preprocess_sections))
-            chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*(<[ibu]>){0,2}\s*(<span[^>]*>)?\s*.?([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
+            chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
             html = chapdetect3.sub(self.chapter_break, html)
         # search for places where a first or second level heading is immediately followed by another
         # top level heading.  demote the second heading to h3 to prevent splitting between chapter
