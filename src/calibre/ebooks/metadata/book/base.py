@@ -390,6 +390,9 @@ class Metadata(object):
                 return (None, None, None, None)
             orig_res = res
             cmeta = self.get_user_metadata(key, make_copy=False)
+            if res is None or res == '':
+                return (None, None, None, None)
+            orig_res = res
             name = unicode(cmeta['name'])
             datatype = cmeta['datatype']
             if datatype == 'text' and cmeta['is_multiple']:

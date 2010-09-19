@@ -20,7 +20,6 @@ from calibre.library.comments import comments_to_html
 from calibre.library.server.utils import format_tag_string
 from calibre import guess_type
 from calibre.utils.ordered_dict import OrderedDict
-from calibre.utils.date import format_date
 
 BASE_HREFS = {
         0 : '/stanza',
