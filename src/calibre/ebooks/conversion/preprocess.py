@@ -106,6 +106,50 @@ def line_length(format, raw, percent):
 
     return lengths[index]
 
+class Dehyphenator(object):
+    '''
+    Analyzes words to determine whether hyphens should be retained/removed.  Uses the document 
+    itself is as a dictionary. This method handles all languages along with uncommon, made-up, and 
+    scientific words. The primary disadvantage is that words appearing only once in the document 
+    retain hyphens.
+    '''
+
+    def dehyphenate(self, match):
+        firsthalf = match.group('firstpart')
+        secondhalf = match.group('secondpart')
+        hyphenated = str(firsthalf) + "-" + str(secondhalf)
+        dehyphenated = str(firsthalf) + str(secondhalf)
+        # Add common suffixes to the regex below to increase the likelihood of a match -   
+        # don't add suffixes which are also complete words, such as 'able' or 'sex'
+        removesuffixes = re.compile(r"((ed)?ly|(')?s|a?(t|s)ion(s|al(ly)?)?|ings?|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
+        lookupword = removesuffixes.sub('', dehyphenated)
+        # remove prefixes if the prefix was not already the point of hyphenation
+        prefixes = re.compile(r'^(un|in|ex)$', re.IGNORECASE)
+        removeprefix = re.compile(r'^(un|in|ex)', re.IGNORECASE)
+        if prefixes.match(firsthalf) is None:
+           lookupword = removeprefix.sub('', lookupword)
+        booklookup = re.compile(u'%s' % lookupword, re.IGNORECASE)
+        #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
+        match = booklookup.search(self.html)
+        if match:
+            #print "returned dehyphenated word: " + str(dehyphenated)
+            return dehyphenated
+        else:
+            #print "returned hyphenated word: " + str(hyphenated)
+            return hyphenated
+            
+    def __call__(self, html, format, length=1):
+        self.html = html
+        if format == 'html':
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^“"\s>]+)-\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)' % length)
+        elif format == 'pdf':
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^“"\s>]+)-\s*(<p>|</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)'% length)
+        elif format == 'individual_words':
+            intextmatch = re.compile('>[^<]*\b(?P<firstpart>[^"\s>]+)-(?P<secondpart)\w+)\b[^<]*<') # for later, not called anywhere yet
+
+        html = intextmatch.sub(self.dehyphenate, html)
+        return html
+
 
 class CSSPreProcessor(object):
 
@@ -328,11 +372,10 @@ class HTMLPreProcessor(object):
                 print 'Failed to parse remove_footer regexp'
                 traceback.print_exc()
 
-        # unwrap hyphenation - moved here so it's executed after header/footer removal
+        # unwrap em/en dashes, delete soft hyphens - moved here so it's executed after header/footer removal
         if is_pdftohtml:
-            # unwrap visible dashes and hyphens - don't delete they are often hyphens for
-            # for compound words, formatting, etc
-            end_rules.append((re.compile(u'(?<=[-–—])\s*<p>\s*(?=[[a-z\d])'), lambda match: ''))
+            # unwrap em/en dashes
+            end_rules.append((re.compile(u'(?<=[–—])\s*<p>\s*(?=[[a-z\d])'), lambda match: ''))
             # unwrap/delete soft hyphens
             end_rules.append((re.compile(u'[­](\s*<p>)+\s*(?=[[a-z\d])'), lambda match: ''))
             # unwrap/delete soft hyphens with formatting
@@ -350,7 +393,7 @@ class HTMLPreProcessor(object):
                 # print "The pdf line length returned is " + str(length)
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(r'(?<=.{%i}([a-z,:)\-IA]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(r'(?<=.{%i}([a-z,:)\IA]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + start_rules:
@@ -379,6 +422,11 @@ class HTMLPreProcessor(object):
 
         for rule in rules + end_rules:
             html = rule[0].sub(rule[1], html)
+
+        if is_pdftohtml:
+            # Dehyphenate
+            dehyphenator = Dehyphenator()
+            html = dehyphenator(html,'pdf', length)
 
         #dump(html, 'post-preprocess')
 

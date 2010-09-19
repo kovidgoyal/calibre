@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from calibre.ebooks.conversion.preprocess import line_length
+from calibre.ebooks.conversion.preprocess import line_length, Dehyphenator
 from calibre.utils.logging import default_log
 
 class PreProcessor(object):
@@ -132,7 +132,6 @@ class PreProcessor(object):
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = re.sub(r"\s*</p>", "</p>\n", html)
         html = re.sub(r"\s*<p>\s*", "\n<p>", html)
-        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")
         # detect chapters/sections to match xpath or splitting logic
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
@@ -174,10 +173,16 @@ class PreProcessor(object):
         length = line_length(format, html, getattr(self.extra_opts,
             'html_unwrap_factor', 0.4))
         self.log("*** Median line length is " + str(length) + ", calculated with " + format + " format ***")
+        max_length = length * 1.4
+        min_max = str("(?<=.{"+str(length)+"})(?<!.{"+str(max_length)+"})")
         #
-        # Unwrap and/or delete soft-hyphens, hyphens
+        # Unwrap em/en dashes, delete soft-hyphens
+        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")
         html = re.sub(u'\xad\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
-        html = re.sub(u'(?<=[-\u2013\u2014])\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?=[[a-z\d])', '', html)
+        html = re.sub(u'%s(?<=[\u2013\u2014])\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?=[[a-z\d])' % min_max, '', html)
+        # Dehyphenate
+        dehyphenator = Dehyphenator()
+        html = dehyphenator(html,'html', length)
 
         # Unwrap lines using punctation and line length
         unwrap = re.compile(r"(?<=.{%i}([a-z,;):\IA]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
