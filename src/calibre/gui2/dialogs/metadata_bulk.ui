@@ -319,7 +319,7 @@ Future conversion of these books will use the default settings.</string>
         <attribute name="title">
          <string>&amp;Search and replace (experimental)</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout">
+        <layout class="QGridLayout" name="testgrid">
          <property name="sizeConstraint">
           <enum>QLayout::SetMinimumSize</enum>
          </property>
@@ -351,6 +351,39 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="3" column="1">
+          <widget class="QComboBox" name="search_field"/>
+         </item>
+         <item row="3" column="2">
+          <layout class="QHBoxLayout" name="HLayout_3">
+           <item>
+            <widget class="QLabel" name="xlabel_24">
+             <property name="text">
+              <string>Search mode:</string>
+             </property>
+             <property name="buddy">
+              <cstring>search_field</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="search_mode"/>
+           </item>
+           <item>
+            <spacer name="HSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="4" column="0">
           <widget class="QLabel" name="xlabel_2">
            <property name="text">
             <string>&amp;Search for:</string>
@@ -360,7 +393,20 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="2">
+         <item row="4" column="1">
+          <widget class="HistoryLineEdit" name="search_for"/>
+         </item>
+         <item row="4" column="2">
+          <widget class="QCheckBox" name="case_sensitive">
+           <property name="text" >
+            <string>Case sensitive</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
           <widget class="QLabel" name="xlabel_4">
            <property name="text">
             <string>&amp;Replace with:</string>
@@ -370,29 +416,93 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QComboBox" name="search_field"/>
-         </item>
-         <item row="4" column="1">
-          <widget class="HistoryLineEdit" name="search_for"/>
-         </item>
-         <item row="4" column="2">
+         <item row="5" column="1">
           <widget class="HistoryLineEdit" name="replace_with"/>
          </item>
-         <item row="5" column="1">
-          <widget class="QLabel" name="label_41">
+         <item row="5" column="2">
+          <layout class="QHBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QLabel" name="label_41">
+             <property name="text">
+              <string>Apply function after replace:</string>
+             </property>
+             <property name="buddy">
+              <cstring>replace_func</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="replace_func"/>
+           </item>
+           <item>
+            <spacer name="HSpacer_1">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="destination_field_label">
            <property name="text">
-            <string>Apply function &amp;after replace:</string>
+            <string>&amp;Destination field:</string>
            </property>
            <property name="buddy">
-            <cstring>replace_func</cstring>
+            <cstring>destination_field</cstring>
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
-          <widget class="QComboBox" name="replace_func"/>
-         </item>
          <item row="6" column="1">
+          <widget class="QComboBox" name="destination_field"/>
+         </item>
+         <item row="6" column="2">
+          <layout class="QHBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QLabel" name="replace_mode_label">
+             <property name="text">
+              <string>Mode:</string>
+             </property>
+             <property name="buddy">
+              <cstring>replace_mode</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="replace_mode"/>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="comma_separated">
+             <property name="text" >
+              <string>use comma</string>
+             </property>
+             <property name="checked" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="zHSpacer_1">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="7" column="1">
           <widget class="QLabel" name="xlabel_3">
            <property name="text">
             <string>Test &amp;text</string>
@@ -402,8 +512,8 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="2">
-          <widget class="QLabel" name="label_5">
+         <item row="7" column="2">
+          <widget class="QLabel" name="label_51">
            <property name="text">
             <string>Test re&amp;sult</string>
            </property>
@@ -412,17 +522,17 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="8" column="0">
           <widget class="QLabel" name="label_31">
            <property name="text">
             <string>Your test:</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
+         <item row="8" column="1">
           <widget class="HistoryLineEdit" name="test_text"/>
          </item>
-         <item row="7" column="2">
+         <item row="8" column="2">
           <widget class="QLineEdit" name="test_result"/>
          </item>
          <item row="20" column="1">

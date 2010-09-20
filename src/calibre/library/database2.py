@@ -528,10 +528,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def get_field(self, idx, key, default=None, index_is_id=False):
         mi = self.get_metadata(idx, index_is_id=index_is_id, get_cover=True)
-        try:
-            return mi[key]
-        except:
-            return default
+        return mi.get(key, default)
 
     def standard_field_keys(self):
         return self.field_metadata.standard_field_keys()

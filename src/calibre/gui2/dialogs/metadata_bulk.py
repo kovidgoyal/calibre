@@ -122,12 +122,20 @@ def format_composite(x, mi):
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
-    s_r_functions = {
-                    ''          : lambda x: x,
-                    _('Lower Case') : lambda x: x.lower(),
-                    _('Upper Case')     : lambda x: x.upper(),
-                    _('Title Case')     : lambda x: x.title(),
-            }
+    s_r_functions = {       ''              : lambda x: x,
+                            _('Lower Case') : lambda x: x.lower(),
+                            _('Upper Case') : lambda x: x.upper(),
+                            _('Title Case') : lambda x: x.title(),
+                    }
+
+    s_r_match_modes = [     _('Character match'),
+                            _('Regular Expression'),
+                      ]
+
+    s_r_replace_modes = [   _('Replace field'),
+                            _('Prepend to field'),
+                            _('Append to field'),
+                        ]
 
     def __init__(self, window, rows, db):
         QDialog.__init__(self, window)
@@ -179,27 +187,34 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         fields.sort()
         self.search_field.addItems(fields)
         self.search_field.setMaxVisibleItems(min(len(fields), 20))
+        self.destination_field.addItems(fields)
+        self.destination_field.setMaxVisibleItems(min(len(fields), 20))
         offset = 10
         self.s_r_number_of_books = min(7, len(self.ids))
         for i in range(1,self.s_r_number_of_books+1):
             w = QtGui.QLabel(self.tabWidgetPage3)
             w.setText(_('Book %d:')%i)
-            self.gridLayout1.addWidget(w, i+offset, 0, 1, 1)
+            self.testgrid.addWidget(w, i+offset, 0, 1, 1)
             w = QtGui.QLineEdit(self.tabWidgetPage3)
             w.setReadOnly(True)
             name = 'book_%d_text'%i
             setattr(self, name, w)
             self.book_1_text.setObjectName(name)
-            self.gridLayout1.addWidget(w, i+offset, 1, 1, 1)
+            self.testgrid.addWidget(w, i+offset, 1, 1, 1)
             w = QtGui.QLineEdit(self.tabWidgetPage3)
             w.setReadOnly(True)
             name = 'book_%d_result'%i
             setattr(self, name, w)
             self.book_1_text.setObjectName(name)
-            self.gridLayout1.addWidget(w, i+offset, 2, 1, 1)
+            self.testgrid.addWidget(w, i+offset, 2, 1, 1)
 
         self.s_r_heading.setText('<p>'+
-                           _('Search and replace in text fields using '
+                           _('<b>You can destroy your library</b> '
+                             'using this feature. Changes are permanent. There '
+                             'is no undo function. You are strongly encouraged '
+                             'to back up your library before proceeding.'
+                             ) + '<p>' + _(
+                             'Search and replace in text fields using '
                              'regular expressions. The search text is an '
                              'arbitrary python-compatible regular expression. '
                              'The replacement text can contain backreferences '
@@ -209,50 +224,85 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                              '<a href="http://docs.python.org/library/re.html"> '
                              'this reference</a> '
                              'for more information, and in particular the \'sub\' '
-                             'function.') + '<p>' + _(
-                             'Note: <b>you can destroy your library</b> '
-                             'using this feature. Changes are permanent. There '
-                             'is no undo function. You are strongly encouraged '
-                             'to back up your library before proceeding.'))
+                             'function.'
+                             ))
+        self.search_mode.addItems(self.s_r_match_modes)
+        self.search_mode.setCurrentIndex(0)
+        self.replace_mode.addItems(self.s_r_replace_modes)
+        self.replace_mode.setCurrentIndex(0)
+
+        self.s_r_search_mode = 0
         self.s_r_error = None
         self.s_r_obj = None
 
         self.replace_func.addItems(sorted(self.s_r_functions.keys()))
-        self.search_field.currentIndexChanged[str].connect(self.s_r_field_changed)
+        self.search_mode.currentIndexChanged[int].connect(self.s_r_search_mode_changed)
+        self.search_field.currentIndexChanged[str].connect(self.s_r_search_field_changed)
+        self.destination_field.currentIndexChanged[str].connect(self.s_r_destination_field_changed)
+
+        self.replace_mode.currentIndexChanged[int].connect(self.s_r_paint_results)
         self.replace_func.currentIndexChanged[str].connect(self.s_r_paint_results)
         self.search_for.editTextChanged[str].connect(self.s_r_paint_results)
         self.replace_with.editTextChanged[str].connect(self.s_r_paint_results)
         self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
+        self.comma_separated.stateChanged.connect(self.s_r_paint_results)
+        self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
         self.central_widget.setCurrentIndex(0)
 
         self.search_for.completer().setCaseSensitivity(Qt.CaseSensitive)
         self.replace_with.completer().setCaseSensitivity(Qt.CaseSensitive)
 
+        self.s_r_search_mode_changed(0)
 
-    def s_r_field_changed(self, txt):
+    def s_r_get_field(self, mi, field):
+        if field:
+            fm = self.db.metadata_for_field(field)
+            val = mi.get(field, None)
+            if val is None:
+                val = []
+            elif not fm['is_multiple']:
+                val = [val]
+            elif field == 'authors':
+                val = [v.replace(',', '|') for v in val]
+        else:
+            val = []
+        return val
+
+    def s_r_search_field_changed(self, txt):
         txt = unicode(txt)
         for i in range(0, self.s_r_number_of_books):
-            if txt:
-                fm = self.db.field_metadata[txt]
-                id = self.ids[i]
-                val = self.db.get_property(id, index_is_id=True,
-                                           loc=fm['rec_index'])
-                if val is None:
-                    val = ''
-                if fm['is_multiple']:
-                    val = [t.strip() for t in val.split(fm['is_multiple']) if t.strip()]
-                    if val:
-                        val.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
-                        val = val[0]
-                        if txt == 'authors':
-                            val = val.replace('|', ',')
-                    else:
-                        val = ''
-            else:
-                val = ''
             w = getattr(self, 'book_%d_text'%(i+1))
-            w.setText(val)
+            mi = self.db.get_metadata(self.ids[i], index_is_id=True)
+            src = unicode(self.search_field.currentText())
+            t = self.s_r_get_field(mi, src)
+            w.setText(''.join(t[0:1]))
         self.s_r_paint_results(None)
+
+    def s_r_destination_field_changed(self, txt):
+        txt = unicode(txt)
+        self.comma_separated.setEnabled(True)
+        if txt:
+            fm = self.db.metadata_for_field(txt)
+            if fm['is_multiple']:
+                self.comma_separated.setEnabled(False)
+                self.comma_separated.setChecked(True)
+        self.s_r_paint_results(None)
+
+    def s_r_search_mode_changed(self, val):
+        if val == 0:
+            self.destination_field.setCurrentIndex(0)
+            self.destination_field.setVisible(False)
+            self.destination_field_label.setVisible(False)
+            self.replace_mode.setCurrentIndex(0)
+            self.replace_mode.setVisible(False)
+            self.replace_mode_label.setVisible(False)
+            self.comma_separated.setVisible(False)
+        else:
+            self.destination_field.setVisible(True)
+            self.destination_field_label.setVisible(True)
+            self.replace_mode.setVisible(True)
+            self.replace_mode_label.setVisible(True)
+            self.comma_separated.setVisible(True)
 
     def s_r_set_colors(self):
         if self.s_r_error is not None:
@@ -265,32 +315,66 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         for i in range(0,self.s_r_number_of_books):
             getattr(self, 'book_%d_result'%(i+1)).setText('')
 
-    field_match_re = re.compile(r'(^|[^\\])(\\g<)([^>]+)(>)')
-
     def s_r_func(self, match):
         rfunc = self.s_r_functions[unicode(self.replace_func.currentText())]
         rtext = unicode(self.replace_with.text())
-        mi_data = self.mi.all_non_none_fields()
-
-        def fm_func(m):
-            try:
-                if m.group(3) not in self.mi.all_field_keys(): return m.group(0)
-                else: return '%s{%s}'%(m.group(1), m.group(3))
-            except:
-                import traceback
-                traceback.print_exc()
-                return m.group(0)
-
-        rtext = re.sub(self.field_match_re, fm_func, rtext)
         rtext = match.expand(rtext)
-        rtext = format_composite(rtext, mi_data)
         return rfunc(rtext)
+
+    def s_r_do_regexp(self, mi):
+        src_field = unicode(self.search_field.currentText())
+        src = self.s_r_get_field(mi, src_field)
+        result = []
+        for s in src:
+            result.append(self.s_r_obj.sub(self.s_r_func, s))
+        return result
+
+    def s_r_do_destination(self, mi, val):
+        src = unicode(self.search_field.currentText())
+        if src == '':
+            return ''
+        dest = unicode(self.destination_field.currentText())
+        if dest == '':
+            dest = src
+        dest_mode = self.replace_mode.currentIndex()
+
+        if dest_mode != 0:
+            dest_val = mi.get(dest, '')
+            if dest_val is None:
+                dest_val = []
+            elif isinstance(dest_val, list):
+                if dest == 'authors':
+                    dest_val = [v.replace(',', '|') for v in dest_val]
+            else:
+                dest_val = [dest_val]
+        else:
+            dest_val = []
+
+        if len(val) > 0:
+            if src == 'authors':
+                val = [v.replace(',', '|') for v in val]
+        if dest_mode == 1:
+            val.extend(dest_val)
+        elif dest_mode == 2:
+            val[0:0] = dest_val
+        return val
+
+    def s_r_replace_mode_separator(self):
+        if self.comma_separated.isChecked():
+            return ','
+        return ''
 
     def s_r_paint_results(self, txt):
         self.s_r_error = None
         self.s_r_set_colors()
+
+        if self.case_sensitive.isChecked():
+            flags = 0
+        else:
+            flags = re.I
+
         try:
-            self.s_r_obj = re.compile(unicode(self.search_for.text()))
+            self.s_r_obj = re.compile(unicode(self.search_for.text()), flags)
         except Exception as e:
             self.s_r_obj = None
             self.s_r_error = e
@@ -298,7 +382,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             return
 
         try:
-            self.mi = MetaInformation(None, None)
             self.test_result.setText(self.s_r_obj.sub(self.s_r_func,
                                      unicode(self.test_text.text())))
         except Exception as e:
@@ -307,60 +390,53 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             return
 
         for i in range(0,self.s_r_number_of_books):
-            id = self.ids[i]
-            self.mi = self.db.get_metadata(id, index_is_id=True)
-            wt = getattr(self, 'book_%d_text'%(i+1))
+            mi = self.db.get_metadata(self.ids[i], index_is_id=True)
             wr = getattr(self, 'book_%d_result'%(i+1))
             try:
-                wr.setText(self.s_r_obj.sub(self.s_r_func, unicode(wt.text())))
+                result = self.s_r_do_regexp(mi)
+                t = self.s_r_do_destination(mi, result[0:1])
+                t = self.s_r_replace_mode_separator().join(t)
+                wr.setText(t)
             except Exception as e:
+                import traceback
+                traceback.print_exc()
                 self.s_r_error = e
                 self.s_r_set_colors()
                 break
 
     def do_search_replace(self):
-        field = unicode(self.search_field.currentText())
-        if not field or not self.s_r_obj:
+        source = unicode(self.search_field.currentText())
+        if not source or not self.s_r_obj:
             return
-
-        fm = self.db.field_metadata[field]
-
-        def apply_pattern(val):
-            try:
-                return self.s_r_obj.sub(self.s_r_func, val)
-            except:
-                return val
+        dest = unicode(self.destination_field.currentText())
+        if not dest:
+            dest = source
+        dfm = self.db.field_metadata[source]
 
         for id in self.ids:
-            val = self.db.get_property(id, index_is_id=True,
-                                       loc=fm['rec_index'])
+            mi = self.db.get_metadata(id, index_is_id=True,)
+            val = mi.get(source)
             if val is None:
                 continue
-            if fm['is_multiple']:
-                res = []
-                for val in [t.strip() for t in val.split(fm['is_multiple'])]:
-                    v = apply_pattern(val).strip()
-                    if v:
-                        res.append(v)
-                val = res
-                if fm['is_custom']:
+            val = self.s_r_do_regexp(mi)
+            val = self.s_r_do_destination(mi, val)
+            if dfm['is_multiple']:
+                if dfm['is_custom']:
                     # The standard tags and authors values want to be lists.
                     # All custom columns are to be strings
-                    val = fm['is_multiple'].join(val)
-                elif field == 'authors':
-                    val = [v.replace('|', ',') for v in val]
+                    val = dfm['is_multiple'].join(val)
             else:
-                val = apply_pattern(val)
+                val = self.s_r_replace_mode_separator().join(val)
 
-            if fm['is_custom']:
-                extra = self.db.get_custom_extra(id, label=fm['label'], index_is_id=True)
-                self.db.set_custom(id, val, label=fm['label'], extra=extra,
+            if dfm['is_custom']:
+                extra = self.db.get_custom_extra(id, label=dfm['label'], index_is_id=True)
+                self.db.set_custom(id, val, label=dfm['label'], extra=extra,
                                    commit=False)
             else:
-                if field == 'comments':
+                if dest == 'comments':
                     setter = self.db.set_comment
                 else:
-                    setter = getattr(self.db, 'set_'+field)
+                    setter = getattr(self.db, 'set_'+dest)
                 setter(id, val, notify=False, commit=False)
         self.db.commit()
 
