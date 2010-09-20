@@ -138,19 +138,65 @@ class Metadata(object):
     def set(self, field, val, extra=None):
         self.__setattr__(field, val, extra)
 
-    @property
-    def all_keys(self):
+    # field-oriented interface. Intended to be the same as in LibraryDatabase
+
+    def standard_field_keys(self):
         '''
-        All attribute keys known by this instance, even if their value is None
+        return a list of all possible keys, even if this book doesn't have them
+        '''
+        return STANDARD_METADATA_FIELDS
+
+    def custom_field_keys(self):
+        '''
+        return a list of the custom fields in this book
+        '''
+        return object.__getattribute__(self, '_data')['user_metadata'].iterkeys()
+
+    def all_field_keys(self):
+        '''
+        All field keys known by this instance, even if their value is None
         '''
         _data = object.__getattribute__(self, '_data')
         return frozenset(ALL_METADATA_FIELDS.union(_data['user_metadata'].iterkeys()))
 
-    @property
+    def metadata_for_field(self, key):
+        '''
+        return metadata describing a standard or custom field.
+        '''
+        if key in self.user_metadata_keys():
+            return self.get_standard_metadata(self, key, make_copy=False)
+        return self.get_user_metadata(key, make_copy=False)
+
     def user_metadata_keys(self):
-        'The set of user metadata names this object knows about'
+        '''
+        Return the standard keys actually in this book.
+        '''
         _data = object.__getattribute__(self, '_data')
         return frozenset(_data['user_metadata'].iterkeys())
+
+    def all_non_none_fields(self):
+        '''
+        Return a dictionary containing all non-None metadata fields, including
+        the custom ones.
+        '''
+        result = {}
+        _data = object.__getattribute__(self, '_data')
+        for attr in STANDARD_METADATA_FIELDS:
+            v = _data.get(attr, None)
+            if v is not None:
+                result[attr] = v
+        for attr in _data['user_metadata'].iterkeys():
+            v = _data['user_metadata'][attr]['#value#']
+            if v is not None:
+                result[attr] = v
+                if _data['user_metadata'][attr]['datatype'] == 'series':
+                    result[attr+'_index'] = _data['user_metadata'][attr]['#extra#']
+        return result
+
+    # End of field-oriented interface
+
+    # Extended interfaces. These permit one to get copies of metadata dictionaries, and to
+    # get and set custom field metadata
 
     def get_standard_metadata(self, field, make_copy):
         '''
@@ -237,30 +283,11 @@ class Metadata(object):
             _data = object.__getattribute__(self, '_data')
             _data['user_metadata'][field] = metadata
 
-    def get_all_non_none_attributes(self):
-        '''
-        Return a dictionary containing all non-None metadata fields, including
-        the custom ones.
-        '''
-        result = {}
-        _data = object.__getattribute__(self, '_data')
-        for attr in STANDARD_METADATA_FIELDS:
-            v = _data.get(attr, None)
-            if v is not None:
-                result[attr] = v
-        for attr in _data['user_metadata'].iterkeys():
-            v = _data['user_metadata'][attr]['#value#']
-            if v is not None:
-                result[attr] = v
-                if _data['user_metadata'][attr]['datatype'] == 'series':
-                    result[attr+'_index'] = _data['user_metadata'][attr]['#extra#']
-        return result
-
     # Old Metadata API {{{
     def print_all_attributes(self):
         for x in STANDARD_METADATA_FIELDS:
             prints('%s:'%x, getattr(self, x, 'None'))
-        for x in self.user_metadata_keys:
+        for x in self.user_metadata_keys():
             meta = self.get_user_metadata(x, make_copy=False)
             if meta is not None:
                 prints(x, meta)
@@ -326,7 +353,7 @@ class Metadata(object):
                     self.cover_data = other.cover_data
 
             if getattr(other, 'user_metadata_keys', None):
-                for x in other.user_metadata_keys:
+                for x in other.user_metadata_keys():
                     meta = other.get_user_metadata(x, make_copy=True)
                     if meta is not None:
                         self_tags = self.get(x, [])
@@ -389,7 +416,7 @@ class Metadata(object):
         '''
         returns the tuple (field_name, formatted_value)
         '''
-        if key in self.user_metadata_keys:
+        if key in self.user_metadata_keys():
             res = self.get(key, None)
             cmeta = self.get_user_metadata(key, make_copy=False)
             if cmeta['datatype'] != 'composite' and (res is None or res == ''):
@@ -432,6 +459,9 @@ class Metadata(object):
 
         return (None, None, None, None)
 
+    def expand_template(self, template):
+        return format_composite(template, self)
+
     def __unicode__(self):
         from calibre.ebooks.metadata import authors_to_string
         ans = []
@@ -466,7 +496,7 @@ class Metadata(object):
             fmt('Published', isoformat(self.pubdate))
         if self.rights is not None:
             fmt('Rights', unicode(self.rights))
-        for key in self.user_metadata_keys:
+        for key in self.user_metadata_keys():
             val = self.get(key, None)
             if val is not None:
                 (name, val) = self.format_field(key)
@@ -491,7 +521,7 @@ class Metadata(object):
             ans += [(_('Published'), unicode(self.pubdate.isoformat(' ')))]
         if self.rights is not None:
             ans += [(_('Rights'), unicode(self.rights))]
-        for key in self.user_metadata_keys:
+        for key in self.user_metadata_keys():
             val = self.get(key, None)
             if val is not None:
                 (name, val) = self.format_field(key)
