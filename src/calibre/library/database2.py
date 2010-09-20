@@ -464,11 +464,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # change case don't cause any changes to the directories in the file
             # system. This can lead to having the directory names not match the
             # title/author, which leads to trouble when libraries are copied to
-            # a case-sensitive system. The following code fixes this by checking
-            # each segment. If they are different because of case, then rename
-            # the segment to some temp file name, then rename it back to the
-            # correct name. Note that the code above correctly handles files in
-            # the directories, so no need to do them here.
+            # a case-sensitive system. The following code attempts to fix this
+            # by checking each segment. If they are different because of case,
+            # then rename the segment to some temp file name, then rename it
+            # back to the correct name. Note that the code above correctly
+            # handles files in the directories, so no need to do them here.
             for oldseg, newseg in zip(c1, c2):
                 if oldseg.lower() == newseg.lower() and oldseg != newseg:
                     while True:
@@ -476,8 +476,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         tempname = os.path.join(curpath, 'TEMP.%f'%time.time())
                         if not os.path.exists(tempname):
                             break
-                    os.rename(os.path.join(curpath, oldseg), tempname)
-                    os.rename(tempname, os.path.join(curpath, newseg))
+                    try:
+                        os.rename(os.path.join(curpath, oldseg), tempname)
+                    except (IOError, OSError):
+                        # Windows (at least) sometimes refuses to do the rename
+                        # probably because a file such a cover is open in the
+                        # hierarchy. Just go on -- nothing is hurt beyond the
+                        # case of the filesystem not matching the case in
+                        # name stored by calibre
+                        print 'rename of library component failed'
+                    else:
+                        os.rename(tempname, os.path.join(curpath, newseg))
                 curpath = os.path.join(curpath, newseg)
 
     def add_listener(self, listener):
@@ -528,10 +537,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def get_field(self, idx, key, default=None, index_is_id=False):
         mi = self.get_metadata(idx, index_is_id=index_is_id, get_cover=True)
-        try:
-            return mi[key]
-        except:
-            return default
+        return mi.get(key, default)
 
     def standard_field_keys(self):
         return self.field_metadata.standard_field_keys()
