@@ -241,7 +241,7 @@ OptionRecommendation(name='toc_filter',
 
 OptionRecommendation(name='chapter',
         recommended_value="//*[((name()='h1' or name()='h2') and "
-              r"re:test(., 'chapter|book|section|part\s+', 'i')) or @class "
+              r"re:test(., 'chapter|book|section|part|prologue|epilogue\s+', 'i')) or @class "
               "= 'chapter']", level=OptionRecommendation.LOW,
             help=_('An XPath expression to detect chapter titles. The default '
                 'is to consider <h1> or <h2> tags that contain the words '
