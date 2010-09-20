@@ -29,7 +29,7 @@ class EditBlock(object): # {{{
         self.cursor.endEditBlock()
 # }}}
 
-class Editor(QTextEdit):
+class Console(QTextEdit):
 
     @property
     def doc(self):
@@ -86,6 +86,8 @@ class Editor(QTextEdit):
         print list(self.prompt())
 
 
+    # Prompt management {{{
+
     def prompt(self, strip_prompt_strings=True):
         if not self.prompt_frame:
             yield u'' if strip_prompt_strings else self.formatter.prompt
@@ -99,15 +101,8 @@ class Editor(QTextEdit):
                 yield t
                 it += 1
 
-
-    # Rendering {{{
-
-    def render_block(self, text, restore_prompt=True):
-        self.formatter.render(self.lexer.get_tokens(text), self.cursor)
-        self.cursor.insertBlock()
-        self.cursor.movePosition(self.cursor.End)
-        if restore_prompt:
-            self.render_current_prompt()
+    def set_prompt(self, lines):
+        self.render_current_prompt(lines)
 
     def clear_current_prompt(self):
         if self.prompt_frame is None:
@@ -121,8 +116,8 @@ class Editor(QTextEdit):
             c.removeSelectedText()
             c.setPosition(self.prompt_frame.firstPosition())
 
-    def render_current_prompt(self):
-        cp = list(self.prompt())
+    def render_current_prompt(self, lines=None):
+        cp = list(self.prompt()) if lines is None else lines
         self.clear_current_prompt()
 
         for i, line in enumerate(cp):
@@ -132,6 +127,18 @@ class Editor(QTextEdit):
             self.formatter.render(self.lexer.get_tokens(line), self.cursor)
             if not end:
                 self.cursor.insertBlock()
+
+    # }}}
+
+
+    # Non-prompt Rendering {{{
+
+    def render_block(self, text, restore_prompt=True):
+        self.formatter.render(self.lexer.get_tokens(text), self.cursor)
+        self.cursor.insertBlock()
+        self.cursor.movePosition(self.cursor.End)
+        if restore_prompt:
+            self.render_current_prompt()
 
     def show_error(self, is_syntax_err, tb):
         if self.prompt_frame is not None:

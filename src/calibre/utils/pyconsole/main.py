@@ -10,7 +10,7 @@ from PyQt4.Qt import QMainWindow, QToolBar, QStatusBar, QLabel, QFont, Qt, \
     QApplication
 
 from calibre.constants import __appname__, __version__
-from calibre.utils.pyconsole.editor import Editor
+from calibre.utils.pyconsole.console import Console
 
 class MainWindow(QMainWindow):
 
@@ -37,7 +37,7 @@ class MainWindow(QMainWindow):
         self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextOnly)
         # }}}
 
-        self.editor = Editor(parent=self)
+        self.editor = Console(parent=self)
         self.setCentralWidget(self.editor)
 
 
