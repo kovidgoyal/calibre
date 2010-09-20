@@ -6,12 +6,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import string
+
 from PyQt4.Qt import QWidget, pyqtSignal
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.preferences.save_template_ui import Ui_Form
-from calibre.library.save_to_disk import FORMAT_ARG_DESCS, preprocess_template,\
-                                         safe_format
+from calibre.library.save_to_disk import FORMAT_ARG_DESCS, preprocess_template
+
+class ValidateFormat(string.Formatter):
+    '''
+    Provides a format function that substitutes '' for any missing value
+    '''
+    def get_value(self, key, args, kwargs):
+            return 'this is some text that should be long enough'
+
+validate_formatter = ValidateFormat()
+def validate_format(x, format_args):
+    return validate_formatter.vformat(x, [], format_args).strip()
 
 class SaveTemplate(QWidget, Ui_Form):
 
@@ -52,7 +64,7 @@ class SaveTemplate(QWidget, Ui_Form):
         tmpl = preprocess_template(self.opt_template.text())
         fa = {}
         try:
-            safe_format(tmpl, fa)
+            validate_format(tmpl, fa)
         except Exception, err:
             error_dialog(self, _('Invalid template'),
                     '<p>'+_('The template %s is invalid:')%tmpl + \
