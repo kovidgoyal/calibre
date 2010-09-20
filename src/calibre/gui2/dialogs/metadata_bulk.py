@@ -208,25 +208,43 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.book_1_text.setObjectName(name)
             self.testgrid.addWidget(w, i+offset, 2, 1, 1)
 
-        self.s_r_heading.setText('<p>'+ _(
+        self.main_heading = _(
                  '<b>You can destroy your library using this feature.</b> '
                  'Changes are permanent. There is no undo function. '
                  ' This feature is experimental, and there may be bugs. '
                  'You are strongly encouraged to back up your library '
                  'before proceeding.'
-                 ) + '<p>' + _(
+                 + '<p>' +
                  'Search and replace in text fields using character matching '
-                 'or regular expressions. In character mode, search text '
-                 'found in the specified field is replaced with replace '
-                 'text. In regular expression mode, the search text is an '
+                 'or regular expressions. ')
+
+        self.character_heading = _(
+                 'In character mode, the field is searched for the entered '
+                 'search text. The text is replaced by the specified replacement '
+                 'text everywhere it is found in the specified field. After '
+                 'replacement is finished, the text can be changed to '
+                 'upper-case, lower-case, or title-case. If the case-sensitive '
+                 'check box is checked, the search text must match exactly. If '
+                 'it is unchecked, the search text will match both upper- and '
+                 'lower-case letters'
+                 )
+
+        self.regexp_heading = _(
+                 'In regular expression mode, the search text is an '
                  'arbitrary python-compatible regular expression. The '
                  'replacement text can contain backreferences to parenthesized '
                  'expressions in the pattern. The search is not anchored, '
                  'and can match and replace multiple times on the same string. '
+                 'The modification functions (lower-case etc) are applied to the '
+                 'matched text, not to the field as a whole. '
+                 'The destination box specifies the field where the result after '
+                 'matching and replacement is to be assigned. You can replace '
+                 'the text in the field, or prepend or append the matched text. '
                  'See <a href="http://docs.python.org/library/re.html"> '
-                 'this reference</a> for more information, and in particular '
-                 'the \'sub\' function.'
-                 ))
+                 'this reference</a> for more information on python\'s regular '
+                 'expressions, and in particular the \'sub\' function.'
+                 )
+
         self.search_mode.addItems(self.s_r_match_modes)
         self.search_mode.setCurrentIndex(dynamic.get('s_r_search_mode', 0))
         self.replace_mode.addItems(self.s_r_replace_modes)
@@ -298,12 +316,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.replace_mode.setVisible(False)
             self.replace_mode_label.setVisible(False)
             self.comma_separated.setVisible(False)
+            self.s_r_heading.setText('<p>'+self.main_heading + self.character_heading)
         else:
             self.destination_field.setVisible(True)
             self.destination_field_label.setVisible(True)
             self.replace_mode.setVisible(True)
             self.replace_mode_label.setVisible(True)
             self.comma_separated.setVisible(True)
+            self.s_r_heading.setText('<p>'+self.main_heading + self.regexp_heading)
         self.s_r_paint_results(None)
 
     def s_r_set_colors(self):
@@ -434,8 +454,20 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     # The standard tags and authors values want to be lists.
                     # All custom columns are to be strings
                     val = dfm['is_multiple'].join(val)
+                if dest == 'authors' and len(val) == 0:
+                    error_dialog(self, _('Search/replace invalid'),
+                                 _('Authors cannot be set to the empty string. '
+                                   'Book title %s not processed')%mi.title,
+                                 show=True)
+                    continue
             else:
                 val = self.s_r_replace_mode_separator().join(val)
+                if dest == 'title' and len(val) == 0:
+                    error_dialog(self, _('Search/replace invalid'),
+                                 _('Title cannot be set to the empty string. '
+                                   'Book title %s not processed')%mi.title,
+                                 show=True)
+                    continue
 
             if dfm['is_custom']:
                 extra = self.db.get_custom_extra(id, label=dfm['label'], index_is_id=True)

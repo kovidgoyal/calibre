@@ -351,7 +351,11 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QComboBox" name="search_field"/>
+          <widget class="QComboBox" name="search_field">
+           <property name="toolTip">
+            <string>The name of the field that you want to search</string>
+           </property>
+          </widget>
          </item>
          <item row="3" column="2">
           <layout class="QHBoxLayout" name="HLayout_3">
@@ -361,12 +365,16 @@ Future conversion of these books will use the default settings.</string>
               <string>Search mode:</string>
              </property>
              <property name="buddy">
-              <cstring>search_field</cstring>
+              <cstring>search_mode</cstring>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="search_mode"/>
+            <widget class="QComboBox" name="search_mode">
+             <property name="toolTip">
+              <string>Choose whether to use basic text matching or advanced regular expression matching</string>
+             </property>
+            </widget>
            </item>
            <item>
             <spacer name="HSpacer_2">
@@ -394,7 +402,11 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="HistoryLineEdit" name="search_for"/>
+          <widget class="HistoryLineEdit" name="search_for">
+           <property name="toolTip">
+            <string>Enter the what you are looking for, either plain text or a regular expression, depending on the mode</string>
+           </property>
+          </widget>
          </item>
          <item row="4" column="2">
           <widget class="QCheckBox" name="case_sensitive">
@@ -403,6 +415,9 @@ Future conversion of these books will use the default settings.</string>
            </property>
            <property name="checked" >
             <bool>true</bool>
+           </property>
+           <property name="toolTip">
+            <string>Check this box if the search string must match exactly upper and lower case. Uncheck it if case is to be ignored</string>
            </property>
           </widget>
          </item>
@@ -417,7 +432,11 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="5" column="1">
-          <widget class="HistoryLineEdit" name="replace_with"/>
+          <widget class="HistoryLineEdit" name="replace_with">
+           <property name="toolTip">
+            <string>The replacement text. The matched search text will be replaced with this string</string>
+           </property>
+          </widget>
          </item>
          <item row="5" column="2">
           <layout class="QHBoxLayout" name="verticalLayout">
@@ -432,7 +451,12 @@ Future conversion of these books will use the default settings.</string>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="replace_func"/>
+            <widget class="QComboBox" name="replace_func">
+             <property name="toolTip">
+              <string>Specify how the text is to be processed after matching and replacement. In character mode, the entire
+field is processed. In regular expression mode, only the matched text is processed</string>
+             </property>
+            </widget>
            </item>
            <item>
             <spacer name="HSpacer_1">
@@ -460,7 +484,11 @@ Future conversion of these books will use the default settings.</string>
           </widget>
          </item>
          <item row="6" column="1">
-          <widget class="QComboBox" name="destination_field"/>
+          <widget class="QComboBox" name="destination_field">
+           <property name="toolTip">
+            <string>The field that the text will be put into after all replacements. If blank, the source field is used.</string>
+           </property>
+          </widget>
          </item>
          <item row="6" column="2">
           <layout class="QHBoxLayout" name="verticalLayout">
@@ -475,7 +503,11 @@ Future conversion of these books will use the default settings.</string>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="replace_mode"/>
+            <widget class="QComboBox" name="replace_mode">
+             <property name="toolTip">
+              <string>Specify how the text should be copied into the destination.</string>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QCheckBox" name="comma_separated">
@@ -484,6 +516,10 @@ Future conversion of these books will use the default settings.</string>
              </property>
              <property name="checked" >
               <bool>true</bool>
+             </property>
+             <property name="toolTip">
+              <string>If the replace mode is prepend or append, then this box indicates whether a comma or
+nothing should be put between the original text and the inserted text</string>
              </property>
             </widget>
            </item>
