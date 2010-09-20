@@ -58,7 +58,6 @@ class Editor(QTextEdit):
         QTextEdit.__init__(self, parent)
         self.buf = ''
         self.prompt_frame = None
-        self.current_prompt = ['']
         self.allow_output = False
         self.prompt_frame_format = QTextFrameFormat()
         self.prompt_frame_format.setBorder(1)
@@ -84,11 +83,21 @@ class Editor(QTextEdit):
         self.interpreter = Interpreter(parent=self)
         self.interpreter.show_error.connect(self.show_error)
 
-        #it = self.prompt_frame.begin()
-        #while not it.atEnd():
-        #    bl = it.currentBlock()
-        #    prints(repr(bl.text()))
-        #    it += 1
+        print list(self.prompt())
+
+
+    def prompt(self, strip_prompt_strings=True):
+        if not self.prompt_frame:
+            yield u'' if strip_prompt_strings else self.formatter.prompt
+        else:
+            it = self.prompt_frame.begin()
+            while not it.atEnd():
+                bl = it.currentBlock()
+                t = unicode(bl.text())
+                if strip_prompt_strings:
+                    t = t[self.prompt_len:]
+                yield t
+                it += 1
 
 
     # Rendering {{{
@@ -113,15 +122,16 @@ class Editor(QTextEdit):
             c.setPosition(self.prompt_frame.firstPosition())
 
     def render_current_prompt(self):
+        cp = list(self.prompt())
         self.clear_current_prompt()
 
-        for i, line in enumerate(self.current_prompt):
+        for i, line in enumerate(cp):
             start = i == 0
-            end = i == len(self.current_prompt) - 1
+            end = i == len(cp) - 1
             self.formatter.render_prompt(not start, self.cursor)
             self.formatter.render(self.lexer.get_tokens(line), self.cursor)
             if not end:
-                self.cursor.insertText('\n')
+                self.cursor.insertBlock()
 
     def show_error(self, is_syntax_err, tb):
         if self.prompt_frame is not None:
@@ -194,32 +204,29 @@ class Editor(QTextEdit):
     def enter_pressed(self):
         if self.prompt_frame is None:
             return
-        if self.current_prompt[0]:
+        cp = list(self.prompt())
+        if cp[0]:
             c = self.root_frame.lastCursorPosition()
             self.setTextCursor(c)
             old_pf = self.prompt_frame
             self.prompt_frame = None
             oldbuf = self.buf
             self.buf = ''
-            ret = self.interpreter.runsource('\n'.join(self.current_prompt))
+            ret = self.interpreter.runsource('\n'.join(cp))
             if ret: # Incomplete command
                 self.buf = oldbuf
                 self.prompt_frame = old_pf
-                self.current_prompt.append('')
+                c = old_pf.lastCursorPosition()
+                c.insertBlock()
+                self.setTextCursor(c)
             else: # Command completed
-                self.current_prompt = ['']
                 old_pf.setFrameFormat(QTextFrameFormat())
             self.render_current_prompt()
 
     def text_typed(self, text):
-        if not self.current_prompt[0]:
-            self.cursor.beginEditBlock()
-        else:
-            self.cursor.joinPreviousEditBlock()
-        self.current_prompt[-1] += text
-        self.render_current_prompt()
-        self.cursor.endEditBlock()
-
+        if self.prompt_frame is not None:
+            self.cursor.insertText(text)
+            self.render_current_prompt()
 
     # }}}
 
