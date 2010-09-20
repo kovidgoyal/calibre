@@ -113,7 +113,10 @@ class SafeFormat(string.Formatter):
 safe_formatter = SafeFormat()
 
 def safe_format(x, format_args):
-    ans = safe_formatter.vformat(x, [], format_args).strip()
+    try:
+        ans = safe_formatter.vformat(x, [], format_args).strip()
+    except:
+        ans = ''
     return re.sub(r'\s+', ' ', ans)
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
