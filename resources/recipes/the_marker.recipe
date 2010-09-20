@@ -1,0 +1,52 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1283848012(BasicNewsRecipe):
+    description   = 'TheMarker Financial News in Hebrew'
+    __author__            = 'TonyTheBookworm, Marbs'
+    cover_url      = 'http://static.ispot.co.il/wp-content/upload/2009/09/themarker.jpg'
+    title          = u'TheMarker'
+    language              = 'he'
+    simultaneous_downloads = 5
+    remove_javascript     = True
+    timefmt        = '[%a, %d %b, %Y]'
+    oldest_article = 1
+    remove_tags = [dict(name='tr', attrs={'bgcolor':['#738A94']})          ]
+    max_articles_per_feed = 10
+    extra_css='body{direction: rtl;} .article_description{direction: rtl; } a.article{direction: rtl; } .calibre_feed_description{direction: rtl; }'
+    feeds          = [(u'Head Lines', u'http://www.themarker.com/tmc/content/xml/rss/hpfeed.xml'),
+                      (u'TA Market', u'http://www.themarker.com/tmc/content/xml/rss/sections/marketfeed.xml'),
+                      (u'Real Estate', u'http://www.themarker.com/tmc/content/xml/rss/sections/realEstaterfeed.xml'),
+                      (u'Wall Street & Global', u'http://www.themarker.com/tmc/content/xml/rss/sections/wallsfeed.xml'),
+                      (u'Law', u'http://www.themarker.com/tmc/content/xml/rss/sections/lawfeed.xml'),
+                      (u'Media', u'http://www.themarker.com/tmc/content/xml/rss/sections/mediafeed.xml'),
+                      (u'Consumer', u'http://www.themarker.com/tmc/content/xml/rss/sections/consumerfeed.xml'),
+                      (u'Career', u'http://www.themarker.com/tmc/content/xml/rss/sections/careerfeed.xml'),
+                      (u'Car', u'http://www.themarker.com/tmc/content/xml/rss/sections/carfeed.xml'),
+                      (u'High Tech', u'http://www.themarker.com/tmc/content/xml/rss/sections/hightechfeed.xml'),
+                      (u'Investor Guide', u'http://www.themarker.com/tmc/content/xml/rss/sections/investorGuidefeed.xml')]
+
+    def print_version(self, url):
+        split1 = url.split("=")
+        weblinks = url
+
+        if weblinks is not None:
+            for link in weblinks:
+                #---------------------------------------------------------
+                #here we need some help with some regexpressions
+                #we are trying to find it.themarker.com in a url
+                #-----------------------------------------------------------
+                re1='.*?'   # Non-greedy match on filler
+                re2='(it\\.themarker\\.com)'    # Fully Qualified Domain Name 1
+                rg = re.compile(re1+re2,re.IGNORECASE|re.DOTALL)
+                m = rg.search(url)
+
+
+                if m:
+                 split2 = url.split("article/")
+                 print_url = 'http://it.themarker.com/tmit/PrintArticle/' + split2[1]
+
+                else:
+                    print_url = 'http://www.themarker.com/ibo/misc/printFriendly.jhtml?ElementId=%2Fibo%2Frepositories%2Fstories%2Fm1_2000%2F' + split1[1]+'.xml'
+
+        return print_url

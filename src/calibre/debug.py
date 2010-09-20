@@ -37,6 +37,8 @@ Run an embedded python interpreter.
     parser.add_option('--reinitialize-db', default=None,
             help='Re-initialize the sqlite calibre database at the '
             'specified path. Useful to recover from db corruption.')
+    parser.add_option('-p', '--py-console', help='Run python console',
+            default=False, action='store_true')
 
     return parser
 
@@ -148,6 +150,9 @@ def main(args=sys.argv):
         if len(args) > 1:
             vargs.append(args[-1])
         main(vargs)
+    elif opts.py_console:
+        from calibre.utils.pyconsole.main import main
+        main()
     elif opts.command:
         sys.argv = args[:1]
         exec opts.command

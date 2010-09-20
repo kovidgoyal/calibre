@@ -626,6 +626,17 @@ Using this button to create author sort will change author sort from red to gree
                        </widget>
                       </item>
                       <item>
+                       <widget class="QToolButton" name="trim_cover_button">
+                        <property name="toolTip">
+                         <string>Remove border (if any) from cover</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../../../../resources/images.qrc">
+                          <normaloff>:/images/trim.png</normaloff>:/images/trim.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
                        <widget class="QToolButton" name="reset_cover">
                         <property name="toolTip">
                          <string>Reset cover to default</string>

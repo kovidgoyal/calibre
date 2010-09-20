@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>679</width>
-    <height>685</height>
+    <width>752</width>
+    <height>715</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -410,14 +410,14 @@ Future conversion of these books will use the default settings.</string>
          </item>
          <item row="4" column="2">
           <widget class="QCheckBox" name="case_sensitive">
-           <property name="text" >
-            <string>Case sensitive</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
            <property name="toolTip">
             <string>Check this box if the search string must match exactly upper and lower case. Uncheck it if case is to be ignored</string>
+           </property>
+           <property name="text">
+            <string>Case sensitive</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -511,15 +511,15 @@ field is processed. In regular expression mode, only the matched text is process
            </item>
            <item>
             <widget class="QCheckBox" name="comma_separated">
-             <property name="text" >
-              <string>use comma</string>
-             </property>
-             <property name="checked" >
-              <bool>true</bool>
-             </property>
              <property name="toolTip">
               <string>If the replace mode is prepend or append, then this box indicates whether a comma or
 nothing should be put between the original text and the inserted text</string>
+             </property>
+             <property name="text">
+              <string>use comma</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
