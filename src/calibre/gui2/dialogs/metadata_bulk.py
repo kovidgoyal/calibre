@@ -11,11 +11,11 @@ from PyQt4 import QtGui
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
-from calibre.ebooks.metadata import string_to_authors, \
-                                    authors_to_string, MetaInformation
+from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2.dialogs.progress import BlockingBusy
 from calibre.gui2 import error_dialog, Dispatcher
+from calibre.utils.config import dynamic
 
 class Worker(Thread):
 
@@ -208,26 +208,27 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.book_1_text.setObjectName(name)
             self.testgrid.addWidget(w, i+offset, 2, 1, 1)
 
-        self.s_r_heading.setText('<p>'+
-                           _('<b>You can destroy your library</b> '
-                             'using this feature. Changes are permanent. There '
-                             'is no undo function. You are strongly encouraged '
-                             'to back up your library before proceeding.'
-                             ) + '<p>' + _(
-                             'Search and replace in text fields using '
-                             'regular expressions. The search text is an '
-                             'arbitrary python-compatible regular expression. '
-                             'The replacement text can contain backreferences '
-                             'to parenthesized expressions in the pattern. '
-                             'The search is not anchored, and can match and '
-                             'replace multiple times on the same string. See '
-                             '<a href="http://docs.python.org/library/re.html"> '
-                             'this reference</a> '
-                             'for more information, and in particular the \'sub\' '
-                             'function.'
-                             ))
+        self.s_r_heading.setText('<p>'+ _(
+                 '<b>You can destroy your library using this feature.</b> '
+                 'Changes are permanent. There is no undo function. '
+                 ' This feature is experimental, and there may be bugs. '
+                 'You are strongly encouraged to back up your library '
+                 'before proceeding.'
+                 ) + '<p>' + _(
+                 'Search and replace in text fields using character matching '
+                 'or regular expressions. In character mode, search text '
+                 'found in the specified field is replaced with replace '
+                 'text. In regular expression mode, the search text is an '
+                 'arbitrary python-compatible regular expression. The '
+                 'replacement text can contain backreferences to parenthesized '
+                 'expressions in the pattern. The search is not anchored, '
+                 'and can match and replace multiple times on the same string. '
+                 'See <a href="http://docs.python.org/library/re.html"> '
+                 'this reference</a> for more information, and in particular '
+                 'the \'sub\' function.'
+                 ))
         self.search_mode.addItems(self.s_r_match_modes)
-        self.search_mode.setCurrentIndex(0)
+        self.search_mode.setCurrentIndex(dynamic.get('s_r_search_mode', 0))
         self.replace_mode.addItems(self.s_r_replace_modes)
         self.replace_mode.setCurrentIndex(0)
 
@@ -252,7 +253,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.search_for.completer().setCaseSensitivity(Qt.CaseSensitive)
         self.replace_with.completer().setCaseSensitivity(Qt.CaseSensitive)
 
-        self.s_r_search_mode_changed(0)
+        self.s_r_search_mode_changed(self.search_mode.currentIndex())
 
     def s_r_get_field(self, mi, field):
         if field:
@@ -303,6 +304,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.replace_mode.setVisible(True)
             self.replace_mode_label.setVisible(True)
             self.comma_separated.setVisible(True)
+        self.s_r_paint_results(None)
 
     def s_r_set_colors(self):
         if self.s_r_error is not None:
@@ -325,8 +327,12 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         src_field = unicode(self.search_field.currentText())
         src = self.s_r_get_field(mi, src_field)
         result = []
+        rfunc = self.s_r_functions[unicode(self.replace_func.currentText())]
         for s in src:
-            result.append(self.s_r_obj.sub(self.s_r_func, s))
+            t = self.s_r_obj.sub(self.s_r_func, s)
+            if self.search_mode.currentIndex() == 0:
+                t = rfunc(t)
+            result.append(t)
         return result
 
     def s_r_do_destination(self, mi, val):
@@ -374,7 +380,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             flags = re.I
 
         try:
-            self.s_r_obj = re.compile(unicode(self.search_for.text()), flags)
+            if self.search_mode.currentIndex() == 0:
+                self.s_r_obj = re.compile(re.escape(unicode(self.search_for.text())), flags)
+            else:
+                self.s_r_obj = re.compile(unicode(self.search_for.text()), flags)
         except Exception as e:
             self.s_r_obj = None
             self.s_r_error = e
@@ -411,7 +420,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         dest = unicode(self.destination_field.currentText())
         if not dest:
             dest = source
-        dfm = self.db.field_metadata[source]
+        dfm = self.db.field_metadata[dest]
 
         for id in self.ids:
             mi = self.db.get_metadata(id, index_is_id=True,)
@@ -439,6 +448,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     setter = getattr(self.db, 'set_'+dest)
                 setter(id, val, notify=False, commit=False)
         self.db.commit()
+        dynamic['s_r_search_mode'] = self.search_mode.currentIndex()
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
