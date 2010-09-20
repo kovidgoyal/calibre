@@ -319,7 +319,7 @@ Future conversion of these books will use the default settings.</string>
         <attribute name="title">
          <string>&amp;Search and replace (experimental)</string>
         </attribute>
-        <layout class="QGridLayout" name="testgrid">
+        <layout class="QGridLayout" name="vargrid">
          <property name="sizeConstraint">
           <enum>QLayout::SetMinimumSize</enum>
          </property>
@@ -405,6 +405,12 @@ Future conversion of these books will use the default settings.</string>
           <widget class="HistoryLineEdit" name="search_for">
            <property name="toolTip">
             <string>Enter the what you are looking for, either plain text or a regular expression, depending on the mode</string>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
           </widget>
          </item>
@@ -558,18 +564,32 @@ nothing should be put between the original text and the inserted text</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="0">
-          <widget class="QLabel" name="label_31">
-           <property name="text">
-            <string>Your test:</string>
+         <item row="9" column="0" colspan="4">
+          <widget class="QScrollArea" name="scrollArea11">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="gridLayoutWidget_2">
+            <layout class="QGridLayout" name="testgrid">
+             <item row="8" column="0">
+              <widget class="QLabel" name="label_31">
+               <property name="text">
+                <string>Your test:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="HistoryLineEdit" name="test_text"/>
+             </item>
+             <item row="8" column="2">
+              <widget class="QLineEdit" name="test_result"/>
+             </item>
+            </layout>
+           </widget>
           </widget>
-         </item>
-         <item row="8" column="1">
-          <widget class="HistoryLineEdit" name="test_text"/>
-         </item>
-         <item row="8" column="2">
-          <widget class="QLineEdit" name="test_result"/>
          </item>
          <item row="20" column="1">
           <spacer name="verticalSpacer">
