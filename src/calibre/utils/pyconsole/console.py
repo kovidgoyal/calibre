@@ -45,18 +45,30 @@ class Console(QTextEdit):
 
     @property
     def cursor_pos(self):
-        pass
-        #pos = self.cursor.position() - self.prompt_frame.firstPosition()
-        #i = 0
-        #for line in self.current_prompt:
-        #    i += self.prompt_len
+        '''
+        Return cursor position in prompt frame as (row, col).
+        row starts at 0 for the first line
+        col is 0 if the cursor is at the start of the line, 1 if it is after
+        the first character, n if it is after the nth char.
+        '''
+        if self.prompt_frame is not None:
+            pos = self.cursor.position()
+            it = self.prompt_frame.begin()
+            lineno = 0
+            while not it.atEnd():
+                bl = it.currentBlock()
+                if bl.contains(pos):
+                    return (lineno, pos - bl.position())
+                it += 1
+                lineno += 1
+        return (-1, -1)
 
     def __init__(self,
             prompt='>>> ',
             continuation='... ',
             parent=None):
         QTextEdit.__init__(self, parent)
-        self.buf = ''
+        self.buf = []
         self.prompt_frame = None
         self.allow_output = False
         self.prompt_frame_format = QTextFrameFormat()
@@ -130,7 +142,6 @@ class Console(QTextEdit):
 
     # }}}
 
-
     # Non-prompt Rendering {{{
 
     def render_block(self, text, restore_prompt=True):
@@ -143,26 +154,25 @@ class Console(QTextEdit):
     def show_error(self, is_syntax_err, tb):
         if self.prompt_frame is not None:
             # At a prompt, so redirect output
-            return prints(tb)
+            return prints(tb, end='')
         try:
-            self.buf += tb
+            self.buf.append(tb)
             if is_syntax_err:
                 self.formatter.render_syntax_error(tb, self.cursor)
             else:
                 self.formatter.render(self.tb_lexer.get_tokens(tb), self.cursor)
         except:
-            prints(tb)
+            prints(tb, end='')
 
     def show_output(self, raw):
         if self.prompt_frame is not None:
             # At a prompt, so redirect output
-            return prints(raw)
+            return prints(raw, end='')
         try:
-            self.current_prompt_range = None
-            self.buf += raw
+            self.buf.append(raw)
             self.formatter.render_raw(raw, self.cursor)
         except:
-            prints(raw)
+            prints(raw, end='')
 
     # }}}
 
@@ -187,13 +197,29 @@ class Console(QTextEdit):
             QTextEdit.keyPressEvent(self, ev)
 
     def left_pressed(self):
-        pass
+        lineno, pos = self.cursor_pos
+        if lineno < 0: return
+        if pos > self.prompt_len:
+            c = self.cursor
+            c.movePosition(c.PreviousCharacter)
+            self.setTextCursor(c)
+        elif lineno > 0:
+            c = self.cursor
+            c.movePosition(c.Up)
+            c.movePosition(c.EndOfLine)
+            self.setTextCursor(c)
 
     def right_pressed(self):
-        if self.prompt_frame is not None:
-            c = self.cursor
+        lineno, pos = self.cursor_pos
+        if lineno < 0: return
+        c = self.cursor
+        lineno, pos = self.cursor_pos
+        cp = list(self.prompt(False))
+        if pos < len(cp[lineno]):
             c.movePosition(c.NextCharacter)
-            self.setTextCursor(c)
+        elif lineno < len(cp)-1:
+            c.movePosition(c.NextCharacter, n=1+self.prompt_len)
+        self.setTextCursor(c)
 
     def home_pressed(self):
         if self.prompt_frame is not None:
@@ -218,7 +244,7 @@ class Console(QTextEdit):
             old_pf = self.prompt_frame
             self.prompt_frame = None
             oldbuf = self.buf
-            self.buf = ''
+            self.buf = []
             ret = self.interpreter.runsource('\n'.join(cp))
             if ret: # Incomplete command
                 self.buf = oldbuf
