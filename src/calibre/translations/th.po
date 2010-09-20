@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-17 21:00+0000\n"
-"PO-Revision-Date: 2010-09-19 02:15+0000\n"
+"PO-Revision-Date: 2010-09-19 14:35+0000\n"
 "Last-Translator: sksy <songkit@gmail.com>\n"
 "Language-Team: Thai <th@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-19 04:50+0000\n"
+"X-Launchpad-Export-Date: 2010-09-20 04:59+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:335
@@ -1024,23 +1024,23 @@ msgstr "ติดต่อกับ Newsmy reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:48
 msgid "Communicate with the iPapyrus reader."
-msgstr ""
+msgstr "ติดต่อกับ iPapyrus reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:59
 msgid "Communicate with the Sovos reader."
-msgstr ""
+msgstr "ติดต่อกับ Sovos reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:255
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr ""
+msgstr "ตรวจสอบไม่พบ ดิสก์ไดร์ %s  ลองปิดเปิดระบบใหม่อีกที"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:435
 msgid "Unable to detect the %s mount point. Try rebooting."
-msgstr ""
+msgstr "ตรวจสอบไม่พบ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:500
 msgid "Unable to detect the %s disk drive."
-msgstr ""
+msgstr "ไม่สามารถตรวจพบไดร์ %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:593
 msgid "Could not find mount helper: %s."
@@ -1067,12 +1067,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:783
 msgid "There is insufficient free space in main memory"
-msgstr ""
+msgstr "พื้นที่ในหน่วยความจำหลักไม่พอ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:785
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:787
 msgid "There is insufficient free space on the storage card"
-msgstr ""
+msgstr "พื้นที่ในสตอเรจการด์ไม่พอ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:12
 msgid "Configure Device"
@@ -1084,16 +1084,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:39
 msgid "Ordered list of formats the device will accept"
-msgstr ""
+msgstr "รายการรูปแบบอุปกรณ์ปลายทางแบบเรียงลำดับจะถูกรับ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:41
 msgid "Place files in sub directories if the device supports them"
-msgstr ""
+msgstr "วางไฟล์ไว้ในซับไดเรคตอรี่ถ้าอุปกรณ์ปลายทางสามารถรับได้"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:86
 msgid "Read metadata from files on device"
-msgstr ""
+msgstr "อ่านชุดข้อมูลจากไฟล์บนอุปกรณ์ปลายทาง"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:45
 msgid "Use author sort instead of author"
@@ -1101,29 +1101,29 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:47
 msgid "Template to control how books are saved"
-msgstr ""
+msgstr "เทมเพลสที่ควบคุมการบันทึกข้อมูลหนังสือ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:89
 msgid "Extra customization"
-msgstr ""
+msgstr "ปรับแต่งพิเศษ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:41
 msgid "Communicate with an eBook reader."
-msgstr ""
+msgstr "ติดต่อกับอีบุคส์รีดเดอร์"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:57
 msgid "Get device information..."
-msgstr ""
+msgstr "เรียกข้อมูลอุปกรณ์ปลายทาง"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:194
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:196
 msgid "Transferring books to device..."
-msgstr ""
+msgstr "ถ่ายหนังสือลงในอุปกรณ์ปลายทาง"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:314
 msgid "Sending metadata to device..."
-msgstr ""
+msgstr "ส่งชุดข้อมูลไปยังอุปกรณ์ปลายทาง"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:41
 msgid "%prog [options] mybook.chm"
@@ -1131,32 +1131,32 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:42
 msgid "Output directory. Defaults to current directory"
-msgstr ""
+msgstr "เอาท์พุทไดเรคตอรี่ ค่าปกติจะอยู่ที่ไดเรคตอรี่ปัจจุบัน"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:45
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set the book title"
-msgstr ""
+msgstr "กำหนดชื่อหนังสือ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:47
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
-msgstr ""
+msgstr "กำหนดคีย์หลักในการเรียงลำดับชื่อหนังสือ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set the author"
-msgstr ""
+msgstr "กำหนดผู้แต่ง"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
-msgstr ""
+msgstr "กำหนดคีย์หลักในการเรียงลำดับตามชื่อผู้แต่ง"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:597
 msgid "The category this book belongs to. E.g.: History"
-msgstr ""
+msgstr "หนังสือนี้อยู่ในหมวด เช่น หมวดประวัติศาสตร์"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:56
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:600
@@ -1165,7 +1165,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:59
 msgid "Path to a txt file containing a comment."
-msgstr ""
+msgstr "พาทที่เก็บความคิดเห็นที่เก็บในรูปไฟล์ตัวอักษร"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:62
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
@@ -1175,22 +1175,22 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:63
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
 msgid "Set the publisher"
-msgstr ""
+msgstr "กำหนดสำนักพิมพ์"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:64
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
 msgid "Set the book classification"
-msgstr ""
+msgstr "กำหนดการจัดหมวดหมู่หนังสือ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:65
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:610
 msgid "Set the book creator"
-msgstr ""
+msgstr "กำหนดผู้สร้างหนังสือ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:66
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
 msgid "Set the book producer"
-msgstr ""
+msgstr "กำหนดโรงงานผู้ผลิต"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:68
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:613
@@ -1198,11 +1198,13 @@ msgid ""
 "Extract cover from LRF file. Note that the LRF format has no defined cover, "
 "so we use some heuristics to guess the cover."
 msgstr ""
+"นำปกออกมาจากไฟล์ LRF สังเกตว่าในรูปแบบ LRF จะไม่มีการกำหนดหน้าปก "
+"ดังนั้นจึงต้องหาภาพอื่นใส่แทนเพื่อบอกว่าเป็นปก"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:615
 msgid "Set book ID"
-msgstr ""
+msgstr "กำหนดรหัสหนังสือ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:72
 msgid "Set font delta"
@@ -1234,48 +1236,59 @@ msgstr ""
 msgid ""
 "Disable normalize (improve contrast) color range for pictures. Default: False"
 msgstr ""
+"พักใช้การปรับช่วงแสงของภาพให้เป็นปกติในการแสดงภาพ(ทำให้คอนทราสดีขึ้น) "
+"ค่าเริ่มต้นคือ False"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:265
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
-msgstr ""
+msgstr "ควบคุมอัตราการทดภาพ ค่าเริ่มต้นกำหนดไว้ที่แสดงภาพให้เต็มจอ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:267
 msgid "Disable sharpening."
-msgstr ""
+msgstr "พักใช้การปรับคมชัด"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:269
 msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
 msgstr ""
+"พักใช้การตัดขอบหนังสือการ์ตูน "
+"ใช้สำหรับหนังสือการ์ตูนบางเล่มเนื่องจากจะไปทำให้ตัดเนื้อหาบางส่วนออกไป"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:272
 msgid "Don't split landscape images into two portrait images"
-msgstr ""
+msgstr "อย่าตัดภาพแนวขวางออกแล้วแบ่งเป็นภาพต่อกันสองภาพ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:274
 msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
 msgstr ""
+"รักษาระดับการทดภาพไว้แต่ใช้ความสูงแทนความกว้างเวลาที่อยู่ในโหมดมองภาพแนวขวาง"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:277
 msgid ""
 "Used for right-to-left publications like manga. Causes landscape pages to be "
 "split into portrait pages from right to left."
 msgstr ""
+"ใช้สำหรับสำนักพิมพ์ที่พิมพ์จากขวามาซ้าย เช่น สำนักพิมพ์ manga "
+"จะทำให้หน้าแนวขวางถูกตัดแบ่งเป็นสองหน้าจากขวามาซ้าย"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:281
 msgid ""
 "Enable Despeckle. Reduces speckle noise. May greatly increase processing "
 "time."
 msgstr ""
+"เปิดใช้การตัดเสียงรบกวน ช่วยลดเสียงรบกวน "
+"และในบางครั้งสามารถทำให้ประสิทธิภาพในการทำงานของโปรแกรมเพิ่มขึ้นอีกด้วย"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:284
 msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
 msgstr ""
+"อย่าใช้การเรียงลำดับชื่อไฟล์ที่พบในหนังสือการ์ตูนตามลำดับอักษร "
+"ให้เรียงลำดับชื่อไฟล์ตามลำดับเวลาที่ถูกเพิ่มเข้าไปในหนังสือการ์ตูนจะดีกว่า"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
 msgid ""
@@ -1283,19 +1296,22 @@ msgid ""
 "experiment to see which format gives you optimal size and look on your "
 "device."
 msgstr ""
+"รูปแบบของรูปภาพในอีบุคส์ที่ต้องการให้แปลงค่า "
+"คุณสามารถทดลองปรับเปลี่ยนจนได้รูปแบบที่ต้องการและเหมาะสมกับอุปกรณ์ปลายทางของค"
+"ุณ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
 msgid "Apply no processing to the image"
-msgstr ""
+msgstr "ไม่ทำอะไรกับภาพทั้งนั้น"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:294
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr ""
+msgstr "อย่าแปลงภาพเป็นรูปแบบ grayscale (ขาวดำ)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:431
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:442
 msgid "Page"
-msgstr ""
+msgstr "หน้า"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:19
 msgid ""
@@ -1325,27 +1341,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
-msgstr ""
+msgstr "ตัวเลือกอินพุท"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:98
 msgid "Options to control the processing of the input %s file"
-msgstr ""
+msgstr "ตัวเลือกเพื่อควบคุมกระบวนการนำเข้าไฟล์ %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "OUTPUT OPTIONS"
-msgstr ""
+msgstr "ตัวเลือกเอาท์พุท"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
-msgstr ""
+msgstr "ตัวเลือกเพื่อควบคุมกระบวนการส่งออกไฟล์ %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
-msgstr ""
+msgstr "ตัวเลือกแสดงรูปลักษณ์ของเอาท์พุท"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:135
 msgid "Control auto-detection of document structure."
-msgstr ""
+msgstr "ควบคุมระบบตรวจสอบโครงสร้างเอกสารอัตโนมัติ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:145
 msgid ""
@@ -1353,14 +1369,16 @@ msgid ""
 "source file has a Table of Contents, it will be used in preference to the "
 "automatically generated one."
 msgstr ""
+"ควบคุมระบบการสร้างสารบาญอัตโนมัติ "
+"โดยปกติหากแหล่งต้นทางไฟล์มีสารบาญอยู่แล้วมันจะถูกเรียกใช้ก่อน"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:155
 msgid "Options to set metadata in the output"
-msgstr ""
+msgstr "ตัวเลือกที่จะกำหนดชุดข้อมูลเอาท์พุท"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:158
 msgid "Options to help with debugging the conversion"
-msgstr ""
+msgstr "ตัวเลือกที่จะช่วยในการตรวจหาจุดผิดพลาดในการแปลงค่า"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"
@@ -1380,6 +1398,8 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
+"บันทึกเอาท์พุทจากขั้นตอนในการแปลงค่าเป็นช่วงๆเก็บไว้ในไดเรคตอรี่เป็นการเฉพาะ "
+"เพื่อใช้เป็นประโยชน์ในกรณีที่ไม่ทราบว่าโปรแกรมจะเกิดข้อผิดพลาดในช่วงใด"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:111
 msgid ""
@@ -1388,6 +1408,10 @@ msgid ""
 "For example resolution dependent lengths (i.e. lengths in pixels). Choices "
 "are:"
 msgstr ""
+"ระบุชุดข้อมูลอินพุท "
+"ชุดข้อมูลอินพุทจะให้ข้อมูลทีใช้ในการทำความเข้าใจในแต่ละส่วนในเอกสารอินพุทเพื่"
+"อประโยชน์ในการแปลงค่า เช่น ความละเอียดในส่วนของความยาว "
+"(เช่นความยาวในหน่วยพิกเซล) โดยมีให้เลือกดังนี้"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:122
 msgid ""
@@ -1396,6 +1420,11 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
+"ระบุชุดข้อมูลเอาท์พุท "
+"ชุดข้อมูลเอาท์พุทจะเป็นประโยชน์ในการแปลงค่าเอกสารให้เหมาะสมในแง่การให้ข้อมูลเ"
+"ฉพาะของอุปกรณ์ปลายทางในแต่ละแบบ "
+"ในบางกรณีชุดข้อมูลเอาท์พุทจำเป็นอย่างมากในการสร้างเอกสารบนอุปกรณ์ปลายทางแบบหน"
+"ึ่ง เช่น สร้างรูปแบบ EPUB สำหรับเครื่องอ่าน SONY โดยมีให้เลือกดังนี้"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:133
 msgid ""
@@ -1404,6 +1433,11 @@ msgid ""
 "fonts in the output bigger and vice versa. By default, the base font size is "
 "chosen based on the output profile you chose."
 msgstr ""
+"ขนาดอักษรพื้นฐานในหน่วย pts "
+"อักษรทุกขนาดในหนังสือที่ผลิตขึ้นจะถูกปรับขนาดตามขนาดอักษรพื้นฐานนี้ "
+"โดยการเลือกขนาดอักษรที่ใหญ่ขึ้นก็จะส่งผลให้เอาท์พุทที่ออกมามีขนาดใหญ่ขึ้นด้วย"
+" เหล่านี้เป็นต้น "
+"ค่าปกติขนาดอักษรพื้นฐานจะถูกเลือกตามชุดข้อมูลเอาท์พุทที่คุณเลือก"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:143
 msgid ""
@@ -1413,16 +1447,23 @@ msgid ""
 "algorithm uses these sizes to intelligently rescale fonts. The default is to "
 "use a mapping based on the output profile you chose."
 msgstr ""
+"จับคู่ระหว่างชื่อตัวอักษรในไฟล์ CSS กับขนาดตัวอักษรในหน่วย pts เช่น กำหนด "
+"12,12,14,16,18,20,22,24 คือการกำหนดคู่จากเล็กไปหาใหญ่ "
+"ซึ่งขนาดสุดท้ายเป็นตัวอักษรขนาดใหญ่ "
+"กระบวนทัศน์ในการปรับขนาดอักษรจะใช้ขนาดตัวอักษรที่ได้ตั้งไว้นี้ในการปรับขนาด "
+"ค่าปกติจะเป็นการจับคู่ตามชุดข้อมูลเอาท์พุทที่คุณเลือก"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:155
 msgid "Disable all rescaling of font sizes."
-msgstr ""
+msgstr "พักใช้การปรับขนาดตัวอักษร"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:162
 msgid ""
 "The line height in pts. Controls spacing between consecutive lines of text. "
 "By default no line height manipulation is performed."
 msgstr ""
+"ความสูงของบรรทัดในหน่วย pts ควบคุมระยะห่างระหว่างบรรทัดของตัวอักษร "
+"ค่าปกติจะอยู่ที่ศูนย์"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:170
 msgid ""
@@ -1431,6 +1472,9 @@ msgid ""
 "page and other artifacts. This option will extract the content from the "
 "tables and present it in a linear fashion."
 msgstr ""
+"เอกสารที่การออกแบบไม่ดีจะใช้ตารางในการจัดรูปหน้าหนังสือ "
+"เมื่อมีการแปลงค่าหน้าเอกสารก็จะทำให้ตัวอักษรหลุดออกจากหน้ากระดาษ "
+"ตัวเลือกนี้จึงมีไว้สำหรับอ่านข้อมูลจากตารางและจัดรูปแบบแบบที่ควรจะเป็น"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:180
 msgid ""
@@ -1438,6 +1482,8 @@ msgid ""
 "of Contents at level one. If this is specified, it takes precedence over "
 "other forms of auto-detection."
 msgstr ""
+"XPath expression จะเป็นตัวกำหนดแทคทุกแทคที่ควรบรรจุลงในสารบาญที่ระดับหนึ่ง "
+"ถ้าระบุ มันจะถูกใช้เป็นอันดับแรกก่อนรูปแบบอัตโนมัติอื่น"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:189
 msgid ""
@@ -1445,6 +1491,8 @@ msgid ""
 "of Contents at level two. Each entry is added under the previous level one "
 "entry."
 msgstr ""
+"XPath expression จะเป็นตัวกำหนดแทคทุกแทคที่ควรบรรจุลงในสารบาญที่ระดับสอง "
+"ถ้าระบุ ทุกอันจะถูกเพิ่มภายใต้ระดับที่หนึ่ง"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:197
 msgid ""
@@ -1452,6 +1500,8 @@ msgid ""
 "of Contents at level three. Each entry is added under the previous level two "
 "entry."
 msgstr ""
+"XPath expression จะเป็นตัวกำหนดแทคทุกแทคที่ควรบรรจุลงในสารบาญที่ระดับสาม "
+"ถ้าระบุ ทุกอันจะถูกเพิ่มภายใต้ระดับที่สอง"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:205
 msgid ""
@@ -1459,16 +1509,20 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
+"โดยปกติหากไฟล์ต้นฉบับมีสารบาญแล้วมันก็จะถูกใช้โดยอัตโนมัติ "
+"ถ้าเลือกตัวเลือกนี้จะไปใช้ที่โปรแกรมสร้างให้อัตโนมัติแทน"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:213
 msgid "Don't add auto-detected chapters to the Table of Contents."
-msgstr ""
+msgstr "ไม่เพิ่มบทที่ตรวจเจอโดยอัตโนมัติลงในสารบาญ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:220
 msgid ""
 "If fewer than this number of chapters is detected, then links are added to "
 "the Table of Contents. Default: %default"
 msgstr ""
+"ถ้าจำนวนบทที่ตรวจพบมีค่าน้อยกว่าค่านี้ให้ใส่เลขที่บทในสารบาญได้ ค่าปกติคือ "
+"%default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:227
 msgid ""
@@ -1476,12 +1530,17 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
 msgstr ""
+"จำนวนลิงก์สูงสุดที่ใส่ในสารบาญได้ ถ้าต้องการพักใช้ให้ใส่ค่าเป็นศูนย์ "
+"ค่าปกติคือ %default "
+"ลิงก์จะถูกเพิ่มลงในสารบาญในกรณีที่จำนวนบทน้อยกว่าจำนวนสูงสุดที่ระบุ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:235
 msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
 msgstr ""
+"ให้นำชื่อเรื่องที่ตรงกับเงื่อนไขที่กำหนดออกจากสารบาญ "
+"ซึ่งจะมีผลให้ชื่อหนังสือและสิ่งอื่นที่เกี่ยวข้องถูกลบออกด้วย"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:246
 msgid ""
@@ -1492,6 +1551,11 @@ msgid ""
 "detection, use the expression \"/\". See the XPath Tutorial in the calibre "
 "User Manual for further help on using this feature."
 msgstr ""
+"XPath expression ใช้ตรวจหาชื่อบท ค่าปกติคือให้ดูที่แทค <h1> หรือ <h2> "
+"ที่มีคำว่า \"บท\" \"หนังสือ\" \"หมวด\" หรือ \"ส่วน\" ก่อน "
+"และแทคอื่นใดที่มีคลาสเป็น \"บท\" ตรรกกะที่ใช้ในการตรวจสอบจะพิจาราณาทีละชุด "
+"หากต้องการพักใช้ตัวเลือกนี้ให้ใช้ \"/\" ดูสรุปการใช้ XPath expression "
+"เพิ่มเติมได้ในคู่มือการใช้ calibre"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:260
 msgid ""
@@ -1500,6 +1564,10 @@ msgid ""
 "chapters. A value of \"none\" will disable chapter marking and a value of "
 "\"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
+"กำหนดวิธีในการตรวจสอบการสิ้นสุดบทหนังสือ ค่าของ\"pagebreak\" "
+"จะบอกค่าสิ้นสุดของหน้า ค่าของ \"rule\" จะบอกค่าสิ้นสุดบรรทัด ค่า \"none\" "
+"จะพักใช้ตัวคั่นบท และจะใช้ทั้ง \"pagebreak\" และ \"rule\" "
+"เป็นค่าสิ้นสุดบทหนังสือแทน"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:270
 msgid ""
@@ -1560,7 +1628,7 @@ msgstr ""
 msgid ""
 "Use the cover detected from the source file in preference to the specified "
 "cover."
-msgstr ""
+msgstr "ใช้ปกที่พบในต้นฉบับเป็นปกหนังสือ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:336
 msgid ""
@@ -1573,18 +1641,25 @@ msgid ""
 "Remove the first image from the input ebook. Useful if the first image in "
 "the source file is a cover and you are specifying an external cover."
 msgstr ""
+"เอาภาพแรกที่พบออกจากอีบุคส์อินพุท "
+"เป็นประโยชน์ในกรณีที่ภาพแรกของต้นฉบับเป็นภาพปกซึ่งคุณต้องการใส่ภาพปกของคุณเอง"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
 msgid ""
 "Insert the book metadata at the start of the book. This is useful if your "
 "ebook reader does not support displaying/searching metadata directly."
 msgstr ""
+"ใส่ชุดข้อมูลของหนังสือลงในหน้าแรก "
+"จะเป็นประโยชน์ในกรณีที่อีบุคส์รีดเดอร์ของคุณไม่สามารถแสดงหรือค้นหาชุดข้อมูลได"
+"้โดยตรง"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:359
 msgid ""
 "Attempt to detect and correct hard line breaks and other problems in the "
 "source file. This may make things worse, so use with care."
 msgstr ""
+"พยายามที่จะตรวจหาและแก้ไขการจัดหน้า และปัญหาอื่นในไฟล์ต้นฉบับ "
+"ซึ่งอาจจะทำให้ปัญหาหนักขึ้นก็เป็นได้ ดังนั้นโปรดใช้อย่างระวัง"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:367
 msgid ""
@@ -1594,6 +1669,11 @@ msgid ""
 "books  with hard line breaks, but should be reduced if the line length is "
 "variable."
 msgstr ""
+"มาตรวัดในกรณีที่ใช้ในการตัดคำเพื่อจัดบรรทัด หาก preprocess ถูกเรียกใช้ "
+"ค่าที่ใช้ได้เป็นเลขทศนิยมระหว่าง 0 ถึง 1 ค่าปกติอยู่ที่ 0.40 "
+"ซึ่งค่าความยาวบรรทัดจะอยู่ในช่วงกลางต่ำ "
+"ซึ่งค่านี้จะจัดบรรทัดตามหนังสือมาตรฐานทั่วไป "
+"แต่ควรจะปรับลดตามความยาวบรรทัดเพื่อความเหมาะสม"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:376
 msgid ""
@@ -1615,7 +1695,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:404
 msgid "The regular expression to use to remove the footer."
-msgstr ""
+msgstr "ใช้เงื่อนไขในการนำคำท้ายหน้าออกไป"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:411
 msgid ""
@@ -1658,16 +1738,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:458
 msgid "String to be used when sorting by author. "
-msgstr ""
+msgstr "ตัวอักษรที่ใช้ในกรณีเรียงลำดับโดยใช้ชื่อผู้แต่ง "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:462
 msgid "Set the cover to the specified file or URL"
-msgstr ""
+msgstr "กำหนดหน้าปกสำหรับไฟล์ที่ระบุ หรือ URL"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:466
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
 msgid "Set the ebook description."
-msgstr ""
+msgstr "กำหนดคำบรรยายสำหรับอีบุคส์"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:470
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:56

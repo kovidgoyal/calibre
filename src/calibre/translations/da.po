@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-17 21:00+0000\n"
-"PO-Revision-Date: 2010-09-17 22:29+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-09-19 11:09+0000\n"
+"Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-18 04:48+0000\n"
+"X-Launchpad-Export-Date: 2010-09-20 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1036,7 +1036,7 @@ msgstr "Kommunikér med iPapyrus læser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:59
 msgid "Communicate with the Sovos reader."
-msgstr ""
+msgstr "Kommunikér med Sovos reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:255
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -4769,7 +4769,7 @@ msgstr "Sortér numre som tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
 msgid "Include 'Series' Section"
-msgstr ""
+msgstr "Inkludér 'Series' sektion"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:28
 msgid "Tab template for catalog.ui"
@@ -5134,7 +5134,7 @@ msgstr "Behold &ligaturer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:142
 msgid "Smarten &punctuation"
-msgstr ""
+msgstr "Gør &punktuation smartere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -5574,7 +5574,7 @@ msgstr "Fjern &sidehoved"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:86
 msgid "Line &un-wrap factor during preprocess:"
-msgstr ""
+msgstr "Linje &affoldningsfaktor under præprocessering:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:87
 msgid "&Preprocess input file to possibly improve structure detection"
@@ -6427,7 +6427,7 @@ msgstr "Redigér metaoplysninger for <b>%d bøger</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:166
 msgid "Book %d:"
-msgstr ""
+msgstr "Bog %d:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:182
 msgid ""
@@ -6448,11 +6448,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:382
 msgid "Search/replace invalid"
-msgstr ""
+msgstr "Søg/erstat ugyldig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:383
 msgid "Search pattern is invalid: %s"
-msgstr ""
+msgstr "Søge mønsteret er ugyldigt: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:415
 msgid "Applying changes to %d books. This may take a while."
@@ -6572,35 +6572,35 @@ msgstr "&Tilpas metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:263
 msgid "Search &field:"
-msgstr ""
+msgstr "Søg &felt:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:264
 msgid "&Search for:"
-msgstr ""
+msgstr "&Søg efter:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:265
 msgid "&Replace with:"
-msgstr ""
+msgstr "E&rstat med:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:266
 msgid "Apply function &after replace:"
-msgstr ""
+msgstr "Anvend funktion &efter erstat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:267
 msgid "Test &text"
-msgstr ""
+msgstr "Test &tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:268
 msgid "Test re&sult"
-msgstr ""
+msgstr "Test re&sultat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:269
 msgid "Your test:"
-msgstr ""
+msgstr "Dit resultat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:270
 msgid "&Search and replace (experimental)"
-msgstr ""
+msgstr "&Søg og erstat (eksperimentiel)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:91
 msgid "Last modified: %s"
@@ -7783,7 +7783,7 @@ msgstr "Vis bøger i calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:64
 msgid "Device"
-msgstr ""
+msgstr "Enhed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:65
 msgid "Show books in the main memory of the device"
@@ -8678,7 +8678,7 @@ msgstr "Vis &tekst under ikoner:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:121
 msgid "&Split the toolbar into two toolbars"
-msgstr ""
+msgstr "&Del værktøjslinjen i to værktøjslinjer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:215
 msgid "&Apply"
