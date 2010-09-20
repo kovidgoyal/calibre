@@ -348,10 +348,23 @@ class FieldMetadata(dict):
     def keys(self):
         return self._tb_cats.keys()
 
-    def sortable_keys(self):
+    def sortable_field_keys(self):
         return [k for k in self._tb_cats.keys()
                 if self._tb_cats[k]['kind']=='field' and
                    self._tb_cats[k]['datatype'] is not None]
+
+    def standard_field_keys(self):
+        return [k for k in self._tb_cats.keys()
+                if self._tb_cats[k]['kind']=='field' and
+                   not self._tb_cats[k]['is_custom']]
+
+    def custom_field_keys(self):
+        return [k for k in self._tb_cats.keys()
+                if self._tb_cats[k]['kind']=='field' and
+                   self._tb_cats[k]['is_custom']]
+
+    def all_field_keys(self):
+        return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind']=='field']
 
     def iterkeys(self):
         for key in self._tb_cats:
@@ -474,36 +487,10 @@ class FieldMetadata(dict):
                 key = self.custom_field_prefix+label
         self._tb_cats[key]['rec_index'] = index  # let the exception fly ...
 
-
-#    DEFAULT_LOCATIONS = frozenset([
-#        'all',
-#        'author',       # compatibility
-#        'authors',
-#        'comment',      # compatibility
-#        'comments',
-#        'cover',
-#        'date',
-#        'format',       # compatibility
-#        'formats',
-#        'isbn',
-#        'ondevice',
-#        'pubdate',
-#        'publisher',
-#        'search',
-#        'series',
-#        'rating',
-#        'tag',          # compatibility
-#        'tags',
-#        'title',
-#                 ])
-
     def get_search_terms(self):
         s_keys = sorted(self._search_term_map.keys())
         for v in self.search_items:
             s_keys.append(v)
-#        if set(s_keys) != self.DEFAULT_LOCATIONS:
-#            print 'search labels and default_locations do not match:'
-#            print set(s_keys) ^ self.DEFAULT_LOCATIONS
         return s_keys
 
     def _add_search_terms_to_map(self, key, terms):
@@ -518,3 +505,8 @@ class FieldMetadata(dict):
         if term in self._search_term_map:
             return  self._search_term_map[term]
         return term
+
+    def searchable_field_keys(self):
+        return [k for k in self._tb_cats.keys()
+                if self._tb_cats[k]['kind']=='field' and
+                   len(self._tb_cats[k]['search_terms']) > 0]

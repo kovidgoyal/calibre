@@ -270,11 +270,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def s_r_func(self, match):
         rfunc = self.s_r_functions[unicode(self.replace_func.currentText())]
         rtext = unicode(self.replace_with.text())
-        mi_data = self.mi.get_all_non_none_attributes()
+        mi_data = self.mi.all_non_none_fields()
 
         def fm_func(m):
             try:
-                if m.group(3) not in self.mi.all_keys: return m.group(0)
+                if m.group(3) not in self.mi.all_field_keys(): return m.group(0)
                 else: return '%s{%s}'%(m.group(1), m.group(3))
             except:
                 import traceback

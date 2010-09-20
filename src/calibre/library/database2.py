@@ -325,6 +325,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.has_id  = self.data.has_id
         self.count   = self.data.count
 
+        # Count times get_metadata is called, and how many times in the cache
+        self.gm_count  = 0
+        self.gm_missed = 0
+
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
                      'title', 'timestamp', 'uuid', 'pubdate', 'ondevice'):
@@ -520,15 +524,47 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 f.close()
             return ans
 
+    ### The field-style interface. These use field keys.
+
+    def get_field(self, idx, key, default=None, index_is_id=False):
+        mi = self.get_metadata(idx, index_is_id=index_is_id, get_cover=True)
+        try:
+            return mi[key]
+        except:
+            return default
+
+    def standard_field_keys(self):
+        return self.field_metadata.standard_field_keys()
+
+    def custom_field_keys(self):
+        return self.field_metadata.custom_field_keys()
+
+    def all_field_keys(self):
+        return self.field_metadata.all_field_keys()
+
+    def sortable_field_keys(self):
+        return self.field_metadata.sortable_field_keys()
+
+    def searchable_fields(self):
+        return self.field_metadata.searchable_field_keys()
+
+    def search_term_to_field_key(self, term):
+        return self.field_metadata.search_term_to_key(term)
+
+    def metadata_for_field(self, key):
+        return self.field_metadata[key]
+
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
         Convenience method to return metadata as a :class:`Metadata` object.
         '''
+        self.gm_count += 1
         mi = self.data.get(idx, self.FIELD_MAP['all_metadata'],
                            row_is_id = index_is_id)
         if mi is not None:
             return mi
 
+        self.gm_missed += 1
         mi = Metadata(None)
         self.data.set(idx, self.FIELD_MAP['all_metadata'], mi,
                       row_is_id = index_is_id)

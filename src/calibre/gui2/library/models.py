@@ -319,7 +319,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 _('Book <font face="serif">%s</font> of %s.')%\
                     (sidx, prepare_string_for_xml(series))
         mi = self.db.get_metadata(idx)
-        for key in mi.user_metadata_keys:
+        for key in mi.user_metadata_keys():
             name, val = mi.format_field(key)
             if val is not None:
                 data[name] = val
