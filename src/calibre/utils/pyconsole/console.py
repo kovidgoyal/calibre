@@ -43,25 +43,6 @@ class Console(QTextEdit):
     def root_frame(self):
         return self.doc.rootFrame()
 
-    @property
-    def cursor_pos(self):
-        '''
-        Return cursor position in prompt frame as (row, col).
-        row starts at 0 for the first line
-        col is 0 if the cursor is at the start of the line, 1 if it is after
-        the first character, n if it is after the nth char.
-        '''
-        if self.prompt_frame is not None:
-            pos = self.cursor.position()
-            it = self.prompt_frame.begin()
-            lineno = 0
-            while not it.atEnd():
-                bl = it.currentBlock()
-                if bl.contains(pos):
-                    return (lineno, pos - bl.position())
-                it += 1
-                lineno += 1
-        return (-1, -1)
 
     def __init__(self,
             prompt='>>> ',
@@ -95,10 +76,47 @@ class Console(QTextEdit):
         self.interpreter = Interpreter(parent=self)
         self.interpreter.show_error.connect(self.show_error)
 
-        print list(self.prompt())
-
 
     # Prompt management {{{
+
+    @dynamic_property
+    def cursor_pos(self):
+        doc = '''
+        The cursor position in the prompt has the form (row, col).
+        row starts at 0 for the first line
+        col is 0 if the cursor is at the start of the line, 1 if it is after
+        the first character, n if it is after the nth char.
+        '''
+
+        def fget(self):
+            if self.prompt_frame is not None:
+                pos = self.cursor.position()
+                it = self.prompt_frame.begin()
+                lineno = 0
+                while not it.atEnd():
+                    bl = it.currentBlock()
+                    if bl.contains(pos):
+                        return (lineno, pos - bl.position())
+                    it += 1
+                    lineno += 1
+            return (-1, -1)
+
+        def fset(self, val):
+            row, col = val
+            if self.prompt_frame is not None:
+                it = self.prompt_frame.begin()
+                lineno = 0
+                while not it.atEnd():
+                    if lineno == row:
+                        c = self.cursor
+                        c.setPosition(it.currentBlock().position())
+                        c.movePosition(c.NextCharacter, n=col)
+                        self.setTextCursor(c)
+                        break
+                    it += 1
+                    lineno += 1
+
+        return property(fget=fget, fset=fset, doc=doc)
 
     def prompt(self, strip_prompt_strings=True):
         if not self.prompt_frame:
@@ -128,7 +146,8 @@ class Console(QTextEdit):
             c.removeSelectedText()
             c.setPosition(self.prompt_frame.firstPosition())
 
-    def render_current_prompt(self, lines=None):
+    def render_current_prompt(self, lines=None, restore_cursor=False):
+        row, col = self.cursor_pos
         cp = list(self.prompt()) if lines is None else lines
         self.clear_current_prompt()
 
@@ -139,6 +158,9 @@ class Console(QTextEdit):
             self.formatter.render(self.lexer.get_tokens(line), self.cursor)
             if not end:
                 self.cursor.insertBlock()
+
+        if row > -1 and restore_cursor:
+            self.cursor_pos = (row, col)
 
     # }}}
 
@@ -259,7 +281,7 @@ class Console(QTextEdit):
     def text_typed(self, text):
         if self.prompt_frame is not None:
             self.cursor.insertText(text)
-            self.render_current_prompt()
+            self.render_current_prompt(restore_cursor=True)
 
     # }}}
 
