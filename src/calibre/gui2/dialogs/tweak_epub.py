@@ -71,8 +71,8 @@ class TweakEpub(QDialog, Ui_Dialog):
                 prints(" killing file browser proc")
             #self._file_browser_proc.terminate()
             #self._file_browser_proc.kill()
-            #self._file_browser_send_signal()
-            #self._file_browser_proc = None
+            #self._file_browser_send_signal(?)
+            self._file_browser_proc = None
 
         # Delete directory containing exploded ePub
         if self._exploded is not None:
@@ -93,6 +93,7 @@ class TweakEpub(QDialog, Ui_Dialog):
         elif iswindows:
             cmd = 'start explorer.exe /e,/root,%s' % self._exploded
         else:
+            # *** Kovid - need proper linux invocation here ***
             cmd = '<linux command to open native file browser>'
 
         # *** Kovid - need a way of launching this process than can be killed in cleanup() ***
