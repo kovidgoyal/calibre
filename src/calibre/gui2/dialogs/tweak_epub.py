@@ -117,7 +117,7 @@ class TweakEpub(QDialog, Ui_Dialog):
             # Write mimetype
             zf.write(os.path.join(self._exploded,'mimetype'), 'mimetype', compress_type=ZIP_STORED)
             # Write everything else
-            exclude_files = ['.DS_Store','mimetype','iTunesMetadata.plist']
+            exclude_files = ['.DS_Store','mimetype','iTunesMetadata.plist','rebuilt.epub']
             for root, dirs, files in os.walk(self._exploded):
                 for fn in files:
                     if fn in exclude_files:
