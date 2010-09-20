@@ -300,6 +300,24 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cpixmap = pix
         self.cover_data = cdata
 
+    def trim_cover(self, *args):
+        from calibre.utils.magick import Image
+        cdata = self.cover_data
+        if not cdata:
+            return
+        im = Image()
+        im.load(cdata)
+        im.trim(10)
+        cdata = im.export('jpg')
+        pix = QPixmap()
+        pix.loadFromData(cdata)
+        self.cover.setPixmap(pix)
+        self.cover_changed = True
+        self.cpixmap = pix
+        self.cover_data = cdata
+
+
+
     def sync_formats(self):
         old_extensions, new_extensions, paths = set(), set(), {}
         for row in range(self.formats.count()):
@@ -380,6 +398,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         self.remove_unused_series)
         QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
                         self.deduce_author_sort)
+        self.trim_cover_button.clicked.connect(self.trim_cover)
         self.connect(self.author_sort, SIGNAL('textChanged(const QString&)'),
                      self.author_sort_box_changed)
         self.connect(self.authors, SIGNAL('editTextChanged(const QString&)'),

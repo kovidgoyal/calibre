@@ -54,10 +54,13 @@ class WallStreetJournal(BasicNewsRecipe):
 
     def wsj_add_feed(self,feeds,title,url):
         self.log('Found section:', title)
-        if url.endswith('whatsnews'):
-           articles = self.wsj_find_wn_articles(url)
-        else:
-           articles = self.wsj_find_articles(url)
+        try:
+            if url.endswith('whatsnews'):
+                articles = self.wsj_find_wn_articles(url)
+            else:
+                articles = self.wsj_find_articles(url)
+        except:
+            articles = []
         if articles:
            feeds.append((title, articles))
         return feeds
