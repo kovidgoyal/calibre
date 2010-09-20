@@ -117,7 +117,7 @@ class Dehyphenator(object):
     def __init__(self):
         # Add common suffixes to the regex below to increase the likelihood of a match -
         # don't add suffixes which are also complete words, such as 'able' or 'sex'
-        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)ion(s|al(ly)?)?|ings?|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
+        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
         # remove prefixes if the prefix was not already the point of hyphenation
         self.prefixes = re.compile(r'^(un|in|ex)$', re.IGNORECASE)
         self.removeprefix = re.compile(r'^(un|in|ex)', re.IGNORECASE)
@@ -374,10 +374,8 @@ class HTMLPreProcessor(object):
                 print 'Failed to parse remove_footer regexp'
                 traceback.print_exc()
 
-        # unwrap em/en dashes, delete soft hyphens - moved here so it's executed after header/footer removal
+        # delete soft hyphens - moved here so it's executed after header/footer removal
         if is_pdftohtml:
-            # unwrap em/en dashes
-            end_rules.append((re.compile(u'(?<=[–—])\s*<p>\s*(?=[[a-z\d])'), lambda match: ''))
             # unwrap/delete soft hyphens
             end_rules.append((re.compile(u'[­](\s*<p>)+\s*(?=[[a-z\d])'), lambda match: ''))
             # unwrap/delete soft hyphens with formatting
@@ -397,6 +395,8 @@ class HTMLPreProcessor(object):
                     # Un wrap using punctuation
                     (re.compile(r'(?<=.{%i}([a-z,:)\IA]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
+                # unwrap em/en dashes
+                end_rules.append((re.compile(u'(?<=.{%i}[–—])\s*<p>\s*(?=[[a-z\d])' % length), lambda match: ''))
 
         for rule in self.PREPROCESS + start_rules:
             html = rule[0].sub(rule[1], html)
