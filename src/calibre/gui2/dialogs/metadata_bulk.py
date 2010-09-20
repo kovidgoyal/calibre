@@ -190,7 +190,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.destination_field.addItems(fields)
         self.destination_field.setMaxVisibleItems(min(len(fields), 20))
         offset = 10
-        self.s_r_number_of_books = min(7, len(self.ids))
+        self.s_r_number_of_books = min(10, len(self.ids))
         for i in range(1,self.s_r_number_of_books+1):
             w = QtGui.QLabel(self.tabWidgetPage3)
             w.setText(_('Book %d:')%i)
