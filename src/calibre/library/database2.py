@@ -1130,7 +1130,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_authors(self, id, authors, notify=True, commit=True):
         '''
-        `authors`: A list of authors.
+        Note that even if commit is False, the db will still be committed to
+        because this causes the location of files to change
+
+        :param authors: A list of authors.
         '''
         if not authors:
             authors = [_('Unknown')]
@@ -1167,6 +1170,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('metadata', [id])
 
     def set_title(self, id, title, notify=True, commit=True):
+        '''
+        Note that even if commit is False, the db will still be committed to
+        because this causes the location of files to change
+        '''
         if not title:
             return
         if not isinstance(title, unicode):
