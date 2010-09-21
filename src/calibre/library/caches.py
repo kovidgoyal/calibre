@@ -333,7 +333,7 @@ class ResultCache(SearchQueryParser):
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
-            location = self.field_metadata.search_term_to_key(location.lower().strip())
+            location = self.field_metadata.search_term_to_field_key(location.lower().strip())
             if isinstance(location, list):
                 if allow_recursion:
                     for loc in location:
@@ -609,12 +609,9 @@ class ResultCache(SearchQueryParser):
     # Sorting functions {{{
 
     def sanitize_sort_field_name(self, field):
-        field = field.lower().strip()
-        if field not in self.field_metadata.iterkeys():
-            if field in ('author', 'tag', 'comment'):
-                field += 's'
-        if   field == 'date': field = 'timestamp'
-        elif field == 'title': field = 'sort'
+        field = self.field_metadata.search_term_to_field_key(field.lower().strip())
+        # translate some fields to their hidden equivalent
+        if field == 'title': field = 'sort'
         elif field == 'authors': field = 'author_sort'
         return field
 
