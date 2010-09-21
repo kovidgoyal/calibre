@@ -443,9 +443,9 @@ class KOBO(USBMS):
 
         # Reset Im_Reading list in the database
         if oncard == 'carda':
-            query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID like \'file:///mnt/sd/%\''
+            query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 1 and ContentID like \'file:///mnt/sd/%\''
         elif oncard != 'carda' and oncard != 'cardb':
-            query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID not like \'file:///mnt/sd/%\''
+            query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 1 and ContentID not like \'file:///mnt/sd/%\''
                     
         try:
             cursor.execute (query)

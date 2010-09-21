@@ -6,15 +6,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, subprocess, sys
+import os, shutil
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
-from PyQt4 import QtGui
-from PyQt4.Qt import QDialog, SIGNAL
+from PyQt4.Qt import QDialog
 
-from calibre import prints
-from calibre.constants import iswindows, isosx, DEBUG
 from calibre.gui2 import open_local_file
 from calibre.gui2.dialogs.tweak_epub_ui import Ui_Dialog
 from calibre.libunzip import extract as zipextract
@@ -26,7 +23,6 @@ class TweakEpub(QDialog, Ui_Dialog):
 
     To do:
         - need way to kill file browser proc in cleanup()
-        - linux file browser launch
     '''
 
     def __init__(self, parent, epub):
@@ -40,36 +36,17 @@ class TweakEpub(QDialog, Ui_Dialog):
         # Run the dialog setup generated from tweak_epub.ui
         self.setupUi(self)
 
-        self.connect(self.cancel_button,
-                     SIGNAL("clicked()"),
-                     self.cancel)
-        self.connect(self.explode_button,
-                     SIGNAL("clicked()"),
-                     self.explode)
-        self.connect(self.rebuild_button,
-                     SIGNAL("clicked()"),
-                     self.rebuild)
+        self.cancel_button.clicked.connect(self.reject)
+        self.explode_button.clicked.connect(self.explode)
+        self.rebuild_button.clicked.connect(self.rebuild)
 
         # Position update dialog overlaying top left of app window
         parent_loc = parent.pos()
         self.move(parent_loc.x(),parent_loc.y())
 
-    def cancel(self):
-        if DEBUG:
-            prints("gui2.dialogs.tweak_epub:TweakEpub.cancel()")
-        return QDialog.reject(self)
-
     def cleanup(self):
-        '''
-        Kill the file browser
-        '''
-        if DEBUG:
-            prints("gui2.dialogs.tweak_epub:TweakEpub.cleanup()")
-
         # Delete directory containing exploded ePub
         if self._exploded is not None:
-            if DEBUG:
-                prints(" removing exploded dir\n %s" % self._exploded)
             shutil.rmtree(self._exploded, ignore_errors=True)
 
 
@@ -78,37 +55,17 @@ class TweakEpub(QDialog, Ui_Dialog):
         Generic subprocess launch of native file browser
         User can use right-click to 'Open with ...'
         '''
-        if DEBUG:
-            prints("gui2.dialogs.tweak_epub:TweakEpub.display_exploded()")
-        '''
-        if isosx:
-            cmd = 'open %s' % self._exploded
-        elif iswindows:
-            cmd = 'start explorer.exe /e,/root,%s' % self._exploded
-        else:
-            # *** Kovid - need proper linux invocation here ***
-            cmd = '<linux command to open native file browser>'
-
-        # *** Kovid - need a way of launching this process than can be killed in cleanup() ***
-        self._file_browser_proc = subprocess.Popen(cmd, shell=True)
-        '''
         open_local_file(self._exploded)
 
-    def explode(self):
-        if DEBUG:
-            prints("gui2.dialogs.tweak_epub:TweakEpub.explode()")
+    def explode(self, *args):
         if self._exploded is None:
-            if DEBUG:
-                prints(" exploding %s" % self._epub)
             self._exploded = PersistentTemporaryDirectory("_exploded", prefix='')
             zipextract(self._epub, self._exploded)
             self.display_exploded()
             self.rebuild_button.setEnabled(True)
             self.explode_button.setEnabled(False)
 
-    def rebuild(self):
-        if DEBUG:
-            prints("gui2.dialogs.tweak_epub:TweakEpub.rebuild()")
+    def rebuild(self, *args):
         self._output = os.path.join(self._exploded, 'rebuilt.epub')
         with closing(ZipFile(self._output, 'w', compression=ZIP_DEFLATED)) as zf:
             # Write mimetype
@@ -120,7 +77,8 @@ class TweakEpub(QDialog, Ui_Dialog):
                     if fn in exclude_files:
                         continue
                     absfn = os.path.join(root, fn)
-                    zfn = absfn[len(self._exploded) + len(os.sep):]
+                    zfn = os.path.relpath(absfn,
+                            self._exploded).replace(os.sep, '/')
                     zf.write(absfn, zfn)
         return QDialog.accept(self)
 
