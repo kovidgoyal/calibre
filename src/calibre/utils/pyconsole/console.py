@@ -47,6 +47,7 @@ class Prepender(object): # {{{
         self.console.cursor_pos = self.opos
 # }}}
 
+
 class Console(QTextEdit):
 
     running = pyqtSignal()
