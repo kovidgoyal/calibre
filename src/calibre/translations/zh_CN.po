@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-17 21:00+0000\n"
-"PO-Revision-Date: 2010-09-19 02:10+0000\n"
-"Last-Translator: DaNmarner <Unknown>\n"
+"PO-Revision-Date: 2010-09-20 17:59+0000\n"
+"Last-Translator: qqlzy2006 <592507783@qq.com>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-20 04:59+0000\n"
+"X-Launchpad-Export-Date: 2010-09-21 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -269,20 +269,20 @@ msgstr "界面"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:690
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr ""
+msgstr "调整成你喜欢的外观"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:696
 msgid "Behavior"
-msgstr ""
+msgstr "操作方式"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:702
 msgid "Change the way calibre behaves"
-msgstr ""
+msgstr "改变calibre的操作方式"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:707
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:176
 msgid "Add your own columns"
-msgstr ""
+msgstr "增加栏目"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:713
 msgid "Add/remove your own columns to the calibre book list"
@@ -290,7 +290,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:718
 msgid "Customize the toolbar"
-msgstr ""
+msgstr "自定义工具栏"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:724
 msgid ""
@@ -314,7 +314,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:741
 msgid "Common Options"
-msgstr ""
+msgstr "常规选项"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:747
 msgid "Set conversion options common to all formats"
@@ -322,7 +322,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:752
 msgid "Output Options"
-msgstr ""
+msgstr "输出选项"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:758
 msgid "Set conversion options specific to each output format"
@@ -330,13 +330,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:763
 msgid "Adding books"
-msgstr ""
+msgstr "增加图书"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:777
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:789
 msgid "Import/Export"
-msgstr ""
+msgstr "导入/导出"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:769
 msgid "Control how calibre reads metadata from files when adding books"
@@ -344,7 +344,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Saving books to disk"
-msgstr ""
+msgstr "保存图书到磁盘"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
 msgid ""
@@ -354,7 +354,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:787
 msgid "Sending books to devices"
-msgstr ""
+msgstr "发送图书到设备"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:793
 msgid "Control how calibre transfers files to your ebook reader"
@@ -362,7 +362,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:799
 msgid "Sharing books by email"
-msgstr ""
+msgstr "通过Email分享图书"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:801
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:813

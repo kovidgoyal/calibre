@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-17 21:00+0000\n"
-"PO-Revision-Date: 2010-09-20 04:46+0000\n"
+"PO-Revision-Date: 2010-09-20 11:11+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-20 04:58+0000\n"
+"X-Launchpad-Export-Date: 2010-09-21 04:57+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -4228,6 +4228,13 @@ msgid ""
 "permanently <b>deleted</b> from your computer.<br><br>  Are you <b>sure</b> "
 "you want to proceed?"
 msgstr ""
+"Hautatu diren liburu guztien formatuak eta metadatuak bateratu egingo dira "
+"<b>aukeratutako lehen liburuan</b>. ISBNa ez da bateratuko.<br><br>Liburu "
+"horiek elkar batu eta gero,  bigarren liburua eta hurrengoko guztiak "
+"<b>ezabatu egingo</b> dira. <br><br>Aukeratzen dituzun lehenengo liburuaren "
+"liburu-formatu guztiak gorde egingo dira eta bikoiztutako edozein formatu "
+"bigarren liburuan eta hurrengoetan betiko <b>ezabatu</b> egingo dira zure "
+"ordenagailutik.<br><br>  <b>Ziur zaude</b>? Benetan aurrera egin nahi duzu?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:237
 msgid ""
@@ -4960,7 +4967,7 @@ msgstr "Sailkatu zenbakiak testuak izango balira bezala"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
 msgid "Include 'Series' Section"
-msgstr ""
+msgstr "'Series' Saila barne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:28
 msgid "Tab template for catalog.ui"
@@ -5328,7 +5335,7 @@ msgstr "Gorde &loturak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:142
 msgid "Smarten &punctuation"
-msgstr ""
+msgstr "Itxura hobetzen &puntuazioa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -5773,7 +5780,7 @@ msgstr "Ezabatu Goi&burua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:86
 msgid "Line &un-wrap factor during preprocess:"
-msgstr ""
+msgstr "Lerroaren &apurtze indizea prozesuan zehar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:87
 msgid "&Preprocess input file to possibly improve structure detection"
@@ -6648,7 +6655,7 @@ msgstr "Editatzen <b>%d liburuetako</b>metadatuen informazioa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:166
 msgid "Book %d:"
-msgstr ""
+msgstr "Liburua %d:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:182
 msgid ""
@@ -6659,6 +6666,13 @@ msgid ""
 "string. See <a href=\"http://docs.python.org/library/re.html\"> this "
 "reference</a> for more information, and in particular the 'sub' function."
 msgstr ""
+"Bilatu eta ordeztu testu eremuetan adierazpide arruntak erabiliz. "
+"Bilaketarako erabiliko den testua python-ekin bateragarri den adierazpide "
+"bat izango da. Testu hori ordeztuko duen testuak ereduaren adierazpideei "
+"loturik erreferentziak izan ditzake. Bilaketa ez dago ainguraturik eta bat "
+"egin dezake hamaika aldiz testu-kate berberarekin. Ikus <a "
+"href=\"http://docs.python.org/library/re.html\"> erreferentzia hau</a> "
+"informazio gehiagorako eta batez ere 'sub' edo 'azpi-' funtziorako."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:192
 msgid ""
@@ -6666,14 +6680,18 @@ msgid ""
 "permanent. There is no undo function. You are strongly encouraged to back up "
 "your library before proceeding."
 msgstr ""
+"Abisua: <b>zure liburutegia suntsitu</b> ahal duzu aukera honekin aurrera "
+"eginez gero. Aldaketak betiko dira. Ez da atzera egiteko aukerarik egongo. "
+"Mesedez, arren, otoi eskatzen zaizu liburutegiaren babes kopia ona egitea "
+"kontu hauekin aurrera segi baino lehen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:382
 msgid "Search/replace invalid"
-msgstr ""
+msgstr "Bilatu/ordeztu ez dabil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:383
 msgid "Search pattern is invalid: %s"
-msgstr ""
+msgstr "Bilatzeko patroaia ez dabil: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:415
 msgid "Applying changes to %d books. This may take a while."
@@ -6795,35 +6813,35 @@ msgstr "&Pertsonalizaturiko metadatuak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:263
 msgid "Search &field:"
-msgstr ""
+msgstr "Search &eremua:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:264
 msgid "&Search for:"
-msgstr ""
+msgstr "&Bilatu hau:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:265
 msgid "&Replace with:"
-msgstr ""
+msgstr "&Ordeztu honekin:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:266
 msgid "Apply function &after replace:"
-msgstr ""
+msgstr "Aplikatu funtzioa  ordeztu &eta_gero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:267
 msgid "Test &text"
-msgstr ""
+msgstr "Testua &testua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:268
 msgid "Test re&sult"
-msgstr ""
+msgstr "Testu emai&tza"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:269
 msgid "Your test:"
-msgstr ""
+msgstr "Zure testua:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:270
 msgid "&Search and replace (experimental)"
-msgstr ""
+msgstr "&Bilatu eta ordeztu (esperimentala, beta)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:91
 msgid "Last modified: %s"
@@ -6885,12 +6903,16 @@ msgid ""
 " The green color indicates that the current author sort matches the current "
 "author"
 msgstr ""
+" Kolore berdeak adierazten du erabiltzen ari garen egile mota honek bat "
+"egiten duela erabiltzen ari garen egilearekin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:336
 msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author"
 msgstr ""
+" Kolore gorriak adierazten du erabiltzen ari garen egile mota honek ez duela "
+"bat egiten erabiltzen ari garen egilearekin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:341
 msgid "Abort the editing of all remaining books"
@@ -7004,6 +7026,11 @@ msgid ""
 "If the box is colored green, then text matches the individual author's sort "
 "strings. If it is colored red, then the authors and this text do not match."
 msgstr ""
+"Zehaztu ea nola ordenatuko d(ir)en liburu honen egilea(k). Esate baterako, "
+"Charles Dickens horrela sailka daiteke: Dickens, Charles.\n"
+"Kutxatila berde baldin badago, orduan testuak bat egiten du egile izen mota "
+"batekin. Kutxatila gorri baldin badago, orduan egileak edo egileek eta "
+"testuek ez dute bat egin."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:374
 msgid ""
@@ -7012,6 +7039,10 @@ msgid ""
 "Using this button to create author sort will change author sort from red to "
 "green."
 msgstr ""
+"Sortu modu automatikoan egile motaren sarrera orain erabiltzen ari garen "
+"egile izenean oinarriturik.\n"
+"Egile mota berria sortzeko botoi hau erabiliz gero, egile mota gorritik "
+"berdera aldatzea lortuko dugu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:389
 msgid "Remove unused series (Series that have no books)"
@@ -8022,7 +8053,7 @@ msgstr "Erakutsi liburuak calibre liburutegian"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:64
 msgid "Device"
-msgstr ""
+msgstr "Gailua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:65
 msgid "Show books in the main memory of the device"
@@ -8947,7 +8978,7 @@ msgstr "Erakutsi &testua ikonoen azpian:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:121
 msgid "&Split the toolbar into two toolbars"
-msgstr ""
+msgstr "&Banatu tresna barra bi tresna barra berrietan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:215
 msgid "&Apply"

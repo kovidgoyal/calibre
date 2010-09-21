@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-17 21:00+0000\n"
-"PO-Revision-Date: 2010-09-19 12:38+0000\n"
-"Last-Translator: M. F. <Unknown>\n"
+"PO-Revision-Date: 2010-09-20 22:58+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-20 04:58+0000\n"
+"X-Launchpad-Export-Date: 2010-09-21 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -428,6 +428,7 @@ msgstr "Ajustements"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Fine tune how calibre behaves in various contexts"
 msgstr ""
+"Affiner la manière dont Calibre se comporte dans différents contextes"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid "Miscellaneous"
@@ -435,7 +436,7 @@ msgstr "Divers"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Miscellaneous advanced configuration"
-msgstr ""
+msgstr "Diverses configurations avancées"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -3776,6 +3777,9 @@ msgid ""
 "Failed to rename the library at %s. The most common cause for this is if one "
 "of the files in the library is open in another program."
 msgstr ""
+"Echec de la modification du nom de la bibliothèque à %s. La cause la plus "
+"commune de cet échec est due à l'ouverture d'un des fichiers de la "
+"bibliothèque dans un autre programme."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:53
@@ -4877,7 +4881,7 @@ msgstr "Trier les chiffres comme du texte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
 msgid "Include 'Series' Section"
-msgstr ""
+msgstr "Inclure la section 'Series'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:28
 msgid "Tab template for catalog.ui"
@@ -5243,7 +5247,7 @@ msgstr "Conserver les &ligatures"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:142
 msgid "Smarten &punctuation"
-msgstr ""
+msgstr "&Ponctuation arrangée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -5689,7 +5693,7 @@ msgstr "Supprimer l'&en-tête"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:86
 msgid "Line &un-wrap factor during preprocess:"
-msgstr ""
+msgstr "Facteur de déroulement de ligne durant le prétraitement:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:87
 msgid "&Preprocess input file to possibly improve structure detection"
@@ -6563,7 +6567,7 @@ msgstr "Edite les informations des métadonnées  pour <b>%d livres</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:166
 msgid "Book %d:"
-msgstr ""
+msgstr "Livre %d:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:182
 msgid ""
@@ -6581,14 +6585,18 @@ msgid ""
 "permanent. There is no undo function. You are strongly encouraged to back up "
 "your library before proceeding."
 msgstr ""
+"Note: <b>vous pouvez détruire votre bibliothèque</b> en utilisant cette "
+"option. Les changements sont permanents. Il n'y a pas de fonction pour "
+"revenir en arrière. Vous êtes fortement encouragé à sauvegarder votre "
+"bibliothèque avant de continuer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:382
 msgid "Search/replace invalid"
-msgstr ""
+msgstr "Recherche/Remplacement erroné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:383
 msgid "Search pattern is invalid: %s"
-msgstr ""
+msgstr "Motif de recherche erroné: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:415
 msgid "Applying changes to %d books. This may take a while."
@@ -6712,35 +6720,35 @@ msgstr "Metadonnées &personnalisées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:263
 msgid "Search &field:"
-msgstr ""
+msgstr "&Champs de recherche:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:264
 msgid "&Search for:"
-msgstr ""
+msgstr "&Rechercher:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:265
 msgid "&Replace with:"
-msgstr ""
+msgstr "Re&mplacer par:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:266
 msgid "Apply function &after replace:"
-msgstr ""
+msgstr "Appliquer la fonction &après remplacement:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:267
 msgid "Test &text"
-msgstr ""
+msgstr "&Texte de test"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:268
 msgid "Test re&sult"
-msgstr ""
+msgstr "Ré&sultat de test"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:269
 msgid "Your test:"
-msgstr ""
+msgstr "Votre test:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:270
 msgid "&Search and replace (experimental)"
-msgstr ""
+msgstr "&Rechercher et remplacer (experimental)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:91
 msgid "Last modified: %s"
@@ -6802,12 +6810,16 @@ msgid ""
 " The green color indicates that the current author sort matches the current "
 "author"
 msgstr ""
+" La couleur verte indique que la clé de tri par auteur actuelle correspond à "
+"l'auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:336
 msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author"
 msgstr ""
+" La couleur rouge indique que la clé de tri par auteur actuelle ne "
+"correspond pas à l'auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:341
 msgid "Abort the editing of all remaining books"
@@ -7952,7 +7964,7 @@ msgstr "Afficher les livres dans la bibliothèque calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:64
 msgid "Device"
-msgstr ""
+msgstr "Appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:65
 msgid "Show books in the main memory of the device"
@@ -8345,6 +8357,8 @@ msgid ""
 "Restore settings to default values. You have to click Apply to actually save "
 "the default settings."
 msgstr ""
+"Restaure les réglages aux valeurs par défaut. Vous devez cliquer sur "
+"Appliquer pour sauvegarder réellement les réglages par défaut."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:49
 msgid ""
@@ -8359,6 +8373,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:50
 msgid "Read metadata from &file contents rather than file name"
 msgstr ""
+"Lire les métadonnées à partir du contenu du &fichier plutôt que du nom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:51
 msgid ""
@@ -8876,7 +8891,7 @@ msgstr "Afficher le &texte sous les icônes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:121
 msgid "&Split the toolbar into two toolbars"
-msgstr ""
+msgstr "&Sépare la barre d'outils en deux bares distinctes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:215
 msgid "&Apply"
@@ -8888,7 +8903,7 @@ msgstr "&Annuler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:222
 msgid "Restore &defaults"
-msgstr "Restaurer les réglages par &défaut"
+msgstr "Restaurer les valeurs par &défaut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:223
 msgid "Save changes"
@@ -8900,19 +8915,24 @@ msgstr "Annuler et retourner à la vue d'ensemble"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:259
 msgid "Restoring to defaults not supported for"
-msgstr ""
+msgstr "La restauration des valeurs par défaut n'est pas suppotée pour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:294
 msgid ""
 "Some of the changes you made require a restart. Please restart calibre as "
 "soon as possible."
 msgstr ""
+"Certains des changements que vous avez effectués nécessitent le redémarrage "
+"de Calibre. Veuillez redémarrer Calibre dès que possible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:297
 msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed set any more preferences, until you restart."
 msgstr ""
+"Les changements que vous avez effectués nécessitent le redémarrage immédiat "
+"de Calibre. Vous ne serez pas autorisé à modifier les préférences avant le "
+"redémarrage."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
@@ -10716,7 +10736,7 @@ msgid ""
 msgstr ""
 "Titre du catalogue généré utilisé comme titre dans les métadonnées.\n"
 "Par défaut : '%default'\n"
-"Applicable pour les formats de sortie ePub, MOBI"
+"Applicable pour les formats de sortie: ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:543
 msgid ""
@@ -10773,6 +10793,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Inclure la section 'Series' dans le catalogue.\n"
+"Par défaut : '%default'\n"
+"Applicable pour les formats de sortie: ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:581
 msgid ""
