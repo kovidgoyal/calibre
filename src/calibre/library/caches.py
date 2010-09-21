@@ -23,10 +23,11 @@ from calibre import fit_image
 
 class CoverCache(Thread):
 
-    def __init__(self, db):
+    def __init__(self, db, cover_func):
         Thread.__init__(self)
         self.daemon = True
         self.db = db
+        self.cover_func = cover_func
         self.load_queue = Queue()
         self.keep_running = True
         self.cache = {}
@@ -37,7 +38,9 @@ class CoverCache(Thread):
         self.keep_running = False
 
     def _image_for_id(self, id_):
-        img = self.db.cover(id_, index_is_id=True, as_image=True)
+        import time
+        time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
+        img = self.cover_func(id_, index_is_id=True, as_image=True)
         if img is None:
             img = QImage()
         if not img.isNull():
