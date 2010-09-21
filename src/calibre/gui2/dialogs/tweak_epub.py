@@ -15,6 +15,7 @@ from PyQt4.Qt import QDialog, SIGNAL
 
 from calibre import prints
 from calibre.constants import iswindows, isosx, DEBUG
+from calibre.gui2 import open_local_file
 from calibre.gui2.dialogs.tweak_epub_ui import Ui_Dialog
 from calibre.libunzip import extract as zipextract
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -33,7 +34,7 @@ class TweakEpub(QDialog, Ui_Dialog):
 
         self._epub = epub
         self._exploded = None
-        self._file_browser_proc = None
+        #self._file_browser_proc = None
         self._output = None
 
         # Run the dialog setup generated from tweak_epub.ui
@@ -64,14 +65,6 @@ class TweakEpub(QDialog, Ui_Dialog):
         '''
         if DEBUG:
             prints("gui2.dialogs.tweak_epub:TweakEpub.cleanup()")
-        # Kill file browser proc
-        if self._file_browser_proc:
-            if DEBUG:
-                prints(" killing file browser proc")
-            #self._file_browser_proc.terminate()
-            #self._file_browser_proc.kill()
-            #self._file_browser_send_signal(?)
-            self._file_browser_proc = None
 
         # Delete directory containing exploded ePub
         if self._exploded is not None:
@@ -87,6 +80,7 @@ class TweakEpub(QDialog, Ui_Dialog):
         '''
         if DEBUG:
             prints("gui2.dialogs.tweak_epub:TweakEpub.display_exploded()")
+        '''
         if isosx:
             cmd = 'open %s' % self._exploded
         elif iswindows:
@@ -97,6 +91,8 @@ class TweakEpub(QDialog, Ui_Dialog):
 
         # *** Kovid - need a way of launching this process than can be killed in cleanup() ***
         self._file_browser_proc = subprocess.Popen(cmd, shell=True)
+        '''
+        open_local_file(self._exploded)
 
     def explode(self):
         if DEBUG:
