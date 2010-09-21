@@ -39,7 +39,7 @@ gprefs.defaults['action-layout-context-menu'] = (
         'Edit Metadata', 'Send To Device', 'Save To Disk',
         'Connect Share', 'Copy To Library', None,
         'Convert Books', 'View', 'Open Folder', 'Show Book Details',
-        'Similar Books', None, 'Remove Books',
+        'Similar Books', 'Tweak ePub', None, 'Remove Books',
         )
 
 gprefs.defaults['action-layout-context-menu-device'] = (
