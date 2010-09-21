@@ -25,7 +25,6 @@ class TweakEpub(QDialog, Ui_Dialog):
 
     To do:
         - need way to kill file browser proc in cleanup()
-        - Windows file browser launch
         - linux file browser launch
     '''
 
@@ -109,6 +108,7 @@ class TweakEpub(QDialog, Ui_Dialog):
             zipextract(self._epub, self._exploded)
             self.display_exploded()
             self.rebuild_button.setEnabled(True)
+            self.explode_button.setEnabled(False)
 
     def rebuild(self):
         if DEBUG:
