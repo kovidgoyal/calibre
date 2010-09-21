@@ -5,9 +5,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, textwrap
+import sys, textwrap, traceback, StringIO
 
-from PyQt4.Qt import QTextEdit, Qt, QTextFrameFormat
+from PyQt4.Qt import QTextEdit, Qt, QTextFrameFormat, pyqtSignal, \
+    QCoreApplication
 
 from pygments.lexers import PythonLexer, PythonTracebackLexer
 
@@ -15,6 +16,7 @@ from calibre.constants import __appname__, __version__
 from calibre.utils.pyconsole.formatter import Formatter
 from calibre.utils.pyconsole.repl import Interpreter, DummyFile
 from calibre.utils.pyconsole import prints
+from calibre.gui2 import error_dialog
 
 class EditBlock(object): # {{{
 
@@ -29,7 +31,26 @@ class EditBlock(object): # {{{
         self.cursor.endEditBlock()
 # }}}
 
+class Prepender(object): # {{{
+    'Helper class to insert output before the current prompt'
+    def __init__(self, console):
+        self.console = console
+
+    def __enter__(self):
+        c = self.console
+        self.opos = c.cursor_pos
+        cur = c.prompt_frame.firstCursorPosition()
+        cur.movePosition(cur.PreviousCharacter)
+        c.setTextCursor(cur)
+
+    def __exit__(self, *args):
+        self.console.cursor_pos = self.opos
+# }}}
+
 class Console(QTextEdit):
+
+    running = pyqtSignal()
+    running_done = pyqtSignal()
 
     @property
     def doc(self):
@@ -43,6 +64,23 @@ class Console(QTextEdit):
     def root_frame(self):
         return self.doc.rootFrame()
 
+    def unhandled_exception(self, type, value, tb):
+        if type == KeyboardInterrupt:
+            return
+        try:
+            sio = StringIO.StringIO()
+            traceback.print_exception(type, value, tb, file=sio)
+            fe = sio.getvalue()
+            prints(fe)
+            try:
+                val = unicode(value)
+            except:
+                val = repr(value)
+            msg = '<b>%s</b>:'%type.__name__ + val
+            error_dialog(self, _('ERROR: Unhandled exception'), msg,
+                    det_msg=fe, show=True)
+        except BaseException:
+            pass
 
     def __init__(self,
             prompt='>>> ',
@@ -60,7 +98,17 @@ class Console(QTextEdit):
         self.doc.setMaximumBlockCount(10000)
         self.lexer = PythonLexer(ensurenl=False)
         self.tb_lexer = PythonTracebackLexer()
-        self.formatter = Formatter(prompt, continuation)
+        self.formatter = Formatter(prompt, continuation, style='default')
+        self.setStyleSheet(self.formatter.stylesheet)
+
+        self.key_dispatcher = { # {{{
+                Qt.Key_Enter : self.enter_pressed,
+                Qt.Key_Return : self.enter_pressed,
+                Qt.Key_Home : self.home_pressed,
+                Qt.Key_End : self.end_pressed,
+                Qt.Key_Left : self.left_pressed,
+                Qt.Key_Right : self.right_pressed,
+        } # }}}
 
         motd = textwrap.dedent('''\
         # Python {0}
@@ -75,6 +123,8 @@ class Console(QTextEdit):
         sys.stdout.write_output.connect(self.show_output)
         self.interpreter = Interpreter(parent=self)
         self.interpreter.show_error.connect(self.show_error)
+
+        sys.excepthook = self.unhandled_exception
 
 
     # Prompt management {{{
@@ -162,6 +212,8 @@ class Console(QTextEdit):
         if row > -1 and restore_cursor:
             self.cursor_pos = (row, col)
 
+        self.ensureCursorVisible()
+
     # }}}
 
     # Non-prompt Rendering {{{
@@ -185,16 +237,26 @@ class Console(QTextEdit):
                 self.formatter.render(self.tb_lexer.get_tokens(tb), self.cursor)
         except:
             prints(tb, end='')
+        self.ensureCursorVisible()
+        QCoreApplication.processEvents()
 
     def show_output(self, raw):
+        def do_show():
+            try:
+                self.buf.append(raw)
+                self.formatter.render_raw(raw, self.cursor)
+            except:
+                import traceback
+                prints(traceback.format_exc())
+                prints(raw, end='')
+
         if self.prompt_frame is not None:
-            # At a prompt, so redirect output
-            return prints(raw, end='')
-        try:
-            self.buf.append(raw)
-            self.formatter.render_raw(raw, self.cursor)
-        except:
-            prints(raw, end='')
+            with Prepender(self):
+                do_show()
+        else:
+            do_show()
+        self.ensureCursorVisible()
+        QCoreApplication.processEvents()
 
     # }}}
 
@@ -203,16 +265,11 @@ class Console(QTextEdit):
     def keyPressEvent(self, ev):
         text = unicode(ev.text())
         key = ev.key()
-        if key in (Qt.Key_Enter, Qt.Key_Return):
-            self.enter_pressed()
-        elif key == Qt.Key_Home:
-             self.home_pressed()
-        elif key == Qt.Key_End:
-            self.end_pressed()
-        elif key == Qt.Key_Left:
-            self.left_pressed()
-        elif key == Qt.Key_Right:
-            self.right_pressed()
+        action = self.key_dispatcher.get(key, None)
+        if callable(action):
+            action()
+        elif key in (Qt.Key_Escape,):
+            QTextEdit.keyPressEvent(self, ev)
         elif text:
             self.text_typed(text)
         else:
@@ -230,6 +287,7 @@ class Console(QTextEdit):
             c.movePosition(c.Up)
             c.movePosition(c.EndOfLine)
             self.setTextCursor(c)
+        self.ensureCursorVisible()
 
     def right_pressed(self):
         lineno, pos = self.cursor_pos
@@ -242,6 +300,7 @@ class Console(QTextEdit):
         elif lineno < len(cp)-1:
             c.movePosition(c.NextCharacter, n=1+self.prompt_len)
         self.setTextCursor(c)
+        self.ensureCursorVisible()
 
     def home_pressed(self):
         if self.prompt_frame is not None:
@@ -249,12 +308,14 @@ class Console(QTextEdit):
             c.movePosition(c.StartOfLine)
             c.movePosition(c.NextCharacter, n=self.prompt_len)
             self.setTextCursor(c)
+            self.ensureCursorVisible()
 
     def end_pressed(self):
         if self.prompt_frame is not None:
             c = self.cursor
             c.movePosition(c.EndOfLine)
             self.setTextCursor(c)
+            self.ensureCursorVisible()
 
     def enter_pressed(self):
         if self.prompt_frame is None:
@@ -267,7 +328,13 @@ class Console(QTextEdit):
             self.prompt_frame = None
             oldbuf = self.buf
             self.buf = []
-            ret = self.interpreter.runsource('\n'.join(cp))
+            self.running.emit()
+            try:
+                ret = self.interpreter.runsource('\n'.join(cp))
+            except SystemExit:
+                ret = False
+                self.show_output('Raising SystemExit not allowed\n')
+            self.running_done.emit()
             if ret: # Incomplete command
                 self.buf = oldbuf
                 self.prompt_frame = old_pf
@@ -275,7 +342,13 @@ class Console(QTextEdit):
                 c.insertBlock()
                 self.setTextCursor(c)
             else: # Command completed
-                old_pf.setFrameFormat(QTextFrameFormat())
+                try:
+                    old_pf.setFrameFormat(QTextFrameFormat())
+                except RuntimeError:
+                    # Happens if enough lines of output that the old
+                    # frame was deleted
+                    pass
+
             self.render_current_prompt()
 
     def text_typed(self, text):

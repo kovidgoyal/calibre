@@ -6,19 +6,31 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 __version__   = '0.1.0'
 
-from PyQt4.Qt import QMainWindow, QToolBar, QStatusBar, QLabel, QFont, Qt, \
-    QApplication
+from functools import partial
+
+from PyQt4.Qt import QDialog, QToolBar, QStatusBar, QLabel, QFont, Qt, \
+    QApplication, QIcon, QVBoxLayout
 
 from calibre.constants import __appname__, __version__
 from calibre.utils.pyconsole.console import Console
 
-class MainWindow(QMainWindow):
+class MainWindow(QDialog):
 
-    def __init__(self, default_status_msg):
+    def __init__(self,
+            default_status_msg=_('Welcome to') + ' ' + __appname__+' console',
+            parent=None):
 
-        QMainWindow.__init__(self)
+        QDialog.__init__(self, parent)
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
 
-        self.resize(600, 700)
+        self.resize(800, 600)
+
+        # Setup tool bar {{{
+        self.tool_bar = QToolBar(self)
+        self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.l.addWidget(self.tool_bar)
+        # }}}
 
         # Setup status bar {{{
         self.status_bar = QStatusBar(self)
@@ -28,25 +40,23 @@ class MainWindow(QMainWindow):
         self.status_bar._font.setBold(True)
         self.status_bar.defmsg.setFont(self.status_bar._font)
         self.status_bar.addWidget(self.status_bar.defmsg)
-        self.setStatusBar(self.status_bar)
         # }}}
 
-        # Setup tool bar {{{
-        self.tool_bar = QToolBar(self)
-        self.addToolBar(Qt.BottomToolBarArea, self.tool_bar)
-        self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextOnly)
-        # }}}
-
-        self.editor = Console(parent=self)
-        self.setCentralWidget(self.editor)
-
+        self.console = Console(parent=self)
+        self.console.running.connect(partial(self.status_bar.showMessage,
+            _('Code is running')))
+        self.console.running_done.connect(self.status_bar.clearMessage)
+        self.l.addWidget(self.console)
+        self.l.addWidget(self.status_bar)
+        self.setWindowTitle(__appname__ + ' console')
+        self.setWindowIcon(QIcon(I('console.png')))
 
 
 def main():
     QApplication.setApplicationName(__appname__+' console')
     QApplication.setOrganizationName('Kovid Goyal')
     app = QApplication([])
-    m = MainWindow(_('Welcome to') + ' ' + __appname__+' console')
+    m = MainWindow()
     m.show()
     app.exec_()
 
