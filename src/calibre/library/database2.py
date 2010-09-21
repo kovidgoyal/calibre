@@ -552,10 +552,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return self.field_metadata.sortable_field_keys()
 
     def searchable_fields(self):
-        return self.field_metadata.searchable_field_keys()
+        return self.field_metadata.searchable_fields()
 
     def search_term_to_field_key(self, term):
-        return self.field_metadata.search_term_to_key(term)
+        return self.field_metadata.search_term_to_field_key(term)
 
     def metadata_for_field(self, key):
         return self.field_metadata[key]
