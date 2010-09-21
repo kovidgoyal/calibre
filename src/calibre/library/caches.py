@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, itertools
+import re, itertools, time
 from itertools import repeat
 from datetime import timedelta
 from threading import Thread, RLock
@@ -38,7 +38,6 @@ class CoverCache(Thread):
         self.keep_running = False
 
     def _image_for_id(self, id_):
-        import time
         time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
         img = self.cover_func(id_, index_is_id=True, as_image=True)
         if img is None:
