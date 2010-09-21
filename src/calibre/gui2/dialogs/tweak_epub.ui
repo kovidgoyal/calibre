@@ -71,7 +71,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Explode the ePub to display contents in a file browser window. To tweak individual files, right-click, selecting 'Open with...' your editor of choice. When tweaks are complete, close the file browser window. Rebuild the ePub, updating your calibre library.</string>
+      <string>Explode the ePub to display contents in a file browser window. To tweak individual files, right-click, then 'Open with...' your editor of choice. When tweaks are complete, close the file browser window. Rebuild the ePub, updating your calibre library.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
