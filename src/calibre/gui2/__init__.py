@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
-import os, sys, Queue
+import os, sys, Queue, threading
 from threading import RLock
 
 from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
@@ -311,11 +311,14 @@ class FunctionDispatcher(QObject):
         if not queued:
             typ = Qt.AutoConnection if queued is None else Qt.DirectConnection
         self.dispatch_signal.connect(self.dispatch, type=typ)
+        self.q = Queue.Queue()
+        self.lock = threading.Lock()
 
     def __call__(self, *args, **kwargs):
-        q = Queue.Queue()
-        self.dispatch_signal.emit(q, args, kwargs)
-        return q.get()
+        with self.lock:
+            self.dispatch_signal.emit(self.q, args, kwargs)
+            res = self.q.get()
+        return res
 
     def dispatch(self, q, args, kwargs):
         try:
