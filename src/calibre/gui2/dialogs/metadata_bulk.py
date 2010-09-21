@@ -484,7 +484,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     setter = self.db.set_comment
                 else:
                     setter = getattr(self.db, 'set_'+dest)
-                setter(id, val, notify=False, commit=False)
+                if dest in ['title', 'authors']:
+                    setter(id, val, notify=False)
+                else:
+                    setter(id, val, notify=False, commit=False)
         self.db.commit()
         dynamic['s_r_search_mode'] = self.search_mode.currentIndex()
 

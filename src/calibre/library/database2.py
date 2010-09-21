@@ -407,7 +407,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path = path.lower()
         return path
 
-    def set_path(self, index, index_is_id=False, commit=True):
+    def set_path(self, index, index_is_id=False):
         '''
         Set the path to the directory containing this books files based on its
         current title and author. If there was a previous directory, its contents
@@ -447,8 +447,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
-        if commit:
-            self.conn.commit()
+        self.conn.commit()
         self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
         # Delete not needed directories
         if current_path and os.path.exists(spath):
@@ -1212,7 +1211,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 result.append(r)
         return ' & '.join(result).replace('|', ',')
 
-    def set_authors(self, id, authors, notify=True, commit=True):
+    def set_authors(self, id, authors, notify=True):
         '''
         `authors`: A list of authors.
         '''
@@ -1240,17 +1239,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ss = self.author_sort_from_book(id, index_is_id=True)
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
                           (ss, id))
-        if commit:
-            self.conn.commit()
+        self.conn.commit()
         self.data.set(id, self.FIELD_MAP['authors'],
                       ','.join([a.replace(',', '|') for a in authors]),
                       row_is_id=True)
         self.data.set(id, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
-        self.set_path(id, index_is_id=True, commit=commit)
+        self.set_path(id, index_is_id=True)
         if notify:
             self.notify('metadata', [id])
 
-    def set_title(self, id, title, notify=True, commit=True):
+    def set_title(self, id, title, notify=True):
         if not title:
             return
         if not isinstance(title, unicode):
@@ -1261,9 +1259,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.data.set(id, self.FIELD_MAP['sort'], title_sort(title), row_is_id=True)
         else:
             self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)
-        self.set_path(id, index_is_id=True, commit=commit)
-        if commit:
-            self.conn.commit()
+        self.set_path(id, index_is_id=True)
+        self.conn.commit()
         if notify:
             self.notify('metadata', [id])
 
