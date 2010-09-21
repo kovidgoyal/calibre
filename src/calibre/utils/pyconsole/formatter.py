@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import QTextCharFormat, QFont, QBrush, QColor
 
 from pygments.formatter import Formatter as PF
-from pygments.token import Token
+from pygments.token import Token, Generic
 
 class Formatter(object):
 
@@ -22,11 +22,16 @@ class Formatter(object):
         pf = PF(**options)
         self.styles = {}
         self.normal = self.base_fmt()
+        self.background_color = pf.style.background_color
+        self.color = 'black'
+
         for ttype, ndef in pf.style:
             fmt = self.base_fmt()
             if ndef['color']:
                 fmt.setForeground(QBrush(QColor('#%s'%ndef['color'])))
                 fmt.setUnderlineColor(QColor('#%s'%ndef['color']))
+                if ttype == Generic.Output:
+                    self.color = '#%s'%ndef['color']
             if ndef['bold']:
                 fmt.setFontWeight(QFont.Bold)
             if ndef['italic']:
@@ -39,6 +44,11 @@ class Formatter(object):
                 pass # No support for borders
 
             self.styles[ttype] = fmt
+
+        self.stylesheet = '''
+        QTextEdit { color: %s; background-color: %s }
+        '''%(self.color, self.background_color)
+
 
     def base_fmt(self):
         fmt = QTextCharFormat()
@@ -74,7 +84,7 @@ class Formatter(object):
 
     def render_prompt(self, is_continuation, cursor):
         pr = self.continuation if is_continuation else self.prompt
-        fmt = self.styles[Token.Generic.Subheading]
+        fmt = self.styles[Generic.Prompt]
         cursor.insertText(pr, fmt)
 
 
