@@ -270,18 +270,63 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="1">
-          <widget class="QCheckBox" name="autonumber_series">
-           <property name="toolTip">
-            <string>Selected books will be automatically numbered,
-in the order you selected them.
-So if you selected Book A and then Book B,
+         <item row="8" column="1" colspan="2">
+          <layout class="QHBoxLayout" name="HLayout_3">
+           <item>
+            <widget class="QCheckBox" name="autonumber_series">
+             <property name="toolTip">
+              <string>If not checked, the series number for the books will be set to 1.
+If checked, selected books will be automatically numbered, in the order
+you selected them. So if you selected Book A and then Book B,
 Book A will have series number 1 and Book B series number 2.</string>
-           </property>
-           <property name="text">
-            <string>Automatically number books in this series</string>
-           </property>
-          </widget>
+             </property>
+             <property name="text">
+              <string>Automatically number books in this series</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="series_numbering_restarts">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="toolTip">
+              <string>Series will normally be renumbered from the highest number in the database
+for that series. Checking this box will tell calibre to start numbering
+from the value in the box</string>
+             </property>
+             <property name="text">
+              <string>Force numbers to start with </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="series_start_number">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="HSpacer_34">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </item>
          <item row="10" column="0" colspan="2">
           <widget class="QCheckBox" name="remove_conversion_settings">
@@ -599,7 +644,7 @@ nothing should be put between the original text and the inserted text</string>
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>40</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>

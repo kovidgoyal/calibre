@@ -31,7 +31,8 @@ class Worker(Thread):
     def doit(self):
         remove, add, au, aus, do_aus, rating, pub, do_series, \
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
-            do_remove_conv, do_auto_author, series = self.args
+            do_remove_conv, do_auto_author, series, do_series_restart, \
+                series_start_value = self.args
 
         # first loop: do author and title. These will commit at the end of each
         # operation, because each operation modifies the file system. We want to
@@ -69,7 +70,11 @@ class Worker(Thread):
                 self.db.set_publisher(id, pub, notify=False, commit=False)
 
             if do_series:
-                next = self.db.get_next_series_num_for(series)
+                if do_series_restart:
+                    next = series_start_value
+                    series_start_value += 1
+                else:
+                    next = self.db.get_next_series_num_for(series)
                 self.db.set_series(id, series, notify=False, commit=False)
                 num = next if do_autonumber and series else 1.0
                 self.db.set_series_index(id, num, notify=False, commit=False)
@@ -163,6 +168,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.series.currentIndexChanged[int].connect(self.series_changed)
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
+        self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
 
         if len(db.custom_column_label_map) == 0:
             self.central_widget.removeTab(1)
@@ -538,6 +544,16 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.tags.update_tags_cache(self.db.all_tags())
             self.remove_tags.update_tags_cache(self.db.all_tags())
 
+    def auto_number_changed(self, state):
+        if state:
+            self.series_numbering_restarts.setEnabled(True)
+            self.series_start_number.setEnabled(True)
+        else:
+            self.series_numbering_restarts.setEnabled(False)
+            self.series_numbering_restarts.setChecked(False)
+            self.series_start_number.setEnabled(False)
+            self.series_start_number.setValue(1)
+
     def accept(self):
         if len(self.ids) < 1:
             return QDialog.accept(self)
@@ -566,6 +582,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         do_series = self.write_series
         series = unicode(self.series.currentText()).strip()
         do_autonumber = self.autonumber_series.isChecked()
+        do_series_restart = self.series_numbering_restarts.isChecked()
+        series_start_value = self.series_start_number.value()
         do_remove_format = self.remove_format.currentIndex() > -1
         remove_format = unicode(self.remove_format.currentText())
         do_swap_ta = self.swap_title_and_author.isChecked()
@@ -574,7 +592,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         args = (remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
-                do_remove_conv, do_auto_author, series)
+                do_remove_conv, do_auto_author, series, do_series_restart,
+                series_start_value)
 
         bb = BlockingBusy(_('Applying changes to %d books. This may take a while.')
                 %len(self.ids), parent=self)
