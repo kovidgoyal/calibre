@@ -40,8 +40,7 @@ class TweakEpubAction(InterfaceAction):
                     _('No ePub available. First convert the book to ePub.'),
                     show=True)
 
-
-        # Launch a modal dialog waiting for user to complete or cancel
+        # Launch modal dialog waiting for user to tweak or cancel
         dlg = TweakEpub(self.gui, path_to_epub)
         if dlg.exec_() == dlg.Accepted:
             self.update_db(book_id, dlg._output)

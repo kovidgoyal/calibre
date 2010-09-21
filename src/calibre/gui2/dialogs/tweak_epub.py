@@ -21,8 +21,6 @@ class TweakEpub(QDialog, Ui_Dialog):
     '''
     Display controls for tweaking ePubs
 
-    To do:
-        - need way to kill file browser proc in cleanup()
     '''
 
     def __init__(self, parent, epub):
@@ -30,7 +28,6 @@ class TweakEpub(QDialog, Ui_Dialog):
 
         self._epub = epub
         self._exploded = None
-        #self._file_browser_proc = None
         self._output = None
 
         # Run the dialog setup generated from tweak_epub.ui
