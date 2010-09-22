@@ -1,0 +1,44 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = u'2010, Tomasz Dlugosz <tomek3d@gmail.com>'
+'''
+rmf24.pl
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class RMF24(BasicNewsRecipe):
+    title          = u'Rmf24.pl - Fakty'
+    description    = u'Fakty ze strony rmf24.pl'
+    language = 'pl'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    __author__ = u'Tomasz D\u0142ugosz'
+    no_stylesheets = True
+    remove_javascript = True
+
+    feeds          = [(u'Kraj', u'http://www.rmf24.pl/fakty/polska/feed'),
+                      (u'\u015awiat', u'http://www.rmf24.pl/fakty/swiat/feed')]
+
+    keep_only_tags = [dict(name='div', attrs={'class':'box articleSingle print'})]
+
+    remove_tags = [
+        dict(name='div', attrs={'id':'adBox625'}),
+        dict(name='div', attrs={'class':'toTop'}),
+        dict(name='div', attrs={'class':'category'}),
+        dict(name='div', attrs={'class':'REMOVE'}),
+        dict(name='div', attrs={'class':'embed embedAd'})]
+
+    extra_css = '''
+        h1 { font-size: 1.2em; }
+        '''
+    preprocess_regexps = [
+        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
+        [
+            (r'<h2>Zdj.cie</h2>', lambda match: ''),
+            (r'embed embed(Left|Right|Center) articleEmbed(Audio|Wideo articleEmbedVideo|ArticleFull|ArticleTitle|ArticleListTitle|AlbumHorizontal)">', lambda match: 'REMOVE">'),
+            (r'<a href="http://www.facebook.com/pages/RMF24pl/.*?>RMF24.pl</a> on Facebook</div>', lambda match: '</div>')
+        ]
+    ]
