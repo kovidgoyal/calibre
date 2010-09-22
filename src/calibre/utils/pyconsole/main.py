@@ -52,7 +52,7 @@ class MainWindow(QDialog):
         self.setWindowTitle(__appname__ + ' console')
         self.setWindowIcon(QIcon(I('console.png')))
 
-        self.restart_action = QAction(_('Restart'), self)
+        self.restart_action = QAction(_('Restart console'), self)
         self.restart_action.setShortcut(_('Ctrl+R'))
         self.addAction(self.restart_action)
         self.restart_action.triggered.connect(self.restart)

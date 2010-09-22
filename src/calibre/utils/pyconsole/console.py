@@ -9,7 +9,7 @@ import sys, textwrap, traceback, StringIO
 from functools import partial
 
 from PyQt4.Qt import QTextEdit, Qt, QTextFrameFormat, pyqtSignal, \
-    QCoreApplication, QColor, QPalette, QMenu, QActionGroup
+    QApplication, QColor, QPalette, QMenu, QActionGroup
 
 from pygments.lexers import PythonLexer, PythonTracebackLexer
 from pygments.styles import get_all_styles
@@ -278,7 +278,7 @@ class Console(QTextEdit):
         except:
             prints(tb, end='')
         self.ensureCursorVisible()
-        QCoreApplication.processEvents()
+        QApplication.processEvents()
 
     def show_output(self, raw):
         def do_show():
@@ -296,7 +296,7 @@ class Console(QTextEdit):
         else:
             do_show()
         self.ensureCursorVisible()
-        QCoreApplication.processEvents()
+        QApplication.processEvents()
 
     # }}}
 
@@ -360,14 +360,23 @@ class Console(QTextEdit):
 
     def home_pressed(self):
         if self.prompt_frame is not None:
-            c = self.cursor
-            c.movePosition(c.StartOfLine)
-            c.movePosition(c.NextCharacter, n=self.prompt_len)
-            self.setTextCursor(c)
+            mods = QApplication.keyboardModifiers()
+            ctrl = bool(int(mods & Qt.CTRL))
+            if ctrl:
+                self.cursor_pos = (0, self.prompt_len)
+            else:
+                c = self.cursor
+                c.movePosition(c.StartOfLine)
+                c.movePosition(c.NextCharacter, n=self.prompt_len)
+                self.setTextCursor(c)
             self.ensureCursorVisible()
 
     def end_pressed(self):
         if self.prompt_frame is not None:
+            mods = QApplication.keyboardModifiers()
+            ctrl = bool(int(mods & Qt.CTRL))
+            if ctrl:
+                self.cursor_pos = (len(list(self.prompt()))-1, self.prompt_len)
             c = self.cursor
             c.movePosition(c.EndOfLine)
             self.setTextCursor(c)
