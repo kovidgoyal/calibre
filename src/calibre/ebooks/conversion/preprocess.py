@@ -62,49 +62,97 @@ def wrap_lines(match):
     else:
                return ital+' '
 
-def line_length(format, raw, percent):
+def line_length(format, raw, percent, test_type):
     '''
-    raw is the raw text to find the line length to use for wrapping.
+    Analyses the document to see if hard line breaks exist or to find the 
+    median line length.
+    format is the type of document analysis will be done against.
+    raw is the raw text to determine the line length to use for wrapping.
     percentage is a decimal number, 0 - 1 which is used to determine
     how far in the list of line lengths to use. The list of line lengths is
     ordered smallest to larged and does not include duplicates. 0.5 is the
     median value.
+    test_type sets whether to use the line length to return the median or a
+    do a histogram analysis to see if unwrapping is required.
     '''
     raw = raw.replace('&nbsp;', ' ')
     if format == 'html':
-        linere = re.compile('(?<=<p).*?(?=</p>)', re.DOTALL)
+        linere = re.compile('(?<=<p)(?![^>]*>\s*</p>).*?(?=</p>)', re.DOTALL)
     elif format == 'pdf':
         linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
     elif format == 'spanned_html':
         linere = re.compile('(?<=<span).*?(?=</span>)', re.DOTALL)
     lines = linere.findall(raw)
 
-    lengths = []
-    for line in lines:
-        if len(line) > 0:
-            lengths.append(len(line))
+    if test_type == 'median':
+        lengths = []
+        for line in lines:
+            if len(line) > 0:
+                lengths.append(len(line))
 
-    if not lengths:
-        return 0
+        if not lengths:
+            return 0
 
-    lengths = list(set(lengths))
-    total = sum(lengths)
-    avg = total / len(lengths)
-    max_line = avg * 2
+        lengths = list(set(lengths))
+        total = sum(lengths)
+        avg = total / len(lengths)
+        max_line = avg * 2
 
-    lengths = sorted(lengths)
-    for i in range(len(lengths) - 1, -1, -1):
-        if lengths[i] > max_line:
-            del lengths[i]
+        lengths = sorted(lengths)
+        for i in range(len(lengths) - 1, -1, -1):
+            if lengths[i] > max_line:
+                del lengths[i]
 
-    if percent > 1:
-        percent = 1
-    if percent < 0:
-        percent = 0
+        if percent > 1:
+            percent = 1
+        if percent < 0:
+            percent = 0
 
-    index = int(len(lengths) * percent) - 1
+        index = int(len(lengths) * percent) - 1
 
-    return lengths[index]
+        return lengths[index]
+
+    if test_type == 'histogram':
+        minLineLength=20 # Ignore lines under 20 chars (typical of spaces)
+        maxLineLength=1900 # Discard larger than this to stay in range
+        buckets=20 # Each line is divided into a bucket based on length
+
+        #print "there are "+str(len(lines))+" lines"
+        max = 0
+        for line in lines:
+            l = len(line)
+            if l > max:
+                max = l
+        print "max line found is "+str(max)
+        # Build the line length histogram
+        hRaw = [ 0 for i in range(0,buckets) ]
+        for line in lines:
+            l = len(line)
+            if l > minLineLength and l < maxLineLength:
+                    l = int(l/100)
+                    #print "adding "+str(l)
+                    hRaw[l]+=1
+
+        # Normalize the histogram into percents
+        totalLines = len(lines)
+        h = [ float(count)/totalLines for count in hRaw ]
+        print "\nhRaw histogram lengths are: "+str(hRaw)
+        print "              percents are: "+str(h)+"\n"
+        
+        # Find the biggest bucket
+        maxValue = 0
+        peakPosition = 0
+        for i in range(0,len(h)):
+            if h[i] > maxValue:
+                maxValue = h[i]
+                peakPosition = i
+
+        if maxValue < percent:
+            #print "Line lengths are too variable. Not unwrapping."
+            return False
+        else:
+            #print str(maxValue)+" of the lines were in one bucket"
+            return True
 
 class Dehyphenator(object):
     '''
@@ -117,7 +165,7 @@ class Dehyphenator(object):
     def __init__(self):
         # Add common suffixes to the regex below to increase the likelihood of a match -
         # don't add suffixes which are also complete words, such as 'able' or 'sex'
-        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
+        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
         # remove prefixes if the prefix was not already the point of hyphenation
         self.prefixes = re.compile(r'^(un|in|ex)$', re.IGNORECASE)
         self.removeprefix = re.compile(r'^(un|in|ex)', re.IGNORECASE)
@@ -125,33 +173,53 @@ class Dehyphenator(object):
     def dehyphenate(self, match):
         firsthalf = match.group('firstpart')
         secondhalf = match.group('secondpart')
+        try:
+            wraptags = match.group('wraptags')
+        except:
+            wraptags = ''
         hyphenated = str(firsthalf) + "-" + str(secondhalf)
         dehyphenated = str(firsthalf) + str(secondhalf)
         lookupword = self.removesuffixes.sub('', dehyphenated)
         if self.prefixes.match(firsthalf) is None:
            lookupword = self.removeprefix.sub('', lookupword)
         booklookup = re.compile(u'%s' % lookupword, re.IGNORECASE)
-        #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
-        match = booklookup.search(self.html)
-        if match:
-            #print "returned dehyphenated word: " + str(dehyphenated)
-            return dehyphenated
+        print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
+        if self.format == 'html_cleanup':
+           match = booklookup.search(self.html)
+           hyphenmatch = re.search(u'%s' % hyphenated, self.html)
+           if match:
+               print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
+               return dehyphenated
+           elif hyphenmatch:
+               print "Cleanup:returned hyphenated word: " + str(hyphenated)
+               return hyphenated
+           else:
+               print "Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf)
+               return firsthalf+u'\u2014'+wraptags+secondhalf
+               
         else:
-            #print "returned hyphenated word: " + str(hyphenated)
-            return hyphenated
+            match = booklookup.search(self.html)
+            if match:
+                print "returned dehyphenated word: " + str(dehyphenated)
+                return dehyphenated
+            else:
+                print "returned hyphenated word: " + str(hyphenated)
+                return hyphenated
 
     def __call__(self, html, format, length=1):
         self.html = html
+        self.format = format
         if format == 'html':
-            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^“"\s>]+)-\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)' % length)
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^“"\s>]+)-\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)' % length)
         elif format == 'pdf':
-            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^“"\s>]+)-\s*(<p>|</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)'% length)
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^“"\s>]+)-\s*(?P<wraptags><p>|</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)'% length)
         elif format == 'individual_words':
             intextmatch = re.compile('>[^<]*\b(?P<firstpart>[^"\s>]+)-(?P<secondpart)\w+)\b[^<]*<') # for later, not called anywhere yet
+        elif format == 'html_cleanup':
+            intextmatch = re.compile(u'(?P<firstpart>[^“"\s>]+)-\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)')
 
         html = intextmatch.sub(self.dehyphenate, html)
         return html
-
 
 class CSSPreProcessor(object):
 
@@ -388,7 +456,7 @@ class HTMLPreProcessor(object):
                 end_rules.append((re.compile(r'<p>\s*(?P<chap>(<[ibu]>){0,2}\s*([A-Z \'"!]{3,})\s*([\dA-Z:]+\s){0,4}\s*(</[ibu]>){0,2})\s*<p>\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<p>)?'), chap_head),)
 
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
-            length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'))
+            length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'), 'median')
             if length:
                 # print "The pdf line length returned is " + str(length)
                 end_rules.append(

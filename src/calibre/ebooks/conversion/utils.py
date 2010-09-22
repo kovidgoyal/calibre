@@ -153,7 +153,6 @@ class PreProcessor(object):
 
         ###### Unwrap lines ######
         #
-        self.log("Unwrapping Lines")
         # Some OCR sourced files have line breaks in the html using a combination of span & p tags
         # span are used for hard line breaks, p for new paragraphs.  Determine which is used so
         # that lines can be un-wrapped across page boundaries
@@ -168,25 +167,40 @@ class PreProcessor(object):
                 format = 'html'
         else:
             format = 'html'
-
+        # Check Line histogram to determine if the document uses hard line breaks, If 50% or 
+        # more of the lines break in the same region of the document then unwrapping is required
+        hardbreaks = line_length(format, html, .50, 'histogram')
+        print "Hard line breaks check returned "+str(hardbreaks)
         # Calculate Length
-        length = line_length(format, html, getattr(self.extra_opts,
-            'html_unwrap_factor', 0.4))
+        unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
+        length = line_length(format, html, unwrap_factor, 'median')
         self.log("*** Median line length is " + str(length) + ", calculated with " + format + " format ***")
-        max_length = length * 1.4
-        min_max = str("(?<=.{"+str(length)+"})(?<!.{"+str(max_length)+"})")
-        #
-        # Unwrap em/en dashes, delete soft-hyphens
-        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")
+        # only go through unwrapping code if the histogram shows unwrapping is required or if the user decreased the default unwrap_factor
+        if hardbreaks or unwrap_factor < 0.4:
+            self.log("Unwrapping required, unwrapping Lines")
+            # Unwrap em/en dashes
+            #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")
+            html = re.sub(u'(?<=.{%i}[\u2013\u2014])\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?=[[a-z\d])' % length, '', html)
+            # Dehyphenate
+            self.log("Unwrapping/Removing hyphens")
+            dehyphenator = Dehyphenator()
+            html = dehyphenator(html,'html', length)
+            self.log("Done dehyphenating")
+            # Unwrap lines using punctation and line length
+            unwrap = re.compile(r"(?<=.{%i}([a-z,;):\IA]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
+            html = unwrap.sub(' ', html)
+            #check any remaining hyphens, but only unwrap if there is a match
+            dehyphenator = Dehyphenator()
+            html = dehyphenator(html,'html_cleanup', length)
+        else:
+            # dehyphenate in cleanup mode to fix anything previous conversions/editing missed
+            self.log("Cleaning up hyphenation")
+            dehyphenator = Dehyphenator()
+            html = dehyphenator(html,'html_cleanup', length)
+            self.log("Done dehyphenating")
+            
+        # delete soft hyphens
         html = re.sub(u'\xad\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
-        html = re.sub(u'%s(?<=[\u2013\u2014])\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?=[[a-z\d])' % min_max, '', html)
-        # Dehyphenate
-        dehyphenator = Dehyphenator()
-        html = dehyphenator(html,'html', length)
-
-        # Unwrap lines using punctation and line length
-        unwrap = re.compile(r"(?<=.{%i}([a-z,;):\IA]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
-        html = unwrap.sub(' ', html)
 
         # If still no sections after unwrapping mark split points on lines with no punctuation
         if self.html_preprocess_sections < 10:
