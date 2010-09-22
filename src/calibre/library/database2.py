@@ -451,9 +451,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 parent = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
                     self.rmtree(parent, permanent=True)
-        '''
-        This is commented out as it can lead to book file loss if the second
-        rename fails. This makes it not worthwhile, IMO.
 
         curpath = self.library_path
         c1, c2 = current_path.split('/'), path.split('/')
@@ -469,15 +466,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # the directories, so no need to do them here.
             for oldseg, newseg in zip(c1, c2):
                 if oldseg.lower() == newseg.lower() and oldseg != newseg:
-                    while True:
-                        # need a temp name in the current segment for renames
-                        tempname = os.path.join(curpath, 'TEMP.%f'%time.time())
-                        if not os.path.exists(tempname):
-                            break
-                    os.rename(os.path.join(curpath, oldseg), tempname)
-                    os.rename(tempname, os.path.join(curpath, newseg))
+                    try:
+                        os.rename(os.path.join(curpath, oldseg), os.path.join(curpath, newseg))
+                    except:
+                        break # Fail silently since nothing catastrophic has happened
                 curpath = os.path.join(curpath, newseg)
-        '''
 
     def add_listener(self, listener):
         '''
