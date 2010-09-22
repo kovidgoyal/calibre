@@ -21,8 +21,8 @@ class Novosti(BasicNewsRecipe):
     encoding              = 'utf-8'
     language              = 'sr'
     publication_type      = 'newspaper'
-    extra_css             = """ @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} 
-                                .article_description,body{font-family: Arial,Helvetica,sans1,sans-serif} 
+    extra_css             = """ @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                                .article_description,body{font-family: Arial,Helvetica,sans1,sans-serif}
                                 .author{font-size: small}
                                 .articleLead{font-size: large; font-weight: bold}
                             """
@@ -47,6 +47,8 @@ class Novosti(BasicNewsRecipe):
             item.name='p'
         for item in soup.findAll('img'):
             if not item.has_key('alt'):
-               item['alt'] = 'image'    
+               item['alt'] = 'image'
         return soup
- 
+
+
+

@@ -11,6 +11,10 @@ import re
 
 from calibre.devices.usbms.driver import USBMS
 
+def is_alex(device_info):
+    return device_info[3] == u'Linux 2.6.28 with pxa3xx_u2d' and \
+            device_info[4] == u'Seleucia Disk'
+
 class N516(USBMS):
 
     name           = 'N516 driver'
@@ -33,6 +37,9 @@ class N516(USBMS):
 
     EBOOK_DIR_MAIN = 'e_book'
     SUPPORTS_SUB_DIRS = True
+
+    def can_handle(self, device_info, debug=False):
+        return not is_alex(device_info)
 
 class THEBOOK(N516):
     name = 'The Book driver'
@@ -61,6 +68,9 @@ class ALEX(N516):
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = True
 
+    def can_handle(self, device_info, debug=False):
+        return is_alex(device_info)
+
 class AZBOOKA(ALEX):
 
     name = 'Azbooka driver'
@@ -73,6 +83,9 @@ class AZBOOKA(ALEX):
     MAIN_MEMORY_VOLUME_LABEL  = 'Azbooka Internal Memory'
 
     EBOOK_DIR_MAIN = ''
+
+    def can_handle(self, device_info, debug=False):
+        return not is_alex(device_info)
 
 
 class EB511(USBMS):
