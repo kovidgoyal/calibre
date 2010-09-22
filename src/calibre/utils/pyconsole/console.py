@@ -143,6 +143,8 @@ class Console(QTextEdit):
                 Qt.Key_End : self.end_pressed,
                 Qt.Key_Left : self.left_pressed,
                 Qt.Key_Right : self.right_pressed,
+                Qt.Key_Backspace : self.backspace_pressed,
+                Qt.Key_Delete : self.delete_pressed,
         } # }}}
 
         motd = textwrap.dedent('''\
@@ -325,6 +327,22 @@ class Console(QTextEdit):
             c.movePosition(c.Up)
             c.movePosition(c.EndOfLine)
             self.setTextCursor(c)
+        self.ensureCursorVisible()
+
+    def backspace_pressed(self):
+        lineno, pos = self.cursor_pos
+        if lineno < 0: return
+        if pos > self.prompt_len:
+            self.cursor.deletePreviousChar()
+        elif lineno > 0:
+            c = self.cursor
+            c.movePosition(c.Up)
+            c.movePosition(c.EndOfLine)
+            self.setTextCursor(c)
+        self.ensureCursorVisible()
+
+    def delete_pressed(self):
+        self.cursor.deleteChar()
         self.ensureCursorVisible()
 
     def right_pressed(self):
