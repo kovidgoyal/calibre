@@ -32,24 +32,30 @@ class Worker(Thread):
         remove, add, au, aus, do_aus, rating, pub, do_series, \
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
-                series_start_value = self.args
+            series_start_value, do_title_case = self.args
 
         # first loop: do author and title. These will commit at the end of each
         # operation, because each operation modifies the file system. We want to
         # try hard to keep the DB and the file system in sync, even in the face
         # of exceptions or forced exits.
         for id in self.ids:
+            title_set = False
             if do_swap_ta:
                 title = self.db.title(id, index_is_id=True)
                 aum = self.db.authors(id, index_is_id=True)
                 if aum:
                     aum = [a.strip().replace('|', ',') for a in aum.split(',')]
                     new_title = authors_to_string(aum)
+                    if do_title_case:
+                        new_title = new_title.title()
                     self.db.set_title(id, new_title, notify=False)
+                    title_set = True
                 if title:
                     new_authors = string_to_authors(title)
                     self.db.set_authors(id, new_authors, notify=False)
-
+            if do_title_case and not title_set:
+                title = self.db.title(id, index_is_id=True)
+                self.db.set_title(id, title.title(), notify=False)
             if au:
                 self.db.set_authors(id, string_to_authors(au), notify=False)
 
@@ -182,19 +188,22 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.search_for.initialize('bulk_edit_search_for')
         self.replace_with.initialize('bulk_edit_replace_with')
         self.test_text.initialize('bulk_edit_test_test')
-        fields = ['']
+        self.all_fields = ['']
+        self.writable_fields = ['']
         fm = self.db.field_metadata
         for f in fm:
             if (f in ['author_sort'] or (
-                fm[f]['datatype'] == 'text' or fm[f]['datatype'] == 'series')
+                fm[f]['datatype'] in ['text', 'series'])
                     and fm[f].get('search_terms', None)
                     and f not in ['formats', 'ondevice']):
-                fields.append(f)
-        fields.sort()
-        self.search_field.addItems(fields)
-        self.search_field.setMaxVisibleItems(min(len(fields), 20))
-        self.destination_field.addItems(fields)
-        self.destination_field.setMaxVisibleItems(min(len(fields), 20))
+                self.all_fields.append(f)
+                self.writable_fields.append(f)
+            if fm[f]['datatype'] == 'composite':
+                self.all_fields.append(f)
+        self.all_fields.sort()
+        self.writable_fields.sort()
+        self.search_field.setMaxVisibleItems(20)
+        self.destination_field.setMaxVisibleItems(20)
         offset = 10
         self.s_r_number_of_books = min(10, len(self.ids))
         for i in range(1,self.s_r_number_of_books+1):
@@ -262,7 +271,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         self.replace_func.addItems(sorted(self.s_r_functions.keys()))
         self.search_mode.currentIndexChanged[int].connect(self.s_r_search_mode_changed)
-        self.search_field.currentIndexChanged[str].connect(self.s_r_search_field_changed)
+        self.search_field.currentIndexChanged[int].connect(self.s_r_search_field_changed)
         self.destination_field.currentIndexChanged[str].connect(self.s_r_destination_field_changed)
 
         self.replace_mode.currentIndexChanged[int].connect(self.s_r_paint_results)
@@ -293,15 +302,18 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             val = []
         return val
 
-    def s_r_search_field_changed(self, txt):
-        txt = unicode(txt)
+    def s_r_search_field_changed(self, idx):
         for i in range(0, self.s_r_number_of_books):
             w = getattr(self, 'book_%d_text'%(i+1))
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
             src = unicode(self.search_field.currentText())
             t = self.s_r_get_field(mi, src)
             w.setText(''.join(t[0:1]))
-        self.s_r_paint_results(None)
+
+        if self.search_mode.currentIndex() == 0:
+            self.destination_field.setCurrentIndex(idx)
+        else:
+            self.s_r_paint_results(None)
 
     def s_r_destination_field_changed(self, txt):
         txt = unicode(txt)
@@ -314,7 +326,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.s_r_paint_results(None)
 
     def s_r_search_mode_changed(self, val):
+        self.search_field.clear()
+        self.destination_field.clear()
         if val == 0:
+            self.search_field.addItems(self.writable_fields)
+            self.destination_field.addItems(self.writable_fields)
             self.destination_field.setCurrentIndex(0)
             self.destination_field.setVisible(False)
             self.destination_field_label.setVisible(False)
@@ -324,6 +340,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.comma_separated.setVisible(False)
             self.s_r_heading.setText('<p>'+self.main_heading + self.character_heading)
         else:
+            self.search_field.addItems(self.all_fields)
+            self.destination_field.addItems(self.writable_fields)
             self.destination_field.setVisible(True)
             self.destination_field_label.setVisible(True)
             self.replace_mode.setVisible(True)
@@ -367,6 +385,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             return ''
         dest = unicode(self.destination_field.currentText())
         if dest == '':
+            if self.db.metadata_for_field(src)['datatype'] == 'composite':
+                raise Exception(_('You must specify a destination when source is a composite field'))
             dest = src
         dest_mode = self.replace_mode.currentIndex()
 
@@ -433,8 +453,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 t = self.s_r_replace_mode_separator().join(t)
                 wr.setText(t)
             except Exception as e:
-                import traceback
-                traceback.print_exc()
                 self.s_r_error = e
                 self.s_r_set_colors()
                 break
@@ -592,11 +610,12 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         do_swap_ta = self.swap_title_and_author.isChecked()
         do_remove_conv = self.remove_conversion_settings.isChecked()
         do_auto_author = self.auto_author_sort.isChecked()
+        do_title_case = self.change_title_to_title_case.isChecked()
 
         args = (remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
-                series_start_value)
+                series_start_value, do_title_case)
 
         bb = BlockingBusy(_('Applying changes to %d books. This may take a while.')
                 %len(self.ids), parent=self)

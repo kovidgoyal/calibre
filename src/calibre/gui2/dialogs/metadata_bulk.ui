@@ -270,6 +270,17 @@
            </property>
           </widget>
          </item>
+         <item row="12" column="0" colspan="2">
+          <widget class="QCheckBox" name="change_title_to_title_case">
+           <property name="text">
+            <string>Change title to title case</string>
+           </property>
+           <property name="toolTip">
+            <string>Force the title to be in title case. If both this and swap authors are checked,
+title and author are swapped before the title case is set</string>
+           </property>
+          </widget>
+         </item>
          <item row="8" column="1" colspan="2">
           <layout class="QHBoxLayout" name="HLayout_3">
            <item>
@@ -340,7 +351,7 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="12" column="0" colspan="3">
+         <item row="15" column="0" colspan="3">
           <spacer name="verticalSpacer_2">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
