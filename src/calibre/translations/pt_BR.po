@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-17 21:00+0000\n"
-"PO-Revision-Date: 2010-09-17 22:39+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-09-21 23:29+0000\n"
+"Last-Translator: Sergio S. Santos <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-18 04:50+0000\n"
+"X-Launchpad-Export-Date: 2010-09-22 05:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -393,7 +393,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:811
 msgid "Sharing over the net"
-msgstr ""
+msgstr "Compartilhando pela rede"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid ""
@@ -424,7 +424,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr ""
+msgstr "Ajuste fino de como o Calibre se comporta em vários contextos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid "Miscellaneous"
@@ -709,11 +709,11 @@ msgstr "concluído"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:544
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Usar Séries como categorias no iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:546
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "Cache das capas vindas do iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:558
 msgid ""
@@ -1755,6 +1755,9 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
+"Converte aspas planas, traços e elipses (três pontos) para seus equivalentes "
+"tipográficos corretos. Para detalhes, acesse "
+"http://daringfireball.net/projects/smartypants"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:384
 msgid "Use a regular expression to try and remove the header."
@@ -1915,7 +1918,7 @@ msgstr "Criando"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr ""
+msgstr "Falha no parse: %s com o erro: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
@@ -2560,7 +2563,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:79
 msgid "Download covers from openlibrary.org"
-msgstr ""
+msgstr "Faça o download de capas a partir da openlibrary.org"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:107
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:136
@@ -2569,7 +2572,7 @@ msgstr "ISBN: %s não encontrado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:117
 msgid "Download covers from librarything.com"
-msgstr ""
+msgstr "Faça o download de capas a partir da librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:128
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:68
