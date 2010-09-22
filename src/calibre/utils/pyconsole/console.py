@@ -6,16 +6,18 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, textwrap, traceback, StringIO
+from functools import partial
 
 from PyQt4.Qt import QTextEdit, Qt, QTextFrameFormat, pyqtSignal, \
-    QCoreApplication
+    QCoreApplication, QColor, QPalette, QMenu, QActionGroup
 
 from pygments.lexers import PythonLexer, PythonTracebackLexer
+from pygments.styles import get_all_styles
 
 from calibre.constants import __appname__, __version__
 from calibre.utils.pyconsole.formatter import Formatter
 from calibre.utils.pyconsole.repl import Interpreter, DummyFile
-from calibre.utils.pyconsole import prints
+from calibre.utils.pyconsole import prints, prefs
 from calibre.gui2 import error_dialog
 
 class EditBlock(object): # {{{
@@ -46,6 +48,28 @@ class Prepender(object): # {{{
     def __exit__(self, *args):
         self.console.cursor_pos = self.opos
 # }}}
+
+class ThemeMenu(QMenu):
+
+    def __init__(self, parent):
+        QMenu.__init__(self, _('Choose theme (needs restart)'))
+        parent.addMenu(self)
+        self.group = QActionGroup(self)
+        current = prefs['theme']
+        alls = list(sorted(get_all_styles()))
+        if current not in alls:
+            current = prefs['theme'] = 'default'
+        self.actions = []
+        for style in alls:
+            ac = self.group.addAction(style)
+            if current == style:
+                ac.setChecked(True)
+            self.actions.append(ac)
+            ac.triggered.connect(partial(self.set_theme, style))
+            self.addAction(ac)
+
+    def set_theme(self, style, *args):
+        prefs['theme'] = style
 
 
 class Console(QTextEdit):
@@ -99,8 +123,16 @@ class Console(QTextEdit):
         self.doc.setMaximumBlockCount(10000)
         self.lexer = PythonLexer(ensurenl=False)
         self.tb_lexer = PythonTracebackLexer()
-        self.formatter = Formatter(prompt, continuation, style='default')
-        self.setStyleSheet(self.formatter.stylesheet)
+
+        self.context_menu = cm = QMenu(self) # {{{
+        cm.theme = ThemeMenu(cm)
+        # }}}
+
+        self.formatter = Formatter(prompt, continuation, style=prefs['theme'])
+        p = QPalette()
+        p.setColor(p.Base, QColor(self.formatter.background_color))
+        p.setColor(p.Text, QColor(self.formatter.color))
+        self.setPalette(p)
 
         self.key_dispatcher = { # {{{
                 Qt.Key_Enter : self.enter_pressed,
@@ -126,6 +158,10 @@ class Console(QTextEdit):
         self.interpreter.show_error.connect(self.show_error)
 
         sys.excepthook = self.unhandled_exception
+
+    def contextMenuEvent(self, event):
+        self.context_menu.popup(event.globalPos())
+        event.accept()
 
 
     # Prompt management {{{

@@ -48,10 +48,6 @@ class Formatter(object):
 
             self.styles[ttype] = fmt
 
-        self.stylesheet = '''
-        QTextEdit { color: %s; background-color: %s }
-        '''%(self.color, self.background_color)
-
     def get_fmt(self, token):
         if type(token) != type(Token.Generic):
             token = string_to_tokentype(token)

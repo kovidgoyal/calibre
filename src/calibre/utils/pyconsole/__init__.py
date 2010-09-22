@@ -8,14 +8,18 @@ __docformat__ = 'restructuredtext en'
 import sys
 
 from calibre import prints as prints_
-from calibre.utils.config import Config, StringConfig
+from calibre.utils.config import Config, ConfigProxy
 
 
-def console_config(defaults=None):
-    desc=_('Settings to control the calibre content server')
-    c = Config('console', desc) if defaults is None else StringConfig(defaults, desc)
+def console_config():
+    desc='Settings to control the calibre console'
+    c = Config('console', desc)
 
-    c.add_opt('--theme', default='default', help='The color theme')
+    c.add_opt('theme', default='default', help='The color theme')
+
+    return c
+
+prefs = ConfigProxy(console_config())
 
 
 def prints(*args, **kwargs):
