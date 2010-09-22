@@ -40,7 +40,20 @@ and if a book does not have a series::
 Advanced formatting
 ----------------------
 
-You can do more than just simple substitution with the templates. You can also control how the substituted data is formatted. For instance, suppose you wanted to ensure that the series_index is always formatted as three digits with leading zeros. This would do the trick::
+You can do more than just simple substitution with the templates. You can also conditionally include text and control how the substituted data is formatted. 
+
+Regarding conditionally including text: there are cases where you might want to have text appear in the output only if a field is not empty. A common case is series and series_index, where you want either nothing or the two values with a hyphen between them. Calibre handles this case using a special field syntax.
+For example, assume you want to use the template
+
+        {series} - {series_index} - {title}
+
+Unfortunately, if the book has no series, the answer will be '- - title'. Many people would rather it be simply 'title', without the hyphens. To do this, use the extended syntax {some_text|field|other_text}. When you use this syntax, if field has the value SERIES then the result will be some_textSERIESother_text. If field has no value, then the result will be the empty string (nothing). Using this syntax, we can solve the above series problem with the template
+
+        {series}{ - |series_index| - }{title}
+
+The hyphens will be included only if the book has a series index. Note: you must either use no | characters or both of them. Using one, such as in {field| - }, is not allowed. It is OK to not provide any text for one side or the other, such as in {|series| - }. Using {|title|} is the same as using {title}.
+
+Now to formatting. Suppose you wanted to ensure that the series_index is always formatted as three digits with leading zeros. This would do the trick::
 
     {series_index:0>3s} - Three digits with leading zeros
 
