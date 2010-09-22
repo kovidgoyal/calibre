@@ -120,7 +120,7 @@ class SafeFormat(string.Formatter):
         try:
             prefix, key, suffix = explode_string_template_value(key)
             if kwargs[key]:
-                return '%s%s%s'%(prefix, kwargs[key], suffix)
+                return prefix + kwargs[key] + suffix
             return ''
         except:
             return ''
