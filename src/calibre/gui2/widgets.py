@@ -863,11 +863,11 @@ class SplitterHandle(QSplitterHandle):
             self.update()
 
     def paintEvent(self, ev):
+        QSplitterHandle.paintEvent(self, ev)
         if self.highlight:
             painter = QPainter(self)
             painter.setClipRect(ev.rect())
             painter.fillRect(self.rect(), Qt.yellow)
-        QSplitterHandle.paintEvent(self, ev)
 
     def mouseDoubleClickEvent(self, ev):
         self.double_clicked.emit(self)
