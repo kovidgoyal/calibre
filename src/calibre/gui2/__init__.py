@@ -603,18 +603,6 @@ class Application(QApplication):
         self._file_open_paths = []
         self._file_open_lock = RLock()
 
-        if islinux:
-            self.setStyleSheet('''
-                    QToolTip {
-                        border: 2px solid black;
-                        padding: 5px;
-                        border-radius: 10px;
-                        opacity: 200;
-                        background-color: #e1e1ff;
-                        color: black;
-                    }
-            ''')
-
     def _send_file_open_events(self):
         with self._file_open_lock:
             if self._file_open_paths:
