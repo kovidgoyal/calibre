@@ -43,7 +43,7 @@ class SafeFormat(string.Formatter):
             ign, v = mi.format_field(key, series_with_index=False)
             if v is None:
                 return ''
-            if v is '':
+            if v == '':
                 return ''
             return prefix + v + suffix
         except:
@@ -444,7 +444,7 @@ class Metadata(object):
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
-            return (name, res, orig_res, cmeta)
+            return (name, unicode(res), orig_res, cmeta)
 
         if key in field_metadata and field_metadata[key]['kind'] == 'field':
             res = self.get(key, None)
@@ -462,7 +462,7 @@ class Metadata(object):
                 res = res + ' [%s]'%self.format_series_index()
             elif datatype == 'datetime':
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
-            return (name, res, orig_res, fmeta)
+            return (name, unicode(res), orig_res, fmeta)
 
         return (None, None, None, None)
 

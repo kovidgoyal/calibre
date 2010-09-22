@@ -101,7 +101,8 @@ def preprocess_template(template):
         template = template.decode(preferred_encoding, 'replace')
     return template
 
-template_value_re = re.compile(r'^([^\|]*(?=\|))(?:\|?)([^\|]*)(?:\|?)((?<=\|).*?)$')
+template_value_re = re.compile(r'^([^\|]*(?=\|))(?:\|?)([^\|]*)(?:\|?)((?<=\|).*?)$',
+                               flags= re.UNICODE)
 
 def explode_string_template_value(key):
     try:
@@ -120,7 +121,7 @@ class SafeFormat(string.Formatter):
         try:
             prefix, key, suffix = explode_string_template_value(key)
             if kwargs[key]:
-                return prefix + kwargs[key] + suffix
+                return prefix + unicode(kwargs[key]) + suffix
             return ''
         except:
             return ''
