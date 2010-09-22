@@ -451,6 +451,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 parent = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
                     self.rmtree(parent, permanent=True)
+        '''
+        This is commented out as it can lead to book file loss if the second
+        rename fails. This makes it not worthwhile, IMO.
+
         curpath = self.library_path
         c1, c2 = current_path.split('/'), path.split('/')
         if not self.is_case_sensitive and len(c1) == len(c2):
@@ -473,6 +477,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     os.rename(os.path.join(curpath, oldseg), tempname)
                     os.rename(tempname, os.path.join(curpath, newseg))
                 curpath = os.path.join(curpath, newseg)
+        '''
 
     def add_listener(self, listener):
         '''
