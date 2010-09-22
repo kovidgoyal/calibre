@@ -49,7 +49,11 @@ class Danas(BasicNewsRecipe):
                         , 'language'         : language
                         }
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    preprocess_regexps = [ 
+                           (re.compile(u'\u0110'), lambda match: u'\u00D0')
+                          ,(re.compile(u'\u201c'), lambda match: '"')
+                          ,(re.compile(u'\u201e'), lambda match: '"')
+                         ]
 
     keep_only_tags     = [dict(name='div', attrs={'id':'left'})]
     remove_tags = [
