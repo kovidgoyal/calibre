@@ -9,6 +9,7 @@ import sys
 
 from calibre import prints as prints_
 from calibre.utils.config import Config, ConfigProxy, JSONConfig
+from calibre.utils.ipc.launch import Worker
 
 
 def console_config():
@@ -26,4 +27,6 @@ def prints(*args, **kwargs):
     kwargs['file'] = sys.__stdout__
     prints_(*args, **kwargs)
 
+class Process(Worker):
+    pass
 
