@@ -535,7 +535,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     ### The field-style interface. These use field keys.
 
     def get_field(self, idx, key, default=None, index_is_id=False):
-        mi = self.get_metadata(idx, index_is_id=index_is_id, get_cover=True)
+        mi = self.get_metadata(idx, index_is_id=index_is_id,
+                               get_cover=key == 'cover')
         return mi.get(key, default)
 
     def standard_field_keys(self):
@@ -590,7 +591,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.pubdate     = self.pubdate(idx, index_is_id=index_is_id)
         mi.uuid        = self.uuid(idx, index_is_id=index_is_id)
         mi.title_sort  = self.title_sort(idx, index_is_id=index_is_id)
-        mi.formats     = self.formats(idx, index_is_id=index_is_id)
+        mi.formats     = self.formats(idx, index_is_id=index_is_id,
+                                                        verify_formats=False)
         if hasattr(mi.formats, 'split'):
             mi.formats = mi.formats.split(',')
         else:
@@ -731,7 +733,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return set([])
         return set([f[0] for f in formats])
 
-    def formats(self, index, index_is_id=False):
+    def formats(self, index, index_is_id=False, verify_formats=True):
         ''' Return available formats as a comma separated list or None if there are no available formats '''
         id = index if index_is_id else self.id(index)
         try:
@@ -739,6 +741,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             formats = map(lambda x:x[0], formats)
         except:
             return None
+        if not verify_formats:
+            return formats
         ans = []
         for format in formats:
             if self.format_abspath(id, format, index_is_id=True) is not None:
