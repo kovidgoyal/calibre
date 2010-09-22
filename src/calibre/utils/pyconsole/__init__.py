@@ -15,7 +15,7 @@ def console_config():
     desc='Settings to control the calibre console'
     c = Config('console', desc)
 
-    c.add_opt('theme', default='default', help='The color theme')
+    c.add_opt('theme', default='native', help='The color theme')
 
     return c
 

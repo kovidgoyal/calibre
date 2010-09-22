@@ -49,7 +49,7 @@ class Prepender(object): # {{{
         self.console.cursor_pos = self.opos
 # }}}
 
-class ThemeMenu(QMenu):
+class ThemeMenu(QMenu): # {{{
 
     def __init__(self, parent):
         QMenu.__init__(self, _('Choose theme (needs restart)'))
@@ -62,6 +62,7 @@ class ThemeMenu(QMenu):
         self.actions = []
         for style in alls:
             ac = self.group.addAction(style)
+            ac.setCheckable(True)
             if current == style:
                 ac.setChecked(True)
             self.actions.append(ac)
@@ -71,6 +72,7 @@ class ThemeMenu(QMenu):
     def set_theme(self, style, *args):
         prefs['theme'] = style
 
+# }}}
 
 class Console(QTextEdit):
 
@@ -162,7 +164,6 @@ class Console(QTextEdit):
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())
         event.accept()
-
 
     # Prompt management {{{
 
