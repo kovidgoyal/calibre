@@ -14,7 +14,6 @@ from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
 from calibre.ebooks.metadata.book import TOP_LEVEL_CLASSIFIERS
 from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
 from calibre.library.field_metadata import FieldMetadata
-
 from calibre.utils.date import isoformat, format_date
 
 
@@ -46,7 +45,7 @@ class SafeFormat(string.Formatter):
                 return ''
             if v is '':
                 return ''
-            return '%s%s%s'%(prefix, v, suffix)
+            return prefix + v + suffix
         except:
             return key
 

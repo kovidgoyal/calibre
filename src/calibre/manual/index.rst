@@ -33,16 +33,10 @@ Sections
    conversion
    metadata
    faq 
-   xpath
+   tutorials
    customize
    cli/cli-index
    develop
    glossary
 
-.. toctree::
-   :hidden:
-   :maxdepth: 2
-
-   template_lang
-   portable
 
