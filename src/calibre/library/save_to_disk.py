@@ -101,15 +101,30 @@ def preprocess_template(template):
         template = template.decode(preferred_encoding, 'replace')
     return template
 
+template_value_re = re.compile(r'^([^\|]*(?=\|))(?:\|?)([^\|]*)(?:\|?)((?<=\|).*?)$')
+
+def explode_string_template_value(key):
+    try:
+        matches = template_value_re.match(key)
+        if matches.lastindex != 3:
+            return key
+        return matches.groups()
+    except:
+        return '', key, ''
+
 class SafeFormat(string.Formatter):
     '''
     Provides a format function that substitutes '' for any missing value
     '''
     def get_value(self, key, args, kwargs):
         try:
-            return kwargs[key]
+            prefix, key, suffix = explode_string_template_value(key)
+            if kwargs[key]:
+                return '%s%s%s'%(prefix, kwargs[key], suffix)
+            return ''
         except:
             return ''
+
 safe_formatter = SafeFormat()
 
 def safe_format(x, format_args):

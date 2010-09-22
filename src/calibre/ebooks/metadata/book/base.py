@@ -17,7 +17,6 @@ from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date
 
 
-
 NULL_VALUES = {
                 'user_metadata': {},
                 'cover_data'   : (None, None),
@@ -38,10 +37,17 @@ class SafeFormat(string.Formatter):
     Provides a format function that substitutes '' for any missing value
     '''
     def get_value(self, key, args, mi):
-        ign, v = mi.format_field(key, series_with_index=False)
-        if v is None:
-            return ''
-        return v
+        from calibre.library.save_to_disk import explode_string_template_value
+        try:
+            prefix, key, suffix = explode_string_template_value(key)
+            ign, v = mi.format_field(key, series_with_index=False)
+            if v is None:
+                return ''
+            if v is '':
+                return ''
+            return prefix + v + suffix
+        except:
+            return key
 
 composite_formatter = SafeFormat()
 compress_spaces = re.compile(r'\s+')
@@ -50,6 +56,7 @@ def format_composite(x, mi):
     try:
         ans = composite_formatter.vformat(x, [], mi).strip()
     except:
+        traceback.print_exc()
         ans = x
     return compress_spaces.sub(' ', ans)
 
