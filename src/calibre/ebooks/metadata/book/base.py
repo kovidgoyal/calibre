@@ -43,9 +43,9 @@ class SafeFormat(string.Formatter):
             ign, v = mi.format_field(key, series_with_index=False)
             if v is None:
                 return ''
-            if v is '':
+            if v == '':
                 return ''
-            return prefix + v + suffix
+            return prefix + unicode(v) + suffix
         except:
             return key
 
