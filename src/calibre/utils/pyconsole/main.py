@@ -12,6 +12,7 @@ from PyQt4.Qt import QDialog, QToolBar, QStatusBar, QLabel, QFont, Qt, \
     QApplication, QIcon, QVBoxLayout, QAction
 
 from calibre.constants import __appname__, __version__
+from calibre.utils.pyconsole import dynamic
 from calibre.utils.pyconsole.console import Console
 
 class MainWindow(QDialog):
@@ -26,6 +27,9 @@ class MainWindow(QDialog):
         self.setLayout(self.l)
 
         self.resize(800, 600)
+        geom = dynamic.get('console_window_geometry', None)
+        if geom is not None:
+            self.restoreGeometry(geom)
 
         # Setup tool bar {{{
         self.tool_bar = QToolBar(self)
@@ -62,17 +66,25 @@ class MainWindow(QDialog):
         self.restart_requested = True
         self.reject()
 
-def main():
-    QApplication.setApplicationName(__appname__+' console')
-    QApplication.setOrganizationName('Kovid Goyal')
-    app = QApplication([])
-    app
+    def closeEvent(self, *args):
+        dynamic.set('console_window_geometry',
+                bytearray(self.saveGeometry()))
+        return QDialog.closeEvent(self, *args)
+
+
+def show():
     while True:
         m = MainWindow()
         m.exec_()
         if not m.restart_requested:
             break
 
+def main():
+    QApplication.setApplicationName(__appname__+' console')
+    QApplication.setOrganizationName('Kovid Goyal')
+    app = QApplication([])
+    app
+    show()
 
 if __name__ == '__main__':
     main()

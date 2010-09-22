@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import sys
 
 from calibre import prints as prints_
-from calibre.utils.config import Config, ConfigProxy
+from calibre.utils.config import Config, ConfigProxy, JSONConfig
 
 
 def console_config():
@@ -20,7 +20,7 @@ def console_config():
     return c
 
 prefs = ConfigProxy(console_config())
-
+dynamic = JSONConfig('console')
 
 def prints(*args, **kwargs):
     kwargs['file'] = sys.__stdout__
