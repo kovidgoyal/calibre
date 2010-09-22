@@ -122,15 +122,6 @@ class SafeFormat(string.Formatter):
             v = ','.join(v)
         return v
 
-composite_formatter = SafeFormat()
-
-def format_composite(x, mi):
-    try:
-        ans = composite_formatter.vformat(x, [], mi).strip()
-    except:
-        ans = x
-    return ans
-
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     s_r_functions = {       ''              : lambda x: x,
