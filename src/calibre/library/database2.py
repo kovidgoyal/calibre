@@ -590,7 +590,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.pubdate     = self.pubdate(idx, index_is_id=index_is_id)
         mi.uuid        = self.uuid(idx, index_is_id=index_is_id)
         mi.title_sort  = self.title_sort(idx, index_is_id=index_is_id)
-        mi.formats     = self.formats(idx, index_is_id=index_is_id).split(',')
+        mi.formats     = self.formats(idx, index_is_id=index_is_id)
+        if hasattr(mi.formats, 'split'):
+            mi.formats = mi.formats.split(',')
+        else:
+            mi.formats = None
         tags = self.tags(idx, index_is_id=index_is_id)
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
@@ -1213,7 +1217,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_authors(self, id, authors, notify=True, commit=True):
         '''
-        `authors`: A list of authors.
+        Note that even if commit is False, the db will still be committed to
+        because this causes the location of files to change
+
+        :param authors: A list of authors.
         '''
         if not authors:
             authors = [_('Unknown')]
@@ -1250,6 +1257,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('metadata', [id])
 
     def set_title(self, id, title, notify=True, commit=True):
+        '''
+        Note that even if commit is False, the db will still be committed to
+        because this causes the location of files to change
+        '''
         if not title:
             return
         if not isinstance(title, unicode):

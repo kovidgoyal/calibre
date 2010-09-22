@@ -9,7 +9,7 @@ __version__   = '0.1.0'
 from functools import partial
 
 from PyQt4.Qt import QDialog, QToolBar, QStatusBar, QLabel, QFont, Qt, \
-    QApplication, QIcon, QVBoxLayout
+    QApplication, QIcon, QVBoxLayout, QAction
 
 from calibre.constants import __appname__, __version__
 from calibre.utils.pyconsole.console import Console
@@ -19,8 +19,9 @@ class MainWindow(QDialog):
     def __init__(self,
             default_status_msg=_('Welcome to') + ' ' + __appname__+' console',
             parent=None):
-
         QDialog.__init__(self, parent)
+
+        self.restart_requested = False
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
@@ -51,14 +52,26 @@ class MainWindow(QDialog):
         self.setWindowTitle(__appname__ + ' console')
         self.setWindowIcon(QIcon(I('console.png')))
 
+        self.restart_action = QAction(_('Restart console'), self)
+        self.restart_action.setShortcut(_('Ctrl+R'))
+        self.addAction(self.restart_action)
+        self.restart_action.triggered.connect(self.restart)
+        self.console.context_menu.addAction(self.restart_action)
+
+    def restart(self):
+        self.restart_requested = True
+        self.reject()
 
 def main():
     QApplication.setApplicationName(__appname__+' console')
     QApplication.setOrganizationName('Kovid Goyal')
     app = QApplication([])
-    m = MainWindow()
-    m.show()
-    app.exec_()
+    app
+    while True:
+        m = MainWindow()
+        m.exec_()
+        if not m.restart_requested:
+            break
 
 
 if __name__ == '__main__':

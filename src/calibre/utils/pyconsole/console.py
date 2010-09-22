@@ -6,16 +6,18 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, textwrap, traceback, StringIO
+from functools import partial
 
 from PyQt4.Qt import QTextEdit, Qt, QTextFrameFormat, pyqtSignal, \
-    QCoreApplication
+    QApplication, QColor, QPalette, QMenu, QActionGroup
 
 from pygments.lexers import PythonLexer, PythonTracebackLexer
+from pygments.styles import get_all_styles
 
 from calibre.constants import __appname__, __version__
 from calibre.utils.pyconsole.formatter import Formatter
 from calibre.utils.pyconsole.repl import Interpreter, DummyFile
-from calibre.utils.pyconsole import prints
+from calibre.utils.pyconsole import prints, prefs
 from calibre.gui2 import error_dialog
 
 class EditBlock(object): # {{{
@@ -47,6 +49,30 @@ class Prepender(object): # {{{
         self.console.cursor_pos = self.opos
 # }}}
 
+class ThemeMenu(QMenu): # {{{
+
+    def __init__(self, parent):
+        QMenu.__init__(self, _('Choose theme (needs restart)'))
+        parent.addMenu(self)
+        self.group = QActionGroup(self)
+        current = prefs['theme']
+        alls = list(sorted(get_all_styles()))
+        if current not in alls:
+            current = prefs['theme'] = 'default'
+        self.actions = []
+        for style in alls:
+            ac = self.group.addAction(style)
+            ac.setCheckable(True)
+            if current == style:
+                ac.setChecked(True)
+            self.actions.append(ac)
+            ac.triggered.connect(partial(self.set_theme, style))
+            self.addAction(ac)
+
+    def set_theme(self, style, *args):
+        prefs['theme'] = style
+
+# }}}
 
 class Console(QTextEdit):
 
@@ -99,8 +125,16 @@ class Console(QTextEdit):
         self.doc.setMaximumBlockCount(10000)
         self.lexer = PythonLexer(ensurenl=False)
         self.tb_lexer = PythonTracebackLexer()
-        self.formatter = Formatter(prompt, continuation, style='default')
-        self.setStyleSheet(self.formatter.stylesheet)
+
+        self.context_menu = cm = QMenu(self) # {{{
+        cm.theme = ThemeMenu(cm)
+        # }}}
+
+        self.formatter = Formatter(prompt, continuation, style=prefs['theme'])
+        p = QPalette()
+        p.setColor(p.Base, QColor(self.formatter.background_color))
+        p.setColor(p.Text, QColor(self.formatter.color))
+        self.setPalette(p)
 
         self.key_dispatcher = { # {{{
                 Qt.Key_Enter : self.enter_pressed,
@@ -109,6 +143,8 @@ class Console(QTextEdit):
                 Qt.Key_End : self.end_pressed,
                 Qt.Key_Left : self.left_pressed,
                 Qt.Key_Right : self.right_pressed,
+                Qt.Key_Backspace : self.backspace_pressed,
+                Qt.Key_Delete : self.delete_pressed,
         } # }}}
 
         motd = textwrap.dedent('''\
@@ -127,6 +163,9 @@ class Console(QTextEdit):
 
         sys.excepthook = self.unhandled_exception
 
+    def contextMenuEvent(self, event):
+        self.context_menu.popup(event.globalPos())
+        event.accept()
 
     # Prompt management {{{
 
@@ -239,7 +278,7 @@ class Console(QTextEdit):
         except:
             prints(tb, end='')
         self.ensureCursorVisible()
-        QCoreApplication.processEvents()
+        QApplication.processEvents()
 
     def show_output(self, raw):
         def do_show():
@@ -257,7 +296,7 @@ class Console(QTextEdit):
         else:
             do_show()
         self.ensureCursorVisible()
-        QCoreApplication.processEvents()
+        QApplication.processEvents()
 
     # }}}
 
@@ -290,6 +329,22 @@ class Console(QTextEdit):
             self.setTextCursor(c)
         self.ensureCursorVisible()
 
+    def backspace_pressed(self):
+        lineno, pos = self.cursor_pos
+        if lineno < 0: return
+        if pos > self.prompt_len:
+            self.cursor.deletePreviousChar()
+        elif lineno > 0:
+            c = self.cursor
+            c.movePosition(c.Up)
+            c.movePosition(c.EndOfLine)
+            self.setTextCursor(c)
+        self.ensureCursorVisible()
+
+    def delete_pressed(self):
+        self.cursor.deleteChar()
+        self.ensureCursorVisible()
+
     def right_pressed(self):
         lineno, pos = self.cursor_pos
         if lineno < 0: return
@@ -305,14 +360,23 @@ class Console(QTextEdit):
 
     def home_pressed(self):
         if self.prompt_frame is not None:
-            c = self.cursor
-            c.movePosition(c.StartOfLine)
-            c.movePosition(c.NextCharacter, n=self.prompt_len)
-            self.setTextCursor(c)
+            mods = QApplication.keyboardModifiers()
+            ctrl = bool(int(mods & Qt.CTRL))
+            if ctrl:
+                self.cursor_pos = (0, self.prompt_len)
+            else:
+                c = self.cursor
+                c.movePosition(c.StartOfLine)
+                c.movePosition(c.NextCharacter, n=self.prompt_len)
+                self.setTextCursor(c)
             self.ensureCursorVisible()
 
     def end_pressed(self):
         if self.prompt_frame is not None:
+            mods = QApplication.keyboardModifiers()
+            ctrl = bool(int(mods & Qt.CTRL))
+            if ctrl:
+                self.cursor_pos = (len(list(self.prompt()))-1, self.prompt_len)
             c = self.cursor
             c.movePosition(c.EndOfLine)
             self.setTextCursor(c)

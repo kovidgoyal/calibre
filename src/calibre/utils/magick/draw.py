@@ -60,15 +60,15 @@ def identify(path):
     data = open(path, 'rb').read()
     return identify_data(data)
 
-def add_borders_to_image(path_to_image, left=0, top=0, right=0, bottom=0,
-        border_color='#ffffff'):
+def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
+        border_color='#ffffff', fmt='jpg'):
     img = Image()
-    img.open(path_to_image)
+    img.load(img_data)
     lwidth, lheight = img.size
     canvas = create_canvas(lwidth+left+right, lheight+top+bottom,
                 border_color)
     canvas.compose(img, left, top)
-    canvas.save(path_to_image)
+    return canvas.export(fmt)
 
 def create_text_wand(font_size, font_path=None):
     if font_path is None:
