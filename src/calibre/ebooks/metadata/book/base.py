@@ -34,9 +34,10 @@ NULL_VALUES = {
 field_metadata = FieldMetadata()
 
 class SafeFormat(TemplateFormatter):
-    def get_value(self, key, args, mi):
+
+    def get_value(self, key, args, kwargs):
         try:
-            ign, v = mi.format_field(key.lower(), series_with_index=False)
+            ign, v = self.book.format_field(key.lower(), series_with_index=False)
             if v is None:
                 return ''
             if v == '':
@@ -100,7 +101,9 @@ class Metadata(object):
                 cf['#value#'] = 'RECURSIVE_COMPOSITE FIELD ' + field
                 cf['#value#'] = composite_formatter.safe_format(
                                             cf['display']['composite_template'],
-                                            self, _('TEMPLATE ERROR')).strip()
+                                            self,
+                                            _('TEMPLATE ERROR'),
+                                            self).strip()
             return d['#value#']
 
         raise AttributeError(

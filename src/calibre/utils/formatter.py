@@ -6,48 +6,48 @@ Created on 23 Sep 2010
 
 import re, string
 
-def _lookup(val, mi, field_if_set, field_not_set):
-    if hasattr(mi, 'format_field'):
-        if val:
-            return mi.format_field(field_if_set.strip())[1]
-        else:
-            return mi.format_field(field_not_set.strip())[1]
-    else:
-        if val:
-            return mi.get(field_if_set.strip(), '')
-        else:
-            return mi.get(field_not_set.strip(), '')
-
-def _ifempty(val, mi, value_if_empty):
-    if val:
-        return val
-    else:
-        return value_if_empty
-
-def _shorten(val, mi, leading, center_string, trailing):
-    l = int(leading)
-    t = int(trailing)
-    if len(val) > l + len(center_string) + t:
-        return val[0:l] + center_string + val[-t:]
-    else:
-        return val
-
 class TemplateFormatter(string.Formatter):
     '''
     Provides a format function that substitutes '' for any missing value
     '''
 
+    def __init__(self):
+        string.Formatter.__init__(self)
+        self.book = None
+        self.kwargs = None
+        self.sanitize = None
+
+    def _lookup(self, val, field_if_set, field_not_set):
+        if val:
+            return self.vformat('{'+field_if_set.strip()+'}', [], self.kwargs)
+        else:
+            return self.vformat('{'+field_not_set.strip()+'}', [], self.kwargs)
+
+    def _ifempty(self, val, value_if_empty):
+        if val:
+            return val
+        else:
+            return value_if_empty
+
+    def _shorten(self, val, leading, center_string, trailing):
+        l = int(leading)
+        t = int(trailing)
+        if len(val) > l + len(center_string) + t:
+            return val[0:l] + center_string + val[-t:]
+        else:
+            return val
+
     functions = {
-                    'uppercase'     : (0, lambda x: x.upper()),
-                    'lowercase'     : (0, lambda x: x.lower()),
-                    'titlecase'     : (0, lambda x: x.title()),
-                    'capitalize'    : (0, lambda x: x.capitalize()),
+                    'uppercase'     : (0, lambda s,x: x.upper()),
+                    'lowercase'     : (0, lambda s,x: x.lower()),
+                    'titlecase'     : (0, lambda s,x: x.title()),
+                    'capitalize'    : (0, lambda s,x: x.capitalize()),
                     'ifempty'       : (1, _ifempty),
                     'lookup'        : (2, _lookup),
                     'shorten'       : (3, _shorten),
         }
 
-    def get_value(self, key, args, mi):
+    def get_value(self, key, args):
         raise Exception('get_value must be implemented in the subclass')
 
     format_string_re = re.compile(r'^(.*)\|(.*)\|(.*)$')
@@ -75,9 +75,9 @@ class TemplateFormatter(string.Formatter):
                     (func[0] > 0 and func[0] != len(args)):
                 raise Exception ('Incorrect number of arguments for function '+ fmt[0:p])
             if func[0] == 0:
-                val = func[1](val, self.mi)
+                val = func[1](self, val)
             else:
-                val = func[1](val, self.mi, *args)
+                val = func[1](self, val, *args)
         else:
             val = string.Formatter.format_field(self, val, fmt)
         if not val:
@@ -87,11 +87,13 @@ class TemplateFormatter(string.Formatter):
     compress_spaces = re.compile(r'\s+')
 
     def vformat(self, fmt, args, kwargs):
-        self.mi = kwargs
         ans = string.Formatter.vformat(self, fmt, args, kwargs)
         return self.compress_spaces.sub(' ', ans).strip()
 
-    def safe_format(self, fmt, kwargs, error_value):
+    def safe_format(self, fmt, kwargs, error_value, book, sanitize=None):
+        self.kwargs = kwargs
+        self.book = book
+        self.sanitize = sanitize
         try:
             ans = self.vformat(fmt, [], kwargs).strip()
         except:
