@@ -11,8 +11,7 @@ from functools import partial
 from PyQt4.Qt import QDialog, QToolBar, QStatusBar, QLabel, QFont, Qt, \
     QApplication, QIcon, QVBoxLayout, QAction
 
-from calibre.constants import __appname__, __version__
-from calibre.utils.pyconsole import dynamic
+from calibre.utils.pyconsole import dynamic, __appname__, __version__
 from calibre.utils.pyconsole.console import Console
 
 class MainWindow(QDialog):

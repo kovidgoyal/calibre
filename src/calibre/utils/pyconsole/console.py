@@ -14,11 +14,10 @@ from PyQt4.Qt import QTextEdit, Qt, QTextFrameFormat, pyqtSignal, \
 from pygments.lexers import PythonLexer, PythonTracebackLexer
 from pygments.styles import get_all_styles
 
-from calibre.constants import __appname__, __version__
 from calibre.utils.pyconsole.formatter import Formatter
 from calibre.utils.pyconsole.repl import Interpreter, DummyFile
-from calibre.utils.pyconsole import prints, prefs
-from calibre.gui2 import error_dialog
+from calibre.utils.pyconsole import prints, prefs, __appname__, \
+        __version__, error_dialog
 
 class EditBlock(object): # {{{
 

@@ -5,12 +5,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
+import sys, os
 
-from calibre import prints as prints_
+from calibre import prints as prints_, preferred_encoding, isbytestring
 from calibre.utils.config import Config, ConfigProxy, JSONConfig
 from calibre.utils.ipc.launch import Worker
+from calibre.constants import __appname__, __version__, iswindows
+from calibre.gui2 import error_dialog
 
+preferred_encoding, isbytestring, __appname__, __version__, error_dialog, \
+iswindows
 
 def console_config():
     desc='Settings to control the calibre console'
@@ -28,5 +32,11 @@ def prints(*args, **kwargs):
     prints_(*args, **kwargs)
 
 class Process(Worker):
-    pass
+
+    @property
+    def env(self):
+        env = dict(os.environ)
+        env.update(self._env)
+        return env
+
 
