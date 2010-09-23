@@ -363,10 +363,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return row[self.FIELD_MAP['path']].replace('/', os.sep)
 
 
-    def abspath(self, index, index_is_id=False):
+    def abspath(self, index, index_is_id=False, create_dirs=True):
         'Return the absolute path to the directory containing this books files as a unicode string.'
         path = os.path.join(self.library_path, self.path(index, index_is_id=index_is_id))
-        if not os.path.exists(path):
+        if create_dirs and not os.path.exists(path):
             os.makedirs(path)
         return path
 
@@ -657,7 +657,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def has_cover(self, index, index_is_id=False):
         id = index if index_is_id else self.id(index)
         try:
-            path = os.path.join(self.abspath(id, index_is_id=True), 'cover.jpg')
+            path = os.path.join(self.abspath(id, index_is_id=True,
+                create_dirs=False), 'cover.jpg')
         except:
             # Can happen if path has not yet been set
             return False
