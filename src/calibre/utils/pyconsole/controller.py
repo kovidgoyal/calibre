@@ -88,7 +88,7 @@ class Controller(QThread):
         elif cmd == 'syntaxerror':
             self.show_error.emit(True, data, self)
         elif cmd == 'traceback':
-            self.show_error(self, False, data)
+            self.show_error.emit(False, data, self)
         elif cmd == 'done':
             self.current_command = None
             self.interpreter_done.emit(self, data)
