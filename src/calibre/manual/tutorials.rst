@@ -11,6 +11,7 @@ Here you will find tutorials to get you started using |app|'s more advanced feat
 .. toctree::
    :maxdepth: 1
 
+   news
    xpath
    template_lang
    portable

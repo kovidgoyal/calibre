@@ -21,7 +21,7 @@ class Worker(object):
     Platform independent object for launching child processes. All processes
     have the environment variable :envvar:`CALIBRE_WORKER` set.
 
-    Useful attributes: ``is_alive``, ``returncode``
+    Useful attributes: ``is_alive``, ``returncode``, ``pid``
     Useful methods: ``kill``
 
     To launch child simply call the Worker object. By default, the child's
@@ -93,6 +93,11 @@ class Worker(object):
         if not hasattr(self, 'child'): return None
         self.child.poll()
         return self.child.returncode
+
+    @property
+    def pid(self):
+        if not hasattr(self, 'child'): return None
+        return getattr(self.child, 'pid', None)
 
     def kill(self):
         try:

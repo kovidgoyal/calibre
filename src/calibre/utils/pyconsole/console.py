@@ -9,16 +9,15 @@ import sys, textwrap, traceback, StringIO
 from functools import partial
 
 from PyQt4.Qt import QTextEdit, Qt, QTextFrameFormat, pyqtSignal, \
-    QApplication, QColor, QPalette, QMenu, QActionGroup
+    QApplication, QColor, QPalette, QMenu, QActionGroup, QTimer
 
 from pygments.lexers import PythonLexer, PythonTracebackLexer
 from pygments.styles import get_all_styles
 
-from calibre.constants import __appname__, __version__
 from calibre.utils.pyconsole.formatter import Formatter
-from calibre.utils.pyconsole.repl import Interpreter, DummyFile
-from calibre.utils.pyconsole import prints, prefs
-from calibre.gui2 import error_dialog
+from calibre.utils.pyconsole.controller import Controller
+from calibre.utils.pyconsole import prints, prefs, __appname__, \
+        __version__, error_dialog
 
 class EditBlock(object): # {{{
 
@@ -114,7 +113,8 @@ class Console(QTextEdit):
             continuation='... ',
             parent=None):
         QTextEdit.__init__(self, parent)
-        self.buf = []
+        self.shutting_down = False
+        self.buf = self.old_buf = []
         self.prompt_frame = None
         self.allow_output = False
         self.prompt_frame_format = QTextFrameFormat()
@@ -153,19 +153,79 @@ class Console(QTextEdit):
         '''.format(sys.version.splitlines()[0], __appname__,
             __version__))
 
+        self.controllers = []
+        QTimer.singleShot(0, self.launch_controller)
+
+        sys.excepthook = self.unhandled_exception
+
         with EditBlock(self.cursor):
             self.render_block(motd)
 
-        sys.stdout = sys.stderr = DummyFile(parent=self)
-        sys.stdout.write_output.connect(self.show_output)
-        self.interpreter = Interpreter(parent=self)
-        self.interpreter.show_error.connect(self.show_error)
-
-        sys.excepthook = self.unhandled_exception
+    def shutdown(self):
+        self.shutton_down = True
+        for c in self.controllers:
+            c.kill()
 
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())
         event.accept()
+
+    # Controller management {{{
+    @property
+    def controller(self):
+        return self.controllers[-1]
+
+    def no_controller_error(self):
+        error_dialog(self, _('No interpreter'),
+                _('No active interpreter found. Try restarting the'
+                    ' console'), show=True)
+
+    def launch_controller(self, *args):
+        c = Controller(self)
+        c.write_output.connect(self.show_output, type=Qt.QueuedConnection)
+        c.show_error.connect(self.show_error, type=Qt.QueuedConnection)
+        c.interpreter_died.connect(self.interpreter_died,
+                type=Qt.QueuedConnection)
+        c.interpreter_done.connect(self.execution_done)
+        self.controllers.append(c)
+
+    def interpreter_died(self, controller, returncode):
+        if not self.shutting_down and controller.current_command is not None:
+            error_dialog(self, _('Interpreter died'),
+                    _('Interpreter dies while excuting a command. To see '
+                        'the command, click Show details'),
+                    det_msg=controller.current_command, show=True)
+
+    def execute(self, prompt_lines):
+        c = self.root_frame.lastCursorPosition()
+        self.setTextCursor(c)
+        self.old_prompt_frame = self.prompt_frame
+        self.prompt_frame = None
+        self.old_buf = self.buf
+        self.buf = []
+        self.running.emit()
+        self.controller.runsource('\n'.join(prompt_lines))
+
+    def execution_done(self, controller, ret):
+        if controller is self.controller:
+            self.running_done.emit()
+            if ret: # Incomplete command
+                self.buf = self.old_buf
+                self.prompt_frame = self.old_prompt_frame
+                c = self.prompt_frame.lastCursorPosition()
+                c.insertBlock()
+                self.setTextCursor(c)
+            else: # Command completed
+                try:
+                    self.old_prompt_frame.setFrameFormat(QTextFrameFormat())
+                except RuntimeError:
+                    # Happens if enough lines of output that the old
+                    # frame was deleted
+                    pass
+
+            self.render_current_prompt()
+
+    # }}}
 
     # Prompt management {{{
 
@@ -207,6 +267,11 @@ class Console(QTextEdit):
                     lineno += 1
 
         return property(fget=fget, fset=fset, doc=doc)
+
+    def move_cursor_to_prompt(self):
+        if self.prompt_frame is not None and self.cursor_pos[0] < 0:
+            c = self.prompt_frame.lastCursorPosition()
+            self.setTextCursor(c)
 
     def prompt(self, strip_prompt_strings=True):
         if not self.prompt_frame:
@@ -265,7 +330,7 @@ class Console(QTextEdit):
         if restore_prompt:
             self.render_current_prompt()
 
-    def show_error(self, is_syntax_err, tb):
+    def show_error(self, is_syntax_err, tb, controller=None):
         if self.prompt_frame is not None:
             # At a prompt, so redirect output
             return prints(tb, end='')
@@ -280,7 +345,7 @@ class Console(QTextEdit):
         self.ensureCursorVisible()
         QApplication.processEvents()
 
-    def show_output(self, raw):
+    def show_output(self, raw, which='stdout', controller=None):
         def do_show():
             try:
                 self.buf.append(raw)
@@ -385,39 +450,15 @@ class Console(QTextEdit):
     def enter_pressed(self):
         if self.prompt_frame is None:
             return
+        if not self.controller.is_alive:
+            return self.no_controller_error()
         cp = list(self.prompt())
         if cp[0]:
-            c = self.root_frame.lastCursorPosition()
-            self.setTextCursor(c)
-            old_pf = self.prompt_frame
-            self.prompt_frame = None
-            oldbuf = self.buf
-            self.buf = []
-            self.running.emit()
-            try:
-                ret = self.interpreter.runsource('\n'.join(cp))
-            except SystemExit:
-                ret = False
-                self.show_output('Raising SystemExit not allowed\n')
-            self.running_done.emit()
-            if ret: # Incomplete command
-                self.buf = oldbuf
-                self.prompt_frame = old_pf
-                c = old_pf.lastCursorPosition()
-                c.insertBlock()
-                self.setTextCursor(c)
-            else: # Command completed
-                try:
-                    old_pf.setFrameFormat(QTextFrameFormat())
-                except RuntimeError:
-                    # Happens if enough lines of output that the old
-                    # frame was deleted
-                    pass
-
-            self.render_current_prompt()
+            self.execute(cp)
 
     def text_typed(self, text):
         if self.prompt_frame is not None:
+            self.move_cursor_to_prompt()
             self.cursor.insertText(text)
             self.render_current_prompt(restore_cursor=True)
 

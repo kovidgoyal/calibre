@@ -456,6 +456,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 parent = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
                     self.rmtree(parent, permanent=True)
+
         curpath = self.library_path
         c1, c2 = current_path.split('/'), path.split('/')
         if not self.is_case_sensitive and len(c1) == len(c2):
@@ -470,22 +471,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # handles files in the directories, so no need to do them here.
             for oldseg, newseg in zip(c1, c2):
                 if oldseg.lower() == newseg.lower() and oldseg != newseg:
-                    while True:
-                        # need a temp name in the current segment for renames
-                        tempname = os.path.join(curpath, 'TEMP.%f'%time.time())
-                        if not os.path.exists(tempname):
-                            break
                     try:
-                        os.rename(os.path.join(curpath, oldseg), tempname)
-                    except (IOError, OSError):
-                        # Windows (at least) sometimes refuses to do the rename
-                        # probably because a file such a cover is open in the
-                        # hierarchy. Just go on -- nothing is hurt beyond the
-                        # case of the filesystem not matching the case in
-                        # name stored by calibre
-                        print 'rename of library component failed'
-                    else:
-                        os.rename(tempname, os.path.join(curpath, newseg))
+                        os.rename(os.path.join(curpath, oldseg),
+                                os.path.join(curpath, newseg))
+                    except:
+                        break # Fail silently since nothing catastrophic has happened
                 curpath = os.path.join(curpath, newseg)
 
     def add_listener(self, listener):
