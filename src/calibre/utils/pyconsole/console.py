@@ -268,6 +268,11 @@ class Console(QTextEdit):
 
         return property(fget=fget, fset=fset, doc=doc)
 
+    def move_cursor_to_prompt(self):
+        if self.prompt_frame is not None and self.cursor_pos[0] < 0:
+            c = self.prompt_frame.lastCursorPosition()
+            self.setTextCursor(c)
+
     def prompt(self, strip_prompt_strings=True):
         if not self.prompt_frame:
             yield u'' if strip_prompt_strings else self.formatter.prompt
@@ -453,6 +458,7 @@ class Console(QTextEdit):
 
     def text_typed(self, text):
         if self.prompt_frame is not None:
+            self.move_cursor_to_prompt()
             self.cursor.insertText(text)
             self.render_current_prompt(restore_cursor=True)
 
