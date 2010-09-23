@@ -584,9 +584,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.title_sort  = self.title_sort(idx, index_is_id=index_is_id)
         mi.formats     = self.formats(idx, index_is_id=index_is_id,
                                                         verify_formats=False)
-        if hasattr(mi.formats, 'split'):
-            mi.formats = mi.formats.split(',')
-        else:
+        if len(mi.formats) == 0:
             mi.formats = None
         tags = self.tags(idx, index_is_id=index_is_id)
         if tags:

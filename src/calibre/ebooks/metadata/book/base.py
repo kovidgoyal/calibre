@@ -99,7 +99,7 @@ class Metadata(object):
                     continue
                 cf['#value#'] = 'RECURSIVE_COMPOSITE FIELD ' + field
                 cf['#value#'] = composite_formatter.safe_format(
-                                            d['display']['composite_template'],
+                                            cf['display']['composite_template'],
                                             self, _('TEMPLATE ERROR')).strip()
             return d['#value#']
 
