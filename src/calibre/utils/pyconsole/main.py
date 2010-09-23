@@ -68,6 +68,7 @@ class MainWindow(QDialog):
     def closeEvent(self, *args):
         dynamic.set('console_window_geometry',
                 bytearray(self.saveGeometry()))
+        self.console.shutdown()
         return QDialog.closeEvent(self, *args)
 
 
