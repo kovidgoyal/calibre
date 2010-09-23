@@ -402,7 +402,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path = path.lower()
         return path
 
-    def set_path(self, index, index_is_id=False, commit=True):
+    def set_path(self, index, index_is_id=False):
         '''
         Set the path to the directory containing this books files based on its
         current title and author. If there was a previous directory, its contents
@@ -432,7 +432,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if current_path and os.path.exists(spath): # Migrate existing files
             cdata = self.cover(id, index_is_id=True)
             if cdata is not None:
-                open(os.path.join(tpath, 'cover.jpg'), 'wb').write(cdata)
+                with open(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
+                    f.write(cdata)
             for format in formats:
                 # Get data as string (can't use file as source and target files may be the same)
                 f = self.format(id, format, index_is_id=True, as_file=False)
@@ -442,8 +443,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
-        if commit:
-            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
         # Delete not needed directories
         if current_path and os.path.exists(spath):
@@ -452,6 +451,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 parent = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
                     self.rmtree(parent, permanent=True)
+
         curpath = self.library_path
         c1, c2 = current_path.split('/'), path.split('/')
         if not self.is_case_sensitive and len(c1) == len(c2):
@@ -466,13 +466,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # the directories, so no need to do them here.
             for oldseg, newseg in zip(c1, c2):
                 if oldseg.lower() == newseg.lower() and oldseg != newseg:
-                    while True:
-                        # need a temp name in the current segment for renames
-                        tempname = os.path.join(curpath, 'TEMP.%f'%time.time())
-                        if not os.path.exists(tempname):
-                            break
-                    os.rename(os.path.join(curpath, oldseg), tempname)
-                    os.rename(tempname, os.path.join(curpath, newseg))
+                    try:
+                        os.rename(os.path.join(curpath, oldseg), os.path.join(curpath, newseg))
+                    except:
+                        break # Fail silently since nothing catastrophic has happened
                 curpath = os.path.join(curpath, newseg)
 
     def add_listener(self, listener):
@@ -1131,7 +1128,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_authors(self, id, authors, notify=True, commit=True):
         '''
-        `authors`: A list of authors.
+        Note that even if commit is False, the db will still be committed to
+        because this causes the location of files to change
+
+        :param authors: A list of authors.
         '''
         if not authors:
             authors = [_('Unknown')]
@@ -1163,11 +1163,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                       ','.join([a.replace(',', '|') for a in authors]),
                       row_is_id=True)
         self.data.set(id, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
-        self.set_path(id, index_is_id=True, commit=commit)
+        self.set_path(id, index_is_id=True)
         if notify:
             self.notify('metadata', [id])
 
     def set_title(self, id, title, notify=True, commit=True):
+        '''
+        Note that even if commit is False, the db will still be committed to
+        because this causes the location of files to change
+        '''
         if not title:
             return
         if not isinstance(title, unicode):
@@ -1178,7 +1182,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.data.set(id, self.FIELD_MAP['sort'], title_sort(title), row_is_id=True)
         else:
             self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)
-        self.set_path(id, index_is_id=True, commit=commit)
+        self.set_path(id, index_is_id=True)
         if commit:
             self.conn.commit()
         if notify:

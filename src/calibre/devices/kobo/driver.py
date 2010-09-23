@@ -98,6 +98,8 @@ class KOBO(USBMS):
 
                 if readstatus == 1:
                     playlist_map[lpath]= "Im_Reading"
+                elif readstatus == 2:
+                    playlist_map[lpath]= "Read"
 
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
@@ -441,43 +443,99 @@ class KOBO(USBMS):
         connection = sqlite.connect(self._main_prefix + '.kobo/KoboReader.sqlite')
         cursor = connection.cursor()
 
-        # Reset Im_Reading list in the database
-        if oncard == 'carda':
-            query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID like \'file:///mnt/sd/%\''
-        elif oncard != 'carda' and oncard != 'cardb':
-            query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID not like \'file:///mnt/sd/%\''
+
+        if collections:
+            # Process any collections that exist
+            for category, books in collections.items():
+                if category == 'Im_Reading':
+                    # Reset Im_Reading list in the database
+                    if oncard == 'carda':
+                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 1 and ContentID like \'file:///mnt/sd/%\''
+                    elif oncard != 'carda' and oncard != 'cardb':
+                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 1 and ContentID not like \'file:///mnt/sd/%\''
                     
-        try:
-            cursor.execute (query)
-        except:
-            debug_print('Database Exception:  Unable to reset Im_Reading list')
-            raise
-        else:
-#           debug_print('Commit: Reset Im_Reading list')
-            connection.commit()
-
-        for category, books in collections.items():
-            if category == 'Im_Reading':
-                for book in books:
-#                    debug_print('Title:', book.title, 'lpath:', book.path)
-                    book.device_collections = ['Im_Reading']
-
-                    extension =  os.path.splitext(book.path)[1]
-                    ContentType = self.get_content_type_from_extension(extension)
-
-                    ContentID = self.contentid_from_path(book.path, ContentType)
-                    datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
-
-                    t = (datelastread,ContentID,)
-
                     try:
-                        cursor.execute('update content set ReadStatus=1,FirstTimeReading=\'false\',DateLastRead=? where BookID is Null and ContentID = ?', t)
+                        cursor.execute (query)
                     except:
-                        debug_print('Database Exception:  Unable create Im_Reading list')
+                        debug_print('Database Exception:  Unable to reset Im_Reading list')
                         raise
                     else:
+#                       debug_print('Commit: Reset Im_Reading list')
                         connection.commit()
- #                       debug_print('Database: Commit create Im_Reading list')
+
+                    for book in books:
+#                        debug_print('Title:', book.title, 'lpath:', book.path)
+                        book.device_collections = ['Im_Reading']
+
+                        extension =  os.path.splitext(book.path)[1]
+                        ContentType = self.get_content_type_from_extension(extension)
+
+                        ContentID = self.contentid_from_path(book.path, ContentType)
+                        datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+
+                        t = (datelastread,ContentID,)
+
+                        try:
+                            cursor.execute('update content set ReadStatus=1,FirstTimeReading=\'false\',DateLastRead=? where BookID is Null and ContentID = ?', t)
+                        except:
+                            debug_print('Database Exception:  Unable create Im_Reading list')
+                            raise
+                        else:
+                            connection.commit()
+ #                           debug_print('Database: Commit create Im_Reading list')
+                if category == 'Read':
+                    # Reset Im_Reading list in the database
+                    if oncard == 'carda':
+                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 2 and ContentID like \'file:///mnt/sd/%\''
+                    elif oncard != 'carda' and oncard != 'cardb':
+                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 2 and ContentID not like \'file:///mnt/sd/%\''
+                    
+                    try:
+                        cursor.execute (query)
+                    except:
+                        debug_print('Database Exception:  Unable to reset Im_Reading list')
+                        raise
+                    else:
+#                       debug_print('Commit: Reset Im_Reading list')
+                        connection.commit()
+
+                    for book in books:
+#                       debug_print('Title:', book.title, 'lpath:', book.path)
+                        book.device_collections = ['Read']
+
+                        extension =  os.path.splitext(book.path)[1]
+                        ContentType = self.get_content_type_from_extension(extension)
+
+                        ContentID = self.contentid_from_path(book.path, ContentType)
+#                        datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+
+                        t = (ContentID,)
+
+                        try:
+                            cursor.execute('update content set ReadStatus=2,FirstTimeReading=\'true\' where BookID is Null and ContentID = ?', t)
+                        except:
+                            debug_print('Database Exception:  Unable set book as Rinished')
+                            raise
+                        else:
+                            connection.commit()
+#                            debug_print('Database: Commit set ReadStatus as Finished')
+        else: # No collections 
+            # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
+            print "Reseting ReadStatus to 0"
+            # Reset Im_Reading list in the database
+            if oncard == 'carda':
+                query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID like \'file:///mnt/sd/%\''
+            elif oncard != 'carda' and oncard != 'cardb':
+                query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID not like \'file:///mnt/sd/%\''
+                    
+            try:
+                cursor.execute (query)
+            except:
+                debug_print('Database Exception:  Unable to reset Im_Reading list')
+                raise
+            else:
+#               debug_print('Commit: Reset Im_Reading list')
+                connection.commit()
 
         cursor.close()
         connection.close()
