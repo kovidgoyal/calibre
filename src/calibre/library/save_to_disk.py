@@ -108,8 +108,8 @@ class SafeFormat(TemplateFormatter):
     '''
     def get_value(self, key, args, kwargs):
         try:
-            if kwargs[key]:
-                return kwargs[key]
+            if kwargs[key.lower()]:
+                return kwargs[key.lower()]
             return ''
         except:
             return ''

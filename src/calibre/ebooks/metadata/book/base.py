@@ -36,7 +36,7 @@ field_metadata = FieldMetadata()
 class SafeFormat(TemplateFormatter):
     def get_value(self, key, args, mi):
         try:
-            ign, v = mi.format_field(key, series_with_index=False)
+            ign, v = mi.format_field(key.lower(), series_with_index=False)
             if v is None:
                 return ''
             if v == '':

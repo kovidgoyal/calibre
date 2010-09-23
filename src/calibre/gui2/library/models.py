@@ -724,7 +724,7 @@ class BooksModel(QAbstractTableModel): # {{{
         elif typ == 'series':
             val, s_index = parse_series_string(self.db, label, value.toString())
         elif typ == 'composite':
-            tmpl = unicode(value.toString()).lower().strip()
+            tmpl = unicode(value.toString()).strip()
             disp = cc['display']
             disp['composite_template'] = tmpl
             self.db.set_custom_column_metadata(cc['colnum'], display = disp)
