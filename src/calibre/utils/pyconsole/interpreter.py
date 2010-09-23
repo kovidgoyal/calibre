@@ -11,6 +11,7 @@ from Queue import Queue, Empty
 from threading import Thread
 from binascii import unhexlify
 from multiprocessing.connection import Client
+from repr import repr as safe_repr
 
 from calibre.utils.pyconsole import preferred_encoding, isbytestring, \
         POLL_TIMEOUT
@@ -35,7 +36,7 @@ def tounicode(raw): # {{{
         try:
             raw = raw.decode(preferred_encoding, 'replace')
         except:
-            raw = repr(raw)
+            raw = safe_repr(raw)
 
         if isbytestring(raw):
             try:
