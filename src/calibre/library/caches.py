@@ -546,7 +546,7 @@ class ResultCache(SearchQueryParser):
                 if len(self.composites) > 0:
                     mi = db.get_metadata(id, index_is_id=True)
                     for k,c in self.composites:
-                        self._data[id][c] = mi.format_field(k)[1]
+                        self._data[id][c] = mi.get(k, None)
             except IndexError:
                 return None
         try:

@@ -696,7 +696,8 @@ class BooksModel(QAbstractTableModel): # {{{
         return flags
 
     def set_custom_column_data(self, row, colhead, value):
-        typ = self.custom_columns[colhead]['datatype']
+        cc = self.custom_columns[colhead]
+        typ = cc['datatype']
         label=self.db.field_metadata.key_to_label(colhead)
         s_index = None
         if typ in ('text', 'comments'):
@@ -722,6 +723,14 @@ class BooksModel(QAbstractTableModel): # {{{
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
             val, s_index = parse_series_string(self.db, label, value.toString())
+        elif typ == 'composite':
+            tmpl = unicode(value.toString()).strip()
+            disp = cc['display']
+            disp['composite_template'] = tmpl
+            self.db.set_custom_column_metadata(cc['colnum'], display = disp)
+            self.refresh(reset=True)
+            return True
+
         self.db.set_custom(self.db.id(row), val, extra=s_index,
                            label=label, num=None, append=False, notify=True)
         return True
@@ -768,6 +777,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
                 else:
                     self.db.set(row, column, val)
+            self.refresh_rows([row], row)
             self.dataChanged.emit(index, index)
         return True
 

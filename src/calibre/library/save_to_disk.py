@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, traceback, cStringIO, re, string
 
 from calibre.utils.config import Config, StringConfig, tweaks
+from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.filenames import shorten_components_to, supports_long_names, \
                                     ascii_filename, sanitize_file_name
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
@@ -101,39 +102,19 @@ def preprocess_template(template):
         template = template.decode(preferred_encoding, 'replace')
     return template
 
-template_value_re = re.compile(r'^([^\|]*(?=\|))(?:\|?)([^\|]*)(?:\|?)((?<=\|).*?)$',
-                               flags= re.UNICODE)
-
-def explode_string_template_value(key):
-    try:
-        matches = template_value_re.match(key)
-        if matches.lastindex != 3:
-            return key
-        return matches.groups()
-    except:
-        return '', key, ''
-
-class SafeFormat(string.Formatter):
+class SafeFormat(TemplateFormatter):
     '''
     Provides a format function that substitutes '' for any missing value
     '''
     def get_value(self, key, args, kwargs):
         try:
-            prefix, key, suffix = explode_string_template_value(key)
             if kwargs[key]:
-                return prefix + unicode(kwargs[key]) + suffix
+                return kwargs[key]
             return ''
         except:
             return ''
 
 safe_formatter = SafeFormat()
-
-def safe_format(x, format_args):
-    try:
-        ans = safe_formatter.vformat(x, [], format_args).strip()
-    except:
-        ans = ''
-    return re.sub(r'\s+', ' ', ans)
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
@@ -178,8 +159,8 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
             elif custom_metadata[key]['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
 
-    components = [x.strip() for x in template.split('/') if x.strip()]
-    components = [safe_format(x, format_args) for x in components]
+    components = safe_formatter.safe_format(template, format_args, '')
+    components = [x.strip() for x in components.split('/') if x.strip()]
     components = [sanitize_func(x) for x in components if x]
     if not components:
         components = [str(id)]

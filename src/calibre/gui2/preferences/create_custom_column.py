@@ -156,9 +156,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 return self.simple_error('', _('You must enter a template for'
                     ' composite columns'))
             display_dict = {'composite_template':unicode(self.composite_box.text())}
-            is_editable = False
-        else:
-            is_editable = True
 
         db = self.parent.gui.library_view.model().db
         key = db.field_metadata.custom_field_prefix+col
@@ -168,7 +165,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'label':col,
                     'name':col_heading,
                     'datatype':col_type,
-                    'editable':is_editable,
                     'display':display_dict,
                     'normalized':None,
                     'colnum':None,

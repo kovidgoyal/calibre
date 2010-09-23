@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy, re, string, traceback
+import copy, re, traceback
 
 from calibre import prints
 from calibre.ebooks.metadata.book import SC_COPYABLE_FIELDS
@@ -15,6 +15,7 @@ from calibre.ebooks.metadata.book import TOP_LEVEL_CLASSIFIERS
 from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date
+from calibre.utils.formatter import TemplateFormatter
 
 
 NULL_VALUES = {
@@ -32,33 +33,19 @@ NULL_VALUES = {
 
 field_metadata = FieldMetadata()
 
-class SafeFormat(string.Formatter):
-    '''
-    Provides a format function that substitutes '' for any missing value
-    '''
+class SafeFormat(TemplateFormatter):
     def get_value(self, key, args, mi):
-        from calibre.library.save_to_disk import explode_string_template_value
         try:
-            prefix, key, suffix = explode_string_template_value(key)
             ign, v = mi.format_field(key, series_with_index=False)
             if v is None:
                 return ''
             if v == '':
                 return ''
-            return prefix + v + suffix
+            return v
         except:
             return key
 
 composite_formatter = SafeFormat()
-compress_spaces = re.compile(r'\s+')
-
-def format_composite(x, mi):
-    try:
-        ans = composite_formatter.vformat(x, [], mi).strip()
-    except:
-        traceback.print_exc()
-        ans = x
-    return compress_spaces.sub(' ', ans)
 
 class Metadata(object):
 
@@ -75,7 +62,9 @@ class Metadata(object):
         @param authors: List of strings or []
         @param other: None or a metadata object
         '''
-        object.__setattr__(self, '_data', copy.deepcopy(NULL_VALUES))
+        _data = copy.deepcopy(NULL_VALUES)
+        object.__setattr__(self, '_data', _data)
+        _data['_curseq'] = _data['_compseq'] = 0
         if other is not None:
             self.smart_update(other)
         else:
@@ -98,14 +87,28 @@ class Metadata(object):
             pass
         if field in _data['user_metadata'].iterkeys():
             d = _data['user_metadata'][field]
-            if d['datatype'] != 'composite':
-                return d['#value#']
-            return format_composite(d['display']['composite_template'], self)
+            val = d['#value#']
+            if d['datatype'] != 'composite' or \
+                    (_data['_curseq'] == _data['_compseq'] and val is not None):
+                return val
+            # Data in the structure has changed. Recompute the composite fields
+            _data['_compseq'] = _data['_curseq']
+            for ck in _data['user_metadata']:
+                cf = _data['user_metadata'][ck]
+                if cf['datatype'] != 'composite':
+                    continue
+                cf['#value#'] = 'RECURSIVE_COMPOSITE FIELD ' + field
+                cf['#value#'] = composite_formatter.safe_format(
+                                            d['display']['composite_template'],
+                                            self, _('TEMPLATE ERROR')).strip()
+            return d['#value#']
+
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 
     def __setattr__(self, field, val, extra=None):
         _data = object.__getattribute__(self, '_data')
+        _data['_curseq'] += 1
         if field in TOP_LEVEL_CLASSIFIERS:
             _data['classifiers'].update({field: val})
         elif field in STANDARD_METADATA_FIELDS:
@@ -193,7 +196,7 @@ class Metadata(object):
             if v is not None:
                 result[attr] = v
         for attr in _data['user_metadata'].iterkeys():
-            v = _data['user_metadata'][attr]['#value#']
+            v = self.get(attr, None)
             if v is not None:
                 result[attr] = v
                 if _data['user_metadata'][attr]['datatype'] == 'series':
@@ -465,9 +468,6 @@ class Metadata(object):
             return (name, unicode(res), orig_res, fmeta)
 
         return (None, None, None, None)
-
-    def expand_template(self, template):
-        return format_composite(template, self)
 
     def __unicode__(self):
         from calibre.ebooks.metadata import authors_to_string

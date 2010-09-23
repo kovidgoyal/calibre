@@ -351,6 +351,8 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         if not x[col]['editable']:
             continue
         dt = x[col]['datatype']
+        if dt == 'composite':
+            continue
         if dt == 'comments':
             continue
         w = widget_factory(dt, col)
