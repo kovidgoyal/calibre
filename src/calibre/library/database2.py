@@ -539,8 +539,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def standard_field_keys(self):
         return self.field_metadata.standard_field_keys()
 
-    def custom_field_keys(self):
-        return self.field_metadata.custom_field_keys()
+    def custom_field_keys(self, include_composites=True):
+        return self.field_metadata.custom_field_keys(include_composites)
 
     def all_field_keys(self):
         return self.field_metadata.all_field_keys()
@@ -554,8 +554,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def search_term_to_field_key(self, term):
         return self.field_metadata.search_term_to_key(term)
 
-    def custom_field_metadata(self):
-        return self.field_metadata.custom_field_metadata()
+    def custom_field_metadata(self, include_composites=True):
+        return self.field_metadata.custom_field_metadata(include_composites)
 
     def all_metadata(self):
         return self.field_metadata.all_metadata()
