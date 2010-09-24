@@ -47,10 +47,12 @@ class TemplateFormatter(string.Formatter):
                     'shorten'       : (3, _shorten),
         }
 
+    format_string_re = re.compile(r'^(.*)\|(.*)\|(.*)$')
+    compress_spaces = re.compile(r'\s+')
+
     def get_value(self, key, args):
         raise Exception('get_value must be implemented in the subclass')
 
-    format_string_re = re.compile(r'^(.*)\|(.*)\|(.*)$')
 
     def _explode_format_string(self, fmt):
         try:
@@ -64,8 +66,10 @@ class TemplateFormatter(string.Formatter):
             return fmt, '', ''
 
     def format_field(self, val, fmt):
+        # Handle conditional text
         fmt, prefix, suffix = self._explode_format_string(fmt)
 
+        # Handle functions
         p = fmt.find('(')
         if p >= 0 and fmt[-1] == ')' and fmt[0:p] in self.functions:
             field = fmt[0:p]
@@ -73,7 +77,7 @@ class TemplateFormatter(string.Formatter):
             args = fmt[p+1:-1].split(',')
             if (func[0] == 0 and (len(args) != 1 or args[0])) or \
                     (func[0] > 0 and func[0] != len(args)):
-                raise Exception ('Incorrect number of arguments for function '+ fmt[0:p])
+                raise ValueError('Incorrect number of arguments for function '+ fmt[0:p])
             if func[0] == 0:
                 val = func[1](self, val)
             else:
@@ -83,8 +87,6 @@ class TemplateFormatter(string.Formatter):
         if not val:
             return ''
         return prefix + val + suffix
-
-    compress_spaces = re.compile(r'\s+')
 
     def vformat(self, fmt, args, kwargs):
         ans = string.Formatter.vformat(self, fmt, args, kwargs)
@@ -105,7 +107,7 @@ class ValidateFormat(TemplateFormatter):
     Provides a format function that substitutes '' for any missing value
     '''
     def get_value(self, key, args, kwargs):
-            return 'this is some text that should be long enough'
+        return 'this is some text that should be long enough'
 
     def validate(self, x):
         return self.vformat(x, [], {})

@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import sys, textwrap, traceback, StringIO
 from functools import partial
+from codeop import CommandCompiler
 
 from PyQt4.Qt import QTextEdit, Qt, QTextFrameFormat, pyqtSignal, \
     QApplication, QColor, QPalette, QMenu, QActionGroup, QTimer
@@ -16,8 +17,9 @@ from pygments.styles import get_all_styles
 
 from calibre.utils.pyconsole.formatter import Formatter
 from calibre.utils.pyconsole.controller import Controller
+from calibre.utils.pyconsole.history import History
 from calibre.utils.pyconsole import prints, prefs, __appname__, \
-        __version__, error_dialog
+        __version__, error_dialog, dynamic
 
 class EditBlock(object): # {{{
 
@@ -73,6 +75,7 @@ class ThemeMenu(QMenu): # {{{
 
 # }}}
 
+
 class Console(QTextEdit):
 
     running = pyqtSignal()
@@ -114,7 +117,9 @@ class Console(QTextEdit):
             parent=None):
         QTextEdit.__init__(self, parent)
         self.shutting_down = False
+        self.compiler = CommandCompiler()
         self.buf = self.old_buf = []
+        self.history = History([''], dynamic.get('console_history', []))
         self.prompt_frame = None
         self.allow_output = False
         self.prompt_frame_format = QTextFrameFormat()
@@ -122,7 +127,7 @@ class Console(QTextEdit):
         self.prompt_frame_format.setBorderStyle(QTextFrameFormat.BorderStyle_Solid)
         self.prompt_len = len(prompt)
 
-        self.doc.setMaximumBlockCount(10000)
+        self.doc.setMaximumBlockCount(int(prefs['scrollback']))
         self.lexer = PythonLexer(ensurenl=False)
         self.tb_lexer = PythonTracebackLexer()
 
@@ -139,6 +144,8 @@ class Console(QTextEdit):
         self.key_dispatcher = { # {{{
                 Qt.Key_Enter : self.enter_pressed,
                 Qt.Key_Return : self.enter_pressed,
+                Qt.Key_Up : self.up_pressed,
+                Qt.Key_Down : self.down_pressed,
                 Qt.Key_Home : self.home_pressed,
                 Qt.Key_End : self.end_pressed,
                 Qt.Key_Left : self.left_pressed,
@@ -153,15 +160,17 @@ class Console(QTextEdit):
         '''.format(sys.version.splitlines()[0], __appname__,
             __version__))
 
+        sys.excepthook = self.unhandled_exception
+
         self.controllers = []
         QTimer.singleShot(0, self.launch_controller)
 
-        sys.excepthook = self.unhandled_exception
 
         with EditBlock(self.cursor):
             self.render_block(motd)
 
     def shutdown(self):
+        dynamic.set('console_history', self.history.serialize())
         self.shutton_down = True
         for c in self.controllers:
             c.kill()
@@ -365,7 +374,7 @@ class Console(QTextEdit):
 
     # }}}
 
-    # Keyboard handling {{{
+    # Keyboard management {{{
 
     def keyPressEvent(self, ev):
         text = unicode(ev.text())
@@ -394,6 +403,20 @@ class Console(QTextEdit):
             self.setTextCursor(c)
         self.ensureCursorVisible()
 
+    def up_pressed(self):
+        lineno, pos = self.cursor_pos
+        if lineno < 0: return
+        if lineno == 0:
+            b = self.history.back()
+            if b is not None:
+                self.set_prompt(b)
+        else:
+            c = self.cursor
+            c.movePosition(c.Up)
+            self.setTextCursor(c)
+        self.ensureCursorVisible()
+
+
     def backspace_pressed(self):
         lineno, pos = self.cursor_pos
         if lineno < 0: return
@@ -414,7 +437,6 @@ class Console(QTextEdit):
         lineno, pos = self.cursor_pos
         if lineno < 0: return
         c = self.cursor
-        lineno, pos = self.cursor_pos
         cp = list(self.prompt(False))
         if pos < len(cp[lineno]):
             c.movePosition(c.NextCharacter)
@@ -422,6 +444,22 @@ class Console(QTextEdit):
             c.movePosition(c.NextCharacter, n=1+self.prompt_len)
         self.setTextCursor(c)
         self.ensureCursorVisible()
+
+    def down_pressed(self):
+        lineno, pos = self.cursor_pos
+        if lineno < 0: return
+        c = self.cursor
+        cp = list(self.prompt(False))
+        if lineno >= len(cp) - 1:
+            b = self.history.forward()
+            if b is not None:
+                self.set_prompt(b)
+        else:
+            c = self.cursor
+            c.movePosition(c.Down)
+            self.setTextCursor(c)
+        self.ensureCursorVisible()
+
 
     def home_pressed(self):
         if self.prompt_frame is not None:
@@ -454,6 +492,19 @@ class Console(QTextEdit):
             return self.no_controller_error()
         cp = list(self.prompt())
         if cp[0]:
+            try:
+                ret = self.compiler('\n'.join(cp))
+            except:
+                pass
+            else:
+                if ret is None:
+                    c = self.prompt_frame.lastCursorPosition()
+                    c.insertBlock()
+                    self.setTextCursor(c)
+                    self.render_current_prompt()
+                    return
+                else:
+                    self.history.enter(cp)
             self.execute(cp)
 
     def text_typed(self, text):
@@ -461,6 +512,7 @@ class Console(QTextEdit):
             self.move_cursor_to_prompt()
             self.cursor.insertText(text)
             self.render_current_prompt(restore_cursor=True)
+            self.history.current = list(self.prompt())
 
     # }}}
 

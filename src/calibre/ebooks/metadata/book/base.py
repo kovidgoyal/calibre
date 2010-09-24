@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy, re, traceback
+import copy, traceback
 
 from calibre import prints
 from calibre.ebooks.metadata.book import SC_COPYABLE_FIELDS

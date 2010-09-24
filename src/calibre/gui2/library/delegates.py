@@ -304,6 +304,8 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
             val = 2 if val is None else 1 if not val else 0
         editor.setCurrentIndex(val)
 
+# }}}
+
 class CcTemplateDelegate(QStyledItemDelegate): # {{{
     def __init__(self, parent):
         '''

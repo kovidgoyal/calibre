@@ -24,6 +24,8 @@ def console_config():
     c = Config('console', desc)
 
     c.add_opt('theme', default='native', help='The color theme')
+    c.add_opt('scrollback', default=10000,
+            help='Max number of lines to keep in the scrollback buffer')
 
     return c
 

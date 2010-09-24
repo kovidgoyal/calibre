@@ -81,7 +81,6 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         return self.opt_use_author_sort.isChecked()
 
     def validate(self):
-        print 'here in validate'
         tmpl = unicode(self.opt_save_template.text())
         try:
             validation_formatter.validate(tmpl)
@@ -89,6 +88,6 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         except Exception, err:
             error_dialog(self, _('Invalid template'),
                     '<p>'+_('The template %s is invalid:')%tmpl + \
-                    '<br>'+str(err), show=True)
+                    '<br>'+unicode(err), show=True)
 
             return False

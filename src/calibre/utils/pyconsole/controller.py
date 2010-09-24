@@ -104,7 +104,6 @@ class Controller(QThread):
     def returncode(self):
         return self.process.returncode
 
-    @property
     def interrupt(self):
         if hasattr(signal, 'SIGINT'):
             os.kill(self.process.pid, signal.SIGINT)

@@ -382,6 +382,7 @@ class CustomColumns(object):
             )
         # get rid of the temp tables
         self.conn.executescript(drops)
+        self.dirtied(ids, commit=False)
         self.conn.commit()
 
         # set the in-memory copies of the tags
@@ -402,19 +403,21 @@ class CustomColumns(object):
         same length as ids.
         '''
         if extras is not None and len(extras) != len(ids):
-            raise ValueError('Lentgh of ids and extras is not the same')
+            raise ValueError('Length of ids and extras is not the same')
         ev = None
         for idx,id in enumerate(ids):
             if extras is not None:
                 ev = extras[idx]
             self._set_custom(id, val, label=label, num=num, append=append,
                              notify=notify, extra=ev)
+        self.dirtied(ids, commit=False)
         self.conn.commit()
 
     def set_custom(self, id, val, label=None, num=None,
                    append=False, notify=True, extra=None, commit=True):
         self._set_custom(id, val, label=label, num=num, append=append,
                          notify=notify, extra=extra)
+        self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
 
