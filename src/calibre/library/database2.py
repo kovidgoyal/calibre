@@ -557,7 +557,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def metadata_for_field(self, key):
         return self.field_metadata[key]
 
-    def dump_metadata(self, book_ids, remove_from_dirtied=True, commit=True):
+    def dump_metadata(self, book_ids=None, remove_from_dirtied=True, commit=True):
+        'Write metadata for each record to an individual OPF file'
+        if book_ids is None:
+            book_ids = [x[0] for x in self.conn.get(
+                'SELECT book FROM metadata_dirtied', all=True)]
         for book_id in book_ids:
             if not self.data.has_id(book_id):
                 continue

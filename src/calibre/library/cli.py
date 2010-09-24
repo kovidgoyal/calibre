@@ -32,8 +32,9 @@ def send_message(msg=''):
         t.conn.send('refreshdb:'+msg)
         t.conn.close()
 
-
-
+def write_dirtied(db):
+    prints('Backing up metadata')
+    db.dump_metadata()
 
 def get_parser(usage):
     parser = OptionParser(usage)
@@ -259,6 +260,7 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
                     print >>sys.stderr, '\t', title+':'
                     print >>sys.stderr, '\t\t ', path
 
+        write_dirtied(db)
         send_message()
     finally:
         sys.stdout = orig
@@ -299,6 +301,7 @@ def do_add_empty(db, title, authors, isbn):
     if isbn:
         mi.isbn = isbn
     db.import_book(mi, [])
+    write_dirtied()
     send_message()
 
 def command_add(args, dbpath):
@@ -452,6 +455,7 @@ def do_set_metadata(db, id, stream):
     db.set_metadata(id, mi)
     db.clean()
     do_show_metadata(db, id, False)
+    write_dirtied()
     send_message()
 
 def set_metadata_option_parser():

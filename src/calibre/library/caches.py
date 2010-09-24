@@ -36,14 +36,14 @@ class MetadataBackup(Thread): # {{{
     def run(self):
         while self.keep_running:
             try:
-                id_ = self.db.dirtied_queue.get(True, 5)
+                id_ = self.db.dirtied_queue.get()
             except Empty:
                 continue
             except:
                 # Happens during interpreter shutdown
                 break
             if self.dump_func([id_]) is None:
-                # An exception occured in dump_func, retry once
+                # An exception occurred in dump_func, retry once
                 prints('Failed to backup metadata for id:', id_, 'once')
                 time.sleep(2)
                 if not self.dump_func([id_]):
@@ -84,9 +84,12 @@ class CoverCache(Thread): # {{{
     def run(self):
         while self.keep_running:
             try:
-                id_ = self.load_queue.get(True, 1)
+                id_ = self.load_queue.get()
             except Empty:
                 continue
+            except:
+                #Happens during interpreter shutdown
+                break
             try:
                 img = self._image_for_id(id_)
             except:
