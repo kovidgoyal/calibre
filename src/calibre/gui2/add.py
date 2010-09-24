@@ -381,11 +381,7 @@ class Adder(QObject): # {{{
 
 # }}}
 
-###############################################################################
-############################## END ADDER ######################################
-###############################################################################
-
-class Saver(QObject):
+class Saver(QObject): # {{{
 
     def __init__(self, parent, db, callback, rows, path, opts,
             spare_server=None):
@@ -446,4 +442,5 @@ class Saver(QObject):
         self.pd.set_msg(_('Saved')+' '+title)
         if not ok:
             self.failures.add((title, tb))
+# }}}
 
