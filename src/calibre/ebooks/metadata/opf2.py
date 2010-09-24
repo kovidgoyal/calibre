@@ -1230,7 +1230,7 @@ def metadata_to_opf(mi, as_string=True):
         <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
             <dc:identifier opf:scheme="%(a)s" id="%(a)s_id">%(id)s</dc:identifier>
             <dc:identifier opf:scheme="uuid" id="uuid_id">%(uuid)s</dc:identifier>
-        </metadata>
+            </metadata>
         <guide/>
     </package>
     '''%dict(a=__appname__, id=mi.application_id, uuid=mi.uuid)))
