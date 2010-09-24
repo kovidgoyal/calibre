@@ -509,8 +509,9 @@ class Metadata(object):
             fmt('Rights', unicode(self.rights))
         for key in self.user_metadata_keys():
             val = self.get(key, None)
-            (name, val) = self.format_field(key)
-            fmt(name, unicode(val))
+            if val:
+                (name, val) = self.format_field(key)
+                fmt(name, unicode(val))
         return u'\n'.join(ans)
 
     def to_html(self):
@@ -533,7 +534,7 @@ class Metadata(object):
             ans += [(_('Rights'), unicode(self.rights))]
         for key in self.user_metadata_keys():
             val = self.get(key, None)
-            if val is not None:
+            if val:
                 (name, val) = self.format_field(key)
                 ans += [(name, val)]
         for i, x in enumerate(ans):
