@@ -575,6 +575,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         (book_id,))
         if commit:
             self.conn.commit()
+        return True
 
     def dirtied(self, book_ids, commit=True):
         self.conn.executemany(

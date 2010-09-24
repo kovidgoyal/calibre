@@ -19,7 +19,7 @@ from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import title_sort
-from calibre import fit_image
+from calibre import fit_image, prints
 
 class MetadataBackup(Thread): # {{{
 
@@ -39,9 +39,15 @@ class MetadataBackup(Thread): # {{{
                 id_ = self.db.dirtied_queue.get(True, 5)
             except Empty:
                 continue
-            # If there is an exception is dump_func, we
-            # have no way of knowing
-            self.dump_func([id_])
+            except:
+                # Happens during interpreter shutdown
+                break
+            if self.dump_func([id_]) is None:
+                # An exception occured in dump_func, retry once
+                prints('Failed to backup metadata for id:', id_, 'once')
+                time.sleep(2)
+                if not self.dump_func([id_]):
+                    prints('Failed to backup metadata for id:', id_, 'again, giving up')
 
 # }}}
 
