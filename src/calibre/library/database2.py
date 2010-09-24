@@ -443,6 +443,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
+        self.conn.commit()
         self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
         # Delete not needed directories
         if current_path and os.path.exists(spath):
