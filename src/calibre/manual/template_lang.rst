@@ -9,7 +9,7 @@ The |app| template language
 The |app| template language is used in various places. It is used to control the folder structure and file name when saving files from the |app| library to the disk or eBook reader.
 It is also used to define "virtual" columns that contain data from other columns and so on.
 
-The basi template language is very simple, but has very powerful advanced features. The basic idea is that a template consists of names in curly brackets that are then replaced by the corresponding metadata from the book being processed. So, for example, the default template used for saving books to device in |app| is::
+The basic template language is very simple, but has very powerful advanced features. The basic idea is that a template consists of names in curly brackets that are then replaced by the corresponding metadata from the book being processed. So, for example, the default template used for saving books to device in |app| is::
 
     {author_sort}/{title}/{title} - {authors}
 
