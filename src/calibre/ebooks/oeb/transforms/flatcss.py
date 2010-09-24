@@ -219,7 +219,10 @@ class CSSFlattener(object):
                     fnums = self.context.source.fnums
                     if size[0] in ('+', '-'):
                         # Oh, the warcrimes
-                        esize = 3 + force_int(size)
+                        try:
+                            esize = 3 + force_int(size)
+                        except:
+                            esize = 3
                         if esize < 1:
                             esize = 1
                         if esize > 7:
