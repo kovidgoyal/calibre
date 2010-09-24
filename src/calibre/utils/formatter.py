@@ -23,6 +23,12 @@ class TemplateFormatter(string.Formatter):
         else:
             return self.vformat('{'+field_not_set.strip()+'}', [], self.kwargs)
 
+    def _test(self, val, value_if_set, value_not_set):
+        if val:
+            return value_if_set
+        else:
+            return value_not_set
+
     def _ifempty(self, val, value_if_empty):
         if val:
             return val
@@ -45,6 +51,7 @@ class TemplateFormatter(string.Formatter):
                     'ifempty'       : (1, _ifempty),
                     'lookup'        : (2, _lookup),
                     'shorten'       : (3, _shorten),
+                    'test'          : (2, _lookup),
         }
 
     format_string_re = re.compile(r'^(.*)\|(.*)\|(.*)$')
