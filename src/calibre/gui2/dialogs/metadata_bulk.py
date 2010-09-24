@@ -167,7 +167,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.tag_editor_button.clicked.connect(self.tag_editor)
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
 
-        if len(db.custom_column_label_map) == 0:
+        if len([k for k in db.custom_field_metadata().values()
+                                    if k['datatype'] != 'composite']) == 0:
             self.central_widget.removeTab(1)
         else:
             self.create_custom_column_editors()
