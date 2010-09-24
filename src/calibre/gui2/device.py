@@ -721,14 +721,16 @@ class DeviceMixin(object): # {{{
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = device_kind
-            self.refresh_ondevice_info (device_connected = True, reset_only = True)
+            self.library_view.set_device_connected(self.device_connected)
+            self.refresh_ondevice (reset_only = True)
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
             self.location_manager.update_devices()
-            self.refresh_ondevice_info(device_connected=False)
+            self.library_view.set_device_connected(self.device_connected)
+            self.refresh_ondevice()
 
     def info_read(self, job):
         '''
@@ -760,9 +762,9 @@ class DeviceMixin(object): # {{{
         self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.sync_news()
         self.sync_catalogs()
-        self.refresh_ondevice_info(device_connected = True)
+        self.refresh_ondevice()
 
-    def refresh_ondevice_info(self, device_connected, reset_only = False):
+    def refresh_ondevice(self, reset_only = False):
         '''
         Force the library view to refresh, taking into consideration new
         device books information
@@ -770,7 +772,7 @@ class DeviceMixin(object): # {{{
         self.book_on_device(None, reset=True)
         if reset_only:
             return
-        self.library_view.set_device_connected(device_connected)
+        self.library_view.model().refresh_ondevice()
 
     # }}}
 
@@ -803,7 +805,7 @@ class DeviceMixin(object): # {{{
         self.book_on_device(None, reset=True)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
-        self.refresh_ondevice_info(device_connected=True, reset_only=False)
+        self.refresh_ondevice(reset_only=False)
 
     def dispatch_sync_event(self, dest, delete, specific):
         rows = self.library_view.selectionModel().selectedRows()
@@ -1300,7 +1302,7 @@ class DeviceMixin(object): # {{{
         if not self.set_books_in_library(self.booklists(), reset=True):
             self.upload_booklists()
         self.book_on_device(None, reset=True)
-        self.refresh_ondevice_info(device_connected = True)
+        self.refresh_ondevice()
 
         view = self.card_a_view if on_card == 'carda' else \
             self.card_b_view if on_card == 'cardb' else self.memory_view
