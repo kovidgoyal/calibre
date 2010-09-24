@@ -50,7 +50,7 @@ class TemplateFormatter(string.Formatter):
     format_string_re = re.compile(r'^(.*)\|(.*)\|(.*)$')
     compress_spaces = re.compile(r'\s+')
 
-    def get_value(self, key, args):
+    def get_value(self, key, args, kwargs):
         raise Exception('get_value must be implemented in the subclass')
 
 
