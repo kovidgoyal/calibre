@@ -6,7 +6,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     description = 'Neal Boortz Show Radio Notes'
     publisher = 'Neal Boortz'
     category = 'news, politics, USA, talkshow'
-    oldest_article = 1
+    oldest_article = 2
     max_articles_per_feed = 100
     linearize_tables = True
     no_stylesheets = True
@@ -14,8 +14,8 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
 
     masthead_url = 'http://boortz.com/images/nuze_logo.gif'
     keep_only_tags    = [
-                         dict(name='div', attrs={'id':['SiteContent']})
-                       #,dict(attrs={'id':['cxArticleText']})
+                         dict(name='td', attrs={'id':['contentWellCell']})
+
                         ]
     remove_tags = [
                    dict(name='a', attrs={'class':['blogPermalink']}),
