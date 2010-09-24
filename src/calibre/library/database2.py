@@ -561,7 +561,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for book_id in book_ids:
             if not self.data.has_id(book_id):
                 continue
-            mi = self.get_metadata(book_id, index_is_id=True, get_cover=True)
+            mi = self.get_metadata(book_id, index_is_id=True, get_cover=False)
             # Always set cover to cover.jpg. Even if cover doesn't exist,
             # no harm done. This way no need to call dirtied when
             # cover is set/removed
