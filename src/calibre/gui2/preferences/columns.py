@@ -155,8 +155,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                 name=self.custcols[c]['name'],
                                 datatype=self.custcols[c]['datatype'],
                                 is_multiple=self.custcols[c]['is_multiple'],
-                                display = self.custcols[c]['display'],
-                                editable = self.custcols[c]['editable'])
+                                display = self.custcols[c]['display'])
                 must_restart = True
             elif '*deleteme' in self.custcols[c]:
                 db.delete_custom_column(label=self.custcols[c]['label'])

@@ -734,7 +734,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         except:
             return None
         if not verify_formats:
-            return formats
+            return ','.join(formats)
         ans = []
         for format in formats:
             if self.format_abspath(id, format, index_is_id=True) is not None:
