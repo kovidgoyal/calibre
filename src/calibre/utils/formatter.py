@@ -29,6 +29,15 @@ class TemplateFormatter(string.Formatter):
         else:
             return value_not_set
 
+    def _contains(self, val, test, value_if_present, value_if_not):
+        if re.search(test, val):
+            return value_if_present
+        else:
+            return value_if_not
+
+    def _re(self, val, pattern, replacement):
+        return re.sub(pattern, replacement, val)
+
     def _ifempty(self, val, value_if_empty):
         if val:
             return val
@@ -43,14 +52,12 @@ class TemplateFormatter(string.Formatter):
         else:
             return val
 
-    def _re(self, val, pattern, replacement):
-        return re.sub(pattern, replacement, val)
-
     functions = {
                     'uppercase'     : (0, lambda s,x: x.upper()),
                     'lowercase'     : (0, lambda s,x: x.lower()),
                     'titlecase'     : (0, lambda s,x: x.title()),
                     'capitalize'    : (0, lambda s,x: x.capitalize()),
+                    'contains'      : (3, _contains),
                     'ifempty'       : (1, _ifempty),
                     'lookup'        : (2, _lookup),
                     're'            : (2, _re),
