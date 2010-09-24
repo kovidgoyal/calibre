@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.utils.config import Config, StringConfig, config_dir
+from calibre.utils.config import Config, StringConfig, config_dir, tweaks
 
 
 listen_on = '0.0.0.0'
@@ -45,6 +45,16 @@ def server_config(defaults=None):
                 'of items. Default: %default. Set to a large number '
                 'to disable grouping.'))
     return c
+
+def custom_fields_to_display(db):
+    ckeys = db.custom_field_keys()
+    yes_fields = set(tweaks['content_server_will_display'])
+    no_fields = set(tweaks['content_server_wont_display'])
+    if '*' in yes_fields:
+        yes_fields = set(ckeys)
+    if '*' in no_fields:
+        no_fields = set(ckeys)
+    return frozenset(yes_fields - no_fields)
 
 def main():
     from calibre.library.server.main import main

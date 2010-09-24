@@ -132,7 +132,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_database(self, db):
         self.db = db
-        self.custom_columns = self.db.field_metadata.get_custom_field_metadata()
+        self.custom_columns = self.db.field_metadata.custom_field_metadata()
         self.column_map = list(self.orig_headers.keys()) + \
                           list(self.custom_columns)
         def col_idx(name):

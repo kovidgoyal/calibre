@@ -17,6 +17,7 @@ import routes
 from calibre.constants import __appname__
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.library.comments import comments_to_html
+from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import format_tag_string
 from calibre import guess_type
 from calibre.utils.ordered_dict import OrderedDict
@@ -277,7 +278,7 @@ class AcquisitionFeed(NavFeed):
             db):
         NavFeed.__init__(self, id_, updated, version, offsets, page_url, up_url)
         CFM = db.field_metadata
-        CKEYS = [key for key in sorted(CFM.get_custom_fields(),
+        CKEYS = [key for key in sorted(custom_fields_to_display(db),
                  cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
                                      CFM[y]['name'].lower()))]
         for item in items:

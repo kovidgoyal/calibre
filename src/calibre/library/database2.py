@@ -554,6 +554,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def search_term_to_field_key(self, term):
         return self.field_metadata.search_term_to_key(term)
 
+    def custom_field_metadata(self):
+        return self.field_metadata.custom_field_metadata()
+
+    def all_metadata(self):
+        return self.field_metadata.all_metadata()
+
     def metadata_for_field(self, key):
         return self.field_metadata[key]
 
