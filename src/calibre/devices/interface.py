@@ -37,7 +37,7 @@ class DevicePlugin(Plugin):
     THUMBNAIL_HEIGHT = 68
 
     #: Whether the metadata on books can be set via the GUI.
-    CAN_SET_METADATA = True
+    CAN_SET_METADATA = ['title', 'authors', 'collections']
 
     #: Path separator for paths to books on device
     path_sep = os.sep

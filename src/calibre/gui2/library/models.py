@@ -907,7 +907,7 @@ class DeviceBooksModel(BooksModel): # {{{
                 }
         self.marked_for_deletion = {}
         self.search_engine = OnDeviceSearch(self)
-        self.editable = True
+        self.editable = ['title', 'authors', 'collections']
         self.book_in_library = None
 
     def mark_for_deletion(self, job, rows, rows_are_ids=False):
@@ -953,13 +953,13 @@ class DeviceBooksModel(BooksModel): # {{{
         if self.map[index.row()] in self.indices_to_be_deleted():
             return Qt.ItemIsUserCheckable  # Can't figure out how to get the disabled flag in python
         flags = QAbstractTableModel.flags(self, index)
-        if index.isValid() and self.editable:
+        if index.isValid():
             cname = self.column_map[index.column()]
-            if cname in ('title', 'authors') or \
-                    (cname == 'collections' and \
-                     callable(getattr(self.db, 'supports_collections', None)) and \
-                     self.db.supports_collections() and \
-                     prefs['manage_device_metadata']=='manual'):
+            if cname in self.editable and \
+                     cname != 'collections' or \
+                     (callable(getattr(self.db, 'supports_collections', None)) and \
+                      self.db.supports_collections() and \
+                      prefs['manage_device_metadata']=='manual'):
                 flags |= Qt.ItemIsEditable
         return flags
 
@@ -1243,7 +1243,14 @@ class DeviceBooksModel(BooksModel): # {{{
     def set_editable(self, editable):
         # Cannot edit if metadata is sent on connect. Reason: changes will
         # revert to what is in the library on next connect.
-        self.editable = editable and prefs['manage_device_metadata']!='on_connect'
+        if isinstance(editable, list):
+            self.editable = editable
+        elif editable:
+            self.editable = ['title', 'authors', 'collections']
+        else:
+            self.editable = []
+        if prefs['manage_device_metadata']=='on_connect':
+            self.editable = []
 
     def set_search_restriction(self, s):
         pass
