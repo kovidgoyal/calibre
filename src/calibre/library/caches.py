@@ -97,8 +97,12 @@ class CoverCache(Thread): # {{{
                 import traceback
                 traceback.print_exc()
                 continue
-            with self.lock:
-                self.cache[id_] = img
+            try:
+                with self.lock:
+                    self.cache[id_] = img
+            except:
+                # Happens during interpreter shutdown
+                break
 
     def set_cache(self, ids):
         with self.lock:
