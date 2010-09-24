@@ -397,3 +397,15 @@ class SchemaUpgrade(object):
                                  UNIQUE(key));
         '''
         self.conn.executescript(script)
+
+    def upgrade_version_13(self):
+        'Dirtied table for OPF metadata backups'
+        script = '''
+        DROP TABLE IF EXISTS metadata_dirtied;
+        CREATE TABLE metadata_dirtied(id INTEGER PRIMARY KEY,
+                             book INTEGER NOT NULL,
+                             UNIQUE(book));
+        INSERT INTO metadata_dirtied (book) SELECT id FROM books;
+        '''
+        self.conn.executescript(script)
+
