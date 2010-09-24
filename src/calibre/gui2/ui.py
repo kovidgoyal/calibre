@@ -551,6 +551,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         cc = self.library_view.model().cover_cache
         if cc is not None:
             cc.stop()
+        mb = self.library_view.model().metadata_backup
+        if mb is not None:
+            mb.stop()
+
         self.hide_windows()
         self.emailer.stop()
         try:

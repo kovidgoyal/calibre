@@ -9,6 +9,7 @@ The database used to store ebook metadata
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re
 from itertools import repeat
 from math import floor
+from Queue import Queue
 
 from PyQt4.QtGui import QImage
 
@@ -127,7 +128,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def __init__(self, library_path, row_factory=False):
         self.field_metadata = FieldMetadata()
-        self.dirtied_cache = set([])
+        self.dirtied_queue = Queue()
         if not os.path.exists(library_path):
             os.makedirs(library_path)
         self.listeners = set([])
@@ -340,7 +341,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 loc=self.FIELD_MAP['sort']))
 
         d = self.conn.get('SELECT book FROM metadata_dirtied', all=True)
-        self.dirtied_cache.update(set([x[0] for x in d]))
+        for x in d:
+            self.dirtied_queue.put(x[0])
 
         self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
         self.refresh()
@@ -557,6 +559,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def dump_metadata(self, book_ids, remove_from_dirtied=True, commit=True):
         for book_id in book_ids:
+            if not self.data.has_id(book_id):
+                continue
             mi = self.get_metadata(book_id, index_is_id=True, get_cover=True)
             # Always set cover to cover.jpg. Even if cover doesn't exist,
             # no harm done. This way no need to call dirtied when
@@ -569,18 +573,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if remove_from_dirtied:
                 self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                         (book_id,))
-                if book_id in self.dirtied_cache:
-                    self.dirtied_cache.remove(book_id)
         if commit:
             self.conn.commit()
 
     def dirtied(self, book_ids, commit=True):
         self.conn.executemany(
-            'INSERT OR REPLACE INTO metadata_dirtied VALUES (?)',
+            'INSERT OR REPLACE INTO metadata_dirtied (book) VALUES (?)',
                 [(x,) for x in book_ids])
         if commit:
             self.conn.commit()
-        self.dirtied.update(set(book_ids))
+        for x in book_ids:
+            self.dirtied_queue.put(x)
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''

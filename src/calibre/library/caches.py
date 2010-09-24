@@ -21,7 +21,31 @@ from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import title_sort
 from calibre import fit_image
 
-class CoverCache(Thread):
+class MetadataBackup(Thread): # {{{
+
+    def __init__(self, db, dump_func):
+        Thread.__init__(self)
+        self.daemon = True
+        self.db = db
+        self.dump_func = dump_func
+        self.keep_running = True
+
+    def stop(self):
+        self.keep_running = False
+
+    def run(self):
+        while self.keep_running:
+            try:
+                id_ = self.db.dirtied_queue.get(True, 5)
+            except Empty:
+                continue
+            # If there is an exception is dump_func, we
+            # have no way of knowing
+            self.dump_func([id_])
+
+# }}}
+
+class CoverCache(Thread): # {{{
 
     def __init__(self, db, cover_func):
         Thread.__init__(self)
@@ -90,6 +114,7 @@ class CoverCache(Thread):
             for id_ in ids:
                 self.cache.pop(id_, None)
                 self.load_queue.put(id_)
+# }}}
 
 ### Global utility function for get_match here and in gui2/library.py
 CONTAINS_MATCH = 0
@@ -107,7 +132,7 @@ def _match(query, value, matchkind):
             pass
     return False
 
-class ResultCache(SearchQueryParser):
+class ResultCache(SearchQueryParser): # {{{
 
     '''
     Stores sorted and filtered metadata in memory.
@@ -694,4 +719,5 @@ class SortKeyGenerator(object):
 
     # }}}
 
+# }}}
 

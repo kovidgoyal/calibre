@@ -21,7 +21,7 @@ from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
-    REGEXP_MATCH, CoverCache
+    REGEXP_MATCH, CoverCache, MetadataBackup
 from calibre.library.cli import parse_series_string
 from calibre import strftime, isbytestring, prepare_string_for_xml
 from calibre.constants import filesystem_encoding
@@ -153,6 +153,9 @@ class BooksModel(QAbstractTableModel): # {{{
             self.cover_cache.stop()
         self.cover_cache = CoverCache(db, FunctionDispatcher(self.db.cover))
         self.cover_cache.start()
+        self.metadata_backup = MetadataBackup(db,
+                FunctionDispatcher(self.db.dump_metadata))
+        self.metadata_backup.start()
         def refresh_cover(event, ids):
             if event == 'cover' and self.cover_cache is not None:
                 self.cover_cache.refresh(ids)
