@@ -563,7 +563,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def metadata_for_field(self, key):
         return self.field_metadata[key]
 
-    def dump_metadata(self, book_ids, remove_from_dirtied=True, commit=True):
+    def dump_metadata(self, book_ids=None, remove_from_dirtied=True, commit=True):
+        'Write metadata for each record to an individual OPF file'
+        if book_ids is None:
+            book_ids = [x[0] for x in self.conn.get(
+                'SELECT book FROM metadata_dirtied', all=True)]
         for book_id in book_ids:
             if not self.data.has_id(book_id):
                 continue
@@ -584,13 +588,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return True
 
     def dirtied(self, book_ids, commit=True):
-        self.conn.executemany(
-            'INSERT OR REPLACE INTO metadata_dirtied (book) VALUES (?)',
-                [(x,) for x in book_ids])
+        for book in book_ids:
+            try:
+                self.conn.execute(
+                    'INSERT INTO metadata_dirtied (book) VALUES (?)',
+                        (book,))
+                self.dirtied_queue.put(book)
+            except IntegrityError:
+                # Already in table
+                continue
         if commit:
             self.conn.commit()
-        for x in book_ids:
-            self.dirtied_queue.put(x)
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''

@@ -956,10 +956,10 @@ class DeviceBooksModel(BooksModel): # {{{
         if index.isValid():
             cname = self.column_map[index.column()]
             if cname in self.editable and \
-                     cname != 'collections' or \
+                     (cname != 'collections' or \
                      (callable(getattr(self.db, 'supports_collections', None)) and \
                       self.db.supports_collections() and \
-                      prefs['manage_device_metadata']=='manual'):
+                      prefs['manage_device_metadata']=='manual')):
                 flags |= Qt.ItemIsEditable
         return flags
 
