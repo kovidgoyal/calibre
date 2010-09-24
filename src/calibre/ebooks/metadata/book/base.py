@@ -76,6 +76,11 @@ class Metadata(object):
                 self.author = list(authors) if authors else []# Needed for backward compatibility
                 self.authors = list(authors) if authors else []
 
+    def is_null(self, field):
+        null_val = NULL_VALUES.get(field, None)
+        val = getattr(self, field, None)
+        return not val or val == null_val
+
     def __getattribute__(self, field):
         _data = object.__getattribute__(self, '_data')
         if field in TOP_LEVEL_CLASSIFIERS:
