@@ -578,13 +578,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return True
 
     def dirtied(self, book_ids, commit=True):
-        self.conn.executemany(
-            'INSERT OR REPLACE INTO metadata_dirtied (book) VALUES (?)',
-                [(x,) for x in book_ids])
+        for book in book_ids:
+            try:
+                self.conn.execute(
+                    'INSERT INTO metadata_dirtied (book) VALUES (?)',
+                        (book,))
+                self.dirtied_queue.put(book)
+            except IntegrityError:
+                # Already in table
+                continue
         if commit:
             self.conn.commit()
-        for x in book_ids:
-            self.dirtied_queue.put(x)
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
