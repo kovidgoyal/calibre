@@ -43,6 +43,9 @@ class TemplateFormatter(string.Formatter):
         else:
             return val
 
+    def _re(self, val, pattern, replacement):
+        return re.sub(pattern, replacement, val)
+
     functions = {
                     'uppercase'     : (0, lambda s,x: x.upper()),
                     'lowercase'     : (0, lambda s,x: x.lower()),
@@ -50,8 +53,9 @@ class TemplateFormatter(string.Formatter):
                     'capitalize'    : (0, lambda s,x: x.capitalize()),
                     'ifempty'       : (1, _ifempty),
                     'lookup'        : (2, _lookup),
+                    're'            : (2, _re),
                     'shorten'       : (3, _shorten),
-                    'test'          : (2, _lookup),
+                    'test'          : (2, _test),
         }
 
     format_string_re = re.compile(r'^(.*)\|(.*)\|(.*)$')
