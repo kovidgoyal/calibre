@@ -1054,7 +1054,7 @@ msgid ""
 "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 "deprecated version of SYSFS."
 msgstr ""
-"Nemožno detekovať % disk. Jadro pravdepodobne exportuje zastarané verzie "
+"Nemožno detekovať %s disk. Jadro pravdepodobne exportuje zastarané verzie "
 "SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:613

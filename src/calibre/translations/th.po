@@ -1036,7 +1036,7 @@ msgstr "ตรวจสอบไม่พบ ดิสก์ไดร์ %s  ล
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:435
 msgid "Unable to detect the %s mount point. Try rebooting."
-msgstr "ตรวจสอบไม่พบ"
+msgstr "ตรวจสอบไม่พบ %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:500
 msgid "Unable to detect the %s disk drive."

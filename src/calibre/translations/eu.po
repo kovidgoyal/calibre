@@ -10908,7 +10908,7 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 "Baita ere bere baitan 'Serieak atala, katalogoan.\n"
-"Lehenetsita: '%lehenetsita'\n"
+"Lehenetsita: '%default'\n"
 "Aplikatzeko: ePub, MOBI output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:581
