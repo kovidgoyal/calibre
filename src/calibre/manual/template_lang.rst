@@ -17,14 +17,14 @@ For the book "The Foundation" by "Isaac Asimov" it will become::
 
     Asimov, Isaac/The Foundation/The Foundation - Isaac Asimov
 
-You can use all the various metadata fields available in calibre in a template, including any custom columns you have created yourself. To find out the template name for a column simply hover your mouse over the column header. Names for custom fields (columns you have created yourself) always have a # as the first character. For series type custom fields, there is always an additional field named ``#seriesname_index`` that becomes the series index for that series. So if you have a custom series field named #myseries, there will also be a field named #myseries_index.
+You can use all the various metadata fields available in calibre in a template, including any custom columns you have created yourself. To find out the template name for a column simply hover your mouse over the column header. Names for custom fields (columns you have created yourself) always have a # as the first character. For series type custom fields, there is always an additional field named ``#seriesname_index`` that becomes the series index for that series. So if you have a custom series field named ``#myseries``, there will also be a field named ``#myseries_index``.
 
 In addition to the column based fields, you also can use::
 
     {formats} - A list of formats available in the calibre library for a book
     {isbn}    - The ISBN number of the book
 
-If a particular book does not have a particular piece of metadata, the field in the template is automatically removed for that book. So for example::
+If a particular book does not have a particular piece of metadata, the field in the template is automatically removed for that book. Consider, for example::
 
     {author_sort}/{series}/{title} {series_index}
 
@@ -44,19 +44,19 @@ Advanced formatting
 
 You can do more than just simple substitution with the templates. You can also conditionally include text and control how the substituted data is formatted.
 
-First, conditionally including text. There are cases where you might want to have text appear in the output only if a field is not empty. A common case is series and series_index, where you want either nothing or the two values with a hyphen between them. Calibre handles this case using a special field syntax.
+First, conditionally including text. There are cases where you might want to have text appear in the output only if a field is not empty. A common case is ``series`` and ``series_index``, where you want either nothing or the two values with a hyphen between them. Calibre handles this case using a special field syntax.
 
 For example, assume you want to use the template::
 
         {series} - {series_index} - {title}
 
-If the book has no series, the answer will be '- - title'. Many people would rather the result be simply 'title', without the hyphens. To do this, use the extended syntax ``{field:|prefix_text|suffix_text}``. When you use this syntax, if field has the value SERIES then the result will be prefix_textSERIESsuffix_text. If field has no value, then the result will be the empty string (nothing). The prefix and suffix can contain blanks.
+If the book has no series, the answer will be ``- - title``. Many people would rather the result be simply ``title``, without the hyphens. To do this, use the extended syntax ``{field:|prefix_text|suffix_text}``. When you use this syntax, if field has the value SERIES then the result will be ``prefix_textSERIESsuffix_text``. If field has no value, then the result will be the empty string (nothing); the prefix and suffix are ignored. The prefix and suffix can contain blanks.
 
 Using this syntax, we can solve the above series problem with the template::
 
         {series}{series_index:| - | - }{title}
 
-The hyphens will be included only if the book has a series index.
+The hyphens will be included only if the book has a series index, which it will have only if it has a series.
 
 Notes: you must include the : character if you want to use a prefix or a suffix. You must either use no \| characters or both of them; using one, as in ``{field:| - }``, is not allowed. It is OK not to provide any text for one side or the other, such as in ``{series:|| - }``. Using ``{title:||}`` is the same as using ``{title}``.
 
@@ -85,7 +85,7 @@ Advanced features
 Using templates in custom columns
 ----------------------------------
 
-There are sometimes cases where you want to display metadata that |app| does not normally display, or to display data in a way different from how |app| normally does. For example, you might want to display the ISBN, a field that |app| does not display. You can use custom columns for this. To do so, you create a column with the type 'column built from other columns' (hereafter called composite columns), enter a template, and |app| will display in the column the result of evaluating that template. To display the isbn, create the column and enter ``{isbn}`` into the template box. To display a column containing the values of two series custom columns separated by a comma, use ``{#series1:||,}{#series2}``.
+There are sometimes cases where you want to display metadata that |app| does not normally display, or to display data in a way different from how |app| normally does. For example, you might want to display the ISBN, a field that |app| does not display. You can use custom columns for this by creating a column with the type 'column built from other columns' (hereafter called composite columns), and entering a template. Result: |app| will display a column showing the result of evaluating that template. To display the ISBN, create the column and enter ``{isbn}`` into the template box. To display a column containing the values of two series custom columns separated by a comma, use ``{#series1:||,}{#series2}``.
 
 Composite columns can use any template option, including formatting.
 
@@ -98,7 +98,7 @@ Suppose you want to display the value of a field in upper case, when that field 
 
 Function references replace the formatting specification, going after the : and before the first ``|`` or the closing ``}``. Functions must always end with ``()``. Some functions take extra values (arguments), and these go inside the ``()``.
 
-The syntax for using functions is ``{field:function(arguments)}``, or ``{field:function(arguments)|prefix|suffix}``. Argument values cannot contain a comma, because it is used to separate arguments. Functions return the value of the field used in the template, suitably modified.
+The syntax for using functions is ``{field:function(arguments)}``, or ``{field:function(arguments)|prefix|suffix}``. Argument values cannot contain a comma, because it is used to separate arguments. The last (or only) argument cannot contain a closing parenthesis ( ')' ). Functions return the value of the field used in the template, suitably modified.
 
 The functions available are:
 
