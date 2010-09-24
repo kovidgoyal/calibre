@@ -160,7 +160,7 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS):
     for key in CKEYS:
         mi = db.get_metadata(item[CFM['id']['rec_index']], index_is_id=True)
         name, val = mi.format_field(key)
-        if not val:
+        if val:
             datatype = CFM[key]['datatype']
             if datatype == 'text' and CFM[key]['is_multiple']:
                 extra.append('%s: %s<br />'%(name, format_tag_string(val, ',',

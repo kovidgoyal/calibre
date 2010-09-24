@@ -455,6 +455,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
+        self.dirtied([id], commit=False)
+        self.conn.commit()
         self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
         # Delete not needed directories
         if current_path and os.path.exists(spath):
@@ -1922,7 +1924,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             mi.timestamp = utcnow()
         if mi.pubdate is None:
             mi.pubdate = utcnow()
-        self.set_metadata(id, mi)
+        self.set_metadata(id, mi, ignore_errors=True)
         if cover is not None:
             try:
                 self.set_cover(id, cover)

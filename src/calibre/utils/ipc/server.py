@@ -195,8 +195,7 @@ class Server(Thread):
                         job.result = cPickle.load(open(worker.rfile, 'rb'))
                         os.remove(worker.rfile)
                     except:
-                        import traceback
-                        traceback.print_exc()
+                        pass
                 job.duration = time.time() - job.start_time
                 self.changed_jobs_queue.put(job)
 

@@ -48,6 +48,7 @@ class MetadataBackup(Thread): # {{{
                 time.sleep(2)
                 if not self.dump_func([id_]):
                     prints('Failed to backup metadata for id:', id_, 'again, giving up')
+            time.sleep(0.2) # Limit to five per second
 
 # }}}
 
@@ -96,8 +97,12 @@ class CoverCache(Thread): # {{{
                 import traceback
                 traceback.print_exc()
                 continue
-            with self.lock:
-                self.cache[id_] = img
+            try:
+                with self.lock:
+                    self.cache[id_] = img
+            except:
+                # Happens during interpreter shutdown
+                break
 
     def set_cache(self, ids):
         with self.lock:
