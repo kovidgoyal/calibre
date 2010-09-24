@@ -340,6 +340,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         setattr(self, 'title_sort', functools.partial(self.get_property,
                 loc=self.FIELD_MAP['sort']))
 
+        self.dirtied_cache = set()
         d = self.conn.get('SELECT book FROM metadata_dirtied', all=True)
         for x in d:
             self.dirtied_queue.put(x[0])
@@ -585,12 +586,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if remove_from_dirtied:
                 self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                         (book_id,))
+                # if a later exception prevents the commit, then the dirtied
+                # table will still have the book. No big deal, because the OPF
+                # is there and correct. We will simply do it again on next
+                # start
+                self.dirtied_cache.discard(book_id)
         if commit:
             self.conn.commit()
         return True
 
     def dirtied(self, book_ids, commit=True):
         for book in book_ids:
+            if book in self.dirtied_cache:
+                print 'in dirty cache', book
+                continue
             try:
                 self.conn.execute(
                     'INSERT INTO metadata_dirtied (book) VALUES (?)',
@@ -598,9 +607,29 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.dirtied_queue.put(book)
             except IntegrityError:
                 # Already in table
-                continue
+                pass
+            # If the commit doesn't happen, then our cache will be wrong. This
+            # could lead to a problem because we won't put the book back into
+            # the dirtied table. We deal with this by writing the dirty cache
+            # back to the table on GUI exit. Not perfect, but probably OK
+            self.dirtied_cache.add(book)
+            print 'added book', book
         if commit:
             self.conn.commit()
+
+    def commit_dirty_cache(self):
+        '''
+        Set the dirty indication for every book in the cache. The vast majority
+        of the time, the indication will already be set. However, sometimes
+        exceptions may have prevented a commit, which may remove some dirty
+        indications from the DB. This call will put them back. Note that there
+        is no problem with setting a dirty indication for a book that isn't in
+        fact dirty. Just wastes a few cycles.
+        '''
+        print 'commit cache'
+        book_ids = list(self.dirtied_cache)
+        self.dirtied_cache = set()
+        self.dirtied(book_ids)
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
