@@ -63,8 +63,9 @@ function render_book(book) {
     if (tags) {
         t = tags.split(':&:', 2);
         m = parseInt(t[0]);
+        tall = t[1].split(',');
         t = t[1].split(',', m);
-        if (t.length == m) t[m] = '...'
+        if (tall.length > m) t[m] = '...'
         title += 'Tags=[{0}] '.format(t.join(','));
     }
     custcols = book.attr("custcols").split(',')

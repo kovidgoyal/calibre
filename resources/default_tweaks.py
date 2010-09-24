@@ -145,6 +145,24 @@ add_new_book_tags_when_importing_books = False
 # Set the maximum number of tags to show per book in the content server
 max_content_server_tags_shown=5
 
+# Set custom metadata fields that the content server will or will not display.
+# content_server_will_display is a list of custom fields to be displayed.
+# content_server_wont_display is a list of custom fields not to be displayed.
+# wont_display has priority over will_display.
+# The special value '*' means all custom fields.
+# Defaults:
+#    content_server_will_display = ['*']
+#    content_server_wont_display = ['']
+# Examples:
+# To display only the custom fields #mytags and #genre:
+#   content_server_will_display = ['#mytags', '#genre']
+#   content_server_wont_display = ['']
+# To display all fields except #mycomments:
+#   content_server_will_display = ['*']
+#   content_server_wont_display['#mycomments']
+content_server_will_display = ['*']
+content_server_wont_display = ['']
+
 
 # Set the maximum number of sort 'levels' that calibre will use to resort the
 # library after certain operations such as searches or device insertion. Each

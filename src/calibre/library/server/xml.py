@@ -11,6 +11,7 @@ import cherrypy
 from lxml.builder import ElementMaker
 from lxml import etree
 
+from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import strftime, format_tag_string
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import preferred_encoding
@@ -94,7 +95,7 @@ class XMLServer(object):
             c = kwargs.pop('comments')
 
             CFM = self.db.field_metadata
-            CKEYS = [key for key in sorted(CFM.get_custom_fields(),
+            CKEYS = [key for key in sorted(custom_fields_to_display(self.db),
                  cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
                                      CFM[y]['name'].lower()))]
             custcols = []

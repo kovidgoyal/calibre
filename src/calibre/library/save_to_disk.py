@@ -108,8 +108,12 @@ class SafeFormat(TemplateFormatter):
     '''
     def get_value(self, key, args, kwargs):
         try:
-            if kwargs[key.lower()]:
-                return kwargs[key.lower()]
+            b = self.book.get_user_metadata(key, False)
+            key = key.lower()
+            if b is not None and b['datatype'] == 'composite':
+                return self.vformat(b['display']['composite_template'], [], kwargs)
+            if kwargs[key]:
+                return self.sanitize(kwargs[key.lower()])
             return ''
         except:
             return ''
@@ -159,7 +163,8 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
             elif custom_metadata[key]['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
 
-    components = safe_formatter.safe_format(template, format_args, '')
+    components = safe_formatter.safe_format(template, format_args, '', mi,
+                                            sanitize=sanitize_func)
     components = [x.strip() for x in components.split('/') if x.strip()]
     components = [sanitize_func(x) for x in components if x]
     if not components:

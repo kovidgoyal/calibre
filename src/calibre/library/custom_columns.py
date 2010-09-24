@@ -427,6 +427,8 @@ class CustomColumns(object):
             data = self.custom_column_label_map[label]
         if num is not None:
             data = self.custom_column_num_map[num]
+        if data['datatype'] == 'composite':
+            return None
         if not data['editable']:
             raise ValueError('Column %r is not editable'%data['label'])
         table, lt = self.custom_table_names(data['num'])

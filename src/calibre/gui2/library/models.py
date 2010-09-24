@@ -120,6 +120,9 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
+        self.refresh_ondevice()
+
+    def refresh_ondevice(self):
         self.db.refresh_ondevice()
         self.refresh() # does a resort()
         self.research()
@@ -129,7 +132,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_database(self, db):
         self.db = db
-        self.custom_columns = self.db.field_metadata.get_custom_field_metadata()
+        self.custom_columns = self.db.field_metadata.custom_field_metadata()
         self.column_map = list(self.orig_headers.keys()) + \
                           list(self.custom_columns)
         def col_idx(name):

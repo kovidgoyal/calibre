@@ -13,6 +13,7 @@ from lxml import html
 from lxml.html.builder import HTML, HEAD, TITLE, LINK, DIV, IMG, BODY, \
         OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR
 
+from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import strftime, format_tag_string
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import __appname__
@@ -197,7 +198,7 @@ class MobileServer(object):
             self.sort(items, sort, (order.lower().strip() == 'ascending'))
 
         CFM = self.db.field_metadata
-        CKEYS = [key for key in sorted(CFM.get_custom_fields(),
+        CKEYS = [key for key in sorted(custom_fields_to_display(self.db),
              cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
                                  CFM[y]['name'].lower()))]
         # This method uses its own book dict, not the Metadata dict. The loop

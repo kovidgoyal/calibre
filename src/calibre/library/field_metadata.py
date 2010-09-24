@@ -358,10 +358,14 @@ class FieldMetadata(dict):
                 if self._tb_cats[k]['kind']=='field' and
                    not self._tb_cats[k]['is_custom']]
 
-    def custom_field_keys(self):
-        return [k for k in self._tb_cats.keys()
-                if self._tb_cats[k]['kind']=='field' and
-                   self._tb_cats[k]['is_custom']]
+    def custom_field_keys(self, include_composites=True):
+        res = []
+        for k in self._tb_cats.keys():
+            fm = self._tb_cats[k]
+            if fm['kind']=='field' and fm['is_custom'] and \
+                   (fm['datatype'] != 'composite' or include_composites):
+                res.append(k)
+        return res
 
     def all_field_keys(self):
         return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind']=='field']
@@ -402,20 +406,16 @@ class FieldMetadata(dict):
                 return self.custom_label_to_key_map[label]
         raise ValueError('Unknown key [%s]'%(label))
 
-    def get_custom_fields(self):
-        return [l for l in self._tb_cats if self._tb_cats[l]['is_custom']]
-
     def all_metadata(self):
         l = {}
         for k in self._tb_cats:
             l[k] = self._tb_cats[k]
         return l
 
-    def get_custom_field_metadata(self):
+    def custom_field_metadata(self, include_composites=True):
         l = {}
-        for k in self._tb_cats:
-            if self._tb_cats[k]['is_custom']:
-                l[k] = self._tb_cats[k]
+        for k in self.custom_field_keys(include_composites):
+            l[k] = self._tb_cats[k]
         return l
 
     def add_custom_field(self, label, table, column, datatype, colnum, name,
