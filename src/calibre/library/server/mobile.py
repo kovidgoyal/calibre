@@ -125,7 +125,6 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
         series = u'[%s - %s]'%(book['series'], book['series_index']) \
                 if book['series'] else ''
         tags = u'Tags=[%s]'%book['tags'] if book['tags'] else ''
-        print tags
 
         ctext = ''
         for key in CKEYS:
@@ -231,7 +230,7 @@ class MobileServer(object):
                     return '%s:#:%s'%(name, unicode(val))
                 mi = self.db.get_metadata(record[CFM['id']['rec_index']], index_is_id=True)
                 name, val = mi.format_field(key)
-                if val is None:
+                if not val:
                     continue
                 datatype = CFM[key]['datatype']
                 if datatype in ['comments']:

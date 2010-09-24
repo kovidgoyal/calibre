@@ -432,14 +432,14 @@ class Metadata(object):
         if key in self.user_metadata_keys():
             res = self.get(key, None)
             cmeta = self.get_user_metadata(key, make_copy=False)
+            name = unicode(cmeta['name'])
             if cmeta['datatype'] != 'composite' and (res is None or res == ''):
-                return (None, None, None, None)
+                return (name, res, None, None)
             orig_res = res
             cmeta = self.get_user_metadata(key, make_copy=False)
             if res is None or res == '':
-                return (None, None, None, None)
+                return (name, res, None, None)
             orig_res = res
-            name = unicode(cmeta['name'])
             datatype = cmeta['datatype']
             if datatype == 'text' and cmeta['is_multiple']:
                 res = u', '.join(res)
@@ -454,10 +454,11 @@ class Metadata(object):
 
         if key in field_metadata and field_metadata[key]['kind'] == 'field':
             res = self.get(key, None)
-            if res is None or res == '':
-                return (None, None, None, None)
-            orig_res = res
             fmeta = field_metadata[key]
+            name = unicode(fmeta['name'])
+            if res is None or res == '':
+                return (name, res, None, None)
+            orig_res = res
             name = unicode(fmeta['name'])
             datatype = fmeta['datatype']
             if key == 'authors':
@@ -508,9 +509,8 @@ class Metadata(object):
             fmt('Rights', unicode(self.rights))
         for key in self.user_metadata_keys():
             val = self.get(key, None)
-            if val is not None:
-                (name, val) = self.format_field(key)
-                fmt(name, unicode(val))
+            (name, val) = self.format_field(key)
+            fmt(name, unicode(val))
         return u'\n'.join(ans)
 
     def to_html(self):
