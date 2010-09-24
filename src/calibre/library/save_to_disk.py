@@ -166,6 +166,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     components = safe_formatter.safe_format(template, format_args, '', mi,
                                             sanitize=sanitize_func)
     components = [x.strip() for x in components.split('/') if x.strip()]
+    components = [sanitize_func(x) for x in components if x]
     if not components:
         components = [str(id)]
     components = [x.encode(filesystem_encoding, 'replace') if isinstance(x,
