@@ -327,7 +327,7 @@ class BooksModel(QAbstractTableModel): # {{{
         mi = self.db.get_metadata(idx)
         for key in mi.user_metadata_keys():
             name, val = mi.format_field(key)
-            if val is not None:
+            if val:
                 data[name] = val
         return data
 
