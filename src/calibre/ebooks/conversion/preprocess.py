@@ -123,7 +123,7 @@ def line_length(format, raw, percent, test_type):
             l = len(line)
             if l > max:
                 max = l
-        print "max line found is "+str(max)
+        #print "max line found is "+str(max)
         # Build the line length histogram
         hRaw = [ 0 for i in range(0,buckets) ]
         for line in lines:
@@ -136,8 +136,8 @@ def line_length(format, raw, percent, test_type):
         # Normalize the histogram into percents
         totalLines = len(lines)
         h = [ float(count)/totalLines for count in hRaw ]
-        print "\nhRaw histogram lengths are: "+str(hRaw)
-        print "              percents are: "+str(h)+"\n"
+        #print "\nhRaw histogram lengths are: "+str(hRaw)
+        #print "              percents are: "+str(h)+"\n"
         
         # Find the biggest bucket
         maxValue = 0
@@ -183,27 +183,27 @@ class Dehyphenator(object):
         if self.prefixes.match(firsthalf) is None:
            lookupword = self.removeprefix.sub('', lookupword)
         booklookup = re.compile(u'%s' % lookupword, re.IGNORECASE)
-        print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
+        #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
         if self.format == 'html_cleanup':
            match = booklookup.search(self.html)
            hyphenmatch = re.search(u'%s' % hyphenated, self.html)
            if match:
-               print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
+               #print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
                return dehyphenated
            elif hyphenmatch:
-               print "Cleanup:returned hyphenated word: " + str(hyphenated)
+               #print "Cleanup:returned hyphenated word: " + str(hyphenated)
                return hyphenated
            else:
-               print "Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf)
+               #print "Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf)
                return firsthalf+u'\u2014'+wraptags+secondhalf
                
         else:
             match = booklookup.search(self.html)
             if match:
-                print "returned dehyphenated word: " + str(dehyphenated)
+                #print "returned dehyphenated word: " + str(dehyphenated)
                 return dehyphenated
             else:
-                print "returned hyphenated word: " + str(hyphenated)
+                #print "returned hyphenated word: " + str(hyphenated)
                 return hyphenated
 
     def __call__(self, html, format, length=1):

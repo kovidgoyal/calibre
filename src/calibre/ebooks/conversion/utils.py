@@ -132,7 +132,7 @@ class PreProcessor(object):
                 html = blankreg.sub('', html)
             elif float(len(blanklines)) / float(len(lines)) > 0.40:
                blanks_between_paragraphs = True
-               print "blanks between paragraphs is marked True"
+               #print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
@@ -163,7 +163,7 @@ class PreProcessor(object):
         uppercase_chapters = r"\s*.?([A-Z#\-\s]+)\s*"
         
         chapter_marker = lookahead+chapter_line_open+chapter_header_open+typical_chapters+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-        print chapter_marker
+        #print chapter_marker
         #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")       
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
@@ -172,14 +172,11 @@ class PreProcessor(object):
         # Start with most typical chapter headings, get more aggressive until one works
         if self.html_preprocess_sections < 10:
             chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
-            #chapdetect = re.compile(r"(?=<(p|div))<(?P<outer>p|div)[^>]*>\s*(<(?P<inner_one>span|[ibu])\s[^>]*>)?\s*(<(?P<inner_two>span|[ibu])\s[^>]*>)?\s*(<(?P<inner_three>span|[ibu])\s[^>]*>)?\s*(?P<chap>.?(Introduction|Synopsis|Acknowledgements|Chapter|Epilogue|Volume|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,8})\s*(</(?P=<inner_three>)>)?\s*(</(?P=<inner_two>)>)?\s*(</(?P=<inner_one>)\s[^>]*>)?\s</(?P=<outer>)>(<(?P<outer_two>p|div)[^>]*>\s*(<(?P<inner_four>span|[ibu])\s[^>]*>)?\s*(<(?P<inner_five>span|[ibu])\s[^>]*>)?\s*(<(?P<inner_six>span|[ibu])\s[^>]*>)?\s*(?P<title>(\s*[\w\'\"-]+){1,5})\s*(</(?P=<inner_six>)>)?\s*(</(?P=<inner_five>)>)?\s*(</(?P=<inner_four>)\s[^>]*>)?\s</(?P=<outer_two>)>)?", re.IGNORECASE)
-            #chapdetect = re.compile(r'(?=</?(br|p))(<(?P<outer>(/?br|p))[^>]*>)\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu][^>]*>){0,2}\s*.?(Introduction|Synopsis|Acknowledgements|Chapter|Epilogue|Volume|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,8}\s*(</[ibu]>){0,2})\s*(</span>)?s*(</[ibu]>){0,2}\s*(</span>)?\s*(</(?P=outer)>)\s*\s*(\s*<p[^>]*>\s*</p>){0,2}\s*(<(/?br|p)[^>]*>\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu][^>]*>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.IGNORECASE|re.VERBOSE)
             html = chapdetect.sub(self.chapter_head, html)
         if self.html_preprocess_sections < 10:
             self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", trying numeric chapters")
             chapter_marker = lookahead+chapter_line_open+chapter_header_open+numeric_chapters+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
             chapdetect2 = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
-            #chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu][^>]*>){0,2}\s*.?(\d+\.?|(CHAPTER\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}))\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu][^>]*>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.UNICODE)
             html = chapdetect2.sub(self.chapter_head, html)
 
         if self.html_preprocess_sections < 10:
@@ -208,7 +205,7 @@ class PreProcessor(object):
         # Check Line histogram to determine if the document uses hard line breaks, If 50% or 
         # more of the lines break in the same region of the document then unwrapping is required
         hardbreaks = line_length(format, html, .50, 'histogram')
-        print "Hard line breaks check returned "+str(hardbreaks)
+        #print "Hard line breaks check returned "+str(hardbreaks)
         # Calculate Length
         unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
         length = line_length(format, html, unwrap_factor, 'median')
@@ -243,7 +240,7 @@ class PreProcessor(object):
         if self.html_preprocess_sections < 10:
             self.log("Looking for more split points based on punctuation, currently have " + str(self.html_preprocess_sections))
             chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
-            #html = chapdetect3.sub(self.chapter_break, html)
+            html = chapdetect3.sub(self.chapter_break, html)
         # search for places where a first or second level heading is immediately followed by another
         # top level heading.  demote the second heading to h3 to prevent splitting between chapter
         # headings and titles, images, etc
