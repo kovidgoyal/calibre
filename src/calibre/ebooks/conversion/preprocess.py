@@ -455,6 +455,7 @@ class HTMLPreProcessor(object):
             if is_pdftohtml:
                 end_rules.append((re.compile(r'<p>\s*(?P<chap>(<[ibu]>){0,2}\s*([A-Z \'"!]{3,})\s*([\dA-Z:]+\s){0,4}\s*(</[ibu]>){0,2})\s*<p>\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<p>)?'), chap_head),)
 
+        length = -1
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
             length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'), 'median')
             if length:
@@ -493,7 +494,7 @@ class HTMLPreProcessor(object):
         for rule in rules + end_rules:
             html = rule[0].sub(rule[1], html)
 
-        if is_pdftohtml:
+        if is_pdftohtml and length > -1:
             # Dehyphenate
             dehyphenator = Dehyphenator()
             html = dehyphenator(html,'pdf', length)

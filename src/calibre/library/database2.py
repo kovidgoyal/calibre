@@ -358,10 +358,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return row[self.FIELD_MAP['path']].replace('/', os.sep)
 
 
-    def abspath(self, index, index_is_id=False):
+    def abspath(self, index, index_is_id=False, create_dirs=True):
         'Return the absolute path to the directory containing this books files as a unicode string.'
         path = os.path.join(self.library_path, self.path(index, index_is_id=index_is_id))
-        if not os.path.exists(path):
+        if create_dirs and not os.path.exists(path):
             os.makedirs(path)
         return path
 
@@ -443,6 +443,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
+        self.conn.commit()
         self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
         # Delete not needed directories
         if current_path and os.path.exists(spath):
@@ -451,6 +452,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 parent = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
                     self.rmtree(parent, permanent=True)
+
         curpath = self.library_path
         c1, c2 = current_path.split('/'), path.split('/')
         if not self.is_case_sensitive and len(c1) == len(c2):
@@ -465,13 +467,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # the directories, so no need to do them here.
             for oldseg, newseg in zip(c1, c2):
                 if oldseg.lower() == newseg.lower() and oldseg != newseg:
-                    while True:
-                        # need a temp name in the current segment for renames
-                        tempname = os.path.join(curpath, 'TEMP.%f'%time.time())
-                        if not os.path.exists(tempname):
-                            break
-                    os.rename(os.path.join(curpath, oldseg), tempname)
-                    os.rename(tempname, os.path.join(curpath, newseg))
+                    try:
+                        os.rename(os.path.join(curpath, oldseg), os.path.join(curpath, newseg))
+                    except:
+                        break # Fail silently since nothing catastrophic has happened
                 curpath = os.path.join(curpath, newseg)
 
     def add_listener(self, listener):
@@ -599,7 +598,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def has_cover(self, index, index_is_id=False):
         id = index if index_is_id else self.id(index)
         try:
-            path = os.path.join(self.abspath(id, index_is_id=True), 'cover.jpg')
+            path = os.path.join(self.abspath(id, index_is_id=True,
+                create_dirs=False), 'cover.jpg')
         except:
             # Can happen if path has not yet been set
             return False
@@ -721,7 +721,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = self.format_abspath(index, format, index_is_id=index_is_id)
         if path is not None:
             f = open(path, mode)
-            ret = f if as_file else f.read()
+            try:
+                ret = f if as_file else f.read()
+            except IOError:
+                f.seek(0)
+                out = cStringIO.StringIO()
+                shutil.copyfileobj(f, out)
+                ret = out.getvalue()
             if not as_file:
                 f.close()
             return ret
