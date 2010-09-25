@@ -721,7 +721,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = self.format_abspath(index, format, index_is_id=index_is_id)
         if path is not None:
             f = open(path, mode)
-            ret = f if as_file else f.read()
+            try:
+                ret = f if as_file else f.read()
+            except IOError:
+                f.seek(0)
+                out = cStringIO.StringIO()
+                shutil.copyfileobj(f, out)
+                ret = out.getvalue()
             if not as_file:
                 f.close()
             return ret
