@@ -53,7 +53,6 @@ class MetadataBackup(Thread): # {{{
             except:
                 # Happens during interpreter shutdown
                 break
-            print 'doing id', id_
             try:
                 path, mi = self.get_metadata_for_dump(id_)
             except:
