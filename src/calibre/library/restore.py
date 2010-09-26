@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import re, os, traceback, shutil
 from threading import Thread
 from operator import itemgetter
-from textwrap import TextWrapper
 
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata.opf2 import OPF
@@ -61,11 +60,10 @@ class Restore(Thread):
                 self.failed_restores]
         if failures:
             ans += 'Failed to restore the books in the following folders:\n'
-            wrap = TextWrapper(initial_indent='\t\t', width=1085)
             for dirpath, tb in failures:
                 ans += '\t' + dirpath + ' with error:\n'
-                ans += wrap.fill(tb)
-                ans += '\n'
+                ans += '\n'.join('\t\t'+x for x in tb.splitlines())
+                ans += '\n\n'
 
         if self.conflicting_custom_cols:
             ans += '\n\n'
