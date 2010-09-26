@@ -360,6 +360,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
     def library_moved(self, newloc):
         if newloc is None: return
+        try:
+            olddb = self.library_view.model().db
+        except:
+            olddb = None
         db = LibraryDatabase2(newloc)
         self.library_path = newloc
         self.book_on_device(None, reset=True)
@@ -380,6 +384,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.apply_named_search_restriction('') # reset restriction to null
         self.saved_searches_changed() # reload the search restrictions combo box
         self.apply_named_search_restriction(db.prefs['gui_restriction'])
+        if olddb is not None:
+            try:
+                olddb.conn.close()
+            except:
+                import traceback
+                traceback.print_exc()
 
     def set_window_title(self):
         self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())
