@@ -19,6 +19,7 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import __appname__
 from calibre import human_readable
 from calibre.utils.date import utcfromtimestamp
+from calibre.utils.filenames import ascii_filename
 
 def CLASS(*args, **kwargs): # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)
@@ -111,11 +112,13 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
         data = TD()
         last = None
         for fmt in book['formats'].split(','):
+            a = ascii_filename(book['authors'])
+            t = ascii_filename(book['title'])
             s = SPAN(
                 A(
                     fmt.lower(),
-                    href='/get/%s/%s-%s_%d.%s' % (fmt, book['authors'],
-                        book['title'], book['id'], fmt)
+                    href='/get/%s/%s-%s_%d.%s' % (fmt, a, t,
+                        book['id'], fmt)
                 ),
                 CLASS('button'))
             s.tail = u'\u202f' # &nbsp;

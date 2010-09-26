@@ -819,7 +819,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 fname = err.filename if err.filename else 'file'
                 return error_dialog(self, _('Permission denied'),
                         _('Could not open %s. Is it being used by another'
-                        ' program?')%fname, show=True)
+                        ' program?')%fname, det_msg=traceback.format_exc(),
+                        show=True)
             raise
         self.save_state()
         QDialog.accept(self)
