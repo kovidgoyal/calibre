@@ -1,5 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, re
+from calibre.ebooks.BeautifulSoup import re
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     title = 'Popular Science'
@@ -13,35 +13,35 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     use_embedded_content = True
-    
+
     masthead_url = 'http://www.raytheon.com/newsroom/rtnwcm/groups/Public/documents/masthead/rtn08_popscidec_masthead.jpg'
-    
-               
+
+
     feeds          = [
-                      
+
                       ('Gadgets', 'http://www.popsci.com/full-feed/gadgets'),
                       ('Cars', 'http://www.popsci.com/full-feed/cars'),
                       ('Science', 'http://www.popsci.com/full-feed/science'),
                       ('Technology', 'http://www.popsci.com/full-feed/technology'),
                       ('DIY', 'http://www.popsci.com/full-feed/diy'),
-                      
+
                     ]
 
-    
- #The following will get read of the Gallery: links when found    
-        
+
+ #The following will get read of the Gallery: links when found
+
     def preprocess_html(self, soup) :
         print 'SOUP IS: ', soup
         weblinks = soup.findAll(['head','h2'])
         if weblinks is not None:
             for link in weblinks:
                 if re.search('(Gallery)(:)',str(link)):
-                  
+
                   link.parent.extract()
         return soup
-  #-----------------------------------------------------------------      
-        
-        
+  #-----------------------------------------------------------------
+
+
 
 
 
