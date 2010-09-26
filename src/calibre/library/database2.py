@@ -573,8 +573,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         The last step is clearing the indicator
         '''
         for book_id in book_ids:
-            if not self.data.has_id(book_id):
-                continue
             self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                     (book_id,))
             # if a later exception prevents the commit, then the dirtied
@@ -588,9 +586,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             commit=True):
         '''
         Write metadata for each record to an individual OPF file
-
-        :param dump_to: None or list. If list then instead of writing to file,
-                        data is append to list
         '''
         if book_ids is None:
             book_ids = [x[0] for x in self.conn.get(
@@ -611,7 +606,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.dirtied([book_id])
         if commit:
             self.conn.commit()
-        return True
 
     def dirtied(self, book_ids, commit=True):
         for book in book_ids:
@@ -657,7 +651,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         except:
             # This almost certainly means that the book has been deleted while
             # the backup operation sat in the queue.
-            path,mi = (None, None)
+            path, mi = (None, None)
 
         try:
             # clear the dirtied indicator. The user must put it back if
