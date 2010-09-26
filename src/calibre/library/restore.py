@@ -119,6 +119,7 @@ class Restore(Thread):
         return True
 
     def process_dir(self, dirpath, filenames, book_id):
+        book_id = int(book_id)
         formats = filter(self.is_ebook_file, filenames)
         fmts    = [os.path.splitext(x)[1][1:].upper() for x in formats]
         sizes   = [os.path.getsize(os.path.join(dirpath, x)) for x in formats]
@@ -129,14 +130,17 @@ class Restore(Thread):
         path = os.path.relpath(dirpath, self.src_library_path).replace(os.sep,
                 '/')
 
-        self.books.append({
-            'mi': mi,
-            'timestamp': timestamp,
-            'formats': list(zip(fmts, sizes, names)),
-            'id': int(book_id),
-            'dirpath': dirpath,
-            'path': path,
-        })
+        if int(mi.application_id) == book_id:
+            self.books.append({
+                'mi': mi,
+                'timestamp': timestamp,
+                'formats': list(zip(fmts, sizes, names)),
+                'id': book_id,
+                'dirpath': dirpath,
+                'path': path,
+            })
+        else:
+            self.ignored_dirs.append(dirpath)
 
     def create_cc_metadata(self):
         self.books.sort(key=itemgetter('timestamp'))
@@ -157,7 +161,7 @@ class Restore(Thread):
                     self.conflicting_custom_cols[label].add(args)
                 m[b['label']] = args
 
-        db = LibraryDatabase2(self.library_path)
+        db = RestoreDatabase(self.library_path)
         for args in m.values():
             db.create_custom_column(*args)
         db.conn.close()
