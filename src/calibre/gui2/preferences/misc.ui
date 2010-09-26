@@ -127,7 +127,7 @@
    <item row="10" column="0" colspan="2">
     <widget class="QPushButton" name="button_all_books_dirty">
      <property name="text">
-      <string>Force saving metadata of all books</string>
+      <string>Back up metadata of all books (while you are working)</string>
      </property>
     </widget>
    </item>
