@@ -111,6 +111,12 @@ class CollectionsBookList(BookList):
         from calibre.devices.usbms.driver import debug_print
         debug_print('Starting get_collections:', prefs['manage_device_metadata'])
         debug_print('Renaming rules:', tweaks['sony_collection_renaming_rules'])
+
+        # Complexity: we can use renaming rules only when using automatic
+        # management. Otherwise we don't always have the metadata to make the
+        # right decisions
+        use_renaming_rules = prefs['manage_device_metadata'] == 'on_connect'
+
         collections = {}
         # This map of sets is used to avoid linear searches when testing for
         # book equality
@@ -139,7 +145,16 @@ class CollectionsBookList(BookList):
                 attrs = collection_attributes
             for attr in attrs:
                 attr = attr.strip()
-                ign, val, orig_val, fm = book.format_field_extended(attr)
+                # If attr is device_collections, then we cannot use
+                # format_field, because we don't know the fields where the
+                # values came from.
+                if attr == 'device_collections':
+                    doing_dc = True
+                    val = book.device_collections # is a list
+                else:
+                    doing_dc = False
+                    ign, val, orig_val, fm = book.format_field_extended(attr)
+
                 if not val: continue
                 if isbytestring(val):
                     val = val.decode(preferred_encoding, 'replace')
@@ -151,9 +166,15 @@ class CollectionsBookList(BookList):
                     val = orig_val
                 else:
                     val = [val]
+
                 for category in val:
                     is_series = False
-                    if fm['is_custom']: # is a custom field
+                    if doing_dc:
+                        # Attempt to determine if this value is a series by
+                        # comparing it to the series name.
+                        if category == book.series:
+                            is_series = True
+                    elif fm['is_custom']: # is a custom field
                         if fm['datatype'] == 'text' and len(category) > 1 and \
                                 category[0] == '[' and category[-1] == ']':
                             continue
@@ -167,7 +188,11 @@ class CollectionsBookList(BookList):
                                 ('series' in collection_attributes and
                                  book.get('series', None) == category):
                             is_series = True
-                    cat_name = self.compute_category_name(attr, category, fm)
+                    if use_renaming_rules:
+                        cat_name = self.compute_category_name(attr, category, fm)
+                    else:
+                        cat_name = category
+
                     if cat_name not in collections:
                         collections[cat_name] = []
                         collections_lpaths[cat_name] = set()
