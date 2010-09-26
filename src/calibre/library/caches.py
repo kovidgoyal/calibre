@@ -43,7 +43,7 @@ class MetadataBackup(Thread): # {{{
     def run(self):
         while self.keep_running:
             try:
-                id_ = self.db.dirtied_queue.get()
+                id_ = self.db.dirtied_queue.get(True, 2)
             except Empty:
                 continue
             except:
@@ -122,7 +122,7 @@ class CoverCache(Thread): # {{{
     def run(self):
         while self.keep_running:
             try:
-                id_ = self.load_queue.get()
+                id_ = self.load_queue.get(True, 2)
             except Empty:
                 continue
             except:
