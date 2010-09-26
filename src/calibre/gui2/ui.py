@@ -576,9 +576,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
                     s.exit()
             except:
                 pass
-            time.sleep(2)
         except KeyboardInterrupt:
             pass
+        time.sleep(2)
         self.hide_windows()
         return True
 
