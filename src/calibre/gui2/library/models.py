@@ -72,7 +72,7 @@ class BooksModel(QAbstractTableModel): # {{{
                         'publisher' : _("Publisher"),
                         'tags'      : _("Tags"),
                         'series'    : _("Series"),
-                        }
+    }
 
     def __init__(self, parent=None, buffer=40):
         QAbstractTableModel.__init__(self, parent)
