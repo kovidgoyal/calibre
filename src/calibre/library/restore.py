@@ -23,12 +23,16 @@ NON_EBOOK_EXTENSIONS = frozenset([
 
 class RestoreDatabase(LibraryDatabase2):
 
-    def set_path(self, book_id, *args, **kwargs):
+    def set_path(self, *args, **kwargs):
+        pass
+
+    def dirtied(self, *args, **kwargs):
         pass
 
 class Restore(Thread):
 
     def __init__(self, library_path, progress_callback=None):
+        super(Restore, self).__init__()
         if isbytestring(library_path):
             library_path = library_path.decode(filesystem_encoding)
         self.src_library_path = os.path.abspath(library_path)
@@ -43,6 +47,7 @@ class Restore(Thread):
         self.books = []
         self.conflicting_custom_cols = {}
         self.failed_restores = []
+        self.tb = None
 
     @property
     def errors_occurred(self):
@@ -72,12 +77,15 @@ class Restore(Thread):
 
 
     def run(self):
-        with TemporaryDirectory('_library_restore') as tdir:
-            self.library_path = tdir
-            self.scan_library()
-            self.create_cc_metadata()
-            self.restore_books()
-            self.replace_db()
+        try:
+            with TemporaryDirectory('_library_restore') as tdir:
+                self.library_path = tdir
+                self.scan_library()
+                self.create_cc_metadata()
+                self.restore_books()
+                self.replace_db()
+        except:
+            self.tb = traceback.format_exc()
 
     def scan_library(self):
         for dirpath, dirnames, filenames in os.walk(self.src_library_path):

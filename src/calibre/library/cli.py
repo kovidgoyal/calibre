@@ -877,8 +877,54 @@ def command_saved_searches(args, dbpath):
 COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'show_metadata', 'set_metadata', 'export', 'catalog',
             'saved_searches', 'add_custom_column', 'custom_columns',
-            'remove_custom_column', 'set_custom')
+            'remove_custom_column', 'set_custom', 'restore_database')
 
+def restore_database_option_parser():
+    parser = get_parser(_(
+    '''
+    %prog restore_database [options]
+
+    Restore this database from the metadata stored in OPF
+    files in each directory of the calibre library. This is
+    useful if your metadata.db file has been corrupted.
+
+    WARNING: This completely regenrates your datbase. You will
+    lose stored per-book conversion settings and custom recipes.
+    '''))
+    return parser
+
+def command_restore_database(args, dbpath):
+    from calibre.library.restore import Restore
+    parser = saved_searches_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 0:
+        parser.print_help()
+        return 1
+
+    class Progress(object):
+        def __init__(self): self.total = 1
+
+        def __call__(self, msg, step):
+            if msg is None:
+                self.total = float(step)
+            else:
+                prints(msg, '...', '%d%%'%int(100*(step/self.total)))
+    r = Restore(dbpath, progress_callback=Progress())
+    r.start()
+    r.join()
+
+    if r.tb is not None:
+        prints('Restoring database failed with error:')
+        prints(r.tb)
+    else:
+        prints('Restoring database succeeded')
+        if r.errors_occurred:
+            name = 'calibre_db_restore_report.txt'
+            open('calibre_db_restore_report.txt',
+                    'wb').write(r.report.encode('utf-8'))
+            prints('Some errors occurred. A detailed report was '
+                    'saved to', name)
+    send_message()
 
 def option_parser():
     parser = OptionParser(_(
