@@ -713,6 +713,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.isbn = self.isbn(idx, index_is_id=index_is_id)
         id = idx if index_is_id else self.id(idx)
         mi.application_id = id
+        mi.id = id
         for key,meta in self.field_metadata.iteritems():
             if meta['is_custom']:
                 mi.set_user_metadata(key, meta)
