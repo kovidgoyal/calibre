@@ -22,12 +22,17 @@ from calibre.ebooks.metadata import title_sort
 from calibre import fit_image, prints
 
 class MetadataBackup(Thread): # {{{
+    '''
+    Continuously backup changed metadata into OPF files
+    in the book directory. This class runs in its own
+    thread and makes sure that the actual file write happens in the
+    GUI thread to prevent Windows' file locking from causing problems.
+    '''
 
-    def __init__(self, db, dump_func):
+    def __init__(self, db):
         Thread.__init__(self)
         self.daemon = True
         self.db = db
-        self.dump_func = dump_func
         self.keep_running = True
         from calibre.gui2 import FunctionDispatcher
         self.do_write = FunctionDispatcher(self.write)
@@ -47,7 +52,7 @@ class MetadataBackup(Thread): # {{{
 
             dump = []
             try:
-                self.dump_func([id_], dump_queue=dump)
+                self.db.dump_metadata([id_], dump_to=dump)
             except:
                 prints('Failed to get backup metadata for id:', id_, 'once')
                 import traceback
@@ -55,7 +60,7 @@ class MetadataBackup(Thread): # {{{
                 time.sleep(2)
                 dump = []
                 try:
-                    self.dump_func([id_], dump_queue=dump)
+                    self.db.dump_metadata([id_], dump_to=dump)
                 except:
                     prints('Failed to get backup metadata for id:', id_, 'again, giving up')
                     traceback.print_exc()

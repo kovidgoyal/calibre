@@ -567,7 +567,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return self.field_metadata[key]
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
-            commit=True, dump_queue=None):
+            commit=True, dump_to=None):
         'Write metadata for each record to an individual OPF file'
         if book_ids is None:
             book_ids = [x[0] for x in self.conn.get(
@@ -583,11 +583,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             raw = metadata_to_opf(mi)
             path = os.path.join(self.abspath(book_id, index_is_id=True),
                     'metadata.opf')
-            if dump_queue is None:
+            if dump_to is None:
                 with open(path, 'wb') as f:
                     f.write(raw)
             else:
-                dump_queue.append((path, raw))
+                dump_to.append((path, raw))
             if remove_from_dirtied:
                 self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                         (book_id,))
