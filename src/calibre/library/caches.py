@@ -48,7 +48,7 @@ class MetadataBackup(Thread): # {{{
                 time.sleep(2)
                 if not self.dump_func([id_]):
                     prints('Failed to backup metadata for id:', id_, 'again, giving up')
-            time.sleep(0.2) # Limit to five per second
+            time.sleep(0.9) # Limit to one per second
 
 # }}}
 

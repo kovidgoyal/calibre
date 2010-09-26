@@ -1198,38 +1198,41 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 else:
                     raise
         if mi.title:
-            self.set_title(id, mi.title)
+            self.set_title(id, mi.title, commit=False)
         if not mi.authors:
                 mi.authors = [_('Unknown')]
         authors = []
         for a in mi.authors:
             authors += string_to_authors(a)
-        self.set_authors(id, authors, notify=False)
+        self.set_authors(id, authors, notify=False, commit=False)
         if mi.author_sort:
-            doit(self.set_author_sort, id, mi.author_sort, notify=False)
+            doit(self.set_author_sort, id, mi.author_sort, notify=False,
+                    commit=False)
         if mi.publisher:
-            doit(self.set_publisher, id, mi.publisher, notify=False)
+            doit(self.set_publisher, id, mi.publisher, notify=False,
+                    commit=False)
         if mi.rating:
-            doit(self.set_rating, id, mi.rating, notify=False)
+            doit(self.set_rating, id, mi.rating, notify=False, commit=False)
         if mi.series:
-            doit(self.set_series, id, mi.series, notify=False)
+            doit(self.set_series, id, mi.series, notify=False, commit=False)
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1]) # doesn't use commit
         elif mi.cover is not None and os.access(mi.cover, os.R_OK):
             doit(self.set_cover, id, open(mi.cover, 'rb'))
         if mi.tags:
-            doit(self.set_tags, id, mi.tags, notify=False)
+            doit(self.set_tags, id, mi.tags, notify=False, commit=False)
         if mi.comments:
-            doit(self.set_comment, id, mi.comments, notify=False)
+            doit(self.set_comment, id, mi.comments, notify=False, commit=False)
         if mi.isbn and mi.isbn.strip():
-            doit(self.set_isbn, id, mi.isbn, notify=False)
+            doit(self.set_isbn, id, mi.isbn, notify=False, commit=False)
         if mi.series_index:
-            doit(self.set_series_index, id, mi.series_index, notify=False)
+            doit(self.set_series_index, id, mi.series_index, notify=False,
+                    commit=False)
         if mi.pubdate:
-            doit(self.set_pubdate, id, mi.pubdate, notify=False)
+            doit(self.set_pubdate, id, mi.pubdate, notify=False, commit=False)
         if getattr(mi, 'timestamp', None) is not None:
-            doit(self.set_timestamp, id, mi.timestamp, notify=False)
-        self.set_path(id, True)
+            doit(self.set_timestamp, id, mi.timestamp, notify=False,
+                    commit=False)
 
         user_mi = mi.get_all_user_metadata(make_copy=False)
         for key in user_mi.iterkeys():
@@ -1238,7 +1241,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 doit(self.set_custom, id,
                      val=mi.get(key),
                      extra=mi.get_extra(key),
-                     label=user_mi[key]['label'])
+                     label=user_mi[key]['label'], commit=False)
+        self.commit()
         self.notify('metadata', [id])
 
     def authors_sort_strings(self, id, index_is_id=False):
@@ -1929,7 +1933,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     else:
                         mi.tags.append(tag)
 
-    def create_book_entry(self, mi, cover=None, add_duplicates=True):
+    def create_book_entry(self, mi, cover=None, add_duplicates=True,
+            force_id=None):
         self._add_newbook_tag(mi)
         if not add_duplicates and self.has_book(mi):
             return None
@@ -1940,9 +1945,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             aus = aus.decode(preferred_encoding, 'replace')
         if isbytestring(title):
             title = title.decode(preferred_encoding, 'replace')
-        obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
-                            (title, series_index, aus))
-        id = obj.lastrowid
+        if force_id is None:
+            obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
+                                (title, series_index, aus))
+            id = obj.lastrowid
+        else:
+            id = force_id
+            obj = self.conn.execute(
+                    'INSERT INTO books(id, title, series_index, '
+                        'author_sort) VALUES (?, ?, ?, ?)',
+                                (id, title, series_index, aus))
+
         self.data.books_added([id], self)
         self.set_path(id, True)
         self.conn.commit()

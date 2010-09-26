@@ -171,7 +171,7 @@ class Console(QTextEdit):
 
     def shutdown(self):
         dynamic.set('console_history', self.history.serialize())
-        self.shutton_down = True
+        self.shutting_down = True
         for c in self.controllers:
             c.kill()
 
