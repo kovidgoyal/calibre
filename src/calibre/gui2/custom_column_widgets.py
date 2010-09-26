@@ -492,7 +492,6 @@ class BulkSeries(BulkBase):
         if clear or val != '':
             extras = []
             next_index = self.db.get_next_cc_series_num_for(val, num=self.col_id)
-            print 'cc commit next index', next_index
             for book_id in book_ids:
                 if clear:
                     extras.append(None)

@@ -566,7 +566,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def metadata_for_field(self, key):
         return self.field_metadata[key]
 
-    def clear_dirtied(self, book_ids=None):
+    def clear_dirtied(self, book_ids):
         '''
         Clear the dirtied indicator for the books. This is used when fetching
         metadata, creating an OPF, and writing a file are separated into steps.
@@ -585,7 +585,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.commit()
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
-            commit=True, dump_to=None):
+            commit=True):
         '''
         Write metadata for each record to an individual OPF file
 
@@ -598,19 +598,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for book_id in book_ids:
             if not self.data.has_id(book_id):
                 continue
-            mi = self.get_metadata(book_id, index_is_id=True, get_cover=False)
-            # Always set cover to cover.jpg. Even if cover doesn't exist,
-            # no harm done. This way no need to call dirtied when
-            # cover is set/removed
-            mi.cover = 'cover.jpg'
+            path, mi = self.get_metadata_for_dump(book_id)
+            if path is None:
+                continue
             raw = metadata_to_opf(mi)
-            path = os.path.join(self.abspath(book_id, index_is_id=True),
-                    'metadata.opf')
-            if dump_to is None:
-                with open(path, 'wb') as f:
-                    f.write(raw)
-            else:
-                dump_to.append((path, raw))
+            with open(path, 'wb') as f:
+                f.write(raw)
             if remove_from_dirtied:
                 self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                         (book_id,))
@@ -660,9 +653,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         try:
             path = os.path.join(self.abspath(idx, index_is_id=True), 'metadata.opf')
             mi = self.get_metadata(idx, index_is_id=True)
+            # Always set cover to cover.jpg. Even if cover doesn't exist,
+            # no harm done. This way no need to call dirtied when
+            # cover is set/removed
+            mi.cover = 'cover.jpg'
         except:
-            return ((None, None))
-        return ((path, mi))
+            return (None, None)
+        return (path, mi)
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''

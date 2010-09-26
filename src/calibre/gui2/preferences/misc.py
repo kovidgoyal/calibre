@@ -95,11 +95,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def mark_dirty(self):
         db = self.gui.library_view.model().db
-        ids = [id for id in db.data.iterallids()]
-        db.dirtied(ids)
-        info_dialog(self, _('Backup metadata'),
-            _('Metadata will be backed up while calibre is running, at the '
-              'rate of 30 books per minute.'), show=True)
+        db.dirtied(list(db.data.iterallids()))
 
     def debug_device_detection(self, *args):
         from calibre.gui2.preferences.device_debug import DebugDevice

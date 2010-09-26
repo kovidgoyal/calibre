@@ -48,7 +48,7 @@ class MetadataBackup(Thread): # {{{
         while self.keep_running:
             try:
                 time.sleep(0.5) # Limit to two per second
-                id_ = self.db.dirtied_queue.get(True, 2)
+                id_ = self.db.dirtied_queue.get(True, 1.45)
             except Empty:
                 continue
             except:
