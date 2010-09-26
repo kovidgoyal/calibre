@@ -1,3 +1,4 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -61,7 +62,6 @@ class SonyReaderInput(InputProfile):
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
-    #unsupported_unicode_chars = [\u2018, \u2019, \u201a, \u201b, \u201c, \u201d, \u201e, \u201f]
 
 class SonyReader300Input(SonyReaderInput):
 
@@ -426,6 +426,8 @@ class SonyReaderOutput(OutputProfile):
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+    unsupported_unicode_chars = [[u'\u2018',u'‘'], [u'\u2019',u'’'], [u'\u201a',u'‘'], [u'\u201b',u'’'], [u'\u201c',u'“'], [u'\u201d',u'”'], [u'\u201e',u'“'], [u'\u201f',u'”']]
+
 
 class KoboReaderOutput(OutputProfile):
 
