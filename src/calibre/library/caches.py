@@ -75,7 +75,6 @@ class MetadataBackup(Thread): # {{{
             # Give the GUI thread a chance to do something. Python threads don't
             # have priorities, so this thread would naturally keep the processor
             # until some scheduling event happens. The sleep makes such an event
-            print 'do one'
             time.sleep(0.1)
             try:
                 raw = metadata_to_opf(mi)

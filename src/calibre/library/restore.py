@@ -145,25 +145,33 @@ class Restore(Thread):
     def create_cc_metadata(self):
         self.books.sort(key=itemgetter('timestamp'))
         m = {}
-        fields = ('label', 'name', 'datatype', 'is_multiple', 'editable',
+        fields = ('label', 'name', 'datatype', 'is_multiple', 'is_editable',
                     'display')
         for b in self.books:
-            args = []
-            for x in fields:
-                if x in b:
-                    args.append(b[x])
-            if len(args) == len(fields):
-                # TODO: Do series type columns need special handling?
-                label = b['label']
-                if label in m and args != m[label]:
-                    if label not in self.conflicting_custom_cols:
-                        self.conflicting_custom_cols[label] = set([m[label]])
-                    self.conflicting_custom_cols[label].add(args)
-                m[b['label']] = args
+            for key in b['mi'].custom_field_keys():
+                cfm = b['mi'].metadata_for_field(key)
+                args = []
+                for x in fields:
+                    if x in cfm:
+                        if x == 'is_multiple':
+                            args.append(cfm[x] is not None)
+                        else:
+                            args.append(cfm[x])
+                if len(args) == len(fields):
+                    # TODO: Do series type columns need special handling?
+                    label = cfm['label']
+                    if label in m and args != m[label]:
+                        if label not in self.conflicting_custom_cols:
+                            self.conflicting_custom_cols[label] = set([m[label]])
+                        self.conflicting_custom_cols[label].add(args)
+                    m[cfm['label']] = args
 
         db = RestoreDatabase(self.library_path)
-        for args in m.values():
-            db.create_custom_column(*args)
+        self.progress_callback(None, len(m))
+        if len(m):
+            for i,args in enumerate(m.values()):
+                db.create_custom_column(*args)
+                self.progress_callback(_('creating custom column ')+args[0], i+1)
         db.conn.close()
 
     def restore_books(self):
