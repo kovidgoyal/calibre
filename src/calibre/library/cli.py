@@ -10,7 +10,8 @@ Command line interface to the calibre database.
 import sys, os, cStringIO, re
 from textwrap import TextWrapper
 
-from calibre import terminal_controller, preferred_encoding, prints
+from calibre import terminal_controller, preferred_encoding, prints, \
+    isbytestring
 from calibre.utils.config import OptionParser, prefs, tweaks
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
@@ -901,6 +902,12 @@ def command_restore_database(args, dbpath):
         parser.print_help()
         return 1
 
+    if opts.library_path is not None:
+        dbpath = opts.library_path
+
+    if isbytestring(dbpath):
+        dbpath = dbpath.decode(preferred_encoding)
+
     class Progress(object):
         def __init__(self): self.total = 1
 
@@ -918,6 +925,7 @@ def command_restore_database(args, dbpath):
         prints(r.tb)
     else:
         prints('Restoring database succeeded')
+        prints('old database saved as', r.olddb)
         if r.errors_occurred:
             name = 'calibre_db_restore_report.txt'
             open('calibre_db_restore_report.txt',

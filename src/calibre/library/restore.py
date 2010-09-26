@@ -61,7 +61,7 @@ class Restore(Thread):
                 self.failed_restores]
         if failures:
             ans += 'Failed to restore the books in the following folders:\n'
-            wrap = TextWrapper(initial_indent='\t\t', width=85)
+            wrap = TextWrapper(initial_indent='\t\t', width=1085)
             for dirpath, tb in failures:
                 ans += '\t' + dirpath + ' with error:\n'
                 ans += wrap.fill(tb)
@@ -103,7 +103,7 @@ class Restore(Thread):
                 self.process_dir(dirpath, filenames, book_id)
             except:
                 self.failed_dirs.append((dirpath, traceback.format_exc()))
-            self.progress_callback(_('Processed') + repr(dirpath), i+1)
+            self.progress_callback(_('Processed') + ' ' + dirpath, i+1)
 
     def is_ebook_file(self, filename):
         ext = os.path.splitext(filename)[1]
@@ -183,14 +183,14 @@ class Restore(Thread):
         for fmt, size, name in book['formats']:
             db.conn.execute('''
                 INSERT INTO data (book,format,uncompressed_size,name)
-                VALUES (?,?,?,?)''', (id, fmt, size, name))
+                VALUES (?,?,?,?)''', (book['id'], fmt, size, name))
         db.conn.commit()
 
     def replace_db(self):
         dbpath = os.path.join(self.src_library_path, 'metadata.db')
         ndbpath = os.path.join(self.library_path, 'metadata.db')
 
-        save_path = os.path.splitext(dbpath)[0]+'_pre_restore.db'
+        save_path = self.olddb = os.path.splitext(dbpath)[0]+'_pre_restore.db'
         if os.path.exists(save_path):
             os.remove(save_path)
         os.rename(dbpath, save_path)
