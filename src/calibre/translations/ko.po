@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-24 21:33+0000\n"
-"PO-Revision-Date: 2010-09-24 20:57+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-09-25 06:25+0000\n"
+"Last-Translator: ddfddf2k <Unknown>\n"
 "Language-Team: Korean <ko@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-25 04:41+0000\n"
+"X-Launchpad-Export-Date: 2010-09-26 04:43+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -336,7 +336,7 @@ msgstr "책 추가하기"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:793
 msgid "Import/Export"
-msgstr ""
+msgstr "가져오기/내보내기"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:773
 msgid "Control how calibre reads metadata from files when adding books"
@@ -367,7 +367,7 @@ msgstr "전자우편으로 책 공유하기"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Sharing"
-msgstr ""
+msgstr "공유"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid ""
@@ -593,9 +593,9 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
-"    %prog 옵션\n"
+"    %prog options\n"
 "\n"
-"    외부 플러그인을 로드해서 칼리버를 설정합니다.\n"
+"    Customize calibre by loading external plugins.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:547
@@ -640,7 +640,7 @@ msgstr "S60 휴대폰과 통신합니다."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:85
 msgid "Apple device"
-msgstr ""
+msgstr "Apple 장치"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:87
 msgid "Communicate with iTunes/iBooks."
@@ -850,7 +850,7 @@ msgstr "Kindle 전자책 리더와 통신합니다"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:170
 msgid "Communicate with the Kindle 2/3 eBook reader."
-msgstr ""
+msgstr "Kindle 2/3 eBook Reader와 통신합니다."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:211
 msgid "Communicate with the Kindle DX eBook reader."
@@ -933,7 +933,7 @@ msgstr "Pandigital Novel과 통신합니다."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:114
 msgid "Communicate with the GM2000"
-msgstr ""
+msgstr "GM2000과 통신합니다"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -996,7 +996,7 @@ msgstr "iPapyrus reader와 통신합니다."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:59
 msgid "Communicate with the Sovos reader."
-msgstr ""
+msgstr "Sovos Reader와 통신합니다."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:255
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1095,7 +1095,7 @@ msgstr "메타 정보를 장치로 전송합니다..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:41
 msgid "%prog [options] mybook.chm"
-msgstr "%prog [옵션] 나의책.chm"
+msgstr "%prog [options] mybook.chm"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:42
 msgid "Output directory. Defaults to current directory"
@@ -1999,8 +1999,8 @@ msgid ""
 "%prog book.lrf\n"
 "Convert an LRF file into an LRS (XML UTF-8 encoded) file"
 msgstr ""
-"%prog 책.lrf\n"
-"LRF 파일을 LRS (XML UTF-8 인코드) 파일로 변환합니다"
+"%prog book.lrf\n"
+"Convert an LRF file into an LRS (XML UTF-8 encoded) file"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
 msgid "Output LRS file"
@@ -2031,8 +2031,8 @@ msgid ""
 "%prog [options] file.lrs\n"
 "Compile an LRS file into an LRF file."
 msgstr ""
-"%prog [옵션] 파일.lrs\n"
-"LRF 파일 내에 LRS 파일을 컴파일합니다."
+"%prog [options] file.lrs\n"
+"Compile an LRS file into an LRF file."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:288
 msgid "Path to output file"
@@ -2059,10 +2059,10 @@ msgid ""
 "Show/edit the metadata in an LRF file.\n"
 "\n"
 msgstr ""
-"%prog [옵션] 나의책.lrf\n"
+"%prog [options] mybook.lrf\n"
 "\n"
 "\n"
-"LRF 파일의 메타 정보를 보거나 편집합니다.\n"
+"Show/edit the metadata in an LRF file.\n"
 "\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:603
@@ -2439,6 +2439,11 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from "
 "LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [options] ISBN\n"
+"\n"
+"Fetch a cover image/social metadata for the book identified by ISBN from "
+"LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1227
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1399
@@ -2645,14 +2650,14 @@ msgid ""
 "\n"
 "Manipulate a PDF.\n"
 msgstr ""
-"명령어 ...\n"
+"command ...\n"
 "\n"
-"명령어는 다음중에 하나입니다:\n"
+"command can be one of the following:\n"
 "[%%commands]\n"
 "\n"
-"특정한 명령에 대한 정보를 얻으려면 %prog 명령어 --help 를 사용하세요\n"
+"Use %prog command --help to get more information about a specific command\n"
 "\n"
-"PDF 파일을 조작합니다.\n"
+"Manipulate a PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:29
 msgid ""
@@ -2836,16 +2841,16 @@ msgid ""
 "Split a PDF.\n"
 msgstr ""
 "\n"
-"%prog %%name [옵션] 파일.pdf 나눌_페이지 ...\n"
-"%prog %%name [옵션] 파일.pdf 나눌_페이지_범위 ...\n"
+"%prog %%name [options] file.pdf page_to_split_on ...\n"
+"%prog %%name [options] file.pdf page_range_to_split_on ...\n"
 "\t\n"
-"예.\n"
+"Ex.\n"
 "\t\n"
 "%prog %%name file.pdf 6\n"
 "%prog %%name file.pdf 6-12\n"
 "%prog %%name file.pdf 6-12 8 10 9-20\n"
 "\n"
-"PDF 파일을 분할합니다.\n"
+"Split a PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Split Options:"
@@ -9421,9 +9426,9 @@ msgid ""
 "\n"
 "View an ebook.\n"
 msgstr ""
-"%prog [옵션] 파일\n"
+"%prog [options] file\n"
 "\n"
-"전자책을 봅니다.\n"
+"View an ebook.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "E-book Viewer"
@@ -10049,9 +10054,9 @@ msgid ""
 "\n"
 "List the books available in the calibre database.\n"
 msgstr ""
-"%prog list [옵션]\n"
+"%prog list [options]\n"
 "\n"
-"calibre 데이터베이스에서 이용가능한 책들의 목록입니다.\n"
+"List the books available in the calibre database.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:128
 msgid ""
@@ -10122,10 +10127,11 @@ msgid ""
 "directories, see\n"
 "the directory related options below.\n"
 msgstr ""
-"%prog add [옵션] 파일1 파일2 파일3 ...\n"
+"%prog add [options] file1 file2 file3 ...\n"
 "\n"
-"지정한 파일들을 데이터베이스의 책으로 추가합니다. 디렉토리도 지정할 수 있습니다.\n"
-"아래에 디렉토리 관련 옵션을 참조하세요\n"
+"Add the specified files as books to the database. You can also specify "
+"directories, see\n"
+"the directory related options below.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:276
 msgid ""
@@ -10451,14 +10457,14 @@ msgid ""
 "\n"
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
-"%%prog 명령어 [옵션] [인수]\n"
+"%%prog command [options] [arguments]\n"
 "\n"
-"%%prog 는 calibre 책 데이터베이스의 커맨드라인 인터페이스입니다.\n"
+"%%prog is the command line interface to the calibre books database.\n"
 "\n"
-"명령어는 다음중 하나입니다:\n"
+"command is one of:\n"
 "  %s\n"
 "\n"
-"개별적인 명령어의 도움말: %%prog 명령어 --help\n"
+"For help on an individual command: %%prog command --help\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:537
 msgid "No label was provided"
