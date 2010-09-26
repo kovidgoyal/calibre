@@ -363,7 +363,7 @@ class Metadata(object):
                 if len(other_cover) > len(self_cover):
                     self.cover_data = other.cover_data
 
-            if getattr(other, 'custom_field_keys', None):
+            if callable(getattr(other, 'custom_field_keys', None)):
                 for x in other.custom_field_keys():
                     meta = other.get_user_metadata(x, make_copy=True)
                     if meta is not None:
