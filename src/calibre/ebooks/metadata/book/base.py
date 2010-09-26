@@ -181,16 +181,9 @@ class Metadata(object):
         '''
         return metadata describing a standard or custom field.
         '''
-        if key in self.user_metadata_keys():
+        if key not in self.custom_field_keys():
             return self.get_standard_metadata(self, key, make_copy=False)
         return self.get_user_metadata(key, make_copy=False)
-
-    def user_metadata_keys(self):
-        '''
-        Return the standard keys actually in this book.
-        '''
-        _data = object.__getattribute__(self, '_data')
-        return frozenset(_data['user_metadata'].iterkeys())
 
     def all_non_none_fields(self):
         '''
@@ -305,7 +298,7 @@ class Metadata(object):
     def print_all_attributes(self):
         for x in STANDARD_METADATA_FIELDS:
             prints('%s:'%x, getattr(self, x, 'None'))
-        for x in self.user_metadata_keys():
+        for x in self.custom_field_keys():
             meta = self.get_user_metadata(x, make_copy=False)
             if meta is not None:
                 prints(x, meta)
@@ -370,8 +363,8 @@ class Metadata(object):
                 if len(other_cover) > len(self_cover):
                     self.cover_data = other.cover_data
 
-            if getattr(other, 'user_metadata_keys', None):
-                for x in other.user_metadata_keys():
+            if getattr(other, 'custom_field_keys', None):
+                for x in other.custom_field_keys():
                     meta = other.get_user_metadata(x, make_copy=True)
                     if meta is not None:
                         self_tags = self.get(x, [])
@@ -434,7 +427,7 @@ class Metadata(object):
         '''
         returns the tuple (field_name, formatted_value)
         '''
-        if key in self.user_metadata_keys():
+        if key in self.custom_field_keys():
             res = self.get(key, None)
             cmeta = self.get_user_metadata(key, make_copy=False)
             name = unicode(cmeta['name'])
@@ -516,7 +509,7 @@ class Metadata(object):
             fmt('Published', isoformat(self.pubdate))
         if self.rights is not None:
             fmt('Rights', unicode(self.rights))
-        for key in self.user_metadata_keys():
+        for key in self.custom_field_keys():
             val = self.get(key, None)
             if val:
                 (name, val) = self.format_field(key)
@@ -541,7 +534,7 @@ class Metadata(object):
             ans += [(_('Published'), unicode(self.pubdate.isoformat(' ')))]
         if self.rights is not None:
             ans += [(_('Rights'), unicode(self.rights))]
-        for key in self.user_metadata_keys():
+        for key in self.custom_field_keys():
             val = self.get(key, None)
             if val:
                 (name, val) = self.format_field(key)
