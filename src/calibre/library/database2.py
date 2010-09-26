@@ -657,8 +657,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dirtied(book_ids)
 
     def get_metadata_for_dump(self, idx):
-        path = os.path.join(self.abspath(idx, index_is_id=True), 'metadata.opf')
-        mi = self.get_metadata(idx, index_is_id=True)
+        try:
+            path = os.path.join(self.abspath(idx, index_is_id=True), 'metadata.opf')
+            mi = self.get_metadata(idx, index_is_id=True)
+        except:
+            return ((None, None))
         return ((path, mi))
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):

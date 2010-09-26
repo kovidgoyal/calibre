@@ -44,6 +44,7 @@ class MetadataBackup(Thread): # {{{
         self.keep_running = False
 
     def run(self):
+        import traceback
         while self.keep_running:
             try:
                 time.sleep(0.5) # Limit to two per second
@@ -53,11 +54,11 @@ class MetadataBackup(Thread): # {{{
             except:
                 # Happens during interpreter shutdown
                 break
+
             try:
                 path, mi = self.get_metadata_for_dump(id_)
             except:
                 prints('Failed to get backup metadata for id:', id_, 'once')
-                import traceback
                 traceback.print_exc()
                 time.sleep(2)
                 try:
@@ -66,6 +67,10 @@ class MetadataBackup(Thread): # {{{
                     prints('Failed to get backup metadata for id:', id_, 'again, giving up')
                     traceback.print_exc()
                     continue
+
+            if mi is None:
+                self.clear_dirtied([id_])
+                continue
 
             # Give the GUI thread a chance to do something. Python threads don't
             # have priorities, so this thread would naturally keep the processor
