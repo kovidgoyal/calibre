@@ -38,7 +38,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                         'is_multiple':False},
                     8:{'datatype':'bool',
                         'text':_('Yes/No'), 'is_multiple':False},
-                    8:{'datatype':'composite',
+                    9:{'datatype':'composite',
                         'text':_('Column built from other columns'), 'is_multiple':False},
                 }
 

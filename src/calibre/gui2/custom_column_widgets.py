@@ -452,9 +452,25 @@ class BulkSeries(BulkBase):
         self.name_widget = w
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
 
-        self.widgets.append(QLabel(_('Automatically number books in this series'), parent))
-        self.idx_widget=QCheckBox(parent)
-        self.widgets.append(self.idx_widget)
+        self.widgets.append(QLabel('', parent))
+        w = QWidget(parent)
+        layout = QHBoxLayout(w)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.remove_series = QCheckBox(parent)
+        self.remove_series.setText(_('Remove series'))
+        layout.addWidget(self.remove_series)
+        self.idx_widget = QCheckBox(parent)
+        self.idx_widget.setText(_('Automatically number books'))
+        layout.addWidget(self.idx_widget)
+        self.force_number = QCheckBox(parent)
+        self.force_number.setText(_('Force numbers to start with '))
+        layout.addWidget(self.force_number)
+        self.series_start_number = QSpinBox(parent)
+        self.series_start_number.setMinimum(1)
+        self.series_start_number.setProperty("value", 1)
+        layout.addWidget(self.series_start_number)
+        layout.addItem(QSpacerItem(20, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.widgets.append(w)
 
     def initialize(self, book_id):
         self.idx_widget.setChecked(False)
@@ -465,17 +481,26 @@ class BulkSeries(BulkBase):
     def getter(self):
         n = unicode(self.name_widget.currentText()).strip()
         i = self.idx_widget.checkState()
-        return n, i
+        f = self.force_number.checkState()
+        s = self.series_start_number.value()
+        r = self.remove_series.checkState()
+        return n, i, f, s, r
 
     def commit(self, book_ids, notify=False):
-        val, update_indices = self.gui_val
-        val = self.normalize_ui_val(val)
-        if val != '':
+        val, update_indices, force_start, at_value, clear = self.gui_val
+        val = '' if clear else self.normalize_ui_val(val)
+        if clear or val != '':
             extras = []
             next_index = self.db.get_next_cc_series_num_for(val, num=self.col_id)
             for book_id in book_ids:
+                if clear:
+                    extras.append(None)
+                    continue
                 if update_indices:
-                    if tweaks['series_index_auto_increment'] == 'next':
+                    if force_start:
+                        s_index = at_value
+                        at_value += 1
+                    elif tweaks['series_index_auto_increment'] == 'next':
                         s_index = next_index
                         next_index += 1
                     else:
@@ -483,6 +508,8 @@ class BulkSeries(BulkBase):
                 else:
                     s_index = self.db.get_custom_extra(book_id, num=self.col_id,
                                                        index_is_id=True)
+                    if s_index is None:
+                        s_index = 1.0
                 extras.append(s_index)
             self.db.set_custom_bulk(book_ids, val, extras=extras,
                                    num=self.col_id, notify=notify)

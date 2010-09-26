@@ -32,7 +32,7 @@ class Worker(Thread):
         remove, add, au, aus, do_aus, rating, pub, do_series, \
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
-            series_start_value, do_title_case = self.args
+            series_start_value, do_title_case, clear_series = self.args
 
         # first loop: do author and title. These will commit at the end of each
         # operation, because each operation modifies the file system. We want to
@@ -74,6 +74,9 @@ class Worker(Thread):
 
             if pub:
                 self.db.set_publisher(id, pub, notify=False, commit=False)
+
+            if clear_series:
+                self.db.set_series(id, '', notify=False, commit=False)
 
             if do_series:
                 if do_series_restart:
@@ -592,6 +595,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         rating = self.rating.value()
         pub = unicode(self.publisher.text())
         do_series = self.write_series
+        clear_series = self.clear_series.isChecked()
         series = unicode(self.series.currentText()).strip()
         do_autonumber = self.autonumber_series.isChecked()
         do_series_restart = self.series_numbering_restarts.isChecked()
@@ -606,7 +610,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         args = (remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
-                series_start_value, do_title_case)
+                series_start_value, do_title_case, clear_series)
 
         bb = BlockingBusy(_('Applying changes to %d books. This may take a while.')
                 %len(self.ids), parent=self)

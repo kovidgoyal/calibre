@@ -455,6 +455,8 @@ class Metadata(object):
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
+            elif datatype == 'float' and key.endswith('_index'):
+                res = self.format_series_index(res)
             return (name, unicode(res), orig_res, cmeta)
 
         if key in field_metadata and field_metadata[key]['kind'] == 'field':
@@ -468,6 +470,8 @@ class Metadata(object):
             datatype = fmeta['datatype']
             if key == 'authors':
                 res = authors_to_string(res)
+            elif key == 'series_index':
+                res = self.format_series_index(res)
             elif datatype == 'text' and fmeta['is_multiple']:
                 res = u', '.join(res)
             elif datatype == 'series' and series_with_index:

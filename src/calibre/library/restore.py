@@ -48,12 +48,13 @@ class Restore(Thread):
         self.books = []
         self.conflicting_custom_cols = {}
         self.failed_restores = []
+        self.mismatched_dirs = []
         self.successes = 0
         self.tb = None
 
     @property
     def errors_occurred(self):
-        return self.failed_dirs or \
+        return self.failed_dirs or self.mismatched_dirs or \
                 self.conflicting_custom_cols or self.failed_restores
 
     @property
@@ -73,6 +74,13 @@ class Restore(Thread):
             ans += 'The following custom columns were not fully restored:\n'
             for x in self.conflicting_custom_cols:
                 ans += '\t#'+x+'\n'
+
+        if self.mismatched_dirs:
+            ans += '\n\n'
+            ans += 'The following folders were ignored:\n'
+            for x in self.mismatched_dirs:
+                ans += '\t'+x+'\n'
+
 
         return ans
 
@@ -140,7 +148,7 @@ class Restore(Thread):
                 'path': path,
             })
         else:
-            self.ignored_dirs.append(dirpath)
+            self.mismatched_dirs.append(dirpath)
 
     def create_cc_metadata(self):
         self.books.sort(key=itemgetter('timestamp'))

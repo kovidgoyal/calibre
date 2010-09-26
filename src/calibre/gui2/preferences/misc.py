@@ -88,9 +88,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('enforce_cpu_limit', config, restart_required=True)
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.compact_button.clicked.connect(self.compact)
+        self.button_all_books_dirty.clicked.connect(self.mark_dirty)
         self.button_open_config_dir.clicked.connect(self.open_config_dir)
         self.button_osx_symlinks.clicked.connect(self.create_symlinks)
         self.button_osx_symlinks.setVisible(isosx)
+
+    def mark_dirty(self):
+        db = self.gui.library_view.model().db
+        db.dirtied(list(db.data.iterallids()))
 
     def debug_device_detection(self, *args):
         from calibre.gui2.preferences.device_debug import DebugDevice

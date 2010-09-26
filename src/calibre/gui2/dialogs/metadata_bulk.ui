@@ -225,61 +225,50 @@
           </widget>
          </item>
          <item row="7" column="1">
-          <widget class="EnComboBox" name="series">
-           <property name="toolTip">
-            <string>List of known series. You can add new series.</string>
-           </property>
-           <property name="whatsThis">
-            <string>List of known series. You can add new series.</string>
-           </property>
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-           <property name="insertPolicy">
-            <enum>QComboBox::InsertAlphabetically</enum>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContents</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Remove &amp;format:</string>
-           </property>
-           <property name="buddy">
-            <cstring>remove_format</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="1">
-          <widget class="QComboBox" name="remove_format"/>
-         </item>
-         <item row="0" column="1">
-          <widget class="EnComboBox" name="authors">
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="11" column="0" colspan="2">
-          <widget class="QCheckBox" name="swap_title_and_author">
-           <property name="text">
-            <string>&amp;Swap title and author</string>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="0" colspan="2">
-          <widget class="QCheckBox" name="change_title_to_title_case">
-           <property name="text">
-            <string>Change title to title case</string>
-           </property>
-           <property name="toolTip">
-            <string>Force the title to be in title case. If both this and swap authors are checked,
-title and author are swapped before the title case is set</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="HLayout_34">
+           <item>
+            <widget class="EnComboBox" name="series">
+             <property name="toolTip">
+              <string>List of known series. You can add new series.</string>
+             </property>
+             <property name="whatsThis">
+              <string>List of known series. You can add new series.</string>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="insertPolicy">
+              <enum>QComboBox::InsertAlphabetically</enum>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToContents</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="clear_series">
+             <property name="toolTip">
+              <string>If checked, the series will be cleared</string>
+             </property>
+             <property name="text">
+              <string>Clear series</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="HSpacer_344">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>00</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </item>
          <item row="8" column="1" colspan="2">
           <layout class="QHBoxLayout" name="HLayout_3">
@@ -338,6 +327,44 @@ from the value in the box</string>
             </spacer>
            </item>
           </layout>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Remove &amp;format:</string>
+           </property>
+           <property name="buddy">
+            <cstring>remove_format</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
+          <widget class="QComboBox" name="remove_format"/>
+         </item>
+         <item row="0" column="1">
+          <widget class="EnComboBox" name="authors">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0" colspan="2">
+          <widget class="QCheckBox" name="swap_title_and_author">
+           <property name="text">
+            <string>&amp;Swap title and author</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0" colspan="2">
+          <widget class="QCheckBox" name="change_title_to_title_case">
+           <property name="text">
+            <string>Change title to title case</string>
+           </property>
+           <property name="toolTip">
+            <string>Force the title to be in title case. If both this and swap authors are checked,
+title and author are swapped before the title case is set</string>
+           </property>
+          </widget>
          </item>
          <item row="10" column="0" colspan="2">
           <widget class="QCheckBox" name="remove_conversion_settings">

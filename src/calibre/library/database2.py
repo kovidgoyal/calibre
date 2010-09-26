@@ -566,8 +566,26 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def metadata_for_field(self, key):
         return self.field_metadata[key]
 
+    def clear_dirtied(self, book_ids):
+        '''
+        Clear the dirtied indicator for the books. This is used when fetching
+        metadata, creating an OPF, and writing a file are separated into steps.
+        The last step is clearing the indicator
+        '''
+        for book_id in book_ids:
+            if not self.data.has_id(book_id):
+                continue
+            self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
+                    (book_id,))
+            # if a later exception prevents the commit, then the dirtied
+            # table will still have the book. No big deal, because the OPF
+            # is there and correct. We will simply do it again on next
+            # start
+            self.dirtied_cache.discard(book_id)
+        self.conn.commit()
+
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
-            commit=True, dump_to=None):
+            commit=True):
         '''
         Write metadata for each record to an individual OPF file
 
@@ -580,19 +598,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for book_id in book_ids:
             if not self.data.has_id(book_id):
                 continue
-            mi = self.get_metadata(book_id, index_is_id=True, get_cover=False)
-            # Always set cover to cover.jpg. Even if cover doesn't exist,
-            # no harm done. This way no need to call dirtied when
-            # cover is set/removed
-            mi.cover = 'cover.jpg'
+            path, mi = self.get_metadata_for_dump(book_id)
+            if path is None:
+                continue
             raw = metadata_to_opf(mi)
-            path = os.path.join(self.abspath(book_id, index_is_id=True),
-                    'metadata.opf')
-            if dump_to is None:
-                with open(path, 'wb') as f:
-                    f.write(raw)
-            else:
-                dump_to.append((path, raw))
+            with open(path, 'wb') as f:
+                f.write(raw)
             if remove_from_dirtied:
                 self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                         (book_id,))
@@ -638,6 +649,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dirtied_cache = set()
         self.dirtied(book_ids)
 
+    def get_metadata_for_dump(self, idx):
+        try:
+            path = os.path.join(self.abspath(idx, index_is_id=True), 'metadata.opf')
+            mi = self.get_metadata(idx, index_is_id=True)
+            # Always set cover to cover.jpg. Even if cover doesn't exist,
+            # no harm done. This way no need to call dirtied when
+            # cover is set/removed
+            mi.cover = 'cover.jpg'
+        except:
+            return (None, None)
+        return (path, mi)
+
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
         Convenience method to return metadata as a :class:`Metadata` object.
@@ -647,6 +670,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi = self.data.get(idx, self.FIELD_MAP['all_metadata'],
                            row_is_id = index_is_id)
         if mi is not None:
+            if get_cover and mi.cover is None:
+                mi.cover = self.cover(idx, index_is_id=index_is_id, as_path=True)
             return mi
 
         self.gm_missed += 1
