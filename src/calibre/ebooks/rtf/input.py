@@ -51,7 +51,7 @@ class RTFInput(InputFormatPlugin):
         parser = ParseRtf(
             in_file    = stream,
             out_file   = ofile,
-			deb_dir = 'D:\\calibre\\pierre\\debug\\rtfdebug',
+			deb_dir = 'H:\\Temp\\Calibre\\rtfdebug',
             # Convert symbol fonts to unicode equivalents. Default
             # is 1
             convert_symbol = 1,
