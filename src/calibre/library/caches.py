@@ -53,7 +53,7 @@ class MetadataBackup(Thread): # {{{
             except:
                 # Happens during interpreter shutdown
                 break
-
+            print 'doing id', id_
             try:
                 path, mi = self.get_metadata_for_dump(id_)
             except:
@@ -71,16 +71,15 @@ class MetadataBackup(Thread): # {{{
             # Give the GUI thread a chance to do something. Python threads don't
             # have priorities, so this thread would naturally keep the processor
             # until some scheduling event happens. The sleep makes such an event
-            time.sleep(0.010)
+            time.sleep(0.1)
             try:
-                print 'now do metadata'
                 raw = metadata_to_opf(mi)
             except:
                 prints('Failed to convert to opf for id:', id_)
                 traceback.print_exc()
                 continue
 
-            time.sleep(0.010) # Give the GUI thread a chance to do something
+            time.sleep(0.1) # Give the GUI thread a chance to do something
             try:
                 self.do_write(path, raw)
             except:
@@ -93,7 +92,7 @@ class MetadataBackup(Thread): # {{{
                             'again, giving up')
                     continue
 
-            time.sleep(0.010) # Give the GUI thread a chance to do something
+            time.sleep(0.1) # Give the GUI thread a chance to do something
             try:
                 self.clear_dirtied([id_])
             except:
