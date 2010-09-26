@@ -1,0 +1,40 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class AdvancedUserRecipe1282101454(BasicNewsRecipe):
+    title = 'How To Geek'
+    language = 'en'
+    __author__ = 'TonytheBookworm'
+    description = 'Daily Computer Tips and Tricks'
+    publisher = 'Howtogeek'
+    category = 'PC,tips,tricks'
+    oldest_article = 2
+    max_articles_per_feed = 100
+    linearize_tables = True
+    no_stylesheets = True
+    remove_javascript   = True
+    masthead_url = 'http://blog.stackoverflow.com/wp-content/uploads/how-to-geek-logo.png'
+
+
+
+    remove_tags =[dict(name='a', attrs={'target':['_blank']}),
+                  dict(name='table', attrs={'id':['articleTable']}),
+                  dict(name='div',   attrs={'class':['feedflare']}),
+                  ]
+
+    feeds          = [
+                      ('Tips', 'http://feeds.howtogeek.com/howtogeek')
+
+                    ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -123,8 +123,6 @@ class ContentServer(object):
 
         return self.static('index.html')
 
-
-
     # Actually get content from the database {{{
     def get_cover(self, id, thumbnail=False):
         cover = self.db.cover(id, index_is_id=True, as_file=False)

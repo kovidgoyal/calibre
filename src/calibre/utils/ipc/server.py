@@ -18,6 +18,7 @@ from calibre.utils.ipc.launch import Worker
 from calibre.utils.ipc.worker import PARALLEL_FUNCS
 from calibre import detect_ncpus as cpu_count
 from calibre.constants import iswindows
+from calibre.ptempfile import base_dir
 
 _counter = 0
 
@@ -114,8 +115,9 @@ class Server(Thread):
         with self._worker_launch_lock:
             self.launched_worker_count += 1
             id = self.launched_worker_count
-        rfile = os.path.join(tempfile.gettempdir(),
-        'calibre_ipc_result_%d_%d.pickle'%(self.id, id))
+        fd, rfile = tempfile.mkstemp(prefix='ipc_result_%d_%d_'%(self.id, id),
+                dir=base_dir(), suffix='.pickle')
+        os.close(fd)
         if redirect_output is None:
             redirect_output = not gui
 
@@ -189,8 +191,11 @@ class Server(Thread):
                     job.failed   = True
                     job.returncode = worker.returncode
                 elif os.path.exists(worker.rfile):
-                    job.result = cPickle.load(open(worker.rfile, 'rb'))
-                    os.remove(worker.rfile)
+                    try:
+                        job.result = cPickle.load(open(worker.rfile, 'rb'))
+                        os.remove(worker.rfile)
+                    except:
+                        pass
                 job.duration = time.time() - job.start_time
                 self.changed_jobs_queue.put(job)
 

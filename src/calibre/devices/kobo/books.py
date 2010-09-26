@@ -41,6 +41,10 @@ class Book(MetaInformation):
             self.authors = ['']
         else:
             self.authors = [authors]
+
+        if not title:
+            self.title = _('Unknown')
+
         self.mime = mime
 
         self.size = size # will be set later if None

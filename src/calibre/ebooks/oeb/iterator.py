@@ -15,7 +15,7 @@ from calibre.customize.ui import available_input_formats
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.utils.zipfile import safe_replace, ZipFile
+from calibre.utils.zipfile import safe_replace
 from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import Log
 from calibre import guess_type, prints
@@ -294,12 +294,8 @@ class EbookIterator(object):
                 zf = open(self.pathtoebook, 'r+b')
             except IOError:
                 return
-            zipf = ZipFile(zf, mode='a')
-            for name in zipf.namelist():
-                if name == 'META-INF/calibre_bookmarks.txt':
-                    safe_replace(zf, 'META-INF/calibre_bookmarks.txt', StringIO(dat))
-                    return
-            zipf.writestr('META-INF/calibre_bookmarks.txt', dat)
+            safe_replace(zf, 'META-INF/calibre_bookmarks.txt', StringIO(dat),
+                    add_missing=True)
         else:
             self.config['bookmarks_'+self.pathtoebook] = dat
 

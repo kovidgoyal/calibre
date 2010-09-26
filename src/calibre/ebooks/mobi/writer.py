@@ -1574,14 +1574,15 @@ class MobiWriter(object):
             id = unicode(oeb.metadata.cover[0])
             item = oeb.manifest.ids[id]
             href = item.href
-            index = self._images[href] - 1
-            exth.write(pack('>III', 0xc9, 0x0c, index))
-            exth.write(pack('>III', 0xcb, 0x0c, 0))
-            nrecs += 2
-            index = self._add_thumbnail(item)
-            if index is not None:
-                exth.write(pack('>III', 0xca, 0x0c, index - 1))
-                nrecs += 1
+            if href in self._images:
+                index = self._images[href] - 1
+                exth.write(pack('>III', 0xc9, 0x0c, index))
+                exth.write(pack('>III', 0xcb, 0x0c, 0))
+                nrecs += 2
+                index = self._add_thumbnail(item)
+                if index is not None:
+                    exth.write(pack('>III', 0xca, 0x0c, index - 1))
+                    nrecs += 1
 
         exth = exth.getvalue()
         trail = len(exth) % 4

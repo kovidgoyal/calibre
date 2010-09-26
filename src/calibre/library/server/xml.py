@@ -16,6 +16,7 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import preferred_encoding
 from calibre import isbytestring
 from calibre.utils.date import format_date
+from calibre.utils.filenames import ascii_filename
 
 E = ElementMaker()
 
@@ -87,6 +88,8 @@ class XMLServer(object):
                 if x == 'tags':
                     y = format_tag_string(y, ',')
                 kwargs[x] = serialize(y) if y else ''
+
+            kwargs['safe_title'] = ascii_filename(kwargs['title'])
 
             c = kwargs.pop('comments')
 
