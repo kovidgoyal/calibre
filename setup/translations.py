@@ -197,7 +197,7 @@ class GetTranslations(Translations):
 class ISO639(Command):
 
     description = 'Compile translations for ISO 639 codes'
-    XML = '/usr/lib/python2.6/site-packages/pycountry/databases/iso639.xml'
+    XML = '/usr/lib/python2.7/site-packages/pycountry/databases/iso639.xml'
 
     def run(self, opts):
         src = self.XML

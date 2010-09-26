@@ -21,8 +21,8 @@ class Novosti(BasicNewsRecipe):
     encoding              = 'utf-8'
     language              = 'sr'
     publication_type      = 'newspaper'
-    extra_css             = """ @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} 
-                                .article_description,body{font-family: Arial,Helvetica,sans1,sans-serif} 
+    extra_css             = """ @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                                .article_description,body{font-family: Arial,Helvetica,sans1,sans-serif}
                                 .author{font-size: small}
                                 .articleLead{font-size: large; font-weight: bold}
                             """
@@ -37,6 +37,18 @@ class Novosti(BasicNewsRecipe):
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     keep_only_tags     = [dict(attrs={'class':['articleTitle','author','articleLead','articleBody']})]
-    remove_tags        = [dict(name=['embed','object','iframe','base'])]
-
+    remove_tags        = [dict(name=['embed','object','iframe','base','link','meta'])]
     feeds              = [(u'Vesti', u'http://www.novosti.rs/rss/rss-vesti')]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('span', attrs={'class':'author'}):
+            item.name='p'
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
+
+
+

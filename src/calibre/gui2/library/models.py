@@ -12,7 +12,7 @@ from operator import attrgetter
 from PyQt4.Qt import QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, \
         QModelIndex, QVariant, QDate
 
-from calibre.gui2 import NONE, config, UNDEFINED_QDATE
+from calibre.gui2 import NONE, config, UNDEFINED_QDATE, FunctionDispatcher
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ptempfile import PersistentTemporaryFile
@@ -151,7 +151,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.database_changed.emit(db)
         if self.cover_cache is not None:
             self.cover_cache.stop()
-        self.cover_cache = CoverCache(db)
+        self.cover_cache = CoverCache(db, FunctionDispatcher(self.db.cover))
         self.cover_cache.start()
         def refresh_cover(event, ids):
             if event == 'cover' and self.cover_cache is not None:
@@ -1027,7 +1027,9 @@ class DeviceBooksModel(BooksModel): # {{{
     def resort(self, reset=True):
         if self.sorted_on:
             self.sort(self.column_map.index(self.sorted_on[0]),
-                      self.sorted_on[1], reset=reset)
+                      self.sorted_on[1], reset=False)
+        if reset:
+            self.reset()
 
     def columnCount(self, parent):
         if parent and parent.isValid():

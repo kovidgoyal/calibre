@@ -25,6 +25,7 @@ class AddAction(InterfaceAction):
     action_spec = (_('Add books'), 'add_book.png',
             _('Add books to the calibre library/device from files on your computer')
             , _('A'))
+    action_type = 'current'
 
     def genesis(self):
         self._add_filesystem_book = self.Dispatcher(self.__add_filesystem_book)

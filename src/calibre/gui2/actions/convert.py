@@ -21,6 +21,7 @@ class ConvertAction(InterfaceAction):
     name = 'Convert Books'
     action_spec = (_('Convert books'), 'convert.png', None, _('C'))
     dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    action_type = 'current'
 
     def genesis(self):
         cm = QMenu()

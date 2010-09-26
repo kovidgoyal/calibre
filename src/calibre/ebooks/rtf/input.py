@@ -7,7 +7,7 @@ import os, glob, re, textwrap
 from lxml import etree
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.conversion.preprocess import line_length
+from calibre.ebooks.conversion.utils import PreProcessor
 
 class InlineClass(etree.XSLTExtension):
 
@@ -232,16 +232,8 @@ class RTFInput(InputFormatPlugin):
             res = transform.tostring(result)
             res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             if self.options.preprocess_html:
-                self.log("*********  Preprocessing HTML  *********")
-                # Detect Chapters to match the xpath in the GUI
-                chapdetect = re.compile(r'<p[^>]*>\s*<span[^>]*>\s*(?P<chap>(<(i|b)><(i|b)>|<(i|b)>)?(.?Chapter|Epilogue|Prologue|Book|Part|Dedication)\s*([\d\w-]+(\s\w+)?)?(</(i|b)></(i|b)>|</(i|b)>)?)\s*</span>\s*</p>', re.IGNORECASE)
-                res = chapdetect.sub('<h2>'+'\g<chap>'+'</h2>\n', res)
-                # Unwrap lines using punctation if the median length of all lines is less than 150
-                length = line_length('html', res, 0.4)
-                self.log("*** Median length is " + str(length) + " ***")
-                unwrap = re.compile(r"(?<=.{%i}[a-z,;:\IA])\s*</span>\s*(</p>)?\s*(?P<up2threeblanks><p[^>]*>\s*(<span[^>]*>\s*</span>\s*)</p>\s*){0,3}\s*<p[^>]*>\s*(<span[^>]*>)?\s*" % length, re.UNICODE)
-                if length < 150:
-                    res = unwrap.sub(' ', res)
+                preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
+                res = preprocessor(res)
             f.write(res)
         self.write_inline_css(inline_class)
         stream.seek(0)

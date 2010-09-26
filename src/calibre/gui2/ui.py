@@ -38,6 +38,7 @@ from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_view import TagBrowserMixin
+from calibre.utils.ordered_dict import OrderedDict
 
 
 class Listener(Thread): # {{{
@@ -97,7 +98,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         MainWindow.__init__(self, opts, parent)
         self.opts = opts
         self.device_connected = None
-        acmap = {}
+        acmap = OrderedDict()
         for action in interface_actions():
             mod, cls = action.actual_plugin.split(':')
             ac = getattr(__import__(mod, fromlist=['1'], level=0), cls)(self,

@@ -16,6 +16,7 @@ class DeleteAction(InterfaceAction):
 
     name = 'Remove Books'
     action_spec = (_('Remove books'), 'trash.png', None, _('Del'))
+    action_type = 'current'
 
     def genesis(self):
         self.qaction.triggered.connect(self.delete_books)

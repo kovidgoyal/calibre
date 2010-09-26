@@ -1,0 +1,45 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1284927619(BasicNewsRecipe):
+    title = u'Tagesanzeiger'
+    publisher = u'Tamedia AG'
+    oldest_article = 2
+    __author__ = 'noxxx'
+    max_articles_per_feed = 100
+    description = 'tagesanzeiger.ch: Nichts verpassen'
+    category = 'News, Politik, Nachrichten, Schweiz, Zürich'
+    language = 'de'
+
+    conversion_options = {
+                             'comments'  : description
+                            ,'tags'      : category
+                            ,'language'  : language
+                            ,'publisher' : publisher
+                         }
+
+    remove_tags = [
+     dict(name='img')
+                    ,dict(name='div',attrs={'class':['swissquote ad','boxNews','centerAD','contentTabs2','sbsLabel']})
+                    ,dict(name='div',attrs={'id':['colRightAd','singleRight','singleSmallRight','MailInfo','metaLine','sidebarSky','contentFooter','commentInfo','commentInfo2','commentInfo3','footerBottom','clear','boxExclusiv','singleLogo','navSearch','headerLogin','headerBottomRight','horizontalNavigation','subnavigation','googleAdSense','footerAd','contentbox','articleGalleryNav']})
+    ,dict(name='form',attrs={'id':['articleMailForm','commentform']})
+    ,dict(name='div',attrs={'style':['position:absolute']})
+    ,dict(name='script',attrs={'type':['text/javascript']})
+    ,dict(name='p',attrs={'class':['schreiben','smallPrint','charCounter','caption']})
+     ]
+    feeds = [
+     (u'Front', u'http://www.tagesanzeiger.ch/rss.html')
+    ,(u'Zürich', u'http://www.tagesanzeiger.ch/zuerich/rss.html')
+    ,(u'Schweiz', u'http://www.tagesanzeiger.ch/schweiz/rss.html')
+    ,(u'Ausland', u'http://www.tagesanzeiger.ch/ausland/rss.html')
+    ,(u'Digital', u'http://www.tagesanzeiger.ch/digital/rss.html')
+    ,(u'Wissen', u'http://www.tagesanzeiger.ch/wissen/rss.html')
+    ,(u'Panorama', u'http://www.tagesanzeiger.ch/panorama/rss.html')
+    ,(u'Wirtschaft', u'http://www.tagesanzeiger.ch/wirtschaft/rss.html')
+    ,(u'Sport', u'http://www.tagesanzeiger.ch/sport/rss.html')
+    ,(u'Kultur', u'http://www.tagesanzeiger.ch/kultur/rss.html')
+    ,(u'Leben', u'http://www.tagesanzeiger.ch/leben/rss.html')
+    ,(u'Auto', u'http://www.tagesanzeiger.ch/auto/rss.html')]
+
+    def print_version(self, url):
+        return url + '/print.html'
+

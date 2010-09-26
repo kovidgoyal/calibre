@@ -3,6 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re
 from calibre.customize.conversion import InputFormatPlugin
 
 class MOBIInput(InputFormatPlugin):
@@ -37,3 +38,12 @@ class MOBIInput(InputFormatPlugin):
                     include_meta_content_type=False))
                 accelerators['pagebreaks'] = '//h:div[@class="mbp_pagebreak"]'
         return mr.created_opf_path
+
+    def preprocess_html(self, options, html):
+        # search for places where a first or second level heading is immediately followed by another
+        # top level heading.  demote the second heading to h3 to prevent splitting between chapter
+        # headings and titles, images, etc
+        doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
+        html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
+        return html
+

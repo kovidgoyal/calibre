@@ -26,7 +26,7 @@ var current_library_request = null;
 
 ////////////////////////////// GET BOOK LIST //////////////////////////////
 
-var LIBRARY_FETCH_TIMEOUT = 30000; // milliseconds
+var LIBRARY_FETCH_TIMEOUT = 5*60000; // milliseconds
 
 function create_table_headers() {
     var thead = $('table#book_list thead tr');
@@ -54,7 +54,7 @@ function render_book(book) {
     formats = book.attr("formats").split(",");
     if (formats.length > 0) {
         for (i=0; i < formats.length; i++) {
-            title += '<a title="Download in '+formats[i]+' format" class="format" href="'+format_url(formats[i], id, book.attr("title"))+'">'+formats[i]+'</a>, ';
+            title += '<a title="Download in '+formats[i]+' format" class="format" href="'+format_url(formats[i], id, book.attr("safe_title"))+'">'+formats[i]+'</a>, ';
         }
         title = title.slice(0, title.length-2);
         title += '&nbsp;({0}&nbsp;MB)&nbsp;'.format(size);

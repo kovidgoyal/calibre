@@ -4,8 +4,10 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Dialog to edit metadata in bulk'''
 
 from threading import Thread
+import re
 
 from PyQt4.Qt import QDialog, QGridLayout
+from PyQt4 import QtGui
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -83,7 +85,6 @@ class Worker(Thread):
             w.commit(self.ids)
         self.db.bulk_modify_tags(self.ids, add=add, remove=remove,
                 notify=False)
-        self.db.clean()
 
     def run(self):
         try:
@@ -100,6 +101,13 @@ class Worker(Thread):
 
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
+
+    s_r_functions = {
+                    ''          : lambda x: x,
+                    _('Lower Case') : lambda x: x.lower(),
+                    _('Upper Case')     : lambda x: x.upper(),
+                    _('Title Case')     : lambda x: x.title(),
+            }
 
     def __init__(self, window, rows, db):
         QDialog.__init__(self, window)
@@ -127,11 +135,192 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.series.currentIndexChanged[int].connect(self.series_changed)
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
+
         if len(db.custom_column_label_map) == 0:
-            self.central_widget.tabBar().setVisible(False)
+            self.central_widget.removeTab(1)
         else:
             self.create_custom_column_editors()
+
+        self.prepare_search_and_replace()
         self.exec_()
+
+    def prepare_search_and_replace(self):
+        self.search_for.initialize('bulk_edit_search_for')
+        self.replace_with.initialize('bulk_edit_replace_with')
+        self.test_text.initialize('bulk_edit_test_test')
+        fields = ['']
+        fm = self.db.field_metadata
+        for f in fm:
+            if (f in ['author_sort'] or (
+                fm[f]['datatype'] == 'text' or fm[f]['datatype'] == 'series')
+                    and fm[f].get('search_terms', None)
+                    and f not in ['formats', 'ondevice']):
+                fields.append(f)
+        fields.sort()
+        self.search_field.addItems(fields)
+        self.search_field.setMaxVisibleItems(min(len(fields), 20))
+        offset = 10
+        self.s_r_number_of_books = min(7, len(self.ids))
+        for i in range(1,self.s_r_number_of_books+1):
+            w = QtGui.QLabel(self.tabWidgetPage3)
+            w.setText(_('Book %d:')%i)
+            self.gridLayout1.addWidget(w, i+offset, 0, 1, 1)
+            w = QtGui.QLineEdit(self.tabWidgetPage3)
+            w.setReadOnly(True)
+            name = 'book_%d_text'%i
+            setattr(self, name, w)
+            self.book_1_text.setObjectName(name)
+            self.gridLayout1.addWidget(w, i+offset, 1, 1, 1)
+            w = QtGui.QLineEdit(self.tabWidgetPage3)
+            w.setReadOnly(True)
+            name = 'book_%d_result'%i
+            setattr(self, name, w)
+            self.book_1_text.setObjectName(name)
+            self.gridLayout1.addWidget(w, i+offset, 2, 1, 1)
+
+        self.s_r_heading.setText('<p>'+
+                           _('Search and replace in text fields using '
+                             'regular expressions. The search text is an '
+                             'arbitrary python-compatible regular expression. '
+                             'The replacement text can contain backreferences '
+                             'to parenthesized expressions in the pattern. '
+                             'The search is not anchored, and can match and '
+                             'replace multiple times on the same string. See '
+                             '<a href="http://docs.python.org/library/re.html"> '
+                             'this reference</a> '
+                             'for more information, and in particular the \'sub\' '
+                             'function.') + '<p>' + _(
+                             'Note: <b>you can destroy your library</b> '
+                             'using this feature. Changes are permanent. There '
+                             'is no undo function. You are strongly encouraged '
+                             'to back up your library before proceeding.'))
+        self.s_r_error = None
+        self.s_r_obj = None
+
+        self.replace_func.addItems(sorted(self.s_r_functions.keys()))
+        self.search_field.currentIndexChanged[str].connect(self.s_r_field_changed)
+        self.replace_func.currentIndexChanged[str].connect(self.s_r_paint_results)
+        self.search_for.editTextChanged[str].connect(self.s_r_paint_results)
+        self.replace_with.editTextChanged[str].connect(self.s_r_paint_results)
+        self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
+        self.central_widget.setCurrentIndex(0)
+
+    def s_r_field_changed(self, txt):
+        txt = unicode(txt)
+        for i in range(0, self.s_r_number_of_books):
+            if txt:
+                fm = self.db.field_metadata[txt]
+                id = self.ids[i]
+                val = self.db.get_property(id, index_is_id=True,
+                                           loc=fm['rec_index'])
+                if val is None:
+                    val = ''
+                if fm['is_multiple']:
+                    val = [t.strip() for t in val.split(fm['is_multiple']) if t.strip()]
+                    if val:
+                        val.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
+                        val = val[0]
+                        if txt == 'authors':
+                            val = val.replace('|', ',')
+                    else:
+                        val = ''
+            else:
+                val = ''
+            w = getattr(self, 'book_%d_text'%(i+1))
+            w.setText(val)
+        self.s_r_paint_results(None)
+
+    def s_r_set_colors(self):
+        if self.s_r_error is not None:
+            col = 'rgb(255, 0, 0, 20%)'
+            self.test_result.setText(self.s_r_error.message)
+        else:
+            col = 'rgb(0, 255, 0, 20%)'
+        self.test_result.setStyleSheet('QLineEdit { color: black; '
+                                       'background-color: %s; }'%col)
+        for i in range(0,self.s_r_number_of_books):
+            getattr(self, 'book_%d_result'%(i+1)).setText('')
+
+    def s_r_func(self, match):
+        rf = self.s_r_functions[unicode(self.replace_func.currentText())]
+        rv = unicode(self.replace_with.text())
+        val = match.expand(rv)
+        return rf(val)
+
+    def s_r_paint_results(self, txt):
+        self.s_r_error = None
+        self.s_r_set_colors()
+        try:
+            self.s_r_obj = re.compile(unicode(self.search_for.text()))
+        except re.error as e:
+            self.s_r_obj = None
+            self.s_r_error = e
+            self.s_r_set_colors()
+            return
+
+        try:
+            self.test_result.setText(self.s_r_obj.sub(self.s_r_func,
+                                     unicode(self.test_text.text())))
+        except re.error as e:
+            self.s_r_error = e
+            self.s_r_set_colors()
+            return
+
+        for i in range(0,self.s_r_number_of_books):
+            wt = getattr(self, 'book_%d_text'%(i+1))
+            wr = getattr(self, 'book_%d_result'%(i+1))
+            try:
+                wr.setText(self.s_r_obj.sub(self.s_r_func, unicode(wt.text())))
+            except re.error as e:
+                self.s_r_error = e
+                self.s_r_set_colors()
+                break
+
+    def do_search_replace(self):
+        field = unicode(self.search_field.currentText())
+        if not field or not self.s_r_obj:
+            return
+
+        fm = self.db.field_metadata[field]
+
+        def apply_pattern(val):
+            try:
+                return self.s_r_obj.sub(self.s_r_func, val)
+            except:
+                return val
+
+        for id in self.ids:
+            val = self.db.get_property(id, index_is_id=True,
+                                       loc=fm['rec_index'])
+            if val is None:
+                continue
+            if fm['is_multiple']:
+                res = []
+                for val in [t.strip() for t in val.split(fm['is_multiple'])]:
+                    v = apply_pattern(val).strip()
+                    if v:
+                        res.append(v)
+                val = res
+                if fm['is_custom']:
+                    # The standard tags and authors values want to be lists.
+                    # All custom columns are to be strings
+                    val = fm['is_multiple'].join(val)
+                elif field == 'authors':
+                    val = [v.replace('|', ',') for v in val]
+            else:
+                val = apply_pattern(val)
+
+            if fm['is_custom']:
+                extra = self.db.get_custom_extra(id, label=fm['label'], index_is_id=True)
+                self.db.set_custom(id, val, label=fm['label'], extra=extra,
+                                   commit=False)
+            else:
+                if field == 'comments':
+                    setter = self.db.set_comment
+                else:
+                    setter = getattr(self.db, 'set_'+field)
+                setter(id, val, notify=False, commit=False)
+        self.db.commit()
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
@@ -193,6 +382,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if len(self.ids) < 1:
             return QDialog.accept(self)
 
+        if self.s_r_error is not None:
+            error_dialog(self, _('Search/replace invalid'),
+                    _('Search pattern is invalid: %s')%self.s_r_error.message,
+                    show=True)
+            return False
         self.changed = bool(self.ids)
         # Cache values from GUI so that Qt widgets are not used in
         # non GUI thread
@@ -234,6 +428,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             return error_dialog(self, _('Failed'),
                     self.worker.error[0], det_msg=self.worker.error[1],
                     show=True)
+
+        self.do_search_replace()
+
+        self.db.clean()
         return QDialog.accept(self)
 
 

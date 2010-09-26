@@ -71,6 +71,12 @@ class InterfaceAction(QObject):
     all_locations = frozenset(['toolbar', 'toolbar-device', 'context-menu',
         'context-menu-device'])
 
+    #: Type of action
+    #: 'current' means acts on the current view
+    #: 'global' means an action that does not act on the current view, but rather
+    #: on calibre as a whole
+    action_type = 'global'
+
     def __init__(self, parent, site_customization):
         QObject.__init__(self, parent)
         self.setObjectName(self.name)

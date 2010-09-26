@@ -75,6 +75,8 @@ def line_length(format, raw, percent):
         linere = re.compile('(?<=<p).*?(?=</p>)', re.DOTALL)
     elif format == 'pdf':
         linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
+    elif format == 'spanned_html':
+        linere = re.compile('(?<=<span).*?(?=</span>)', re.DOTALL)
     lines = linere.findall(raw)
 
     lengths = []
@@ -103,6 +105,52 @@ def line_length(format, raw, percent):
     index = int(len(lengths) * percent) - 1
 
     return lengths[index]
+
+class Dehyphenator(object):
+    '''
+    Analyzes words to determine whether hyphens should be retained/removed.  Uses the document
+    itself is as a dictionary. This method handles all languages along with uncommon, made-up, and
+    scientific words. The primary disadvantage is that words appearing only once in the document
+    retain hyphens.
+    '''
+
+    def __init__(self):
+        # Add common suffixes to the regex below to increase the likelihood of a match -
+        # don't add suffixes which are also complete words, such as 'able' or 'sex'
+        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)ion(s|al(ly)?)?|ings?|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
+        # remove prefixes if the prefix was not already the point of hyphenation
+        self.prefixes = re.compile(r'^(un|in|ex)$', re.IGNORECASE)
+        self.removeprefix = re.compile(r'^(un|in|ex)', re.IGNORECASE)
+
+    def dehyphenate(self, match):
+        firsthalf = match.group('firstpart')
+        secondhalf = match.group('secondpart')
+        hyphenated = str(firsthalf) + "-" + str(secondhalf)
+        dehyphenated = str(firsthalf) + str(secondhalf)
+        lookupword = self.removesuffixes.sub('', dehyphenated)
+        if self.prefixes.match(firsthalf) is None:
+           lookupword = self.removeprefix.sub('', lookupword)
+        booklookup = re.compile(u'%s' % lookupword, re.IGNORECASE)
+        #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
+        match = booklookup.search(self.html)
+        if match:
+            #print "returned dehyphenated word: " + str(dehyphenated)
+            return dehyphenated
+        else:
+            #print "returned hyphenated word: " + str(hyphenated)
+            return hyphenated
+
+    def __call__(self, html, format, length=1):
+        self.html = html
+        if format == 'html':
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^“"\s>]+)-\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)' % length)
+        elif format == 'pdf':
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^“"\s>]+)-\s*(<p>|</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)'% length)
+        elif format == 'individual_words':
+            intextmatch = re.compile('>[^<]*\b(?P<firstpart>[^"\s>]+)-(?P<secondpart)\w+)\b[^<]*<') # for later, not called anywhere yet
+
+        html = intextmatch.sub(self.dehyphenate, html)
+        return html
 
 
 class CSSPreProcessor(object):
@@ -142,7 +190,6 @@ class HTMLPreProcessor(object):
     # Fix pdftohtml markup
     PDFTOHTML  = [
                   # Fix umlauts
-                  # ¨
                   (re.compile(u'¨\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'ä'),
                   (re.compile(u'¨\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Ä'),
                   (re.compile(u'¨\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'ë'),
@@ -215,39 +262,38 @@ class HTMLPreProcessor(object):
                   (re.compile(u'¸\s*(<br.*?>)*\s*C', re.UNICODE), lambda match: u'Ç'),
 
                   # ˛
-                  (re.compile(u'˛\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'ą'),
-                  (re.compile(u'˛\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Ą'),
+                  (re.compile(u'\s*˛\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'ą'),
+                  (re.compile(u'\s*˛\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Ą'),
                   (re.compile(u'˛\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'ę'),
                   (re.compile(u'˛\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'Ę'),
-                  
+
                   # ˙
                   (re.compile(u'˙\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ż'),
                   (re.compile(u'˙\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ż'),
-                  
+
+                  # If pdf printed from a browser then the header/footer has a reliable pattern
+                  (re.compile(r'((?<=</a>)\s*file:////?[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
+
+                  # Center separator lines
+                  (re.compile(u'<br>\s*(?P<break>([*#•]+\s*)+)\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group(1) + '</p>'),
 
                   # Remove page links
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
                   # Remove <hr> tags
-                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br />'),
-                  # Replace <br><br> with <p>
-                  (re.compile(r'<br.*?>\s*<br.*?>', re.IGNORECASE), lambda match: '<p>'),
-
-                  # Remove hyphenation
-                  (re.compile(r'-<br.*?>\n\r?'), lambda match: ''),
+                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br>'),
 
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
 
                   # Detect Chapters to match default XPATH in GUI
-                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<(i|b)>(<(i|b)>)?)?(.?Chapter|Epilogue|Prologue|Book|Part)\s*([\d\w-]+(\s\w+)?)?(</(i|b)>(</(i|b)>)?)?)</?(br|p)[^>]*>\s*(?P<title>(<(i|b)>)?\s*\w+(\s*\w+)?\s*(</(i|b)>)?\s*(</?(br|p)[^>]*>))?', re.IGNORECASE), chap_head),
-                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>([A-Z \'"!]{5,})\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
+                  (re.compile(r'<br>\s*(?P<chap>(<[ibu]>){0,2}\s*.?(Introduction|Chapter|Epilogue|Prologue|Book|Part|Dedication|Volume|Preface|Acknowledgments)\s*([\d\w-]+\s*){0,3}\s*(</[ibu]>){0,2})\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<br>)?', re.IGNORECASE), chap_head),
+                  # Cover the case where every letter in a chapter title is separated by a space
+                  (re.compile(r'<br>\s*(?P<chap>([A-Z]\s+){4,}\s*([\d\w-]+\s*){0,3}\s*)\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*(<br>))?'), chap_head),
 
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
                   # Clean up spaces
                   (re.compile(u'(?<=[\.,;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
-                  # Connect paragraphs split by -
-                  (re.compile(u'(?<=[^\s][-–])[\s]*(</p>)*[\s]*(<p>)*\s*(?=[^\s])'), lambda match: ''),
                   # Add space before and after italics
                   (re.compile(u'(?<!“)<i>'), lambda match: ' <i>'),
                   (re.compile(r'</i>(?=\w)'), lambda match: '</i> '),
@@ -328,12 +374,29 @@ class HTMLPreProcessor(object):
                 print 'Failed to parse remove_footer regexp'
                 traceback.print_exc()
 
+        # unwrap em/en dashes, delete soft hyphens - moved here so it's executed after header/footer removal
+        if is_pdftohtml:
+            # unwrap em/en dashes
+            end_rules.append((re.compile(u'(?<=[–—])\s*<p>\s*(?=[[a-z\d])'), lambda match: ''))
+            # unwrap/delete soft hyphens
+            end_rules.append((re.compile(u'[­](\s*<p>)+\s*(?=[[a-z\d])'), lambda match: ''))
+            # unwrap/delete soft hyphens with formatting
+            end_rules.append((re.compile(u'[­]\s*(</(i|u|b)>)+(\s*<p>)+\s*(<(i|u|b)>)+\s*(?=[[a-z\d])'), lambda match: ''))
+
+        # Make the more aggressive chapter marking regex optional with the preprocess option to
+        # reduce false positives and move after header/footer removal
+        if getattr(self.extra_opts, 'preprocess_html', None):
+            if is_pdftohtml:
+                end_rules.append((re.compile(r'<p>\s*(?P<chap>(<[ibu]>){0,2}\s*([A-Z \'"!]{3,})\s*([\dA-Z:]+\s){0,4}\s*(</[ibu]>){0,2})\s*<p>\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<p>)?'), chap_head),)
+
+        length = -1
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
             length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'))
             if length:
+                # print "The pdf line length returned is " + str(length)
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(r'(?<=.{%i}[a-z\.,;:)\-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(r'(?<=.{%i}([a-z,:)\IA]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + start_rules:
@@ -363,6 +426,11 @@ class HTMLPreProcessor(object):
         for rule in rules + end_rules:
             html = rule[0].sub(rule[1], html)
 
+        if is_pdftohtml and length > -1:
+            # Dehyphenate
+            dehyphenator = Dehyphenator()
+            html = dehyphenator(html,'pdf', length)
+
         #dump(html, 'post-preprocess')
 
         # Handle broken XHTML w/ SVG (ugh)
@@ -381,7 +449,16 @@ class HTMLPreProcessor(object):
             html = unidecoder.decode(html)
 
         if self.plugin_preprocess:
-            html = self.input_plugin_preprocess(html)
+            html = self.input_plugin_preprocess(self.extra_opts, html)
+
+        if getattr(self.extra_opts, 'smarten_punctuation', False):
+            html = self.smarten_punctuation(html)
 
         return html
+
+    def smarten_punctuation(self, html):
+        from calibre.utils.smartypants import smartyPants
+        from calibre.ebooks.chardet import substitute_entites
+        html = smartyPants(html)
+        return substitute_entites(html)
 

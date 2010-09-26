@@ -1,7 +1,8 @@
 #!/usr/bin/env  python
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 '''
 calibre recipe for slate.com
 '''
@@ -10,13 +11,12 @@ import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Comment, Tag
 
-class PeriodicalNameHere(BasicNewsRecipe):
+class Slate(BasicNewsRecipe):
     # Method variables for customizing downloads
-    title                   = 'Slate'
     description             = 'A general-interest publication offering analysis and commentary about politics, news and culture.'
-    __author__              = 'GRiker and Sujata Raman'
-    max_articles_per_feed   = 20
-    oldest_article          = 7.0
+    __author__              = 'GRiker, Sujata Raman and Nick Redding'
+    max_articles_per_feed   = 100
+    oldest_article          = 14
     recursions              = 0
     delay                   = 0
     simultaneous_downloads  = 5
@@ -27,8 +27,11 @@ class PeriodicalNameHere(BasicNewsRecipe):
     encoding                = None
     language = 'en'
 
-
-
+    slate_complete = True
+    if slate_complete:
+        title = 'Slate (complete)'
+    else:
+        title = 'Slate (weekly)'
 
     # Method variables for customizing feed parsing
     summary_length          = 250
@@ -50,8 +53,10 @@ class PeriodicalNameHere(BasicNewsRecipe):
 
     # The second entry is for 'Big Money', which comes from a different site, uses different markup
     remove_tags             = [dict(attrs={   'id':['toolbox','recommend_tab','insider_ad_wrapper',
-                                                    'article_bottom_tools_cntr','fray_article_discussion',                                                    'fray_article_links','bottom_sponsored_links','author_bio',
-                                                    'bizbox_links_bottom','ris_links_wrapper','BOXXLE']}),
+                                                    'article_bottom_tools_cntr','fray_article_discussion','fray_article_links','bottom_sponsored_links','author_bio',
+                                                    'bizbox_links_bottom','ris_links_wrapper','BOXXLE',
+                                                    'comments_button','add_comments_button','comments-to-fray','marriott_ad',
+                                                    'article_bottom_tools','recommend_tab2','fbog_article_bottom_cntr']}),
                                dict(attrs={    'id':['content-top','service-links-bottom','hed']})   ]
 
     excludedDescriptionKeywords =   ['Slate V','Twitter feed','podcast']
@@ -62,16 +67,15 @@ class PeriodicalNameHere(BasicNewsRecipe):
     extra_css = '''
                   .h1_subhead{font-family:Arial; font-size:small; }
                    h1{font-family:Verdana; font-size:large; }
-                 .byline        {font-family:Georgia;   margin-bottom: 0px; color: #660033;}
-                 .dateline      {font-family:Arial;  font-size: smaller; height: 0pt; color:#666666;}
+                 .byline        {font-family:Georgia;   margin-bottom: 0px; }
+                 .dateline      {font-family:Arial;  font-size: smaller; height: 0pt;}
                  .imagewrapper  {font-family:Verdana;font-size:x-small; }
                  .source        {font-family:Verdana; font-size:x-small;}
                  .credit        {font-family:Verdana; font-size:     smaller;}
                  #article_body  {font-family:Verdana; }
                  #content  {font-family:Arial; }
                  .caption{font-family:Verdana;font-style:italic; font-size:x-small;}
-                 h3{font-family:Arial; color:#666666; font-size:small}
-                  a{color:#0066CC;}
+                 h3{font-family:Arial; font-size:small}
                   '''
 
     # Local variables to extend class
@@ -89,32 +93,59 @@ class PeriodicalNameHere(BasicNewsRecipe):
             if isinstance(item, (NavigableString, CData)):
                 strings.append(item.string)
             elif isinstance(item, Tag):
-                res = self.tag_to_string(item)
+                res = self.tag_to_string(item,use_alt=False)
                 if res:
                     strings.append(res)
         return strings
 
-
-    def extract_sections(self):
+    def extract_named_sections(self):
         soup = self.index_to_soup( self.baseURL )
-        soup_top_stories = soup.find(True, attrs={'class':'tap2_topic entry-content'})
+        soup_nav_bar = soup.find(True, attrs={'id':'nav'})
+        briefing_nav = soup.find('li')
+        briefing_url = briefing_nav.a['href']
+        for section_nav in soup_nav_bar.findAll('li'):
+            section_name = self.tag_to_string(section_nav,use_alt=False)
+            self.section_dates.append(section_name)
+
+        soup = self.index_to_soup(briefing_url)
+
+        self.log("Briefing url = %s " % briefing_url)
+        section_lists = soup.findAll('ul','view_links_list')
+
+        sections = []
+        for section in section_lists :
+            sections.append(section)
+        return sections
+
+
+    def extract_dated_sections(self):
+        soup = self.index_to_soup( self.baseURL )
+        soup_top_stories = soup.find(True, attrs={'id':'tap3_cntr'})
+        if soup_top_stories:
+            self.section_dates.append("Top Stories")
+            self.log("SELECTION TOP STORIES %s" % "Top Stories")
+
         soup = soup.find(True, attrs={'id':'toc_links_container'})
 
         todays_section = soup.find(True, attrs={'class':'todaydateline'})
         self.section_dates.append(self.tag_to_string(todays_section,use_alt=False))
+        self.log("SELECTION DATE %s" % self.tag_to_string(todays_section,use_alt=False))
 
         older_section_dates = soup.findAll(True, attrs={'class':'maindateline'})
         for older_section in older_section_dates :
             self.section_dates.append(self.tag_to_string(older_section,use_alt=False))
+            self.log("SELECTION DATE %s" % self.tag_to_string(older_section,use_alt=False))
 
         if soup_top_stories:
-            headline_stories = soup_top_stories.find('ul')
+            headline_stories = soup_top_stories
+            self.log("HAVE top_stories")
         else:
             headline_stories = None
+            self.log("NO top_stories")
         section_lists = soup.findAll('ul')
         # Prepend the headlines to the first section
         if headline_stories:
-            section_lists[0].insert(0,headline_stories)
+            section_lists.insert(0,headline_stories)
 
         sections = []
         for section in section_lists :
@@ -123,9 +154,8 @@ class PeriodicalNameHere(BasicNewsRecipe):
 
 
     def extract_section_articles(self, sections_html) :
-        #       Find the containers with section content
-        soup = self.index_to_soup(str(sections_html))
-        sections = soup.findAll('ul')
+        # Find the containers with section content
+        sections = sections_html
 
         articles = {}
         key = None
@@ -135,10 +165,25 @@ class PeriodicalNameHere(BasicNewsRecipe):
 
             # Get the section name
             if section.has_key('id') :
+                self.log("PROCESSING SECTION id = %s" % section['id'])
                 key = self.section_dates[i]
+                if key.startswith("Pod"):
+                    continue
+                if key.startswith("Blog"):
+                    continue
+                articles[key] = []
+                ans.append(key)
+            elif self.slate_complete:
+                key = self.section_dates[i]
+                if key.startswith("Pod"):
+                    continue
+                if key.startswith("Blog"):
+                    continue
+                self.log("PROCESSING SECTION name = %s" % key)
                 articles[key] = []
                 ans.append(key)
             else :
+                self.log("SECTION %d HAS NO id" % i);
                 continue
 
             # Get the section article_list
@@ -149,8 +194,10 @@ class PeriodicalNameHere(BasicNewsRecipe):
                 bylines = self.tag_to_strings(article)
                 url = article.a['href']
                 title = bylines[0]
-                full_title = self.tag_to_string(article)
-
+                full_title = self.tag_to_string(article,use_alt=False)
+                #self.log("ARTICLE TITLE%s" % title)
+                #self.log("ARTICLE FULL_TITLE%s" % full_title)
+                #self.log("URL %s" % url)
                 author = None
                 description = None
                 pubdate = None
@@ -181,7 +228,7 @@ class PeriodicalNameHere(BasicNewsRecipe):
                     excluded = re.compile('|'.join(self.excludedDescriptionKeywords))
                     found_excluded = excluded.search(description)
                     if found_excluded :
-                        if self.verbose : self.log("  >>> skipping %s (description keyword exclusion: %s) <<<\n" % (title, found_excluded.group(0)))
+                        self.log("  >>> skipping %s (description keyword exclusion: %s) <<<\n" % (title, found_excluded.group(0)))
                         continue
 
                 # Skip articles whose title contain excluded keywords
@@ -190,7 +237,7 @@ class PeriodicalNameHere(BasicNewsRecipe):
                     #self.log("evaluating full_title: %s" % full_title)
                     found_excluded = excluded.search(full_title)
                     if found_excluded :
-                        if self.verbose : self.log("  >>> skipping %s (title keyword exclusion: %s) <<<\n" % (title, found_excluded.group(0)))
+                        self.log("  >>> skipping %s (title keyword exclusion: %s) <<<\n" % (title, found_excluded.group(0)))
                         continue
 
                 # Skip articles whose author contain excluded keywords
@@ -198,7 +245,7 @@ class PeriodicalNameHere(BasicNewsRecipe):
                     excluded = re.compile('|'.join(self.excludedAuthorKeywords))
                     found_excluded = excluded.search(author)
                     if found_excluded :
-                        if self.verbose : self.log("  >>> skipping %s (author keyword exclusion: %s) <<<\n" % (title, found_excluded.group(0)))
+                        self.log("  >>> skipping %s (author keyword exclusion: %s) <<<\n" % (title, found_excluded.group(0)))
                         continue
 
                 skip_this_article = False
@@ -206,6 +253,7 @@ class PeriodicalNameHere(BasicNewsRecipe):
                 for article in articles[key] :
                     if article['url'] == url :
                         skip_this_article = True
+                        self.log("SKIPPING DUP %s" % url)
                         break
 
                 if skip_this_article :
@@ -217,6 +265,8 @@ class PeriodicalNameHere(BasicNewsRecipe):
                     articles[feed] = []
                 articles[feed].append(dict(title=title, url=url, date=pubdate, description=description,
                                            author=author, content=''))
+                #self.log("KEY %s" % feed)
+                #self.log("APPENDED %s" % url)
             # Promote 'newspapers' to top
             for (i,article) in enumerate(articles[feed]) :
                 if article['description'] is not None :
@@ -225,32 +275,6 @@ class PeriodicalNameHere(BasicNewsRecipe):
 
 
         ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
-        ans = self.remove_duplicates(ans)
-        return ans
-
-    def flatten_document(self, ans):
-        flat_articles = []
-        for (i,section) in enumerate(ans) :
-            #self.log("flattening section %s: " % section[0])
-            for article in section[1] :
-                #self.log("moving %s to flat_articles[]" % article['title'])
-                flat_articles.append(article)
-        flat_section = ['All Articles', flat_articles]
-        flat_ans = [flat_section]
-        return flat_ans
-
-    def remove_duplicates(self, ans):
-        # Return a stripped ans
-        for (i,section) in enumerate(ans) :
-            #self.log("section %s: " % section[0])
-            for article in section[1] :
-                #self.log("\t%s" % article['title'])
-                #self.log("\looking for %s" % article['url'])
-                for (j,subsequent_section) in enumerate(ans[i+1:]) :
-                    for (k,subsequent_article) in enumerate(subsequent_section[1]) :
-                        if article['url'] == subsequent_article['url'] :
-                            #self.log( "removing %s (%s) from %s" % (subsequent_article['title'], subsequent_article['url'], subsequent_section[0]) )
-                            del subsequent_section[1][k]
         return ans
 
     def print_version(self, url) :
@@ -258,13 +282,22 @@ class PeriodicalNameHere(BasicNewsRecipe):
 
     # Class methods
     def parse_index(self) :
-        sections = self.extract_sections()
+        if self.slate_complete:
+            sections = self.extract_named_sections()
+        else:
+            sections = self.extract_dated_sections()
         section_list = self.extract_section_articles(sections)
-        section_list = self.flatten_document(section_list)
         return section_list
 
-    def get_browser(self) :
-        return BasicNewsRecipe.get_browser()
+    def get_masthead_url(self):
+        masthead = 'http://img.slate.com/images/redesign2008/slate_logo.gif'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(masthead)
+        except:
+            self.log("\nMasthead unavailable")
+            masthead = None
+        return masthead
 
     def stripAnchors(self,soup):
         body = soup.find('div',attrs={'id':['article_body','content']})
@@ -294,8 +327,8 @@ class PeriodicalNameHere(BasicNewsRecipe):
             excluded = re.compile('|'.join(self.excludedContentKeywords))
             found_excluded = excluded.search(str(soup))
             if found_excluded :
-                print "no allowed content found, removing article"
-                raise Exception('String error')
+                print "No allowed content found, removing article"
+                raise Exception('Rejected article')
 
         # Articles from www.thebigmoney.com use different tagging for byline, dateline and body
         head = soup.find('head')
@@ -328,7 +361,6 @@ class PeriodicalNameHere(BasicNewsRecipe):
         dept_kicker = soup.find('div', attrs={'class':'department_kicker'})
         if dept_kicker is not None :
             kicker_strings = self.tag_to_strings(dept_kicker)
-            #kicker = kicker_strings[2] + kicker_strings[3]
             kicker = ''.join(kicker_strings[2:])
             kicker = re.sub('\.','',kicker)
             h3Tag = Tag(soup, "h3")
@@ -336,25 +368,11 @@ class PeriodicalNameHere(BasicNewsRecipe):
             emTag.insert(0,NavigableString(kicker))
             h3Tag.insert(0, emTag)
             dept_kicker.replaceWith(h3Tag)
+        else:
+            self.log("No kicker--return null")
+            return None
 
-        # Change <h1> to <h2>
-        headline = soup.find("h1")
-        tag = headline.find("span")
-        tag.name = 'div'
-
-        if headline is not None :
-            h2tag = Tag(soup, "h2")
-            h2tag['class'] = "headline"
-            strs = self.tag_to_strings(headline)
-            result = ''
-            for (i,substr) in enumerate(strs) :
-                result += substr
-                if i < len(strs) -1 :
-                    result += '<br />'
-            #h2tag.insert(0, result)
-            #headline.replaceWith(h2tag)
-
-        # Fix up the concatenated byline and dateline
+       # Fix up the concatenated byline and dateline
         byline = soup.find(True,attrs={'class':'byline'})
         if byline is not None :
             bylineTag = Tag(soup,'div')

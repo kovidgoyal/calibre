@@ -33,9 +33,9 @@ class HBR(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.LOGIN_URL)
-        br.select_form(name='signInForm')
-        br['signInForm:username'] = self.username
-        br['signInForm:password'] = self.password
+        br.select_form(name='signin-form')
+        br['signin-form:username'] = self.username
+        br['signin-form:password'] = self.password
         raw = br.submit().read()
         if 'My Account' not in raw:
             raise Exception('Failed to login, are you sure your username and password are correct?')

@@ -207,8 +207,8 @@ class ITUNES(DriverBase):
             for (j,p_book) in enumerate(self.update_list):
                 if False:
                     if isosx:
-                        self.log.info("  looking for %s" %
-                            str(p_book['lib_book'])[-9:])
+                        self.log.info("  looking for '%s' by %s uuid:%s" %
+                            (p_book['title'],p_book['author'], p_book['uuid']))
                     elif iswindows:
                         self.log.info(" looking for '%s' by %s (%s)" %
                                         (p_book['title'],p_book['author'], p_book['uuid']))
@@ -303,7 +303,7 @@ class ITUNES(DriverBase):
                         this_book.device_collections = []
                         this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
                         this_book.size = book.size()
-                        this_book.uuid = book.album()
+                        this_book.uuid = book.composer()
                         # Hack to discover if we're running in GUI environment
                         if self.report_progress is not None:
                             this_book.thumbnail = self._generate_thumbnail(this_book.path, book)
@@ -732,7 +732,7 @@ class ITUNES(DriverBase):
         for path in paths:
             if DEBUG:
                 self._dump_cached_book(self.cached_books[path], indent=2)
-                self.log.info("  looking for '%s' by '%s' (%s)" %
+                self.log.info("  looking for '%s' by '%s' uuid:%s" %
                                 (self.cached_books[path]['title'],
                                  self.cached_books[path]['author'],
                                  self.cached_books[path]['uuid']))
@@ -740,7 +740,7 @@ class ITUNES(DriverBase):
             # Purge the booklist, self.cached_books, thumb cache
             for i,bl_book in enumerate(booklists[0]):
                 if False:
-                    self.log.info(" evaluating '%s' by '%s' (%s)" %
+                    self.log.info(" evaluating '%s' by '%s' uuid:%s" %
                                   (bl_book.title, bl_book.author,bl_book.uuid))
 
                 found = False
@@ -781,10 +781,10 @@ class ITUNES(DriverBase):
                     zf.close()
 
                     break
-#                 else:
-#                     if DEBUG:
-#                         self.log.error("  unable to find '%s' by '%s' (%s)" %
-#                                         (bl_book.title, bl_book.author,bl_book.uuid))
+            else:
+                if DEBUG:
+                    self.log.error("  unable to find '%s' by '%s' (%s)" %
+                                    (bl_book.title, bl_book.author,bl_book.uuid))
 
         if False:
             self._dump_booklist(booklists[0], indent = 2)
@@ -905,7 +905,8 @@ class ITUNES(DriverBase):
 
                 # Add new_book to self.cached_books
                 if DEBUG:
-                    self.log.info(" adding '%s' by '%s' ['%s'] to self.cached_books" %
+                    self.log.info("ITUNES.upload_books()")
+                    self.log.info(" adding '%s' by '%s' uuid:%s to self.cached_books" %
                                   ( metadata[i].title, metadata[i].author, metadata[i].uuid))
                 self.cached_books[this_book.path] = {
                    'author': metadata[i].author,
@@ -943,7 +944,11 @@ class ITUNES(DriverBase):
                     new_booklist.append(this_book)
                     self._update_iTunes_metadata(metadata[i], db_added, lb_added, this_book)
 
-                    # Add new_book to self.cached_paths
+                    # Add new_book to self.cached_books
+                    if DEBUG:
+                        self.log.info("ITUNES.upload_books()")
+                        self.log.info(" adding '%s' by '%s' uuid:%s to self.cached_books" %
+                                      ( metadata[i].title, metadata[i].author, metadata[i].uuid))
                     self.cached_books[this_book.path] = {
                        'author': metadata[i].author[0],
                      'dev_book': db_added,
@@ -1406,8 +1411,8 @@ class ITUNES(DriverBase):
 
         for book in booklist:
             if isosx:
-                self.log.info("%s%-40.40s %-30.30s %-10.10s" %
-                 (' '*indent,book.title, book.author, str(book.library_id)[-9:]))
+                self.log.info("%s%-40.40s %-30.30s %-10.10s %s" %
+                 (' '*indent,book.title, book.author, str(book.library_id)[-9:], book.uuid))
             elif iswindows:
                 self.log.info("%s%-40.40s %-30.30s" %
                  (' '*indent,book.title, book.author))
@@ -1547,11 +1552,12 @@ class ITUNES(DriverBase):
 
         if isosx:
             for ub in self.update_list:
-                self.log.info("%s%-40.40s %-30.30s %-10.10s" %
+                self.log.info("%s%-40.40s %-30.30s %-10.10s %s" %
                  (' '*indent,
                   ub['title'],
                   ub['author'],
-                  str(ub['lib_book'])[-9:]))
+                  str(ub['lib_book'])[-9:],
+                  ub['uuid']))
         elif iswindows:
             for ub in self.update_list:
                 self.log.info("%s%-40.40s %-30.30s" %
@@ -2342,8 +2348,10 @@ class ITUNES(DriverBase):
         if isosx:
             if DEBUG:
                 self.log.info("  deleting '%s' from iDevice" % cached_book['title'])
-            cached_book['dev_book'].delete()
-
+            try:
+                cached_book['dev_book'].delete()
+            except:
+                self.log.error("  error deleting '%s'" % cached_book['title'])
         elif iswindows:
             hit = self._find_device_book(cached_book)
             if hit:
@@ -2802,7 +2810,7 @@ class ITUNES_ASYNC(ITUNES):
                     #this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
                     this_book.library_id = library_books[book]
                     this_book.size = library_books[book].size()
-                    this_book.uuid = library_books[book].album()
+                    this_book.uuid = library_books[book].composer()
                     # Hack to discover if we're running in GUI environment
                     if self.report_progress is not None:
                         this_book.thumbnail = self._generate_thumbnail(this_book.path, library_books[book])
@@ -2842,6 +2850,7 @@ class ITUNES_ASYNC(ITUNES):
                         this_book.device_collections = []
                         this_book.library_id = library_books[book]
                         this_book.size = library_books[book].Size
+                        this_book.uuid = library_books[book].Composer
                         # Hack to discover if we're running in GUI environment
                         if self.report_progress is not None:
                             this_book.thumbnail = self._generate_thumbnail(this_book.path, library_books[book])

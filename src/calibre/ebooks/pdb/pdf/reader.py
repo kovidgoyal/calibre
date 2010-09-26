@@ -21,7 +21,7 @@ class Reader(FormatReader):
         self.options = options
         setattr(self.options, 'new_pdf_engine', False)
         setattr(self.options, 'no_images', False)
-        setattr(self.options, 'unwrap_factor', 0.5)
+        setattr(self.options, 'unwrap_factor', 0.45)
 
     def extract_content(self, output_dir):
         self.log.info('Extracting PDF...')

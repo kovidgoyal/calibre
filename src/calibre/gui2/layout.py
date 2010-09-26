@@ -61,7 +61,7 @@ class LocationManager(QObject): # {{{
 
         ac('library', _('Library'), 'lt.png',
                 _('Show books in calibre library'))
-        ac('main', _('Reader'), 'reader.png',
+        ac('main', _('Device'), 'reader.png',
                 _('Show books in the main memory of the device'))
         ac('carda', _('Card A'), 'sd.png',
                 _('Show books in storage card A'))
@@ -197,11 +197,21 @@ class SearchBar(QWidget): # {{{
 
 # }}}
 
+class Spacer(QWidget):
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.l = QHBoxLayout()
+        self.setLayout(self.l)
+        self.l.addStretch(10)
+
+
 class ToolBar(QToolBar): # {{{
 
-    def __init__(self, donate, location_manager, parent):
+    def __init__(self, donate, location_manager, child_bar, parent):
         QToolBar.__init__(self, parent)
         self.gui = parent
+        self.child_bar = child_bar
         self.setContextMenuPolicy(Qt.PreventContextMenu)
         self.setMovable(False)
         self.setFloatable(False)
@@ -223,16 +233,19 @@ class ToolBar(QToolBar): # {{{
         sz = gprefs['toolbar_icon_size']
         sz = {'small':24, 'medium':48, 'large':64}[sz]
         self.setIconSize(QSize(sz, sz))
+        self.child_bar.setIconSize(QSize(sz, sz))
         style = Qt.ToolButtonTextUnderIcon
         if gprefs['toolbar_text'] == 'never':
             style = Qt.ToolButtonIconOnly
         self.setToolButtonStyle(style)
+        self.child_bar.setToolButtonStyle(style)
         self.donate_button.set_normal_icon_size(sz, sz)
 
     def contextMenuEvent(self, *args):
         pass
 
     def build_bar(self):
+        self.child_bar.setVisible(gprefs['show_child_bar'])
         self.showing_donate = False
         showing_device = self.location_manager.has_device
         actions = '-device' if showing_device else ''
@@ -244,10 +257,16 @@ class ToolBar(QToolBar): # {{{
                 m.setVisible(False)
 
         self.clear()
+        self.child_bar.clear()
         self.added_actions = []
+        self.spacers = [Spacer(self.child_bar), Spacer(self.child_bar),
+                Spacer(self), Spacer(self)]
+        self.child_bar.addWidget(self.spacers[0])
+        if gprefs['show_child_bar']:
+            self.addWidget(self.spacers[2])
 
         for what in actions:
-            if what is None:
+            if what is None and not gprefs['show_child_bar']:
                 self.addSeparator()
             elif what == 'Location Manager':
                 for ac in self.location_manager.available_actions:
@@ -262,12 +281,21 @@ class ToolBar(QToolBar): # {{{
                 self.showing_donate = True
             elif what in self.gui.iactions:
                 action = self.gui.iactions[what]
-                self.addAction(action.qaction)
+                bar = self
+                if action.action_type == 'current' and gprefs['show_child_bar']:
+                    bar = self.child_bar
+                bar.addAction(action.qaction)
                 self.added_actions.append(action.qaction)
                 self.setup_tool_button(action.qaction, action.popup_type)
 
+        self.child_bar.addWidget(self.spacers[1])
+        if gprefs['show_child_bar']:
+            self.addWidget(self.spacers[3])
+
     def setup_tool_button(self, ac, menu_mode=None):
         ch = self.widgetForAction(ac)
+        if ch is None:
+            ch = self.child_bar.widgetForAction(ac)
         ch.setCursor(Qt.PointingHandCursor)
         ch.setAutoRaise(True)
         if ac.menu() is not None and menu_mode is not None:
@@ -280,7 +308,8 @@ class ToolBar(QToolBar): # {{{
         if p == 'never':
             style = Qt.ToolButtonIconOnly
 
-        if p == 'auto' and self.preferred_width > self.width()+35:
+        if p == 'auto' and self.preferred_width > self.width()+35 and \
+                not gprefs['show_child_bar']:
             style = Qt.ToolButtonIconOnly
 
         self.setToolButtonStyle(style)
@@ -309,9 +338,11 @@ class MainWindowMixin(object): # {{{
         self.iactions['Fetch News'].init_scheduler(db)
 
         self.search_bar = SearchBar(self)
+        self.child_bar = QToolBar(self)
         self.tool_bar = ToolBar(self.donate_button,
-                self.location_manager, self)
+                self.location_manager, self.child_bar, self)
         self.addToolBar(Qt.TopToolBarArea, self.tool_bar)
+        self.addToolBar(Qt.BottomToolBarArea, self.child_bar)
 
         l = self.centralwidget.layout()
         l.addWidget(self.search_bar)

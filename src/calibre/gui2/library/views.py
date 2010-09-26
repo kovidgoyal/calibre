@@ -479,6 +479,36 @@ class BooksView(QTableView): # {{{
                 sm = self.selectionModel()
                 sm.select(index, sm.ClearAndSelect|sm.Rows)
 
+    def select_rows(self, identifiers, using_ids=True, change_current=True,
+            scroll=True):
+        '''
+        Select rows identified by identifiers. identifiers can be a set of ids,
+        row numbers or QModelIndexes.
+        '''
+        selmode = self.selectionMode()
+        self.setSelectionMode(QAbstractItemView.MultiSelection)
+        try:
+            rows = set([x.row() if hasattr(x, 'row') else x for x in
+                identifiers])
+            if using_ids:
+                rows = set([])
+                identifiers = set(identifiers)
+                m = self.model()
+                for row in range(m.rowCount(QModelIndex())):
+                    if m.id(row) in identifiers:
+                        rows.add(row)
+            if rows:
+                row = list(sorted(rows))[0]
+                if change_current:
+                    self.set_current_row(row, select=False)
+                if scroll:
+                    self.scroll_to_row(row)
+            self.clearSelection()
+            for r in rows:
+                self.selectRow(r)
+        finally:
+            self.setSelectionMode(selmode)
+
     def close(self):
         self._model.close()
 

@@ -52,3 +52,14 @@ class IPAPYRUS(TECLAST_K3):
     VENDOR_NAME      = 'E_READER'
     WINDOWS_MAIN_MEM = ''
 
+class SOVOS(TECLAST_K3):
+
+    name = 'Sovos device interface'
+    gui_name = 'Sovos'
+    description    = _('Communicate with the Sovos reader.')
+
+    FORMATS = ['epub', 'fb2', 'pdf', 'txt']
+
+    VENDOR_NAME      = 'RK28XX'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB-MSC'
+

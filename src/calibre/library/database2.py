@@ -143,6 +143,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         SchemaUpgrade.__init__(self)
         self.initialize_dynamic()
 
+    def get_property(self, idx, index_is_id=False, loc=-1):
+        row = self.data._data[idx] if index_is_id else self.data[idx]
+        if row is not None:
+            return row[loc]
+
     def initialize_dynamic(self):
         self.field_metadata = FieldMetadata() #Ensure we start with a clean copy
         self.prefs = DBPrefs(self)
@@ -324,17 +329,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.last_update_check = self.last_modified()
 
 
-        def get_property(idx, index_is_id=False, loc=-1):
-            row = self.data._data[idx] if index_is_id else self.data[idx]
-            if row is not None:
-                return row[loc]
-
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
                      'title', 'timestamp', 'uuid', 'pubdate', 'ondevice'):
-            setattr(self, prop, functools.partial(get_property,
+            setattr(self, prop, functools.partial(self.get_property,
                     loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
-        setattr(self, 'title_sort', functools.partial(get_property,
+        setattr(self, 'title_sort', functools.partial(self.get_property,
                 loc=self.FIELD_MAP['sort']))
 
     def initialize_database(self):
@@ -358,10 +358,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return row[self.FIELD_MAP['path']].replace('/', os.sep)
 
 
-    def abspath(self, index, index_is_id=False):
+    def abspath(self, index, index_is_id=False, create_dirs=True):
         'Return the absolute path to the directory containing this books files as a unicode string.'
         path = os.path.join(self.library_path, self.path(index, index_is_id=index_is_id))
-        if not os.path.exists(path):
+        if create_dirs and not os.path.exists(path):
             os.makedirs(path)
         return path
 
@@ -402,7 +402,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path = path.lower()
         return path
 
-    def set_path(self, index, index_is_id=False, commit=True):
+    def set_path(self, index, index_is_id=False):
         '''
         Set the path to the directory containing this books files based on its
         current title and author. If there was a previous directory, its contents
@@ -432,17 +432,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if current_path and os.path.exists(spath): # Migrate existing files
             cdata = self.cover(id, index_is_id=True)
             if cdata is not None:
-                open(os.path.join(tpath, 'cover.jpg'), 'wb').write(cdata)
+                with open(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
+                    f.write(cdata)
             for format in formats:
                 # Get data as string (can't use file as source and target files may be the same)
                 f = self.format(id, format, index_is_id=True, as_file=False)
                 if not f:
                     continue
                 stream = cStringIO.StringIO(f)
-                self.add_format(id, format, stream, index_is_id=True, path=tpath)
+                self.add_format(id, format, stream, index_is_id=True,
+                        path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
-        if commit:
-            self.conn.commit()
+        self.conn.commit()
         self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
         # Delete not needed directories
         if current_path and os.path.exists(spath):
@@ -451,6 +452,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 parent = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
                     self.rmtree(parent, permanent=True)
+
         curpath = self.library_path
         c1, c2 = current_path.split('/'), path.split('/')
         if not self.is_case_sensitive and len(c1) == len(c2):
@@ -465,13 +467,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # the directories, so no need to do them here.
             for oldseg, newseg in zip(c1, c2):
                 if oldseg.lower() == newseg.lower() and oldseg != newseg:
-                    while True:
-                        # need a temp name in the current segment for renames
-                        tempname = os.path.join(curpath, 'TEMP.%f'%time.time())
-                        if not os.path.exists(tempname):
-                            break
-                    os.rename(os.path.join(curpath, oldseg), tempname)
-                    os.rename(tempname, os.path.join(curpath, newseg))
+                    try:
+                        os.rename(os.path.join(curpath, oldseg), os.path.join(curpath, newseg))
+                    except:
+                        break # Fail silently since nothing catastrophic has happened
                 curpath = os.path.join(curpath, newseg)
 
     def add_listener(self, listener):
@@ -597,8 +596,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return identical_book_ids
 
     def has_cover(self, index, index_is_id=False):
-        id = index if  index_is_id else self.id(index)
-        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        id = index if index_is_id else self.id(index)
+        try:
+            path = os.path.join(self.abspath(id, index_is_id=True,
+                create_dirs=False), 'cover.jpg')
+        except:
+            # Can happen if path has not yet been set
+            return False
         return os.access(path, os.R_OK)
 
     def remove_cover(self, id, notify=True):
@@ -609,6 +613,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except (IOError, OSError):
                 time.sleep(0.2)
                 os.remove(path)
+        self.data.set(id, self.FIELD_MAP['cover'], False, row_is_id=True)
         if notify:
             self.notify('cover', [id])
 
@@ -629,6 +634,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except (IOError, OSError):
                 time.sleep(0.2)
                 save_cover_data_to(data, path)
+        self.data.set(id, self.FIELD_MAP['cover'], True, row_is_id=True)
         if notify:
             self.notify('cover', [id])
 
@@ -715,7 +721,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = self.format_abspath(index, format, index_is_id=index_is_id)
         if path is not None:
             f = open(path, mode)
-            ret = f if as_file else f.read()
+            try:
+                ret = f if as_file else f.read()
+            except IOError:
+                f.seek(0)
+                out = cStringIO.StringIO()
+                shutil.copyfileobj(f, out)
+                ret = out.getvalue()
             if not as_file:
                 f.close()
             return ret
@@ -1087,8 +1099,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.set_path(id, True)
         self.notify('metadata', [id])
 
-    # Given a book, return the list of author sort strings for the book's authors
     def authors_sort_strings(self, id, index_is_id=False):
+        '''
+        Given a book, return the list of author sort strings
+        for the book's authors
+        '''
         id = id if index_is_id else self.id(id)
         aut_strings = self.conn.get('''
                         SELECT sort
@@ -1119,9 +1134,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 result.append(r)
         return ' & '.join(result).replace('|', ',')
 
-    def set_authors(self, id, authors, notify=True):
+    def set_authors(self, id, authors, notify=True, commit=True):
         '''
-        `authors`: A list of authors.
+        Note that even if commit is False, the db will still be committed to
+        because this causes the location of files to change
+
+        :param authors: A list of authors.
         '''
         if not authors:
             authors = [_('Unknown')]
@@ -1147,16 +1165,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ss = self.author_sort_from_book(id, index_is_id=True)
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
                           (ss, id))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['authors'],
                       ','.join([a.replace(',', '|') for a in authors]),
                       row_is_id=True)
         self.data.set(id, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
-        self.set_path(id, True)
+        self.set_path(id, index_is_id=True)
         if notify:
             self.notify('metadata', [id])
 
-    def set_title(self, id, title, notify=True):
+    def set_title(self, id, title, notify=True, commit=True):
+        '''
+        Note that even if commit is False, the db will still be committed to
+        because this causes the location of files to change
+        '''
         if not title:
             return
         if not isinstance(title, unicode):
@@ -1167,8 +1190,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.data.set(id, self.FIELD_MAP['sort'], title_sort(title), row_is_id=True)
         else:
             self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)
-        self.set_path(id, True)
-        self.conn.commit()
+        self.set_path(id, index_is_id=True)
+        if commit:
+            self.conn.commit()
         if notify:
             self.notify('metadata', [id])
 
@@ -1744,10 +1768,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         series_index = 1.0 if mi.series_index is None else mi.series_index
         aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
         title = mi.title
-        if isinstance(aus, str):
+        if isbytestring(aus):
             aus = aus.decode(preferred_encoding, 'replace')
-        if isinstance(title, str):
-            title = title.decode(preferred_encoding)
+        if isbytestring(title):
+            title = title.decode(preferred_encoding, 'replace')
         obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
                             (title, series_index, aus))
         id = obj.lastrowid

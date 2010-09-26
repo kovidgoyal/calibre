@@ -5,12 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 
 from calibre.utils.magick import Image, DrawingWand, create_canvas
 from calibre.constants import __appname__, __version__
 from calibre import fit_image
 
-def save_cover_data_to(data, path, bgcolor='white', resize_to=None):
+def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
+        return_data=False):
     '''
     Saves image in data to path, in the format specified by the path
     extension. Composes the image onto a blank canvas so as to
@@ -22,9 +24,11 @@ def save_cover_data_to(data, path, bgcolor='white', resize_to=None):
         img.size = (resize_to[0], resize_to[1])
     canvas = create_canvas(img.size[0], img.size[1], bgcolor)
     canvas.compose(img)
+    if return_data:
+        return canvas.export(os.path.splitext(path)[1][1:])
     canvas.save(path)
 
-def thumbnail(data, width=120, height=120, bgcolor='white', fmt='jpg'):
+def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg'):
     img = Image()
     img.load(data)
     owidth, oheight = img.size
@@ -56,15 +60,15 @@ def identify(path):
     data = open(path, 'rb').read()
     return identify_data(data)
 
-def add_borders_to_image(path_to_image, left=0, top=0, right=0, bottom=0,
-        border_color='white'):
+def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
+        border_color='#ffffff', fmt='jpg'):
     img = Image()
-    img.open(path_to_image)
+    img.load(img_data)
     lwidth, lheight = img.size
     canvas = create_canvas(lwidth+left+right, lheight+top+bottom,
                 border_color)
     canvas.compose(img, left, top)
-    canvas.save(path_to_image)
+    return canvas.export(fmt)
 
 def create_text_wand(font_size, font_path=None):
     if font_path is None:
@@ -76,7 +80,7 @@ def create_text_wand(font_size, font_path=None):
     ans.text_alias = True
     return ans
 
-def create_text_arc(text, font_size, font=None, bgcolor='white'):
+def create_text_arc(text, font_size, font=None, bgcolor='#ffffff'):
     if isinstance(text, unicode):
         text = text.encode('utf-8')
 
@@ -144,7 +148,7 @@ class TextLine(object):
 
 
 def create_cover_page(top_lines, logo_path, width=590, height=750,
-        bgcolor='white', output_format='jpg'):
+        bgcolor='#ffffff', output_format='jpg'):
     '''
     Create the standard calibre cover page and return it as a byte string in
     the specified output_format.

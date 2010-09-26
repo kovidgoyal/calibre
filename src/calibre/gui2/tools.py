@@ -217,6 +217,10 @@ def fetch_scheduled_recipe(arg):
     if 'output_profile' in ps:
         recs.append(('output_profile', ps['output_profile'],
             OptionRecommendation.HIGH))
+        if ps['output_profile'] == 'kindle':
+            recs.append(('no_inline_toc', True,
+                OptionRecommendation.HIGH))
+
     lf = load_defaults('look_and_feel')
     if lf.get('base_font_size', 0.0) != 0.0:
         recs.append(('base_font_size', lf['base_font_size'],

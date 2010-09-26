@@ -241,7 +241,7 @@ OptionRecommendation(name='toc_filter',
 
 OptionRecommendation(name='chapter',
         recommended_value="//*[((name()='h1' or name()='h2') and "
-              r"re:test(., 'chapter|book|section|part\s+', 'i')) or @class "
+              r"re:test(., 'chapter|book|section|part|prologue|epilogue\s+', 'i')) or @class "
               "= 'chapter']", level=OptionRecommendation.LOW,
             help=_('An XPath expression to detect chapter titles. The default '
                 'is to consider <h1> or <h2> tags that contain the words '
@@ -359,6 +359,23 @@ OptionRecommendation(name='preprocess_html',
         help=_('Attempt to detect and correct hard line breaks and other '
             'problems in the source file. This may make things worse, so use '
             'with care.'
+            )
+        ),
+
+OptionRecommendation(name='html_unwrap_factor',
+        recommended_value=0.40, level=OptionRecommendation.LOW,
+        help=_('Scale used to determine the length at which a line should '
+            'be unwrapped if preprocess is enabled. Valid values are a decimal between 0 and 1. The '
+            'default is 0.40, just below the median line length. This will unwrap typical books '
+            ' with hard line breaks, but should be reduced if the line length is variable.'
+            )
+        ),
+
+OptionRecommendation(name='smarten_punctuation',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Convert plain quotes, dashes and ellipsis to their '
+            'typographically correct equivalents. For details, see '
+            'http://daringfireball.net/projects/smartypants'
             )
         ),
 

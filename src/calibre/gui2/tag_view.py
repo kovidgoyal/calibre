@@ -376,7 +376,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     'series'    : QIcon(I('series.png')),
                     'formats'   : QIcon(I('book.png')),
                     'publisher' : QIcon(I('publisher.png')),
-                    'rating'    : QIcon(I('star.png')),
+                    'rating'    : QIcon(I('rating.png')),
                     'news'      : QIcon(I('news.png')),
                     'tags'      : QIcon(I('tags.png')),
                     ':custom'   : QIcon(I('column.png')),

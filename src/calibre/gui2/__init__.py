@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
-import os, sys
+import os, sys, Queue
 from threading import RLock
 
 from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
@@ -39,7 +39,7 @@ gprefs.defaults['action-layout-context-menu'] = (
         'Edit Metadata', 'Send To Device', 'Save To Disk',
         'Connect Share', 'Copy To Library', None,
         'Convert Books', 'View', 'Open Folder', 'Show Book Details',
-        'Similar Books', None, 'Remove Books',
+        'Similar Books', 'Tweak ePub', None, 'Remove Books',
         )
 
 gprefs.defaults['action-layout-context-menu-device'] = (
@@ -50,6 +50,7 @@ gprefs.defaults['action-layout-context-menu-device'] = (
 gprefs.defaults['show_splash_screen'] = True
 gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['toolbar_text'] = 'auto'
+gprefs.defaults['show_child_bar'] = False
 
 # }}}
 
@@ -294,6 +295,34 @@ class Dispatcher(QObject):
 
     def dispatch(self, args, kwargs):
         self.func(*args, **kwargs)
+
+class FunctionDispatcher(QObject):
+    '''
+    Convenience class to use Qt signals with arbitrary python functions.
+    By default, ensures that a function call always happens in the
+    thread this Dispatcher was created in.
+    '''
+    dispatch_signal = pyqtSignal(object, object, object)
+
+    def __init__(self, func, queued=True, parent=None):
+        QObject.__init__(self, parent)
+        self.func = func
+        typ = Qt.QueuedConnection
+        if not queued:
+            typ = Qt.AutoConnection if queued is None else Qt.DirectConnection
+        self.dispatch_signal.connect(self.dispatch, type=typ)
+
+    def __call__(self, *args, **kwargs):
+        q = Queue.Queue()
+        self.dispatch_signal.emit(q, args, kwargs)
+        return q.get()
+
+    def dispatch(self, q, args, kwargs):
+        try:
+            res = self.func(*args, **kwargs)
+        except:
+            res = None
+        q.put(res)
 
 class GetMetadata(QObject):
     '''
@@ -573,18 +602,6 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
-
-        if islinux:
-            self.setStyleSheet('''
-                    QToolTip {
-                        border: 2px solid black;
-                        padding: 5px;
-                        border-radius: 10px;
-                        opacity: 200;
-                        background-color: #e1e1ff;
-                        color: black;
-                    }
-            ''')
 
     def _send_file_open_events(self):
         with self._file_open_lock:

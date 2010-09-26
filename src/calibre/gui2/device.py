@@ -627,12 +627,11 @@ class DeviceMixin(object): # {{{
     def connect_to_folder(self):
         dir = choose_dir(self, 'Select Device Folder',
                              _('Select folder to open as device'))
-        kls = FOLDER_DEVICE
-        self.device_manager.mount_device(kls=kls, kind='folder', path=dir)
+        if dir is not None:
+            self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder', path=dir)
 
     def connect_to_itunes(self):
-        kls = ITUNES_ASYNC
-        self.device_manager.mount_device(kls=kls, kind='itunes', path=None)
+        self.device_manager.mount_device(kls=ITUNES_ASYNC, kind='itunes', path=None)
 
     # disconnect from both folder and itunes devices
     def disconnect_mounted_device(self):
@@ -708,6 +707,10 @@ class DeviceMixin(object): # {{{
         '''
         Called when a device is connected to the computer.
         '''
+        # This can happen as this function is called in a queued connection and
+        # the user could have yanked the device in the meantime
+        if connected and not self.device_manager.is_device_connected:
+            connected = False
         self.set_device_menu_items_state(connected)
         if connected:
             self.device_manager.get_device_information(\
@@ -746,6 +749,7 @@ class DeviceMixin(object): # {{{
         if job.failed:
             self.device_job_exception(job)
             return
+        # set_books_in_library might schedule a sync_booklists job
         self.set_books_in_library(job.result, reset=True)
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
@@ -790,12 +794,13 @@ class DeviceMixin(object): # {{{
             self.device_manager.remove_books_from_metadata(paths,
                     self.booklists())
             model.paths_deleted(paths)
-            self.upload_booklists()
         # Force recomputation the library's ondevice info. We need to call
         # set_books_in_library even though books were not added because
-        # the deleted book might have been an exact match.
-        self.set_books_in_library(self.booklists(), reset=True)
-        self.book_on_device(None, None, reset=True)
+        # the deleted book might have been an exact match. Upload the booklists
+        # if set_books_in_library did not.
+        if not self.set_books_in_library(self.booklists(), reset=True):
+            self.upload_booklists()
+        self.book_on_device(None, reset=True)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
         self.refresh_ondevice_info(device_connected=True, reset_only=False)
@@ -1231,7 +1236,7 @@ class DeviceMixin(object): # {{{
         self.location_manager.update_devices(cp, fs,
                 self.device_manager.device.icon)
         # reset the views so that up-to-date info is shown. These need to be
-        # here because the sony driver updates collections in sync_booklists
+        # here because some drivers update collections in sync_booklists
         self.memory_view.reset()
         self.card_a_view.reset()
         self.card_b_view.reset()
@@ -1281,8 +1286,6 @@ class DeviceMixin(object): # {{{
         self.device_manager.add_books_to_metadata(job.result,
                 metadata, self.booklists())
 
-        self.upload_booklists()
-
         books_to_be_deleted = []
         if memory and memory[1]:
             books_to_be_deleted = memory[1]
@@ -1292,18 +1295,21 @@ class DeviceMixin(object): # {{{
         # book already there with a different book. This happens frequently in
         # news. When this happens, the book match indication will be wrong
         # because the UUID changed. Force both the device and the library view
-        # to refresh the flags.
-        self.set_books_in_library(self.booklists(), reset=True)
+        # to refresh the flags. Set_books_in_library could upload the booklists.
+        # If it does not, then do it here.
+        if not self.set_books_in_library(self.booklists(), reset=True):
+            self.upload_booklists()
         self.book_on_device(None, reset=True)
         self.refresh_ondevice_info(device_connected = True)
 
-        view = self.card_a_view if on_card == 'carda' else self.card_b_view if on_card == 'cardb' else self.memory_view
+        view = self.card_a_view if on_card == 'carda' else \
+            self.card_b_view if on_card == 'cardb' else self.memory_view
         view.model().resort(reset=False)
         view.model().research()
         for f in files:
             getattr(f, 'close', lambda : True)()
 
-    def book_on_device(self, id, format=None, reset=False):
+    def book_on_device(self, id, reset=False):
         '''
         Return an indication of whether the given book represented by its db id
         is on the currently connected device. It returns a 5 element list. The
@@ -1332,8 +1338,6 @@ class DeviceMixin(object): # {{{
                 self.book_db_id_cache.append(set())
                 for book in l:
                     db_id = getattr(book, 'application_id', None)
-                    if db_id is None:
-                        db_id = book.db_id
                     if db_id is not None:
                         # increment the count of books on the device with this
                         # db_id.
@@ -1372,7 +1376,7 @@ class DeviceMixin(object): # {{{
             try:
                 db = self.library_view.model().db
             except:
-                return
+                return False
             # Build a cache (map) of the library, so the search isn't On**2
             self.db_book_title_cache = {}
             self.db_book_uuid_cache = {}
@@ -1467,10 +1471,13 @@ class DeviceMixin(object): # {{{
                 # Set author_sort if it isn't already
                 asort = getattr(book, 'author_sort', None)
                 if not asort and book.authors:
-                    book.author_sort = self.library_view.model().db.author_sort_from_authors(book.authors)
+                    book.author_sort = self.library_view.model().db.\
+                                author_sort_from_authors(book.authors)
 
         if update_metadata:
             if self.device_manager.is_device_connected:
-                self.device_manager.sync_booklists(None, booklists)
+                self.device_manager.sync_booklists(
+                                    Dispatcher(self.metadata_synced), booklists)
+        return update_metadata
     # }}}
 

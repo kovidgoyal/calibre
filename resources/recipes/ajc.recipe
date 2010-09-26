@@ -10,12 +10,31 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     oldest_article = 1
     max_articles_per_feed = 100
     no_stylesheets = True
-    extra_css = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt }'
+
     masthead_url = 'http://gawand.org/wp-content/uploads/2010/06/ajc-logo.gif'
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		        '''
+
+
     keep_only_tags    = [
-                       dict(name='div', attrs={'id':['cxArticleContent']})
-                       ,dict(attrs={'id':['cxArticleText','cxArticleBodyText']})
+                        dict(name='div', attrs={'class':['cxArticleHeader']})
+                       ,dict(attrs={'id':['cxArticleText']})
                         ]
+
+
+    remove_tags = [
+                     dict(name='div'  , attrs={'class':'cxArticleList'       })
+                    ,dict(name='div'  , attrs={'class':'cxFeedTease' })
+                    ,dict(name='div'  , attrs={'class':'cxElementEnlarge'  })
+                    ,dict(name='div'  , attrs={'id':'cxArticleTools'  })
+                  ]
+
+
+
     feeds          = [
                       ('Breaking News', 'http://www.ajc.com/genericList-rss.do?source=61499'),
                       # -------------------------------------------------------------------
@@ -23,7 +42,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
                       # read by simply removing the pound sign from it.  I currently have it
                       # set to only get the Cobb area
                       # --------------------------------------------------------------------
-                      ('Atlanta & Fulton', 'http://www.ajc.com/section-rss.do?source=atlanta'),
+                      #('Atlanta & Fulton', 'http://www.ajc.com/section-rss.do?source=atlanta'),
                       #('Clayton', 'http://www.ajc.com/section-rss.do?source=clayton'),
                       #('DeKalb', 'http://www.ajc.com/section-rss.do?source=dekalb'),
                       #('Gwinnett', 'http://www.ajc.com/section-rss.do?source=gwinnett'),
@@ -41,7 +60,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
                       # but again
                       # You can enable which ever team you like by removing the pound sign
                       # ------------------------------------------------------------------------
-                      ('Sports News', 'http://www.ajc.com/genericList-rss.do?source=61510'),
+                      #('Sports News', 'http://www.ajc.com/genericList-rss.do?source=61510'),
                       #('Braves', 'http://www.ajc.com/genericList-rss.do?source=61457'),
                        ('Falcons', 'http://www.ajc.com/genericList-rss.do?source=61458'),
                       #('Hawks', 'http://www.ajc.com/genericList-rss.do?source=61522'),
@@ -52,11 +71,16 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
                        ('Music', 'http://www.accessatlanta.com/section-rss.do?source=music'),
                     ]
 
+    def postprocess_html(self, soup, first):
+      for credit_tag in soup.findAll('span', attrs={'class':['imageCredit rightFloat']}):
+       credit_tag.name ='p'
+
+      return soup
+
+   #def print_version(self, url):
+   #     return url.partition('?')[0] +'?printArticle=y'
 
 
-
-    def print_version(self, url):
-        return url.partition('?')[0] +'?printArticle=y'
 
 
 

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>382</width>
+    <height>242</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Tweak ePub</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QPushButton" name="explode_button">
+     <property name="statusTip">
+      <string>Display contents of exploded ePub</string>
+     </property>
+     <property name="text">
+      <string>&amp;Explode ePub</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="rebuild_button">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="statusTip">
+      <string>Rebuild ePub from exploded contents</string>
+     </property>
+     <property name="text">
+      <string>&amp;Rebuild ePub</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>:/images/exec.png</normaloff>:/images/exec.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QPushButton" name="cancel_button">
+     <property name="statusTip">
+      <string>Discard changes</string>
+     </property>
+     <property name="text">
+      <string>&amp;Cancel</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>:/images/window-close.png</normaloff>:/images/window-close.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Explode the ePub to display contents in a file browser window. To tweak individual files, right-click, then 'Open with...' your editor of choice. When tweaks are complete, close the file browser window. Rebuild the ePub, updating your calibre library.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -151,14 +151,16 @@
                     <item>
                      <widget class="EnLineEdit" name="author_sort">
                       <property name="toolTip">
-                       <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
+                       <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.
+If the box is colored green, then text matches the individual author's sort strings. If it is colored red, then the authors and this text do not match.</string>
                       </property>
                      </widget>
                     </item>
                     <item>
                      <widget class="QToolButton" name="auto_author_sort">
                       <property name="toolTip">
-                       <string>Automatically create the author sort entry based on the current author entry</string>
+                       <string>Automatically create the author sort entry based on the current author entry.
+Using this button to create author sort will change author sort from red to green.</string>
                       </property>
                       <property name="text">
                        <string>...</string>
@@ -620,6 +622,17 @@
                         <property name="icon">
                          <iconset resource="../../../../resources/images.qrc">
                           <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QToolButton" name="trim_cover_button">
+                        <property name="toolTip">
+                         <string>Remove border (if any) from cover</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../../../../resources/images.qrc">
+                          <normaloff>:/images/trim.png</normaloff>:/images/trim.png</iconset>
                         </property>
                        </widget>
                       </item>

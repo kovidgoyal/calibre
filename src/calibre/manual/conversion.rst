@@ -329,6 +329,17 @@ There are a few more options in this section.
     of as a separate cover. If you also specify a cover in |app|, then the converted book will have
     two covers. This option will simply remove the first image from the source document, thereby
     ensuring that the converted book has only one cover, the one specified in |app|.
+
+:guilabel:`Preprocess input`
+    This option activates various algorithms that try to detect and correct common cases of
+    badly formatted input documents. Things like hard line breaks, large blocks of text with no formatting, etc.
+    Turn this option on if your input document suffers from bad formatting. But be aware that in
+    some cases, this option can lead to worse results, so use with care.
+
+:guilabel:`Line-unwrap factor`
+    This option control the algorithm |app| uses to remove hard line breaks. For example, if the value of this
+    option is 0.4, that means calibre will remove hard line breaks from the end of lines whose lengths are less
+    than the length of 40% of all lines in the document. 
     
 Table of Contents
 ------------------

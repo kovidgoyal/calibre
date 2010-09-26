@@ -2528,6 +2528,10 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Fetch the database as a dictionary
             self.booksBySeries = self.plugin.search_sort_db(self.db, self.opts)
+            if not self.booksBySeries:
+                self.opts.generate_series = False
+                self.opts.log(" no series found in selected books, cancelling series generation")
+                return
 
             friendly_name = "Series"
 
@@ -2591,7 +2595,7 @@ class EPUB_MOBI(CatalogPlugin):
                     aTag = Tag(soup, 'a')
                     aTag['name'] = "%s_series" % re.sub('\W','',book['series']).lower()
                     pSeriesTag.insert(0,aTag)
-                    pSeriesTag.insert(1,NavigableString(self.NOT_READ_SYMBOL + '%s' % book['series']))
+                    pSeriesTag.insert(1,NavigableString('%s' % book['series']))
                     divTag.insert(dtc,pSeriesTag)
                     dtc += 1
 
@@ -2600,7 +2604,14 @@ class EPUB_MOBI(CatalogPlugin):
                 ptc = 0
 
                 #  book with read/reading/unread symbol
-                if 'read' in book and book['read']:
+                for tag in book['tags']:
+                    if tag == self.opts.read_tag:
+                        book['read'] = True
+                        break
+                else:
+                    book['read'] = False
+
+                if book['read']:
                     # check mark
                     pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
                     pBookTag['class'] = "read_book"

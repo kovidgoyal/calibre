@@ -281,7 +281,7 @@ class ZipInfo (object):
             'file_offset',
         )
 
-    def __init__(self, filename="NoName", date_time=(1980,1,1,0,0,0)):
+    def __init__(self, filename=u"NoName", date_time=(1980,1,1,0,0,0)):
         self.orig_filename = filename   # Original file name in archive
 
         # Terminate the file name at the first null byte.  Null bytes in file
@@ -1362,30 +1362,42 @@ class ZipFile:
             self.fp.close()
         self.fp = None
 
-def safe_replace(zipstream, name, datastream, extra_replacements={}):
+def safe_replace(zipstream, name, datastream, extra_replacements={},
+        add_missing=False):
     '''
     Replace a file in a zip file in a safe manner. This proceeds by extracting
     and re-creating the zipfile. This is necessary because :method:`ZipFile.replace`
     sometimes created corrupted zip files.
+
 
     :param zipstream:  Stream from a zip file
     :param name:       The name of the file to replace
     :param datastream: The data to replace the file with.
     :param extra_replacements: Extra replacements. Mapping of name to file-like
                                objects
+    :param add_missing: If a replacement does not exist in the zip file, it is
+                        added. Use with care as currently parent directories
+                        are not created.
 
     '''
     z = ZipFile(zipstream, 'r')
     replacements = {name:datastream}
     replacements.update(extra_replacements)
     names = frozenset(replacements.keys())
+    found = set([])
     with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
         ztemp = ZipFile(temp, 'w')
         for obj in z.infolist():
+            if isinstance(obj.filename, unicode):
+                obj.flag_bits |= 0x16 # Set isUTF-8 bit
             if obj.filename in names:
                 ztemp.writestr(obj, replacements[obj.filename].read())
+                found.add(obj.filename)
             else:
                 ztemp.writestr(obj, z.read_raw(obj), raw_bytes=True)
+        if add_missing:
+            for name in names - found:
+                ztemp.writestr(name, replacements[name].read())
         ztemp.close()
         z.close()
         temp.seek(0)

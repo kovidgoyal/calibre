@@ -56,7 +56,7 @@ class ContentServer(object):
 
     def sort(self, items, field, order):
         field = self.db.data.sanitize_sort_field_name(field)
-        if field not in ('title', 'authors', 'rating', 'timestamp', 'tags', 'size', 'series'):
+        if field not in self.db.field_metadata.field_keys():
             raise cherrypy.HTTPError(400, '%s is not a valid sort field'%field)
         keyg = CSSortKeyGenerator([(field, order)], self.db.field_metadata)
         items.sort(key=keyg, reverse=not order)
@@ -123,8 +123,6 @@ class ContentServer(object):
 
         return self.static('index.html')
 
-
-
     # Actually get content from the database {{{
     def get_cover(self, id, thumbnail=False):
         cover = self.db.cover(id, index_is_id=True, as_file=False)
@@ -184,7 +182,7 @@ class ContentServer(object):
         if path and os.path.exists(path):
             updated = fromtimestamp(os.stat(path).st_mtime)
             cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        return fmt.read()
+        return fmt
     # }}}
 
 

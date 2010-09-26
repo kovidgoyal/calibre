@@ -70,13 +70,16 @@ class WallStreetJournal(BasicNewsRecipe):
 
     def wsj_add_feed(self,feeds,title,url):
         self.log('Found section:', title)
-        if url.endswith('whatsnews'):
-           articles = self.wsj_find_wn_articles(url)
-        else:
-           articles = self.wsj_find_articles(url)
+        try:
+            if url.endswith('whatsnews'):
+                articles = self.wsj_find_wn_articles(url)
+            else:
+                articles = self.wsj_find_articles(url)
+        except:
+            articles = []
         if articles:
            feeds.append((title, articles))
-        return feeds  
+        return feeds
 
     def parse_index(self):
         soup = self.wsj_get_index()
@@ -99,7 +102,7 @@ class WallStreetJournal(BasicNewsRecipe):
                url = 'http://online.wsj.com' + a['href']
                feeds = self.wsj_add_feed(feeds,title,url)
                title = 'What''s News'
-               url = url.replace('pageone','whatsnews')             
+               url = url.replace('pageone','whatsnews')
                feeds = self.wsj_add_feed(feeds,title,url)
             else:
                title = self.tag_to_string(a)
@@ -141,7 +144,7 @@ class WallStreetJournal(BasicNewsRecipe):
         articles = []
 
         flavorarea = soup.find('div', attrs={'class':lambda x: x and 'ahed' in x})
-        if flavorarea is not None:        
+        if flavorarea is not None:
            flavorstory = flavorarea.find('a', href=lambda x: x and x.startswith('/article'))
            if flavorstory is not None:
               flavorstory['class'] = 'mjLinkItem'

@@ -22,6 +22,7 @@ class EditMetadataAction(InterfaceAction):
 
     name = 'Edit Metadata'
     action_spec = (_('Edit metadata'), 'edit_input.png', None, _('E'))
+    action_type = 'current'
 
     def genesis(self):
         self.create_action(spec=(_('Merge book records'), 'merge_books.png',
@@ -172,6 +173,8 @@ class EditMetadataAction(InterfaceAction):
         '''
         rows = [r.row() for r in \
                 self.gui.library_view.selectionModel().selectedRows()]
+        m = self.gui.library_view.model()
+        ids = [m.id(r) for r in rows]
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot edit metadata'),
                     _('No books selected'))
@@ -190,6 +193,7 @@ class EditMetadataAction(InterfaceAction):
             self.gui.tags_view.recount()
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
+            self.gui.library_view.select_rows(ids)
 
     # Merge books {{{
     def merge_books(self, safe_merge=False):

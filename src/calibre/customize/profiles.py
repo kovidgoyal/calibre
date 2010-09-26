@@ -248,6 +248,9 @@ class OutputProfile(Plugin):
     #: If True, the date is appended to the title of downloaded news
     periodical_date_in_title = True
 
+    #: The character used to represent a star in ratings
+    ratings_char = u'*'
+
     @classmethod
     def tags_to_string(cls, tags):
         return escape(', '.join(tags))
@@ -273,6 +276,7 @@ class iPadOutput(OutputProfile):
             'macros': {'border-width': '{length}|medium|thick|thin'}
         }
     ]
+    ratings_char = u'\u2605'
     touchscreen = True
     # touchscreen_news_css {{{
     touchscreen_news_css = u'''
@@ -553,10 +557,11 @@ class KindleOutput(OutputProfile):
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
     supports_mobi_indexing = True
     periodical_date_in_title = False
+    ratings_char = u'\u2605'
 
     @classmethod
     def tags_to_string(cls, tags):
-        return u'%s <br/><span style="color: white">%s</span>' % (', '.join(tags),
+        return u'%s <br/><span style="color:white">%s</span>' % (', '.join(tags),
                 'ttt '.join(tags)+'ttt ')
 
 class KindleDXOutput(OutputProfile):

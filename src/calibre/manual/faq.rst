@@ -81,7 +81,7 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS 300/500/505/600/700/900, Barnes & Noble Nook, Cybook Gen 3/Opus, Amazon Kindle 1/2/3/DX/DXG, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook 360, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
+At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook, Cybook Gen 3/Opus, Amazon Kindle line, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook 360, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
 
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -376,7 +376,9 @@ be printed to it. If the debug output contains a line that looks like::
 
 then the problem is probably a corrupted font cache. You can clear the cache by following these
 `instructions <http://www.macworld.com/article/139383/2009/03/fontcacheclear.html>`_. If that doesn't
-solve it, look for a corrupted font file on your system, in ~/Library/Fonts or the like.
+solve it, look for a corrupted font file on your system, in ~/Library/Fonts or the like. An easy way to
+check for corrupted fonts in OS X is to start the "Font Book" application, select all fonts and then in the File
+menu, choose "Validate fonts".
 
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

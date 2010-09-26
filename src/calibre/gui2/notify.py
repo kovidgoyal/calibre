@@ -28,12 +28,12 @@ class DBUSNotifier(Notifier):
 
     ICON = I('notify.png')
 
-    def __init__(self, server, path):
+    def __init__(self, server, path, interface):
         self.ok, self.err = True, None
         try:
             import dbus
             self.dbus = dbus
-            self._notify = dbus.SessionBus().get_object(server, path)
+            self._notify = dbus.Interface(dbus.SessionBus().get_object(server, path), interface)
         except Exception, err:
             self.ok = False
             self.err = str(err)
@@ -43,7 +43,7 @@ class KDENotifier(DBUSNotifier):
 
     def __init__(self):
         DBUSNotifier.__init__(self, 'org.kde.VisualNotifications',
-                '/VisualNotifications')
+                '/VisualNotifications', 'org.kde.VisualNotifications')
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         if replaces_id is None:
@@ -62,7 +62,7 @@ class FDONotifier(DBUSNotifier):
 
     def __init__(self):
         DBUSNotifier.__init__(self, 'org.freedesktop.Notifications',
-                '/org/freedesktop/Notifications')
+                '/org/freedesktop/Notifications', 'org.freedesktop.Notifications')
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         if replaces_id is None:

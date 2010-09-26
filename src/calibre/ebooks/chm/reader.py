@@ -132,7 +132,11 @@ class CHMReader(CHMFile):
         for path in self.Contents():
             lpath = os.path.join(output_dir, path)
             self._ensure_dir(lpath)
-            data = self.GetFile(path)
+            try:
+                data = self.GetFile(path)
+            except:
+                self.log.exception('Failed to extract %s from CHM, ignoring'%path)
+                continue
             if lpath.find(';') != -1:
                 # fix file names with ";<junk>" at the end, see _reformat()
                 lpath = lpath.split(';')[0]

@@ -173,6 +173,13 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QCheckBox" name="opt_show_child_bar">
+        <property name="text">
+         <string>&amp;Split the toolbar into two toolbars</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

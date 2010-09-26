@@ -4,6 +4,175 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.20
+  date: 2010-09-24
+
+
+  new features:
+    - title: "Tweak epub feature."
+      type: major
+      description: >
+        "Now you can conveniently browse the contents of an epub, tweak them and rebuild the epub within your calibre library 
+         by right clicking on the book and selecting Tweak ePub. See http://www.mobileread.com/forums/showthread.php?t=99875 
+         for details."
+
+    - title: "Add button to Edit metadata dialog to trim borders from the cover"
+
+    - title: "Kobo driver: Add support for setting the ReadStatus to Read and correctly deal with empty collections"
+
+    - title: "Improved algorithm for removal of hyphens during pre-processing"
+
+    - title: "EPUB metadata: Don't read timestamp value from epubs as I am sick of closing bugs about adding books and having the Date not be today."
+
+    - title: "After bulk edit metadata, reselect previously selected books."
+
+  bug fixes:
+    - title: "Fix regression in 0.7.19 that broke the By Author and By Title category listing in Stanza/Aldiko feeds."
+   
+    - title: "MOBI Output: Fix regression that broke sections list in downloaded periodicals on Kindle for non-english news sources"
+
+    - title: "News download: Rationalize cover processing."
+      tickets: [6852]
+
+    - title: "Cover cache: load images only in the GUI thread to prevent stale files being leftover by set_path due to Windows file locking"
+
+    - title: "Database: Make renaming of folders on case change more robust"
+      tickets: [6914]
+
+    - title: "When adding/replacing files to/in EPUB files, set the GPF bit for all files in the archive, to prevent unzip from complaining in linux"
+      tickets: [6363]
+
+    - title: "Plugin loading: Handle encoding declarations in .py files correctly"
+
+    - title: "MOBI input: Another corner case"
+      tickets: [6909]
+
+    - title: "IPC: Store results file in the calibre temp dir and also dont die if for some reason removing result file fails. Should make adding/saving more robust"
+
+    - title: "Database: Fix regression that caused has_cover to create empty directories unneccessarily"
+
+    - title: "Detection of Alex on unix"
+      tickets: [5900]
+
+    - title: "News download: Don't add inline table of contents when downloading news for the Kindle"
+
+    - title: "Add prologue and epilogue to default chapter detection regex"
+
+    - title: "Kobo driver: Fix issue where books that are read were getting their status reset to Unread"
+
+    - title: "Device drivers: Fix occassional false positive when matching books on device with books in the calibre library"
+
+    - title: "Content server: Making serving of large files more efficient."
+
+    - title: "GUI device detection: Handle case when user yanks connected device before device connection handler is called."
+      tickets: [6864]
+
+    - title: "Strip leading/trailing whitespace when setting metadata using the edit metadata dialog"
+      tickets: [6854]
+
+    - title: "KOBO: Editing the Im_Reading list with SD Card installed fixed"
+      tickets: [6850]
+
+  new recipes:
+    - title: "Neal's Nuze and Popular Science"
+      author: Tony Stegall
+
+    - title: "Rmf24.pl"
+      author: "Tomasz Dlugosz"
+      
+    - title: "Gazeta Pomorska"
+      author: "Richard"
+
+    - title: "Le Journal de Montreal and superesportes"
+      author: "Luciano Furtado"
+
+    - title: "The Marker"
+      author: Marbs
+
+    - title: "Tagesanzeiger"
+      author: noxxx
+ 
+
+  improved recipes:
+    - Danas
+    - Harvard Business Review
+
+- version: 0.7.19
+  date: 2010-09-17
+
+  new features:
+    - title: "The ability to perform search and replace via regular expressions in the Bulk Edit metadata dialog"
+      type: major
+
+    - title: "Add an option to have calibre automatically convert straight quotes to curly quotes. Also handles em/en-dashes and ellipses. Found under 'Look & Feel' in the conversion options"
+      type: major
+      tickets: [6808]
+
+    - title: "Greatly improve sorting performance on large libraries."
+      type: major
+
+    - title: "Drivers for the SONY PRS-350/PRS-650 and the Sovos E-reader"
+
+    - title: "Kobo driver: Add management of the I'm Reading list on Kobo via an Im_Reading tag in calibre. See http://www.mobileread.com/forums/showthread.php?t=98906 for details"
+
+    - title: "Conversion pipeline: Add an option to control how hard line breaks are removed during preprocessing. See the Structure Detection section in the conversion options"
+
+    - title: "In the Edit metadata dialog, indicate whether the author sort value matches the author value, using a background color"
+
+    - title: "Add an option to split the toolbar into two toolbars in Preferences->Interface->Look and Feel"
+
+    - title: "EPUB Output: Improved design of the 'jacket' page created by calibre when using the 'Insert metadata at start of book' option"
+
+    - title: "PDF Input: Improve line unwrapping, handling of hyphens/dashes and quotes. Also handle more specially encoded non ASCII characters"
+
+  bug fixes:
+    - title: "Fix regression in filename shortening that caused loss of filename extension"
+
+    - title: "Fix various regressions that could be triggered when using search restrictions and/or multi-sorts and connecting a device"
+
+    - title: "Database: Fix possible race condition in windows when changing title/author during move of book files, that could lead to old files not being deleted"
+
+    - title: "Conversion pipeline: Don't die if rescaling of image raises an exception, just ignore and continue"
+
+    - title: "Database: Update has_cover cache when setting/removing covers so that the search returns correct results. Also fix an exception that could occur when adding books with a db that has been upgraded from very old SQL."
+
+    - title: "Workaround for bug that affects some windows installs causing white backgrounds on default covers to be rendered as yellow"
+
+    - title: "Fix handling of non-ASCII chars when rendering series in default EPUB cover"
+
+    - title: "Fix --start-in-tray switch displays hidden windows in metacity, xfwm4 and compiz"
+      tickets: [6806]
+
+    - title: "Conversion pipeline: When setting margins on <body> explicitly set padding to 0 to override and existing padding in the input document"
+
+    - title: "CHM Input: Ignore missing image files in the input document"
+      tickets: [6773]
+
+    - title: "News download: Fix bug that could break some downloads in non ASCII locales"
+
+    - title: "TXT Output: When using preserve spaces, output tab characters as a sequence of four non-breaking spaces as some readers dont handle the 09 char code."
+
+    - title: "PDB Input: Fix bug in conversion of TOC in some PML files"
+
+
+  new recipes:
+    - title: "taz.de RSS"
+      author: Alexander Schremmer
+
+    - title: "Brand Eins"
+      author: Constantin Hofstetter
+
+  improved recipes:
+    - Harpers (free)
+    - Danas
+    - Novosti
+    - ESPN
+    - Taz Digiabo
+    - Slate
+    - AJC
+    - Infobae
+    - NSPM
+ 
 - version: 0.7.18
   date: 2010-09-10
 
@@ -197,7 +366,7 @@
   new features:
     - title: "Multiple library support: Various improvements to make using multiple calibre libraries easier."
       type: major
-      desc: >
+      description: >
         "Now, when you switch libraries using the Choose Library button on the toolbar, entries are created in the menu of that button to easily switch to that library in the 
         future. Also, you can now right click on a book in the calibre library and use the 'Copy to library' action to copy the book to another library,
         that you have switched to at least once. The name of the current library is shown in the titlebar.
@@ -205,7 +374,7 @@
 
     - title: "Content server: Allow setting a restriction so that the server shares only some of the books in the library."
       type: major
-      desc: >
+      description: >
         "You can now use a Saved Search as a restiction for the content server, via Preferences->Content Server. This will cause the
         server to share only those books that match the saved search.
         "

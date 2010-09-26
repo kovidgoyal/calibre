@@ -12,6 +12,7 @@ from copy import deepcopy
 from lxml import etree
 
 from calibre.customize.conversion import InputFormatPlugin
+from calibre.ebooks.conversion.utils import PreProcessor
 from calibre import guess_type
 
 class Canvas(etree.XSLTExtension):
@@ -418,5 +419,11 @@ class LRFInput(InputFormatPlugin):
             f.write(result)
         styles.write()
         return os.path.abspath('content.opf')
+
+    def preprocess_html(self, options, html):
+        self.options = options
+        preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
+        return preprocessor(html)
+
 
 

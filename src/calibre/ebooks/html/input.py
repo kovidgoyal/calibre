@@ -24,7 +24,7 @@ from calibre.constants import islinux, isfreebsd, iswindows
 from calibre import unicode_path
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
-from calibre.ebooks.conversion.preprocess import line_length
+from calibre.ebooks.conversion.utils import PreProcessor
 
 class Link(object):
     '''
@@ -490,21 +490,8 @@ class HTMLInput(InputFormatPlugin):
             return (None, None)
         return (None, raw)
 
-	def preprocess_html(self, html):
-        if not hasattr(self, 'log'):
-            from calibre.utils.logging import default_log
-            self.log = default_log
-		self.log("*********  Preprocessing HTML  *********")
-		# Detect Chapters to match the xpath in the GUI
-		chapdetect = re.compile(r'(?=</?(br|p|span))(</?(br|p|span)[^>]*>)?\s*(?P<chap>(<(i|b)><(i|b)>|<(i|b)>)?(.?Chapter|Epilogue|Prologue|Book|Part|Dedication)\s*([\d\w-]+(\s\w+)?)?(</(i|b)></(i|b)>|</(i|b)>)?)(</?(p|br|span)[^>]*>)', re.IGNORECASE)
-		html = chapdetect.sub('<h2>'+'\g<chap>'+'</h2>\n', html)
-		# Unwrap lines using punctation if the median length of all lines is less than 150
-		#
-		# Insert extra line feeds so the line length regex functions properly
-		html = re.sub(r"</p>", "</p>\n", html)
-		length = line_length('html', html, 0.4)
-		self.log.debug("*** Median length is " + str(length) + " ***")
-		unwrap = re.compile(r"(?<=.{%i}[a-z,;:\IA])\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
-		if length < 150:
-			html = unwrap.sub(' ', html)
-        return html
+    def preprocess_html(self, options, html):
+        self.options = options
+        preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
+        return preprocessor(html)
+

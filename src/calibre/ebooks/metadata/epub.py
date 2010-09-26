@@ -176,6 +176,7 @@ def get_metadata(stream, extract_cover=True):
         except:
             import traceback
             traceback.print_exc()
+    mi.timestamp = None
     return mi
 
 def get_quick_metadata(stream):

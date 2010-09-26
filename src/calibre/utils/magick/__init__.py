@@ -194,7 +194,7 @@ class Image(_magick.Image): # {{{
 
 # }}}
 
-def create_canvas(width, height, bgcolor='white'):
+def create_canvas(width, height, bgcolor='#ffffff'):
     canvas = Image()
     canvas.create_canvas(int(width), int(height), str(bgcolor))
     return canvas

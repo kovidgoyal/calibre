@@ -459,7 +459,7 @@ from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
-from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS
+from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, SOVOS
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, GEMEI
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
@@ -557,6 +557,7 @@ plugins += [
     TECLAST_K3,
     NEWSMY,
     IPAPYRUS,
+    SOVOS,
     EDGE,
     SNE,
     ALEX,
@@ -665,13 +666,17 @@ class ActionCopyToLibrary(InterfaceActionBase):
     name = 'Copy To Library'
     actual_plugin = 'calibre.gui2.actions.copy_to_library:CopyToLibraryAction'
 
+class ActionTweakEpub(InterfaceActionBase):
+    name = 'Tweak ePub'
+    actual_plugin = 'calibre.gui2.actions.tweak_epub:TweakEpubAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
-        ActionCopyToLibrary]
+        ActionCopyToLibrary, ActionTweakEpub]
 
 # }}}
 

@@ -7,7 +7,7 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import os, time, traceback, re, urlparse, sys
+import os, time, traceback, re, urlparse, sys, cStringIO
 from collections import defaultdict
 from functools import partial
 from contextlib import nested, closing
@@ -27,6 +27,7 @@ from calibre.web.fetch.simple import RecursiveFetcher
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
+from calibre.utils.magick.draw import save_cover_data_to, add_borders_to_image
 
 class LoginFailed(ValueError):
     pass
@@ -290,10 +291,12 @@ class BasicNewsRecipe(Recipe):
     #: the cover for the periodical.  Overriding this in your recipe instructs
     #: calibre to render the downloaded cover into a frame whose width and height
     #: are expressed as a percentage of the downloaded cover.
-    #: cover_margins = (10,15,'white') pads the cover with a white margin
+    #: cover_margins = (10, 15, '#ffffff') pads the cover with a white margin
     #: 10px on the left and right, 15px on the top and bottom.
-    #: Colors name defined at http://www.imagemagick.org/script/color.php
-    cover_margins = (0,0,'white')
+    #: Color names defined at http://www.imagemagick.org/script/color.php
+    #: Note that for some reason, white does not always work on windows. Use
+    #: #ffffff instead
+    cover_margins = (0, 0, '#ffffff')
 
     #: Set to a non empty string to disable this recipe
     #: The string will be used as the disabled message
@@ -946,38 +949,36 @@ class BasicNewsRecipe(Recipe):
         try:
             cu = self.get_cover_url()
         except Exception, err:
-            cu = None
             self.log.error(_('Could not download cover: %s')%str(err))
             self.log.debug(traceback.format_exc())
-        if cu is not None:
-            ext = cu.split('/')[-1].rpartition('.')[-1]
-            if '?' in ext:
-                ext = ''
-            ext = ext.lower() if ext and '/' not in ext else 'jpg'
-            cpath = os.path.join(self.output_dir, 'cover.'+ext)
+        else:
+            cdata = None
             if os.access(cu, os.R_OK):
-                with open(cpath, 'wb') as cfile:
-                    cfile.write(open(cu, 'rb').read())
+                cdata = open(cu, 'rb').read()
             else:
                 self.report_progress(1, _('Downloading cover from %s')%cu)
-                with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
-                    cfile.write(r.read())
-                if self.cover_margins[0] or self.cover_margins[1]:
-                    from calibre.utils.magick.draw import add_borders_to_image
-                    add_borders_to_image(cpath,
-                                         left=self.cover_margins[0],right=self.cover_margins[0],
-                                         top=self.cover_margins[1],bottom=self.cover_margins[1],
-                                         border_color=self.cover_margins[2])
-            if ext.lower() == 'pdf':
+                with closing(self.browser.open(cu)) as r:
+                    cdata = r.read()
+            if not cdata:
+                return
+            ext = cu.split('/')[-1].rpartition('.')[-1].lower().strip()
+            if ext == 'pdf':
                 from calibre.ebooks.metadata.pdf import get_metadata
-                stream = open(cpath, 'rb')
+                stream = cStringIO.StringIO(cdata)
+                cdata = None
                 mi = get_metadata(stream)
-                cpath = None
                 if mi.cover_data and mi.cover_data[1]:
-                    cpath = os.path.join(self.output_dir,
-                            'cover.'+mi.cover_data[0])
-                    with open(cpath, 'wb') as f:
-                        f.write(mi.cover_data[1])
+                    cdata = mi.cover_data[1]
+            if not cdata:
+                return
+            if self.cover_margins[0] or self.cover_margins[1]:
+                cdata = add_borders_to_image(cdata,
+                            left=self.cover_margins[0],right=self.cover_margins[0],
+                            top=self.cover_margins[1],bottom=self.cover_margins[1],
+                            border_color=self.cover_margins[2])
+
+            cpath = os.path.join(self.output_dir, 'cover.jpg')
+            save_cover_data_to(cdata, cpath)
             self.cover_path = cpath
 
     def download_cover(self):
@@ -1420,7 +1421,6 @@ class CalibrePeriodical(BasicNewsRecipe):
         return br
 
     def download(self):
-        import cStringIO
         self.log('Fetching downloaded recipe')
         try:
             raw = self.browser.open_novisit(

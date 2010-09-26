@@ -122,7 +122,7 @@ def add_pipeline_options(parser, plumber):
                       'font_size_mapping',
                       'line_height',
                       'linearize_tables',
-                      'extra_css',
+                      'extra_css', 'smarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'change_justification',
                       'insert_blank_line', 'remove_paragraph_spacing','remove_paragraph_spacing_indent_size',
@@ -137,7 +137,7 @@ def add_pipeline_options(parser, plumber):
                       'chapter', 'chapter_mark',
                       'prefer_metadata_cover', 'remove_first_image',
                       'insert_metadata', 'page_breaks_before',
-                      'preprocess_html',
+                      'preprocess_html', 'html_unwrap_factor',
                   ]
                   ),
 

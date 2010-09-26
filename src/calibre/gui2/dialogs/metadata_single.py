@@ -6,10 +6,7 @@ The dialog used to edit meta information for a book as well as
 add/remove formats
 '''
 
-import os
-import re
-import time
-import traceback
+import os, re, time, traceback, textwrap
 
 from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QThread, QDate, \
     QPixmap, QListWidgetItem, QDialog, pyqtSignal
@@ -303,6 +300,24 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cpixmap = pix
         self.cover_data = cdata
 
+    def trim_cover(self, *args):
+        from calibre.utils.magick import Image
+        cdata = self.cover_data
+        if not cdata:
+            return
+        im = Image()
+        im.load(cdata)
+        im.trim(10)
+        cdata = im.export('jpg')
+        pix = QPixmap()
+        pix.loadFromData(cdata)
+        self.cover.setPixmap(pix)
+        self.cover_changed = True
+        self.cpixmap = pix
+        self.cover_data = cdata
+
+
+
     def sync_formats(self):
         old_extensions, new_extensions, paths = set(), set(), {}
         for row in range(self.formats.count()):
@@ -331,6 +346,14 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         ResizableDialog.__init__(self, window)
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
         self.cancel_all = False
+        base = unicode(self.author_sort.toolTip())
+        self.ok_aus_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
+                            _(' The green color indicates that the current '
+                    'author sort matches the current author'))
+        self.bad_aus_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
+                _(' The red color indicates that the current '
+                    'author sort does not match the current author'))
+
         if cancel_all:
             self.__abort_button = self.button_box.addButton(self.button_box.Abort)
             self.__abort_button.setToolTip(_('Abort the editing of all remaining books'))
@@ -375,6 +398,11 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         self.remove_unused_series)
         QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
                         self.deduce_author_sort)
+        self.trim_cover_button.clicked.connect(self.trim_cover)
+        self.connect(self.author_sort, SIGNAL('textChanged(const QString&)'),
+                     self.author_sort_box_changed)
+        self.connect(self.authors, SIGNAL('editTextChanged(const QString&)'),
+                     self.authors_box_changed)
         self.connect(self.formats, SIGNAL('itemDoubleClicked(QListWidgetItem*)'),
                 self.show_format)
         self.connect(self.formats, SIGNAL('delete_format()'), self.remove_format)
@@ -466,6 +494,28 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[0])
             for c in range(2, len(ans[i].widgets), 2):
                 w.setTabOrder(ans[i].widgets[c-1], ans[i].widgets[c+1])
+
+    def authors_box_changed(self, txt):
+        aus = unicode(txt)
+        aus = re.sub(r'\s+et al\.$', '', aus)
+        aus = self.db.author_sort_from_authors(string_to_authors(aus))
+        self.mark_author_sort(normal=(unicode(self.author_sort.text()) == aus))
+
+    def author_sort_box_changed(self, txt):
+        au = unicode(self.authors.text())
+        au = re.sub(r'\s+et al\.$', '', au)
+        au = self.db.author_sort_from_authors(string_to_authors(au))
+        self.mark_author_sort(normal=(au == txt))
+
+    def mark_author_sort(self, normal=True):
+        if normal:
+            col = 'rgb(0, 255, 0, 20%)'
+        else:
+            col = 'rgb(255, 0, 0, 20%)'
+        self.author_sort.setStyleSheet('QLineEdit { color: black; '
+                                       'background-color: %s; }'%col)
+        tt = self.ok_aus_tooltip if normal else self.bad_aus_tooltip
+        self.author_sort.setToolTip(tt)
 
     def validate_isbn(self, isbn):
         isbn = unicode(isbn).strip()
@@ -720,20 +770,22 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         try:
             if self.formats_changed:
                 self.sync_formats()
-            title = unicode(self.title.text())
+            title = unicode(self.title.text()).strip()
             self.db.set_title(self.id, title, notify=False)
-            au = unicode(self.authors.text())
+            au = unicode(self.authors.text()).strip()
             if au:
                 self.db.set_authors(self.id, string_to_authors(au), notify=False)
-            aus = unicode(self.author_sort.text())
+            aus = unicode(self.author_sort.text()).strip()
             if aus:
                 self.db.set_author_sort(self.id, aus, notify=False, commit=False)
             self.db.set_isbn(self.id,
-                             re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())),
+                             re.sub(r'[^0-9a-zA-Z]', '',
+                                 unicode(self.isbn.text()).strip()),
                              notify=False, commit=False)
             self.db.set_rating(self.id, 2*self.rating.value(), notify=False,
                                commit=False)
-            self.db.set_publisher(self.id, unicode(self.publisher.currentText()),
+            self.db.set_publisher(self.id,
+                    unicode(self.publisher.currentText()).strip(),
                                   notify=False, commit=False)
             self.db.set_tags(self.id, [x.strip() for x in
                 unicode(self.tags.text()).split(',')], notify=False, commit=False)
@@ -742,7 +794,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     commit=False)
             self.db.set_series_index(self.id, self.series_index.value(),
                                      notify=False, commit=False)
-            self.db.set_comment(self.id, unicode(self.comments.toPlainText()),
+            self.db.set_comment(self.id,
+                    unicode(self.comments.toPlainText()).strip(),
                                 notify=False, commit=False)
             d = self.pubdate.date()
             d = qt_to_dt(d)
@@ -766,7 +819,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 fname = err.filename if err.filename else 'file'
                 return error_dialog(self, _('Permission denied'),
                         _('Could not open %s. Is it being used by another'
-                        ' program?')%fname, show=True)
+                        ' program?')%fname, det_msg=traceback.format_exc(),
+                        show=True)
             raise
         self.save_state()
         QDialog.accept(self)
