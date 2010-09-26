@@ -568,7 +568,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
             commit=True, dump_to=None):
-        'Write metadata for each record to an individual OPF file'
+        '''
+        Write metadata for each record to an individual OPF file
+
+        :param dump_to: None or list. If list then instead of writing to file,
+                        data is append to list
+        '''
         if book_ids is None:
             book_ids = [x[0] for x in self.conn.get(
                 'SELECT book FROM metadata_dirtied', all=True)]
