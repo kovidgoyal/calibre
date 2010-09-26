@@ -155,10 +155,14 @@ class BooksModel(QAbstractTableModel): # {{{
         self.database_changed.emit(db)
         if self.cover_cache is not None:
             self.cover_cache.stop()
+            # Would like to to a join here, but the thread might be waiting to
+            # do something on the GUI thread. Deadlock.
         self.cover_cache = CoverCache(db, FunctionDispatcher(self.db.cover))
         self.cover_cache.start()
         if self.metadata_backup is not None:
             self.metadata_backup.stop()
+            # Would like to to a join here, but the thread might be waiting to
+            # do something on the GUI thread. Deadlock.
         self.metadata_backup = MetadataBackup(db)
         self.metadata_backup.start()
         def refresh_cover(event, ids):
