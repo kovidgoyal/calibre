@@ -932,7 +932,6 @@ def command_restore_database(args, dbpath):
                     'wb').write(r.report.encode('utf-8'))
             prints('Some errors occurred. A detailed report was '
                     'saved to', name)
-    send_message()
 
 def option_parser():
     parser = OptionParser(_(

@@ -46,6 +46,7 @@ class Restore(Thread):
         self.books = []
         self.conflicting_custom_cols = {}
         self.failed_restores = []
+        self.successes = 0
         self.tb = None
 
     @property
@@ -81,6 +82,8 @@ class Restore(Thread):
                 self.scan_library()
                 self.create_cc_metadata()
                 self.restore_books()
+                if self.successes == 0 and len(self.dirs) > 0:
+                    raise Exception(('Something bad happened'))
                 self.replace_db()
         except:
             self.tb = traceback.format_exc()
@@ -183,6 +186,7 @@ class Restore(Thread):
                 INSERT INTO data (book,format,uncompressed_size,name)
                 VALUES (?,?,?,?)''', (book['id'], fmt, size, name))
         db.conn.commit()
+        self.successes += 1
 
     def replace_db(self):
         dbpath = os.path.join(self.src_library_path, 'metadata.db')
