@@ -565,6 +565,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         mb = self.library_view.model().metadata_backup
         if mb is not None:
             mb.stop()
+            # give the thread time to stop so all operations complete
+            # otherwise the exit could kill the thread mid-write
+            time.sleep(2)
 
         self.hide_windows()
         self.emailer.stop()

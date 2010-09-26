@@ -39,6 +39,7 @@ class MetadataBackup(Thread): # {{{
         self.do_write = FunctionDispatcher(self.write)
         self.get_metadata_for_dump = FunctionDispatcher(db.get_metadata_for_dump)
         self.clear_dirtied = FunctionDispatcher(db.clear_dirtied)
+        self.set_dirtied = FunctionDispatcher(db.dirtied)
 
     def stop(self):
         self.keep_running = False
@@ -68,8 +69,9 @@ class MetadataBackup(Thread): # {{{
                     traceback.print_exc()
                     continue
 
+            # at this point the dirty indication is off
+
             if mi is None:
-                self.clear_dirtied([id_])
                 continue
 
             # Give the GUI thread a chance to do something. Python threads don't
@@ -79,6 +81,7 @@ class MetadataBackup(Thread): # {{{
             try:
                 raw = metadata_to_opf(mi)
             except:
+                self.set_dirtied([id_])
                 prints('Failed to convert to opf for id:', id_)
                 traceback.print_exc()
                 continue
@@ -92,15 +95,10 @@ class MetadataBackup(Thread): # {{{
                 try:
                     self.do_write(path, raw)
                 except:
+                    self.set_dirtied([id_])
                     prints('Failed to write backup metadata for id:', id_,
                             'again, giving up')
                     continue
-
-            time.sleep(0.1) # Give the GUI thread a chance to do something
-            try:
-                self.clear_dirtied([id_])
-            except:
-                prints('Failed to clear dirtied for id:', id_)
 
     def write(self, path, raw):
         with open(path, 'wb') as f:

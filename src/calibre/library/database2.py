@@ -598,20 +598,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for book_id in book_ids:
             if not self.data.has_id(book_id):
                 continue
-            path, mi = self.get_metadata_for_dump(book_id)
+            path, mi = self.get_metadata_for_dump(book_id,
+                                        remove_from_dirtied=remove_from_dirtied)
             if path is None:
                 continue
-            raw = metadata_to_opf(mi)
-            with open(path, 'wb') as f:
-                f.write(raw)
-            if remove_from_dirtied:
-                self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
-                        (book_id,))
-                # if a later exception prevents the commit, then the dirtied
-                # table will still have the book. No big deal, because the OPF
-                # is there and correct. We will simply do it again on next
-                # start
-                self.dirtied_cache.discard(book_id)
+            try:
+                raw = metadata_to_opf(mi)
+                with open(path, 'wb') as f:
+                    f.write(raw)
+            except:
+                # Something went wrong. Put the book back on the dirty list
+                self.dirtied([book_id])
         if commit:
             self.conn.commit()
         return True
@@ -649,7 +646,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dirtied_cache = set()
         self.dirtied(book_ids)
 
-    def get_metadata_for_dump(self, idx):
+    def get_metadata_for_dump(self, idx, remove_from_dirtied=True):
         try:
             path = os.path.join(self.abspath(idx, index_is_id=True), 'metadata.opf')
             mi = self.get_metadata(idx, index_is_id=True)
@@ -658,7 +655,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # cover is set/removed
             mi.cover = 'cover.jpg'
         except:
-            return (None, None)
+            # This almost certainly means that the book has been deleted while
+            # the backup operation sat in the queue.
+            path,mi = (None, None)
+
+        try:
+            # clear the dirtied indicator. The user must put it back if
+            # something goes wrong with writing the OPF
+            if remove_from_dirtied:
+                self.clear_dirtied([idx])
+        except:
+            # No real problem. We will just do it again.
+            pass
         return (path, mi)
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
