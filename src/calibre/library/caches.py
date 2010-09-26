@@ -780,7 +780,7 @@ class SortKeyGenerator(object):
                     sidx = record[sidx_fm['rec_index']]
                     val = (val, sidx)
 
-            elif dt in ('text', 'comments'):
+            elif dt in ('text', 'comments', 'composite'):
                 if val is None:
                     val = ''
                 val = val.lower()
