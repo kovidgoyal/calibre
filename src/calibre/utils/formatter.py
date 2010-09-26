@@ -100,7 +100,7 @@ class TemplateFormatter(string.Formatter):
                 val = func[1](self, val)
             else:
                 val = func[1](self, val, *args)
-        else:
+        elif val:
             val = string.Formatter.format_field(self, val, fmt)
         if not val:
             return ''
