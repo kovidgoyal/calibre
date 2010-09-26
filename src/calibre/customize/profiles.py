@@ -61,6 +61,7 @@ class SonyReaderInput(InputProfile):
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+    #unsupported_unicode_chars = [\u2018, \u2019, \u201a, \u201b, \u201c, \u201d, \u201e, \u201f]
 
 class SonyReader300Input(SonyReaderInput):
 
@@ -250,6 +251,9 @@ class OutputProfile(Plugin):
 
     #: The character used to represent a star in ratings
     ratings_char = u'*'
+    
+    #: Unsupported unicode characters to be replaced during preprocessing
+    unsupported_unicode_chars = []
 
     @classmethod
     def tags_to_string(cls, tags):

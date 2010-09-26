@@ -182,8 +182,10 @@ class Dehyphenator(object):
         lookupword = self.removesuffixes.sub('', dehyphenated)
         if self.prefixes.match(firsthalf) is None:
            lookupword = self.removeprefix.sub('', lookupword)
-        booklookup = re.compile(u'%s' % lookupword, re.IGNORECASE)
+        # escape any meta-characters which may be in the lookup word
+        lookupword = re.sub(r'(?P<meta>[\[\]\\\^\$\.\|\?\*\+\(\)])', r'\\\g<meta>', lookupword)
         #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
+        booklookup = re.compile(u'%s' % lookupword, re.IGNORECASE)
         if self.format == 'html_cleanup':
            match = booklookup.search(self.html)
            hyphenmatch = re.search(u'%s' % hyphenated, self.html)
