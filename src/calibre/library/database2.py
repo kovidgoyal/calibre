@@ -587,7 +587,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 with open(path, 'wb') as f:
                     f.write(raw)
             else:
-                dump_queue.put((path, raw))
+                dump_queue.append((path, raw))
             if remove_from_dirtied:
                 self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                         (book_id,))

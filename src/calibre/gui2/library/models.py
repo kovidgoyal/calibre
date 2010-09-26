@@ -157,7 +157,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.cover_cache = CoverCache(db, FunctionDispatcher(self.db.cover))
         self.cover_cache.start()
         self.metadata_backup = MetadataBackup(db,
-                FunctionDispatcher(self.db.dump_metadata))
+                self.db.dump_metadata)
         self.metadata_backup.start()
         def refresh_cover(event, ids):
             if event == 'cover' and self.cover_cache is not None:

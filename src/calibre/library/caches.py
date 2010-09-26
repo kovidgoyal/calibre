@@ -28,8 +28,9 @@ class MetadataBackup(Thread): # {{{
         self.daemon = True
         self.db = db
         self.dump_func = dump_func
-        self.dump_queue = Queue()
         self.keep_running = True
+        from calibre.gui2 import FunctionDispatcher
+        self.do_write = FunctionDispatcher(self.write)
 
     def stop(self):
         self.keep_running = False
@@ -43,32 +44,43 @@ class MetadataBackup(Thread): # {{{
             except:
                 # Happens during interpreter shutdown
                 break
-            if self.dump_func([id_], dump_queue=self.dump_queue) is None:
-                # An exception occurred in dump_func, retry once
-                prints('Failed to get backup metadata for id:', id_, 'once')
-                time.sleep(2)
-                if not self.dump_func([id_], dump_queue=self.dump_queue):
-                    prints('Failed to get backup metadata for id:', id_, 'again, giving up')
-            while True:
-                try:
-                    path, raw = self.dump_queue.get_nowait()
-                except:
-                    break
-                else:
-                    try:
-                        with open(path, 'wb') as f:
-                            f.write(raw)
-                    except:
-                        prints('Failed to write backup metadata for id:', id_, 'once')
-                        time.sleep(2)
-                        try:
-                            with open(path, 'wb') as f:
-                                f.write(raw)
-                        except:
-                            prints('Failed to write backup metadata for id:', id_,
-                                    'again, giving up')
 
-            time.sleep(0.2) # Limit to five per second
+            dump = []
+            try:
+                self.dump_func([id_], dump_queue=dump)
+            except:
+                prints('Failed to get backup metadata for id:', id_, 'once')
+                import traceback
+                traceback.print_exc()
+                time.sleep(2)
+                dump = []
+                try:
+                    self.dump_func([id_], dump_queue=dump)
+                except:
+                    prints('Failed to get backup metadata for id:', id_, 'again, giving up')
+                    traceback.print_exc()
+                    continue
+            try:
+                path, raw = dump[0]
+            except:
+                break
+            try:
+                self.do_write(path, raw)
+            except:
+                prints('Failed to write backup metadata for id:', id_, 'once')
+                time.sleep(2)
+                try:
+                    self.do_write(path, raw)
+                except:
+                    prints('Failed to write backup metadata for id:', id_,
+                            'again, giving up')
+
+            time.sleep(0.5) # Limit to two per second
+
+    def write(self, path, raw):
+        with open(path, 'wb') as f:
+            f.write(raw)
+
 
 # }}}
 
