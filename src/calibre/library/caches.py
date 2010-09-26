@@ -28,6 +28,7 @@ class MetadataBackup(Thread): # {{{
         self.daemon = True
         self.db = db
         self.dump_func = dump_func
+        self.dump_queue = Queue()
         self.keep_running = True
 
     def stop(self):
@@ -42,13 +43,32 @@ class MetadataBackup(Thread): # {{{
             except:
                 # Happens during interpreter shutdown
                 break
-            if self.dump_func([id_]) is None:
+            if self.dump_func([id_], dump_queue=self.dump_queue) is None:
                 # An exception occurred in dump_func, retry once
-                prints('Failed to backup metadata for id:', id_, 'once')
+                prints('Failed to get backup metadata for id:', id_, 'once')
                 time.sleep(2)
-                if not self.dump_func([id_]):
-                    prints('Failed to backup metadata for id:', id_, 'again, giving up')
-            time.sleep(0.9) # Limit to one per second
+                if not self.dump_func([id_], dump_queue=self.dump_queue):
+                    prints('Failed to get backup metadata for id:', id_, 'again, giving up')
+            while True:
+                try:
+                    path, raw = self.dump_queue.get_nowait()
+                except:
+                    break
+                else:
+                    try:
+                        with open(path, 'wb') as f:
+                            f.write(raw)
+                    except:
+                        prints('Failed to write backup metadata for id:', id_, 'once')
+                        time.sleep(2)
+                        try:
+                            with open(path, 'wb') as f:
+                                f.write(raw)
+                        except:
+                            prints('Failed to write backup metadata for id:', id_,
+                                    'again, giving up')
+
+            time.sleep(0.2) # Limit to five per second
 
 # }}}
 
