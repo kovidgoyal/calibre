@@ -566,6 +566,24 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def metadata_for_field(self, key):
         return self.field_metadata[key]
 
+    def clear_dirtied(self, book_ids=None):
+        '''
+        Clear the dirtied indicator for the books. This is used when fetching
+        metadata, creating an OPF, and writing a file are separated into steps.
+        The last step is clearing the indicator
+        '''
+        for book_id in book_ids:
+            if not self.data.has_id(book_id):
+                continue
+            self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
+                    (book_id,))
+            # if a later exception prevents the commit, then the dirtied
+            # table will still have the book. No big deal, because the OPF
+            # is there and correct. We will simply do it again on next
+            # start
+            self.dirtied_cache.discard(book_id)
+        self.conn.commit()
+
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
             commit=True, dump_to=None):
         '''
@@ -637,6 +655,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         book_ids = list(self.dirtied_cache)
         self.dirtied_cache = set()
         self.dirtied(book_ids)
+
+    def get_metadata_for_dump(self, idx):
+        path = os.path.join(self.abspath(idx, index_is_id=True), 'metadata.opf')
+        mi = self.get_metadata(idx, index_is_id=True)
+        return ((path, mi))
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''

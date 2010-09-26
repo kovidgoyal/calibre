@@ -19,6 +19,7 @@ from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import title_sort
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import fit_image, prints
 
 class MetadataBackup(Thread): # {{{
@@ -36,6 +37,8 @@ class MetadataBackup(Thread): # {{{
         self.keep_running = True
         from calibre.gui2 import FunctionDispatcher
         self.do_write = FunctionDispatcher(self.write)
+        self.get_metadata_for_dump = FunctionDispatcher(db.get_metadata_for_dump)
+        self.clear_dirtied = FunctionDispatcher(db.clear_dirtied)
 
     def stop(self):
         self.keep_running = False
@@ -43,6 +46,7 @@ class MetadataBackup(Thread): # {{{
     def run(self):
         while self.keep_running:
             try:
+                time.sleep(0.5) # Limit to two per second
                 id_ = self.db.dirtied_queue.get(True, 2)
             except Empty:
                 continue
@@ -50,25 +54,27 @@ class MetadataBackup(Thread): # {{{
                 # Happens during interpreter shutdown
                 break
 
-            dump = []
             try:
-                self.db.dump_metadata([id_], dump_to=dump)
+                path, mi = self.get_metadata_for_dump(id_)
             except:
                 prints('Failed to get backup metadata for id:', id_, 'once')
                 import traceback
                 traceback.print_exc()
                 time.sleep(2)
-                dump = []
                 try:
-                    self.db.dump_metadata([id_], dump_to=dump)
+                    path, mi = self.get_metadata_for_dump(id_)
                 except:
                     prints('Failed to get backup metadata for id:', id_, 'again, giving up')
                     traceback.print_exc()
                     continue
             try:
-                path, raw = dump[0]
+                print 'now do metadata'
+                raw = metadata_to_opf(mi)
             except:
-                break
+                prints('Failed to convert to opf for id:', id_)
+                traceback.print_exc()
+                continue
+
             try:
                 self.do_write(path, raw)
             except:
@@ -79,8 +85,12 @@ class MetadataBackup(Thread): # {{{
                 except:
                     prints('Failed to write backup metadata for id:', id_,
                             'again, giving up')
+                    continue
 
-            time.sleep(0.5) # Limit to two per second
+            try:
+                self.clear_dirtied([id_])
+            except:
+                prints('Failed to clear dirtied for id:', id_)
 
     def write(self, path, raw):
         with open(path, 'wb') as f:
@@ -106,7 +116,6 @@ class CoverCache(Thread): # {{{
         self.keep_running = False
 
     def _image_for_id(self, id_):
-        time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
         img = self.cover_func(id_, index_is_id=True, as_image=True)
         if img is None:
             img = QImage()
@@ -122,6 +131,7 @@ class CoverCache(Thread): # {{{
     def run(self):
         while self.keep_running:
             try:
+                time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
                 id_ = self.load_queue.get(True, 2)
             except Empty:
                 continue

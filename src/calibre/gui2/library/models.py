@@ -89,6 +89,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.alignment_map = {}
         self.buffer_size = buffer
         self.cover_cache = None
+        self.metadata_backup = None
         self.bool_yes_icon = QIcon(I('ok.png'))
         self.bool_no_icon = QIcon(I('list_remove.png'))
         self.bool_blank_icon = QIcon(I('blank.png'))
