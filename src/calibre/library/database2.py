@@ -670,6 +670,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi = self.data.get(idx, self.FIELD_MAP['all_metadata'],
                            row_is_id = index_is_id)
         if mi is not None:
+            if get_cover and mi.cover is None:
+                mi.cover = self.cover(idx, index_is_id=index_is_id, as_path=True)
             return mi
 
         self.gm_missed += 1
