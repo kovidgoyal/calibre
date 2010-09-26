@@ -22,6 +22,8 @@ NON_EBOOK_EXTENSIONS = frozenset([
 
 class RestoreDatabase(LibraryDatabase2):
 
+    PATH_LIMIT = 10
+
     def set_path(self, *args, **kwargs):
         pass
 
