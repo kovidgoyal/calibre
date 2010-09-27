@@ -14,5 +14,6 @@ Here you will find tutorials to get you started using |app|'s more advanced feat
    news
    xpath
    template_lang
+   regexp
    portable
 
