@@ -182,7 +182,7 @@ class Metadata(object):
         return metadata describing a standard or custom field.
         '''
         if key not in self.custom_field_keys():
-            return self.get_standard_metadata(self, key, make_copy=False)
+            return self.get_standard_metadata(key, make_copy=False)
         return self.get_user_metadata(key, make_copy=False)
 
     def all_non_none_fields(self):
@@ -293,6 +293,33 @@ class Metadata(object):
                     metadata['#value#'] = None
             _data = object.__getattribute__(self, '_data')
             _data['user_metadata'][field] = metadata
+
+    def copy_specific_attributes(self, other, attrs):
+        '''
+        Takes a dict {src:dest, src:dest} and copys other[src] to self[dest].
+        This is on a best-efforts basis. Some assignments can make no sense.
+        '''
+        if not attrs:
+            return
+        for src in attrs:
+            try:
+                print src
+                sfm = other.metadata_for_field(src)
+                dfm = self.metadata_for_field(attrs[src])
+                if dfm['is_multiple']:
+                    if sfm['is_multiple']:
+                        self.set(attrs[src], other.get(src))
+                    else:
+                        self.set(attrs[src],
+                            [f.strip() for f in other.get(src).split(',')
+                                            if f.strip()])
+                elif sfm['is_multiple']:
+                    self.set(attrs[src], ','.join(other.get(src)))
+                else:
+                    self.set(attrs[src], other.get(src))
+            except:
+                traceback.print_exc()
+                pass
 
     # Old Metadata API {{{
     def print_all_attributes(self):

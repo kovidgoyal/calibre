@@ -317,19 +317,40 @@ class DeviceManager(Thread): # {{{
                                args=[booklist, on_card],
                         description=_('Send collections to device'))
 
-    def _upload_books(self, files, names, on_card=None, metadata=None):
+    def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
         '''Upload books to device: '''
         if metadata and files and len(metadata) == len(files):
             for f, mi in zip(files, metadata):
                 if isinstance(f, unicode):
                     ext = f.rpartition('.')[-1].lower()
+                    dev_name = self.connected_device.name
+                    cpb = None
+                    if ext in plugboards:
+                        cpb = plugboards[ext]
+                    elif ' any' in plugboards:
+                        cpb = plugboards[' any']
+                    if cpb is not None:
+                        if dev_name in cpb:
+                            cpb = cpb[dev_name]
+                        elif ' any' in plugboards[ext]:
+                            cpb = cpb[' any']
+                        else:
+                            cpb = None
+
+                    if DEBUG:
+                        prints('Using plugboard', cpb)
                     if ext:
                         try:
                             if DEBUG:
                                 prints('Setting metadata in:', mi.title, 'at:',
                                         f, file=sys.__stdout__)
                             with open(f, 'r+b') as stream:
-                                set_metadata(stream, mi, stream_type=ext)
+                                if cpb:
+                                    newmi = mi.deepcopy()
+                                    newmi.copy_specific_attributes(mi, cpb)
+                                else:
+                                    newmi = mi
+                                set_metadata(stream, newmi, stream_type=ext)
                         except:
                             if DEBUG:
                                 prints(traceback.format_exc(), file=sys.__stdout__)
@@ -338,12 +359,12 @@ class DeviceManager(Thread): # {{{
                                         metadata=metadata, end_session=False)
 
     def upload_books(self, done, files, names, on_card=None, titles=None,
-                     metadata=None):
+                     metadata=None, plugboards=None):
         desc = _('Upload %d books to device')%len(names)
         if titles:
             desc += u':' + u', '.join(titles)
         return self.create_job(self._upload_books, done, args=[files, names],
-                kwargs={'on_card':on_card,'metadata':metadata}, description=desc)
+                kwargs={'on_card':on_card,'metadata':metadata,'plugboards':plugboards}, description=desc)
 
     def add_books_to_metadata(self, locations, metadata, booklists):
         self.device.add_books_to_metadata(locations, metadata, booklists)
@@ -1257,10 +1278,11 @@ class DeviceMixin(object): # {{{
         :param files: List of either paths to files or file like objects
         '''
         titles = [i.title for i in metadata]
+        plugboards = self.library_view.model().db.prefs.get('plugboards', None)
         job = self.device_manager.upload_books(
                 Dispatcher(self.books_uploaded),
                 files, names, on_card=on_card,
-                metadata=metadata, titles=titles
+                metadata=metadata, titles=titles, plugboards=plugboards
               )
         self.upload_memory[job] = (metadata, on_card, memory, files)
 

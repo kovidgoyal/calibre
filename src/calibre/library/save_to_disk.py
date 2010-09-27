@@ -232,6 +232,21 @@ def save_book_to_disk(id, db, root, opts, length):
 
     written = False
     for fmt in formats:
+        dev_name = 'save to disk'
+        plugboards = db.prefs.get('plugboards', None)
+        cpb = None
+        if fmt in plugboards:
+            cpb = plugboards[fmt]
+        elif ' any' in plugboards:
+            cpb = plugboards[' any']
+        if cpb is not None:
+            if dev_name in cpb:
+                cpb = cpb[dev_name]
+            elif ' any' in plugboards[fmt]:
+                cpb = cpb[' any']
+            else:
+                cpb = None
+
         data = db.format(id, fmt, index_is_id=True)
         if data is None:
             continue
@@ -242,7 +257,12 @@ def save_book_to_disk(id, db, root, opts, length):
             stream.write(data)
             stream.seek(0)
             try:
-                set_metadata(stream, mi, fmt)
+                if cpb:
+                    newmi = mi.deepcopy()
+                    newmi.copy_specific_attributes(mi, cpb)
+                else:
+                    newmi = mi
+                set_metadata(stream, newmi, fmt)
             except:
                 traceback.print_exc()
             stream.seek(0)
