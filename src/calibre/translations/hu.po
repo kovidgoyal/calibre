@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-24 21:33+0000\n"
-"PO-Revision-Date: 2010-09-24 19:19+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2010-09-26 19:27+0000\n"
+"Last-Translator: Papp Bence <papp.bence89@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-25 04:40+0000\n"
+"X-Launchpad-Export-Date: 2010-09-27 04:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -176,7 +176,7 @@ msgstr "Katalógus készítő"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:369
 msgid "User Interface Action"
-msgstr ""
+msgstr "Felhasználói felület akciói"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:386
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:17
@@ -279,20 +279,20 @@ msgstr "Állítsa be a calibre kezelőfelületét saját ízlésének megfelelő
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:700
 msgid "Behavior"
-msgstr ""
+msgstr "Működési mód"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:706
 msgid "Change the way calibre behaves"
-msgstr ""
+msgstr "Mód megváltoztatása, ahogy a calibre működik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:711
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:176
 msgid "Add your own columns"
-msgstr ""
+msgstr "Saját oszlop hozzáadása"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:717
 msgid "Add/remove your own columns to the calibre book list"
-msgstr ""
+msgstr "Hozzáadja/eltávolítja a saját oszlopját a calibre könyv listájában"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:722
 msgid "Customize the toolbar"
@@ -320,7 +320,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Common Options"
-msgstr ""
+msgstr "Általános beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
 msgid "Set conversion options common to all formats"
@@ -328,7 +328,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Output Options"
-msgstr ""
+msgstr "Kimeneti beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:762
 msgid "Set conversion options specific to each output format"
@@ -336,13 +336,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
 msgid "Adding books"
-msgstr ""
+msgstr "Könyv hozzáadása"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:769
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:793
 msgid "Import/Export"
-msgstr ""
+msgstr "Importálás/exportálás"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:773
 msgid "Control how calibre reads metadata from files when adding books"
@@ -350,7 +350,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:779
 msgid "Saving books to disk"
-msgstr ""
+msgstr "Könyvek lemezre mentése"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid ""
@@ -360,7 +360,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Sending books to devices"
-msgstr ""
+msgstr "Könyvek küldésre egy eszközre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 msgid "Control how calibre transfers files to your ebook reader"
@@ -368,7 +368,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:803
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Könyvek megosztása emailben"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
@@ -403,11 +403,11 @@ msgstr "Haladó"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:834
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
+msgstr "Hozzáad/eltávolít/beállít minden egyes bitet a calibre funkcióinál"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:840
 msgid "Tweaks"
-msgstr ""
+msgstr "Tweaks"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:846
 msgid "Fine tune how calibre behaves in various contexts"
@@ -415,11 +415,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:851
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Egyéb"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid "Miscellaneous advanced configuration"
-msgstr ""
+msgstr "Egyéb speciális beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -667,7 +667,7 @@ msgstr "Apple eszköz"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:87
 msgid "Communicate with iTunes/iBooks."
-msgstr ""
+msgstr "iTunes/iBooks-al kommunikáció"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:93
 msgid "Apple device detected, launching iTunes, please wait ..."
@@ -685,13 +685,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2831
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2871
 msgid "%d of %d"
-msgstr ""
+msgstr "%d / %d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:369
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:967
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2877
 msgid "finished"
-msgstr ""
+msgstr "Kész"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:544
 msgid "Use Series as Category in iTunes/iBooks"
@@ -736,7 +736,7 @@ msgstr "Katalógus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2738
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Kommunikáció az iTunes-al."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -762,19 +762,19 @@ msgstr "Kapcsolódás EB600 olvasóhoz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr ""
+msgstr "Kommunikáció az Astak Mentor EB600-al"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
-msgstr ""
+msgstr "Kommunikáció a PocketBook 301-al."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr ""
+msgstr "Kommunikáció az Entourage Edge-el"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
@@ -782,7 +782,7 @@ msgstr "Kapcsolódás ESlick olvasóhoz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr ""
+msgstr "Kommunikáció a Sigmatek eBook olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:30
@@ -818,7 +818,7 @@ msgstr "A Hanvon N520 eBook olvasóval kommunikál."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:47
 msgid "Communicate with The Book reader."
-msgstr ""
+msgstr "Kommunikáció a The Book olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:59
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -826,7 +826,7 @@ msgstr "Kapcsolódás SpringDesign Alex eBook olvasóhoz"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:78
 msgid "Communicate with the Azbooka"
-msgstr ""
+msgstr "Kommunikáció az Azbooka-al"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:94
 msgid "Communicate with the Elonex EB 511 eBook reader."
@@ -860,7 +860,7 @@ msgstr "Kapcsolódás JetBook olvasóhoz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:88
 msgid "Communicate with the MiBuk Wolder reader."
-msgstr ""
+msgstr "Kommunikáció a MiBuk Wolder olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:43
 msgid "Communicate with the Kindle eBook reader."
@@ -868,7 +868,7 @@ msgstr "Kapcsolódás Kindle olvasóhoz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:170
 msgid "Communicate with the Kindle 2/3 eBook reader."
-msgstr ""
+msgstr "Kommunikáció a Kindle 2/3 eBook olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:211
 msgid "Communicate with the Kindle DX eBook reader."
@@ -876,7 +876,7 @@ msgstr "Kapcsolódás Kindle DX eBook olvasóhoz"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:23
 msgid "Communicate with the Kobo Reader"
-msgstr ""
+msgstr "Kommunikáció a Kobo Reader-el"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:47
 msgid ""
@@ -921,7 +921,7 @@ msgstr "Könyvek hozzáadása az eszköz metaadat listához..."
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:392
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:252
 msgid "Not Implemented"
-msgstr ""
+msgstr "Nincs megvalósítva"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:393
 msgid ""
@@ -931,27 +931,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
-msgstr ""
+msgstr "Kommunikáció a Palm Pre-vel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:37
 msgid "Communicate with the Booq Avant"
-msgstr ""
+msgstr "Kommunikáció a Booq Avant-al"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:58
 msgid "Communicate with the Sweex MM300"
-msgstr ""
+msgstr "Kommunikáció a Sweex MM300-al"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Kogan"
-msgstr ""
+msgstr "Kommunikáció a Kogan-al"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:87
 msgid "Communicate with the Pandigital Novel"
-msgstr ""
+msgstr "Kommunikáció a Pandigital Novel-el"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:114
 msgid "Communicate with the GM2000"
-msgstr ""
+msgstr "Kommunikáció a GM2000-el"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -963,7 +963,7 @@ msgstr "Kapcsolódás Nokia 810 internet tablethez"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr ""
+msgstr "Kommunikáció a Nokia E52-vel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -983,7 +983,7 @@ msgstr "Kapcsolódás Sony PRS-500 olvasóhoz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with all the Sony eBook readers."
-msgstr ""
+msgstr "Kommunikáció az összes Sony eBook olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:61
 msgid ""
@@ -1000,23 +1000,23 @@ msgstr "Névtelen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
-msgstr ""
+msgstr "Kommunikáció a Samsung SNE eBook olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3/K5 reader."
-msgstr ""
+msgstr "Kommunikáció a Teclast K3/K5 olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:36
 msgid "Communicate with the Newsmy reader."
-msgstr ""
+msgstr "Kommunikáció a Newsmy olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:48
 msgid "Communicate with the iPapyrus reader."
-msgstr ""
+msgstr "Kommunikáció a iPapyrus olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:59
 msgid "Communicate with the Sovos reader."
-msgstr ""
+msgstr "Kommunikáció a Sovos olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:255
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1119,11 +1119,11 @@ msgstr "Metaadatok küldése az eszközre"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:41
 msgid "%prog [options] mybook.chm"
-msgstr ""
+msgstr "%prog [options] mybook.chm"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:42
 msgid "Output directory. Defaults to current directory"
-msgstr ""
+msgstr "Kimenő könyvtár. Alapértelmezett a jelenlegi könyvtárhoz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/reader.py:45
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
@@ -1788,7 +1788,7 @@ msgstr "A szerző alapján történő rendezéskor használ szöveg. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:462
 msgid "Set the cover to the specified file or URL"
-msgstr ""
+msgstr "Állítsd be a kiválasztott fájl vagy URL fedőlapját."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:466
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
@@ -2043,6 +2043,9 @@ msgid ""
 "Average line length for line breaking if the HTML is from a previous partial "
 "conversion of a PDF file. Default is %default which disables this."
 msgstr ""
+"A sortörésre vonatkozó átlagos sorhossz arra az esetre, amikor a HTML egy "
+"korábbi részleges PDF-átírásból származik. Az alapérték %default, ami ezt "
+"érvényteleníti."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2535,7 +2538,7 @@ msgstr "Metaadatok letöltése"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:128
 msgid "ratings"
-msgstr ""
+msgstr "értékelések"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:128
 msgid "tags"
@@ -2543,11 +2546,11 @@ msgstr "címkék"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:129
 msgid "description/reviews"
-msgstr ""
+msgstr "leírás/recenziók"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:130
 msgid "Download %s from %s"
-msgstr ""
+msgstr "Letöltve %s a %s-ból"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:156
 msgid "Downloads metadata from Google Books"
@@ -2831,7 +2834,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Használja az új PDF átalakítót."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -4242,7 +4245,7 @@ msgstr "Keresés minden almappában..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:223
 msgid "Path error"
-msgstr ""
+msgstr "Elérési útvonal hiba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:224
 msgid "The specified directory could not be processed."
@@ -4582,7 +4585,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:38
 msgid "Fields to include in output:"
-msgstr ""
+msgstr "A kimenő adatban szerepeltetendő mezők:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:84
 msgid "ascii/LaTeX"
@@ -4686,7 +4689,7 @@ msgstr "Tartalmazza a \"Legújabbak\" részt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:86
 msgid "Sort numbers as text"
-msgstr ""
+msgstr "A számokat szövegként rendezi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
 msgid "Include 'Series' Section"
@@ -4910,7 +4913,7 @@ msgstr "&Kimeneti állomány"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:114
 msgid "&Base font size:"
-msgstr ""
+msgstr "&Alap betűméret:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:126
@@ -4934,7 +4937,7 @@ msgstr " pt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:112
 msgid "Use &default values"
-msgstr ""
+msgstr "Alapértelmezett értékek &használata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:113
 msgid "&Input document"
@@ -4942,7 +4945,7 @@ msgstr "&Bemeneti állomány"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:116
 msgid "&Font size: "
-msgstr ""
+msgstr "Betű&méret: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:118
 msgid " will map to size: "
@@ -6429,7 +6432,7 @@ msgstr "Formátum eltávolítása:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:252
 msgid "&Swap title and author"
-msgstr ""
+msgstr "&Cím és szerző felcserélése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:253
 msgid ""
@@ -9251,7 +9254,7 @@ msgstr "Hírek letöltése a következő helyről: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:313
 msgid "Convert existing"
-msgstr ""
+msgstr "Létező átalakítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:314
 msgid ""

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-24 21:33+0000\n"
-"PO-Revision-Date: 2010-09-24 20:42+0000\n"
+"PO-Revision-Date: 2010-09-27 02:08+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-25 04:39+0000\n"
+"X-Launchpad-Export-Date: 2010-09-27 04:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -4429,24 +4429,26 @@ msgstr "Books with the same tags"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:54
 msgid "Tweak ePub"
-msgstr ""
+msgstr "ePub berrukitu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:16
 msgid "Make small changes to ePub format books"
-msgstr ""
+msgstr "Egin itzazu ePub formatua duten liburuetan aldaketa txiki batzuk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:17
 msgid "T"
-msgstr ""
+msgstr "B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:39
 msgid "Cannot tweak ePub"
-msgstr ""
+msgstr "Ezin ePub berrukitu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:40
 msgid "No ePub available. First convert the book to ePub."
 msgstr ""
+"Ez dago ePub eskuragarririk. Lehen eta behin, bihur ezazu liburua ePub "
+"formatura."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:24
 msgid "V"
@@ -7122,7 +7124,7 @@ msgstr "&Arakatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:416
 msgid "Remove border (if any) from cover"
-msgstr ""
+msgstr "Ezabatu ertza (ertzik baldin badago) liburu-azaletik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:417
 msgid "Reset cover to default"
@@ -7661,23 +7663,23 @@ msgstr "&Aztertu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:55
 msgid "Display contents of exploded ePub"
-msgstr ""
+msgstr "Erakutsi  suntsitutako ePub horren edukiak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:56
 msgid "&Explode ePub"
-msgstr ""
+msgstr "&Suntsitu ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:57
 msgid "Rebuild ePub from exploded contents"
-msgstr ""
+msgstr "Berreraiki ePub suntsitutako edukietatik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:58
 msgid "&Rebuild ePub"
-msgstr ""
+msgstr "&Berreraiki ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:59
 msgid "Discard changes"
-msgstr ""
+msgstr "Baztertu aldaketak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:218
@@ -7691,6 +7693,11 @@ msgid ""
 "When tweaks are complete, close the file browser window. Rebuild the ePub, "
 "updating your calibre library."
 msgstr ""
+"Zabaldu, hedatu ePub hori erakusteko edukiak fitxategia arakatzen duen leiho "
+"batean. Fitxategi bakartuak berrukitzeko, egin ezazu klik eskuineko "
+"botoiarekin, gero 'Zabaldu honekin...' eta hautatu nahi duzun editorea. "
+"Berrukitzen bukatu eta gero, itxi fitxategia arakatzeko leihoa. Berreraiki "
+"ePub fitxategia zure calibre liburutegia eguneratuz."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:127
 msgid "No recipe selected"
