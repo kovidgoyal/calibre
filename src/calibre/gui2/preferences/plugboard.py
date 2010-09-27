@@ -53,7 +53,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             w.addItems(self.fields)
 
     def set_field(self, i, src, dst):
-        print i, src, dst
         idx = self.fields.index(src)
         self.source_widgets[i].setCurrentIndex(idx)
         idx = self.fields.index(dst)
@@ -63,16 +62,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if txt == '':
             self.current_device = None
             return
-        print 'edit device changed'
         self.clear_fields(new_boxes=True)
         self.current_device = unicode(txt)
         fpb = self.current_plugboards.get(self.current_format, None)
         if fpb is None:
-            print 'None format!'
+            print 'edit_device_changed: none format!'
             return
         dpb = fpb.get(self.current_device, None)
         if dpb is None:
-            print 'none device!'
+            print 'edit_device_changed: none device!'
             return
         self.set_fields()
         for i,src in enumerate(dpb):
@@ -85,12 +83,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.current_format = None
             self.current_device = None
             return
-        print 'edit_format_changed'
         self.clear_fields(new_boxes=True)
         txt = unicode(txt)
         fpb = self.current_plugboards.get(txt, None)
         if fpb is None:
-            print 'None editable format!'
+            print 'edit_format_changed: none editable format!'
             return
         self.current_format = txt
         devices = ['']
@@ -104,7 +101,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if txt == '':
             self.current_device = None
             return
-        print 'new_device_changed'
         self.clear_fields(edit_boxes=True)
         self.current_device = unicode(txt)
         error = False
@@ -142,14 +138,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.current_format = None
             self.current_device = None
             return
-        print 'new_format_changed'
         self.clear_fields(edit_boxes=True)
         self.current_format = unicode(txt)
         self.new_device.setCurrentIndex(0)
 
     def ok_clicked(self):
         pb = {}
-        print self.current_format, self.current_device
         for i in range(0, len(self.source_widgets)):
             s = self.source_widgets[i].currentIndex()
             if s != 0:
