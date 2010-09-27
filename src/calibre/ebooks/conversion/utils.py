@@ -161,7 +161,7 @@ class PreProcessor(object):
         opt_title_close = ")?"
         
         default_title = r"(\s*[\w\'\"-]+){1,5}(?!<)"
-        typical_chapters = r".?(Introduction|Synopsis|Acknowledgements|Chapter|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}"
+        typical_chapters = r".?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}"
         numeric_chapters = r".?(\d+\.?|(CHAPTER\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}))\s*"
         uppercase_chapters = r"\s*.?([A-Z#]+(\s|-){0,3}){1,5}\s*"
         
@@ -185,7 +185,6 @@ class PreProcessor(object):
             self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", trying with uppercase words")
             chapter_marker = lookahead+chapter_line_open+chapter_header_open+uppercase_chapters+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
             chapdetect2 = re.compile(r'%s' % chapter_marker,  re.UNICODE)
-            #chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu][^>]*>){0,2}\s*.?([A-Z#\-\s]+)\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu][^>]*>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.UNICODE)
             html = chapdetect2.sub(self.chapter_head, html)
         ###### Unwrap lines ######
         #
@@ -222,7 +221,7 @@ class PreProcessor(object):
             html = dehyphenator(html,'html', length)
             self.log("Done dehyphenating")
             # Unwrap lines using punctation and line length
-            unwrap = re.compile(r"(?<=.{%i}([a-z,;):\IA]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
+            unwrap = re.compile(u"(?<=.{%i}([a-z,:)\IA\u00DF]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
             html = unwrap.sub(' ', html)
             #check any remaining hyphens, but only unwrap if there is a match
             dehyphenator = Dehyphenator()
