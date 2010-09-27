@@ -256,7 +256,6 @@ class DoubanCovers(CoverDownload): # {{{
             return u
 
     def has_cover(self, mi, ans, timeout=5.):
-        print "has_cover called"
         if not mi.isbn:
             return False
         br = browser()
