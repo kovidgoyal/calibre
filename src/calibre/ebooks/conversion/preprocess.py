@@ -167,8 +167,8 @@ class Dehyphenator(object):
         # don't add suffixes which are also complete words, such as 'able' or 'sex'
         self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
         # remove prefixes if the prefix was not already the point of hyphenation
-        self.prefixes = re.compile(r'^(un|in|ex)$', re.IGNORECASE)
-        self.removeprefix = re.compile(r'^(un|in|ex)', re.IGNORECASE)
+        self.prefixes = re.compile(r'^(dis|re|un|in|ex)$', re.IGNORECASE)
+        self.removeprefix = re.compile(r'^(dis|re|un|in|ex)', re.IGNORECASE)
 
     def dehyphenate(self, match):
         firsthalf = match.group('firstpart')
@@ -182,17 +182,13 @@ class Dehyphenator(object):
         lookupword = self.removesuffixes.sub('', dehyphenated)
         if self.prefixes.match(firsthalf) is None:
            lookupword = self.removeprefix.sub('', lookupword)
-        # escape any meta-characters which may be in the lookup word
-        lookupword = re.sub(r'(?P<meta>[\[\]\\\^\$\.\|\?\*\+\(\)])', r'\\\g<meta>', lookupword)
         #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
         booklookup = re.compile(u'%s' % lookupword, re.IGNORECASE)
         if self.format == 'html_cleanup':
-           match = booklookup.search(self.html)
-           hyphenmatch = re.search(u'%s' % hyphenated, self.html)
-           if match:
+           if self.html.find(lookupword) != -1 or self.html.find(str.lower(lookupword)) != -1:
                #print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
                return dehyphenated
-           elif hyphenmatch:
+           elif self.html.find(hyphenated) != -1:
                #print "Cleanup:returned hyphenated word: " + str(hyphenated)
                return hyphenated
            else:
@@ -200,8 +196,7 @@ class Dehyphenator(object):
                return firsthalf+u'\u2014'+wraptags+secondhalf
                
         else:
-            match = booklookup.search(self.html)
-            if match:
+            if self.html.find(lookupword) != -1 or self.html.find(str.lower(lookupword)) != -1:
                 #print "returned dehyphenated word: " + str(dehyphenated)
                 return dehyphenated
             else:
@@ -461,7 +456,7 @@ class HTMLPreProcessor(object):
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
             length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'), 'median')
             if length:
-                print "The pdf line length returned is " + str(length)
+                #print "The pdf line length returned is " + str(length)
                 end_rules.append(
                     # Un wrap using punctuation
                     (re.compile(u'(?<=.{%i}([a-z,:)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
