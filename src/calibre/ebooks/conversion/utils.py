@@ -77,6 +77,11 @@ class PreProcessor(object):
 
     def __call__(self, html):
         self.log("*********  Preprocessing HTML  *********")
+
+        # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
+        html = re.sub(r"\s*</p>", "</p>\n", html)
+        html = re.sub(r"\s*<p>\s*", "\n<p>", html)
+        
         ###### Check Markup ######
         #
         # some lit files don't have any <p> tags or equivalent (generally just plain text between
@@ -135,9 +140,7 @@ class PreProcessor(object):
                #print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
-        # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
-        html = re.sub(r"\s*</p>", "</p>\n", html)
-        html = re.sub(r"\s*<p>\s*", "\n<p>", html)
+        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")  
         # detect chapters/sections to match xpath or splitting logic
         #
         # Build the Regular Expressions in pieces
@@ -160,11 +163,10 @@ class PreProcessor(object):
         default_title = r"(\s*[\w\'\"-]+){1,5}(?!<)"
         typical_chapters = r".?(Introduction|Synopsis|Acknowledgements|Chapter|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}"
         numeric_chapters = r".?(\d+\.?|(CHAPTER\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}))\s*"
-        uppercase_chapters = r"\s*.?([A-Z#\-\s]+)\s*"
+        uppercase_chapters = r"\s*.?([A-Z#\-]+\s{0,3}){1,5}\s*"
         
         chapter_marker = lookahead+chapter_line_open+chapter_header_open+typical_chapters+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-        #print chapter_marker
-        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")       
+        #print chapter_marker     
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
         self.log("found " + str(self.html_preprocess_sections) + " pre-existing headings")
@@ -183,9 +185,9 @@ class PreProcessor(object):
             self.log("not enough chapters, only " + str(self.html_preprocess_sections) + ", trying with uppercase words")
             chapter_marker = lookahead+chapter_line_open+chapter_header_open+uppercase_chapters+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
             chapdetect2 = re.compile(r'%s' % chapter_marker,  re.UNICODE)
+            print str(chapter_marker)
             #chapdetect2 = re.compile(r'(?=</?(br|p))(<(/?br|p)[^>]*>)\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<chap>(<[ibu][^>]*>){0,2}\s*.?([A-Z#\-\s]+)\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(p|/?br)>)\s*(<(/?br|p)[^>]*>\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(?P<title>(<[ibu][^>]*>){0,2}(\s*[\w\'\"-]+){1,5}\s*(</[ibu]>){0,2})\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</(br|p)>))?', re.UNICODE)
             html = chapdetect2.sub(self.chapter_head, html)
-
         ###### Unwrap lines ######
         #
         # Some OCR sourced files have line breaks in the html using a combination of span & p tags
