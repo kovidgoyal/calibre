@@ -8,8 +8,9 @@ All about using regular expressions in |app|
 
 Regular expressions are features used in many places in |app| to perform sophisticated manipulation of ebook content and metadata. This tutorial is a gentle introduction to getting you started with using regular expressions in |app|.
 
-.. toctree::
-  :maxdepth: 2
+.. contents:: Contents
+  :depth: 2
+  :local:
 
 
 First, a word of warning and a word of courage
@@ -80,7 +81,7 @@ You missed...
 ... wait just a minute, there's one last, really neat thing you can do with groups. If you have a group that you previously matched, you can use references to that group later in the expression: Groups are numbered starting with 1, and you reference them by escaping the number of the group you want to reference, thus, the fifth group would be referenced as ``\5``. So, if you searched for ``([^ ]+) \1`` in the string "Test Test", you'd match the whole string!
 
 
-You missed something. In the beginning, you said there was a way to make a regular expression case insensitive?
+In the beginning, you said there was a way to make a regular expression case insensitive?
 ------------------------------------------------------------------------------------------------------------------
 
 Yes, I did, thanks for paying attention and reminding me. You can tell |app| how you want certain things handled by using something called flags. You include flags in your expression by using the special construct ``(?flags go here)`` where, obviously, you'd replace "flags go here" with the specific flags you want. For ignoring case, the flag is ``i``, thus you include ``(?i)`` in your expression. Thus, ``test(?i)`` would match "Test", "tEst", "TEst" and any case variation you could think of.
