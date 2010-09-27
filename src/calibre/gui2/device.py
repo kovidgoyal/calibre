@@ -1278,7 +1278,7 @@ class DeviceMixin(object): # {{{
         :param files: List of either paths to files or file like objects
         '''
         titles = [i.title for i in metadata]
-        plugboards = self.library_view.model().db.prefs.get('plugboards', None)
+        plugboards = self.library_view.model().db.prefs.get('plugboards', {})
         job = self.device_manager.upload_books(
                 Dispatcher(self.books_uploaded),
                 files, names, on_card=on_card,

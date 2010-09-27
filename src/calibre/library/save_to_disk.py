@@ -233,7 +233,7 @@ def save_book_to_disk(id, db, root, opts, length):
     written = False
     for fmt in formats:
         dev_name = 'save to disk'
-        plugboards = db.prefs.get('plugboards', None)
+        plugboards = db.prefs.get('plugboards', {})
         cpb = None
         if fmt in plugboards:
             cpb = plugboards[fmt]
