@@ -426,7 +426,7 @@ class SonyReaderOutput(OutputProfile):
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
-    unsupported_unicode_chars = [[u'\u2018',u'‘'], [u'\u2019',u'’'], [u'\u201a',u'‘'], [u'\u201b',u'’'], [u'\u201c',u'“'], [u'\u201d',u'”'], [u'\u201e',u'“'], [u'\u201f',u'”']]
+    unsupported_unicode_chars = [u'\u201f', u'\u201b']
 
 
 class KoboReaderOutput(OutputProfile):

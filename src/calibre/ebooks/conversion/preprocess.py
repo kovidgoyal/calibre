@@ -520,8 +520,12 @@ class HTMLPreProcessor(object):
             html = self.smarten_punctuation(html)
 
         unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
-        for [char, replacement] in unsupported_unicode_chars:
-            html = re.sub('%s' % char, replacement, html)
+        if unsupported_unicode_chars != []:
+            from calibre.ebooks.unidecode.unidecoder import Unidecoder
+            unidecoder = Unidecoder()
+            for char in unsupported_unicode_chars:
+                asciichar = unidecoder.decode(char)
+                html = re.sub('%s' % char, asciichar, html)
 
         return html
 
