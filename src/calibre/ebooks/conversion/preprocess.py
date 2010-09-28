@@ -61,32 +61,35 @@ def wrap_lines(match):
                return ' '
     else:
                return ital+' '
-
-def line_length(format, raw, percent, test_type):
+               
+class DocAnalysis(object):
     '''
-    Analyses the document to see if hard line breaks exist or to find the 
-    median line length.
+    Provides various text analysis functions to determine how the document is structured.
     format is the type of document analysis will be done against.
     raw is the raw text to determine the line length to use for wrapping.
-    percentage is a decimal number, 0 - 1 which is used to determine
-    how far in the list of line lengths to use. The list of line lengths is
-    ordered smallest to larged and does not include duplicates. 0.5 is the
-    median value.
-    test_type sets whether to use the line length to return the median or a
-    do a histogram analysis to see if unwrapping is required.
+    Blank lines are excluded from analysis
     '''
-    raw = raw.replace('&nbsp;', ' ')
-    if format == 'html':
-        linere = re.compile('(?<=<p)(?![^>]*>\s*</p>).*?(?=</p>)', re.DOTALL)
-    elif format == 'pdf':
-        linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
-    elif format == 'spanned_html':
-        linere = re.compile('(?<=<span).*?(?=</span>)', re.DOTALL)
-    lines = linere.findall(raw)
 
-    if test_type == 'median':
+    def __init__(self, format='html', raw=''):
+        raw = raw.replace('&nbsp;', ' ')
+        if format == 'html':
+            linere = re.compile('(?<=<p)(?![^>]*>\s*</p>).*?(?=</p>)', re.DOTALL)
+        elif format == 'pdf':
+            linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
+        elif format == 'spanned_html':
+            linere = re.compile('(?<=<span).*?(?=</span>)', re.DOTALL)
+        self.lines = linere.findall(raw)
+    
+    def line_length(self, percent):
+        '''
+        Analyses the document to find the median line length.
+        percentage is a decimal number, 0 - 1 which is used to determine
+        how far in the list of line lengths to use. The list of line lengths is
+        ordered smallest to larged and does not include duplicates. 0.5 is the
+        median value.
+        '''
         lengths = []
-        for line in lines:
+        for line in self.lines:
             if len(line) > 0:
                 lengths.append(len(line))
 
@@ -111,22 +114,28 @@ def line_length(format, raw, percent, test_type):
         index = int(len(lengths) * percent) - 1
 
         return lengths[index]
-
-    if test_type == 'histogram':
+    
+    def line_histogram(self, percent):
+        '''
+        Creates a broad histogram of the document to determine whether it incorporates hard
+        line breaks.  Lines are sorted into 20 'buckets' based on length.
+        percent is the percentage of lines that should be in a single bucket to return true
+        The majority of the lines will exist in 1-2 buckets in typical docs with hard line breaks
+        '''
         minLineLength=20 # Ignore lines under 20 chars (typical of spaces)
         maxLineLength=1900 # Discard larger than this to stay in range
         buckets=20 # Each line is divided into a bucket based on length
 
         #print "there are "+str(len(lines))+" lines"
-        max = 0
-        for line in lines:
-            l = len(line)
-            if l > max:
-                max = l
+        #max = 0
+        #for line in self.lines:
+        #    l = len(line)
+        #    if l > max:
+        #        max = l
         #print "max line found is "+str(max)
         # Build the line length histogram
         hRaw = [ 0 for i in range(0,buckets) ]
-        for line in lines:
+        for line in self.lines:
             l = len(line)
             if l > minLineLength and l < maxLineLength:
                     l = int(l/100)
@@ -134,7 +143,7 @@ def line_length(format, raw, percent, test_type):
                     hRaw[l]+=1
 
         # Normalize the histogram into percents
-        totalLines = len(lines)
+        totalLines = len(self.lines)
         h = [ float(count)/totalLines for count in hRaw ]
         #print "\nhRaw histogram lengths are: "+str(hRaw)
         #print "              percents are: "+str(h)+"\n"
@@ -454,15 +463,16 @@ class HTMLPreProcessor(object):
 
         length = -1
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
-            length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'), 'median')
+            docanalysis = DocAnalysis('pdf', html)
+            length = docanalysis.line_length(getattr(self.extra_opts, 'unwrap_factor'))
             if length:
                 #print "The pdf line length returned is " + str(length)
+                # unwrap em/en dashes
+                end_rules.append((re.compile(u'(?<=.{%i}[–—])\s*<p>\s*(?=[[a-z\d])' % length), lambda match: ''))
                 end_rules.append(
                     # Un wrap using punctuation
                     (re.compile(u'(?<=.{%i}([a-z,:)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
-                # unwrap em/en dashes
-                end_rules.append((re.compile(u'(?<=.{%i}[–—])\s*<p>\s*(?=[[a-z\d])' % length), lambda match: ''))
 
         for rule in self.PREPROCESS + start_rules:
             html = rule[0].sub(rule[1], html)

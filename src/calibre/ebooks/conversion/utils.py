@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from calibre.ebooks.conversion.preprocess import line_length, Dehyphenator
+from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.utils.logging import default_log
 
 class PreProcessor(object):
@@ -204,11 +204,12 @@ class PreProcessor(object):
             format = 'html'
         # Check Line histogram to determine if the document uses hard line breaks, If 50% or 
         # more of the lines break in the same region of the document then unwrapping is required
-        hardbreaks = line_length(format, html, .50, 'histogram')
-        #print "Hard line breaks check returned "+str(hardbreaks)
+        docanalysis = DocAnalysis(format, html)
+        hardbreaks = docanalysis.line_histogram(.50)
+        self.log("Hard line breaks check returned "+str(hardbreaks))
         # Calculate Length
         unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
-        length = line_length(format, html, unwrap_factor, 'median')
+        length = docanalysis.line_length(unwrap_factor)
         self.log("*** Median line length is " + str(length) + ", calculated with " + format + " format ***")
         # only go through unwrapping code if the histogram shows unwrapping is required or if the user decreased the default unwrap_factor
         if hardbreaks or unwrap_factor < 0.4:
