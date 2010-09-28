@@ -1,6 +1,5 @@
-#!/usr/bin/env  python
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 telegraph.co.uk
 '''
@@ -8,14 +7,16 @@ telegraph.co.uk
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class TelegraphUK(BasicNewsRecipe):
-    title                 = u'Telegraph.co.uk'
+    title                 = 'Telegraph.co.uk'
     __author__            = 'Darko Miletic and Sujata Raman'
     description           = 'News from United Kingdom'
-    oldest_article        = 7
+    oldest_article        = 2
+    category              = 'news, politics, UK'
+    publisher             = 'Telegraph Media Group ltd.'    
     max_articles_per_feed = 100
     no_stylesheets        = True
-    language = 'en'
-
+    language              = 'en_GB'
+    remove_empty_feeds    = True
     use_embedded_content  = False
 
     extra_css           = '''
@@ -27,13 +28,20 @@ class TelegraphUK(BasicNewsRecipe):
                         .imageExtras{color:#666666; font-family :Arial,Helvetica,sans-serif; font-size: xx-small;}
                         '''
 
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+                        
+                        
     keep_only_tags      = [
-                           dict(name='div', attrs={'class':'storyHead'})
-                          ,dict(name='div', attrs={'class':'story'    })
-                          #,dict(name='div', attrs={'class':['slideshowHD gutterUnder',"twoThirds gutter","caption" ]   })
+                           dict(name='div', attrs={'class':['storyHead','byline']})
+                          ,dict(name='div', attrs={'id':'mainBodyArea'           })
                           ]
-    remove_tags         = [dict(name='div', attrs={'class':['related_links_inline',"imgindex","next","prev","gutterUnder",'ssImgHide','imageExtras','ssImg hide']})
-                          #,dict(name='div', attrs={'class':['toolshideoneQuarter']})
+    remove_tags         = [dict(name='div', attrs={'class':['related_links_inline',"imgindex","next","prev","gutterUnder",'ssImgHide','imageExtras','ssImg hide','related_links_video']})
+                          ,dict(name='ul' , attrs={'class':['shareThis shareBottom']})
                           ,dict(name='span', attrs={'class':['num','placeComment']})
                           ]
 
@@ -51,24 +59,7 @@ class TelegraphUK(BasicNewsRecipe):
                          ]
 
     def get_article_url(self, article):
-
-        url = article.get('guid', None)
-
+        url = article.get('link', None)
         if 'picture-galleries' in url or 'pictures' in url or 'picturegalleries' in url :
             url = None
-
         return url
-
-
-    def postprocess_html(self,soup,first):
-
-        for bylineTag in soup.findAll(name='div', attrs={'class':'byline'}):
-            for pTag in bylineTag.findAll(name='p'):
-                if getattr(pTag.contents[0],"Comments",True):
-                    pTag.extract()
-        return soup
-
-
-
-
-
