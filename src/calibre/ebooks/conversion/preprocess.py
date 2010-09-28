@@ -75,7 +75,7 @@ class DocAnalysis(object):
         if format == 'html':
             linere = re.compile('(?<=<p)(?![^>]*>\s*</p>).*?(?=</p>)', re.DOTALL)
         elif format == 'pdf':
-            linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
+            linere = re.compile('(?<=<br>)(?!\s*<br>).*?(?=<br>)', re.DOTALL)
         elif format == 'spanned_html':
             linere = re.compile('(?<=<span).*?(?=</span>)', re.DOTALL)
         self.lines = linere.findall(raw)
@@ -191,18 +191,21 @@ class Dehyphenator(object):
         lookupword = self.removesuffixes.sub('', dehyphenated)
         if self.prefixes.match(firsthalf) is None:
            lookupword = self.removeprefix.sub('', lookupword)
-        #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
-        booklookup = re.compile(u'%s' % lookupword, re.IGNORECASE)
+        print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
+        try:
+            searchresult = self.html.find(str.lower(lookupword))
+        except:
+            return hyphenated                
         if self.format == 'html_cleanup':
-           if self.html.find(lookupword) != -1 or self.html.find(str.lower(lookupword)) != -1:
-               #print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
-               return dehyphenated
-           elif self.html.find(hyphenated) != -1:
-               #print "Cleanup:returned hyphenated word: " + str(hyphenated)
-               return hyphenated
-           else:
-               #print "Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf)
-               return firsthalf+u'\u2014'+wraptags+secondhalf
+            if self.html.find(lookupword) != -1 or self.html.find(str.lower(lookupword)) != -1:
+                #print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
+                return dehyphenated
+            elif self.html.find(hyphenated) != -1:
+                #print "Cleanup:returned hyphenated word: " + str(hyphenated)
+                return hyphenated
+            else:
+                #print "Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf)
+                return firsthalf+u'\u2014'+wraptags+secondhalf
                
         else:
             if self.html.find(lookupword) != -1 or self.html.find(str.lower(lookupword)) != -1:

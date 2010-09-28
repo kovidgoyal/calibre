@@ -145,7 +145,7 @@ class PreProcessor(object):
         #
         # Build the Regular Expressions in pieces
         lookahead = "(?=<(p|div))"
-        chapter_line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>span|[ibu])[^>]*>)?\s*(<(?P<inner2>span|[ibu])[^>]*>)?\s*(<(?P<inner3>span|[ibu])[^>]*>)?\s*"
+        chapter_line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
         chapter_header_open = r"(?P<chap>"
         chapter_header_close = ")\s*"
         chapter_line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)\s[^>]*>)?\s*</(?P=outer)>\s*"
@@ -154,7 +154,7 @@ class PreProcessor(object):
         else:
             blank_lines = ""
         opt_title_open = "("
-        title_line_open = "<(?P<outer2>p|div)[^>]*>\s*(<(?P<inner4>span|[ibu])[^>]*>)?\s*(<(?P<inner5>span|[ibu])[^>]*>)?\s*(<(?P<inner6>span|[ibu])[^>]*>)?\s*"
+        title_line_open = "<(?P<outer2>p|div)[^>]*>\s*(<(?P<inner4>font|span|[ibu])[^>]*>)?\s*(<(?P<inner5>font|span|[ibu])[^>]*>)?\s*(<(?P<inner6>font|span|[ibu])[^>]*>)?\s*"
         title_header_open = "(?P<title>"
         title_header_close = ")\s*"
         title_line_close = "(</(?P=inner6)>)?\s*(</(?P=inner5)>)?\s*(</(?P=inner4)\s[^>]*>)?\s*</(?P=outer2)>"
