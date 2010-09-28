@@ -303,7 +303,6 @@ class Metadata(object):
             return
         for src in attrs:
             try:
-                print src
                 sfm = other.metadata_for_field(src)
                 dfm = self.metadata_for_field(attrs[src])
                 if dfm['is_multiple']:

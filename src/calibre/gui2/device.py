@@ -34,6 +34,8 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import thumbnail
+from calibre.library.save_to_disk import plugboard_any_device_value, \
+                                         plugboard_any_format_value
 # }}}
 
 class DeviceJob(BaseJob): # {{{
@@ -323,22 +325,22 @@ class DeviceManager(Thread): # {{{
             for f, mi in zip(files, metadata):
                 if isinstance(f, unicode):
                     ext = f.rpartition('.')[-1].lower()
-                    dev_name = self.connected_device.name
+                    dev_name = self.connected_device.__class__.__name__
                     cpb = None
                     if ext in plugboards:
                         cpb = plugboards[ext]
-                    elif ' any' in plugboards:
-                        cpb = plugboards[' any']
+                    elif plugboard_any_format_value in plugboards:
+                        cpb = plugboards[plugboard_any_format_value]
                     if cpb is not None:
                         if dev_name in cpb:
                             cpb = cpb[dev_name]
-                        elif ' any' in plugboards[ext]:
-                            cpb = cpb[' any']
+                        elif plugboard_any_device_value in plugboards[ext]:
+                            cpb = cpb[plugboard_any_device_value]
                         else:
                             cpb = None
 
                     if DEBUG:
-                        prints('Using plugboard', cpb)
+                        prints('Using plugboard', ext, dev_name, cpb)
                     if ext:
                         try:
                             if DEBUG:

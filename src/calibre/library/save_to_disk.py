@@ -17,7 +17,12 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre import strftime
+from calibre import strftime, prints
+
+plugboard_any_device_value = 'any device'
+plugboard_any_format_value = 'any format'
+plugboard_save_to_disk_value = 'save_to_disk'
+
 
 DEFAULT_TEMPLATE = '{author_sort}/{title}/{title} - {authors}'
 DEFAULT_SEND_TEMPLATE = '{author_sort}/{title} - {authors}'
@@ -232,21 +237,21 @@ def save_book_to_disk(id, db, root, opts, length):
 
     written = False
     for fmt in formats:
-        dev_name = 'save to disk'
+        global plugboard_save_to_disk_value, plugboard_any_format_value
+        dev_name = plugboard_save_to_disk_value
         plugboards = db.prefs.get('plugboards', {})
         cpb = None
         if fmt in plugboards:
             cpb = plugboards[fmt]
-        elif ' any' in plugboards:
-            cpb = plugboards[' any']
+        elif plugboard_any_format_value in plugboards:
+            cpb = plugboards[plugboard_any_format_value]
+        # must find a save_to_disk entry for this format
         if cpb is not None:
             if dev_name in cpb:
                 cpb = cpb[dev_name]
-            elif ' any' in plugboards[fmt]:
-                cpb = cpb[' any']
             else:
                 cpb = None
-
+        prints('Using plugboard:', fmt, cpb)
         data = db.format(id, fmt, index_is_id=True)
         if data is None:
             continue

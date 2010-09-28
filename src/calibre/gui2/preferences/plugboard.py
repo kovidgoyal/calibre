@@ -8,32 +8,84 @@ __docformat__ = 'restructuredtext en'
 from PyQt4 import QtGui
 
 from calibre.gui2 import error_dialog
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
-        AbortCommit
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugboard_ui import Ui_Form
 from calibre.customize.ui import metadata_writers, device_plugins
-
+from calibre.library.save_to_disk import plugboard_any_format_value, \
+                        plugboard_any_device_value, plugboard_save_to_disk_value
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
         self.db = gui.library_view.model().db
-        self.current_plugboards = self.db.prefs.get('plugboards', {'epub': {' any': {'title':'authors', 'authors':'tags'}}})
+        self.current_plugboards = self.db.prefs.get('plugboards',{})
         self.current_device = None
         self.current_format = None
-#        self.proxy = ConfigProxy(config())
-#
-#        r = self.register
-#
-#        for x in ('asciiize', 'update_metadata', 'save_cover', 'write_opf',
-#                'replace_whitespace', 'to_lowercase', 'formats', 'timefmt'):
-#            r(x, self.proxy)
-#
-#        self.save_template.changed_signal.connect(self.changed_signal.emit)
+
+    def initialize(self):
+        def field_cmp(x, y):
+            if x.startswith('#'):
+                if y.startswith('#'):
+                    return cmp(x.lower(), y.lower())
+                else:
+                    return 1
+            elif y.startswith('#'):
+                return -1
+            else:
+                return cmp(x.lower(), y.lower())
+
+        ConfigWidgetBase.initialize(self)
+
+        self.devices = ['']
+        for device in device_plugins():
+            n = device.__class__.__name__
+            if n.startswith('FOLDER_DEVICE'):
+                n = 'FOLDER_DEVICE'
+            self.devices.append(n)
+        self.devices.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
+        self.devices.insert(1, plugboard_save_to_disk_value)
+        self.devices.insert(2, plugboard_any_device_value)
+        self.new_device.addItems(self.devices)
+
+        self.formats = ['']
+        for w in metadata_writers():
+            for f in w.file_types:
+                self.formats.append(f)
+        self.formats.sort()
+        self.formats.insert(1, plugboard_any_format_value)
+        self.new_format.addItems(self.formats)
+
+        self.fields = ['']
+        for f in self.db.all_field_keys():
+            if self.db.field_metadata[f].get('rec_index', None) is not None and\
+                    self.db.field_metadata[f]['datatype'] is not None and \
+                    self.db.field_metadata[f]['search_terms']:
+                self.fields.append(f)
+        self.fields.sort(cmp=field_cmp)
+
+        self.source_widgets = []
+        self.dest_widgets = []
+        for i in range(0, 10):
+            w = QtGui.QComboBox(self)
+            self.source_widgets.append(w)
+            self.fields_layout.addWidget(w, 5+i, 0, 1, 1)
+            w = QtGui.QComboBox(self)
+            self.dest_widgets.append(w)
+            self.fields_layout.addWidget(w, 5+i, 1, 1, 1)
+
+        self.edit_device.currentIndexChanged[str].connect(self.edit_device_changed)
+        self.edit_format.currentIndexChanged[str].connect(self.edit_format_changed)
+        self.new_device.currentIndexChanged[str].connect(self.new_device_changed)
+        self.new_format.currentIndexChanged[str].connect(self.new_format_changed)
+        self.ok_button.clicked.connect(self.ok_clicked)
+        self.del_button.clicked.connect(self.del_clicked)
+
+        self.refill_all_boxes()
 
     def clear_fields(self, edit_boxes=False, new_boxes=False):
         self.ok_button.setEnabled(False)
+        self.del_button.setEnabled(False)
         for w in self.source_widgets:
             w.clear()
         for w in self.dest_widgets:
@@ -47,6 +99,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def set_fields(self):
         self.ok_button.setEnabled(True)
+        self.del_button.setEnabled(True)
         for w in self.source_widgets:
             w.addItems(self.fields)
         for w in self.dest_widgets:
@@ -76,6 +129,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for i,src in enumerate(dpb):
             self.set_field(i, src, dpb[src])
         self.ok_button.setEnabled(True)
+        self.del_button.setEnabled(True)
 
     def edit_format_changed(self, txt):
         if txt == '':
@@ -104,26 +158,42 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.clear_fields(edit_boxes=True)
         self.current_device = unicode(txt)
         error = False
-        if self.current_format == ' any':
+        if self.current_format == plugboard_any_format_value:
+            # user specified any format.
             for f in self.current_plugboards:
-                if self.current_device == ' any' and len(self.current_plugboards[f]):
+                devs = set(self.current_plugboards[f])
+                print 'check', self.current_format, devs
+                if self.current_device != plugboard_save_to_disk_value and \
+                        plugboard_any_device_value in devs:
+                    # specific format/any device in list. conflict.
+                    # note: any device does not match save_to_disk
                     error = True
                     break
-                if self.current_device in self.current_plugboards[f]:
+                if self.current_device in devs:
+                    # specific format/current device in list. conflict
                     error = True
                     break
-                if ' any' in self.current_plugboards[f]:
+                if self.current_device == plugboard_any_device_value:
+                    # any device and a specific device already there. conflict
                     error = True
                     break
         else:
-            fpb = self.current_plugboards.get(self.current_format, None)
-            if fpb is not None:
-                if ' any' in fpb:
+            # user specified specific format.
+            for f in self.current_plugboards:
+                devs = set(self.current_plugboards[f])
+                if f == plugboard_any_format_value and \
+                                self.current_device in devs:
+                    # any format/same device in list. conflict.
                     error = True
-                else:
-                    dpb = fpb.get(self.current_device, None)
-                    if dpb is not None:
-                        error = True
+                    break
+                if f == self.current_format and self.current_device in devs:
+                    # current format/current device in list. conflict
+                    error = True
+                    break
+                if f == self.current_format and plugboard_any_device_value in devs:
+                    # current format/any device in list. conflict
+                    error = True
+                    break
 
         if error:
             error_dialog(self, '',
@@ -165,6 +235,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
         self.refill_all_boxes()
 
+    def del_clicked(self):
+        if self.current_format in self.current_plugboards:
+            fpb = self.current_plugboards[self.current_format]
+            if self.current_device in fpb:
+                del fpb[self.current_device]
+            if len(fpb) == 0:
+                del self.current_plugboards[self.current_format]
+        self.changed_signal.emit()
+        self.refill_all_boxes()
+
     def refill_all_boxes(self):
         self.current_device = None
         self.current_format = None
@@ -176,59 +256,21 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.edit_format.setCurrentIndex(0)
         self.edit_device.clear()
         self.ok_button.setEnabled(False)
-
-    def initialize(self):
-        def field_cmp(x, y):
-            if x.startswith('#'):
-                if y.startswith('#'):
-                    return cmp(x.lower(), y.lower())
-                else:
-                    return 1
-            elif y.startswith('#'):
-                return -1
-            else:
-                return cmp(x.lower(), y.lower())
-
-        ConfigWidgetBase.initialize(self)
-
-        self.devices = ['', ' any', 'save to disk']
-        for device in device_plugins():
-            self.devices.append(device.name)
-        self.devices.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
-        self.new_device.addItems(self.devices)
-
-        self.formats = ['', ' any']
-        for w in metadata_writers():
-            for f in w.file_types:
-                self.formats.append(f)
-        self.formats.sort()
-        self.new_format.addItems(self.formats)
-
-        self.fields = ['']
-        for f in self.db.all_field_keys():
-            if self.db.field_metadata[f].get('rec_index', None) is not None and\
-                    self.db.field_metadata[f]['datatype'] is not None and \
-                    self.db.field_metadata[f]['search_terms']:
-                self.fields.append(f)
-        self.fields.sort(cmp=field_cmp)
-
-        self.source_widgets = []
-        self.dest_widgets = []
-        for i in range(0, 10):
-            w = QtGui.QComboBox(self)
-            self.source_widgets.append(w)
-            self.fields_layout.addWidget(w, 5+i, 0, 1, 1)
-            w = QtGui.QComboBox(self)
-            self.dest_widgets.append(w)
-            self.fields_layout.addWidget(w, 5+i, 1, 1, 1)
-
-        self.edit_device.currentIndexChanged[str].connect(self.edit_device_changed)
-        self.edit_format.currentIndexChanged[str].connect(self.edit_format_changed)
-        self.new_device.currentIndexChanged[str].connect(self.new_device_changed)
-        self.new_format.currentIndexChanged[str].connect(self.new_format_changed)
-        self.ok_button.clicked.connect(self.ok_clicked)
-
-        self.refill_all_boxes()
+        self.del_button.setEnabled(False)
+        txt = ''
+        for f in self.formats:
+            if f not in self.current_plugboards:
+                continue
+            for d in self.devices:
+                if d not in self.current_plugboards[f]:
+                    continue
+                ops = []
+                for op in self.fields:
+                    if op not in self.current_plugboards[f][d]:
+                        continue
+                    ops.append(op + '->' + self.current_plugboards[f][d][op])
+                txt += '%s:%s [%s]\n'%(f, d, ', '.join(ops))
+        self.existing_plugboards.setPlainText(txt)
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)

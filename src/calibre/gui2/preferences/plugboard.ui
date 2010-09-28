@@ -26,32 +26,6 @@
    </item>
    <item row="1" column="0">
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Add new plugboard</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Edit existing plugboard</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="new_format"/>
-     </item>
-     <item row="1" column="2">
-      <widget class="QComboBox" name="new_device"/>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="edit_format"/>
-     </item>
-     <item row="2" column="2">
-      <widget class="QComboBox" name="edit_device"/>
-     </item>
      <item row="0" column="1">
       <widget class="QLabel" name="label_6">
        <property name="text">
@@ -72,7 +46,50 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Add new plugboard</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="new_format"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QComboBox" name="new_device"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Edit existing plugboard</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="edit_format"/>
+     </item>
+     <item row="2" column="2">
+      <widget class="QComboBox" name="edit_device"/>
+     </item>
      <item row="3" column="0">
+      <widget class="QLabel" name="label_41">
+       <property name="text">
+        <string>Existing plugboards</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <widget class="QPlainTextEdit" name="existing_plugboards">
+       <property name="lineWrapMode">
+        <enum>QPlainTextEdit::NoWrap</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -122,10 +139,17 @@
        </property>
       </spacer>
      </item>
-     <item row="19" column="0" colspan="2">
+     <item row="19" column="0">
       <widget class="QPushButton" name="ok_button">
        <property name="text">
-        <string>Done</string>
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item row="19" column="1">
+      <widget class="QPushButton" name="del_button">
+       <property name="text">
+        <string>Delete</string>
        </property>
       </widget>
      </item>
