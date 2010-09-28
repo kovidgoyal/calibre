@@ -538,7 +538,7 @@ class HTMLPreProcessor(object):
             unidecoder = Unidecoder()
             for char in unsupported_unicode_chars:
                 asciichar = unidecoder.decode(char)
-                html = re.sub('%s' % char, asciichar, html)
+                html = re.sub(u'%s' % char, asciichar, html)
 
         return html
 
