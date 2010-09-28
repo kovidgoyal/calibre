@@ -61,7 +61,7 @@ def wrap_lines(match):
                return ' '
     else:
                return ital+' '
-               
+
 class DocAnalysis(object):
     '''
     Provides various text analysis functions to determine how the document is structured.
@@ -79,7 +79,7 @@ class DocAnalysis(object):
         elif format == 'spanned_html':
             linere = re.compile('(?<=<span).*?(?=</span>)', re.DOTALL)
         self.lines = linere.findall(raw)
-    
+
     def line_length(self, percent):
         '''
         Analyses the document to find the median line length.
@@ -114,7 +114,7 @@ class DocAnalysis(object):
         index = int(len(lengths) * percent) - 1
 
         return lengths[index]
-    
+
     def line_histogram(self, percent):
         '''
         Creates a broad histogram of the document to determine whether it incorporates hard
@@ -147,14 +147,12 @@ class DocAnalysis(object):
         h = [ float(count)/totalLines for count in hRaw ]
         #print "\nhRaw histogram lengths are: "+str(hRaw)
         #print "              percents are: "+str(h)+"\n"
-        
+
         # Find the biggest bucket
         maxValue = 0
-        peakPosition = 0
         for i in range(0,len(h)):
             if h[i] > maxValue:
                 maxValue = h[i]
-                peakPosition = i
 
         if maxValue < percent:
             #print "Line lengths are too variable. Not unwrapping."
@@ -195,7 +193,7 @@ class Dehyphenator(object):
         try:
             searchresult = self.html.find(str.lower(lookupword))
         except:
-            return hyphenated                
+            return hyphenated
         if self.format == 'html_cleanup':
             if self.html.find(lookupword) != -1 or searchresult != -1:
                 #print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
@@ -206,7 +204,7 @@ class Dehyphenator(object):
             else:
                 #print "Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf)
                 return firsthalf+u'\u2014'+wraptags+secondhalf
-               
+
         else:
             if self.html.find(lookupword) != -1 or searchresult != -1:
                 #print "returned dehyphenated word: " + str(dehyphenated)
@@ -533,12 +531,12 @@ class HTMLPreProcessor(object):
             html = self.smarten_punctuation(html)
 
         unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
-        if unsupported_unicode_chars != []:
+        if unsupported_unicode_chars:
             from calibre.ebooks.unidecode.unidecoder import Unidecoder
             unidecoder = Unidecoder()
             for char in unsupported_unicode_chars:
                 asciichar = unidecoder.decode(char)
-                html = re.sub(u'%s' % char, asciichar, html)
+                html = html.replace(char, asciichar)
 
         return html
 

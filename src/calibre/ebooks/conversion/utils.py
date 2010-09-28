@@ -81,7 +81,7 @@ class PreProcessor(object):
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = re.sub(r"\s*</p>", "</p>\n", html)
         html = re.sub(r"\s*<p>\s*", "\n<p>", html)
-        
+
         ###### Check Markup ######
         #
         # some lit files don't have any <p> tags or equivalent (generally just plain text between
@@ -129,6 +129,7 @@ class PreProcessor(object):
         #multi_blank = re.compile(r'(\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>){2,}', re.IGNORECASE)
         blanklines = blankreg.findall(html)
         lines = linereg.findall(html)
+        blanks_between_paragraphs = False
         if len(lines) > 1:
             self.log("There are " + str(len(blanklines)) + " blank lines. " + str(float(len(blanklines)) / float(len(lines))) + " percent blank")
             if float(len(blanklines)) / float(len(lines)) > 0.40 and getattr(self.extra_opts,
@@ -140,7 +141,7 @@ class PreProcessor(object):
                #print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
-        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")  
+        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")
         # detect chapters/sections to match xpath or splitting logic
         #
         # Build the Regular Expressions in pieces
@@ -159,14 +160,14 @@ class PreProcessor(object):
         title_header_close = ")\s*"
         title_line_close = "(</(?P=inner6)>)?\s*(</(?P=inner5)>)?\s*(</(?P=inner4)\s[^>]*>)?\s*</(?P=outer2)>"
         opt_title_close = ")?"
-        
+
         default_title = r"(\s*[\w\'\"-]+){1,5}(?!<)"
         typical_chapters = r".?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}"
         numeric_chapters = r".?(\d+\.?|(CHAPTER\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}))\s*"
         uppercase_chapters = r"\s*.?([A-Z#]+(\s|-){0,3}){1,5}\s*"
-        
+
         chapter_marker = lookahead+chapter_line_open+chapter_header_open+typical_chapters+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-        #print chapter_marker     
+        #print chapter_marker
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
         self.log("found " + str(self.html_preprocess_sections) + " pre-existing headings")
@@ -202,7 +203,7 @@ class PreProcessor(object):
                 format = 'html'
         else:
             format = 'html'
-        # Check Line histogram to determine if the document uses hard line breaks, If 50% or 
+        # Check Line histogram to determine if the document uses hard line breaks, If 50% or
         # more of the lines break in the same region of the document then unwrapping is required
         docanalysis = DocAnalysis(format, html)
         hardbreaks = docanalysis.line_histogram(.50)
@@ -233,7 +234,7 @@ class PreProcessor(object):
             dehyphenator = Dehyphenator()
             html = dehyphenator(html,'html_cleanup', length)
             self.log("Done dehyphenating")
-            
+
         # delete soft hyphens
         html = re.sub(u'\xad\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
 

@@ -251,7 +251,7 @@ class OutputProfile(Plugin):
 
     #: The character used to represent a star in ratings
     ratings_char = u'*'
-    
+
     #: Unsupported unicode characters to be replaced during preprocessing
     unsupported_unicode_chars = []
 
