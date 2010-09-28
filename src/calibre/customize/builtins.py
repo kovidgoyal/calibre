@@ -799,7 +799,7 @@ class Sending(PreferencesPlugin):
 class Plugboard(PreferencesPlugin):
     name = 'Plugboard'
     icon = I('plugboard.png')
-    gui_name = _('Metadata plugboard')
+    gui_name = _('Metadata plugboards')
     category = 'Import/Export'
     gui_category = _('Import/Export')
     category_order = 3

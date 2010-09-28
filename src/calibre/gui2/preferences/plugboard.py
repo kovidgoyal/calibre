@@ -197,7 +197,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         if error:
             error_dialog(self, '',
-                     _('That format and device already has a plugboard'),
+                     _('That format and device already has a plugboard or '
+                       'conflicts with another plugboard.'),
                      show=True)
             self.new_device.setCurrentIndex(0)
             return
