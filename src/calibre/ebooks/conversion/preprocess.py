@@ -191,13 +191,13 @@ class Dehyphenator(object):
         lookupword = self.removesuffixes.sub('', dehyphenated)
         if self.prefixes.match(firsthalf) is None:
            lookupword = self.removeprefix.sub('', lookupword)
-        print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
+        #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
         try:
             searchresult = self.html.find(str.lower(lookupword))
         except:
             return hyphenated                
         if self.format == 'html_cleanup':
-            if self.html.find(lookupword) != -1 or self.html.find(str.lower(lookupword)) != -1:
+            if self.html.find(lookupword) != -1 or searchresult != -1:
                 #print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
                 return dehyphenated
             elif self.html.find(hyphenated) != -1:
@@ -208,11 +208,11 @@ class Dehyphenator(object):
                 return firsthalf+u'\u2014'+wraptags+secondhalf
                
         else:
-            if self.html.find(lookupword) != -1 or self.html.find(str.lower(lookupword)) != -1:
+            if self.html.find(lookupword) != -1 or searchresult != -1:
                 #print "returned dehyphenated word: " + str(dehyphenated)
                 return dehyphenated
             else:
-                #print "returned hyphenated word: " + str(hyphenated)
+                #print "           returned hyphenated word: " + str(hyphenated)
                 return hyphenated
 
     def __call__(self, html, format, length=1):
