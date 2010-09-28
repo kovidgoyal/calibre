@@ -106,8 +106,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         d.exec_()
 
     def compact(self, *args):
-        d = CheckIntegrity(self.gui.library_view.model().db, self)
+        from calibre.library.caches import MetadataBackup
+        m = self.gui.library_view.model()
+        if m.metadata_backup is not None:
+            m.metadata_backup.stop()
+        d = CheckIntegrity(m.db, self)
         d.exec_()
+        m.metadata_backup = MetadataBackup(m.db)
+        m.metadata_backup.start()
 
     def open_config_dir(self, *args):
         from calibre.utils.config import config_dir

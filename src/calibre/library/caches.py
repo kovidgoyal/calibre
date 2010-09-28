@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, itertools, time
+import re, itertools, time, traceback
 from itertools import repeat
 from datetime import timedelta
 from threading import Thread, RLock
@@ -45,7 +45,6 @@ class MetadataBackup(Thread): # {{{
         self.keep_running = False
 
     def run(self):
-        import traceback
         while self.keep_running:
             try:
                 time.sleep(0.5) # Limit to two per second
