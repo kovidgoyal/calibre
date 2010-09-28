@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-24 21:33+0000\n"
-"PO-Revision-Date: 2010-09-24 20:44+0000\n"
-"Last-Translator: Piotr Strębski <strebski@o2.pl>\n"
+"PO-Revision-Date: 2010-09-27 21:08+0000\n"
+"Last-Translator: Bartosz Kaszubowski <gosimek@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-25 04:41+0000\n"
+"X-Launchpad-Export-Date: 2010-09-28 04:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -338,7 +338,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
 msgid "Adding books"
-msgstr ""
+msgstr "Dodawanie książek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:769
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
@@ -362,7 +362,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Sending books to devices"
-msgstr ""
+msgstr "Przesyłanie książek na urządzenie"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 msgid "Control how calibre transfers files to your ebook reader"
@@ -370,12 +370,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:803
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Dzielenie się książkami poprzez email"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Sharing"
-msgstr ""
+msgstr "Udostępnianie"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid ""
@@ -668,7 +668,7 @@ msgstr "Umożliwia komunikację z telefonami S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:85
 msgid "Apple device"
-msgstr ""
+msgstr "Urządzenie Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:87
 msgid "Communicate with iTunes/iBooks."
@@ -2714,7 +2714,7 @@ msgstr "książki formatu %s nie są wspierane"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:156
 msgid "Book %s of %s"
-msgstr ""
+msgstr "Książka %s z %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."

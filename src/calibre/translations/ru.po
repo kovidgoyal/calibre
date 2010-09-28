@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-24 21:33+0000\n"
-"PO-Revision-Date: 2010-09-24 20:54+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-09-27 19:33+0000\n"
+"Last-Translator: Andrew M. Kosorukov <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-25 04:41+0000\n"
+"X-Launchpad-Export-Date: 2010-09-28 04:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -268,7 +268,7 @@ msgstr "Внести метаданные из файлов %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:688
 msgid "Look and Feel"
-msgstr ""
+msgstr "Оформление"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:690
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:702
@@ -279,38 +279,39 @@ msgstr "Интерфейс"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:694
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr ""
+msgstr "Настройка внешнего вида calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:700
 msgid "Behavior"
-msgstr ""
+msgstr "Поведение"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:706
 msgid "Change the way calibre behaves"
-msgstr ""
+msgstr "Настройка поведения calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:711
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:176
 msgid "Add your own columns"
-msgstr ""
+msgstr "Добавление колонок"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:717
 msgid "Add/remove your own columns to the calibre book list"
-msgstr ""
+msgstr "Добавление/удаление личных колонок в списке книг"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:722
 msgid "Customize the toolbar"
-msgstr ""
+msgstr "Настройка панели инструментов"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:728
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
+"Настройка панели инструментов и контекстных меню, выбор доступных команд"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:734
 msgid "Input Options"
-msgstr ""
+msgstr "Параметры импорта"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:736
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:747
@@ -320,7 +321,7 @@ msgstr "Преобразование"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Set conversion options specific to each input format"
-msgstr ""
+msgstr "Установка параметров импорта, специфичных для каждого формата"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Common Options"
@@ -328,7 +329,7 @@ msgstr "Общие параметры"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
 msgid "Set conversion options common to all formats"
-msgstr ""
+msgstr "Установка общих для всех форматов параметров конвертации"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Output Options"
@@ -336,7 +337,7 @@ msgstr "Выходные параметры"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:762
 msgid "Set conversion options specific to each output format"
-msgstr ""
+msgstr "Установка параметров экспорта, специфичных для каждого формата"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
 msgid "Adding books"
@@ -350,7 +351,7 @@ msgstr "Импорт/Экспорт"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:773
 msgid "Control how calibre reads metadata from files when adding books"
-msgstr ""
+msgstr "Настройки чтения метаданных из добавляемых в библиотеку книг"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:779
 msgid "Saving books to disk"
@@ -360,7 +361,7 @@ msgstr "Сохранение книг на диск"
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
-msgstr ""
+msgstr "Настройки записи книг из базы данных на диск"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Sending books to devices"
@@ -374,28 +375,32 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:803
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Отправка по е-mail"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Sharing"
-msgstr ""
+msgstr "Доступ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
+"Настройка рассылки книг по e-mail. Может быть использована для "
+"автоматической доставки загруженных новостных лент на устройство чтения"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:815
 msgid "Sharing over the net"
-msgstr ""
+msgstr "Сетевой доступ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:821
 msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"Настройка http-сервера calibre, предоставляющего доступ к библиотеке с "
+"любого устройства, подключенного к сети интернет"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 msgid "Plugins"

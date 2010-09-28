@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-09-24 21:33+0000\n"
-"PO-Revision-Date: 2010-09-24 20:55+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-09-27 09:54+0000\n"
+"Last-Translator: testere <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-25 04:42+0000\n"
+"X-Launchpad-Export-Date: 2010-09-28 04:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -302,7 +302,7 @@ msgstr "Araç çubuğunu özelleştir"
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
-msgstr ""
+msgstr "henüz çevrilmedi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:734
 msgid "Input Options"
@@ -324,7 +324,7 @@ msgstr "Genel Seçenekler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
 msgid "Set conversion options common to all formats"
-msgstr ""
+msgstr "Çevirme seçeneklerini bütün formatlar için ortak yap"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Output Options"
@@ -332,7 +332,7 @@ msgstr "Çıkış Seçenekleri"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:762
 msgid "Set conversion options specific to each output format"
-msgstr ""
+msgstr "Çevirme seçeneklerini her bir formata özel yap"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
 msgid "Adding books"
