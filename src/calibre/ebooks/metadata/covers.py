@@ -9,6 +9,7 @@ import traceback, socket, re, sys
 from functools import partial
 from threading import Thread, Event
 from Queue import Queue, Empty
+from lxml import etree
 
 import mechanize
 
@@ -214,6 +215,68 @@ def download_covers(mi, result_queue, max_covers=50, timeout=5.): # {{{
         except Empty:
             break
 
+# }}}
+
+class DoubanCovers(CoverDownload): # {{{
+    'Download covers from Douban.com'
+
+    DOUBAN_ISBN_URL = 'http://api.douban.com/book/subject/isbn/'
+    CALIBRE_DOUBAN_API_KEY = '0bd1672394eb1ebf2374356abec15c3d'
+    name = 'Douban.com covers'
+    description = _('Download covers from Douban.com')
+    author = 'Li Fanxi'
+
+    def get_cover_url(self, isbn, br, timeout=5.):
+        try:
+            url = self.DOUBAN_ISBN_URL + isbn + "?apikey=" + self.CALIBRE_DOUBAN_API_KEY
+            src = br.open(url, timeout=timeout).read()
+        except Exception, err:
+            if isinstance(getattr(err, 'args', [None])[0], socket.timeout):
+                err = Exception(_('Douban.com API timed out. Try again later.'))
+            raise err
+        else:
+            feed = etree.fromstring(src)
+            NAMESPACES = {
+              'openSearch':'http://a9.com/-/spec/opensearchrss/1.0/',
+              'atom' : 'http://www.w3.org/2005/Atom',
+              'db': 'http://www.douban.com/xmlns/'
+            }
+            XPath = partial(etree.XPath, namespaces=NAMESPACES)
+            entries = XPath('//atom:entry')(feed)
+            if len(entries) < 1:
+                return None
+            try:
+                cover_url = XPath("descendant::atom:link[@rel='image']/attribute::href")
+                u = cover_url(entries[0])[0].replace('/spic/', '/lpic/');
+                # If URL contains "book-default", the book doesn't have a cover
+                if u.find('book-default') != -1:
+                    return None
+            except:
+                return None
+            return u
+
+    def has_cover(self, mi, ans, timeout=5.):
+        if not mi.isbn:
+            return False
+        br = browser()
+        try:
+            if self.get_cover_url(mi.isbn, br, timeout=timeout) != None:
+                self.debug('cover for', mi.isbn, 'found')
+                ans.set()
+        except Exception, e:
+            self.debug(e)
+
+    def get_covers(self, mi, result_queue, abort, timeout=5.):
+        if not mi.isbn:
+            return
+        br = browser()
+        try:
+            url = self.get_cover_url(mi.isbn, br, timeout=timeout)
+            cover_data = br.open_novisit(url).read()
+            result_queue.put((True, cover_data, 'jpg', self.name))
+        except Exception, e:
+            result_queue.put((False, self.exception_to_string(e),
+                traceback.format_exc(), self.name))
 # }}}
 
 def download_cover(mi, timeout=5.): # {{{
