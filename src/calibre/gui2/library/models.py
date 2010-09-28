@@ -159,16 +159,23 @@ class BooksModel(QAbstractTableModel): # {{{
             # do something on the GUI thread. Deadlock.
         self.cover_cache = CoverCache(db, FunctionDispatcher(self.db.cover))
         self.cover_cache.start()
-        if self.metadata_backup is not None:
-            self.metadata_backup.stop()
-            # Would like to to a join here, but the thread might be waiting to
-            # do something on the GUI thread. Deadlock.
-        self.metadata_backup = MetadataBackup(db)
-        self.metadata_backup.start()
+        self.stop_metadata_backup()
+        self.start_metadata_backup()
         def refresh_cover(event, ids):
             if event == 'cover' and self.cover_cache is not None:
                 self.cover_cache.refresh(ids)
         db.add_listener(refresh_cover)
+
+    def start_metadata_backup(self):
+        self.metadata_backup = MetadataBackup(self.db)
+        self.metadata_backup.start()
+
+    def stop_metadata_backup(self):
+        if getattr(self, 'metadata_backup', None) is not None:
+            self.metadata_backup.stop()
+            # Would like to to a join here, but the thread might be waiting to
+            # do something on the GUI thread. Deadlock.
+
 
     def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)
