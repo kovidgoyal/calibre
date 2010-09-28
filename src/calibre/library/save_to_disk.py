@@ -111,17 +111,30 @@ class SafeFormat(TemplateFormatter):
     '''
     Provides a format function that substitutes '' for any missing value
     '''
+
+    composite_values = {}
+
     def get_value(self, key, args, kwargs):
         try:
             b = self.book.get_user_metadata(key, False)
             key = key.lower()
             if b is not None and b['datatype'] == 'composite':
-                return self.vformat(b['display']['composite_template'], [], kwargs)
+                if key in self.composite_values:
+                    return self.composite_values[key]
+                self.composite_values[key] = 'RECURSIVE_COMPOSITE FIELD (S2D) ' + key
+                self.composite_values[key] = \
+                    self.vformat(b['display']['composite_template'], [], kwargs)
+                return self.composite_values[key]
             if kwargs[key]:
                 return self.sanitize(kwargs[key.lower()])
             return ''
         except:
             return ''
+
+    def safe_format(self, fmt, kwargs, error_value, book, sanitize=None):
+        self.composite_values = {}
+        return TemplateFormatter.safe_format(self, fmt, kwargs, error_value,
+                                             book, sanitize)
 
 safe_formatter = SafeFormat()
 
@@ -243,10 +256,12 @@ def save_book_to_disk(id, db, root, opts, length):
         cpb = None
         if fmt in plugboards:
             cpb = plugboards[fmt]
-        elif plugboard_any_format_value in plugboards:
+            if dev_name in cpb:
+                cpb = cpb[dev_name]
+            else:
+                cpb = None
+        if cpb is None and plugboard_any_format_value in plugboards:
             cpb = plugboards[plugboard_any_format_value]
-        # must find a save_to_disk entry for this format
-        if cpb is not None:
             if dev_name in cpb:
                 cpb = cpb[dev_name]
             else:
