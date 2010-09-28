@@ -592,11 +592,34 @@ class LibraryPage(QWizardPage, LibraryUI):
         except:
             pass
 
+    def is_library_dir_suitable(self, x):
+        return LibraryDatabase2.exists_at(x) or not os.listdir(x)
+
+    def validatePage(self):
+        newloc = unicode(self.location.text())
+        if not self.is_library_dir_suitable(newloc):
+            self.show_library_dir_error(newloc)
+            return False
+        return True
+
     def change(self):
-        dir = choose_dir(self, 'database location dialog',
+        x = choose_dir(self, 'database location dialog',
                          _('Select location for books'))
-        if dir:
-            self.location.setText(dir)
+        if x:
+            if self.is_library_dir_suitable(x):
+                self.location.setText(x)
+            else:
+                self.show_library_dir_error(x)
+
+    def show_library_dir_error(self, x):
+        if not isinstance(x, unicode):
+            try:
+                x = x.decode(filesystem_encoding)
+            except:
+                x = unicode(repr(x))
+        error_dialog(self, _('Bad location'),
+            _('You must choose an empty folder for '
+                'the calibre library. %s is not empty.')%x, show=True)
 
     def initializePage(self):
         lp = prefs['library_path']
