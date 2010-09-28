@@ -584,6 +584,13 @@ class LibraryPage(QWizardPage, LibraryUI):
         qt_app.load_translations()
         self.emit(SIGNAL('retranslate()'))
         self.init_languages()
+        try:
+            if prefs['language'].lower().startswith('zh'):
+                from calibre.customize.ui import enable_plugin
+                for name in ('Douban Books', 'Douban.com covers'):
+                    enable_plugin(name)
+        except:
+            pass
 
     def change(self):
         dir = choose_dir(self, 'database location dialog',
