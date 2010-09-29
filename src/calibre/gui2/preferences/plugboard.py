@@ -57,12 +57,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.formats.insert(1, plugboard_any_format_value)
         self.new_format.addItems(self.formats)
 
-        self.source_fields = ['']
-        for f in self.db.custom_field_keys():
-            if self.db.field_metadata[f]['datatype'] == 'composite':
-                self.source_fields.append(f)
-        self.source_fields.sort(cmp=field_cmp)
-
         self.dest_fields = ['',
                             'authors', 'author_sort', 'language', 'publisher',
                             'tags', 'title', 'title_sort']
@@ -128,8 +122,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             print 'edit_device_changed: none device!'
             return
         self.set_fields()
-        for i,src in enumerate(dpb):
-            self.set_field(i, src, dpb[src])
+        for i,op in enumerate(dpb):
+            self.set_field(i, op[0], op[1])
         self.ok_button.setEnabled(True)
         self.del_button.setEnabled(True)
 
@@ -164,7 +158,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             # user specified any format.
             for f in self.current_plugboards:
                 devs = set(self.current_plugboards[f])
-                print 'check', self.current_format, devs
                 if self.current_device != plugboard_save_to_disk_value and \
                         plugboard_any_device_value in devs:
                     # specific format/any device in list. conflict.
@@ -216,7 +209,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.new_device.setCurrentIndex(0)
 
     def ok_clicked(self):
-        pb = {}
+        pb = []
         for i in range(0, len(self.source_widgets)):
             s = unicode(self.source_widgets[i].text())
             if s:
@@ -229,13 +222,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                 '<p>'+_('The template %s is invalid:')%s + \
                                 '<br>'+str(err), show=True)
                         return
-                    pb[s] = self.dest_fields[d]
+                    pb.append((s, self.dest_fields[d]))
                 else:
                     error_dialog(self, _('Invalid destination'),
                             '<p>'+_('The destination field cannot be blank'),
                             show=True)
                     return
-
         if len(pb) == 0:
             if self.current_format in self.current_plugboards:
                 fpb = self.current_plugboards[self.current_format]
@@ -282,8 +274,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     continue
                 ops = []
                 for op in self.current_plugboards[f][d]:
-                    ops.append(op + '->' + self.current_plugboards[f][d][op])
-                txt += '%s:%s [%s]\n'%(f, d, ', '.join(ops))
+                    ops.append('[' + op[0] + '] -> ' + op[1])
+                txt += '%s:%s %s\n'%(f, d, ', '.join(ops))
         self.existing_plugboards.setPlainText(txt)
 
     def restore_defaults(self):

@@ -295,24 +295,26 @@ class Metadata(object):
             _data = object.__getattribute__(self, '_data')
             _data['user_metadata'][field] = metadata
 
-    def template_to_attribute(self, other, attrs):
+    def template_to_attribute(self, other, ops):
         '''
-        Takes a dict {src:dest, src:dest}, evaluates the template in the context
-        of other, then copies the result to self[dest]. This is on a best-
-        efforts basis. Some assignments can make no sense.
+        Takes a list [(src,dest), (src,dest)], evaluates the template in the
+        context of other, then copies the result to self[dest]. This is on a
+        best-efforts basis. Some assignments can make no sense.
         '''
-        if not attrs:
+        if not ops:
             return
-        for src in attrs:
+        for op in ops:
             try:
+                src = op[0]
+                dest = op[1]
                 val = composite_formatter.safe_format\
                     (src, other, 'PLUGBOARD TEMPLATE ERROR', other)
-                dfm = self.metadata_for_field(attrs[src])
-                if dfm and dfm['is_multiple']:
-                    self.set(attrs[src],
-                        [f.strip() for f in val.split(',') if f.strip()])
+                if dest == 'tags':
+                    self.set(dest, [f.strip() for f in val.split(',') if f.strip()])
+                elif dest == 'authors':
+                    self.set(dest, [val])
                 else:
-                    self.set(attrs[src], val)
+                    self.set(dest, val)
             except:
                 traceback.print_exc()
                 pass
