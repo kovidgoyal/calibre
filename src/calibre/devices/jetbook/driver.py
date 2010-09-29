@@ -111,7 +111,8 @@ class JETBOOK_MINI(USBMS):
     '''
     FORMATS     = ['fb2', 'txt']
 
-    name = 'JetBook Mini'
+    gui_name = 'JetBook Mini'
+    name = 'JetBook Mini Device Interface'
     description    = _('Communicate with the JetBook Mini reader.')
     author         = 'Kovid Goyal'
 
@@ -120,6 +121,8 @@ class JETBOOK_MINI(USBMS):
     BCD = [0x100]
     VENDOR_NAME      = 'ECTACO'
     WINDOWS_MAIN_MEM = '' # Matches PROD_
+    MAIN_MEMORY_VOLUME_LABEL  = 'Jetbook Mini'
+
     SUPPORTS_SUB_DIRS = True
 
 
