@@ -17,9 +17,13 @@
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Here you can change the metadata calibre uses when saving or sending books. One possibility is to alter the title to contain series informaton. Another would be to change the author sort.
+      <string>Here you can change the metadata calibre uses to update a book when saving to disk or sending to device.
 
-Use this dialog to define for a format (or all formats) and a device (or all devices) the template to be used to find the value to assign to a destination field. Often the templates will contain simple references to composite columns, but this is not necessary. You can put arbitrary templates in the source box.</string>
+Use this dialog to define a 'plugboard' for for a format (or all formats) and a device (or all devices). The plugboard spefies what template is connected to what field. The template is used to find compute a value, and that value is assigned to the connected field.
+
+Often templates will contain simple references to composite columns, but this is not necessary. You can use any template in a source box that you can use elsewhere in calibre.
+
+One possible use for a plugboard is to alter the title to contain series informaton. Another would be to change the author sort, something that mobi users might do to force it to use the ';' that the kindle requires. A third would be to specify the language.</string>
      </property>
      <property name="textFormat">
       <enum>Qt::PlainText</enum>
@@ -29,7 +33,14 @@ Use this dialog to define for a format (or all formats) and a device (or all dev
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="1" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="1">
       <widget class="QLabel" name="label_6">
@@ -112,7 +123,7 @@ Use this dialog to define for a format (or all formats) and a device (or all dev
      </item>
     </layout>
    </item>
-   <item row="1" column="1">
+   <item row="2" column="1">
     <layout class="QGridLayout" name="fields_layout">
      <item row="0" column="0">
       <widget class="QLabel" name="label_2">
