@@ -37,7 +37,13 @@ class SafeFormat(TemplateFormatter):
 
     def get_value(self, key, args, kwargs):
         try:
-            ign, v = self.book.format_field(key.lower(), series_with_index=False)
+            b = self.book.get_user_metadata(key, False)
+            if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
+                v = ''
+            elif b and b['datatype'] == 'float' and b.get(key, 0.0) == 0.0:
+                v = ''
+            else:
+                ign, v = self.book.format_field(key.lower(), series_with_index=False)
             if v is None:
                 return ''
             if v == '':
@@ -65,7 +71,6 @@ class Metadata(object):
         '''
         _data = copy.deepcopy(NULL_VALUES)
         object.__setattr__(self, '_data', _data)
-        _data['_curseq'] = _data['_compseq'] = 0
         if other is not None:
             self.smart_update(other)
         else:
@@ -94,29 +99,22 @@ class Metadata(object):
         if field in _data['user_metadata'].iterkeys():
             d = _data['user_metadata'][field]
             val = d['#value#']
-            if d['datatype'] != 'composite' or \
-                    (_data['_curseq'] == _data['_compseq'] and val is not None):
+            if d['datatype'] != 'composite':
                 return val
-            # Data in the structure has changed. Recompute the composite fields
-            _data['_compseq'] = _data['_curseq']
-            for ck in _data['user_metadata']:
-                cf = _data['user_metadata'][ck]
-                if cf['datatype'] != 'composite':
-                    continue
-                cf['#value#'] = 'RECURSIVE_COMPOSITE FIELD ' + field
-                cf['#value#'] = composite_formatter.safe_format(
-                                            cf['display']['composite_template'],
+            if val is None:
+                d['#value#'] = 'RECURSIVE_COMPOSITE FIELD (Metadata) ' + field
+                val = d['#value#'] = composite_formatter.safe_format(
+                                            d['display']['composite_template'],
                                             self,
                                             _('TEMPLATE ERROR'),
                                             self).strip()
-            return d['#value#']
+            return val
 
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 
     def __setattr__(self, field, val, extra=None):
         _data = object.__getattribute__(self, '_data')
-        _data['_curseq'] += 1
         if field in TOP_LEVEL_CLASSIFIERS:
             _data['classifiers'].update({field: val})
         elif field in STANDARD_METADATA_FIELDS:
@@ -124,7 +122,10 @@ class Metadata(object):
                 val = NULL_VALUES.get(field, None)
             _data[field] = val
         elif field in _data['user_metadata'].iterkeys():
-            _data['user_metadata'][field]['#value#'] = val
+            if _data['user_metadata'][field]['datatype'] == 'composite':
+                _data['user_metadata'][field]['#value#'] = None
+            else:
+                _data['user_metadata'][field]['#value#'] = val
             _data['user_metadata'][field]['#extra#'] = extra
         else:
             # You are allowed to stick arbitrary attributes onto this object as
@@ -294,28 +295,24 @@ class Metadata(object):
             _data = object.__getattribute__(self, '_data')
             _data['user_metadata'][field] = metadata
 
-    def copy_specific_attributes(self, other, attrs):
+    def template_to_attribute(self, other, attrs):
         '''
-        Takes a dict {src:dest, src:dest} and copys other[src] to self[dest].
-        This is on a best-efforts basis. Some assignments can make no sense.
+        Takes a dict {src:dest, src:dest}, evaluates the template in the context
+        of other, then copies the result to self[dest]. This is on a best-
+        efforts basis. Some assignments can make no sense.
         '''
         if not attrs:
             return
         for src in attrs:
             try:
-                sfm = other.metadata_for_field(src)
+                val = composite_formatter.safe_format\
+                    (src, other, 'PLUGBOARD TEMPLATE ERROR', other)
                 dfm = self.metadata_for_field(attrs[src])
                 if dfm['is_multiple']:
-                    if sfm['is_multiple']:
-                        self.set(attrs[src], other.get(src))
-                    else:
-                        self.set(attrs[src],
-                            [f.strip() for f in other.get(src).split(',')
-                                            if f.strip()])
-                elif sfm['is_multiple']:
-                    self.set(attrs[src], ','.join(other.get(src)))
+                    self.set(attrs[src],
+                        [f.strip() for f in val.split(',') if f.strip()])
                 else:
-                    self.set(attrs[src], other.get(src))
+                    self.set(attrs[src], val)
             except:
                 traceback.print_exc()
                 pass

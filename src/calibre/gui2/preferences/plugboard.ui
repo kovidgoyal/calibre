@@ -87,6 +87,9 @@
        <property name="lineWrapMode">
         <enum>QPlainTextEdit::NoWrap</enum>
        </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item row="4" column="0">
@@ -109,7 +112,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Source field</string>
+        <string>Source template</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

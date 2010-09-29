@@ -750,8 +750,10 @@ class BooksModel(QAbstractTableModel): # {{{
             self.refresh(reset=True)
             return True
 
-        self.db.set_custom(self.db.id(row), val, extra=s_index,
+        id = self.db.id(row)
+        self.db.set_custom(id, val, extra=s_index,
                            label=label, num=None, append=False, notify=True)
+        self.refresh_ids([id], current_row=row)
         return True
 
     def setData(self, index, value, role):

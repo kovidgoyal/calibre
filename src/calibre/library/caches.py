@@ -672,7 +672,7 @@ class ResultCache(SearchQueryParser): # {{{
             if len(self.composites) > 0:
                 mi = db.get_metadata(id, index_is_id=True)
                 for k,c in self.composites:
-                    self._data[id][c] = mi.format_field(k)[1]
+                    self._data[id][c] = mi.get(k)
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -702,7 +702,7 @@ class ResultCache(SearchQueryParser): # {{{
                 if len(self.composites) > 0:
                     mi = db.get_metadata(item[0], index_is_id=True)
                     for k,c in self.composites:
-                        item[c] = mi.format_field(k)[1]
+                        item[c] = mi.get(k)
 
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:

@@ -56,18 +56,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.formats.insert(1, plugboard_any_format_value)
         self.new_format.addItems(self.formats)
 
-        self.fields = ['']
-        for f in self.db.all_field_keys():
-            if self.db.field_metadata[f].get('rec_index', None) is not None and\
-                    self.db.field_metadata[f]['datatype'] is not None and \
-                    self.db.field_metadata[f]['search_terms']:
-                self.fields.append(f)
-        self.fields.sort(cmp=field_cmp)
+        self.source_fields = ['']
+        for f in self.db.custom_field_keys():
+            if self.db.field_metadata[f]['datatype'] == 'composite':
+                self.source_fields.append(f)
+        self.source_fields.sort(cmp=field_cmp)
+
+        self.dest_fields = ['', 'authors', 'author_sort', 'publisher',
+                            'tags', 'title']
 
         self.source_widgets = []
         self.dest_widgets = []
         for i in range(0, 10):
-            w = QtGui.QComboBox(self)
+            w = QtGui.QLineEdit(self)
             self.source_widgets.append(w)
             self.fields_layout.addWidget(w, 5+i, 0, 1, 1)
             w = QtGui.QComboBox(self)
@@ -101,14 +102,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.ok_button.setEnabled(True)
         self.del_button.setEnabled(True)
         for w in self.source_widgets:
-            w.addItems(self.fields)
+            w.clear()
         for w in self.dest_widgets:
-            w.addItems(self.fields)
+            w.addItems(self.dest_fields)
 
     def set_field(self, i, src, dst):
-        idx = self.fields.index(src)
-        self.source_widgets[i].setCurrentIndex(idx)
-        idx = self.fields.index(dst)
+        self.source_widgets[i].setText(src)
+        idx = self.dest_fields.index(dst)
         self.dest_widgets[i].setCurrentIndex(idx)
 
     def edit_device_changed(self, txt):
@@ -216,11 +216,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def ok_clicked(self):
         pb = {}
         for i in range(0, len(self.source_widgets)):
-            s = self.source_widgets[i].currentIndex()
-            if s != 0:
+            s = unicode(self.source_widgets[i].text())
+            if s:
                 d = self.dest_widgets[i].currentIndex()
                 if d != 0:
-                    pb[self.fields[s]] = self.fields[d]
+                    pb[s] = self.dest_fields[d]
         if len(pb) == 0:
             if self.current_format in self.current_plugboards:
                 fpb = self.current_plugboards[self.current_format]
@@ -266,9 +266,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if d not in self.current_plugboards[f]:
                     continue
                 ops = []
-                for op in self.fields:
-                    if op not in self.current_plugboards[f][d]:
-                        continue
+                for op in self.current_plugboards[f][d]:
                     ops.append(op + '->' + self.current_plugboards[f][d][op])
                 txt += '%s:%s [%s]\n'%(f, d, ', '.join(ops))
         self.existing_plugboards.setPlainText(txt)

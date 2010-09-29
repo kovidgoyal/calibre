@@ -112,8 +112,6 @@ class SafeFormat(TemplateFormatter):
     Provides a format function that substitutes '' for any missing value
     '''
 
-    composite_values = {}
-
     def get_value(self, key, args, kwargs):
         try:
             b = self.book.get_user_metadata(key, False)
@@ -130,11 +128,6 @@ class SafeFormat(TemplateFormatter):
             return ''
         except:
             return ''
-
-    def safe_format(self, fmt, kwargs, error_value, book, sanitize=None):
-        self.composite_values = {}
-        return TemplateFormatter.safe_format(self, fmt, kwargs, error_value,
-                                             book, sanitize)
 
 safe_formatter = SafeFormat()
 
@@ -279,7 +272,7 @@ def save_book_to_disk(id, db, root, opts, length):
             try:
                 if cpb:
                     newmi = mi.deepcopy()
-                    newmi.copy_specific_attributes(mi, cpb)
+                    newmi.template_to_attribute(mi, cpb)
                 else:
                     newmi = mi
                 set_metadata(stream, newmi, fmt)

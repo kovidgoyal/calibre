@@ -349,7 +349,7 @@ class DeviceManager(Thread): # {{{
                             with open(f, 'r+b') as stream:
                                 if cpb:
                                     newmi = mi.deepcopy()
-                                    newmi.copy_specific_attributes(mi, cpb)
+                                    newmi.template_to_attribute(mi, cpb)
                                 else:
                                     newmi = mi
                                 set_metadata(stream, newmi, stream_type=ext)
