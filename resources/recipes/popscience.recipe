@@ -31,7 +31,6 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
  #The following will get read of the Gallery: links when found
 
     def preprocess_html(self, soup) :
-        print 'SOUP IS: ', soup
         weblinks = soup.findAll(['head','h2'])
         if weblinks is not None:
             for link in weblinks:
