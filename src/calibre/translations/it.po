@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-24 21:33+0000\n"
-"PO-Revision-Date: 2010-09-25 06:05+0000\n"
-"Last-Translator: Davide Vidal <davide.vidal@gmail.com>\n"
+"PO-Revision-Date: 2010-09-28 21:05+0000\n"
+"Last-Translator: Andrea Bonavia <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-26 04:43+0000\n"
+"X-Launchpad-Export-Date: 2010-09-29 04:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1774,6 +1774,8 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
+"Converte quote piane, tratti ed ellissi nel loro equivalente tipografico "
+"corretto. Per dettagli vedere http://daringfireball.net/projects/smartypants"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:384
 msgid "Use a regular expression to try and remove the header."
@@ -4267,7 +4269,7 @@ msgstr "Visualizza i dettagli del libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "I"
-msgstr ""
+msgstr "I"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:26
 msgid "No detailed info available"
@@ -4324,7 +4326,7 @@ msgstr "Applica piccoli cambiamenti al formato dei libri ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:17
 msgid "T"
-msgstr ""
+msgstr "T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:39
@@ -4333,7 +4335,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:40
 msgid "No ePub available. First convert the book to ePub."
-msgstr ""
+msgstr "Nessun ePub disponibile. Prima converti il libro ad ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:24
 msgid "V"
@@ -6566,6 +6568,9 @@ msgid ""
 "permanent. There is no undo function. You are strongly encouraged to back up "
 "your library before proceeding."
 msgstr ""
+"Nota: <b>puoi distruggere la tua libreria</b> usando questa funzione. I "
+"cambiamenti sono permanenti. Non darà possibile la funzione annulla. E' "
+"molto raccomandabile eseguire il backup della libreria prima di procedere."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:386
 msgid "Search/replace invalid"
@@ -6701,11 +6706,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:265
 msgid "&Search for:"
-msgstr ""
+msgstr "&Cerca:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:266
 msgid "&Replace with:"
-msgstr ""
+msgstr "&Sostituisci con:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:267
 msgid "Apply function &after replace:"
@@ -6969,7 +6974,7 @@ msgstr "&Sfoglia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:416
 msgid "Remove border (if any) from cover"
-msgstr ""
+msgstr "Rimuove i bordi ( se presenti) dalla copertina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:417
 msgid "Reset cover to default"
@@ -7507,7 +7512,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:56
 msgid "&Explode ePub"
-msgstr ""
+msgstr "&Esplodi ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:57
 msgid "Rebuild ePub from exploded contents"
@@ -7515,11 +7520,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:58
 msgid "&Rebuild ePub"
-msgstr ""
+msgstr "&Ricostruisci ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:59
 msgid "Discard changes"
-msgstr ""
+msgstr "Annulla i cambiamenti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:218
@@ -7954,7 +7959,7 @@ msgstr "Mostra libri nella biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:64
 msgid "Device"
-msgstr ""
+msgstr "Dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:65
 msgid "Show books in the main memory of the device"
@@ -8857,7 +8862,7 @@ msgstr "Mostra &testo sotto le icone:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:121
 msgid "&Split the toolbar into two toolbars"
-msgstr ""
+msgstr "&Dividi la barra degli strumenti in due barre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:215
 msgid "&Apply"
