@@ -214,6 +214,7 @@ class CustomColumns(object):
             'SELECT id FROM %s WHERE value=?'%table, (new_name,), all=False)
         if new_id is None or old_id == new_id:
             self.conn.execute('UPDATE %s SET value=? WHERE id=?'%table, (new_name, old_id))
+            new_id = old_id
         else:
             # New id exists. If the column is_multiple, then process like
             # tags, otherwise process like publishers (see database2)
@@ -226,6 +227,7 @@ class CustomColumns(object):
             self.conn.execute('''UPDATE %s SET value=?
                                  WHERE value=?'''%lt, (new_id, old_id,))
             self.conn.execute('DELETE FROM %s WHERE id=?'%table, (old_id,))
+        self.dirty_books_referencing('#'+data['label'], new_id, commit=False)
         self.conn.commit()
 
     def delete_custom_item_using_id(self, id, label=None, num=None):

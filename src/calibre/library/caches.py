@@ -138,25 +138,37 @@ class CoverCache(Thread): # {{{
     def run(self):
         while self.keep_running:
             try:
-                time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
+                # The GUI puts the same ID into the queue many times. The code
+                # below emptys the queue, building a set of unique values. When
+                # the queue is empty, do the work
+                ids = set()
                 id_ = self.load_queue.get(True, 2)
+                ids.add(id_)
+                try:
+                    while True:
+                        # Give the gui some time to put values into the queue
+                        id_ = self.load_queue.get(True, 0.5)
+                        ids.add(id_)
+                except Empty:
+                    pass
             except Empty:
                 continue
             except:
                 #Happens during interpreter shutdown
                 break
-            try:
-                img = self._image_for_id(id_)
-            except:
-                import traceback
-                traceback.print_exc()
-                continue
-            try:
-                with self.lock:
-                    self.cache[id_] = img
-            except:
-                # Happens during interpreter shutdown
-                break
+            for id_ in ids:
+                time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
+                try:
+                    img = self._image_for_id(id_)
+                except:
+                    traceback.print_exc()
+                    continue
+                try:
+                    with self.lock:
+                        self.cache[id_] = img
+                except:
+                    # Happens during interpreter shutdown
+                    break
 
     def set_cache(self, ids):
         with self.lock:

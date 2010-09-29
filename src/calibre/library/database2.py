@@ -47,13 +47,21 @@ def delete_file(path):
 
 def delete_tree(path, permanent=False):
     if permanent:
-        shutil.rmtree(path)
+        try:
+            # For completely mysterious reasons, sometimes a file is left open
+            # leading to access errors. If we get an exception, wait and hope
+            # that whatever has the file (the O/S?) lets go of it.
+            shutil.rmtree(path)
+        except:
+            traceback.print_exc()
+            time.sleep(1)
+            shutil.rmtree(path)
     else:
         try:
             if not permanent:
                 winshell.delete_file(path, silent=True, no_confirm=True)
         except:
-            shutil.rmtree(path)
+            delete_tree(path, permanent=True)
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
@@ -520,6 +528,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             try:
                 f = open(path, 'rb')
             except (IOError, OSError):
+                try:
+                    f.close()
+                    print 'cover exception left file open!', path
+                except:
+                    pass
                 time.sleep(0.2)
                 f = open(path, 'rb')
             if as_image:
@@ -626,6 +639,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.dirtied_cache.add(book)
         if commit:
             self.conn.commit()
+
+    def dirty_queue_length(self):
+        return len(self.dirtied_cache)
 
     def commit_dirty_cache(self):
         '''
@@ -1286,7 +1302,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                      val=mi.get(key),
                      extra=mi.get_extra(key),
                      label=user_mi[key]['label'], commit=False)
-        self.commit()
+        self.conn.commit()
         self.notify('metadata', [id])
 
     def authors_sort_strings(self, id, index_is_id=False):
@@ -1444,6 +1460,19 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     # Convenience methods for tags_list_editor
     # Note: we generally do not need to refresh_ids because library_view will
     # refresh everything.
+
+    def dirty_books_referencing(self, field, id, commit=True):
+        # Get the list of books to dirty -- all books that reference the item
+        table = self.field_metadata[field]['table']
+        link = self.field_metadata[field]['link_column']
+        bks = self.conn.get(
+            'SELECT book from books_{0}_link WHERE {1}=?'.format(table, link),
+            (id,))
+        books = []
+        for (book_id,) in bks:
+            books.append(book_id)
+        self.dirtied(books, commit=commit)
+
     def get_tags_with_ids(self):
         result = self.conn.get('SELECT id,name FROM tags')
         if not result:
@@ -1460,6 +1489,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # there is a change of case
             self.conn.execute('''UPDATE tags SET name=?
                                  WHERE id=?''', (new_name, old_id))
+            self.dirty_books_referencing('tags', new_id, commit=False)
+            new_id = old_id
         else:
             # It is possible that by renaming a tag, the tag will appear
             # twice on a book. This will throw an integrity error, aborting
@@ -1477,9 +1508,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                  WHERE tag=?''',(new_id, old_id,))
             # Get rid of the no-longer used publisher
             self.conn.execute('DELETE FROM tags WHERE id=?', (old_id,))
+        self.dirty_books_referencing('tags', new_id, commit=False)
         self.conn.commit()
 
     def delete_tag_using_id(self, id):
+        self.dirty_books_referencing('tags', id, commit=False)
         self.conn.execute('DELETE FROM books_tags_link WHERE tag=?', (id,))
         self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
         self.conn.commit()
@@ -1496,6 +1529,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     '''SELECT id from series
                        WHERE name=?''', (new_name,), all=False)
         if new_id is None or old_id == new_id:
+            new_id = old_id
             self.conn.execute('UPDATE series SET name=? WHERE id=?',
                               (new_name, old_id))
         else:
@@ -1519,15 +1553,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                      SET series_index=?
                                      WHERE id=?''',(index, book_id,))
                 index = index + 1
+        self.dirty_books_referencing('series', new_id, commit=False)
         self.conn.commit()
 
     def delete_series_using_id(self, id):
+        self.dirty_books_referencing('series', id, commit=False)
         books = self.conn.get('SELECT book from books_series_link WHERE series=?', (id,))
         self.conn.execute('DELETE FROM books_series_link WHERE series=?', (id,))
         self.conn.execute('DELETE FROM series WHERE id=?', (id,))
-        self.conn.commit()
         for (book_id,) in books:
             self.conn.execute('UPDATE books SET series_index=1.0 WHERE id=?', (book_id,))
+        self.conn.commit()
 
     def get_publishers_with_ids(self):
         result = self.conn.get('SELECT id,name FROM publishers')
@@ -1541,6 +1577,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     '''SELECT id from publishers
                        WHERE name=?''', (new_name,), all=False)
         if new_id is None or old_id == new_id:
+            new_id = old_id
             # New name doesn't exist. Simply change the old name
             self.conn.execute('UPDATE publishers SET name=? WHERE id=?', \
                               (new_name, old_id))
@@ -1551,9 +1588,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                  WHERE publisher=?''',(new_id, old_id,))
             # Get rid of the no-longer used publisher
             self.conn.execute('DELETE FROM publishers WHERE id=?', (old_id,))
+        self.dirty_books_referencing('publisher', new_id, commit=False)
         self.conn.commit()
 
     def delete_publisher_using_id(self, old_id):
+        self.dirty_books_referencing('publisher', id, commit=False)
         self.conn.execute('''DELETE FROM books_publishers_link
                              WHERE publisher=?''', (old_id,))
         self.conn.execute('DELETE FROM publishers WHERE id=?', (old_id,))
@@ -1634,6 +1673,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # Now delete the old author from the DB
             bks = self.conn.get('SELECT book FROM books_authors_link WHERE author=?', (old_id,))
             self.conn.execute('DELETE FROM authors WHERE id=?', (old_id,))
+        self.dirtied(books, commit=False)
         self.conn.commit()
         # the authors are now changed, either by changing the author's name
         # or replacing the author in the list. Now must fix up the books.
