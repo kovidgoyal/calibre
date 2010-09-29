@@ -169,7 +169,6 @@ class MyBlockingBusy(QDialog):
             self.current_index = len(self.ids)
         elif self.current_phase == 4:
             self.s_r_func(id)
-            self.current_index = len(self.ids)
         # do the next one
         self.current_index += 1
         self.do_one_signal.emit()
