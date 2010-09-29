@@ -57,6 +57,10 @@ class SchedulerDialog(QDialog, Ui_Dialog):
 
         self.old_news.setValue(gconf['oldest_news'])
 
+    def keyPressEvent(self, ev):
+        if ev.key() not in (Qt.Key_Enter, Qt.Key_Return):
+            return QDialog.keyPressEvent(self, ev)
+
     def break_cycles(self):
         self.disconnect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),
                 self.search_done)
