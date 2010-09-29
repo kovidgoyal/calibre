@@ -19,6 +19,7 @@ from calibre import prints
 from calibre.constants import DEBUG
 
 class Worker(Thread):
+    'Cover downloader'
 
     def __init__(self):
         Thread.__init__(self)
@@ -88,7 +89,7 @@ class DownloadMetadata(Thread):
                 if mi.isbn:
                     args['isbn'] = mi.isbn
                 else:
-                    if not mi.title or mi.title == _('Unknown'):
+                    if mi.is_null('title'):
                         self.failures[id] = \
                                 (str(id), _('Book has neither title nor ISBN'))
                         continue
