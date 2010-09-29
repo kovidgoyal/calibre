@@ -1,3 +1,4 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -251,6 +252,9 @@ class OutputProfile(Plugin):
     #: The character used to represent a star in ratings
     ratings_char = u'*'
 
+    #: Unsupported unicode characters to be replaced during preprocessing
+    unsupported_unicode_chars = []
+
     @classmethod
     def tags_to_string(cls, tags):
         return escape(', '.join(tags))
@@ -422,6 +426,8 @@ class SonyReaderOutput(OutputProfile):
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+    unsupported_unicode_chars = [u'\u201f', u'\u201b']
+
 
 class KoboReaderOutput(OutputProfile):
 
