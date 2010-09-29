@@ -142,12 +142,13 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                             _('Append to field'),
                         ]
 
-    def __init__(self, window, rows, db):
+    def __init__(self, window, rows, model):
         QDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
         self.setupUi(self)
-        self.db = db
-        self.ids = [db.id(r) for r in rows]
+        self.model = model
+        self.db = model.db
+        self.ids = [self.db.id(r) for r in rows]
         self.box_title.setText('<p>' +
                 _('Editing meta information for <b>%d books</b>') %
                 len(rows))
@@ -170,7 +171,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.tag_editor_button.clicked.connect(self.tag_editor)
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
 
-        if len(db.custom_field_keys(include_composites=False)) == 0:
+        if len(self.db.custom_field_keys(include_composites=False)) == 0:
             self.central_widget.removeTab(1)
         else:
             self.create_custom_column_editors()
@@ -617,8 +618,15 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.worker = Worker(args, self.db, self.ids,
                 getattr(self, 'custom_column_widgets', []),
                 Dispatcher(bb.accept, parent=bb))
-        self.worker.start()
-        bb.exec_()
+
+        # The metadata backup thread causes database commits
+        # which can slow down bulk editing of large numbers of books
+        self.model.stop_metadata_backup()
+        try:
+            self.worker.start()
+            bb.exec_()
+        finally:
+            self.model.start_metadata_backup()
 
         if self.worker.error is not None:
             return error_dialog(self, _('Failed'),

@@ -99,4 +99,30 @@ class MIBUK(USBMS):
     VENDOR_NAME      = 'LINUX'
     WINDOWS_MAIN_MEM = 'WOLDERMIBUK'
 
+class JETBOOK_MINI(USBMS):
+
+    '''
+    ['0x4b8',
+  '0x507',
+  '0x100',
+  'ECTACO',
+  'ECTACO ATA/ATAPI Bridge (Bulk-Only)',
+  'Rev.0.20']
+    '''
+    FORMATS     = ['fb2', 'txt']
+
+    gui_name = 'JetBook Mini'
+    name = 'JetBook Mini Device Interface'
+    description    = _('Communicate with the JetBook Mini reader.')
+    author         = 'Kovid Goyal'
+
+    VENDOR_ID = [0x4b8]
+    PRODUCT_ID = [0x507]
+    BCD = [0x100]
+    VENDOR_NAME      = 'ECTACO'
+    WINDOWS_MAIN_MEM = '' # Matches PROD_
+    MAIN_MEMORY_VOLUME_LABEL  = 'Jetbook Mini'
+
+    SUPPORTS_SUB_DIRS = True
+
 

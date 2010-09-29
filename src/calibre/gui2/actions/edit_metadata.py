@@ -184,7 +184,7 @@ class EditMetadataAction(InterfaceAction):
         self.gui.tags_view.blockSignals(True)
         try:
             changed = MetadataBulkDialog(self.gui, rows,
-                self.gui.library_view.model().db).changed
+                self.gui.library_view.model()).changed
         finally:
             self.gui.tags_view.blockSignals(False)
         if changed:

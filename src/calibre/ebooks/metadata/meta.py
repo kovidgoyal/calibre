@@ -181,7 +181,7 @@ def metadata_from_filename(name, pat=None):
             mi.isbn = si
         except (IndexError, ValueError):
             pass
-    if not mi.title:
+    if mi.is_null('title'):
         mi.title = name
     return mi
 

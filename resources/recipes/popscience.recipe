@@ -1,5 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import re
+import re
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     title = 'Popular Science'
