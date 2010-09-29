@@ -308,7 +308,7 @@ class Metadata(object):
                 val = composite_formatter.safe_format\
                     (src, other, 'PLUGBOARD TEMPLATE ERROR', other)
                 dfm = self.metadata_for_field(attrs[src])
-                if dfm['is_multiple']:
+                if dfm and dfm['is_multiple']:
                     self.set(attrs[src],
                         [f.strip() for f in val.split(',') if f.strip()])
                 else:

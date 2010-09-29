@@ -13,6 +13,7 @@ from calibre.gui2.preferences.plugboard_ui import Ui_Form
 from calibre.customize.ui import metadata_writers, device_plugins
 from calibre.library.save_to_disk import plugboard_any_format_value, \
                         plugboard_any_device_value, plugboard_save_to_disk_value
+from calibre.utils.formatter import validation_formatter
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -62,12 +63,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.source_fields.append(f)
         self.source_fields.sort(cmp=field_cmp)
 
-        self.dest_fields = ['', 'authors', 'author_sort', 'publisher',
-                            'tags', 'title']
+        self.dest_fields = ['',
+                            'authors', 'author_sort', 'language', 'publisher',
+                            'tags', 'title', 'title_sort']
 
         self.source_widgets = []
         self.dest_widgets = []
-        for i in range(0, 10):
+        for i in range(0, len(self.dest_fields)-1):
             w = QtGui.QLineEdit(self)
             self.source_widgets.append(w)
             self.fields_layout.addWidget(w, 5+i, 0, 1, 1)
@@ -220,7 +222,20 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if s:
                 d = self.dest_widgets[i].currentIndex()
                 if d != 0:
+                    try:
+                        validation_formatter.validate(s)
+                    except Exception, err:
+                        error_dialog(self, _('Invalid template'),
+                                '<p>'+_('The template %s is invalid:')%s + \
+                                '<br>'+str(err), show=True)
+                        return
                     pb[s] = self.dest_fields[d]
+                else:
+                    error_dialog(self, _('Invalid destination'),
+                            '<p>'+_('The destination field cannot be blank'),
+                            show=True)
+                    return
+
         if len(pb) == 0:
             if self.current_format in self.current_plugboards:
                 fpb = self.current_plugboards[self.current_format]
