@@ -217,7 +217,6 @@ class ChooseLibraryAction(InterfaceAction):
     def backup_status(self, location):
         dirty_text = 'no'
         try:
-            print 'here'
             dirty_text = \
                   unicode(self.gui.library_view.model().db.dirty_queue_length())
         except:
