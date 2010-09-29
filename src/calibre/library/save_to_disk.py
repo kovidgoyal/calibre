@@ -106,17 +106,30 @@ class SafeFormat(TemplateFormatter):
     '''
     Provides a format function that substitutes '' for any missing value
     '''
+
+    composite_values = {}
+
     def get_value(self, key, args, kwargs):
         try:
             b = self.book.get_user_metadata(key, False)
             key = key.lower()
             if b is not None and b['datatype'] == 'composite':
-                return self.vformat(b['display']['composite_template'], [], kwargs)
+                if key in self.composite_values:
+                    return self.composite_values[key]
+                self.composite_values[key] = 'RECURSIVE_COMPOSITE FIELD (S2D) ' + key
+                self.composite_values[key] = \
+                    self.vformat(b['display']['composite_template'], [], kwargs)
+                return self.composite_values[key]
             if kwargs[key]:
                 return self.sanitize(kwargs[key.lower()])
             return ''
         except:
             return ''
+
+    def safe_format(self, fmt, kwargs, error_value, book, sanitize=None):
+        self.composite_values = {}
+        return TemplateFormatter.safe_format(self, fmt, kwargs, error_value,
+                                             book, sanitize)
 
 safe_formatter = SafeFormat()
 
