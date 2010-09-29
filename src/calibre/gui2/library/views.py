@@ -9,7 +9,7 @@ import os
 from functools import partial
 
 from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
-    QModelIndex, QIcon
+    QModelIndex, QIcon, QItemSelection
 
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
@@ -488,29 +488,29 @@ class BooksView(QTableView): # {{{
         Select rows identified by identifiers. identifiers can be a set of ids,
         row numbers or QModelIndexes.
         '''
-        selmode = self.selectionMode()
-        self.setSelectionMode(QAbstractItemView.MultiSelection)
-        try:
-            rows = set([x.row() if hasattr(x, 'row') else x for x in
-                identifiers])
-            if using_ids:
-                rows = set([])
-                identifiers = set(identifiers)
-                m = self.model()
-                for row in range(m.rowCount(QModelIndex())):
-                    if m.id(row) in identifiers:
-                        rows.add(row)
-            if rows:
-                row = list(sorted(rows))[0]
-                if change_current:
-                    self.set_current_row(row, select=False)
-                if scroll:
-                    self.scroll_to_row(row)
-            self.clearSelection()
-            for r in rows:
-                self.selectRow(r)
-        finally:
-            self.setSelectionMode(selmode)
+        rows = set([x.row() if hasattr(x, 'row') else x for x in
+            identifiers])
+        if using_ids:
+            rows = set([])
+            identifiers = set(identifiers)
+            m = self.model()
+            for row in xrange(m.rowCount(QModelIndex())):
+                if m.id(row) in identifiers:
+                    rows.add(row)
+        rows = list(sorted(rows))
+        if rows:
+            row = rows[0]
+            if change_current:
+                self.set_current_row(row, select=False)
+            if scroll:
+                self.scroll_to_row(row)
+        sm = self.selectionModel()
+        sel = QItemSelection()
+        m = self.model()
+        max_col = m.columnCount(QModelIndex()) - 1
+        for row in rows:
+            sel.select(m.index(row, 0), m.index(row, max_col))
+        sm.select(sel, sm.ClearAndSelect)
 
     def close(self):
         self._model.close()
