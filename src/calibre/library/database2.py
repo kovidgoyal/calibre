@@ -1484,7 +1484,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # there is a change of case
             self.conn.execute('''UPDATE tags SET name=?
                                  WHERE id=?''', (new_name, old_id))
-            self.dirty_books_referencing('tags', new_id, commit=False)
             new_id = old_id
         else:
             # It is possible that by renaming a tag, the tag will appear
