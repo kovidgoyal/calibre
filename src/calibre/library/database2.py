@@ -528,11 +528,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             try:
                 f = open(path, 'rb')
             except (IOError, OSError):
-                try:
-                    f.close()
-                    print 'cover exception left file open!', path
-                except:
-                    pass
                 time.sleep(0.2)
                 f = open(path, 'rb')
             if as_image:

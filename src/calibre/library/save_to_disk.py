@@ -17,7 +17,7 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre import strftime, prints
+from calibre import strftime
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
@@ -259,7 +259,7 @@ def save_book_to_disk(id, db, root, opts, length):
                 cpb = cpb[dev_name]
             else:
                 cpb = None
-        prints('Using plugboard:', fmt, cpb)
+        #prints('Using plugboard:', fmt, cpb)
         data = db.format(id, fmt, index_is_id=True)
         if data is None:
             continue

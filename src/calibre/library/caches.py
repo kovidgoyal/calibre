@@ -151,17 +151,26 @@ class CoverCache(Thread): # {{{
                         ids.add(id_)
                 except Empty:
                     pass
+                except:
+                    # Happens during shutdown
+                    break
             except Empty:
                 continue
             except:
                 #Happens during interpreter shutdown
+                break
+            if not self.keep_running:
                 break
             for id_ in ids:
                 time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
                 try:
                     img = self._image_for_id(id_)
                 except:
-                    traceback.print_exc()
+                    try:
+                        traceback.print_exc()
+                    except:
+                        # happens during shutdown
+                        break
                     continue
                 try:
                     with self.lock:

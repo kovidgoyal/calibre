@@ -82,8 +82,9 @@ class MyBlockingBusy(QDialog):
                     self.db.commit()
                     return self.accept()
             id = self.ids[self.current_index]
+            percent = int((self.current_index*100)/float(len(self.ids)))
             self.msg.setText(self.msg_text.format(self.phases[self.current_phase],
-                                        (self.current_index*100)/len(self.ids)))
+                                        percent))
             self.do_one(id)
         except Exception, err:
             import traceback
@@ -168,6 +169,7 @@ class MyBlockingBusy(QDialog):
             self.current_index = len(self.ids)
         elif self.current_phase == 4:
             self.s_r_func(id)
+            self.current_index = len(self.ids)
         # do the next one
         self.current_index += 1
         self.do_one_signal.emit()
@@ -658,12 +660,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, clear_series)
 
-#        bb = BlockingBusy(_('Applying changes to %d books. This may take a while.')
-#                %len(self.ids), parent=self)
-#        self.worker = Worker(args, self.db, self.ids,
-#                getattr(self, 'custom_column_widgets', []),
-#                Dispatcher(bb.accept, parent=bb))
-
         bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
                 %len(self.ids), args, self.db, self.ids,
                 getattr(self, 'custom_column_widgets', []),
@@ -673,7 +669,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         # which can slow down bulk editing of large numbers of books
         self.model.stop_metadata_backup()
         try:
-#            self.worker.start()
             bb.exec_()
         finally:
             self.model.start_metadata_backup()
