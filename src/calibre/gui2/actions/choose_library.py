@@ -14,7 +14,7 @@ from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.utils.config import prefs
 from calibre.gui2 import gprefs, warning_dialog, Dispatcher, error_dialog, \
-    question_dialog
+    question_dialog, info_dialog
 from calibre.gui2.actions import InterfaceAction
 
 class LibraryUsageStats(object):
@@ -115,6 +115,14 @@ class ChooseLibraryAction(InterfaceAction):
                     type=Qt.QueuedConnection)
             self.choose_menu.addAction(ac)
 
+        self.rename_separator = self.choose_menu.addSeparator()
+
+        self.create_action(spec=(_('Library backup status...'), 'lt.png', None,
+            None), attr='action_backup_status')
+        self.action_backup_status.triggered.connect(self.backup_status,
+                type=Qt.QueuedConnection)
+        self.choose_menu.addAction(self.action_backup_status)
+
     def library_name(self):
         db = self.gui.library_view.model().db
         path = db.library_path
@@ -206,6 +214,16 @@ class ChooseLibraryAction(InterfaceAction):
         self.stats.remove(location)
         self.build_menus()
 
+    def backup_status(self, location):
+        dirty_text = 'no'
+        try:
+            dirty_text = \
+                  unicode(self.gui.library_view.model().db.dirty_queue_length())
+        except:
+            dirty_text = _('none')
+        info_dialog(self.gui, _('Backup status'), '<p>'+
+                _('Book metadata files remaining to be written: %s') % dirty_text,
+                show=True)
 
     def switch_requested(self, location):
         if not self.change_library_allowed():

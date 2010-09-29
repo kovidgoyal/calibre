@@ -138,25 +138,46 @@ class CoverCache(Thread): # {{{
     def run(self):
         while self.keep_running:
             try:
-                time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
+                # The GUI puts the same ID into the queue many times. The code
+                # below emptys the queue, building a set of unique values. When
+                # the queue is empty, do the work
+                ids = set()
                 id_ = self.load_queue.get(True, 2)
+                ids.add(id_)
+                try:
+                    while True:
+                        # Give the gui some time to put values into the queue
+                        id_ = self.load_queue.get(True, 0.5)
+                        ids.add(id_)
+                except Empty:
+                    pass
+                except:
+                    # Happens during shutdown
+                    break
             except Empty:
                 continue
             except:
                 #Happens during interpreter shutdown
                 break
-            try:
-                img = self._image_for_id(id_)
-            except:
-                import traceback
-                traceback.print_exc()
-                continue
-            try:
-                with self.lock:
-                    self.cache[id_] = img
-            except:
-                # Happens during interpreter shutdown
+            if not self.keep_running:
                 break
+            for id_ in ids:
+                time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
+                try:
+                    img = self._image_for_id(id_)
+                except:
+                    try:
+                        traceback.print_exc()
+                    except:
+                        # happens during shutdown
+                        break
+                    continue
+                try:
+                    with self.lock:
+                        self.cache[id_] = img
+                except:
+                    # Happens during interpreter shutdown
+                    break
 
     def set_cache(self, ids):
         with self.lock:
@@ -660,7 +681,7 @@ class ResultCache(SearchQueryParser): # {{{
             if len(self.composites) > 0:
                 mi = db.get_metadata(id, index_is_id=True)
                 for k,c in self.composites:
-                    self._data[id][c] = mi.format_field(k)[1]
+                    self._data[id][c] = mi.get(k)
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -690,7 +711,7 @@ class ResultCache(SearchQueryParser): # {{{
                 if len(self.composites) > 0:
                     mi = db.get_metadata(item[0], index_is_id=True)
                     for k,c in self.composites:
-                        item[c] = mi.format_field(k)[1]
+                        item[c] = mi.get(k)
 
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
@@ -779,7 +800,7 @@ class SortKeyGenerator(object):
                     sidx = record[sidx_fm['rec_index']]
                     val = (val, sidx)
 
-            elif dt in ('text', 'comments'):
+            elif dt in ('text', 'comments', 'composite'):
                 if val is None:
                     val = ''
                 val = val.lower()

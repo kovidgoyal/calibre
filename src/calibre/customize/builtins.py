@@ -797,6 +797,17 @@ class Sending(PreferencesPlugin):
     description = _('Control how calibre transfers files to your '
             'ebook reader')
 
+class Plugboard(PreferencesPlugin):
+    name = 'Plugboard'
+    icon = I('plugboard.png')
+    gui_name = _('Metadata plugboards')
+    category = 'Import/Export'
+    gui_category = _('Import/Export')
+    category_order = 3
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.plugboard'
+    description = _('Change metadata fields before saving/sending')
+
 class Email(PreferencesPlugin):
     name = 'Email'
     icon = I('mail.png')
@@ -857,8 +868,8 @@ class Misc(PreferencesPlugin):
     description = _('Miscellaneous advanced configuration')
 
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
-        CommonOptions, OutputOptions, Adding, Saving, Sending, Email, Server,
-        Plugins, Tweaks, Misc]
+        CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
+        Email, Server, Plugins, Tweaks, Misc]
 
 #}}}
 

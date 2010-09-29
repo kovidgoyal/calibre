@@ -3,42 +3,110 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to edit metadata in bulk'''
 
-from threading import Thread
-import re, string
+import re
 
-from PyQt4.Qt import Qt, QDialog, QGridLayout
+from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
+                     pyqtSignal
 from PyQt4 import QtGui
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.gui2.custom_column_widgets import populate_metadata_page
-from calibre.gui2.dialogs.progress import BlockingBusy
-from calibre.gui2 import error_dialog, Dispatcher
+from calibre.gui2 import error_dialog
+from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic
 
-class Worker(Thread):
+class MyBlockingBusy(QDialog):
 
-    def __init__(self, args, db, ids, cc_widgets, callback):
-        Thread.__init__(self)
+    do_one_signal = pyqtSignal()
+
+    phases = ['',
+              _('Title/Author'),
+              _('Standard metadata'),
+              _('Custom metadata'),
+              _('Search/Replace'),
+    ]
+
+    def __init__(self, msg, args, db, ids, cc_widgets, s_r_func,
+                 parent=None, window_title=_('Working')):
+        QDialog.__init__(self, parent)
+
+        self._layout = QVBoxLayout()
+        self.setLayout(self._layout)
+        self.msg_text = msg
+        self.msg = QLabel(msg+'        ') # Ensure dialog is wide enough
+        #self.msg.setWordWrap(True)
+        self.font = QFont()
+        self.font.setPointSize(self.font.pointSize() + 8)
+        self.msg.setFont(self.font)
+        self.pi = ProgressIndicator(self)
+        self.pi.setDisplaySize(100)
+        self._layout.addWidget(self.pi, 0, Qt.AlignHCenter)
+        self._layout.addSpacing(15)
+        self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)
+        self.setWindowTitle(window_title)
+        self.resize(self.sizeHint())
+        self.start()
+
         self.args = args
         self.db = db
         self.ids = ids
         self.error = None
-        self.callback = callback
         self.cc_widgets = cc_widgets
+        self.s_r_func = s_r_func
+        self.do_one_signal.connect(self.do_one_safe, Qt.QueuedConnection)
 
-    def doit(self):
+    def start(self):
+        self.pi.startAnimation()
+
+    def stop(self):
+        self.pi.stopAnimation()
+
+    def accept(self):
+        self.stop()
+        return QDialog.accept(self)
+
+    def exec_(self):
+        self.current_index = 0
+        self.current_phase = 1
+        self.do_one_signal.emit()
+        return QDialog.exec_(self)
+
+    def do_one_safe(self):
+        try:
+            if self.current_index >= len(self.ids):
+                self.current_phase += 1
+                self.current_index = 0
+                if self.current_phase > 4:
+                    self.db.commit()
+                    return self.accept()
+            id = self.ids[self.current_index]
+            percent = int((self.current_index*100)/float(len(self.ids)))
+            self.msg.setText(self.msg_text.format(self.phases[self.current_phase],
+                                        percent))
+            self.do_one(id)
+        except Exception, err:
+            import traceback
+            try:
+                err = unicode(err)
+            except:
+                err = repr(err)
+            self.error = (err, traceback.format_exc())
+            return self.accept()
+
+    def do_one(self, id):
         remove, add, au, aus, do_aus, rating, pub, do_series, \
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
             series_start_value, do_title_case, clear_series = self.args
 
+
         # first loop: do author and title. These will commit at the end of each
         # operation, because each operation modifies the file system. We want to
         # try hard to keep the DB and the file system in sync, even in the face
         # of exceptions or forced exits.
-        for id in self.ids:
+        if self.current_phase == 1:
             title_set = False
             if do_swap_ta:
                 title = self.db.title(id, index_is_id=True)
@@ -58,9 +126,8 @@ class Worker(Thread):
                 self.db.set_title(id, title.title(), notify=False)
             if au:
                 self.db.set_authors(id, string_to_authors(au), notify=False)
-
-        # All of these just affect the DB, so we can tolerate a total rollback
-        for id in self.ids:
+        elif self.current_phase == 2:
+            # All of these just affect the DB, so we can tolerate a total rollback
             if do_auto_author:
                 x = self.db.author_sort_from_book(id, index_is_id=True)
                 if x:
@@ -93,37 +160,20 @@ class Worker(Thread):
 
             if do_remove_conv:
                 self.db.delete_conversion_options(id, 'PIPE', commit=False)
-        self.db.commit()
+        elif self.current_phase == 3:
+            # both of these are fast enough to just do them all
+            for w in self.cc_widgets:
+                w.commit(self.ids)
+            self.db.bulk_modify_tags(self.ids, add=add, remove=remove,
+                                         notify=False)
+            self.current_index = len(self.ids)
+        elif self.current_phase == 4:
+            self.s_r_func(id)
+            self.current_index = len(self.ids)
+        # do the next one
+        self.current_index += 1
+        self.do_one_signal.emit()
 
-        for w in self.cc_widgets:
-            w.commit(self.ids)
-        self.db.bulk_modify_tags(self.ids, add=add, remove=remove,
-                notify=False)
-
-    def run(self):
-        try:
-            self.doit()
-        except Exception, err:
-            import traceback
-            try:
-                err = unicode(err)
-            except:
-                err = repr(err)
-            self.error = (err, traceback.format_exc())
-
-        self.callback()
-
-class SafeFormat(string.Formatter):
-    '''
-    Provides a format function that substitutes '' for any missing value
-    '''
-    def get_value(self, key, args, vals):
-        v = vals.get(key, None)
-        if v is None:
-            return ''
-        if isinstance(v, (tuple, list)):
-            v = ','.join(v)
-        return v
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
@@ -452,7 +502,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 self.s_r_set_colors()
                 break
 
-    def do_search_replace(self):
+    def do_search_replace(self, id):
         source = unicode(self.search_field.currentText())
         if not source or not self.s_r_obj:
             return
@@ -461,48 +511,45 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             dest = source
         dfm = self.db.field_metadata[dest]
 
-        for id in self.ids:
-            mi = self.db.get_metadata(id, index_is_id=True,)
-            val = mi.get(source)
-            if val is None:
-                continue
-            val = self.s_r_do_regexp(mi)
-            val = self.s_r_do_destination(mi, val)
-            if dfm['is_multiple']:
-                if dfm['is_custom']:
-                    # The standard tags and authors values want to be lists.
-                    # All custom columns are to be strings
-                    val = dfm['is_multiple'].join(val)
-                if dest == 'authors' and len(val) == 0:
-                    error_dialog(self, _('Search/replace invalid'),
-                                 _('Authors cannot be set to the empty string. '
-                                   'Book title %s not processed')%mi.title,
-                                 show=True)
-                    continue
-            else:
-                val = self.s_r_replace_mode_separator().join(val)
-                if dest == 'title' and len(val) == 0:
-                    error_dialog(self, _('Search/replace invalid'),
-                                 _('Title cannot be set to the empty string. '
-                                   'Book title %s not processed')%mi.title,
-                                 show=True)
-                    continue
-
+        mi = self.db.get_metadata(id, index_is_id=True,)
+        val = mi.get(source)
+        if val is None:
+            return
+        val = self.s_r_do_regexp(mi)
+        val = self.s_r_do_destination(mi, val)
+        if dfm['is_multiple']:
             if dfm['is_custom']:
-                extra = self.db.get_custom_extra(id, label=dfm['label'], index_is_id=True)
-                self.db.set_custom(id, val, label=dfm['label'], extra=extra,
-                                   commit=False)
+                # The standard tags and authors values want to be lists.
+                # All custom columns are to be strings
+                val = dfm['is_multiple'].join(val)
+            if dest == 'authors' and len(val) == 0:
+                error_dialog(self, _('Search/replace invalid'),
+                             _('Authors cannot be set to the empty string. '
+                               'Book title %s not processed')%mi.title,
+                             show=True)
+                return
+        else:
+            val = self.s_r_replace_mode_separator().join(val)
+            if dest == 'title' and len(val) == 0:
+                error_dialog(self, _('Search/replace invalid'),
+                             _('Title cannot be set to the empty string. '
+                               'Book title %s not processed')%mi.title,
+                             show=True)
+                return
+
+        if dfm['is_custom']:
+            extra = self.db.get_custom_extra(id, label=dfm['label'], index_is_id=True)
+            self.db.set_custom(id, val, label=dfm['label'], extra=extra,
+                               commit=False)
+        else:
+            if dest == 'comments':
+                setter = self.db.set_comment
             else:
-                if dest == 'comments':
-                    setter = self.db.set_comment
-                else:
-                    setter = getattr(self.db, 'set_'+dest)
-                if dest in ['title', 'authors']:
-                    setter(id, val, notify=False)
-                else:
-                    setter(id, val, notify=False, commit=False)
-        self.db.commit()
-        dynamic['s_r_search_mode'] = self.search_mode.currentIndex()
+                setter = getattr(self.db, 'set_'+dest)
+            if dest in ['title', 'authors']:
+                setter(id, val, notify=False)
+            else:
+                setter(id, val, notify=False, commit=False)
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
@@ -525,11 +572,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def initalize_authors(self):
         all_authors = self.db.all_authors()
-        all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        all_authors.sort(cmp=lambda x, y : cmp(x[1].lower(), y[1].lower()))
 
         for i in all_authors:
             id, name = i
-            name = authors_to_string([name.strip().replace('|', ',') for n in name.split(',')])
+            name = name.strip().replace('|', ',')
             self.authors.addItem(name)
         self.authors.setEditText('')
 
@@ -613,28 +660,25 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, clear_series)
 
-        bb = BlockingBusy(_('Applying changes to %d books. This may take a while.')
-                %len(self.ids), parent=self)
-        self.worker = Worker(args, self.db, self.ids,
+        bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
+                %len(self.ids), args, self.db, self.ids,
                 getattr(self, 'custom_column_widgets', []),
-                Dispatcher(bb.accept, parent=bb))
+                self.do_search_replace, parent=self)
 
         # The metadata backup thread causes database commits
         # which can slow down bulk editing of large numbers of books
         self.model.stop_metadata_backup()
         try:
-            self.worker.start()
             bb.exec_()
         finally:
             self.model.start_metadata_backup()
 
-        if self.worker.error is not None:
+        if bb.error is not None:
             return error_dialog(self, _('Failed'),
-                    self.worker.error[0], det_msg=self.worker.error[1],
+                    bb.error[0], det_msg=bb.error[1],
                     show=True)
 
-        self.do_search_replace()
-
+        dynamic['s_r_search_mode'] = self.search_mode.currentIndex()
         self.db.clean()
         return QDialog.accept(self)
 

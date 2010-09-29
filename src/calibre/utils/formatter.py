@@ -11,6 +11,10 @@ class TemplateFormatter(string.Formatter):
     Provides a format function that substitutes '' for any missing value
     '''
 
+    # Dict to do recursion detection. It is up the the individual get_value
+    # method to use it. It is cleared when starting to format a template
+    composite_values = {}
+
     def __init__(self):
         string.Formatter.__init__(self)
         self.book = None
@@ -114,6 +118,7 @@ class TemplateFormatter(string.Formatter):
         self.kwargs = kwargs
         self.book = book
         self.sanitize = sanitize
+        self.composite_values = {}
         try:
             ans = self.vformat(fmt, [], kwargs).strip()
         except:

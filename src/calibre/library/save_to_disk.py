@@ -19,6 +19,11 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
 from calibre import strftime
 
+plugboard_any_device_value = 'any device'
+plugboard_any_format_value = 'any format'
+plugboard_save_to_disk_value = 'save_to_disk'
+
+
 DEFAULT_TEMPLATE = '{author_sort}/{title}/{title} - {authors}'
 DEFAULT_SEND_TEMPLATE = '{author_sort}/{title} - {authors}'
 
@@ -107,8 +112,6 @@ class SafeFormat(TemplateFormatter):
     Provides a format function that substitutes '' for any missing value
     '''
 
-    composite_values = {}
-
     def get_value(self, key, args, kwargs):
         try:
             b = self.book.get_user_metadata(key, False)
@@ -125,11 +128,6 @@ class SafeFormat(TemplateFormatter):
             return ''
         except:
             return ''
-
-    def safe_format(self, fmt, kwargs, error_value, book, sanitize=None):
-        self.composite_values = {}
-        return TemplateFormatter.safe_format(self, fmt, kwargs, error_value,
-                                             book, sanitize)
 
 safe_formatter = SafeFormat()
 
@@ -245,6 +243,23 @@ def save_book_to_disk(id, db, root, opts, length):
 
     written = False
     for fmt in formats:
+        global plugboard_save_to_disk_value, plugboard_any_format_value
+        dev_name = plugboard_save_to_disk_value
+        plugboards = db.prefs.get('plugboards', {})
+        cpb = None
+        if fmt in plugboards:
+            cpb = plugboards[fmt]
+            if dev_name in cpb:
+                cpb = cpb[dev_name]
+            else:
+                cpb = None
+        if cpb is None and plugboard_any_format_value in plugboards:
+            cpb = plugboards[plugboard_any_format_value]
+            if dev_name in cpb:
+                cpb = cpb[dev_name]
+            else:
+                cpb = None
+        #prints('Using plugboard:', fmt, cpb)
         data = db.format(id, fmt, index_is_id=True)
         if data is None:
             continue
@@ -255,7 +270,12 @@ def save_book_to_disk(id, db, root, opts, length):
             stream.write(data)
             stream.seek(0)
             try:
-                set_metadata(stream, mi, fmt)
+                if cpb:
+                    newmi = mi.deepcopy()
+                    newmi.template_to_attribute(mi, cpb)
+                else:
+                    newmi = mi
+                set_metadata(stream, newmi, fmt)
             except:
                 traceback.print_exc()
             stream.seek(0)
