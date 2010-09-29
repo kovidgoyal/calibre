@@ -84,7 +84,8 @@ class EditMetadataAction(InterfaceAction):
 
     def do_download_metadata(self, ids, covers=True, set_metadata=True,
             set_social_metadata=None):
-        db = self.gui.library_view.model().db
+        m = self.gui.library_view.model()
+        db = m.db
         if set_social_metadata is None:
             get_social_metadata = config['get_social_metadata']
         else:
@@ -93,18 +94,22 @@ class EditMetadataAction(InterfaceAction):
         self._download_book_metadata = DownloadMetadata(db, ids,
                 get_covers=covers, set_metadata=set_metadata,
                 get_social_metadata=get_social_metadata)
-        self._download_book_metadata.start()
-        if set_social_metadata is not None and set_social_metadata:
-            x = _('social metadata')
-        else:
-            x = _('covers') if covers and not set_metadata else _('metadata')
-        self._book_metadata_download_check = QTimer(self.gui)
-        self._book_metadata_download_check.timeout.connect(self.book_metadata_download_check,
-                type=Qt.QueuedConnection)
-        self._book_metadata_download_check.start(100)
-        self._bb_dialog = BlockingBusy(_('Downloading %s for %d book(s)')%(x,
-            len(ids)), parent=self.gui)
-        self._bb_dialog.exec_()
+        m.stop_metadata_backup()
+        try:
+            self._download_book_metadata.start()
+            if set_social_metadata is not None and set_social_metadata:
+                x = _('social metadata')
+            else:
+                x = _('covers') if covers and not set_metadata else _('metadata')
+            self._book_metadata_download_check = QTimer(self.gui)
+            self._book_metadata_download_check.timeout.connect(self.book_metadata_download_check,
+                    type=Qt.QueuedConnection)
+            self._book_metadata_download_check.start(100)
+            self._bb_dialog = BlockingBusy(_('Downloading %s for %d book(s)')%(x,
+                len(ids)), parent=self.gui)
+            self._bb_dialog.exec_()
+        finally:
+            m.start_metadata_backup()
 
     def book_metadata_download_check(self):
         if self._download_book_metadata.is_alive():

@@ -47,10 +47,10 @@ class ISBNDBMetadata(Metadata):
     def __init__(self, book):
         Metadata.__init__(self, None, [])
 
-        self.isbn = book.get('isbn13', book.get('isbn'))
-        self.title = book.find('titlelong').string
+        self.isbn = unicode(book.get('isbn13', book.get('isbn')))
+        self.title = unicode(book.find('titlelong').string)
         if not self.title:
-            self.title = book.find('title').string
+            self.title = unicode(book.find('title').string)
         self.title = unicode(self.title).strip()
         au = unicode(book.find('authorstext').string).strip()
         temp = au.split(',')
@@ -65,11 +65,11 @@ class ISBNDBMetadata(Metadata):
                 self.author_sort = None
         except:
             pass
-        self.publisher = book.find('publishertext').string
+        self.publisher = unicode(book.find('publishertext').string)
 
         summ = book.find('summary')
         if summ and hasattr(summ, 'string') and summ.string:
-            self.comments = 'SUMMARY:\n'+summ.string
+            self.comments = 'SUMMARY:\n'+unicode(summ.string)
 
 
 def build_isbn(base_url, opts):
