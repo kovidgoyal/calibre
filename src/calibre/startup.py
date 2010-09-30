@@ -130,7 +130,7 @@ if not _run_once:
                 if random:
                     flags = os._O_RDWR | os._O_RANDOM
                 else:
-                    flags = os._WRONLY | os._O_SEQUENTIAL
+                    flags = os._O_WRONLY | os._O_SEQUENTIAL
                 flags |= os._O_TRUNC | os._O_CREAT
             if binary:
                 flags |= os._O_BINARY
