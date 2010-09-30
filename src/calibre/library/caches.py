@@ -101,12 +101,13 @@ class MetadataBackup(Thread): # {{{
                     prints('Failed to write backup metadata for id:', id_,
                             'again, giving up')
                     continue
+        self.in_limbo = None
 
     def flush(self):
         'Used during shutdown to ensure that a dirtied book is not missed'
         if self.in_limbo is not None:
             try:
-                self.set_dirtied([self.in_limbo])
+                self.db.dirtied([self.in_limbo])
             except:
                 traceback.print_exc()
 
