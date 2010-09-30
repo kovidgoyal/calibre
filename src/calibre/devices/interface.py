@@ -37,7 +37,7 @@ class DevicePlugin(Plugin):
     THUMBNAIL_HEIGHT = 68
 
     #: Whether the metadata on books can be set via the GUI.
-    CAN_SET_METADATA = True
+    CAN_SET_METADATA = ['title', 'authors', 'collections']
 
     #: Path separator for paths to books on device
     path_sep = os.sep
@@ -316,7 +316,7 @@ class DevicePlugin(Plugin):
                       being uploaded to the device.
         :param names: A list of file names that the books should have
                       once uploaded to the device. len(names) == len(files)
-        :param metadata: If not None, it is a list of :class:`MetaInformation` objects.
+        :param metadata: If not None, it is a list of :class:`Metadata` objects.
                          The idea is to use the metadata to determine where on the device to
                          put the book. len(metadata) == len(files). Apart from the regular
                          cover (path to cover), there may also be a thumbnail attribute, which should
@@ -335,7 +335,7 @@ class DevicePlugin(Plugin):
         the device.
 
         :param locations: Result of a call to L{upload_books}
-        :param metadata: List of :class:`MetaInformation` objects, same as for
+        :param metadata: List of :class:`Metadata` objects, same as for
                          :meth:`upload_books`.
         :param booklists: A tuple containing the result of calls to
                           (:meth:`books(oncard=None)`,

@@ -80,8 +80,12 @@ def main():
     if isosx and 'CALIBRE_WORKER_ADDRESS' not in os.environ:
         # On some OS X computers launchd apparently tries to
         # launch the last run process from the bundle
+        # so launch the gui as usual
         from calibre.gui2.main import main as gui_main
         return gui_main(['calibre'])
+    if 'CALIBRE_LAUNCH_INTERPRETER' in os.environ:
+        from calibre.utils.pyconsole.interpreter import main
+        return main()
     address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
     resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT'])

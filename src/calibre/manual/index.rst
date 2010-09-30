@@ -33,7 +33,7 @@ Sections
    conversion
    metadata
    faq 
-   xpath
+   tutorials
    customize
    cli/cli-index
    develop

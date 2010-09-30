@@ -10,7 +10,8 @@ Command line interface to the calibre database.
 import sys, os, cStringIO, re
 from textwrap import TextWrapper
 
-from calibre import terminal_controller, preferred_encoding, prints
+from calibre import terminal_controller, preferred_encoding, prints, \
+    isbytestring
 from calibre.utils.config import OptionParser, prefs, tweaks
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
@@ -32,8 +33,9 @@ def send_message(msg=''):
         t.conn.send('refreshdb:'+msg)
         t.conn.close()
 
-
-
+def write_dirtied(db):
+    prints('Backing up metadata')
+    db.dump_metadata()
 
 def get_parser(usage):
     parser = OptionParser(usage)
@@ -259,6 +261,7 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
                     print >>sys.stderr, '\t', title+':'
                     print >>sys.stderr, '\t\t ', path
 
+        write_dirtied(db)
         send_message()
     finally:
         sys.stdout = orig
@@ -299,6 +302,7 @@ def do_add_empty(db, title, authors, isbn):
     if isbn:
         mi.isbn = isbn
     db.import_book(mi, [])
+    write_dirtied()
     send_message()
 
 def command_add(args, dbpath):
@@ -448,10 +452,11 @@ def command_show_metadata(args, dbpath):
     return 0
 
 def do_set_metadata(db, id, stream):
-    mi = OPF(stream)
+    mi = OPF(stream).to_book_metadata()
     db.set_metadata(id, mi)
     db.clean()
     do_show_metadata(db, id, False)
+    write_dirtied()
     send_message()
 
 def set_metadata_option_parser():
@@ -873,8 +878,60 @@ def command_saved_searches(args, dbpath):
 COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'show_metadata', 'set_metadata', 'export', 'catalog',
             'saved_searches', 'add_custom_column', 'custom_columns',
-            'remove_custom_column', 'set_custom')
+            'remove_custom_column', 'set_custom', 'restore_database')
 
+def restore_database_option_parser():
+    parser = get_parser(_(
+    '''
+    %prog restore_database [options]
+
+    Restore this database from the metadata stored in OPF
+    files in each directory of the calibre library. This is
+    useful if your metadata.db file has been corrupted.
+
+    WARNING: This completely regenrates your datbase. You will
+    lose stored per-book conversion settings and custom recipes.
+    '''))
+    return parser
+
+def command_restore_database(args, dbpath):
+    from calibre.library.restore import Restore
+    parser = saved_searches_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 0:
+        parser.print_help()
+        return 1
+
+    if opts.library_path is not None:
+        dbpath = opts.library_path
+
+    if isbytestring(dbpath):
+        dbpath = dbpath.decode(preferred_encoding)
+
+    class Progress(object):
+        def __init__(self): self.total = 1
+
+        def __call__(self, msg, step):
+            if msg is None:
+                self.total = float(step)
+            else:
+                prints(msg, '...', '%d%%'%int(100*(step/self.total)))
+    r = Restore(dbpath, progress_callback=Progress())
+    r.start()
+    r.join()
+
+    if r.tb is not None:
+        prints('Restoring database failed with error:')
+        prints(r.tb)
+    else:
+        prints('Restoring database succeeded')
+        prints('old database saved as', r.olddb)
+        if r.errors_occurred:
+            name = 'calibre_db_restore_report.txt'
+            open('calibre_db_restore_report.txt',
+                    'wb').write(r.report.encode('utf-8'))
+            prints('Some errors occurred. A detailed report was '
+                    'saved to', name)
 
 def option_parser():
     parser = OptionParser(_(

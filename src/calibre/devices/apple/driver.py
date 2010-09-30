@@ -13,7 +13,8 @@ from calibre.devices.errors import UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.ebooks.metadata import MetaInformation, authors_to_string
+from calibre.ebooks.metadata import authors_to_string, MetaInformation
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
 from calibre.utils.config import config_dir
@@ -871,7 +872,7 @@ class ITUNES(DriverBase):
         once uploaded to the device. len(names) == len(files)
         :return: A list of 3-element tuples. The list is meant to be passed
         to L{add_books_to_metadata}.
-        :metadata: If not None, it is a list of :class:`MetaInformation` objects.
+        :metadata: If not None, it is a list of :class:`Metadata` objects.
         The idea is to use the metadata to determine where on the device to
         put the book. len(metadata) == len(files). Apart from the regular
         cover (path to cover), there may also be a thumbnail attribute, which should
@@ -3008,14 +3009,14 @@ class BookList(list):
         '''
         return {}
 
-class Book(MetaInformation):
+class Book(Metadata):
     '''
     A simple class describing a book in the iTunes Books Library.
     - See ebooks.metadata.__init__ for all fields
     '''
     def __init__(self,title,author):
 
-        MetaInformation.__init__(self, title, authors=[author])
+        Metadata.__init__(self, title, authors=[author])
 
     @dynamic_property
     def title_sorter(self):

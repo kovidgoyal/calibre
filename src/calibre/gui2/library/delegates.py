@@ -15,10 +15,11 @@ from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, \
                      QStyledItemDelegate, QCompleter, \
                      QComboBox
 
-from calibre.gui2 import UNDEFINED_QDATE
+from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.utils.date import now, format_date
 from calibre.utils.config import tweaks
+from calibre.utils.formatter import validation_formatter
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 
 class RatingDelegate(QStyledItemDelegate): # {{{
@@ -302,6 +303,33 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
         else:
             val = 2 if val is None else 1 if not val else 0
         editor.setCurrentIndex(val)
+
+# }}}
+
+class CcTemplateDelegate(QStyledItemDelegate): # {{{
+    def __init__(self, parent):
+        '''
+        Delegate for custom_column bool data.
+        '''
+        QStyledItemDelegate.__init__(self, parent)
+
+    def createEditor(self, parent, option, index):
+        return EnLineEdit(parent)
+
+    def setModelData(self, editor, model, index):
+        val = unicode(editor.text())
+        try:
+            validation_formatter.validate(val)
+        except Exception, err:
+            error_dialog(self.parent(), _('Invalid template'),
+                    '<p>'+_('The template %s is invalid:')%val + \
+                    '<br>'+str(err), show=True)
+        model.setData(index, QVariant(val), Qt.EditRole)
+
+    def setEditorData(self, editor, index):
+        m = index.model()
+        val = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
+        editor.setText(val)
 
 
 # }}}

@@ -88,9 +88,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('enforce_cpu_limit', config, restart_required=True)
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.compact_button.clicked.connect(self.compact)
+        self.button_all_books_dirty.clicked.connect(self.mark_dirty)
         self.button_open_config_dir.clicked.connect(self.open_config_dir)
         self.button_osx_symlinks.clicked.connect(self.create_symlinks)
         self.button_osx_symlinks.setVisible(isosx)
+
+    def mark_dirty(self):
+        db = self.gui.library_view.model().db
+        db.dirtied(list(db.data.iterallids()))
+        info_dialog(self, _('Backup metadata'),
+            _('Metadata will be backed up while calibre is running, at the '
+              'rate of 30 books per minute.'), show=True)
 
     def debug_device_detection(self, *args):
         from calibre.gui2.preferences.device_debug import DebugDevice
@@ -98,8 +106,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         d.exec_()
 
     def compact(self, *args):
-        d = CheckIntegrity(self.gui.library_view.model().db, self)
-        d.exec_()
+        m = self.gui.library_view.model()
+        m.stop_metadata_backup()
+        try:
+            d = CheckIntegrity(m.db, self)
+            d.exec_()
+        finally:
+            m.start_metadata_backup()
 
     def open_config_dir(self, *args):
         from calibre.utils.config import config_dir

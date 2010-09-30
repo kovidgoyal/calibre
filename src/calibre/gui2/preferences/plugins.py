@@ -199,7 +199,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     config_dialog.exec_()
 
                     if config_dialog.result() == QDialog.Accepted:
-                        plugin.save_settings(config_widget)
+                        if hasattr(config_widget, 'validate'):
+                            if config_widget.validate():
+                                plugin.save_settings(config_widget)
+                        else:
+                            plugin.save_settings(config_widget)
                         self._plugin_model.refresh_plugin(plugin)
                 else:
                     help_text = plugin.customization_help(gui=True)

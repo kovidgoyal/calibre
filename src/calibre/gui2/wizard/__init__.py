@@ -73,6 +73,14 @@ class JetBook(Device):
     manufacturer = 'Ectaco'
     id = 'jetbook'
 
+class JetBookMini(Device):
+
+    output_profile = 'jetbook5'
+    output_format  = 'FB2'
+    name = 'JetBook Mini'
+    manufacturer = 'Ectaco'
+    id = 'jetbookmini'
+
 class KindleDX(Kindle):
 
     output_profile = 'kindle_dx'

@@ -38,7 +38,7 @@ class FOLDER_DEVICE(USBMS):
 
     THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
 
-    CAN_SET_METADATA = True
+    CAN_SET_METADATA = ['title', 'authors']
     SUPPORTS_SUB_DIRS = True
 
     #: Icon for this device

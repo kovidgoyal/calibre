@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, itertools, time
+import re, itertools, time, traceback
 from itertools import repeat
 from datetime import timedelta
 from threading import Thread, RLock
@@ -19,9 +19,106 @@ from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import title_sort
-from calibre import fit_image
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre import fit_image, prints
 
-class CoverCache(Thread):
+class MetadataBackup(Thread): # {{{
+    '''
+    Continuously backup changed metadata into OPF files
+    in the book directory. This class runs in its own
+    thread and makes sure that the actual file write happens in the
+    GUI thread to prevent Windows' file locking from causing problems.
+    '''
+
+    def __init__(self, db):
+        Thread.__init__(self)
+        self.daemon = True
+        self.db = db
+        self.keep_running = True
+        from calibre.gui2 import FunctionDispatcher
+        self.do_write = FunctionDispatcher(self.write)
+        self.get_metadata_for_dump = FunctionDispatcher(db.get_metadata_for_dump)
+        self.clear_dirtied = FunctionDispatcher(db.clear_dirtied)
+        self.set_dirtied = FunctionDispatcher(db.dirtied)
+        self.in_limbo = None
+
+    def stop(self):
+        self.keep_running = False
+
+    def run(self):
+        while self.keep_running:
+            self.in_limbo = None
+            try:
+                time.sleep(0.5) # Limit to two per second
+                id_ = self.db.dirtied_queue.get(True, 1.45)
+            except Empty:
+                continue
+            except:
+                # Happens during interpreter shutdown
+                break
+
+            try:
+                path, mi = self.get_metadata_for_dump(id_)
+            except:
+                prints('Failed to get backup metadata for id:', id_, 'once')
+                traceback.print_exc()
+                time.sleep(2)
+                try:
+                    path, mi = self.get_metadata_for_dump(id_)
+                except:
+                    prints('Failed to get backup metadata for id:', id_, 'again, giving up')
+                    traceback.print_exc()
+                    continue
+
+            # at this point the dirty indication is off
+
+            if mi is None:
+                continue
+            self.in_limbo = id_
+
+            # Give the GUI thread a chance to do something. Python threads don't
+            # have priorities, so this thread would naturally keep the processor
+            # until some scheduling event happens. The sleep makes such an event
+            time.sleep(0.1)
+            try:
+                raw = metadata_to_opf(mi)
+            except:
+                self.set_dirtied([id_])
+                prints('Failed to convert to opf for id:', id_)
+                traceback.print_exc()
+                continue
+
+            time.sleep(0.1) # Give the GUI thread a chance to do something
+            try:
+                self.do_write(path, raw)
+            except:
+                prints('Failed to write backup metadata for id:', id_, 'once')
+                time.sleep(2)
+                try:
+                    self.do_write(path, raw)
+                except:
+                    self.set_dirtied([id_])
+                    prints('Failed to write backup metadata for id:', id_,
+                            'again, giving up')
+                    continue
+        self.in_limbo = None
+
+    def flush(self):
+        'Used during shutdown to ensure that a dirtied book is not missed'
+        if self.in_limbo is not None:
+            try:
+                self.db.dirtied([self.in_limbo])
+            except:
+                traceback.print_exc()
+
+    def write(self, path, raw):
+        with open(path, 'wb') as f:
+            f.write(raw)
+
+
+# }}}
+
+class CoverCache(Thread): # {{{
 
     def __init__(self, db, cover_func):
         Thread.__init__(self)
@@ -38,7 +135,6 @@ class CoverCache(Thread):
         self.keep_running = False
 
     def _image_for_id(self, id_):
-        time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
         img = self.cover_func(id_, index_is_id=True, as_image=True)
         if img is None:
             img = QImage()
@@ -54,17 +150,46 @@ class CoverCache(Thread):
     def run(self):
         while self.keep_running:
             try:
-                id_ = self.load_queue.get(True, 1)
+                # The GUI puts the same ID into the queue many times. The code
+                # below emptys the queue, building a set of unique values. When
+                # the queue is empty, do the work
+                ids = set()
+                id_ = self.load_queue.get(True, 2)
+                ids.add(id_)
+                try:
+                    while True:
+                        # Give the gui some time to put values into the queue
+                        id_ = self.load_queue.get(True, 0.5)
+                        ids.add(id_)
+                except Empty:
+                    pass
+                except:
+                    # Happens during shutdown
+                    break
             except Empty:
                 continue
-            try:
-                img = self._image_for_id(id_)
             except:
-                import traceback
-                traceback.print_exc()
-                continue
-            with self.lock:
-                self.cache[id_] = img
+                #Happens during interpreter shutdown
+                break
+            if not self.keep_running:
+                break
+            for id_ in ids:
+                time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
+                try:
+                    img = self._image_for_id(id_)
+                except:
+                    try:
+                        traceback.print_exc()
+                    except:
+                        # happens during shutdown
+                        break
+                    continue
+                try:
+                    with self.lock:
+                        self.cache[id_] = img
+                except:
+                    # Happens during interpreter shutdown
+                    break
 
     def set_cache(self, ids):
         with self.lock:
@@ -90,6 +215,7 @@ class CoverCache(Thread):
             for id_ in ids:
                 self.cache.pop(id_, None)
                 self.load_queue.put(id_)
+# }}}
 
 ### Global utility function for get_match here and in gui2/library.py
 CONTAINS_MATCH = 0
@@ -107,7 +233,7 @@ def _match(query, value, matchkind):
             pass
     return False
 
-class ResultCache(SearchQueryParser):
+class ResultCache(SearchQueryParser): # {{{
 
     '''
     Stores sorted and filtered metadata in memory.
@@ -122,6 +248,11 @@ class ResultCache(SearchQueryParser):
         SearchQueryParser.__init__(self, self.all_search_locations)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
+
+        self.composites = []
+        for key in field_metadata:
+            if field_metadata[key]['datatype'] == 'composite':
+                self.composites.append((key, field_metadata[key]['rec_index']))
 
     def __getitem__(self, row):
         return self._data[self._map_filtered[row]]
@@ -328,7 +459,7 @@ class ResultCache(SearchQueryParser):
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
-            location = self.field_metadata.search_term_to_key(location.lower().strip())
+            location = self.field_metadata.search_term_to_field_key(location.lower().strip())
             if isinstance(location, list):
                 if allow_recursion:
                     for loc in location:
@@ -374,7 +505,7 @@ class ResultCache(SearchQueryParser):
                 if len(self.field_metadata[x]['search_terms']):
                     db_col[x] = self.field_metadata[x]['rec_index']
                     if self.field_metadata[x]['datatype'] not in \
-                                                ['text', 'comments', 'series']:
+                                    ['composite', 'text', 'comments', 'series']:
                         exclude_fields.append(db_col[x])
                     col_datatype[db_col[x]] = self.field_metadata[x]['datatype']
                     is_multiple_cols[db_col[x]] = self.field_metadata[x]['is_multiple']
@@ -506,6 +637,7 @@ class ResultCache(SearchQueryParser):
 
     def set(self, row, col, val, row_is_id=False):
         id = row if row_is_id else self._map_filtered[row]
+        self._data[id][self.FIELD_MAP['all_metadata']] = None
         self._data[id][col] = val
 
     def get(self, row, col, row_is_id=False):
@@ -536,6 +668,11 @@ class ResultCache(SearchQueryParser):
                 self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
                 self._data[id].append(db.has_cover(id, index_is_id=True))
                 self._data[id].append(db.book_on_device_string(id))
+                self._data[id].append(None)
+                if len(self.composites) > 0:
+                    mi = db.get_metadata(id, index_is_id=True)
+                    for k,c in self.composites:
+                        self._data[id][c] = mi.get(k, None)
             except IndexError:
                 return None
         try:
@@ -552,6 +689,11 @@ class ResultCache(SearchQueryParser):
             self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
             self._data[id].append(db.has_cover(id, index_is_id=True))
             self._data[id].append(db.book_on_device_string(id))
+            self._data[id].append(None)
+            if len(self.composites) > 0:
+                mi = db.get_metadata(id, index_is_id=True)
+                for k,c in self.composites:
+                    self._data[id][c] = mi.get(k)
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -577,6 +719,12 @@ class ResultCache(SearchQueryParser):
             if item is not None:
                 item.append(db.has_cover(item[0], index_is_id=True))
                 item.append(db.book_on_device_string(item[0]))
+                item.append(None)
+                if len(self.composites) > 0:
+                    mi = db.get_metadata(item[0], index_is_id=True)
+                    for k,c in self.composites:
+                        item[c] = mi.get(k)
+
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)
@@ -587,12 +735,9 @@ class ResultCache(SearchQueryParser):
     # Sorting functions {{{
 
     def sanitize_sort_field_name(self, field):
-        field = field.lower().strip()
-        if field not in self.field_metadata.iterkeys():
-            if field in ('author', 'tag', 'comment'):
-                field += 's'
-        if   field == 'date': field = 'timestamp'
-        elif field == 'title': field = 'sort'
+        field = self.field_metadata.search_term_to_field_key(field.lower().strip())
+        # translate some fields to their hidden equivalent
+        if field == 'title': field = 'sort'
         elif field == 'authors': field = 'author_sort'
         return field
 
@@ -601,7 +746,7 @@ class ResultCache(SearchQueryParser):
 
     def multisort(self, fields=[], subsort=False):
         fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
-        keys = self.field_metadata.field_keys()
+        keys = self.field_metadata.sortable_field_keys()
         fields = [x for x in fields if x[0] in keys]
         if subsort and 'sort' not in [x[0] for x in fields]:
             fields += [('sort', True)]
@@ -667,7 +812,7 @@ class SortKeyGenerator(object):
                     sidx = record[sidx_fm['rec_index']]
                     val = (val, sidx)
 
-            elif dt in ('text', 'comments'):
+            elif dt in ('text', 'comments', 'composite'):
                 if val is None:
                     val = ''
                 val = val.lower()
@@ -675,4 +820,5 @@ class SortKeyGenerator(object):
 
     # }}}
 
+# }}}
 

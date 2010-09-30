@@ -138,7 +138,7 @@ class DBAdder(Thread): # {{{
             self.critical[name] = open(opf, 'rb').read().decode('utf-8', 'replace')
         else:
             try:
-                mi = MetaInformation(OPF(opf))
+                mi = OPF(opf).to_book_metadata()
             except:
                 import traceback
                 mi = MetaInformation('', [_('Unknown')])
@@ -381,11 +381,7 @@ class Adder(QObject): # {{{
 
 # }}}
 
-###############################################################################
-############################## END ADDER ######################################
-###############################################################################
-
-class Saver(QObject):
+class Saver(QObject): # {{{
 
     def __init__(self, parent, db, callback, rows, path, opts,
             spare_server=None):
@@ -446,4 +442,5 @@ class Saver(QObject):
         self.pd.set_msg(_('Saved')+' '+title)
         if not ok:
             self.failures.add((title, tb))
+# }}}
 

@@ -164,10 +164,10 @@ def get_cover(opf, opf_path, stream, reader=None):
             return render_html_svg_workaround(cpage, default_log)
 
 def get_metadata(stream, extract_cover=True):
-    """ Return metadata as a :class:`MetaInformation` object """
+    """ Return metadata as a :class:`Metadata` object """
     stream.seek(0)
     reader = OCFZipReader(stream)
-    mi = MetaInformation(reader.opf)
+    mi = reader.opf.to_book_metadata()
     if extract_cover:
         try:
             cdata = get_cover(reader.opf, reader.opf_path, stream, reader=reader)
