@@ -21,12 +21,6 @@ from calibre.constants import iswindows, preferred_encoding, plugins
 _run_once = False
 winutil = winutilerror = None
 
-try:
-    import fcntl
-except:
-    fcntl
-    fcntl = None
-
 if not _run_once:
     _run_once = True
 
@@ -146,6 +140,7 @@ if not _run_once:
             fd = os.open(name, flags)
             ans = os.fdopen(fd, mode, bufsize)
         else:
+            import fcntl
             try:
                 cloexec_flag = fcntl.FD_CLOEXEC
             except AttributeError:
