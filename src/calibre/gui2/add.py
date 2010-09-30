@@ -152,7 +152,8 @@ class DBAdder(Thread): # {{{
             mi.application_id = None
         if self.db is not None:
             if cover:
-                cover = open(cover, 'rb').read()
+                with open(cover, 'rb') as f:
+                    cover = f.read()
             orig_formats = formats
             formats = [f for f in formats if not f.lower().endswith('.opf')]
             if prefs['add_formats_to_existing']:
