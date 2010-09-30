@@ -16,6 +16,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     title = 'The AJC'
     timefmt = ' [%a,%d %B %Y %I:%M %p]'
     __author__ = 'TonytheBookworm'
+    language = 'en'
     description = 'News from Atlanta and USA'
     publisher = 'The Atlanta Journal'
     category = 'news, politics, USA'
