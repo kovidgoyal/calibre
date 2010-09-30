@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4 import QtGui
+from PyQt4.Qt import Qt
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -75,6 +76,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.edit_format.currentIndexChanged[str].connect(self.edit_format_changed)
         self.new_device.currentIndexChanged[str].connect(self.new_device_changed)
         self.new_format.currentIndexChanged[str].connect(self.new_format_changed)
+        self.existing_plugboards.itemClicked.connect(self.existing_pb_clicked)
         self.ok_button.clicked.connect(self.ok_clicked)
         self.del_button.clicked.connect(self.del_clicked)
 
@@ -257,6 +259,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
         self.refill_all_boxes()
 
+    def existing_pb_clicked(self, Qitem):
+        item = Qitem.data(Qt.UserRole).toPyObject()
+        self.edit_format.setCurrentIndex(self.edit_format.findText(item[0]))
+        self.edit_device.setCurrentIndex(self.edit_device.findText(item[1]))
+
     def refill_all_boxes(self):
         if self.refilling:
             return
@@ -272,7 +279,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.edit_device.clear()
         self.ok_button.setEnabled(False)
         self.del_button.setEnabled(False)
-        txt = ''
+        self.existing_plugboards.clear()
         for f in self.formats:
             if f not in self.current_plugboards:
                 continue
@@ -281,9 +288,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     continue
                 ops = []
                 for op in self.current_plugboards[f][d]:
-                    ops.append('[' + op[0] + '] -> ' + op[1])
-                txt += '%s:%s %s\n'%(f, d, ', '.join(ops))
-        self.existing_plugboards.setPlainText(txt)
+                    ops.append('([' + op[0] + '] -> ' + op[1] + ')')
+                txt = '%s:%s = %s\n'%(f, d, ', '.join(ops))
+                item = QtGui.QListWidgetItem(txt)
+                item.setData(Qt.UserRole, (f, d))
+                self.existing_plugboards.addItem(item)
         self.refilling = False
 
     def restore_defaults(self):
