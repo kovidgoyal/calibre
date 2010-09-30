@@ -334,7 +334,7 @@ class DeviceManager(Thread): # {{{
                     if cpb is not None:
                         if dev_name in cpb:
                             cpb = cpb[dev_name]
-                        elif plugboard_any_device_value in plugboards[ext]:
+                        elif plugboard_any_device_value in cpb:
                             cpb = cpb[plugboard_any_device_value]
                         else:
                             cpb = None
