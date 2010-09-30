@@ -76,6 +76,8 @@ def get_func(name):
     return func, notification
 
 def main():
+    # Close open file descriptors inherited from parent
+    os.closerange(3, 1000)
     from calibre.constants import isosx
     if isosx and 'CALIBRE_WORKER_ADDRESS' not in os.environ:
         # On some OS X computers launchd apparently tries to
