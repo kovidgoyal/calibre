@@ -316,7 +316,7 @@ class Metadata(object):
                 if dest == 'tags':
                     self.set(dest, [f.strip() for f in val.split(',') if f.strip()])
                 elif dest == 'authors':
-                    self.set(dest, [f.strip() for f in val.split('|') if f.strip()])
+                    self.set(dest, [f.strip() for f in val.split('&') if f.strip()])
                 else:
                     self.set(dest, val)
             except:

@@ -93,19 +93,28 @@ class TemplateFormatter(string.Formatter):
 
         # Handle functions
         p = fmt.find('(')
-        if p >= 0 and fmt[-1] == ')' and fmt[0:p] in self.functions:
-            field = fmt[0:p]
-            func = self.functions[field]
-            args = fmt[p+1:-1].split(',')
-            if (func[0] == 0 and (len(args) != 1 or args[0])) or \
-                    (func[0] > 0 and func[0] != len(args)):
-                raise ValueError('Incorrect number of arguments for function '+ fmt[0:p])
-            if func[0] == 0:
-                val = func[1](self, val)
+        dispfmt = fmt
+        if p >= 0 and fmt[-1] == ')':
+            colon = fmt[0:p].find(':')
+            if colon < 0:
+                dispfmt = ''
+                colon = 0
             else:
-                val = func[1](self, val, *args)
-        elif val:
-            val = string.Formatter.format_field(self, val, fmt)
+                dispfmt = fmt[0:colon]
+                colon += 1
+            if fmt[colon:p] in self.functions:
+                field = fmt[colon:p]
+                func = self.functions[field]
+                args = fmt[p+1:-1].split(',')
+                if (func[0] == 0 and (len(args) != 1 or args[0])) or \
+                        (func[0] > 0 and func[0] != len(args)):
+                    raise ValueError('Incorrect number of arguments for function '+ fmt[0:p])
+                if func[0] == 0:
+                    val = func[1](self, val)
+                else:
+                    val = func[1](self, val, *args)
+        if val:
+            val = string.Formatter.format_field(self, val, dispfmt)
         if not val:
             return ''
         return prefix + val + suffix
