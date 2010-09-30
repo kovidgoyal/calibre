@@ -47,11 +47,6 @@ PARALLEL_FUNCS = {
       ('calibre.ebooks.metadata.worker', 'save_book', 'notification'),
 }
 
-try:
-    MAXFD = os.sysconf("SC_OPEN_MAX")
-except:
-    MAXFD = 256
-
 class Progress(Thread):
 
     def __init__(self, conn):
@@ -85,7 +80,7 @@ def main():
     if iswindows:
         # Close open file descriptors inherited from parent
         # On Unix this is done by the subprocess module
-        os.closerange(3, MAXFD)
+        os.closerange(3, 256)
     if isosx and 'CALIBRE_WORKER_ADDRESS' not in os.environ:
         # On some OS X computers launchd apparently tries to
         # launch the last run process from the bundle
