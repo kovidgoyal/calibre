@@ -1796,12 +1796,13 @@ class MobiWriter(object):
                 self._oeb.log.debug('Index records dumped to', t)
 
     def _clean_text_value(self, text):
-        if not text:
-            text = u'(none)'
-        text = text.strip()
-        if not isinstance(text, unicode):
-            text = text.decode('utf-8', 'replace')
-        text = text.encode('ascii','replace')
+        if text is not None and text.strip() :
+            text = text.strip()
+            if not isinstance(text, unicode):
+                text = text.decode('utf-8', 'replace')
+            text = text.encode('utf-8')
+        else :
+            text = "(none)".encode('utf-8')
         return text
 
     def _add_to_ctoc(self, ctoc_str, record_offset):
