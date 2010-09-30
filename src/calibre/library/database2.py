@@ -348,10 +348,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         setattr(self, 'title_sort', functools.partial(self.get_property,
                 loc=self.FIELD_MAP['sort']))
 
-        self.dirtied_cache = set()
         d = self.conn.get('SELECT book FROM metadata_dirtied', all=True)
         for x in d:
             self.dirtied_queue.put(x[0])
+        self.dirtied_cache = set([x[0] for x in d])
 
         self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
         self.refresh()
@@ -616,9 +616,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn.commit()
 
     def dirtied(self, book_ids, commit=True):
-        for book in book_ids:
-            if book in self.dirtied_cache:
-                continue
+        for book in frozenset(book_ids) - self.dirtied_cache:
             try:
                 self.conn.execute(
                     'INSERT INTO metadata_dirtied (book) VALUES (?)',

@@ -40,12 +40,14 @@ class MetadataBackup(Thread): # {{{
         self.get_metadata_for_dump = FunctionDispatcher(db.get_metadata_for_dump)
         self.clear_dirtied = FunctionDispatcher(db.clear_dirtied)
         self.set_dirtied = FunctionDispatcher(db.dirtied)
+        self.in_limbo = None
 
     def stop(self):
         self.keep_running = False
 
     def run(self):
         while self.keep_running:
+            self.in_limbo = None
             try:
                 time.sleep(0.5) # Limit to two per second
                 id_ = self.db.dirtied_queue.get(True, 1.45)
@@ -72,6 +74,7 @@ class MetadataBackup(Thread): # {{{
 
             if mi is None:
                 continue
+            self.in_limbo = id_
 
             # Give the GUI thread a chance to do something. Python threads don't
             # have priorities, so this thread would naturally keep the processor
@@ -98,6 +101,15 @@ class MetadataBackup(Thread): # {{{
                     prints('Failed to write backup metadata for id:', id_,
                             'again, giving up')
                     continue
+        self.in_limbo = None
+
+    def flush(self):
+        'Used during shutdown to ensure that a dirtied book is not missed'
+        if self.in_limbo is not None:
+            try:
+                self.db.dirtied([self.in_limbo])
+            except:
+                traceback.print_exc()
 
     def write(self, path, raw):
         with open(path, 'wb') as f:
