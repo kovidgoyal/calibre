@@ -133,6 +133,12 @@ class Metadata(object):
             # Don't abuse this privilege
             self.__dict__[field] = val
 
+    def __iter__(self):
+        return object.__getattribute__(self, '_data').iterkeys()
+
+    def has_key(self, key):
+        return key in object.__getattribute__(self, '_data')
+
     def deepcopy(self):
         m = Metadata(None)
         m.__dict__ = copy.deepcopy(self.__dict__)
@@ -140,12 +146,10 @@ class Metadata(object):
         return m
 
     def get(self, field, default=None):
-        if default is not None:
-            try:
-                return self.__getattribute__(field)
-            except AttributeError:
-                return default
-        return self.__getattribute__(field)
+        try:
+            return self.__getattribute__(field)
+        except AttributeError:
+            return default
 
     def get_extra(self, field):
         _data = object.__getattribute__(self, '_data')
@@ -312,7 +316,7 @@ class Metadata(object):
                 if dest == 'tags':
                     self.set(dest, [f.strip() for f in val.split(',') if f.strip()])
                 elif dest == 'authors':
-                    self.set(dest, [f.strip() for f in val.split('|') if f.strip()])
+                    self.set(dest, [f.strip() for f in val.split('&') if f.strip()])
                 else:
                     self.set(dest, val)
             except:
