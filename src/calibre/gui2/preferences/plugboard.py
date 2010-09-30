@@ -78,6 +78,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.ok_button.clicked.connect(self.ok_clicked)
         self.del_button.clicked.connect(self.del_clicked)
 
+        self.refilling = False
         self.refill_all_boxes()
 
     def clear_fields(self, edit_boxes=False, new_boxes=False):
@@ -108,8 +109,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.dest_widgets[i].setCurrentIndex(idx)
 
     def edit_device_changed(self, txt):
+        self.current_device = None
         if txt == '':
-            self.current_device = None
+            self.clear_fields(new_boxes=False)
             return
         self.clear_fields(new_boxes=True)
         self.current_device = unicode(txt)
@@ -128,10 +130,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.del_button.setEnabled(True)
 
     def edit_format_changed(self, txt):
+        self.edit_device.setCurrentIndex(0)
+        self.current_device = None
+        self.current_format = None
         if txt == '':
-            self.edit_device.setCurrentIndex(0)
-            self.current_format = None
-            self.current_device = None
+            self.clear_fields(new_boxes=False)
             return
         self.clear_fields(new_boxes=True)
         txt = unicode(txt)
@@ -145,11 +148,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             devices.append(d)
         self.edit_device.clear()
         self.edit_device.addItems(devices)
-        self.edit_device.setCurrentIndex(0)
 
     def new_device_changed(self, txt):
+        self.current_device = None
         if txt == '':
-            self.current_device = None
+            self.clear_fields(edit_boxes=False)
             return
         self.clear_fields(edit_boxes=True)
         self.current_device = unicode(txt)
@@ -200,13 +203,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.set_fields()
 
     def new_format_changed(self, txt):
-        if txt == '':
-            self.current_format = None
-            self.current_device = None
-            return
-        self.clear_fields(edit_boxes=True)
-        self.current_format = unicode(txt)
+        self.current_format = None
+        self.current_device = None
         self.new_device.setCurrentIndex(0)
+        if txt:
+            self.clear_fields(edit_boxes=True)
+            self.current_format = unicode(txt)
+        else:
+            self.clear_fields(edit_boxes=False)
 
     def ok_clicked(self):
         pb = []
@@ -254,6 +258,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.refill_all_boxes()
 
     def refill_all_boxes(self):
+        if self.refilling:
+            return
+        self.refilling = True
         self.current_device = None
         self.current_format = None
         self.clear_fields(new_boxes=True)
@@ -277,6 +284,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     ops.append('[' + op[0] + '] -> ' + op[1])
                 txt += '%s:%s %s\n'%(f, d, ', '.join(ops))
         self.existing_plugboards.setPlainText(txt)
+        self.refilling = False
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
