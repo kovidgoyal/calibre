@@ -21,6 +21,12 @@ from calibre.constants import iswindows, preferred_encoding, plugins
 _run_once = False
 winutil = winutilerror = None
 
+try:
+    import fcntl
+except:
+    fcntl
+    fcntl = None
+
 if not _run_once:
     _run_once = True
 
@@ -105,6 +111,84 @@ if not _run_once:
         return res
 
     os.path.join = my_join
+
+    def local_open(name, mode='r', bufsize=-1):
+        '''
+        Open a file that wont be inherited by child processes
+
+        Only supports the following modes:
+            r, w, a, rb, wb, ab, r+, w+, a+, r+b, w+b, a+b
+        '''
+        if iswindows:
+            m = mode[0]
+            random = len(mode) > 1 and mode[1] == '+'
+            binary = mode[-1] == 'b'
+
+            if m == 'a':
+                flags = os._O_APPEND| os._O_RDWR
+                flags |= os._O_RANDOM if random else os._O_SEQUENTIAL
+            elif m == 'r':
+                if random:
+                    flags = os._O_RDWR | os._O_RANDOM
+                else:
+                    flags = os._O_RDONLY | os._O_SEQUENTIAL
+            elif m == 'w':
+                if random:
+                    flags = os._O_RDWR | os._O_RANDOM
+                else:
+                    flags = os._WRONLY | os._O_SEQUENTIAL
+                flags |= os._O_TRUNC | os._O_CREAT
+            if binary:
+                flags |= os._O_BINARY
+            else:
+                flags |= os._O_TEXT
+            flags |= os._O_NOINHERIT
+            fd = os.open(name, flags)
+            ans = os.fdopen(fd, mode, bufsize)
+        else:
+            try:
+                cloexec_flag = fcntl.FD_CLOEXEC
+            except AttributeError:
+                cloexec_flag = 1
+            ans = open(name, mode, bufsize)
+            old = fcntl.fcntl(ans, fcntl.F_GETFD)
+            fcntl.fcntl(ans, fcntl.F_SETFD, old | cloexec_flag)
+        return ans
+
+    __builtin__.__dict__['lopen'] = local_open
+
+def test_lopen():
+    from calibre.ptempfile import TemporaryDirectory
+    from calibre import CurrentDir
+    n = u'f\xe4llen'
+
+    with TemporaryDirectory() as tdir:
+        with CurrentDir(tdir):
+            with lopen(n, 'w') as f:
+                f.write('one')
+            print 'O_CREAT tested'
+            with lopen(n, 'w+b') as f:
+                f.write('two')
+            with lopen(n, 'r') as f:
+                if f.read() == 'two':
+                    print 'O_TRUNC tested'
+                else:
+                    raise Exception('O_TRUNC failed')
+            with lopen(n, 'ab') as f:
+                f.write('three')
+            with lopen(n, 'r+') as f:
+                if f.read() == 'twothree':
+                    print 'O_APPEND tested'
+                else:
+                    raise Exception('O_APPEND failed')
+            with lopen(n, 'r+') as f:
+                f.seek(3)
+                f.write('xxxxx')
+                f.seek(0)
+                if f.read() == 'twoxxxxx':
+                    print 'O_RANDOM tested'
+                else:
+                    raise Exception('O_RANDOM failed')
 
 
 

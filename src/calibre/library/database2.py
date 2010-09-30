@@ -453,7 +453,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if current_path and os.path.exists(spath): # Migrate existing files
             cdata = self.cover(id, index_is_id=True)
             if cdata is not None:
-                with open(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
+                with lopen(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
                     f.write(cdata)
             for format in formats:
                 # Get data as string (can't use file as source and target files may be the same)
@@ -526,10 +526,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if as_path:
                 return path
             try:
-                f = open(path, 'rb')
+                f = lopen(path, 'rb')
             except (IOError, OSError):
                 time.sleep(0.2)
-                f = open(path, 'rb')
+                f = lopen(path, 'rb')
             if as_image:
                 img = QImage()
                 img.loadFromData(f.read())
@@ -607,7 +607,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 continue
             try:
                 raw = metadata_to_opf(mi)
-                with open(path, 'wb') as f:
+                with lopen(path, 'wb') as f:
                     f.write(raw)
             except:
                 # Something went wrong. Put the book back on the dirty list
@@ -906,7 +906,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         path = self.format_abspath(index, format, index_is_id=index_is_id)
         if path is not None:
-            f = open(path, mode)
+            f = lopen(path, mode)
             try:
                 ret = f if as_file else f.read()
             except IOError:
@@ -922,7 +922,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                               path=None, notify=True):
         npath = self.run_import_plugins(fpath, format)
         format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-        stream = open(npath, 'rb')
+        stream = lopen(npath, 'rb')
         format = check_ebook_format(stream, format)
         return self.add_format(index, format, stream,
                                index_is_id=index_is_id, path=path, notify=notify)
@@ -943,7 +943,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         pdir = os.path.dirname(dest)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
-        with open(dest, 'wb') as f:
+        with lopen(dest, 'wb') as f:
             shutil.copyfileobj(stream, f)
         stream.seek(0, 2)
         size=stream.tell()
@@ -1271,7 +1271,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1]) # doesn't use commit
         elif mi.cover is not None and os.access(mi.cover, os.R_OK):
-            doit(self.set_cover, id, open(mi.cover, 'rb'))
+            doit(self.set_cover, id, lopen(mi.cover, 'rb'))
         if mi.tags:
             doit(self.set_tags, id, mi.tags, notify=False, commit=False)
         if mi.comments:
@@ -1923,7 +1923,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def add_catalog(self, path, title):
         format = os.path.splitext(path)[1][1:].lower()
-        with open(path, 'rb') as stream:
+        with lopen(path, 'rb') as stream:
             matches = self.data.get_matches('title', '='+title)
             if matches:
                 tag_matches = self.data.get_matches('tags', '='+_('Catalog'))
@@ -1958,7 +1958,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def add_news(self, path, arg):
         format = os.path.splitext(path)[1][1:].lower()
-        stream = path if hasattr(path, 'read') else open(path, 'rb')
+        stream = path if hasattr(path, 'read') else lopen(path, 'rb')
         stream.seek(0)
         mi = get_metadata(stream, format, use_libprs_metadata=False)
         stream.seek(0)
@@ -2084,7 +2084,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.set_metadata(id, mi)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-            stream = open(npath, 'rb')
+            stream = lopen(npath, 'rb')
             format = check_ebook_format(stream, format)
             self.add_format(id, format, stream, index_is_id=True)
             stream.close()
@@ -2128,7 +2128,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if import_hooks:
                 self.add_format_with_hooks(id, ext, path, index_is_id=True)
             else:
-                with open(path, 'rb') as f:
+                with lopen(path, 'rb') as f:
                     self.add_format(id, ext, f, index_is_id=True)
         self.conn.commit()
         self.data.refresh_ids(self, [id]) # Needed to update format list and size

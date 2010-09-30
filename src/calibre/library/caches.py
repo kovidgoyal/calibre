@@ -112,7 +112,7 @@ class MetadataBackup(Thread): # {{{
                 traceback.print_exc()
 
     def write(self, path, raw):
-        with open(path, 'wb') as f:
+        with lopen(path, 'wb') as f:
             f.write(raw)
 
 
