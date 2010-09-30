@@ -119,24 +119,24 @@ if not _run_once:
             binary = mode[-1] == 'b'
 
             if m == 'a':
-                flags = os._O_APPEND| os._O_RDWR
-                flags |= os._O_RANDOM if random else os._O_SEQUENTIAL
+                flags = os.O_APPEND| os.O_RDWR
+                flags |= os.O_RANDOM if random else os.O_SEQUENTIAL
             elif m == 'r':
                 if random:
-                    flags = os._O_RDWR | os._O_RANDOM
+                    flags = os.O_RDWR | os.O_RANDOM
                 else:
-                    flags = os._O_RDONLY | os._O_SEQUENTIAL
+                    flags = os.O_RDONLY | os.O_SEQUENTIAL
             elif m == 'w':
                 if random:
-                    flags = os._O_RDWR | os._O_RANDOM
+                    flags = os.O_RDWR | os.O_RANDOM
                 else:
-                    flags = os._O_WRONLY | os._O_SEQUENTIAL
-                flags |= os._O_TRUNC | os._O_CREAT
+                    flags = os.O_WRONLY | os.O_SEQUENTIAL
+                flags |= os.O_TRUNC | os.O_CREAT
             if binary:
-                flags |= os._O_BINARY
+                flags |= os.O_BINARY
             else:
-                flags |= os._O_TEXT
-            flags |= os._O_NOINHERIT
+                flags |= os.O_TEXT
+            flags |= os.O_NOINHERIT
             fd = os.open(name, flags)
             ans = os.fdopen(fd, mode, bufsize)
         else:
