@@ -13,7 +13,7 @@ from Queue import Queue
 from contextlib import closing
 from binascii import unhexlify
 from calibre import prints
-from calibre.constants import iswindows
+from calibre.constants import iswindows, isosx
 
 PARALLEL_FUNCS = {
       'lrfviewer'    :
@@ -82,11 +82,10 @@ def get_func(name):
     return func, notification
 
 def main():
-    # Close open file descriptors inherited from parent
-    # as windows locks open files
     if iswindows:
+        # Close open file descriptors inherited from parent
+        # On Unix this is done by the subprocess module
         os.closerange(3, MAXFD)
-    from calibre.constants import isosx
     if isosx and 'CALIBRE_WORKER_ADDRESS' not in os.environ:
         # On some OS X computers launchd apparently tries to
         # launch the last run process from the bundle
