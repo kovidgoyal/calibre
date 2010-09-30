@@ -1,5 +1,6 @@
 '''
 Write content to Mobipocket books.
+Foo
 '''
 
 __license__   = 'GPL v3'
