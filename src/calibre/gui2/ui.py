@@ -581,7 +581,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         time.sleep(2)
         if mb is not None:
             mb.flush()
-        QApplication.processEvents()
         self.hide_windows()
         return True
 
