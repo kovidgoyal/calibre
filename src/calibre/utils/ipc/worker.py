@@ -13,6 +13,7 @@ from Queue import Queue
 from contextlib import closing
 from binascii import unhexlify
 from calibre import prints
+from calibre.constants import iswindows
 
 PARALLEL_FUNCS = {
       'lrfviewer'    :
@@ -77,7 +78,9 @@ def get_func(name):
 
 def main():
     # Close open file descriptors inherited from parent
-    os.closerange(3, 1000)
+    # as windows locks open files
+    if iswindows:
+        os.closerange(3, 1000)
     from calibre.constants import isosx
     if isosx and 'CALIBRE_WORKER_ADDRESS' not in os.environ:
         # On some OS X computers launchd apparently tries to
