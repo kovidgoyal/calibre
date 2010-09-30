@@ -272,8 +272,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                  'Changes are permanent. There is no undo function. '
                  ' This feature is experimental, and there may be bugs. '
                  'You are strongly encouraged to back up your library '
-                 'before proceeding.'
-                 + '<p>' +
+                 'before proceeding.<p>'
                  'Search and replace in text fields using character matching '
                  'or regular expressions. ')
 
