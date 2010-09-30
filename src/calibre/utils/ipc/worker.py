@@ -47,6 +47,11 @@ PARALLEL_FUNCS = {
       ('calibre.ebooks.metadata.worker', 'save_book', 'notification'),
 }
 
+try:
+    MAXFD = os.sysconf("SC_OPEN_MAX")
+except:
+    MAXFD = 256
+
 class Progress(Thread):
 
     def __init__(self, conn):
@@ -80,7 +85,7 @@ def main():
     # Close open file descriptors inherited from parent
     # as windows locks open files
     if iswindows:
-        os.closerange(3, 1000)
+        os.closerange(3, MAXFD)
     from calibre.constants import isosx
     if isosx and 'CALIBRE_WORKER_ADDRESS' not in os.environ:
         # On some OS X computers launchd apparently tries to

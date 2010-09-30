@@ -183,6 +183,12 @@ class Worker(object):
             args['stdout'] = _windows_null_file
             args['stderr'] = subprocess.STDOUT
 
+        if not iswindows:
+            # Close inherited file descriptors in worker
+            # On windows, this is done in the worker process
+            # itself
+            args['close_fds'] = True
+
         self.child = subprocess.Popen(cmd, **args)
         if 'stdin' in args:
             self.child.stdin.close()
