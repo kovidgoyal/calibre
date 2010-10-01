@@ -255,6 +255,9 @@ class OutputProfile(Plugin):
     #: Unsupported unicode characters to be replaced during preprocessing
     unsupported_unicode_chars = []
 
+    #: Number of ems that the left margin of a blockquote is rendered as
+    mobi_ems_per_blockquote = 1.0
+
     @classmethod
     def tags_to_string(cls, tags):
         return escape(', '.join(tags))
@@ -564,6 +567,7 @@ class KindleOutput(OutputProfile):
     supports_mobi_indexing = True
     periodical_date_in_title = False
     ratings_char = u'\u2605'
+    mobi_ems_per_blockquote = 2.0
 
     @classmethod
     def tags_to_string(cls, tags):
@@ -582,6 +586,7 @@ class KindleDXOutput(OutputProfile):
     comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
+    mobi_ems_per_blockquote = 2.0
 
     @classmethod
     def tags_to_string(cls, tags):
