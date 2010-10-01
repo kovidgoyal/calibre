@@ -7,7 +7,7 @@ class RevistaMuyInteresante(BasicNewsRecipe):
     __author__  = 'Jefferson Frantz'
     description = 'Revista de divulgacion'
     timefmt = ' [%d %b, %Y]'
-    language = 'es_ES'
+    language = 'es'
 
     no_stylesheets = True
     remove_attributes = ['style', 'font']

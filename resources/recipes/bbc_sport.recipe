@@ -1,0 +1,65 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, limawhiskey <limawhiskey at gmail.com>'
+'''
+news.bbc.co.uk/sport/
+'''
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class BBC(BasicNewsRecipe):
+    title                  = 'BBC Sport'
+    __author__             = 'limawhiskey, Darko Miletic, Starson17'
+    description            = 'Sports news from UK. A fast version that does not download pictures'
+    oldest_article         = 2
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    encoding               = 'utf8'
+    publisher              = 'BBC'
+    category               = 'sport, news, UK, world'
+    language               = 'en_GB'
+    publication_type       = 'newsportal'
+    extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+    conversion_options = {
+                             'comments'        : description
+                            ,'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'linearize_tables': True
+                         }
+
+    keep_only_tags  = [
+                       dict(name='div', attrs={'class':['ds','mxb']}),
+                       dict(attrs={'class':['story-body','storybody']})
+                      ]
+
+    remove_tags     = [
+                       dict(name='div', attrs={'class':['storyextra', 'share-help', 'embedded-hyper', \
+                       'story-feature wide ', 'story-feature narrow', 'cap', 'caption', 'q1', 'sihf', \
+                       'mva', 'videoInStoryC', 'sharesb', 'mvtb']}),
+                       dict(name=['img']), dict(name=['br'])
+                      ]
+
+    remove_attributes = ['width','height']
+
+    feeds          = [
+                      ('Sport Front Page', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/front_page/rss.xml'),
+                      ('Football', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/football/rss.xml'),
+                      ('Cricket', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/cricket/rss.xml'),
+                      ('Formula 1', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/motorsport/formula_one/rss.xml'),
+                      ('Commonwealth Games', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/commonwealth_games/delhi_2010/rss.xml'),
+                      ('Golf', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/golf/rss.xml'),
+                      ('Rugby Union', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/rugby_union/rss.xml'),
+                      ('Rugby League', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/rugby_league/rss.xml'),
+                      ('Tennis', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/tennis/rss.xml'),
+                      ('Motorsport', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/motorsport/rss.xml'),
+                      ('Boxing', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/boxing/rss.xml'),
+                      ('Athletics', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/athletics/rss.xml'),
+                      ('Snooker', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/snooker/rss.xml'),
+                      ('Horse Racing', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/horse_racing/rss.xml'),
+                      ('Cycling', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/cycling/rss.xml'),
+                      ('Disability Sport', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/disability_sport/rss.xml'),
+                      ('Other Sport', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/rss.xml'),
+                      ('Olympics 2012', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/olympics/london_2012/rss.xml'),
+                     ]
