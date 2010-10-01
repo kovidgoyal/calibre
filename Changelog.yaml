@@ -10,27 +10,27 @@
   new features:
     - title: "Automatic backup of the calibre metadata database"
       type: major
-      desc: >
+      description: >
         "calibre now automatically backups up the metadata for each book in the library into an individual OPF file in that books' folder. This means that if the calibre metadata database is corrupted, for example by a hard disk failure, you can reconstruct it from these OPF files, without losing any metadata. For the moment, only the backup is implemented, restore will be implemented in the future. The backup happens automatically in the background while calibre is running. The first time you start calibre, all the books will need to be backed up, so you may notice calibre running a little slower than usual."
 
     - title: "Virtual columns"
       type: major
-      desc: >
+      description: >
         "You can now add virtual columns to the calibre book list. These are built fro other columns using templates and can be used to, for example, create columns to show the books isbn and avaialbale formats. You can do this by right clicking on a column header and select 'Add your own columns'"
 
     - title: "calibre templates now much more powerful"
       type: major
-      desc: >
+      description: >
         "The templates used in calibre in send to device and save to disk have now beome much ore powerful. They can use conditinal text and functions to transforms the replacement text. Also they now have access t metadata in user defined columns. For details see the tutorials section of the User Manual."
 
     - title: "Metadata plugboards: Allow you to perform sophisticated transformations on the metadata of a book when exporting it from the calibre library."
       type: major
-      desc: > 
+      description: > 
         "For example, you can add the series informtion to the title when sendig books to a device. This functionality is accessed from Preferences->Import/Export->Metadata plugboards"
 
     - title: "User defined columns are now fully integrated into calibre"
       type: major
-      desc: >
+      description: >
         "User defined columns can nw be used everywhere. In the content server, Search and Replace, to create ondevice collections, and in the save to disk and send to device templates for creating filenames. In addition, user defined metadata is saved to an read back from EPUB/OPF files."
 
     - title: "Driver for the jetBook Mini"
