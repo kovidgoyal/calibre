@@ -1,0 +1,78 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from BeautifulSoup import Tag
+
+class RevistaMuyInteresante(BasicNewsRecipe):
+
+    title       = 'Revista Muy Interesante'
+    __author__  = 'Jefferson Frantz'
+    description = 'Revista de divulgacion'
+    timefmt = ' [%d %b, %Y]'
+    language = 'es_ES'
+
+    no_stylesheets = True
+    remove_attributes = ['style', 'font']
+
+    #then we add our own style(s) like this:
+    extra_css = '''
+                       .contentheading{font-weight: bold}
+                       p {font-size: 4px;font-family: Times New Roman;}
+                    '''
+
+    def preprocess_html(self, soup):
+            for img_tag in soup.findAll('img'):
+                parent_tag = img_tag.parent
+                if parent_tag.name == 'td':
+                    if not parent_tag.get('class') == 'txt_articulo': break
+                    imagen = img_tag
+                    new_tag = Tag(soup,'p')
+                    img_tag.replaceWith(new_tag)
+                    div = soup.find(attrs={'class':'article_category'})
+                    div.insert(0,imagen)
+            return soup
+
+    keep_only_tags = [dict(name='div', attrs={'class':['article']}),dict(name='td', attrs={'class':['txt_articulo']})]
+
+    remove_tags        = [
+                             dict(name=['object','link','script','ul'])
+                            ,dict(name='div', attrs={'id':['comment']})
+                            ,dict(name='td', attrs={'class':['buttonheading']})
+                            ,dict(name='div', attrs={'class':['tags_articles']})
+                         ]
+
+    remove_tags_after = dict(name='div', attrs={'class':'tags_articles'})
+
+
+    #TO GET ARTICLES IN SECTION
+    def nz_parse_section(self, url):
+            soup = self.index_to_soup(url)
+            div = soup.find(attrs={'class':'contenido'})
+            current_articles = []
+            for x in div.findAllNext(attrs={'class':['headline']}):
+                    a = x.find('a', href=True)
+                    if a is None:
+                        continue
+                    title = self.tag_to_string(a)
+                    url = a.get('href', False)
+                    if not url or not title:
+                        continue
+                    if url.startswith('/'):
+                         url = 'http://www.muyinteresante.es'+url
+#                    self.log('\t\tFound article:', title)
+#                    self.log('\t\t\t', url)
+                    current_articles.append({'title': title, 'url':url,
+                        'description':'', 'date':''})
+
+            return current_articles
+
+
+    # To GET SECTIONS
+    def parse_index(self):
+            feeds = []
+            for title, url in [
+                ('Historia',
+                 'http://www.muyinteresante.es/historia-articulos'),
+             ]:
+               articles = self.nz_parse_section(url)
+               if articles:
+                   feeds.append((title, articles))
+            return feeds
