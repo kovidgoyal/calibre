@@ -130,8 +130,9 @@ class CheckLibrary(object):
         if not ext:
             return False
         ext = ext[1:].lower()
-        if ext not in EBOOK_EXTENSIONS or \
-                self.bad_ext_pat.search(ext) is not None:
+        if ext in EBOOK_EXTENSIONS:
+            return True
+        if self.bad_ext_pat.search(ext) is not None:
             return False
         return True
 
