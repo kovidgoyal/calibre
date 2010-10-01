@@ -110,6 +110,7 @@ class ALEX(N516):
                     os.remove(cpath)
             except:
                 pass
+        self.report_progress(1.0, _('Removing books from device...'))
 
 class AZBOOKA(ALEX):
 
