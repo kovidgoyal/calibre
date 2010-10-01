@@ -19,7 +19,7 @@
      <property name="text">
       <string>Here you can change the metadata calibre uses to update a book when saving to disk or sending to device.
 
-Use this dialog to define a 'plugboard' for a format (or all formats) and a device (or all devices). The plugboard spefies what template is connected to what field. The template is used to compute a value, and that value is assigned to the connected field.
+Use this dialog to define a 'plugboard' for a format (or all formats) and a device (or all devices). The plugboard specifies what template is connected to what field. The template is used to compute a value, and that value is assigned to the connected field.
 
 Often templates will contain simple references to composite columns, but this is not necessary. You can use any template in a source box that you can use elsewhere in calibre.
 
