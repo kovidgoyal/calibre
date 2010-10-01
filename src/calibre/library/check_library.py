@@ -10,7 +10,6 @@ import re, os, traceback
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.utils.config import tweaks
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 
@@ -36,10 +35,6 @@ class CheckLibrary(object):
         self.db = db
 
         self.is_case_sensitive = db.is_case_sensitive
-
-        self.ignore_names = frozenset(tweaks['check_library_ignore_names'])
-        self.ignore_ext = frozenset(['.'+ e for e in
-                                     tweaks['check_library_ignore_extensions']])
 
         self.all_authors = frozenset([x[1] for x in db.all_authors()])
         self.all_ids = frozenset([id for id in db.all_ids()])
@@ -73,7 +68,10 @@ class CheckLibrary(object):
         return self.failed_folders or self.mismatched_dirs or \
                 self.conflicting_custom_cols or self.failed_restores
 
-    def scan_library(self):
+    def scan_library(self, name_ignores, extension_ignores):
+        self.ignore_names = frozenset(name_ignores)
+        self.ignore_ext = frozenset(['.'+ e for e in extension_ignores])
+
         lib = self.src_library_path
         for auth_dir in os.listdir(lib):
             if auth_dir in self.ignore_names:

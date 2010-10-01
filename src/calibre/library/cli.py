@@ -888,6 +888,14 @@ Perform some checks on the filesystem representing a library. Reports are {0}
     parser.add_option('-r', '--report', default=None, dest='report',
                       help=_("Comma-separated list of reports.\n"
                              "Default: all"))
+
+    parser.add_option('-e', '--ignore_extensions', default=None, dest='exts',
+                      help=_("Comma-separated list of extensions to ignore.\n"
+                             "Default: all"))
+
+    parser.add_option('-n', '--ignore_names', default=None, dest='names',
+                      help=_("Comma-separated list of names to ignore.\n"
+                             "Default: all"))
     return parser
 
 def command_check_library(args, dbpath):
@@ -919,6 +927,15 @@ def command_check_library(args, dbpath):
                 print _('Unknown report check'), r
                 return 1
 
+    if opts.names is None:
+        names = []
+    else:
+        names = [f.strip().lower() for f in opts.names.split(',') if f.strip()]
+    if opts.exts is None:
+        exts = []
+    else:
+        exts = [f.strip().lower() for f in opts.exts.split(',') if f.strip()]
+
     def print_one(checker, check):
         attr = check[0]
         list = getattr(checker, attr, None)
@@ -934,7 +951,7 @@ def command_check_library(args, dbpath):
 
     db = LibraryDatabase2(dbpath)
     checker = CheckLibrary(dbpath, db)
-    checker.scan_library()
+    checker.scan_library(names, exts)
     for check in checks:
         print_one(checker, check)
 

@@ -171,11 +171,3 @@ content_server_wont_display = ['']
 # level sorts, and if you are seeing a slowdown, reduce the value of this tweak.
 maximum_resort_levels = 5
 
-
-# Select names and extensions that check library will not report.
-# Example: to ignore all jpgs and pngs
-# check_library_ignore_extensions=['jpg', 'png']
-# Example: to ignore all instances of _catalog (calibre2opds) and its children:
-# check_library_ignore_names=['_catalog']
-check_library_ignore_names=[]
-check_library_ignore_extensions=[]
