@@ -21,7 +21,7 @@ CHECKS = [('invalid_titles',    _('Invalid titles')),
           ('extra_authors',     _('Extra authors')),
           ('missing_formats',   _('Missing book formats')),
           ('extra_formats',     _('Extra book formats')),
-          ('extra_files',       _('Unknown files in book')),
+          ('extra_files',       _('Unknown files in books')),
           ('failed_folders',    _('Folders raising exception'))
       ]
 
