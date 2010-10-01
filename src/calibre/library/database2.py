@@ -9,10 +9,12 @@ The database used to store ebook metadata
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re
 from itertools import repeat
 from math import floor
+from Queue import Queue
 
 from PyQt4.QtGui import QImage
 
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.database import LibraryDatabase
 from calibre.library.field_metadata import FieldMetadata, TagsIcons
 from calibre.library.schema_upgrades import SchemaUpgrade
@@ -20,8 +22,8 @@ from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
 from calibre.library.sqlite import connect, IntegrityError, DBThread
 from calibre.library.prefs import DBPrefs
-from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
-                                    MetaInformation
+from calibre.ebooks.metadata import string_to_authors, authors_to_string
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
@@ -45,13 +47,21 @@ def delete_file(path):
 
 def delete_tree(path, permanent=False):
     if permanent:
-        shutil.rmtree(path)
+        try:
+            # For completely mysterious reasons, sometimes a file is left open
+            # leading to access errors. If we get an exception, wait and hope
+            # that whatever has the file (the O/S?) lets go of it.
+            shutil.rmtree(path)
+        except:
+            traceback.print_exc()
+            time.sleep(1)
+            shutil.rmtree(path)
     else:
         try:
             if not permanent:
                 winshell.delete_file(path, silent=True, no_confirm=True)
         except:
-            shutil.rmtree(path)
+            delete_tree(path, permanent=True)
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
@@ -126,6 +136,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def __init__(self, library_path, row_factory=False):
         self.field_metadata = FieldMetadata()
+        self.dirtied_queue = Queue()
         if not os.path.exists(library_path):
             os.makedirs(library_path)
         self.listeners = set([])
@@ -282,6 +293,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.field_metadata.set_field_record_index('cover', base+1, prefer_custom=False)
         self.FIELD_MAP['ondevice'] = base+2
         self.field_metadata.set_field_record_index('ondevice', base+2, prefer_custom=False)
+        self.FIELD_MAP['all_metadata'] = base+3
+        self.field_metadata.set_field_record_index('all_metadata', base+3, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -323,11 +336,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.has_id  = self.data.has_id
         self.count   = self.data.count
 
-        self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
-
-        self.refresh()
-        self.last_update_check = self.last_modified()
-
+        # Count times get_metadata is called, and how many times in the cache
+        self.gm_count  = 0
+        self.gm_missed = 0
 
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
@@ -336,6 +347,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
         setattr(self, 'title_sort', functools.partial(self.get_property,
                 loc=self.FIELD_MAP['sort']))
+
+        d = self.conn.get('SELECT book FROM metadata_dirtied', all=True)
+        for x in d:
+            self.dirtied_queue.put(x[0])
+        self.dirtied_cache = set([x[0] for x in d])
+
+        self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
+        self.refresh()
+        self.last_update_check = self.last_modified()
+
 
     def initialize_database(self):
         metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
@@ -358,10 +379,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return row[self.FIELD_MAP['path']].replace('/', os.sep)
 
 
-    def abspath(self, index, index_is_id=False):
+    def abspath(self, index, index_is_id=False, create_dirs=True):
         'Return the absolute path to the directory containing this books files as a unicode string.'
         path = os.path.join(self.library_path, self.path(index, index_is_id=index_is_id))
-        if not os.path.exists(path):
+        if create_dirs and not os.path.exists(path):
             os.makedirs(path)
         return path
 
@@ -432,7 +453,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if current_path and os.path.exists(spath): # Migrate existing files
             cdata = self.cover(id, index_is_id=True)
             if cdata is not None:
-                with open(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
+                with lopen(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
                     f.write(cdata)
             for format in formats:
                 # Get data as string (can't use file as source and target files may be the same)
@@ -443,6 +464,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
+        self.dirtied([id], commit=False)
+        self.conn.commit()
         self.data.set(id, self.FIELD_MAP['path'], path, row_is_id=True)
         # Delete not needed directories
         if current_path and os.path.exists(spath):
@@ -459,15 +482,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # change case don't cause any changes to the directories in the file
             # system. This can lead to having the directory names not match the
             # title/author, which leads to trouble when libraries are copied to
-            # a case-sensitive system. The following code fixes this by checking
-            # each segment. If they are different because of case, then rename
-            # the segment to some temp file name, then rename it back to the
-            # correct name. Note that the code above correctly handles files in
-            # the directories, so no need to do them here.
+            # a case-sensitive system. The following code attempts to fix this
+            # by checking each segment. If they are different because of case,
+            # then rename the segment to some temp file name, then rename it
+            # back to the correct name. Note that the code above correctly
+            # handles files in the directories, so no need to do them here.
             for oldseg, newseg in zip(c1, c2):
                 if oldseg.lower() == newseg.lower() and oldseg != newseg:
                     try:
-                        os.rename(os.path.join(curpath, oldseg), os.path.join(curpath, newseg))
+                        os.rename(os.path.join(curpath, oldseg),
+                                os.path.join(curpath, newseg))
                     except:
                         break # Fail silently since nothing catastrophic has happened
                 curpath = os.path.join(curpath, newseg)
@@ -502,10 +526,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if as_path:
                 return path
             try:
-                f = open(path, 'rb')
+                f = lopen(path, 'rb')
             except (IOError, OSError):
                 time.sleep(0.2)
-                f = open(path, 'rb')
+                f = lopen(path, 'rb')
             if as_image:
                 img = QImage()
                 img.loadFromData(f.read())
@@ -516,25 +540,178 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 f.close()
             return ans
 
+    ### The field-style interface. These use field keys.
+
+    def get_field(self, idx, key, default=None, index_is_id=False):
+        mi = self.get_metadata(idx, index_is_id=index_is_id,
+                               get_cover=key == 'cover')
+        return mi.get(key, default)
+
+    def standard_field_keys(self):
+        return self.field_metadata.standard_field_keys()
+
+    def custom_field_keys(self, include_composites=True):
+        return self.field_metadata.custom_field_keys(include_composites)
+
+    def all_field_keys(self):
+        return self.field_metadata.all_field_keys()
+
+    def sortable_field_keys(self):
+        return self.field_metadata.sortable_field_keys()
+
+    def searchable_fields(self):
+        return self.field_metadata.searchable_field_keys()
+
+    def search_term_to_field_key(self, term):
+        return self.field_metadata.search_term_to_key(term)
+
+    def custom_field_metadata(self, include_composites=True):
+        return self.field_metadata.custom_field_metadata(include_composites)
+
+    def all_metadata(self):
+        return self.field_metadata.all_metadata()
+
+    def metadata_for_field(self, key):
+        return self.field_metadata[key]
+
+    def clear_dirtied(self, book_ids):
+        '''
+        Clear the dirtied indicator for the books. This is used when fetching
+        metadata, creating an OPF, and writing a file are separated into steps.
+        The last step is clearing the indicator
+        '''
+        for book_id in book_ids:
+            self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
+                    (book_id,))
+            # if a later exception prevents the commit, then the dirtied
+            # table will still have the book. No big deal, because the OPF
+            # is there and correct. We will simply do it again on next
+            # start
+            self.dirtied_cache.discard(book_id)
+        self.conn.commit()
+
+    def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
+            commit=True):
+        '''
+        Write metadata for each record to an individual OPF file
+        '''
+        if book_ids is None:
+            book_ids = [x[0] for x in self.conn.get(
+                'SELECT book FROM metadata_dirtied', all=True)]
+        for book_id in book_ids:
+            if not self.data.has_id(book_id):
+                continue
+            path, mi = self.get_metadata_for_dump(book_id,
+                                        remove_from_dirtied=remove_from_dirtied)
+            if path is None:
+                continue
+            try:
+                raw = metadata_to_opf(mi)
+                with lopen(path, 'wb') as f:
+                    f.write(raw)
+            except:
+                # Something went wrong. Put the book back on the dirty list
+                self.dirtied([book_id])
+        if commit:
+            self.conn.commit()
+
+    def dirtied(self, book_ids, commit=True):
+        for book in frozenset(book_ids) - self.dirtied_cache:
+            try:
+                self.conn.execute(
+                    'INSERT INTO metadata_dirtied (book) VALUES (?)',
+                        (book,))
+                self.dirtied_queue.put(book)
+            except IntegrityError:
+                # Already in table
+                pass
+            # If the commit doesn't happen, then our cache will be wrong. This
+            # could lead to a problem because we won't put the book back into
+            # the dirtied table. We deal with this by writing the dirty cache
+            # back to the table on GUI exit. Not perfect, but probably OK
+            self.dirtied_cache.add(book)
+        if commit:
+            self.conn.commit()
+
+    def dirty_queue_length(self):
+        return len(self.dirtied_cache)
+
+    def commit_dirty_cache(self):
+        '''
+        Set the dirty indication for every book in the cache. The vast majority
+        of the time, the indication will already be set. However, sometimes
+        exceptions may have prevented a commit, which may remove some dirty
+        indications from the DB. This call will put them back. Note that there
+        is no problem with setting a dirty indication for a book that isn't in
+        fact dirty. Just wastes a few cycles.
+        '''
+        book_ids = list(self.dirtied_cache)
+        self.dirtied_cache = set()
+        self.dirtied(book_ids)
+
+    def get_metadata_for_dump(self, idx, remove_from_dirtied=True):
+        try:
+            path = os.path.join(self.abspath(idx, index_is_id=True), 'metadata.opf')
+            mi = self.get_metadata(idx, index_is_id=True)
+            # Always set cover to cover.jpg. Even if cover doesn't exist,
+            # no harm done. This way no need to call dirtied when
+            # cover is set/removed
+            mi.cover = 'cover.jpg'
+        except:
+            # This almost certainly means that the book has been deleted while
+            # the backup operation sat in the queue.
+            path, mi = (None, None)
+
+        try:
+            # clear the dirtied indicator. The user must put it back if
+            # something goes wrong with writing the OPF
+            if remove_from_dirtied:
+                self.clear_dirtied([idx])
+        except:
+            # No real problem. We will just do it again.
+            pass
+        return (path, mi)
+
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
-        Convenience method to return metadata as a L{MetaInformation} object.
+        Convenience method to return metadata as a :class:`Metadata` object.
+        Note that the list of formats is not verified.
         '''
-        aum = self.authors(idx, index_is_id=index_is_id)
-        if aum: aum = [a.strip().replace('|', ',') for a in aum.split(',')]
-        mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
+        self.gm_count += 1
+        mi = self.data.get(idx, self.FIELD_MAP['all_metadata'],
+                           row_is_id = index_is_id)
+        if mi is not None:
+            if get_cover and mi.cover is None:
+                mi.cover = self.cover(idx, index_is_id=index_is_id, as_path=True)
+            return mi
+
+        self.gm_missed += 1
+        mi = Metadata(None)
+        self.data.set(idx, self.FIELD_MAP['all_metadata'], mi,
+                      row_is_id = index_is_id)
+
+        aut_list = self.authors_with_sort_strings(idx, index_is_id=index_is_id)
+        aum = []
+        aus = {}
+        for (author, author_sort) in aut_list:
+            aum.append(author)
+            aus[author] = author_sort
+        mi.title       = self.title(idx, index_is_id=index_is_id)
+        mi.authors     = aum
         mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
-        if mi.authors:
-            mi.author_sort_map = {}
-            for name, sort in zip(mi.authors, self.authors_sort_strings(idx,
-                index_is_id)):
-                mi.author_sort_map[name] = sort
+        mi.author_sort_map = aus
         mi.comments    = self.comments(idx, index_is_id=index_is_id)
         mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
         mi.timestamp   = self.timestamp(idx, index_is_id=index_is_id)
         mi.pubdate     = self.pubdate(idx, index_is_id=index_is_id)
         mi.uuid        = self.uuid(idx, index_is_id=index_is_id)
         mi.title_sort  = self.title_sort(idx, index_is_id=index_is_id)
+        mi.formats     = self.formats(idx, index_is_id=index_is_id,
+                                        verify_formats=False)
+        if hasattr(mi.formats, 'split'):
+            mi.formats = mi.formats.split(',')
+        else:
+            mi.formats = None
         tags = self.tags(idx, index_is_id=index_is_id)
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
@@ -545,6 +722,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.isbn = self.isbn(idx, index_is_id=index_is_id)
         id = idx if index_is_id else self.id(idx)
         mi.application_id = id
+        mi.id = id
+        for key,meta in self.field_metadata.iteritems():
+            if meta['is_custom']:
+                mi.set_user_metadata(key, meta)
+                mi.set(key, val=self.get_custom(idx, label=meta['label'],
+                                                index_is_id=index_is_id),
+                            extra=self.get_custom_extra(idx, label=meta['label'],
+                                                        index_is_id=index_is_id))
         if get_cover:
             mi.cover = self.cover(id, index_is_id=True, as_path=True)
         return mi
@@ -597,7 +782,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def has_cover(self, index, index_is_id=False):
         id = index if index_is_id else self.id(index)
         try:
-            path = os.path.join(self.abspath(id, index_is_id=True), 'cover.jpg')
+            path = os.path.join(self.abspath(id, index_is_id=True,
+                create_dirs=False), 'cover.jpg')
         except:
             # Can happen if path has not yet been set
             return False
@@ -664,7 +850,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return set([])
         return set([f[0] for f in formats])
 
-    def formats(self, index, index_is_id=False):
+    def formats(self, index, index_is_id=False, verify_formats=True):
         ''' Return available formats as a comma separated list or None if there are no available formats '''
         id = index if index_is_id else self.id(index)
         try:
@@ -672,6 +858,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             formats = map(lambda x:x[0], formats)
         except:
             return None
+        if not verify_formats:
+            return ','.join(formats)
         ans = []
         for format in formats:
             if self.format_abspath(id, format, index_is_id=True) is not None:
@@ -718,8 +906,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         path = self.format_abspath(index, format, index_is_id=index_is_id)
         if path is not None:
-            f = open(path, mode)
-            ret = f if as_file else f.read()
+            f = lopen(path, mode)
+            try:
+                ret = f if as_file else f.read()
+            except IOError:
+                f.seek(0)
+                out = cStringIO.StringIO()
+                shutil.copyfileobj(f, out)
+                ret = out.getvalue()
             if not as_file:
                 f.close()
             return ret
@@ -728,7 +922,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                               path=None, notify=True):
         npath = self.run_import_plugins(fpath, format)
         format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-        stream = open(npath, 'rb')
+        stream = lopen(npath, 'rb')
         format = check_ebook_format(stream, format)
         return self.add_format(index, format, stream,
                                index_is_id=index_is_id, path=path, notify=notify)
@@ -749,7 +943,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         pdir = os.path.dirname(dest)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
-        with open(dest, 'wb') as f:
+        with lopen(dest, 'wb') as f:
             shutil.copyfileobj(stream, f)
         stream.seek(0, 2)
         size=stream.tell()
@@ -1046,7 +1240,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_metadata(self, id, mi, ignore_errors=False):
         '''
-        Set metadata for the book `id` from the `MetaInformation` object `mi`
+        Set metadata for the book `id` from the `Metadata` object `mi`
         '''
         def doit(func, *args, **kwargs):
             try:
@@ -1057,38 +1251,51 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 else:
                     raise
         if mi.title:
-            self.set_title(id, mi.title)
+            self.set_title(id, mi.title, commit=False)
         if not mi.authors:
                 mi.authors = [_('Unknown')]
         authors = []
         for a in mi.authors:
             authors += string_to_authors(a)
-        self.set_authors(id, authors, notify=False)
+        self.set_authors(id, authors, notify=False, commit=False)
         if mi.author_sort:
-            doit(self.set_author_sort, id, mi.author_sort, notify=False)
+            doit(self.set_author_sort, id, mi.author_sort, notify=False,
+                    commit=False)
         if mi.publisher:
-            doit(self.set_publisher, id, mi.publisher, notify=False)
+            doit(self.set_publisher, id, mi.publisher, notify=False,
+                    commit=False)
         if mi.rating:
-            doit(self.set_rating, id, mi.rating, notify=False)
+            doit(self.set_rating, id, mi.rating, notify=False, commit=False)
         if mi.series:
-            doit(self.set_series, id, mi.series, notify=False)
+            doit(self.set_series, id, mi.series, notify=False, commit=False)
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1]) # doesn't use commit
         elif mi.cover is not None and os.access(mi.cover, os.R_OK):
-            doit(self.set_cover, id, open(mi.cover, 'rb'))
+            doit(self.set_cover, id, lopen(mi.cover, 'rb'))
         if mi.tags:
-            doit(self.set_tags, id, mi.tags, notify=False)
+            doit(self.set_tags, id, mi.tags, notify=False, commit=False)
         if mi.comments:
-            doit(self.set_comment, id, mi.comments, notify=False)
+            doit(self.set_comment, id, mi.comments, notify=False, commit=False)
         if mi.isbn and mi.isbn.strip():
-            doit(self.set_isbn, id, mi.isbn, notify=False)
+            doit(self.set_isbn, id, mi.isbn, notify=False, commit=False)
         if mi.series_index:
-            doit(self.set_series_index, id, mi.series_index, notify=False)
+            doit(self.set_series_index, id, mi.series_index, notify=False,
+                    commit=False)
         if mi.pubdate:
-            doit(self.set_pubdate, id, mi.pubdate, notify=False)
+            doit(self.set_pubdate, id, mi.pubdate, notify=False, commit=False)
         if getattr(mi, 'timestamp', None) is not None:
-            doit(self.set_timestamp, id, mi.timestamp, notify=False)
-        self.set_path(id, True)
+            doit(self.set_timestamp, id, mi.timestamp, notify=False,
+                    commit=False)
+
+        user_mi = mi.get_all_user_metadata(make_copy=False)
+        for key in user_mi.iterkeys():
+            if key in self.field_metadata and \
+                    user_mi[key]['datatype'] == self.field_metadata[key]['datatype']:
+                doit(self.set_custom, id,
+                     val=mi.get(key),
+                     extra=mi.get_extra(key),
+                     label=user_mi[key]['label'], commit=False)
+        self.conn.commit()
         self.notify('metadata', [id])
 
     def authors_sort_strings(self, id, index_is_id=False):
@@ -1105,6 +1312,19 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         result = []
         for (sort,) in aut_strings:
             result.append(sort)
+        return result
+
+    # Given a book, return the map of author sort strings for the book's authors
+    def authors_with_sort_strings(self, id, index_is_id=False):
+        id = id if index_is_id else self.id(id)
+        aut_strings = self.conn.get('''
+                        SELECT authors.name, authors.sort
+                        FROM authors, books_authors_link as bl
+                        WHERE bl.book=? and authors.id=bl.author
+                        ORDER BY bl.id''', (id,))
+        result = []
+        for (author, sort,) in aut_strings:
+            result.append((author.replace('|', ','), sort))
         return result
 
     # Given a book, return the author_sort string for authors of the book
@@ -1157,6 +1377,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ss = self.author_sort_from_book(id, index_is_id=True)
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
                           (ss, id))
+        self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['authors'],
@@ -1183,6 +1404,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         else:
             self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)
         self.set_path(id, index_is_id=True)
+        self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
         if notify:
@@ -1192,6 +1414,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if dt:
             self.conn.execute('UPDATE books SET timestamp=? WHERE id=?', (dt, id))
             self.data.set(id, self.FIELD_MAP['timestamp'], dt, row_is_id=True)
+            self.dirtied([id], commit=False)
             if commit:
                 self.conn.commit()
             if notify:
@@ -1201,6 +1424,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if dt:
             self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
             self.data.set(id, self.FIELD_MAP['pubdate'], dt, row_is_id=True)
+            self.dirtied([id], commit=False)
             if commit:
                 self.conn.commit()
             if notify:
@@ -1219,6 +1443,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 aid = self.conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
             self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
+            self.dirtied([id], commit=False)
             if commit:
                 self.conn.commit()
             self.data.set(id, self.FIELD_MAP['publisher'], publisher, row_is_id=True)
@@ -1228,6 +1453,19 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     # Convenience methods for tags_list_editor
     # Note: we generally do not need to refresh_ids because library_view will
     # refresh everything.
+
+    def dirty_books_referencing(self, field, id, commit=True):
+        # Get the list of books to dirty -- all books that reference the item
+        table = self.field_metadata[field]['table']
+        link = self.field_metadata[field]['link_column']
+        bks = self.conn.get(
+            'SELECT book from books_{0}_link WHERE {1}=?'.format(table, link),
+            (id,))
+        books = []
+        for (book_id,) in bks:
+            books.append(book_id)
+        self.dirtied(books, commit=commit)
+
     def get_tags_with_ids(self):
         result = self.conn.get('SELECT id,name FROM tags')
         if not result:
@@ -1244,6 +1482,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # there is a change of case
             self.conn.execute('''UPDATE tags SET name=?
                                  WHERE id=?''', (new_name, old_id))
+            new_id = old_id
         else:
             # It is possible that by renaming a tag, the tag will appear
             # twice on a book. This will throw an integrity error, aborting
@@ -1261,9 +1500,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                  WHERE tag=?''',(new_id, old_id,))
             # Get rid of the no-longer used publisher
             self.conn.execute('DELETE FROM tags WHERE id=?', (old_id,))
+        self.dirty_books_referencing('tags', new_id, commit=False)
         self.conn.commit()
 
     def delete_tag_using_id(self, id):
+        self.dirty_books_referencing('tags', id, commit=False)
         self.conn.execute('DELETE FROM books_tags_link WHERE tag=?', (id,))
         self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
         self.conn.commit()
@@ -1280,6 +1521,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     '''SELECT id from series
                        WHERE name=?''', (new_name,), all=False)
         if new_id is None or old_id == new_id:
+            new_id = old_id
             self.conn.execute('UPDATE series SET name=? WHERE id=?',
                               (new_name, old_id))
         else:
@@ -1303,15 +1545,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                      SET series_index=?
                                      WHERE id=?''',(index, book_id,))
                 index = index + 1
+        self.dirty_books_referencing('series', new_id, commit=False)
         self.conn.commit()
 
     def delete_series_using_id(self, id):
+        self.dirty_books_referencing('series', id, commit=False)
         books = self.conn.get('SELECT book from books_series_link WHERE series=?', (id,))
         self.conn.execute('DELETE FROM books_series_link WHERE series=?', (id,))
         self.conn.execute('DELETE FROM series WHERE id=?', (id,))
-        self.conn.commit()
         for (book_id,) in books:
             self.conn.execute('UPDATE books SET series_index=1.0 WHERE id=?', (book_id,))
+        self.conn.commit()
 
     def get_publishers_with_ids(self):
         result = self.conn.get('SELECT id,name FROM publishers')
@@ -1325,6 +1569,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     '''SELECT id from publishers
                        WHERE name=?''', (new_name,), all=False)
         if new_id is None or old_id == new_id:
+            new_id = old_id
             # New name doesn't exist. Simply change the old name
             self.conn.execute('UPDATE publishers SET name=? WHERE id=?', \
                               (new_name, old_id))
@@ -1335,9 +1580,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                  WHERE publisher=?''',(new_id, old_id,))
             # Get rid of the no-longer used publisher
             self.conn.execute('DELETE FROM publishers WHERE id=?', (old_id,))
+        self.dirty_books_referencing('publisher', new_id, commit=False)
         self.conn.commit()
 
     def delete_publisher_using_id(self, old_id):
+        self.dirty_books_referencing('publisher', id, commit=False)
         self.conn.execute('''DELETE FROM books_publishers_link
                              WHERE publisher=?''', (old_id,))
         self.conn.execute('DELETE FROM publishers WHERE id=?', (old_id,))
@@ -1418,6 +1665,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # Now delete the old author from the DB
             bks = self.conn.get('SELECT book FROM books_authors_link WHERE author=?', (old_id,))
             self.conn.execute('DELETE FROM authors WHERE id=?', (old_id,))
+        self.dirtied(books, commit=False)
         self.conn.commit()
         # the authors are now changed, either by changing the author's name
         # or replacing the author in the list. Now must fix up the books.
@@ -1509,6 +1757,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             '''.format(tables[0], tables[1])
             )
         self.conn.executescript(drops)
+        self.dirtied(ids, commit=False)
         self.conn.commit()
 
         for x in ids:
@@ -1554,6 +1803,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         (id, tid), all=False):
                 self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
                               (id, tid))
+        self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
         tags = u','.join(self.get_tags(id))
@@ -1608,6 +1858,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
+        self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['series'], series, row_is_id=True)
@@ -1622,6 +1873,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         except:
             idx = 1.0
         self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (idx, id))
+        self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['series_index'], idx, row_is_id=True)
@@ -1634,6 +1886,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         rat = self.conn.get('SELECT id FROM ratings WHERE rating=?', (rating,), all=False)
         rat = rat if rat else self.conn.execute('INSERT INTO ratings(rating) VALUES (?)', (rating,)).lastrowid
         self.conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
+        self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['rating'], rating, row_is_id=True)
@@ -1646,11 +1899,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['comments'], text, row_is_id=True)
+        self.dirtied([id], commit=False)
         if notify:
             self.notify('metadata', [id])
 
     def set_author_sort(self, id, sort, notify=True, commit=True):
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (sort, id))
+        self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['author_sort'], sort, row_is_id=True)
@@ -1659,6 +1914,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_isbn(self, id, isbn, notify=True, commit=True):
         self.conn.execute('UPDATE books SET isbn=? WHERE id=?', (isbn, id))
+        self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['isbn'], isbn, row_is_id=True)
@@ -1667,7 +1923,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def add_catalog(self, path, title):
         format = os.path.splitext(path)[1][1:].lower()
-        with open(path, 'rb') as stream:
+        with lopen(path, 'rb') as stream:
             matches = self.data.get_matches('title', '='+title)
             if matches:
                 tag_matches = self.data.get_matches('tags', '='+_('Catalog'))
@@ -1685,7 +1941,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             try:
                 mi = get_metadata(stream, format)
             except:
-                mi = MetaInformation(title, ['calibre'])
+                mi = Metadata(title, ['calibre'])
             stream.seek(0)
             mi.title, mi.authors = title, ['calibre']
             mi.tags = [_('Catalog')]
@@ -1702,7 +1958,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def add_news(self, path, arg):
         format = os.path.splitext(path)[1][1:].lower()
-        stream = path if hasattr(path, 'read') else open(path, 'rb')
+        stream = path if hasattr(path, 'read') else lopen(path, 'rb')
         stream.seek(0)
         mi = get_metadata(stream, format, use_libprs_metadata=False)
         stream.seek(0)
@@ -1753,7 +2009,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     else:
                         mi.tags.append(tag)
 
-    def create_book_entry(self, mi, cover=None, add_duplicates=True):
+    def create_book_entry(self, mi, cover=None, add_duplicates=True,
+            force_id=None):
         self._add_newbook_tag(mi)
         if not add_duplicates and self.has_book(mi):
             return None
@@ -1764,9 +2021,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             aus = aus.decode(preferred_encoding, 'replace')
         if isbytestring(title):
             title = title.decode(preferred_encoding, 'replace')
-        obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
-                            (title, series_index, aus))
-        id = obj.lastrowid
+        if force_id is None:
+            obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
+                                (title, series_index, aus))
+            id = obj.lastrowid
+        else:
+            id = force_id
+            obj = self.conn.execute(
+                    'INSERT INTO books(id, title, series_index, '
+                        'author_sort) VALUES (?, ?, ?, ?)',
+                                (id, title, series_index, aus))
+
         self.data.books_added([id], self)
         self.set_path(id, True)
         self.conn.commit()
@@ -1774,7 +2039,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             mi.timestamp = utcnow()
         if mi.pubdate is None:
             mi.pubdate = utcnow()
-        self.set_metadata(id, mi)
+        self.set_metadata(id, mi, ignore_errors=True)
         if cover is not None:
             try:
                 self.set_cover(id, cover)
@@ -1819,7 +2084,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.set_metadata(id, mi)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-            stream = open(npath, 'rb')
+            stream = lopen(npath, 'rb')
             format = check_ebook_format(stream, format)
             self.add_format(id, format, stream, index_is_id=True)
             stream.close()
@@ -1863,7 +2128,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if import_hooks:
                 self.add_format_with_hooks(id, ext, path, index_is_id=True)
             else:
-                with open(path, 'rb') as f:
+                with lopen(path, 'rb') as f:
                     self.add_format(id, ext, f, index_is_id=True)
         self.conn.commit()
         self.data.refresh_ids(self, [id]) # Needed to update format list and size

@@ -8,7 +8,7 @@ import sys, re
 from urllib import quote
 
 from calibre.utils.config import OptionParser
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre import browser
 
@@ -42,33 +42,47 @@ def fetch_metadata(url, max=100, timeout=5.):
     return books
 
 
-class ISBNDBMetadata(MetaInformation):
+class ISBNDBMetadata(Metadata):
 
     def __init__(self, book):
-        MetaInformation.__init__(self, None, [])
+        Metadata.__init__(self, None, [])
 
-        self.isbn = book.get('isbn13', book.get('isbn'))
-        self.title = book.find('titlelong').string
+        def tostring(e):
+            if not hasattr(e, 'string'):
+                return None
+            ans = e.string
+            if ans is not None:
+                ans = unicode(ans).strip()
+            if not ans:
+                ans = None
+            return ans
+
+        self.isbn = unicode(book.get('isbn13', book.get('isbn')))
+        self.title = tostring(book.find('titlelong'))
         if not self.title:
-            self.title = book.find('title').string
+            self.title = tostring(book.find('title'))
+        if not self.title:
+            self.title = _('Unknown')
         self.title = unicode(self.title).strip()
-        au = unicode(book.find('authorstext').string).strip()
-        temp = au.split(',')
         self.authors = []
-        for au in temp:
-            if not au: continue
-            self.authors.extend([a.strip() for a in au.split('&amp;')])
+        au = tostring(book.find('authorstext'))
+        if au:
+            au = au.strip()
+            temp = au.split(',')
+            for au in temp:
+                if not au: continue
+                self.authors.extend([a.strip() for a in au.split('&amp;')])
 
         try:
-            self.author_sort = book.find('authors').find('person').string
+            self.author_sort = tostring(book.find('authors').find('person'))
             if self.authors and self.author_sort == self.authors[0]:
                 self.author_sort = None
         except:
             pass
-        self.publisher = book.find('publishertext').string
+        self.publisher = tostring(book.find('publishertext'))
 
-        summ = book.find('summary')
-        if summ and hasattr(summ, 'string') and summ.string:
+        summ = tostring(book.find('summary'))
+        if summ:
             self.comments = 'SUMMARY:\n'+summ.string
 
 

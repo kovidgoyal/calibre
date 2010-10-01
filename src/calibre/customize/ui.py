@@ -67,10 +67,17 @@ def load_plugin(path_to_zip_file): # {{{
             if name.lower().endswith('plugin.py'):
                 locals = {}
                 raw = zf.read(name)
-                match = re.search(r'coding[:=]\s*([-\w.]+)', raw[:300])
-                encoding = 'utf-8'
-                if match is not None:
-                    encoding = match.group(1)
+                lines, encoding = raw.splitlines(), 'utf-8'
+                cr = re.compile(r'coding[:=]\s*([-\w.]+)')
+                raw = []
+                for l in lines[:2]:
+                    match = cr.search(l)
+                    if match is not None:
+                        encoding = match.group(1)
+                    else:
+                        raw.append(l)
+                raw += lines[2:]
+                raw = '\n'.join(raw)
                 raw = raw.decode(encoding)
                 raw = re.sub('\r\n', '\n', raw)
                 exec raw in locals
@@ -113,7 +120,7 @@ def enable_plugin(plugin_or_name):
     config['enabled_plugins'] = ep
 
 default_disabled_plugins = set([
-    'Douban Books',
+    'Douban Books', 'Douban.com covers',
 ])
 
 def is_disabled(plugin):

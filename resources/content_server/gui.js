@@ -54,19 +54,53 @@ function render_book(book) {
     formats = book.attr("formats").split(",");
     if (formats.length > 0) {
         for (i=0; i < formats.length; i++) {
-            title += '<a title="Download in '+formats[i]+' format" class="format" href="'+format_url(formats[i], id, book.attr("title"))+'">'+formats[i]+'</a>, ';
+            title += '<a title="Download in '+formats[i]+' format" class="format" href="'+format_url(formats[i], id, book.attr("safe_title"))+'">'+formats[i]+'</a>, ';
         }
         title = title.slice(0, title.length-2);
         title += '&nbsp;({0}&nbsp;MB)&nbsp;'.format(size);
     }
-    if (tags) title += 'Tags=[{0}] '.format(tags);
+    title += '<span class="tagdata_short" style="display:all">'
+    if (tags) {
+        t = tags.split(':&:', 2);
+        m = parseInt(t[0]);
+        tall = t[1].split(',');
+        t = t[1].split(',', m);
+        if (tall.length > m) t[m] = '...'
+        title += 'Tags=[{0}] '.format(t.join(','));
+    }
     custcols = book.attr("custcols").split(',')
     for ( i = 0; i < custcols.length; i++) {
         if (custcols[i].length > 0) {
             vals = book.attr(custcols[i]).split(':#:', 2);
+            if (vals[0].indexOf('#T#') == 0) { //startswith
+                vals[0] = vals[0].substr(3, vals[0].length)
+                t = vals[1].split(':&:', 2);
+                m = parseInt(t[0]);
+                t = t[1].split(',', m);
+                if (t.length == m) t[m] = '...';
+                vals[1] = t.join(',');
+            }
             title += '{0}=[{1}] '.format(vals[0], vals[1]);
         }
     }
+    title += '</span>'
+    title += '<span class="tagdata_long" style="display:none">'
+    if (tags) {
+        t = tags.split(':&:', 2);
+        title += 'Tags=[{0}] '.format(t[1]);
+    }
+    custcols = book.attr("custcols").split(',')
+    for ( i = 0; i < custcols.length; i++) {
+        if (custcols[i].length > 0) {
+            vals = book.attr(custcols[i]).split(':#:', 2);
+            if (vals[0].indexOf('#T#') == 0) { //startswith
+                vals[0] = vals[0].substr(3, vals[0].length)
+                vals[1] = (vals[1].split(':&:', 2))[1];
+            }
+            title += '{0}=[{1}] '.format(vals[0], vals[1]);
+        }
+    }
+    title += '</span>'
     title += '<img style="display:none" alt="" src="get/cover/{0}" /></span>'.format(id);
     title += '<div class="comments">{0}</div>'.format(comments)
     // Render authors cell
@@ -170,11 +204,15 @@ function fetch_library_books(start, num, timeout, sort, order, search) {
               var cover = row.find('img').attr('src');
               var collapsed = row.find('.comments').css('display') == 'none';
               $("#book_list tbody tr * .comments").css('display', 'none');
+              $("#book_list tbody tr * .tagdata_short").css('display', 'inherit');
+              $("#book_list tbody tr * .tagdata_long").css('display', 'none');
               $('#cover_pane').css('visibility', 'hidden');
               if (collapsed) {
                   row.find('.comments').css('display', 'inherit');
                   $('#cover_pane img').attr('src', cover);
                   $('#cover_pane').css('visibility', 'visible');
+                row.find(".tagdata_short").css('display', 'none');
+                row.find(".tagdata_long").css('display', 'inherit');
               }
           });
 

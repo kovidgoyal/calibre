@@ -441,7 +441,7 @@ class MobiReader(object):
                 html.tostring(elem, encoding='utf-8') + '</package>'
         stream = cStringIO.StringIO(raw)
         opf = OPF(stream)
-        self.embedded_mi = MetaInformation(opf)
+        self.embedded_mi = opf.to_book_metadata()
         if guide is not None:
             for ref in guide.xpath('descendant::reference'):
                 if 'cover' in ref.get('type', '').lower():

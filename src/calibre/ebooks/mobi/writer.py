@@ -1696,11 +1696,12 @@ class MobiWriter(object):
         header.write(pack('>I', 1))
 
         # 0x1c - 0x1f : Text encoding ?
-        # GR: Language encoding for NCX entries (latin_1)
-        header.write(pack('>I', 0x4e4))
+        # header.write(pack('>I', 650001))
+        # GR: This needs to be either 0xFDE9 or 0x4E4
+        header.write(pack('>I', 0xFDE9))
 
-        # 0x20 - 0x23 : Mimicking kindleGen
-        header.write(pack('>I', 0xFFFFFFFF))
+        # 0x20 - 0x23 : Language code?
+        header.write(iana2mobi(str(self._oeb.metadata.language[0])))
 
         # 0x24 - 0x27 : Number of TOC entries in INDX1
         header.write(pack('>I', indxt_count + 1))
@@ -1795,12 +1796,13 @@ class MobiWriter(object):
                 self._oeb.log.debug('Index records dumped to', t)
 
     def _clean_text_value(self, text):
-        if not text:
-            text = u'(none)'
-        text = text.strip()
-        if not isinstance(text, unicode):
-            text = text.decode('utf-8', 'replace')
-        text = text.encode('cp1252','replace')
+        if text is not None and text.strip() :
+            text = text.strip()
+            if not isinstance(text, unicode):
+                text = text.decode('utf-8', 'replace')
+            text = text.encode('utf-8')
+        else :
+            text = "(none)".encode('utf-8')
         return text
 
     def _add_to_ctoc(self, ctoc_str, record_offset):
@@ -2149,26 +2151,6 @@ class MobiWriter(object):
         indxt.write(decint(length, DECINT_FORWARD))					# length
         indxt.write(decint(self._ctoc_map[index]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
         indxt.write(decint(0, DECINT_FORWARD))						# unknown byte
-
-    def _write_subchapter_node(self, indxt, indices, index, offset, length, count):
-        # This style works without a parent chapter, mimicking what KindleGen does,
-        # using a value of 0x0B for parentIndex
-        # Writes an INDX1 NCXEntry of entryType 0x1F - subchapter
-        if self.opts.verbose > 2:
-            # *** GR: Turn this off while I'm developing my code
-            #self._oeb.log.debug('Writing TOC node to IDXT:', node.title, 'href:', node.href)
-            pass
-
-        pos = 0xc0 + indxt.tell()
-        indices.write(pack('>H', pos))								# Save the offset for IDXTIndices
-        name = "%04X"%count
-        indxt.write(chr(len(name)) + name)							# Write the name
-        indxt.write(INDXT['subchapter'])						    # entryType [0x0F | 0xDF | 0xFF | 0x3F]
-        indxt.write(decint(offset, DECINT_FORWARD))					# offset
-        indxt.write(decint(length, DECINT_FORWARD))					# length
-        indxt.write(decint(self._ctoc_map[index]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
-        indxt.write(decint(0, DECINT_FORWARD))						# unknown byte
-        indxt.write(decint(0xb, DECINT_FORWARD))				    # parentIndex - null
 
     def _compute_offset_length(self, i, node, entries) :
         h = node.href

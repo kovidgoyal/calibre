@@ -62,49 +62,104 @@ def wrap_lines(match):
     else:
                return ital+' '
 
-def line_length(format, raw, percent):
+class DocAnalysis(object):
     '''
-    raw is the raw text to find the line length to use for wrapping.
-    percentage is a decimal number, 0 - 1 which is used to determine
-    how far in the list of line lengths to use. The list of line lengths is
-    ordered smallest to larged and does not include duplicates. 0.5 is the
-    median value.
+    Provides various text analysis functions to determine how the document is structured.
+    format is the type of document analysis will be done against.
+    raw is the raw text to determine the line length to use for wrapping.
+    Blank lines are excluded from analysis
     '''
-    raw = raw.replace('&nbsp;', ' ')
-    if format == 'html':
-        linere = re.compile('(?<=<p).*?(?=</p>)', re.DOTALL)
-    elif format == 'pdf':
-        linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
-    elif format == 'spanned_html':
-        linere = re.compile('(?<=<span).*?(?=</span>)', re.DOTALL)
-    lines = linere.findall(raw)
 
-    lengths = []
-    for line in lines:
-        if len(line) > 0:
-            lengths.append(len(line))
+    def __init__(self, format='html', raw=''):
+        raw = raw.replace('&nbsp;', ' ')
+        if format == 'html':
+            linere = re.compile('(?<=<p)(?![^>]*>\s*</p>).*?(?=</p>)', re.DOTALL)
+        elif format == 'pdf':
+            linere = re.compile('(?<=<br>)(?!\s*<br>).*?(?=<br>)', re.DOTALL)
+        elif format == 'spanned_html':
+            linere = re.compile('(?<=<span).*?(?=</span>)', re.DOTALL)
+        self.lines = linere.findall(raw)
 
-    if not lengths:
-        return 0
+    def line_length(self, percent):
+        '''
+        Analyses the document to find the median line length.
+        percentage is a decimal number, 0 - 1 which is used to determine
+        how far in the list of line lengths to use. The list of line lengths is
+        ordered smallest to larged and does not include duplicates. 0.5 is the
+        median value.
+        '''
+        lengths = []
+        for line in self.lines:
+            if len(line) > 0:
+                lengths.append(len(line))
 
-    lengths = list(set(lengths))
-    total = sum(lengths)
-    avg = total / len(lengths)
-    max_line = avg * 2
+        if not lengths:
+            return 0
 
-    lengths = sorted(lengths)
-    for i in range(len(lengths) - 1, -1, -1):
-        if lengths[i] > max_line:
-            del lengths[i]
+        lengths = list(set(lengths))
+        total = sum(lengths)
+        avg = total / len(lengths)
+        max_line = avg * 2
 
-    if percent > 1:
-        percent = 1
-    if percent < 0:
-        percent = 0
+        lengths = sorted(lengths)
+        for i in range(len(lengths) - 1, -1, -1):
+            if lengths[i] > max_line:
+                del lengths[i]
 
-    index = int(len(lengths) * percent) - 1
+        if percent > 1:
+            percent = 1
+        if percent < 0:
+            percent = 0
 
-    return lengths[index]
+        index = int(len(lengths) * percent) - 1
+
+        return lengths[index]
+
+    def line_histogram(self, percent):
+        '''
+        Creates a broad histogram of the document to determine whether it incorporates hard
+        line breaks.  Lines are sorted into 20 'buckets' based on length.
+        percent is the percentage of lines that should be in a single bucket to return true
+        The majority of the lines will exist in 1-2 buckets in typical docs with hard line breaks
+        '''
+        minLineLength=20 # Ignore lines under 20 chars (typical of spaces)
+        maxLineLength=1900 # Discard larger than this to stay in range
+        buckets=20 # Each line is divided into a bucket based on length
+
+        #print "there are "+str(len(lines))+" lines"
+        #max = 0
+        #for line in self.lines:
+        #    l = len(line)
+        #    if l > max:
+        #        max = l
+        #print "max line found is "+str(max)
+        # Build the line length histogram
+        hRaw = [ 0 for i in range(0,buckets) ]
+        for line in self.lines:
+            l = len(line)
+            if l > minLineLength and l < maxLineLength:
+                    l = int(l/100)
+                    #print "adding "+str(l)
+                    hRaw[l]+=1
+
+        # Normalize the histogram into percents
+        totalLines = len(self.lines)
+        h = [ float(count)/totalLines for count in hRaw ]
+        #print "\nhRaw histogram lengths are: "+str(hRaw)
+        #print "              percents are: "+str(h)+"\n"
+
+        # Find the biggest bucket
+        maxValue = 0
+        for i in range(0,len(h)):
+            if h[i] > maxValue:
+                maxValue = h[i]
+
+        if maxValue < percent:
+            #print "Line lengths are too variable. Not unwrapping."
+            return False
+        else:
+            #print str(maxValue)+" of the lines were in one bucket"
+            return True
 
 class Dehyphenator(object):
     '''
@@ -117,41 +172,61 @@ class Dehyphenator(object):
     def __init__(self):
         # Add common suffixes to the regex below to increase the likelihood of a match -
         # don't add suffixes which are also complete words, such as 'able' or 'sex'
-        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)ion(s|al(ly)?)?|ings?|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
+        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
         # remove prefixes if the prefix was not already the point of hyphenation
-        self.prefixes = re.compile(r'^(un|in|ex)$', re.IGNORECASE)
-        self.removeprefix = re.compile(r'^(un|in|ex)', re.IGNORECASE)
+        self.prefixes = re.compile(r'^(dis|re|un|in|ex)$', re.IGNORECASE)
+        self.removeprefix = re.compile(r'^(dis|re|un|in|ex)', re.IGNORECASE)
 
     def dehyphenate(self, match):
         firsthalf = match.group('firstpart')
         secondhalf = match.group('secondpart')
-        hyphenated = str(firsthalf) + "-" + str(secondhalf)
-        dehyphenated = str(firsthalf) + str(secondhalf)
+        try:
+            wraptags = match.group('wraptags')
+        except:
+            wraptags = ''
+        hyphenated = unicode(firsthalf) + "-" + unicode(secondhalf)
+        dehyphenated = unicode(firsthalf) + unicode(secondhalf)
         lookupword = self.removesuffixes.sub('', dehyphenated)
         if self.prefixes.match(firsthalf) is None:
            lookupword = self.removeprefix.sub('', lookupword)
-        booklookup = re.compile(u'%s' % lookupword, re.IGNORECASE)
         #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
-        match = booklookup.search(self.html)
-        if match:
-            #print "returned dehyphenated word: " + str(dehyphenated)
-            return dehyphenated
-        else:
-            #print "returned hyphenated word: " + str(hyphenated)
+        try:
+            searchresult = self.html.find(lookupword.lower())
+        except:
             return hyphenated
+        if self.format == 'html_cleanup':
+            if self.html.find(lookupword) != -1 or searchresult != -1:
+                #print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
+                return dehyphenated
+            elif self.html.find(hyphenated) != -1:
+                #print "Cleanup:returned hyphenated word: " + str(hyphenated)
+                return hyphenated
+            else:
+                #print "Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf)
+                return firsthalf+u'\u2014'+wraptags+secondhalf
+
+        else:
+            if self.html.find(lookupword) != -1 or searchresult != -1:
+                #print "returned dehyphenated word: " + str(dehyphenated)
+                return dehyphenated
+            else:
+                #print "           returned hyphenated word: " + str(hyphenated)
+                return hyphenated
 
     def __call__(self, html, format, length=1):
         self.html = html
+        self.format = format
         if format == 'html':
-            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^“"\s>]+)-\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)' % length)
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)-\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)' % length)
         elif format == 'pdf':
-            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^“"\s>]+)-\s*(<p>|</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)'% length)
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)-\s*(?P<wraptags><p>|</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)'% length)
         elif format == 'individual_words':
-            intextmatch = re.compile('>[^<]*\b(?P<firstpart>[^"\s>]+)-(?P<secondpart)\w+)\b[^<]*<') # for later, not called anywhere yet
+            intextmatch = re.compile(u'>[^<]*\b(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)"\s>]+)-(?P<secondpart)\w+)\b[^<]*<') # for later, not called anywhere yet
+        elif format == 'html_cleanup':
+            intextmatch = re.compile(u'(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)-\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)')
 
         html = intextmatch.sub(self.dehyphenate, html)
         return html
-
 
 class CSSPreProcessor(object):
 
@@ -286,7 +361,7 @@ class HTMLPreProcessor(object):
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
 
                   # Detect Chapters to match default XPATH in GUI
-                  (re.compile(r'<br>\s*(?P<chap>(<[ibu]>){0,2}\s*.?(Introduction|Chapter|Epilogue|Prologue|Book|Part|Dedication|Volume|Preface|Acknowledgments)\s*([\d\w-]+\s*){0,3}\s*(</[ibu]>){0,2})\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<br>)?', re.IGNORECASE), chap_head),
+                  (re.compile(r'<br>\s*(?P<chap>(<[ibu]>){0,2}\s*.?(Introduction|Chapter|Kapitel|Epilogue|Prologue|Book|Part|Dedication|Volume|Preface|Acknowledgments)\s*([\d\w-]+\s*){0,3}\s*(</[ibu]>){0,2})\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<br>)?', re.IGNORECASE), chap_head),
                   # Cover the case where every letter in a chapter title is separated by a space
                   (re.compile(r'<br>\s*(?P<chap>([A-Z]\s+){4,}\s*([\d\w-]+\s*){0,3}\s*)\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*(<br>))?'), chap_head),
 
@@ -374,10 +449,8 @@ class HTMLPreProcessor(object):
                 print 'Failed to parse remove_footer regexp'
                 traceback.print_exc()
 
-        # unwrap em/en dashes, delete soft hyphens - moved here so it's executed after header/footer removal
+        # delete soft hyphens - moved here so it's executed after header/footer removal
         if is_pdftohtml:
-            # unwrap em/en dashes
-            end_rules.append((re.compile(u'(?<=[–—])\s*<p>\s*(?=[[a-z\d])'), lambda match: ''))
             # unwrap/delete soft hyphens
             end_rules.append((re.compile(u'[­](\s*<p>)+\s*(?=[[a-z\d])'), lambda match: ''))
             # unwrap/delete soft hyphens with formatting
@@ -389,13 +462,17 @@ class HTMLPreProcessor(object):
             if is_pdftohtml:
                 end_rules.append((re.compile(r'<p>\s*(?P<chap>(<[ibu]>){0,2}\s*([A-Z \'"!]{3,})\s*([\dA-Z:]+\s){0,4}\s*(</[ibu]>){0,2})\s*<p>\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<p>)?'), chap_head),)
 
+        length = -1
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
-            length = line_length('pdf', html, getattr(self.extra_opts, 'unwrap_factor'))
+            docanalysis = DocAnalysis('pdf', html)
+            length = docanalysis.line_length(getattr(self.extra_opts, 'unwrap_factor'))
             if length:
-                # print "The pdf line length returned is " + str(length)
+                #print "The pdf line length returned is " + str(length)
+                # unwrap em/en dashes
+                end_rules.append((re.compile(u'(?<=.{%i}[–—])\s*<p>\s*(?=[[a-z\d])' % length), lambda match: ''))
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(r'(?<=.{%i}([a-z,:)\IA]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(u'(?<=.{%i}([a-z,:)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + start_rules:
@@ -425,7 +502,7 @@ class HTMLPreProcessor(object):
         for rule in rules + end_rules:
             html = rule[0].sub(rule[1], html)
 
-        if is_pdftohtml:
+        if is_pdftohtml and length > -1:
             # Dehyphenate
             dehyphenator = Dehyphenator()
             html = dehyphenator(html,'pdf', length)
@@ -452,6 +529,14 @@ class HTMLPreProcessor(object):
 
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = self.smarten_punctuation(html)
+
+        unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
+        if unsupported_unicode_chars:
+            from calibre.ebooks.unidecode.unidecoder import Unidecoder
+            unidecoder = Unidecoder()
+            for char in unsupported_unicode_chars:
+                asciichar = unidecoder.decode(char)
+                html = html.replace(char, asciichar)
 
         return html
 

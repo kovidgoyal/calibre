@@ -280,9 +280,16 @@ Why doesn't |app| have a column for foo?
 |app| is designed to have columns for the most frequently and widely used fields. In addition, you can add any columns you like. Columns can be added via :guilabel:`Preferences->Interface->Add your own columns`.
 Watch the tutorial `UI Power tips <http://calibre-ebook.com/demo#tutorials>`_ to learn how to create your own columns.
 
+You can also create "virtual columns" that contain combinations of the metadata from other columns. In the add column dialog choose the option "Column from other columns" and in the template enter the other column names. For example to create a virtual column containing formats or ISBN, enter ``{formats}`` for formats or ``{isbn}`` for ISBN. For more details, see :ref:`templatelangcalibre`.
+
+
+Can I have a column showing the formats or the ISBN?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Yes, you can. Follow the instructions in the answer above for adding custom columns. 
+
 How do I move my |app| library from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder.
+Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder. If the computer you are transferring to already has a calibre installation, then the Welcome wizard wont run. In that case, click the calibre icon in the tooolbar and point it to the newly copied directory. You will now have two calibre libraries on your computer and you can switch between them by clicking the calibre icon on the toolbar.
 
 Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also go to :guilabel:`Preferences->Advanced->Miscellaneous` and click the "Check database integrity button". It will warn you about missing files, if any, which you should then transfer by hand.
 

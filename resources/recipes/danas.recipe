@@ -51,8 +51,14 @@ class Danas(BasicNewsRecipe):
 
     preprocess_regexps = [ 
                            (re.compile(u'\u0110'), lambda match: u'\u00D0')
-                          ,(re.compile(u'\u201c'), lambda match: '"')
-                          ,(re.compile(u'\u201e'), lambda match: '"')
+                          ,(re.compile(u'\u2018'), lambda match: '&lsquo;') # left single quotation mark                        
+                          ,(re.compile(u'\u2019'), lambda match: '&rsquo;') # right single quotation mark
+                          ,(re.compile(u'\u201a'), lambda match: '&lsquo;') # single low-9 quotation mark                        
+                          ,(re.compile(u'\u201b'), lambda match: '&rsquo;') # single high-reversed-9 quotation mark
+                          ,(re.compile(u'\u201c'), lambda match: '&ldquo;') # left double quotation mark
+                          ,(re.compile(u'\u201d'), lambda match: '&rdquo;') # right double quotation mark
+                          ,(re.compile(u'\u201e'), lambda match: '&ldquo;') # double low-9 quotation mark                          
+                          ,(re.compile(u'\u201f'), lambda match: '&rdquo;') # double high-reversed-9 quotation mark
                          ]
 
     keep_only_tags     = [dict(name='div', attrs={'id':'left'})]
@@ -89,7 +95,9 @@ class Danas(BasicNewsRecipe):
                        ,(u'Zvaka u pepeljari'    , u'http://www.danas.rs/rss/rss.asp?column_id=56')
                        ,(u'Vostani Serbie'       , u'http://www.danas.rs/rss/rss.asp?column_id=57')
                        ,(u'Med&Jad-a'            , u'http://www.danas.rs/rss/rss.asp?column_id=58')
-                       ,(u'Svetlosti pozornice'  , u'http://www.danas.rs/rss/rss.asp?column_id=59')                     
+                       ,(u'Svetlosti pozornice'  , u'http://www.danas.rs/rss/rss.asp?column_id=59')
+                       ,(u'Dva cvancika'         , u'http://www.danas.rs/rss/rss.asp?column_id=65')
+                       ,(u'Iz kornera'           , u'http://www.danas.rs/rss/rss.asp?column_id=64')
                      ]
 
     def preprocess_html(self, soup):

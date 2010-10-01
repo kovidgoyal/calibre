@@ -505,7 +505,12 @@ class TagsModel(QAbstractItemModel): # {{{
         key = item.parent.category_key
         # make certain we know about the item's category
         if key not in self.db.field_metadata:
-            return
+            return False
+        if key == 'authors':
+            if val.find('&') >= 0:
+                error_dialog(self.tags_view, _('Invalid author name'),
+                        _('Author names cannot contain & characters.')).exec_()
+                return False
         if key == 'search':
             if val in saved_searches().names():
                 error_dialog(self.tags_view, _('Duplicate search name'),

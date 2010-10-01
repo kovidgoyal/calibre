@@ -11,11 +11,12 @@ import cherrypy
 from lxml.builder import ElementMaker
 from lxml import etree
 
+from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import strftime, format_tag_string
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import preferred_encoding
 from calibre import isbytestring
-from calibre.utils.date import format_date
+from calibre.utils.filenames import ascii_filename
 
 E = ElementMaker()
 
@@ -66,6 +67,10 @@ class XMLServer(object):
                 return x.decode(preferred_encoding, 'replace')
             return unicode(x)
 
+        # This method uses its own book dict, not the Metadata dict. The loop
+        # below could be changed to use db.get_metadata instead of reading
+        # info directly from the record made by the view, but it doesn't seem
+        # worth it at the moment.
         for record in items[start:start+num]:
             kwargs = {}
             aus = record[FM['authors']] if record[FM['authors']] else __builtin__._('Unknown')
@@ -85,42 +90,36 @@ class XMLServer(object):
                     'comments'):
                 y = record[FM[x]]
                 if x == 'tags':
-                    y = format_tag_string(y, ',')
+                    y = format_tag_string(y, ',', ignore_max=True)
                 kwargs[x] = serialize(y) if y else ''
+
+            kwargs['safe_title'] = ascii_filename(kwargs['title'])
 
             c = kwargs.pop('comments')
 
             CFM = self.db.field_metadata
-            CKEYS = [key for key in sorted(CFM.get_custom_fields(),
+            CKEYS = [key for key in sorted(custom_fields_to_display(self.db),
                  cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
                                      CFM[y]['name'].lower()))]
             custcols = []
             for key in CKEYS:
                 def concat(name, val):
                     return '%s:#:%s'%(name, unicode(val))
-                val = record[CFM[key]['rec_index']]
-                if val:
-                    datatype = CFM[key]['datatype']
-                    if datatype in ['comments']:
-                        continue
-                    k = str('CF_'+key[1:])
-                    name = CFM[key]['name']
-                    custcols.append(k)
-                    if datatype == 'text' and CFM[key]['is_multiple']:
-                        kwargs[k] = concat(name, format_tag_string(val,'|'))
-                    elif datatype == 'series':
-                        kwargs[k] = concat(name, '%s [%s]'%(val,
-                            fmt_sidx(record[CFM.cc_series_index_column_for(key)])))
-                    elif datatype == 'datetime':
-                        kwargs[k] = concat(name,
-                            format_date(val, CFM[key]['display'].get('date_format','dd MMM yyyy')))
-                    elif datatype == 'bool':
-                        if val:
-                            kwargs[k] = concat(name, __builtin__._('Yes'))
-                        else:
-                            kwargs[k] = concat(name, __builtin__._('No'))
-                    else:
-                        kwargs[k] = concat(name, val)
+                mi = self.db.get_metadata(record[CFM['id']['rec_index']], index_is_id=True)
+                name, val = mi.format_field(key)
+                if not val:
+                    continue
+                datatype = CFM[key]['datatype']
+                if datatype in ['comments']:
+                    continue
+                k = str('CF_'+key[1:])
+                name = CFM[key]['name']
+                custcols.append(k)
+                if datatype == 'text' and CFM[key]['is_multiple']:
+                    kwargs[k] = concat('#T#'+name, format_tag_string(val,',',
+                                                            ignore_max=True))
+                else:
+                    kwargs[k] = concat(name, val)
             kwargs['custcols'] = ','.join(custcols)
             books.append(E.book(c, **kwargs))
 
@@ -137,7 +136,4 @@ class XMLServer(object):
 
         return etree.tostring(ans, encoding='utf-8', pretty_print=True,
                 xml_declaration=True)
-
-
-
 

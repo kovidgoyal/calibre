@@ -22,6 +22,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r = self.register
 
+        for x in ('send_timefmt',):
+            r(x, self.proxy)
+
         choices = [(_('Manual management'), 'manual'),
                 (_('Only on send'), 'on_send'),
                 (_('Automatic management'), 'on_connect')]

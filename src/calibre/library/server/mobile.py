@@ -13,11 +13,13 @@ from lxml import html
 from lxml.html.builder import HTML, HEAD, TITLE, LINK, DIV, IMG, BODY, \
         OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR
 
+from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import strftime, format_tag_string
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import __appname__
 from calibre import human_readable
-from calibre.utils.date import utcfromtimestamp, format_date
+from calibre.utils.date import utcfromtimestamp
+from calibre.utils.filenames import ascii_filename
 
 def CLASS(*args, **kwargs): # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)
@@ -110,11 +112,13 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
         data = TD()
         last = None
         for fmt in book['formats'].split(','):
+            a = ascii_filename(book['authors'])
+            t = ascii_filename(book['title'])
             s = SPAN(
                 A(
                     fmt.lower(),
-                    href='/get/%s/%s-%s_%d.%s' % (fmt, book['authors'],
-                        book['title'], book['id'], fmt)
+                    href='/get/%s/%s-%s_%d.%s' % (fmt, a, t,
+                        book['id'], fmt)
                 ),
                 CLASS('button'))
             s.tail = u'\u202f' # &nbsp;
@@ -196,9 +200,13 @@ class MobileServer(object):
             self.sort(items, sort, (order.lower().strip() == 'ascending'))
 
         CFM = self.db.field_metadata
-        CKEYS = [key for key in sorted(CFM.get_custom_fields(),
+        CKEYS = [key for key in sorted(custom_fields_to_display(self.db),
              cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
                                  CFM[y]['name'].lower()))]
+        # This method uses its own book dict, not the Metadata dict. The loop
+        # below could be changed to use db.get_metadata instead of reading
+        # info directly from the record made by the view, but it doesn't seem
+        # worth it at the moment.
         books = []
         for record in items[(start-1):(start-1)+num]:
             book = {'formats':record[FM['formats']], 'size':record[FM['size']]}
@@ -213,7 +221,8 @@ class MobileServer(object):
             book['authors'] = authors
             book['series_index'] = fmt_sidx(float(record[FM['series_index']]))
             book['series'] = record[FM['series']]
-            book['tags'] = format_tag_string(record[FM['tags']], ',')
+            book['tags'] = format_tag_string(record[FM['tags']], ',',
+                                             no_tag_count=True)
             book['title'] = record[FM['title']]
             for x in ('timestamp', 'pubdate'):
                 book[x] = strftime('%Y/%m/%d %H:%M:%S', record[FM[x]])
@@ -222,27 +231,19 @@ class MobileServer(object):
             for key in CKEYS:
                 def concat(name, val):
                     return '%s:#:%s'%(name, unicode(val))
-                val = record[CFM[key]['rec_index']]
-                if val:
-                    datatype = CFM[key]['datatype']
-                    if datatype in ['comments']:
-                        continue
-                    name = CFM[key]['name']
-                    if datatype == 'text' and CFM[key]['is_multiple']:
-                        book[key] = concat(name, format_tag_string(val, '|'))
-                    elif datatype == 'series':
-                        book[key] = concat(name, '%s [%s]'%(val,
-                            fmt_sidx(record[CFM.cc_series_index_column_for(key)])))
-                    elif datatype == 'datetime':
-                        book[key] = concat(name,
-                            format_date(val, CFM[key]['display'].get('date_format','dd MMM yyyy')))
-                    elif datatype == 'bool':
-                        if val:
-                            book[key] = concat(name, __builtin__._('Yes'))
-                        else:
-                            book[key] = concat(name, __builtin__._('No'))
-                    else:
-                        book[key] = concat(name, val)
+                mi = self.db.get_metadata(record[CFM['id']['rec_index']], index_is_id=True)
+                name, val = mi.format_field(key)
+                if not val:
+                    continue
+                datatype = CFM[key]['datatype']
+                if datatype in ['comments']:
+                    continue
+                if datatype == 'text' and CFM[key]['is_multiple']:
+                    book[key] = concat(name,
+                                       format_tag_string(val, ',',
+                                                         no_tag_count=True))
+                else:
+                    book[key] = concat(name, val)
 
         updated = self.db.last_modified()
 

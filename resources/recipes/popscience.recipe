@@ -1,5 +1,5 @@
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     title = 'Popular Science'
@@ -12,13 +12,11 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_javascript = True
+    use_embedded_content = True
 
     masthead_url = 'http://www.raytheon.com/newsroom/rtnwcm/groups/Public/documents/masthead/rtn08_popscidec_masthead.jpg'
 
-    remove_tags = [dict(name='div', attrs={'id':['toolbar','main_supplements']}),
-                   dict(name='span', attrs={'class':['comments']}),
-                   dict(name='div', attrs={'class':['relatedinfo related-right','node_navigation','content2']}),
-                   dict(name='ul', attrs={'class':['item-list clear-block']})]
+
     feeds          = [
 
                       ('Gadgets', 'http://www.popsci.com/full-feed/gadgets'),
@@ -33,7 +31,6 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
  #The following will get read of the Gallery: links when found
 
     def preprocess_html(self, soup) :
-        print 'SOUP IS: ', soup
         weblinks = soup.findAll(['head','h2'])
         if weblinks is not None:
             for link in weblinks:

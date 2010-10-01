@@ -34,6 +34,8 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import thumbnail
+from calibre.library.save_to_disk import plugboard_any_device_value, \
+                                         plugboard_any_format_value
 # }}}
 
 class DeviceJob(BaseJob): # {{{
@@ -317,19 +319,40 @@ class DeviceManager(Thread): # {{{
                                args=[booklist, on_card],
                         description=_('Send collections to device'))
 
-    def _upload_books(self, files, names, on_card=None, metadata=None):
+    def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
         '''Upload books to device: '''
         if metadata and files and len(metadata) == len(files):
             for f, mi in zip(files, metadata):
                 if isinstance(f, unicode):
                     ext = f.rpartition('.')[-1].lower()
+                    dev_name = self.connected_device.__class__.__name__
+                    cpb = None
+                    if ext in plugboards:
+                        cpb = plugboards[ext]
+                    elif plugboard_any_format_value in plugboards:
+                        cpb = plugboards[plugboard_any_format_value]
+                    if cpb is not None:
+                        if dev_name in cpb:
+                            cpb = cpb[dev_name]
+                        elif plugboard_any_device_value in cpb:
+                            cpb = cpb[plugboard_any_device_value]
+                        else:
+                            cpb = None
+
+                    if DEBUG:
+                        prints('Using plugboard', ext, dev_name, cpb)
                     if ext:
                         try:
                             if DEBUG:
                                 prints('Setting metadata in:', mi.title, 'at:',
                                         f, file=sys.__stdout__)
                             with open(f, 'r+b') as stream:
-                                set_metadata(stream, mi, stream_type=ext)
+                                if cpb:
+                                    newmi = mi.deepcopy()
+                                    newmi.template_to_attribute(mi, cpb)
+                                else:
+                                    newmi = mi
+                                set_metadata(stream, newmi, stream_type=ext)
                         except:
                             if DEBUG:
                                 prints(traceback.format_exc(), file=sys.__stdout__)
@@ -338,12 +361,12 @@ class DeviceManager(Thread): # {{{
                                         metadata=metadata, end_session=False)
 
     def upload_books(self, done, files, names, on_card=None, titles=None,
-                     metadata=None):
+                     metadata=None, plugboards=None):
         desc = _('Upload %d books to device')%len(names)
         if titles:
             desc += u':' + u', '.join(titles)
         return self.create_job(self._upload_books, done, args=[files, names],
-                kwargs={'on_card':on_card,'metadata':metadata}, description=desc)
+                kwargs={'on_card':on_card,'metadata':metadata,'plugboards':plugboards}, description=desc)
 
     def add_books_to_metadata(self, locations, metadata, booklists):
         self.device.add_books_to_metadata(locations, metadata, booklists)
@@ -721,14 +744,16 @@ class DeviceMixin(object): # {{{
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = device_kind
-            self.refresh_ondevice_info (device_connected = True, reset_only = True)
+            self.library_view.set_device_connected(self.device_connected)
+            self.refresh_ondevice (reset_only = True)
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
             self.location_manager.update_devices()
-            self.refresh_ondevice_info(device_connected=False)
+            self.library_view.set_device_connected(self.device_connected)
+            self.refresh_ondevice()
 
     def info_read(self, job):
         '''
@@ -760,9 +785,9 @@ class DeviceMixin(object): # {{{
         self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.sync_news()
         self.sync_catalogs()
-        self.refresh_ondevice_info(device_connected = True)
+        self.refresh_ondevice()
 
-    def refresh_ondevice_info(self, device_connected, reset_only = False):
+    def refresh_ondevice(self, reset_only = False):
         '''
         Force the library view to refresh, taking into consideration new
         device books information
@@ -770,7 +795,7 @@ class DeviceMixin(object): # {{{
         self.book_on_device(None, reset=True)
         if reset_only:
             return
-        self.library_view.set_device_connected(device_connected)
+        self.library_view.model().refresh_ondevice()
 
     # }}}
 
@@ -803,7 +828,7 @@ class DeviceMixin(object): # {{{
         self.book_on_device(None, reset=True)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
-        self.refresh_ondevice_info(device_connected=True, reset_only=False)
+        self.refresh_ondevice(reset_only=False)
 
     def dispatch_sync_event(self, dest, delete, specific):
         rows = self.library_view.selectionModel().selectedRows()
@@ -1255,10 +1280,11 @@ class DeviceMixin(object): # {{{
         :param files: List of either paths to files or file like objects
         '''
         titles = [i.title for i in metadata]
+        plugboards = self.library_view.model().db.prefs.get('plugboards', {})
         job = self.device_manager.upload_books(
                 Dispatcher(self.books_uploaded),
                 files, names, on_card=on_card,
-                metadata=metadata, titles=titles
+                metadata=metadata, titles=titles, plugboards=plugboards
               )
         self.upload_memory[job] = (metadata, on_card, memory, files)
 
@@ -1300,7 +1326,7 @@ class DeviceMixin(object): # {{{
         if not self.set_books_in_library(self.booklists(), reset=True):
             self.upload_booklists()
         self.book_on_device(None, reset=True)
-        self.refresh_ondevice_info(device_connected = True)
+        self.refresh_ondevice()
 
         view = self.card_a_view if on_card == 'carda' else \
             self.card_b_view if on_card == 'cardb' else self.memory_view

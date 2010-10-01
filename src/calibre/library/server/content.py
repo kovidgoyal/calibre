@@ -56,7 +56,7 @@ class ContentServer(object):
 
     def sort(self, items, field, order):
         field = self.db.data.sanitize_sort_field_name(field)
-        if field not in self.db.field_metadata.field_keys():
+        if field not in self.db.field_metadata.sortable_field_keys():
             raise cherrypy.HTTPError(400, '%s is not a valid sort field'%field)
         keyg = CSSortKeyGenerator([(field, order)], self.db.field_metadata)
         items.sort(key=keyg, reverse=not order)
@@ -122,8 +122,6 @@ class ContentServer(object):
             return self.mobile()
 
         return self.static('index.html')
-
-
 
     # Actually get content from the database {{{
     def get_cover(self, id, thumbnail=False):
