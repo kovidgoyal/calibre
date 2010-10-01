@@ -5,6 +5,10 @@
 Editing E-book Metadata
 ========================
 
+.. contents:: Contents
+  :depth: 2
+  :local:
+
 E-books come in all shapes and sizes and more often than not, their metadata (things like title/author/series/publisher) is incomplete or incorrect. 
 The simplest way to change metadata in |app| is to simply double click on an entry and type in the correct replacement.
 For more sophisticated, "power editing" use the edit metadata tools discussed below.
