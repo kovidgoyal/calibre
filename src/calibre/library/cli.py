@@ -875,19 +875,23 @@ def command_saved_searches(args, dbpath):
     return 0
 
 def check_library_option_parser():
-    from calibre.library.custom_columns import CustomColumns
+    from calibre.library.check_library import CHECKS
     parser = get_parser(_('''\
 %prog check_library [options]
 
-Perform some checks on the filesystem representing a library.
-''').format(', '.join(CustomColumns.CUSTOM_DATA_TYPES)))
+Perform some checks on the filesystem representing a library. Reports are {0}
+''').format(', '.join([c[0] for c in CHECKS])))
 
     parser.add_option('-c', '--csv', default=False, action='store_true',
             help=_('Output in CSV'))
+
+    parser.add_option('-r', '--report', default=None, dest='report',
+                      help=_("Comma-separated list of reports.\n"
+                             "Default: all"))
     return parser
 
 def command_check_library(args, dbpath):
-    from calibre.library.check_library import CheckLibrary
+    from calibre.library.check_library import CheckLibrary, CHECKS
     parser = check_library_option_parser()
     opts, args = parser.parse_args(args)
     if len(args) != 0:
@@ -899,6 +903,21 @@ def command_check_library(args, dbpath):
 
     if isbytestring(dbpath):
         dbpath = dbpath.decode(preferred_encoding)
+
+    if opts.report is None:
+        checks = CHECKS
+    else:
+        checks = []
+        for r in opts.report.split(','):
+            found = False
+            for c in CHECKS:
+                if c[0] == r:
+                    checks.append(c)
+                    found = True
+                    break
+            if not found:
+                print _('Unknown report check'), r
+                return 1
 
     def print_one(checker, check):
         attr = check[0]
@@ -916,7 +935,7 @@ def command_check_library(args, dbpath):
     db = LibraryDatabase2(dbpath)
     checker = CheckLibrary(dbpath, db)
     checker.scan_library()
-    for check in checker.checks:
+    for check in checks:
         print_one(checker, check)
 
 

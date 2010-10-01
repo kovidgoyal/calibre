@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 from PyQt4.Qt import QDialog, QVBoxLayout, QTreeWidget, QPushButton, \
             QDialogButtonBox, QApplication, QTreeWidgetItem
 
-from calibre.library.check_library import CheckLibrary
+from calibre.library.check_library import CheckLibrary, CHECKS
 
 class Item(QTreeWidgetItem):
     pass
@@ -71,7 +71,7 @@ class CheckLibraryDialog(QDialog):
         t.clear()
         t.setColumnCount(3);
         t.setHeaderLabels([_('Name'), _('Path from library'), _('Additional Information')])
-        for check in checker.checks:
+        for check in CHECKS:
             builder(t, checker, check)
 
         t.setColumnWidth(0, 200)

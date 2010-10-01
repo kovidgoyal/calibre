@@ -15,17 +15,18 @@ EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 
 NORMALS = frozenset(['metadata.opf', 'cover.jpg'])
 
-class CheckLibrary(object):
+CHECKS = [('invalid_titles',    _('Invalid titles')),
+          ('extra_titles',      _('Extra titles')),
+          ('invalid_authors',   _('Invalid authors')),
+          ('extra_authors',     _('Extra authors')),
+          ('missing_formats',   _('Missing book formats')),
+          ('extra_formats',     _('Extra book formats')),
+          ('extra_files',       _('Unknown files in book')),
+          ('failed_folders',    _('Folders raising exception'))
+      ]
 
-    checks = [('invalid_titles',    _('Invalid titles')),
-              ('extra_titles',      _('Extra titles')),
-              ('invalid_authors',   _('Invalid authors')),
-              ('extra_authors',     _('Extra authors')),
-              ('missing_formats',   _('Missing book formats')),
-              ('extra_formats',     _('Extra book formats')),
-              ('extra_files',       _('Unknown files in book')),
-              ('failed_folders',    _('Folders raising exception'))
-            ]
+
+class CheckLibrary(object):
 
     def __init__(self, library_path, db):
         if isbytestring(library_path):
@@ -35,7 +36,10 @@ class CheckLibrary(object):
 
         self.all_authors = frozenset([x[1] for x in db.all_authors()])
         self.all_ids = frozenset([id for id in db.all_ids()])
+        self.is_case_sensitive = db.is_case_sensitive
         self.all_dbpaths = frozenset(self.dbpath(id) for id in self.all_ids)
+        self.all_lc_dbpaths = frozenset(self.dbpath(id).lower()
+                                                for id in self.all_ids)
 
         self.db_id_regexp = re.compile(r'^.* \((\d+)\)$')
         self.bad_ext_pat = re.compile(r'[^a-z]+')
@@ -55,13 +59,6 @@ class CheckLibrary(object):
         self.extra_formats = []
         self.extra_files = []
 
-        self.failed_folders = []
-        self.books = []
-        self.conflicting_custom_cols = {}
-        self.failed_restores = []
-        self.mismatched_dirs = []
-        self.successes = 0
-        self.tb = None
 
     def dbpath(self, id):
         return self.db.path(id, index_is_id=True)
@@ -70,34 +67,6 @@ class CheckLibrary(object):
     def errors_occurred(self):
         return self.failed_folders or self.mismatched_dirs or \
                 self.conflicting_custom_cols or self.failed_restores
-
-    @property
-    def report(self):
-        ans = ''
-        failures = list(self.failed_folders) + [(x['dirpath'], tb) for x, tb in
-                self.failed_restores]
-        if failures:
-            ans += 'Failed to restore the books in the following folders:\n'
-            for dirpath, tb in failures:
-                ans += '\t' + dirpath + ' with error:\n'
-                ans += '\n'.join('\t\t'+x for x in tb.splitlines())
-                ans += '\n\n'
-
-        if self.conflicting_custom_cols:
-            ans += '\n\n'
-            ans += 'The following custom columns were not fully restored:\n'
-            for x in self.conflicting_custom_cols:
-                ans += '\t#'+x+'\n'
-
-        if self.mismatched_dirs:
-            ans += '\n\n'
-            ans += 'The following folders were ignored:\n'
-            for x in self.mismatched_dirs:
-                ans += '\t'+x+'\n'
-
-
-        return ans
-
 
     def scan_library(self):
         lib = self.src_library_path
@@ -123,10 +92,16 @@ class CheckLibrary(object):
 
                 id = m.group(1)
                 # Third check: the id must be in the DB and the paths must match
-                if int(id) not in self.all_ids or \
-                        db_path not in self.all_dbpaths:
-                    self.extra_titles.append((title_dir, db_path, []))
-                    continue
+                if self.is_case_sensitive:
+                    if int(id) not in self.all_ids or \
+                            db_path not in self.all_dbpaths:
+                        self.extra_titles.append((title_dir, db_path, []))
+                        continue
+                else:
+                    if int(id) not in self.all_ids or \
+                            db_path.lower() not in self.all_lc_dbpaths:
+                        self.extra_titles.append((title_dir, db_path, []))
+                        continue
 
                 # Record the book to check its formats
                 self.book_dirs.append((db_path, title_dir, id))
