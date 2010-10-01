@@ -12,7 +12,6 @@ from calibre.constants import filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
-
 NORMALS = frozenset(['metadata.opf', 'cover.jpg'])
 
 CHECKS = [('invalid_titles',    _('Invalid titles')),
@@ -42,7 +41,7 @@ class CheckLibrary(object):
         self.all_lc_dbpaths = frozenset([f.lower() for f in self.all_dbpaths])
 
         self.db_id_regexp = re.compile(r'^.* \((\d+)\)$')
-        self.bad_ext_pat = re.compile(r'[^a-z]+')
+        self.bad_ext_pat = re.compile(r'[^a-z0-9]+')
 
         self.dirs = []
         self.book_dirs = []
