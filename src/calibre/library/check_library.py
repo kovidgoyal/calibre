@@ -157,7 +157,7 @@ class CheckLibrary(object):
                 self.missing_formats.append((title_dir, db_path, missing))
 
             # Check: any book formats that shouldn't be there?
-            extra = formats - book_formats
+            extra = formats - book_formats - NORMALS
             if extra:
                 self.extra_formats.append((title_dir, db_path, extra))
         else:
@@ -183,7 +183,7 @@ class CheckLibrary(object):
                                              lc_map(book_formats, missing)))
 
             # Check: any book formats that shouldn't be there?
-            extra = formats_lc - book_formats_lc
+            extra = formats_lc - book_formats_lc - NORMALS
             if extra:
                 self.extra_formats.append((title_dir, db_path,
                                            lc_map(formats, extra)))
