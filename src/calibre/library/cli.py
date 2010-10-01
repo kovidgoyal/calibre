@@ -874,11 +874,57 @@ def command_saved_searches(args, dbpath):
 
     return 0
 
+def check_library_option_parser():
+    from calibre.library.custom_columns import CustomColumns
+    parser = get_parser(_('''\
+%prog check_library [options]
+
+Perform some checks on the filesystem representing a library.
+''').format(', '.join(CustomColumns.CUSTOM_DATA_TYPES)))
+
+    parser.add_option('-c', '--csv', default=False, action='store_true',
+            help=_('Output in CSV'))
+    return parser
+
+def command_check_library(args, dbpath):
+    from calibre.library.check_library import CheckLibrary
+    parser = check_library_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 0:
+        parser.print_help()
+        return 1
+
+    if opts.library_path is not None:
+        dbpath = opts.library_path
+
+    if isbytestring(dbpath):
+        dbpath = dbpath.decode(preferred_encoding)
+
+    def print_one(checker, check):
+        attr = check[0]
+        list = getattr(checker, attr, None)
+        if list is None:
+            return
+        if opts.csv:
+            for i in list:
+                print check[1] + ',' + i[0] + ',' + i[1] + ',' + '|'.join(i[2])
+        else:
+            print check[1]
+            for i in list:
+                print '    %-30.30s - %-30.30s - %s'%(i[0], i[1], ', '.join(i[2]))
+
+    db = LibraryDatabase2(dbpath)
+    checker = CheckLibrary(dbpath, db)
+    checker.scan_library()
+    for check in checker.checks:
+        print_one(checker, check)
+
 
 COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'show_metadata', 'set_metadata', 'export', 'catalog',
             'saved_searches', 'add_custom_column', 'custom_columns',
-            'remove_custom_column', 'set_custom', 'restore_database')
+            'remove_custom_column', 'set_custom', 'restore_database',
+            'check_library')
 
 def restore_database_option_parser():
     parser = get_parser(_(
