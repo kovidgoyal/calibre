@@ -39,7 +39,7 @@ class Restore(Thread):
         self.src_library_path = os.path.abspath(library_path)
         self.progress_callback = progress_callback
         self.db_id_regexp = re.compile(r'^.* \((\d+)\)$')
-        self.bad_ext_pat = re.compile(r'[^a-z]+')
+        self.bad_ext_pat = re.compile(r'[^a-z0-9]+')
         if not callable(self.progress_callback):
             self.progress_callback = lambda x, y: x
         self.dirs = []
