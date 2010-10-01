@@ -68,9 +68,14 @@ class CheckLibrary(object):
         return self.failed_folders or self.mismatched_dirs or \
                 self.conflicting_custom_cols or self.failed_restores
 
-    def scan_library(self):
+    def scan_library(self, name_ignores, extension_ignores):
+        self.ignore_names = frozenset(name_ignores)
+        self.ignore_ext = frozenset(['.'+ e for e in extension_ignores])
+
         lib = self.src_library_path
         for auth_dir in os.listdir(lib):
+            if auth_dir in self.ignore_names:
+                continue
             auth_path = os.path.join(lib, auth_dir)
             # First check: author must be a directory
             if not os.path.isdir(auth_path):
@@ -82,6 +87,8 @@ class CheckLibrary(object):
             # Look for titles in the author directories
             found_titles = False
             for title_dir in os.listdir(auth_path):
+                if title_dir in self.ignore_names:
+                    continue
                 title_path = os.path.join(auth_path, title_dir)
                 db_path = os.path.join(auth_dir, title_dir)
                 m = self.db_id_regexp.search(title_dir)
@@ -131,7 +138,8 @@ class CheckLibrary(object):
 
     def process_book(self, lib, book_info):
         (db_path, title_dir, book_id) = book_info
-        filenames = frozenset(os.listdir(os.path.join(lib, db_path)))
+        filenames = frozenset([f for f in os.listdir(os.path.join(lib, db_path))
+                               if os.path.splitext(f)[1] not in self.ignore_ext])
         book_id = int(book_id)
         formats = frozenset(filter(self.is_ebook_file, filenames))
         book_formats = frozenset([x[0]+'.'+x[1].lower() for x in
