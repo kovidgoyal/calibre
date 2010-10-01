@@ -74,7 +74,7 @@ class CheckLibrary(object):
 
         lib = self.src_library_path
         for auth_dir in os.listdir(lib):
-            if auth_dir in self.ignore_names:
+            if auth_dir in self.ignore_names or auth_dir == 'metadata.db':
                 continue
             auth_path = os.path.join(lib, auth_dir)
             # First check: author must be a directory
