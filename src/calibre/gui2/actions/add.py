@@ -230,9 +230,9 @@ class AddAction(InterfaceAction):
         self._files_added(paths, names, infos, on_card=on_card)
         # set the in-library flags, and as a consequence send the library's
         # metadata for this book to the device. This sets the uuid to the
-        # correct value.
+        # correct value. Note that set_books_in_library might sync_booklists
         self.gui.set_books_in_library(booklists=[model.db], reset=True)
-        model.reset()
+        self.gui.refresh_ondevice()
 
     def add_books_from_device(self, view):
         rows = view.selectionModel().selectedRows()

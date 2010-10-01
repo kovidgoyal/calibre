@@ -184,14 +184,14 @@ class Dehyphenator(object):
             wraptags = match.group('wraptags')
         except:
             wraptags = ''
-        hyphenated = str(firsthalf) + "-" + str(secondhalf)
-        dehyphenated = str(firsthalf) + str(secondhalf)
+        hyphenated = unicode(firsthalf) + "-" + unicode(secondhalf)
+        dehyphenated = unicode(firsthalf) + unicode(secondhalf)
         lookupword = self.removesuffixes.sub('', dehyphenated)
         if self.prefixes.match(firsthalf) is None:
            lookupword = self.removeprefix.sub('', lookupword)
         #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
         try:
-            searchresult = self.html.find(str.lower(lookupword))
+            searchresult = self.html.find(lookupword.lower())
         except:
             return hyphenated
         if self.format == 'html_cleanup':

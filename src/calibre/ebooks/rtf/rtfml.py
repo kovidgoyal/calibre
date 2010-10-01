@@ -10,13 +10,6 @@ Transform OEB content into RTF markup
 
 import os
 import re
-
-try:
-    from PIL import Image
-    Image
-except ImportError:
-    import Image
-
 import cStringIO
 
 from lxml import etree
@@ -26,6 +19,7 @@ from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, \
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.filenames import ascii_text
+from calibre.utils.magick.draw import save_cover_data_to, identify_data
 
 TAGS = {
     'b': '\\b',
@@ -153,10 +147,8 @@ class RTFMLizer(object):
         return text
 
     def image_to_hexstring(self, data):
-        im = Image.open(cStringIO.StringIO(data))
-        data = cStringIO.StringIO()
-        im.convert('RGB').save(data, 'JPEG')
-        data = data.getvalue()
+        data = save_cover_data_to(data, 'cover.jpg', return_data=True)
+        width, height = identify_data(data)[:2]
 
         raw_hex = ''
         for char in data:
@@ -173,7 +165,7 @@ class RTFMLizer(object):
             col += 1
             hex_string += char
 
-        return (hex_string, im.size[0], im.size[1])
+        return (hex_string, width, height)
 
     def clean_text(self, text):
         # Remove excess spaces at beginning and end of lines

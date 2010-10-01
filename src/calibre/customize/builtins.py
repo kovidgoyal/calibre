@@ -226,8 +226,7 @@ class OPFMetadataReader(MetadataReaderPlugin):
 
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.opf2 import OPF
-        from calibre.ebooks.metadata import MetaInformation
-        return MetaInformation(OPF(stream, os.getcwd()))
+        return OPF(stream, os.getcwd()).to_book_metadata()
 
 class PDBMetadataReader(MetadataReaderPlugin):
 
@@ -447,7 +446,7 @@ from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
                 BOOQ, ELONEX, POCKETBOOK301, MENTOR
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
-from calibre.devices.jetbook.driver import JETBOOK, MIBUK
+from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK
 from calibre.devices.prs505.driver import PRS505
@@ -521,6 +520,7 @@ plugins += [
     IREXDR1000,
     IREXDR800,
     JETBOOK,
+    JETBOOK_MINI,
     MIBUK,
     SHINEBOOK,
     POCKETBOOK360,
@@ -797,6 +797,17 @@ class Sending(PreferencesPlugin):
     description = _('Control how calibre transfers files to your '
             'ebook reader')
 
+class Plugboard(PreferencesPlugin):
+    name = 'Plugboard'
+    icon = I('plugboard.png')
+    gui_name = _('Metadata plugboards')
+    category = 'Import/Export'
+    gui_category = _('Import/Export')
+    category_order = 3
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.plugboard'
+    description = _('Change metadata fields before saving/sending')
+
 class Email(PreferencesPlugin):
     name = 'Email'
     icon = I('mail.png')
@@ -857,8 +868,8 @@ class Misc(PreferencesPlugin):
     description = _('Miscellaneous advanced configuration')
 
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
-        CommonOptions, OutputOptions, Adding, Saving, Sending, Email, Server,
-        Plugins, Tweaks, Misc]
+        CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
+        Email, Server, Plugins, Tweaks, Misc]
 
 #}}}
 

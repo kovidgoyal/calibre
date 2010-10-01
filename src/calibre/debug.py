@@ -36,11 +36,17 @@ Run an embedded python interpreter.
             'plugin code.')
     parser.add_option('--reinitialize-db', default=None,
             help='Re-initialize the sqlite calibre database at the '
-            'specified path. Useful to recover from db corruption.')
+            'specified path. Useful to recover from db corruption.'
+            ' You can also specify the path to an SQL dump which '
+            'will be used instead of trying to dump the database.'
+            ' This can be useful when dumping fails, but dumping '
+            'with sqlite3 works.')
+    parser.add_option('-p', '--py-console', help='Run python console',
+            default=False, action='store_true')
 
     return parser
 
-def reinit_db(dbpath, callback=None):
+def reinit_db(dbpath, callback=None, sql_dump=None):
     if not os.path.exists(dbpath):
         raise ValueError(dbpath + ' does not exist')
     from calibre.library.sqlite import connect
@@ -50,26 +56,32 @@ def reinit_db(dbpath, callback=None):
     uv = conn.get('PRAGMA user_version;', all=False)
     conn.execute('PRAGMA writable_schema=ON')
     conn.commit()
-    sql_lines = conn.dump()
+    if sql_dump is None:
+        sql_lines = conn.dump()
+    else:
+        sql_lines = open(sql_dump, 'rb').read()
     conn.close()
     dest = dbpath + '.tmp'
     try:
         with closing(connect(dest, False)) as nconn:
             nconn.execute('create temporary table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
             nconn.commit()
-            if callable(callback):
-                callback(len(sql_lines), True)
-            for i, line in enumerate(sql_lines):
-                try:
-                    nconn.execute(line)
-                except:
-                    import traceback
-                    prints('SQL line %r failed with error:'%line)
-                    prints(traceback.format_exc())
-                    continue
-                finally:
-                    if callable(callback):
-                        callback(i, False)
+            if sql_dump is None:
+                if callable(callback):
+                    callback(len(sql_lines), True)
+                for i, line in enumerate(sql_lines):
+                    try:
+                        nconn.execute(line)
+                    except:
+                        import traceback
+                        prints('SQL line %r failed with error:'%line)
+                        prints(traceback.format_exc())
+                        continue
+                    finally:
+                        if callable(callback):
+                            callback(i, False)
+            else:
+                nconn.executescript(sql_lines)
             nconn.execute('pragma user_version=%d'%int(uv))
             nconn.commit()
         os.remove(dbpath)
@@ -148,6 +160,9 @@ def main(args=sys.argv):
         if len(args) > 1:
             vargs.append(args[-1])
         main(vargs)
+    elif opts.py_console:
+        from calibre.utils.pyconsole.main import main
+        main()
     elif opts.command:
         sys.argv = args[:1]
         exec opts.command
@@ -165,7 +180,10 @@ def main(args=sys.argv):
         prints('CALIBRE_EXTENSIONS_PATH='+sys.extensions_location)
         prints('CALIBRE_PYTHON_PATH='+os.pathsep.join(sys.path))
     elif opts.reinitialize_db is not None:
-        reinit_db(opts.reinitialize_db)
+        sql_dump = None
+        if len(args) > 1 and os.access(args[-1], os.R_OK):
+            sql_dump = args[-1]
+        reinit_db(opts.reinitialize_db, sql_dump=sql_dump)
     else:
         from calibre import ipython
         ipython()

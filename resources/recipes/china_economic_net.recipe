@@ -26,7 +26,7 @@ class AdvancedUserRecipe1278162597(BasicNewsRecipe):
     remove_javascript = True
     use_embedded_content   = False
     no_stylesheets = True
-    language = 'zh-cn'
+    language = 'zh_CN'
     encoding   = 'gb2312'
     conversion_options = {'linearize_tables':True}
 

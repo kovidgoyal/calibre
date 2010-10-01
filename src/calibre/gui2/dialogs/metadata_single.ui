@@ -630,9 +630,15 @@ Using this button to create author sort will change author sort from red to gree
                         <property name="toolTip">
                          <string>Remove border (if any) from cover</string>
                         </property>
+                        <property name="text">
+                         <string>T&amp;rim</string>
+                        </property>
                         <property name="icon">
                          <iconset resource="../../../../resources/images.qrc">
                           <normaloff>:/images/trim.png</normaloff>:/images/trim.png</iconset>
+                        </property>
+                        <property name="toolButtonStyle">
+                         <enum>Qt::ToolButtonTextBesideIcon</enum>
                         </property>
                        </widget>
                       </item>

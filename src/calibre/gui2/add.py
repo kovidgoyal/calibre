@@ -138,7 +138,7 @@ class DBAdder(Thread): # {{{
             self.critical[name] = open(opf, 'rb').read().decode('utf-8', 'replace')
         else:
             try:
-                mi = MetaInformation(OPF(opf))
+                mi = OPF(opf).to_book_metadata()
             except:
                 import traceback
                 mi = MetaInformation('', [_('Unknown')])
@@ -152,7 +152,8 @@ class DBAdder(Thread): # {{{
             mi.application_id = None
         if self.db is not None:
             if cover:
-                cover = open(cover, 'rb').read()
+                with open(cover, 'rb') as f:
+                    cover = f.read()
             orig_formats = formats
             formats = [f for f in formats if not f.lower().endswith('.opf')]
             if prefs['add_formats_to_existing']:
@@ -381,11 +382,7 @@ class Adder(QObject): # {{{
 
 # }}}
 
-###############################################################################
-############################## END ADDER ######################################
-###############################################################################
-
-class Saver(QObject):
+class Saver(QObject): # {{{
 
     def __init__(self, parent, db, callback, rows, path, opts,
             spare_server=None):
@@ -446,4 +443,5 @@ class Saver(QObject):
         self.pd.set_msg(_('Saved')+' '+title)
         if not ok:
             self.failures.add((title, tb))
+# }}}
 

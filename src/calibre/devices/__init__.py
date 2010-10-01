@@ -56,6 +56,7 @@ def get_connected_device():
     return dev
 
 def debug(ioreg_to_tmp=False, buf=None):
+    import textwrap
     from calibre.customize.ui import device_plugins
     from calibre.devices.scanner import DeviceScanner, win_pnp_drives
     from calibre.constants import iswindows, isosx, __version__
@@ -95,13 +96,19 @@ def debug(ioreg_to_tmp=False, buf=None):
             ioreg += 'Output from osx_get_usb_drives:\n'+drives+'\n\n'
             ioreg += Device.run_ioreg()
         connected_devices = []
-        for dev in sorted(device_plugins(), cmp=lambda
-                x,y:cmp(x.__class__.__name__, y.__class__.__name__)):
-            out('Looking for', dev.__class__.__name__)
+        devplugins = list(sorted(device_plugins(), cmp=lambda
+                x,y:cmp(x.__class__.__name__, y.__class__.__name__)))
+        out('Available plugins:', textwrap.fill(' '.join([x.__class__.__name__ for x in
+            devplugins])))
+        out(' ')
+        out('Looking for devices...')
+        for dev in devplugins:
             connected, det = s.is_device_connected(dev, debug=True)
             if connected:
+                out('\t\tDetected possible device', dev.__class__.__name__)
                 connected_devices.append((dev, det))
 
+        out(' ')
         errors = {}
         success = False
         out('Devices possibly connected:', end=' ')

@@ -13,7 +13,6 @@ for a particular device.
 import os
 import re
 import time
-import json
 from itertools import cycle
 
 from calibre import prints, isbytestring
@@ -21,6 +20,7 @@ from calibre.constants import filesystem_encoding, DEBUG
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
+from calibre.ebooks.metadata.book.json_codec import JsonCodec
 
 BASE_TIME = None
 def debug_print(*args):
@@ -50,7 +50,7 @@ class USBMS(CLI, Device):
     book_class = Book
 
     FORMATS = []
-    CAN_SET_METADATA = False
+    CAN_SET_METADATA = []
     METADATA_CACHE = 'metadata.calibre'
 
     def get_device_information(self, end_session=True):
@@ -288,6 +288,7 @@ class USBMS(CLI, Device):
     # at the end just before the return
     def sync_booklists(self, booklists, end_session=True):
         debug_print('USBMS: starting sync_booklists')
+        json_codec = JsonCodec()
 
         if not os.path.exists(self.normalize_path(self._main_prefix)):
             os.makedirs(self.normalize_path(self._main_prefix))
@@ -296,10 +297,8 @@ class USBMS(CLI, Device):
             if prefix is not None and isinstance(booklists[listid], self.booklist_class):
                 if not os.path.exists(prefix):
                     os.makedirs(self.normalize_path(prefix))
-                js = [item.to_json() for item in booklists[listid] if
-                        hasattr(item, 'to_json')]
                 with open(self.normalize_path(os.path.join(prefix, self.METADATA_CACHE)), 'wb') as f:
-                    f.write(json.dumps(js, indent=2, encoding='utf-8'))
+                    json_codec.encode_to_file(f, booklists[listid])
         write_prefix(self._main_prefix, 0)
         write_prefix(self._card_a_prefix, 1)
         write_prefix(self._card_b_prefix, 2)
@@ -345,19 +344,13 @@ class USBMS(CLI, Device):
 
     @classmethod
     def parse_metadata_cache(cls, bl, prefix, name):
-        # bl = cls.booklist_class()
-        js = []
+        json_codec = JsonCodec()
         need_sync = False
         cache_file = cls.normalize_path(os.path.join(prefix, name))
         if os.access(cache_file, os.R_OK):
             try:
                 with open(cache_file, 'rb') as f:
-                    js = json.load(f, encoding='utf-8')
-                for item in js:
-                    book = cls.book_class(prefix, item.get('lpath', None))
-                    for key in item.keys():
-                        setattr(book, key, item[key])
-                    bl.append(book)
+                    json_codec.decode_from_file(f, bl, cls.book_class, prefix)
             except:
                 import traceback
                 traceback.print_exc()
@@ -392,7 +385,7 @@ class USBMS(CLI, Device):
 
     @classmethod
     def book_from_path(cls, prefix, lpath):
-        from calibre.ebooks.metadata import MetaInformation
+        from calibre.ebooks.metadata.book.base import Metadata
 
         if cls.settings().read_metadata or cls.MUST_READ_METADATA:
             mi = cls.metadata_from_path(cls.normalize_path(os.path.join(prefix, lpath)))
@@ -401,7 +394,7 @@ class USBMS(CLI, Device):
             mi = metadata_from_filename(cls.normalize_path(os.path.basename(lpath)),
                                         cls.build_template_regexp())
         if mi is None:
-            mi = MetaInformation(os.path.splitext(os.path.basename(lpath))[0],
+            mi = Metadata(os.path.splitext(os.path.basename(lpath))[0],
                     [_('Unknown')])
         size = os.stat(cls.normalize_path(os.path.join(prefix, lpath))).st_size
         book = cls.book_class(prefix, lpath, other=mi, size=size)

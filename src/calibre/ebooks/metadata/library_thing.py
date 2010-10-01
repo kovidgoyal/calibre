@@ -12,6 +12,7 @@ import mechanize
 from calibre import browser, prints
 from calibre.utils.config import OptionParser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ebooks.chardet import strip_encoding_declarations
 
 OPENLIBRARY = 'http://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
 
@@ -110,6 +111,8 @@ def get_social_metadata(title, authors, publisher, isbn, username=None,
                     +isbn).read()
         if not raw:
             return mi
+        raw = raw.decode('utf-8', 'replace')
+        raw = strip_encoding_declarations(raw)
         root = html.fromstring(raw)
         h1 = root.xpath('//div[@class="headsummary"]/h1')
         if h1 and not mi.title:

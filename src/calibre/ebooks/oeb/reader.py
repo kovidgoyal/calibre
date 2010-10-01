@@ -126,10 +126,9 @@ class OEBReader(object):
 
     def _metadata_from_opf(self, opf):
         from calibre.ebooks.metadata.opf2 import OPF
-        from calibre.ebooks.metadata import MetaInformation
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         stream = cStringIO.StringIO(etree.tostring(opf))
-        mi = MetaInformation(OPF(stream))
+        mi = OPF(stream).to_book_metadata()
         if not mi.language:
             mi.language = get_lang().replace('_', '-')
         self.oeb.metadata.add('language', mi.language)

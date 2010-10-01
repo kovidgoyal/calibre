@@ -10,10 +10,9 @@ import os, mimetypes, sys, re
 from urllib import unquote, quote
 from urlparse import urlparse
 
-from calibre import relpath, prints
+from calibre import relpath
 
 from calibre.utils.config import tweaks
-from calibre.utils.date import isoformat
 
 _author_pat = re.compile(',?\s+(and|with)\s+', re.IGNORECASE)
 def string_to_authors(raw):
@@ -221,214 +220,18 @@ class ResourceCollection(object):
 
 
 
-class MetaInformation(object):
-    '''Convenient encapsulation of book metadata'''
-
-    @staticmethod
-    def copy(mi):
-        ans = MetaInformation(mi.title, mi.authors)
-        for attr in ('author_sort', 'title_sort', 'comments', 'category',
-                     'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'tags', 'cover_data', 'application_id', 'guide',
-                     'manifest', 'spine', 'toc', 'cover', 'language',
-                     'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc',
-                     'author_sort_map',
-                     'pubdate', 'rights', 'publication_type', 'uuid'):
-            if hasattr(mi, attr):
-                setattr(ans, attr, getattr(mi, attr))
-
-    def __init__(self, title, authors=(_('Unknown'),)):
-        '''
+def MetaInformation(title, authors=(_('Unknown'),)):
+    ''' Convenient encapsulation of book metadata, needed for compatibility
         @param title: title or ``_('Unknown')`` or a MetaInformation object
         @param authors: List of strings or []
-        '''
-        mi = None
-        if hasattr(title, 'title') and hasattr(title, 'authors'):
-            mi = title
-            title = mi.title
-            authors = mi.authors
-        self.title = title
-        self.author = list(authors) if authors else []# Needed for backward compatibility
-        #: List of strings or []
-        self.authors = list(authors) if authors else []
-        self.tags = getattr(mi, 'tags', [])
-        #: mi.cover_data = (ext, data)
-        self.cover_data   = getattr(mi, 'cover_data', (None, None))
-        self.author_sort_map = getattr(mi, 'author_sort_map', {})
-
-        for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
-                  'series', 'series_index', 'rating', 'isbn', 'language',
-                  'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
-                  'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate',
-                  'rights', 'publication_type', 'uuid',
-                  ):
-            setattr(self, x, getattr(mi, x, None))
-
-    def print_all_attributes(self):
-        for x in ('title','author', 'author_sort', 'title_sort', 'comments', 'category', 'publisher',
-                  'series', 'series_index', 'tags', 'rating', 'isbn', 'language',
-                  'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
-                  'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate',
-                  'rights', 'publication_type', 'uuid', 'author_sort_map'
-                  ):
-            prints(x, getattr(self, x, 'None'))
-
-    def smart_update(self, mi, replace_metadata=False):
-        '''
-        Merge the information in C{mi} into self. In case of conflicts, the
-        information in C{mi} takes precedence, unless the information in mi is
-        NULL. If replace_metadata is True, then the information in mi always
-        takes precedence.
-        '''
-        if mi.title and mi.title != _('Unknown'):
-            self.title = mi.title
-
-        if mi.authors and mi.authors[0] != _('Unknown'):
-            self.authors = mi.authors
-
-        for attr in ('author_sort', 'title_sort', 'category',
-                     'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'application_id', 'manifest', 'spine', 'toc',
-                     'cover', 'guide', 'book_producer',
-                     'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate', 'rights',
-                     'publication_type', 'uuid'):
-            if replace_metadata:
-                setattr(self, attr, getattr(mi, attr, 1.0 if \
-                        attr == 'series_index' else None))
-            elif hasattr(mi, attr):
-                val = getattr(mi, attr)
-                if val is not None:
-                    setattr(self, attr, val)
-
-        if replace_metadata:
-            self.tags = mi.tags
-        elif mi.tags:
-            self.tags += mi.tags
-        self.tags = list(set(self.tags))
-
-        if mi.author_sort_map:
-            self.author_sort_map.update(mi.author_sort_map)
-
-        if getattr(mi, 'cover_data', False):
-            other_cover = mi.cover_data[-1]
-            self_cover = self.cover_data[-1] if self.cover_data else ''
-            if not self_cover: self_cover = ''
-            if not other_cover: other_cover = ''
-            if len(other_cover) > len(self_cover):
-                self.cover_data = mi.cover_data
-
-        if replace_metadata:
-            self.comments = getattr(mi, 'comments', '')
-        else:
-            my_comments = getattr(self, 'comments', '')
-            other_comments = getattr(mi, 'comments', '')
-            if not my_comments:
-                my_comments = ''
-            if not other_comments:
-                other_comments = ''
-            if len(other_comments.strip()) > len(my_comments.strip()):
-                self.comments = other_comments
-
-        other_lang = getattr(mi, 'language', None)
-        if other_lang and other_lang.lower() != 'und':
-            self.language = other_lang
-
-
-    def format_series_index(self):
-        try:
-            x = float(self.series_index)
-        except ValueError:
-            x = 1
-        return fmt_sidx(x)
-
-    def authors_from_string(self, raw):
-        self.authors = string_to_authors(raw)
-
-    def format_authors(self):
-        return authors_to_string(self.authors)
-
-    def format_tags(self):
-        return u', '.join([unicode(t) for t in self.tags])
-
-    def format_rating(self):
-        return unicode(self.rating)
-
-    def __unicode__(self):
-        ans = []
-        def fmt(x, y):
-            ans.append(u'%-20s: %s'%(unicode(x), unicode(y)))
-
-        fmt('Title', self.title)
-        if self.title_sort:
-            fmt('Title sort', self.title_sort)
-        if self.authors:
-            fmt('Author(s)',  authors_to_string(self.authors) + \
-               ((' [' + self.author_sort + ']') if self.author_sort else ''))
-        if self.publisher:
-            fmt('Publisher', self.publisher)
-        if getattr(self, 'book_producer', False):
-            fmt('Book Producer', self.book_producer)
-        if self.category:
-            fmt('Category', self.category)
-        if self.comments:
-            fmt('Comments', self.comments)
-        if self.isbn:
-            fmt('ISBN', self.isbn)
-        if self.tags:
-            fmt('Tags', u', '.join([unicode(t) for t in self.tags]))
-        if self.series:
-            fmt('Series', self.series + ' #%s'%self.format_series_index())
-        if self.language:
-            fmt('Language', self.language)
-        if self.rating is not None:
-            fmt('Rating', self.rating)
-        if self.timestamp is not None:
-            fmt('Timestamp', isoformat(self.timestamp))
-        if self.pubdate is not None:
-            fmt('Published', isoformat(self.pubdate))
-        if self.rights is not None:
-            fmt('Rights', unicode(self.rights))
-        if self.lccn:
-            fmt('LCCN', unicode(self.lccn))
-        if self.lcc:
-            fmt('LCC', unicode(self.lcc))
-        if self.ddc:
-            fmt('DDC', unicode(self.ddc))
-
-        return u'\n'.join(ans)
-
-    def to_html(self):
-        ans = [(_('Title'), unicode(self.title))]
-        ans += [(_('Author(s)'), (authors_to_string(self.authors) if self.authors else _('Unknown')))]
-        ans += [(_('Publisher'), unicode(self.publisher))]
-        ans += [(_('Producer'), unicode(self.book_producer))]
-        ans += [(_('Comments'), unicode(self.comments))]
-        ans += [('ISBN', unicode(self.isbn))]
-        if self.lccn:
-            ans += [('LCCN', unicode(self.lccn))]
-        if self.lcc:
-            ans += [('LCC', unicode(self.lcc))]
-        if self.ddc:
-            ans += [('DDC', unicode(self.ddc))]
-        ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
-        if self.series:
-            ans += [(_('Series'), unicode(self.series)+ ' #%s'%self.format_series_index())]
-        ans += [(_('Language'), unicode(self.language))]
-        if self.timestamp is not None:
-            ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]
-        if self.pubdate is not None:
-            ans += [(_('Published'), unicode(self.pubdate.isoformat(' ')))]
-        if self.rights is not None:
-            ans += [(_('Rights'), unicode(self.rights))]
-        for i, x in enumerate(ans):
-            ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
-        return u'<table>%s</table>'%u'\n'.join(ans)
-
-    def __str__(self):
-        return self.__unicode__().encode('utf-8')
-
-    def __nonzero__(self):
-        return bool(self.title or self.author or self.comments or self.tags)
+    '''
+    from calibre.ebooks.metadata.book.base import Metadata
+    mi = None
+    if hasattr(title, 'title') and hasattr(title, 'authors'):
+        mi = title
+        title = mi.title
+        authors = mi.authors
+    return Metadata(title, authors, other=mi)
 
 def check_isbn10(isbn):
     try:

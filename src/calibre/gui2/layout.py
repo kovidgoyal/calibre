@@ -152,7 +152,7 @@ class SearchBar(QWidget): # {{{
         l.addWidget(x)
         x.setToolTip(_("Advanced search"))
 
-        self.label = x = QLabel('&Search:')
+        self.label = x = QLabel(_('&Search:'))
         l.addWidget(self.label)
         x.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 

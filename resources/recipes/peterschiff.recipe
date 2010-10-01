@@ -12,15 +12,18 @@ class PeterSchiff(BasicNewsRecipe):
     description           = 'Economic commentary'
     publisher             = 'Euro Pacific capital'
     category              = 'news, politics, economy, USA'
-    oldest_article        = 15
+    oldest_article        = 25
     max_articles_per_feed = 200
     no_stylesheets        = True
-    encoding              = 'cp1252'
+    encoding              = 'utf8'
     use_embedded_content  = False
     language              = 'en'
-    country               = 'US'
     remove_empty_feeds    = True
-    extra_css             = ' body{font-family: Verdana,Times,serif } h1{text-align: left} img{margin-bottom: 0.4em}  '
+    extra_css             = """ 
+                                body{font-family: Verdana,Times,serif } 
+                                .field-field-commentary-writer-name{font-weight: bold}
+                                .field-items{display: inline}
+                            """
 
     conversion_options = {
                           'comment'   : description
@@ -30,7 +33,15 @@ class PeterSchiff(BasicNewsRecipe):
                         , 'linearize_tables' : True
                         }
 
-    keep_only_tags = [dict(name='tr',attrs={'style':'vertical-align: top;'})]
+    keep_only_tags = [
+                        dict(name='h2',attrs={'id':'page-title'})
+                       ,dict(name='div',attrs={'class':'node'})
+                     ]
+    remove_tags = [
+                    dict(name=['meta','link','base','iframe','embed'])                   
+                   ,dict(attrs={'id':'text-zoom'})
+                  ]
+    remove_attributes=['track','linktype','lang']
 
 
     feeds = [(u'Articles', u'http://feeds.feedburner.com/PeterSchiffsEconomicCommentary')]

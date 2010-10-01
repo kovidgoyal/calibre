@@ -234,7 +234,7 @@ class MobiReader(object):
         self.debug = debug
         self.embedded_mi = None
         self.base_css_rules = textwrap.dedent('''
-                blockquote { margin: 0em 0em 0em 1.25em; text-align: justify }
+                blockquote { margin: 0em 0em 0em 1em; text-align: justify }
 
                 p { margin: 0em; text-align: justify }
 
@@ -441,7 +441,7 @@ class MobiReader(object):
                 html.tostring(elem, encoding='utf-8') + '</package>'
         stream = cStringIO.StringIO(raw)
         opf = OPF(stream)
-        self.embedded_mi = MetaInformation(opf)
+        self.embedded_mi = opf.to_book_metadata()
         if guide is not None:
             for ref in guide.xpath('descendant::reference'):
                 if 'cover' in ref.get('type', '').lower():

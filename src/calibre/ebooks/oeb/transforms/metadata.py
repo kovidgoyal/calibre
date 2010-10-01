@@ -12,33 +12,33 @@ from calibre import guess_type
 
 def meta_info_to_oeb_metadata(mi, m, log):
     from calibre.ebooks.oeb.base import OPF
-    if mi.title:
+    if not mi.is_null('title'):
         m.clear('title')
         m.add('title', mi.title)
     if mi.title_sort:
         if not m.title:
             m.add('title', mi.title_sort)
         m.title[0].file_as = mi.title_sort
-    if mi.authors:
+    if not mi.is_null('authors'):
         m.filter('creator', lambda x : x.role.lower() in ['aut', ''])
         for a in mi.authors:
             attrib = {'role':'aut'}
             if mi.author_sort:
                 attrib[OPF('file-as')] = mi.author_sort
             m.add('creator', a, attrib=attrib)
-    if mi.book_producer:
+    if not mi.is_null('book_producer'):
         m.filter('contributor', lambda x : x.role.lower() == 'bkp')
         m.add('contributor', mi.book_producer, role='bkp')
-    if mi.comments:
+    if not mi.is_null('comments'):
         m.clear('description')
         m.add('description', mi.comments)
-    if mi.publisher:
+    if not mi.is_null('publisher'):
         m.clear('publisher')
         m.add('publisher', mi.publisher)
-    if mi.series:
+    if not mi.is_null('series'):
         m.clear('series')
         m.add('series', mi.series)
-    if mi.isbn:
+    if not mi.is_null('isbn'):
         has = False
         for x in m.identifier:
             if x.scheme.lower() == 'isbn':
@@ -46,29 +46,29 @@ def meta_info_to_oeb_metadata(mi, m, log):
                 has = True
         if not has:
             m.add('identifier', mi.isbn, scheme='ISBN')
-    if mi.language:
+    if not mi.is_null('language'):
         m.clear('language')
         m.add('language', mi.language)
-    if mi.series_index is not None:
+    if not mi.is_null('series_index'):
         m.clear('series_index')
         m.add('series_index', mi.format_series_index())
-    if mi.rating is not None:
+    if not mi.is_null('rating'):
         m.clear('rating')
         m.add('rating', '%.2f'%mi.rating)
-    if mi.tags:
+    if not mi.is_null('tags'):
         m.clear('subject')
         for t in mi.tags:
             m.add('subject', t)
-    if mi.pubdate is not None:
+    if not mi.is_null('pubdate'):
         m.clear('date')
         m.add('date', isoformat(mi.pubdate))
-    if mi.timestamp is not None:
+    if not mi.is_null('timestamp'):
         m.clear('timestamp')
         m.add('timestamp', isoformat(mi.timestamp))
-    if mi.rights is not None:
+    if not mi.is_null('rights'):
         m.clear('rights')
         m.add('rights', mi.rights)
-    if mi.publication_type is not None:
+    if not mi.is_null('publication_type'):
         m.clear('publication_type')
         m.add('publication_type', mi.publication_type)
     if not m.timestamp:

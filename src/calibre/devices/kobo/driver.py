@@ -30,7 +30,7 @@ class KOBO(USBMS):
 
     # Ordered list of supported formats
     FORMATS     = ['epub', 'pdf']
-    CAN_SET_METADATA = True
+    CAN_SET_METADATA = ['collections']
 
     VENDOR_ID   = [0x2237]
     PRODUCT_ID  = [0x4161]
@@ -126,7 +126,7 @@ class KOBO(USBMS):
                         book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
                     # print 'Update booklist'
                     book.device_collections = [playlist_map[lpath]] if lpath in playlist_map else []
-                                       
+
                     if bl.add_book(book, replace_metadata=False):
                         changed = True
             except: # Probably a path encoding error
@@ -150,7 +150,7 @@ class KOBO(USBMS):
 
         changed = False
         for i, row in enumerate(cursor):
-         #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
+        #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
 
             path = self.path_from_contentid(row[3], row[5], oncard)
             mime = mime_type_ext(path_to_ext(row[3]))
@@ -250,7 +250,7 @@ class KOBO(USBMS):
             # print "Delete file normalized path: " + path
             extension =  os.path.splitext(path)[1]
             ContentType = self.get_content_type_from_extension(extension)
-            
+
             ContentID = self.contentid_from_path(path, ContentType)
 
             ImageID = self.delete_via_sql(ContentID, ContentType)
@@ -453,7 +453,7 @@ class KOBO(USBMS):
                         query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 1 and ContentID like \'file:///mnt/sd/%\''
                     elif oncard != 'carda' and oncard != 'cardb':
                         query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 1 and ContentID not like \'file:///mnt/sd/%\''
-                    
+
                     try:
                         cursor.execute (query)
                     except:
@@ -489,7 +489,7 @@ class KOBO(USBMS):
                         query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 2 and ContentID like \'file:///mnt/sd/%\''
                     elif oncard != 'carda' and oncard != 'cardb':
                         query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 2 and ContentID not like \'file:///mnt/sd/%\''
-                    
+
                     try:
                         cursor.execute (query)
                     except:
@@ -519,7 +519,7 @@ class KOBO(USBMS):
                         else:
                             connection.commit()
 #                            debug_print('Database: Commit set ReadStatus as Finished')
-        else: # No collections 
+        else: # No collections
             # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
             print "Reseting ReadStatus to 0"
             # Reset Im_Reading list in the database
@@ -527,7 +527,7 @@ class KOBO(USBMS):
                 query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID like \'file:///mnt/sd/%\''
             elif oncard != 'carda' and oncard != 'cardb':
                 query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID not like \'file:///mnt/sd/%\''
-                    
+
             try:
                 cursor.execute (query)
             except:
@@ -541,7 +541,7 @@ class KOBO(USBMS):
         connection.close()
 
 #        debug_print('Finished update_device_database_collections', collections_attributes)
-        
+
     def sync_booklists(self, booklists, end_session=True):
 #        debug_print('KOBO: started sync_booklists')
         paths = self.get_device_paths()

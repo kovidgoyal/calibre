@@ -125,7 +125,7 @@ def create_metadata(stream, options):
             au = u', '.join(au)
         author = au.encode('ascii', 'ignore')
         md += r'{\author %s}'%(author,)
-    if options.category:
+    if options.get('category', None):
         category = options.category.encode('ascii', 'ignore')
         md += r'{\category %s}'%(category,)
     comp = options.comment if hasattr(options, 'comment') else options.comments
@@ -180,7 +180,7 @@ def set_metadata(stream, options):
                 src = pat.sub(r'{\\author ' + author + r'}', src)
             else:
                 src = add_metadata_item(src, 'author', author)
-        category = options.category
+        category = options.get('category', None)
         if category != None:
             category = category.encode('ascii', 'replace')
             pat = re.compile(base_pat.replace('name', 'category'), re.DOTALL)

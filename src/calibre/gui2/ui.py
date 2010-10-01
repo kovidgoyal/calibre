@@ -19,7 +19,7 @@ from PyQt4.Qt import Qt, SIGNAL, QTimer, \
                      QMessageBox, QHelpEvent
 
 from calibre import  prints
-from calibre.constants import __appname__, isosx
+from calibre.constants import __appname__, isosx, DEBUG
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
@@ -360,6 +360,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
     def library_moved(self, newloc):
         if newloc is None: return
+        try:
+            olddb = self.library_view.model().db
+        except:
+            olddb = None
         db = LibraryDatabase2(newloc)
         self.library_path = newloc
         self.book_on_device(None, reset=True)
@@ -380,6 +384,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.apply_named_search_restriction('') # reset restriction to null
         self.saved_searches_changed() # reload the search restrictions combo box
         self.apply_named_search_restriction(db.prefs['gui_restriction'])
+        if olddb is not None:
+            try:
+                olddb.conn.close()
+            except:
+                import traceback
+                traceback.print_exc()
 
     def set_window_title(self):
         self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())
@@ -533,6 +543,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             # Save the current field_metadata for applications like calibre2opds
             # Goes here, because if cf is valid, db is valid.
             db.prefs['field_metadata'] = db.field_metadata.all_metadata()
+            db.commit_dirty_cache()
+            if DEBUG and db.gm_count > 0:
+                print 'get_metadata cache: {0:d} calls, {1:4.2f}% misses'.format(
+                        db.gm_count, (db.gm_missed*100.0)/db.gm_count)
         for action in self.iactions.values():
             if not action.shutting_down():
                 return
@@ -548,6 +562,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         cc = self.library_view.model().cover_cache
         if cc is not None:
             cc.stop()
+        mb = self.library_view.model().metadata_backup
+        if mb is not None:
+            mb.stop()
+
         self.hide_windows()
         self.emailer.stop()
         try:
@@ -558,9 +576,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
                     s.exit()
             except:
                 pass
-            time.sleep(2)
         except KeyboardInterrupt:
             pass
+        time.sleep(2)
+        if mb is not None:
+            mb.flush()
         self.hide_windows()
         return True
 
