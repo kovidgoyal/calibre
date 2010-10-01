@@ -234,7 +234,7 @@ class MobiReader(object):
         self.debug = debug
         self.embedded_mi = None
         self.base_css_rules = textwrap.dedent('''
-                blockquote { margin: 0em 0em 0em 1.25em; text-align: justify }
+                blockquote { margin: 0em 0em 0em 1em; text-align: justify }
 
                 p { margin: 0em; text-align: justify }
 
