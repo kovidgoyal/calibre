@@ -59,14 +59,14 @@ class ALEX(N516):
     description    = _('Communicate with the SpringDesign Alex eBook reader.')
     author         = 'Kovid Goyal'
 
-    FORMATS     = ['epub', 'pdf']
+    FORMATS     = ['epub', 'fb2', 'pdf']
     VENDOR_NAME      = 'ALEX'
     WINDOWS_MAIN_MEM = 'READER'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Alex Internal Memory'
 
     EBOOK_DIR_MAIN = 'eBooks'
-    SUPPORTS_SUB_DIRS = True
+    SUPPORTS_SUB_DIRS = False
 
     def can_handle(self, device_info, debug=False):
         return is_alex(device_info)
