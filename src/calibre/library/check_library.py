@@ -132,23 +132,35 @@ class CheckLibrary(object):
     def process_book(self, lib, book_info):
         (db_path, title_dir, book_id) = book_info
         filenames = frozenset(os.listdir(os.path.join(lib, db_path)))
+        filenames_lc = frozenset(f.lower() for f in filenames)
         book_id = int(book_id)
         formats = frozenset(filter(self.is_ebook_file, filenames))
+        formats_lc = frozenset(f.lower() for f in formats)
 
-        unknowns = frozenset(filenames-formats-NORMALS)
         # Check: any books that aren't formats or normally there?
+        if self.is_case_sensitive:
+            unknowns = frozenset(filenames-formats-NORMALS)
+        else:
+            unknowns = frozenset(filenames_lc-formats_lc-NORMALS)
         if unknowns:
             self.extra_files.append((title_dir, db_path, unknowns))
 
         book_formats = frozenset([x[0]+'.'+x[1].lower() for x in
                             self.db.format_files(book_id, index_is_id=True)])
+        book_formats_lc = frozenset(f.lower() for f in book_formats)
 
         # Check: any book formats that should be there?
-        missing = book_formats - formats
+        if self.is_case_sensitive:
+            missing = book_formats - formats
+        else:
+            missing = book_formats_lc - formats_lc
         if missing:
             self.missing_formats.append((title_dir, db_path, missing))
 
         # Check: any book formats that shouldn't be there?
-        extra = formats - book_formats
+        if self.is_case_sensitive:
+            extra = formats - book_formats
+        else:
+            extra = formats_lc - book_formats_lc
         if extra:
             self.extra_formats.append((title_dir, db_path, extra))
