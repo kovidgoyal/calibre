@@ -10,6 +10,7 @@ import re, os, traceback
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.utils.config import tweaks
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 
@@ -35,6 +36,10 @@ class CheckLibrary(object):
         self.db = db
 
         self.is_case_sensitive = db.is_case_sensitive
+
+        self.ignore_names = frozenset(tweaks['check_library_ignore_names'])
+        self.ignore_ext = frozenset(['.'+ e for e in
+                                     tweaks['check_library_ignore_extensions']])
 
         self.all_authors = frozenset([x[1] for x in db.all_authors()])
         self.all_ids = frozenset([id for id in db.all_ids()])
@@ -71,6 +76,8 @@ class CheckLibrary(object):
     def scan_library(self):
         lib = self.src_library_path
         for auth_dir in os.listdir(lib):
+            if auth_dir in self.ignore_names:
+                continue
             auth_path = os.path.join(lib, auth_dir)
             # First check: author must be a directory
             if not os.path.isdir(auth_path):
@@ -82,6 +89,8 @@ class CheckLibrary(object):
             # Look for titles in the author directories
             found_titles = False
             for title_dir in os.listdir(auth_path):
+                if title_dir in self.ignore_names:
+                    continue
                 title_path = os.path.join(auth_path, title_dir)
                 db_path = os.path.join(auth_dir, title_dir)
                 m = self.db_id_regexp.search(title_dir)
@@ -131,7 +140,8 @@ class CheckLibrary(object):
 
     def process_book(self, lib, book_info):
         (db_path, title_dir, book_id) = book_info
-        filenames = frozenset(os.listdir(os.path.join(lib, db_path)))
+        filenames = frozenset([f for f in os.listdir(os.path.join(lib, db_path))
+                               if os.path.splitext(f)[1] not in self.ignore_ext])
         book_id = int(book_id)
         formats = frozenset(filter(self.is_ebook_file, filenames))
         book_formats = frozenset([x[0]+'.'+x[1].lower() for x in
