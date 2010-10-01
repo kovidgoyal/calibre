@@ -850,6 +850,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return set([])
         return set([f[0] for f in formats])
 
+    def format_files(self, index, index_is_id=False):
+        id = index if index_is_id else self.id(index)
+        try:
+            formats = self.conn.get('SELECT name,format FROM data WHERE book=?', (id,))
+            formats = map(lambda x:(x[0], x[1]), formats)
+            return formats
+        except:
+            return []
+
     def formats(self, index, index_is_id=False, verify_formats=True):
         ''' Return available formats as a comma separated list or None if there are no available formats '''
         id = index if index_is_id else self.id(index)
