@@ -78,7 +78,7 @@ class CheckLibraryDialog(QDialog):
     def run_the_check(self):
         checker = CheckLibrary(self.db.library_path, self.db)
         checker.scan_library(self.box_to_list(unicode(self.name_ignores.text())),
-                             self.box_to_list(unicode(self.name_ignores.text())))
+                             self.box_to_list(unicode(self.ext_ignores.text())))
 
         plaintext = []
 
