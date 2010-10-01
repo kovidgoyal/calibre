@@ -33,7 +33,10 @@ def get_metadata(stream):
         le = XPath('descendant::fb2:last-name')(au)
         if le:
             lname = tostring(le[0])
-            author += ' '+lname
+            if author:
+                author += ' '+lname
+            else:
+                author = lname
         if author:
             authors.append(author)
         if len(authors) == 1 and author is not None:
