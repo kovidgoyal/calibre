@@ -188,7 +188,7 @@ class MobiMLizer(object):
                 para = wrapper
                 emleft = int(round(left / self.profile.fbase)) - 1
                 emleft = min((emleft, 10))
-                while emleft > 1:
+                while emleft > 0:
                     para = etree.SubElement(para, XHTML('blockquote'))
                     emleft -= 1
             else:
