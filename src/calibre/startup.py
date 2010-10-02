@@ -129,6 +129,17 @@ if not _run_once:
                     fobject = object.__getattribute__(self, 'fobject')
                     return setattr(fobject, attr, val)
 
+                def __repr__(self):
+                    fobject = object.__getattribute__(self, 'fobject')
+                    name = object.__getattribute__(self, 'name')
+                    return repr(fobject).replace('>', ' name='+repr(name)+'>')
+
+                def __str__(self):
+                    return repr(self)
+
+                def __unicode__(self):
+                    return repr(self).decode('utf-8')
+
 
             m = mode[0]
             random = len(mode) > 1 and mode[1] == '+'
