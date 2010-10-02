@@ -132,17 +132,23 @@ class OEBReader(object):
         if not mi.language:
             mi.language = get_lang().replace('_', '-')
         self.oeb.metadata.add('language', mi.language)
-        if not mi.title:
-            mi.title = self.oeb.translate(__('Unknown'))
-        if not mi.authors:
-            mi.authors = [self.oeb.translate(__('Unknown'))]
         if not mi.book_producer:
             mi.book_producer = '%(a)s (%(v)s) [http://%(a)s.kovidgoyal.net]'%\
                 dict(a=__appname__, v=__version__)
         meta_info_to_oeb_metadata(mi, self.oeb.metadata, self.logger)
-        self.oeb.metadata.add('identifier', str(uuid.uuid4()), id='uuid_id',
-                                scheme='uuid')
+        m = self.oeb.metadata
+        m.add('identifier', str(uuid.uuid4()), id='uuid_id', scheme='uuid')
         self.oeb.uid = self.oeb.metadata.identifier[-1]
+        if not m.title:
+            m.add('title', self.oeb.translate(__('Unknown')))
+        has_aut = False
+        for x in m.creator:
+            if getattr(x, 'role', '').lower() in ('', 'aut'):
+                has_aut = True
+                break
+        if not has_aut:
+            m.add('creator', self.oeb.translate(__('Unknown')), role='aut')
+
 
     def _manifest_prune_invalid(self):
         '''
@@ -364,10 +370,7 @@ class OEBReader(object):
         ncx = item.data
         title = ''.join(xpath(ncx, 'ncx:docTitle/ncx:text/text()'))
         title = COLLAPSE_RE.sub(' ', title.strip())
-        try:
-            title = title or unicode(self.oeb.metadata.title[0])
-        except:
-            title = _('Unknown')
+        title = title or unicode(self.oeb.metadata.title[0])
         toc = self.oeb.toc
         toc.title = title
         navmaps = xpath(ncx, 'ncx:navMap')

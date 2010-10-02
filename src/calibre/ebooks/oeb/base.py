@@ -654,8 +654,6 @@ class Metadata(object):
             if predicate(x):
                 l.remove(x)
 
-
-
     def __getitem__(self, key):
         return self.items[key]
 
