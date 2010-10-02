@@ -17,7 +17,7 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre import strftime
+from calibre import strftime, prints
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
@@ -114,8 +114,14 @@ class SafeFormat(TemplateFormatter):
 
     def get_value(self, key, args, kwargs):
         try:
-            b = self.book.get_user_metadata(key, False)
             key = key.lower()
+            try:
+                b = self.book.get_user_metadata(key, False)
+            except:
+                prints('save_to_disk get value exception')
+                traceback.print_exc()
+                b = None
+
             if b is not None and b['datatype'] == 'composite':
                 if key in self.composite_values:
                     return self.composite_values[key]
@@ -124,9 +130,11 @@ class SafeFormat(TemplateFormatter):
                     self.vformat(b['display']['composite_template'], [], kwargs)
                 return self.composite_values[key]
             if kwargs[key]:
-                return self.sanitize(kwargs[key.lower()])
+                return self.sanitize(kwargs[key])
             return ''
         except:
+            print('save_to_disk general exception')
+            traceback.print_exc()
             return ''
 
 safe_formatter = SafeFormat()

@@ -3,6 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import os, sys, Queue, threading
 from threading import RLock
+from urllib import unquote
 
 from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
                          QByteArray, QTranslator, QCoreApplication, QThread, \
@@ -505,6 +506,11 @@ class FileDialog(QObject):
             fs = QFileDialog.getOpenFileNames(parent, title, initial_dir, ftext, "")
             for f in fs:
                 f = unicode(f)
+                if not f: continue
+                if not os.path.exists(f):
+                    # QFileDialog for some reason quotes spaces
+                    # on linux if there is more than one space in a row
+                    f = unquote(f)
                 if f and os.path.exists(f):
                     self.selected_files.append(f)
         else:

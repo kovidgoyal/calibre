@@ -73,7 +73,7 @@ class CheckLibraryDialog(QDialog):
         QDialog.accept(self)
 
     def box_to_list(self, txt):
-        return [f.strip().lower() for f in txt.split(',') if f.strip()]
+        return [f.strip() for f in txt.split(',') if f.strip()]
 
     def run_the_check(self):
         checker = CheckLibrary(self.db.library_path, self.db)

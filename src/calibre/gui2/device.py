@@ -23,7 +23,7 @@ from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                         warning_dialog, \
                         question_dialog, info_dialog, choose_dir
 from calibre.ebooks.metadata import authors_to_string
-from calibre import preferred_encoding, prints
+from calibre import preferred_encoding, prints, force_unicode
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
@@ -964,12 +964,12 @@ class DeviceMixin(object): # {{{
         for jobname, exception, tb in results:
             title = jobname.partition(':')[-1]
             if exception is not None:
-                errors.append([title, exception, tb])
+                errors.append(list(map(force_unicode, [title, exception, tb])))
             else:
                 good.append(title)
         if errors:
-            errors = '\n'.join([
-                    '%s\n\n%s\n%s\n' %
+            errors = u'\n'.join([
+                    u'%s\n\n%s\n%s\n' %
                     (title, e, tb) for \
                             title, e, tb in errors
                     ])
