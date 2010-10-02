@@ -930,11 +930,11 @@ def command_check_library(args, dbpath):
     if opts.names is None:
         names = []
     else:
-        names = [f.strip().lower() for f in opts.names.split(',') if f.strip()]
+        names = [f.strip() for f in opts.names.split(',') if f.strip()]
     if opts.exts is None:
         exts = []
     else:
-        exts = [f.strip().lower() for f in opts.exts.split(',') if f.strip()]
+        exts = [f.strip() for f in opts.exts.split(',') if f.strip()]
 
     def print_one(checker, check):
         attr = check[0]
