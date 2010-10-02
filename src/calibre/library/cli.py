@@ -930,11 +930,11 @@ def command_check_library(args, dbpath):
     if opts.names is None:
         names = []
     else:
-        names = [f.strip().lower() for f in opts.names.split(',') if f.strip()]
+        names = [f.strip() for f in opts.names.split(',') if f.strip()]
     if opts.exts is None:
         exts = []
     else:
-        exts = [f.strip().lower() for f in opts.exts.split(',') if f.strip()]
+        exts = [f.strip() for f in opts.exts.split(',') if f.strip()]
 
     def print_one(checker, check):
         attr = check[0]
@@ -971,7 +971,7 @@ def restore_database_option_parser():
     files in each directory of the calibre library. This is
     useful if your metadata.db file has been corrupted.
 
-    WARNING: This completely regenrates your datbase. You will
+    WARNING: This completely regenerates your datbase. You will
     lose stored per-book conversion settings and custom recipes.
     '''))
     return parser

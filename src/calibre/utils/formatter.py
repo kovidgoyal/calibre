@@ -39,6 +39,15 @@ class TemplateFormatter(string.Formatter):
         else:
             return value_if_not
 
+    def _switch(self, val, *args):
+        i = 0
+        while i < len(args):
+            if i + 1 >= len(args):
+                return args[i]
+            if re.search(args[i], val):
+                return args[i+1]
+            i += 2
+
     def _re(self, val, pattern, replacement):
         return re.sub(pattern, replacement, val)
 
@@ -66,11 +75,18 @@ class TemplateFormatter(string.Formatter):
                     'lookup'        : (2, _lookup),
                     're'            : (2, _re),
                     'shorten'       : (3, _shorten),
+                    'switch'        : (-1, _switch),
                     'test'          : (2, _test),
         }
 
     format_string_re = re.compile(r'^(.*)\|(.*)\|(.*)$')
     compress_spaces = re.compile(r'\s+')
+
+    arg_parser = re.Scanner([
+                (r',', lambda x,t: ''),
+                (r'.*?((?<!\\),)', lambda x,t: t[:-1]),
+                (r'.*?\)', lambda x,t: t[:-1]),
+        ])
 
     def get_value(self, key, args, kwargs):
         raise Exception('get_value must be implemented in the subclass')
@@ -105,7 +121,7 @@ class TemplateFormatter(string.Formatter):
             if fmt[colon:p] in self.functions:
                 field = fmt[colon:p]
                 func = self.functions[field]
-                args = fmt[p+1:-1].split(',')
+                args = self.arg_parser.scan(fmt[p+1:])[0]
                 if (func[0] == 0 and (len(args) != 1 or args[0])) or \
                         (func[0] > 0 and func[0] != len(args)):
                     raise ValueError('Incorrect number of arguments for function '+ fmt[0:p])

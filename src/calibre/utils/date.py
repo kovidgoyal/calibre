@@ -120,6 +120,9 @@ def utcfromtimestamp(stamp):
 
 def format_date(dt, format, assume_utc=False, as_utc=False):
     ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
+    if not format:
+        format = 'dd MMM yyyy'
+
     if hasattr(dt, 'tzinfo'):
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=_utc_tz if assume_utc else
