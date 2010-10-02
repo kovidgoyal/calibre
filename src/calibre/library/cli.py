@@ -971,7 +971,7 @@ def restore_database_option_parser():
     files in each directory of the calibre library. This is
     useful if your metadata.db file has been corrupted.
 
-    WARNING: This completely regenrates your datbase. You will
+    WARNING: This completely regenerates your datbase. You will
     lose stored per-book conversion settings and custom recipes.
     '''))
     return parser
