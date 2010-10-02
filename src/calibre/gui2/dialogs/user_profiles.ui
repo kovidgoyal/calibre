@@ -375,7 +375,7 @@ p, li { white-space: pre-wrap; }
                  <item>
                   <widget class="QLabel" name="label_8">
                    <property name="text">
-                    <string>For help with writing advanced news recipes, please visit &lt;a href=&quot;http://__appname__.kovidgoyal.net/user_manual/news.html&quot;&gt;User Recipes&lt;/a&gt;</string>
+                    <string>For help with writing advanced news recipes, please visit &lt;a href=&quot;http://__appname__-ebook.com/user_manual/news.html&quot;&gt;User Recipes&lt;/a&gt;</string>
                    </property>
                    <property name="wordWrap">
                     <bool>true</bool>

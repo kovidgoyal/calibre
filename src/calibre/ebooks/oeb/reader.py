@@ -133,7 +133,7 @@ class OEBReader(object):
             mi.language = get_lang().replace('_', '-')
         self.oeb.metadata.add('language', mi.language)
         if not mi.book_producer:
-            mi.book_producer = '%(a)s (%(v)s) [http://%(a)s.kovidgoyal.net]'%\
+            mi.book_producer = '%(a)s (%(v)s) [http://%(a)s-ebook.com]'%\
                 dict(a=__appname__, v=__version__)
         meta_info_to_oeb_metadata(mi, self.oeb.metadata, self.logger)
         m = self.oeb.metadata
