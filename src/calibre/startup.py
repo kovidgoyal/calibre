@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 Perform various initialization tasks.
 '''
 
-import locale, sys, os
+import locale, sys, os, re
 
 # Default translation is NOOP
 import __builtin__
@@ -132,7 +132,8 @@ if not _run_once:
                 def __repr__(self):
                     fobject = object.__getattribute__(self, 'fobject')
                     name = object.__getattribute__(self, 'name')
-                    return repr(fobject).replace('>', ' name='+repr(name)+'>')
+                    return re.sub(r'''['"]<fdopen>['"]''', repr(name),
+                            repr(fobject))
 
                 def __str__(self):
                     return repr(self)
