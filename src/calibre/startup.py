@@ -139,6 +139,7 @@ if not _run_once:
             flags |= os.O_NOINHERIT
             fd = os.open(name, flags)
             ans = os.fdopen(fd, mode, bufsize)
+            ans.name = name
         else:
             import fcntl
             try:
