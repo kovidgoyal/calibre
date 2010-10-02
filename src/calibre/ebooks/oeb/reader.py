@@ -364,7 +364,10 @@ class OEBReader(object):
         ncx = item.data
         title = ''.join(xpath(ncx, 'ncx:docTitle/ncx:text/text()'))
         title = COLLAPSE_RE.sub(' ', title.strip())
-        title = title or unicode(self.oeb.metadata.title[0])
+        try:
+            title = title or unicode(self.oeb.metadata.title[0])
+        except:
+            title = _('Unknown')
         toc = self.oeb.toc
         toc.title = title
         navmaps = xpath(ncx, 'ncx:navMap')
