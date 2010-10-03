@@ -41,24 +41,6 @@ class MOBIOutput(OutputFormatPlugin):
         ),
     ])
 
-    def remove_image_transparencies(self):
-        from calibre.utils.magick.draw import save_cover_data_to
-        for item in self.oeb.manifest:
-            if item.media_type.startswith('image'):
-                raw = item.data
-                ext = item.media_type.split('/')[-1].lower()
-                if ext not in ('png', 'gif') or not raw:
-                    continue
-                try:
-                    data = save_cover_data_to(raw, 'img.'+ext, return_data=True)
-                except:
-                    self.log.exception('Failed to remove transparency from',
-                            item.href)
-                    data = None
-                if data is not None:
-                    item.data = data
-                    item.unload_data_from_memory()
-
     def check_for_periodical(self):
         if self.oeb.metadata.publication_type and \
             unicode(self.oeb.metadata.publication_type[0]).startswith('periodical:'):
@@ -178,7 +160,6 @@ class MOBIOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
         from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
         from calibre.customize.ui import plugin_for_input_format
-        self.remove_image_transparencies()
         imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
         if not opts.no_inline_toc:
             tocadder = HTMLTOCAdder(title=opts.toc_title)
