@@ -17,7 +17,7 @@ from calibre.ebooks.metadata import authors_to_string, MetaInformation
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
-from calibre.utils.config import config_dir
+from calibre.utils.config import config_dir, prefs
 from calibre.utils.date import isoformat, now, parse_date
 from calibre.utils.localization import get_lang
 from calibre.utils.logging import Log
@@ -164,6 +164,7 @@ class ITUNES(DriverBase):
     # Properties
     cached_books = {}
     cache_dir = os.path.join(config_dir, 'caches', 'itunes')
+    calibre_library_path = prefs['library_path']
     archive_path = os.path.join(cache_dir, "thumbs.zip")
     description_prefix = "added by calibre"
     ejected = False
@@ -173,6 +174,7 @@ class ITUNES(DriverBase):
     log = Log()
     manual_sync_mode = False
     path_template = 'iTunes/%s - %s.%s'
+    plugboard = None
     problem_titles = []
     problem_msg = None
     report_progress = None
@@ -814,6 +816,15 @@ class ITUNES(DriverBase):
         '''
         self.report_progress = report_progress
 
+    def set_plugboard(self, pb):
+        # This method is called with the plugboard that matches the above
+        # format and the current device name.
+        if DEBUG:
+            self.log.info("ITUNES.set_plugboard()")
+        if pb is not None:
+            self.log.info('  using plugboard %s' % pb)
+            self.plugboard = pb
+
     def sync_booklists(self, booklists, end_session=True):
         '''
         Update metadata on device.
@@ -824,6 +835,10 @@ class ITUNES(DriverBase):
 
         if DEBUG:
             self.log.info("ITUNES.sync_booklists()")
+
+        # booklists[0] should contain enough info to call
+        # self._update_iTunes_metadata(metadata[i], db_added, lb_added, this_book)
+        # from here using the plugboard data as the metadata
 
         if self.update_needed:
             if DEBUG:
@@ -860,7 +875,7 @@ class ITUNES(DriverBase):
         return (capacity,-1,-1)
 
     def upload_books(self, files, names, on_card=None, end_session=True,
-                     metadata=None):
+                     metadata=None, plugboards=None):
         '''
         Upload a list of books to the device. If a file already
         exists on the device, it should be replaced.
@@ -891,6 +906,7 @@ class ITUNES(DriverBase):
             self.log.info("ITUNES.upload_books()")
             self._dump_files(files, header='upload_books()',indent=2)
             self._dump_update_list(header='upload_books()',indent=2)
+            self.log.info("  plugboards: %s" % plugboards)
 
         if isosx:
             for (i,file) in enumerate(files):
@@ -976,6 +992,13 @@ class ITUNES(DriverBase):
             self._dump_booklist(new_booklist,header="after upload_books()",indent=2)
             self._dump_cached_books(header="after upload_books()",indent=2)
         return (new_booklist, [], [])
+
+    def use_plugboard_ext(self):
+        ''' Declare which plugboard extensions we care about '''
+        if DEBUG:
+            self.log.info("ITUNES.use_plugboard_ext()")
+        ext = 'epub'
+        return ext
 
 
     # Private methods
@@ -1256,7 +1279,10 @@ class ITUNES(DriverBase):
                 self.problem_titles.append("'%s' by %s" % (metadata.title, metadata.author[0]))
                 self.log.error("   error converting '%s' to thumb for '%s'" % (metadata.cover,metadata.title))
             finally:
-                zfw.close()
+                try:
+                    zfw.close()
+                except:
+                    pass
         else:
             if DEBUG:
                 self.log.info("   no cover defined in metadata for '%s'" % metadata.title)
@@ -1273,10 +1299,10 @@ class ITUNES(DriverBase):
         this_book.db_id = None
         this_book.device_collections = []
         this_book.format = format
-        this_book.library_id = lb_added
+        this_book.library_id = lb_added     # ??? GR
         this_book.path = path
         this_book.thumbnail = thumb
-        this_book.iTunes_id = lb_added
+        this_book.iTunes_id = lb_added      # ??? GR
         this_book.uuid = metadata.uuid
 
         if isosx:
@@ -2213,6 +2239,7 @@ class ITUNES(DriverBase):
                  (self.iTunes.name(), self.iTunes.version(), self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
                 self.log.info("  iTunes_media: %s" % self.iTunes_media)
+                self.log.info("  calibre_library_path: %s" % self.calibre_library_path)
 
         if iswindows:
             '''
@@ -2266,6 +2293,7 @@ class ITUNES(DriverBase):
                  (self.iTunes.Windows[0].name, self.iTunes.Version, self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
                 self.log.info("  iTunes_media: %s" % self.iTunes_media)
+                self.log.info("  calibre_library_path: %s" % self.calibre_library_path)
 
     def _purge_orphans(self,library_books, cached_books):
         '''
@@ -2368,7 +2396,8 @@ class ITUNES(DriverBase):
         '''
         iTunes does not delete books from storage when removing from database
         We only want to delete stored copies if the file is stored in iTunes
-        We don't want to delete files stored outside of iTunes
+        We don't want to delete files stored outside of iTunes.
+        Also confirm that storage_path does not point into calibre's storage.
         '''
         if DEBUG:
             self.log.info(" ITUNES._remove_from_iTunes():")
@@ -2376,7 +2405,8 @@ class ITUNES(DriverBase):
         if isosx:
             try:
                 storage_path = os.path.split(cached_book['lib_book'].location().path)
-                if cached_book['lib_book'].location().path.startswith(self.iTunes_media):
+                if cached_book['lib_book'].location().path.startswith(self.iTunes_media) and \
+                   not storage_path[0].startswith(self.calibre_library_path):
                     title_storage_path = storage_path[0]
                     if DEBUG:
                         self.log.info("  removing title_storage_path: %s" % title_storage_path)
@@ -2427,7 +2457,8 @@ class ITUNES(DriverBase):
                     path = book.Location
 
             if book:
-                if self.iTunes_media and path.startswith(self.iTunes_media):
+                if self.iTunes_media and path.startswith(self.iTunes_media) and \
+                   not path.startswith(self.calibre_library_path):
                     storage_path = os.path.split(path)
                     if DEBUG:
                         self.log.info("   removing '%s' at %s" %
