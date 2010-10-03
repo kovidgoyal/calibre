@@ -39,6 +39,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         ConfigWidgetBase.initialize(self)
 
+        if self.gui.device_manager.connected_device is not None:
+            self.device_label.setText(_('Device currently connected: ') +
+                    self.gui.device_manager.connected_device.__class__.__name__)
+        else:
+            self.device_label.setText(_('Device currently connected: None'))
+
         self.devices = ['']
         for device in device_plugins():
             n = device.__class__.__name__
