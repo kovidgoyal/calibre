@@ -1081,12 +1081,11 @@ class DeviceBooksModel(BooksModel): # {{{
         self.db = db
         self.map = list(range(0, len(db)))
 
-    def current_changed(self, current, previous):
-        data = {}
-        item = self.db[self.map[current.row()]]
+    def cover(self, row):
+        item = self.db[self.map[row]]
         cdata = item.thumbnail
+        img = QImage()
         if cdata is not None:
-            img = QImage()
             if hasattr(cdata, 'image_path'):
                 img.load(cdata.image_path)
             elif cdata:
@@ -1094,9 +1093,16 @@ class DeviceBooksModel(BooksModel): # {{{
                     img.loadFromData(cdata[-1])
                 else:
                     img.loadFromData(cdata)
-            if img.isNull():
-                img = self.default_image
-            data['cover'] = img
+        if img.isNull():
+            img = self.default_image
+        return img
+
+    def current_changed(self, current, previous):
+        data = {}
+        item = self.db[self.map[current.row()]]
+        cover = self.cover(current.row())
+        if cover is not self.default_image:
+            data['cover'] = cover
         type = _('Unknown')
         ext = os.path.splitext(item.path)[1]
         if ext:
