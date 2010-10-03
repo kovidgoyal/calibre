@@ -7,21 +7,21 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-10-01 21:28+0000\n"
-"PO-Revision-Date: 2010-10-01 21:11+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-10-02 17:30+0000\n"
+"PO-Revision-Date: 2010-10-02 21:29+0000\n"
+"Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-02 05:03+0000\n"
+"X-Launchpad-Export-Date: 2010-10-03 04:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
-msgstr "Gör ingenting"
+msgstr "Gör absolut ingenting"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:87
@@ -157,7 +157,7 @@ msgstr "Gör ingenting"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:50
 msgid "Unknown"
-msgstr "Okänt"
+msgstr "Okänd"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
@@ -385,7 +385,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "Ändra metadatafält innan du sparar / skickar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:814
 msgid "Sharing books by email"
@@ -905,7 +905,7 @@ msgstr "Kommunicera med läsplattan MiBuk Wolder"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:116
 msgid "Communicate with the JetBook Mini reader."
-msgstr ""
+msgstr "Kommunicera med jetBook Mini läsaren."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:43
 msgid "Communicate with the Kindle eBook reader."
@@ -2385,7 +2385,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:109
 msgid "TEMPLATE ERROR"
-msgstr ""
+msgstr "MALL FEL"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:479
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:59
@@ -2637,11 +2637,11 @@ msgstr "Serverfel för LibraryThing.com. Försök igen senare."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:226
 msgid "Download covers from Douban.com"
-msgstr ""
+msgstr "Ladda ner omslag från Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:235
 msgid "Douban.com API timed out. Try again later."
-msgstr ""
+msgstr "Douban.com API svarar inte. Försök igen senare."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
@@ -3721,7 +3721,7 @@ msgstr "Radera biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:120
 msgid "Library backup status..."
-msgstr ""
+msgstr "Bibliotek säkerhetskoperingsstatus ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:176
 msgid "Rename"
@@ -3769,15 +3769,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:223
 msgid "none"
-msgstr ""
+msgstr "inga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:224
 msgid "Backup status"
-msgstr ""
+msgstr "Säkerhetskoperingsstatus ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:225
 msgid "Book metadata files remaining to be written: %s"
-msgstr ""
+msgstr "Bokmetadatafiler som återstår att skrivas:%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:234
 msgid "No library found"
@@ -5904,16 +5904,16 @@ msgstr " index:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:460
 msgid "Remove series"
-msgstr ""
+msgstr "Ta bort serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:463
 msgid "Automatically number books"
-msgstr ""
+msgstr "Automatiskt numrera böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:466
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:346
 msgid "Force numbers to start with "
-msgstr ""
+msgstr "Tvinga nummerstart att börja med "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:529
 msgid "Remove all tags"
@@ -6263,11 +6263,11 @@ msgstr "Katalogalternativ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:21
 msgid "Check Library"
-msgstr ""
+msgstr "Kontrollera bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:29
 msgid "Run the check"
-msgstr ""
+msgstr "Kör kontrollera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:205
@@ -6276,19 +6276,19 @@ msgstr "Kopiera till urklipp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:48
 msgid "Names to ignore:"
-msgstr ""
+msgstr "Namn att ignoreras:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:54
 msgid "Extensions to ignore"
-msgstr ""
+msgstr "Tillägg att ignorera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 msgid "Additional Information"
-msgstr ""
+msgstr "Mer information"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 msgid "Path from library"
-msgstr ""
+msgstr "Vägen från biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:89
@@ -6438,12 +6438,12 @@ msgstr "Författarsortering"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:511
 msgid "Invalid author name"
-msgstr ""
+msgstr "Ogiltigt författarnamn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:512
 msgid "Author names cannot contain & characters."
-msgstr ""
+msgstr "Författarnamnet kan inte innehålla & tecken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:66
 msgid "Manage authors"
@@ -6575,19 +6575,19 @@ msgstr "Stoppa alla jobb som inte använder enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:25
 msgid "Title/Author"
-msgstr ""
+msgstr "Titel / Författare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:26
 msgid "Standard metadata"
-msgstr ""
+msgstr "Standard metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:27
 msgid "Custom metadata"
-msgstr ""
+msgstr "Anpassade metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:28
 msgid "Search/Replace"
-msgstr ""
+msgstr "Sök/Ersätt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:76
@@ -6611,23 +6611,23 @@ msgstr "Varje Ord Med Stor Begynnelsebokstav"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:185
 msgid "Character match"
-msgstr ""
+msgstr "Teckenpassning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:186
 msgid "Regular Expression"
-msgstr ""
+msgstr "Reguljärt uttryck"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:189
 msgid "Replace field"
-msgstr ""
+msgstr "Byt fält"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:190
 msgid "Prepend to field"
-msgstr ""
+msgstr "Mer utrymme för fält"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:191
 msgid "Append to field"
-msgstr ""
+msgstr "Lägg till fält"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:202
 msgid "Editing meta information for <b>%d books</b>"
@@ -6645,6 +6645,11 @@ msgid ""
 "before proceeding.<p>Search and replace in text fields using character "
 "matching or regular expressions. "
 msgstr ""
+"<b> Du kan förstöra ditt bibliotek när denna funktion används. </b> "
+"Ändringar är permanenta. Det finns ingen ångra funktion. Den här funktionen "
+"är experimentell, och det kan finnas buggar. Du uppmanas att "
+"säkerhetskopiera dina bibliotek innan du fortsätter. <p> Sök och ersätt i "
+"textfält med hjälp av tecken matchande eller reguljära uttryck. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:279
 msgid ""
@@ -6655,6 +6660,12 @@ msgid ""
 "checked, the search text must match exactly. If it is unchecked, the search "
 "text will match both upper- and lower-case letters"
 msgstr ""
+"I teckenläge, är fältet det område du sökte för den angivna söktexten. "
+"Texten skall ersättas med den angivna ersättningstexten överallt den finns i "
+"det angivna området. Efter ersättningen är klar, kan texten ändras till "
+"versaler, gemener, eller titelmod. Om skiftlägeskänsligkryssrutan är "
+"markerad, måste den sökta texten stämmer exakt. Om det är avmarkerat kommer "
+"söktexten matchen både versaler och gemener"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:290
 msgid ""
@@ -6684,11 +6695,11 @@ msgstr "Sök/byt ogiltig"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:525
 msgid ""
 "Authors cannot be set to the empty string. Book title %s not processed"
-msgstr ""
+msgstr "Författare kan inte vara en tom sträng. Boktitel %s bearbetats inte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:533
 msgid "Title cannot be set to the empty string. Book title %s not processed"
-msgstr ""
+msgstr "Titel kan inte vara en tom sträng. Boktitel %s inte bearbetats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:624
 msgid "Search pattern is invalid: %s"
@@ -6770,11 +6781,11 @@ msgstr "Ta bort allt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:336
 msgid "If checked, the series will be cleared"
-msgstr ""
+msgstr "Om markerad, kommer serien rensas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:337
 msgid "Clear series"
-msgstr ""
+msgstr "Ta bort serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:338
 msgid ""
@@ -6783,6 +6794,10 @@ msgid ""
 "you selected them. So if you selected Book A and then Book B,\n"
 "Book A will have series number 1 and Book B series number 2."
 msgstr ""
+"Om inte markerad, kommer serienummer för böcker sättas till 1.\n"
+"Om markerad, kommer utvalda böcker automatiskt att numreras i den ordning\n"
+"du valde dem. Så om du valt Bok A och sedan bok B,\n"
+"kommer Bok A ha serie nummer 1 och Bok B serie nummer 2."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:342
 msgid "Automatically number books in this series"
@@ -6805,7 +6820,7 @@ msgstr "Byt plats på titel och författare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:349
 msgid "Change title to title case"
-msgstr ""
+msgstr "Ändra titel till titelmod"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:350
 msgid ""
@@ -6813,6 +6828,8 @@ msgid ""
 "checked,\n"
 "title and author are swapped before the title case is set"
 msgstr ""
+"Tvinga titel till titelmod. Om både denna och växlade författare är vald,\n"
+"växlas titel och författare före rubrikmod sätts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:352
 msgid ""
@@ -6845,11 +6862,11 @@ msgstr "Sök&fält:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:359
 msgid "The name of the field that you want to search"
-msgstr ""
+msgstr "Namnet på fältet som du vill söka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:360
 msgid "Search mode:"
-msgstr ""
+msgstr "Sök läge:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:361
 msgid ""
@@ -6872,10 +6889,12 @@ msgid ""
 "Check this box if the search string must match exactly upper and lower case. "
 "Uncheck it if case is to be ignored"
 msgstr ""
+"Markera denna ruta om söksträngen måste passa exakt versaler och gemener. "
+"Avmarkera den om skiftläget inte skall beaktas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:365
 msgid "Case sensitive"
-msgstr ""
+msgstr "Skiftlägeskänslig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:366
 msgid "&Replace with:"
@@ -6886,10 +6905,12 @@ msgid ""
 "The replacement text. The matched search text will be replaced with this "
 "string"
 msgstr ""
+"Ersättningstexten. Den passande söktexten kommer att ersättas med den här "
+"strängen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:368
 msgid "Apply function after replace:"
-msgstr ""
+msgstr "Tillämpa funktion efter ersätta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:369
 msgid ""
@@ -6898,24 +6919,29 @@ msgid ""
 "field is processed. In regular expression mode, only the matched text is "
 "processed"
 msgstr ""
+"Ange hur texten kommer att bearbetas efter jämförelse och ersättning. I "
+"teckenläge, behandlas hela\n"
+"området. I reguljär uttrycksläge bearbetas endast den jämförda texten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:371
 msgid "&Destination field:"
-msgstr ""
+msgstr "&Destinationsfält:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:372
 msgid ""
 "The field that the text will be put into after all replacements. If blank, "
 "the source field is used."
 msgstr ""
+"Det område som i texten kommer hamna i efter alla byten. Om tomt, kommer "
+"källfältet att användas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:373
 msgid "Mode:"
-msgstr ""
+msgstr "Läge:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:374
 msgid "Specify how the text should be copied into the destination."
-msgstr ""
+msgstr "Ange hur texten ska kopieras till destinationen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:375
 msgid ""
@@ -6923,6 +6949,9 @@ msgid ""
 "comma or\n"
 "nothing should be put between the original text and the inserted text"
 msgstr ""
+"Om ersättningsläge är infoga före eller lägga till, då anger denna ruta om "
+"ett kommatecken eller\n"
+"ingenting bör sättas mellan den ursprungliga texten och den infogade texten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:377
 msgid "use comma"
@@ -8564,11 +8593,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:217
 msgid "cover"
-msgstr ""
+msgstr "omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:218
 msgid "Downloaded"
-msgstr ""
+msgstr "Nerladdade"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:218
 msgid "Failed to get"
@@ -8968,7 +8997,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:146
 msgid "&Template"
-msgstr ""
+msgstr "&Mall"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
@@ -9195,13 +9224,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:101
 msgid "Backup metadata"
-msgstr ""
+msgstr "Säkerhetskopiera metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:102
 msgid ""
 "Metadata will be backed up while calibre is running, at the rate of 30 books "
 "per minute."
 msgstr ""
+"Metadata kommer att säkerhetskopieras  medan Calibre är igång, till en "
+"hastighet av 30 böcker per minut."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:133
 msgid "Failed to install command line tools."
@@ -9248,7 +9279,7 @@ msgstr "&Installera kommandoradsverktyg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:76
 msgid "Back up metadata of all books"
-msgstr ""
+msgstr "Säkerhetskopiera metadata för alla böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:77
 msgid "Check the library folders for potential problems"
@@ -9262,7 +9293,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:233
 msgid "Invalid destination"
-msgstr ""
+msgstr "Ogiltigt mål"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:234
 msgid "The destination field cannot be blank"
@@ -9294,35 +9325,35 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:114
 msgid "Device (choose second)"
-msgstr ""
+msgstr "Enhet (välj andra)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:115
 msgid "Add new plugboard"
-msgstr ""
+msgstr "Lägg till nya kontrollpaneler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:116
 msgid "Edit existing plugboard"
-msgstr ""
+msgstr "Redigera befintliga kontrollpaneler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:117
 msgid "Existing plugboards"
-msgstr ""
+msgstr "Befintliga kontrollpaneler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:118
 msgid "Source template"
-msgstr ""
+msgstr "Källa mall"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:119
 msgid "Destination field"
-msgstr ""
+msgstr "Destinationsfält"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:120
 msgid "Save plugboard"
-msgstr ""
+msgstr "Spara kontrollpanel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Delete plugboard"
-msgstr ""
+msgstr "Ta bort kontrollpanel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:100
 msgid "%(plugin_type)s %(plugins)s"
@@ -9416,11 +9447,11 @@ msgstr "Lägg till"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
-msgstr ""
+msgstr "Alla anpassade fält"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "The lookup name of any custom field. These names begin with \"#\")"
-msgstr ""
+msgstr "Uppslagsnamn på eventuella egna fältet. Dessa namn inleds med \"#\")"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
@@ -10622,7 +10653,7 @@ msgstr "Välj plats för böcker"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:629
 msgid ""
 "You must choose an empty folder for the calibre library. %s is not empty."
-msgstr ""
+msgstr "Du måste välja en tom mapp för calibre-biblioteket. %s är inte tom."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:703
 msgid "welcome wizard"
@@ -11164,35 +11195,35 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:17
 msgid "Invalid titles"
-msgstr ""
+msgstr "Ogiltiga titlar"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:18
 msgid "Extra titles"
-msgstr ""
+msgstr "Extra titlar"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:19
 msgid "Invalid authors"
-msgstr ""
+msgstr "Ogiltig författare"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:20
 msgid "Extra authors"
-msgstr ""
+msgstr "Extra författare"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:21
 msgid "Missing book formats"
-msgstr ""
+msgstr "Saknat bokformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:22
 msgid "Extra book formats"
-msgstr ""
+msgstr "Extra bokformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:23
 msgid "Unknown files in books"
-msgstr ""
+msgstr "Okända filer i böcker"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:24
 msgid "Folders raising exception"
-msgstr ""
+msgstr "Mappar indikerar undantag"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:43
 msgid ""
@@ -11753,7 +11784,7 @@ msgid ""
 "    files in each directory of the calibre library. This is\n"
 "    useful if your metadata.db file has been corrupted.\n"
 "\n"
-"    WARNING: This completely regenrates your datbase. You will\n"
+"    WARNING: This completely regenerates your datbase. You will\n"
 "    lose stored per-book conversion settings and custom recipes.\n"
 "    "
 msgstr ""

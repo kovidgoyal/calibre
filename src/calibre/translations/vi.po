@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-10-01 21:28+0000\n"
-"PO-Revision-Date: 2010-10-01 21:19+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-10-02 17:30+0000\n"
+"PO-Revision-Date: 2010-10-03 04:43+0000\n"
+"Last-Translator: Alice Joseph <Unknown>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-02 05:04+0000\n"
+"X-Launchpad-Export-Date: 2010-10-03 04:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -267,7 +267,7 @@ msgstr "Thiết lập thông tin mô tả từ tập tin %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:688
 msgid "Look and Feel"
-msgstr "Diện mạo và Cảm nhận"
+msgstr "Trải nghiệm"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:690
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:702
@@ -1373,7 +1373,7 @@ msgstr "Các tuỳ chọn điều chỉnh xử lý của tập tin xuất %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
-msgstr "Các tuỳ chọn điều chỉnh diện mạo và cảm nhận của tập tin xuất"
+msgstr "Các tuỳ chọn điều chỉnh theo trải nghiệm cho tập tin xuất"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:135
 msgid "Control auto-detection of document structure."
@@ -4030,32 +4030,32 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:26
 msgid "Alt+Shift+S"
-msgstr ""
+msgstr "Alt+Shift+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:27
 msgid "Alt+P"
-msgstr ""
+msgstr "Alt+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:27
 msgid "Books by this publisher"
-msgstr ""
+msgstr "Sách của nhà xuất bản này"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:28
 msgid "Alt+T"
-msgstr ""
+msgstr "Alt+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:28
 msgid "Books with the same tags"
-msgstr ""
+msgstr "Sách có cùng thẻ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:54
 msgid "Tweak ePub"
-msgstr ""
+msgstr "Chỉnh sửa ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:16
 msgid "Make small changes to ePub format books"
-msgstr ""
+msgstr "Thực hiện những thay đổi nhỏ cho định dạng ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:17
 msgid "T"
@@ -4064,38 +4064,38 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:39
 msgid "Cannot tweak ePub"
-msgstr ""
+msgstr "Không thể chỉnh sửa ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:40
 msgid "No ePub available. First convert the book to ePub."
-msgstr ""
+msgstr "Không có sẵn ePub. Xin chuyển đổi sách sang định dạng ePub trước."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:24
 msgid "V"
-msgstr ""
+msgstr "V"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:32
 msgid "View"
-msgstr ""
+msgstr "Xem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:33
 msgid "View specific format"
-msgstr ""
+msgstr "Xem định dạng cụ thể"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:156
 msgid "Cannot view"
-msgstr ""
+msgstr "Không thể xem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:77
 msgid "Choose the format to view"
-msgstr ""
+msgstr "Chọn định dạng để xem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:109
 msgid "Multiple Books Selected"
-msgstr ""
+msgstr "Nhiều sách được chọn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:110
 msgid ""
@@ -4104,30 +4104,33 @@ msgid ""
 "started the process cannot be stopped until complete. Do you wish to "
 "continue?"
 msgstr ""
+"Bạn đang muốn mở %d cuốn sách. Mở một lúc nhiều sách có thể làm chậm hoặc "
+"đứng máy. Khi quá trình này đã bắt đầu thì không thể dừng lại. Bạn có muốn "
+"tiếp tục không?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:119
 msgid "Cannot open folder"
-msgstr ""
+msgstr "Không thể mở thư mục"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:157
 msgid "%s has no available formats."
-msgstr ""
+msgstr "%s không có sẵn định dạng nào"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:54
 msgid "Searching in"
-msgstr ""
+msgstr "Đang tìm trong"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:198
 msgid "Adding..."
-msgstr ""
+msgstr "Đang thêm..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:211
 msgid "Searching in all sub-directories..."
-msgstr ""
+msgstr "Đang tìm trong tất cả thư mục con..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:224
 msgid "Path error"
-msgstr ""
+msgstr "Đường dẫn có lỗi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:225
 msgid "The specified directory could not be processed."
@@ -4136,21 +4139,24 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:229
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:836
 msgid "No books"
-msgstr ""
+msgstr "Không có sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:294
 msgid "Added"
-msgstr ""
+msgstr "Đã thêm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:307
 msgid "Adding failed"
-msgstr ""
+msgstr "Thất bại khi thêm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:308
 msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
 msgstr ""
+"Quá trình thêm sách dường như đã bị treo. Xin thử khởi động lại calibre và "
+"thêm sách theo từng nhóm nhỏ hơn, cho đến khi bạn tìm thấy những cuốn sách "
+"gây lỗi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:323
 msgid "Duplicates found!"
@@ -4168,19 +4174,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:390
 msgid "Saving..."
-msgstr ""
+msgstr "Đang lưu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:443
 msgid "Saved"
-msgstr ""
+msgstr "Đã lưu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:57
 msgid "Searching for sub-folders"
-msgstr ""
+msgstr "Đang tìm thư mục con"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:62
 msgid "Searching for books"
-msgstr ""
+msgstr "Đang tìm sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:74
 msgid "Looking for duplicates based on file hash"
@@ -4189,19 +4195,19 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:70
 msgid "Choose root folder"
-msgstr ""
+msgstr "Chọn thư mục gốc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:137
 msgid "Invalid root folder"
-msgstr ""
+msgstr "Thư mục gốc không hợp lệ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:138
 msgid "is not a valid root folder"
-msgstr ""
+msgstr "không phải là một thư mục gốc hợp lệ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:148
 msgid "Add books to calibre"
-msgstr ""
+msgstr "Thêm sách vào calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:62
@@ -4214,19 +4220,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:22
 msgid "Scanning root folder for books"
-msgstr ""
+msgstr "Đang tìm sách ở thư mục gốc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:23
 msgid "This may take a few minutes"
-msgstr ""
+msgstr "Quá trình này có thể mất vài phút"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:63
 msgid "Choose the location to add books from"
-msgstr ""
+msgstr "Chọn đường dẫn chứa sách để thêm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:64
 msgid "Select a folder on your hard disk"
-msgstr ""
+msgstr "Chọn một thư mục trên đĩa cứng của bạn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:65
 msgid ""
@@ -4242,13 +4248,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:68
 msgid "&Root folder:"
-msgstr ""
+msgstr "&Thư mục gốc:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:69
 msgid ""
 "This folder and its sub-folders will be scanned for books to import into "
 "calibre's library"
 msgstr ""
+"Sách sẽ được tìm trong thư mục này (bao gồm cả thư mục con) để thêm vào thư "
+"viện calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:57
@@ -4302,22 +4310,26 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:191
 msgid "..."
-msgstr ""
+msgstr "…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:72
 msgid "Handle multiple files per book"
-msgstr ""
+msgstr "Xử lý nhiều tập tin cho mỗi cuốn sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:73
 msgid ""
 "&One book per folder, assumes every ebook file in a folder is the same book "
 "in a different format"
 msgstr ""
+"&Một cuốn sách trong mỗi thư mục: giả sử tất cả các tập tin trong một thư "
+"mục đều cùng một cuốn sách, chỉ khác định dạng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:74
 msgid ""
 "&Multiple books per folder, assumes every ebook file is a different book"
 msgstr ""
+"&Nhiều sách trong mỗi thư mục: giả sử tất cả các tập tin là một cuốn sách "
+"khác nhau"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:23
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:47
@@ -4331,7 +4343,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:327
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1105
 msgid "Path"
-msgstr ""
+msgstr "Đường dẫn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:50
@@ -4343,7 +4355,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:24
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:103
 msgid "Formats"
-msgstr ""
+msgstr "Định dạng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:921
@@ -4354,7 +4366,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:58
 msgid "Click to open"
-msgstr ""
+msgstr "Nhấn để mở"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:319
@@ -4375,7 +4387,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
-msgstr ""
+msgstr "Tùy chọn cho BibTeX"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
@@ -4408,7 +4420,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:17
 msgid "output"
-msgstr ""
+msgstr "tập tin xuất"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:37
@@ -4460,7 +4472,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:82
 msgid "Bib file encoding:"
-msgstr ""
+msgstr "Bảng mã cho tập tin Bib:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:38
@@ -4469,11 +4481,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:84
 msgid "ascii/LaTeX"
-msgstr ""
+msgstr "ascii/LaTeX"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:85
 msgid "Encoding configuration (change if you have errors) :"
-msgstr ""
+msgstr "Thiết lập bảng mã (thay đổi nếu bạn gặp lỗi) :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:86
 msgid "strict"
@@ -4481,11 +4493,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:87
 msgid "replace"
-msgstr ""
+msgstr "thay thế"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:88
 msgid "ignore"
-msgstr ""
+msgstr "bỏ qua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:89
 msgid "backslashreplace"
@@ -4505,7 +4517,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:93
 msgid "book"
-msgstr ""
+msgstr "cuốn sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:94
 msgid "Create a citation tag?"
@@ -4528,19 +4540,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
-msgstr ""
+msgstr "Tùy chọn CSV/XML"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:17
 msgid "E-book options"
-msgstr ""
+msgstr "Tùy chọn sách điện tử"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:77
 msgid "'Don't include this book' tag:"
-msgstr ""
+msgstr "Thẻ 'không thêm sách này':"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:78
 msgid "'Mark this book as read' tag:"
-msgstr ""
+msgstr "Thẻ 'đánh dấu sách đã đọc':"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:79
 msgid "Additional note tag prefix:"
@@ -4588,12 +4600,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:68
 msgid "Bulk Convert"
-msgstr ""
+msgstr "Chuyển đổi hàng loạt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:185
 msgid "Options specific to the output format."
-msgstr ""
+msgstr "Tùy chọn cụ thể cho định dạng tập tin xuất"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:15
 msgid "Comic Input"
@@ -4605,12 +4617,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:13
 msgid "input"
-msgstr ""
+msgstr "tập tin nguồn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:99
 msgid "&Number of Colors:"
-msgstr ""
+msgstr "&Số Màu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:101
@@ -4645,7 +4657,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:106
 msgid "&Right to left"
-msgstr ""
+msgstr "&Phải qua trái"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:105
@@ -4664,7 +4676,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:120
 msgid "&Output format:"
-msgstr ""
+msgstr "Định &dạng xuất:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:101
 msgid "Disable conversion of images to &black and white"
@@ -4708,19 +4720,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
-msgstr ""
+msgstr "Xuất EPUB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:49
 msgid "Do not &split on page breaks"
-msgstr ""
+msgstr "Không tách ở ngắt trang"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:50
 msgid "No default &cover"
-msgstr ""
+msgstr "Không thêm bìa sách mặc định"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:51
 msgid "No &SVG cover"
-msgstr ""
+msgstr "Không dùng bìa định dạng SVG"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:52
 msgid "Preserve cover &aspect ratio"
@@ -4728,7 +4740,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:53
 msgid "Split files &larger than:"
-msgstr ""
+msgstr "Tách tập tin lớn hơn:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:54
 msgid " KB"
@@ -4736,15 +4748,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
-msgstr ""
+msgstr "Nhập FB2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:29
 msgid "Do not insert a &Table of Contents at the beginning of the book."
-msgstr ""
+msgstr "Không chèn &Mục Lục vào phần đầu sách."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:14
 msgid "FB2 Output"
-msgstr ""
+msgstr "Xuất  FB2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:37
@@ -4804,7 +4816,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:127
 msgid " pt"
-msgstr ""
+msgstr " điểm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:112
 msgid "Use &default values"
@@ -4828,23 +4840,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
-msgstr ""
+msgstr "Trải nghiệm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
 msgid "Control the look and feel of the output"
-msgstr ""
+msgstr "Tùy chỉnh tập tin xuất theo trải nghiệm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:31
 msgid "Original"
-msgstr ""
+msgstr "Gốc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:32
 msgid "Left align"
-msgstr ""
+msgstr "Canh lề trái"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:33
 msgid "Justify text"
-msgstr ""
+msgstr "canh đều"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:123
 msgid "&Disable font size rescaling"
@@ -4864,15 +4876,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:131
 msgid "Input character &encoding:"
-msgstr ""
+msgstr "Bảng mã của tập tin nguồn:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
 msgid "Remove &spacing between paragraphs"
-msgstr ""
+msgstr "Xóa khoảng trắng giữa các đoạn."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:133
 msgid "Indent size:"
-msgstr ""
+msgstr "Thụt vào:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:134
 msgid ""
@@ -4880,6 +4892,9 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
+"<p>Khi calibre xóa khoảng trắng giữa các đoạn, nó sẽ tự động đặt một khoảng "
+"thụt vào đầu các đoạn để chúng có thể được nhận biết dễ dàng. Lựa chọn này "
+"cho phép điều chỉnh khoảng cách thụt vào đó."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:135
 msgid " em"
@@ -4887,7 +4902,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "Text justification:"
-msgstr ""
+msgstr "Canh lề:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:137
 msgid "&Linearize tables"
@@ -4895,7 +4910,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
 msgid "Extra &CSS"
-msgstr ""
+msgstr "Thêm CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:139
 msgid "&Transliterate unicode characters to ASCII"
@@ -4903,7 +4918,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:140
 msgid "Insert &blank line"
-msgstr ""
+msgstr "chèn dòng trắng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:141
 msgid "Keep &ligatures"
@@ -4915,7 +4930,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
-msgstr ""
+msgstr "Xuất LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:116
 msgid "Enable &autorotation of wide images"
@@ -4951,7 +4966,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:127
 msgid "&Embed fonts"
-msgstr ""
+msgstr "Nhúng phông chữ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:128
 msgid "&Serif font family:"
@@ -4969,13 +4984,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:200
 msgid "Metadata"
-msgstr ""
+msgstr "Thông tin mô tả"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:43
 msgid ""
 "Set the metadata. The output file will contain as much of this metadata as "
 "possible."
 msgstr ""
+"Gán thông tin mô tả. Tập tin xuất sẽ chứa những thông tin mô tả mà định dạng "
+"hỗ trợ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:109
@@ -4985,46 +5002,46 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:116
 msgid "Cannot read"
-msgstr ""
+msgstr "Không thể đọc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:117
 msgid "You do not have permission to read the file: "
-msgstr ""
+msgstr "Bạn không có quyền đọc tập tin: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:125
 msgid "Error reading file"
-msgstr ""
+msgstr "Lỗi đọc tập tin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:126
 msgid "<p>There was an error reading from file: <br /><b>"
-msgstr ""
+msgstr "<p>Có lỗi khi đọc tập tin: <br /><b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:189
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:134
 msgid " is not a valid picture"
-msgstr ""
+msgstr " không phải là hình hợp lệ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:414
 msgid "Book Cover"
-msgstr ""
+msgstr "Bìa Sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:173
 msgid "Use cover from &source file"
-msgstr ""
+msgstr "Sử dụng bìa từ tập tin nguồn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:174
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:415
 msgid "Change &cover image:"
-msgstr ""
+msgstr "Thay đổi ảnh bìa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:175
 msgid "Browse for an image to use as the cover of this book."
-msgstr ""
+msgstr "Chọn tập tin ảnh dùng làm bìa sách."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:373
@@ -5034,7 +5051,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:374
 msgid "Change the title of this book"
-msgstr ""
+msgstr "Thay đổi tựa đề sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:179
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:315
@@ -5051,6 +5068,8 @@ msgid ""
 "Change the author(s) of this book. Multiple authors should be separated by a "
 "comma"
 msgstr ""
+"Thay đổi tác giả của cuốn sách. Tên các tác giả phải được ngăn cách bằng dấu "
+"phẩy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:324
@@ -5075,7 +5094,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:333
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:393
 msgid "&Series:"
-msgstr ""
+msgstr "&Bộ sách:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:187
@@ -5084,7 +5103,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:394
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:395
 msgid "List of known series. You can add new series."
-msgstr ""
+msgstr "Danh mục các bộ sách. Bạn có thể thêm bộ sách."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:400
@@ -5093,15 +5112,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:20
 msgid "MOBI Output"
-msgstr ""
+msgstr "Xuất MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:43
 msgid "Default"
-msgstr ""
+msgstr "Mặc định"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:67
 msgid "&Title for Table of Contents:"
-msgstr ""
+msgstr "&Tiêu đề cho Mục Lục:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:68
 msgid "Rescale images for &Palm devices"
@@ -5113,15 +5132,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:70
 msgid "Disable compression of the file contents"
-msgstr ""
+msgstr "Không nén nội dung tập tin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:71
 msgid "Do not add Table of Contents to book"
-msgstr ""
+msgstr "Không thêm Mục Lục vào sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:72
 msgid "Kindle options"
-msgstr ""
+msgstr "Tùy chọn Kindle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:73
 msgid "Periodical masthead font:"
@@ -5129,52 +5148,52 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:74
 msgid "Personal Doc tag:"
-msgstr ""
+msgstr "Thẻ Personal Doc:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
-msgstr ""
+msgstr "Thiết lập Trang"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:116
 msgid "&Output profile:"
-msgstr ""
+msgstr "&Hồ sơ xuất:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:117
 msgid "Profile description"
-msgstr ""
+msgstr "Mô tả hồ sơ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:118
 msgid "&Input profile:"
-msgstr ""
+msgstr "Hồ &sơ nhập:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:119
 msgid "Margins"
-msgstr ""
+msgstr "Biên"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:120
 msgid "&Left:"
-msgstr ""
+msgstr "&Trái:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:122
 msgid "&Top:"
-msgstr ""
+msgstr "T&rên:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:124
 msgid "&Right:"
-msgstr ""
+msgstr "&Phải:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:126
 msgid "&Bottom:"
-msgstr ""
+msgstr "&Dưới :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input.py:12
 msgid "PDB Input"
-msgstr ""
+msgstr "Nhập PDB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:47
 msgid "Treat each &line as a paragraph"
-msgstr ""
+msgstr "Xem mỗi dòng là một đoạn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:33
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:48
@@ -5183,7 +5202,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output.py:16
 msgid "PDB Output"
-msgstr ""
+msgstr "Xuất PDB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:36
 msgid "&Format:"
@@ -5191,7 +5210,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
-msgstr ""
+msgstr "Nhập PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:39
 msgid "Line &Un-Wrapping Factor:"
@@ -5199,15 +5218,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:40
 msgid "No &Images"
-msgstr ""
+msgstr "Không có hình"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:17
 msgid "PDF Output"
-msgstr ""
+msgstr "Xuất PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:43
 msgid "&Paper Size:"
-msgstr ""
+msgstr "&Khổ giấy:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:44
 msgid "&Orientation:"
@@ -5219,7 +5238,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
-msgstr ""
+msgstr "Xuất RB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:83
 msgid "No formats available"
@@ -5231,7 +5250,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:103
 msgid "Open book"
-msgstr ""
+msgstr "Mở sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:52
 msgid "Regex Builder"
@@ -5239,7 +5258,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:53
 msgid "Preview"
-msgstr ""
+msgstr "Xem trước"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:54
 msgid "Regex:"
@@ -5248,41 +5267,44 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:122
 msgid "Test"
-msgstr ""
+msgstr "Kiểm tra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:171
 msgid "Convert"
-msgstr ""
+msgstr "Chuyển đổi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:196
 msgid "Options specific to the input format."
-msgstr ""
+msgstr "Tùy chọn cụ thể cho định dạng nguồn."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:53
 msgid "Dialog"
-msgstr ""
+msgstr "Hộp thoại"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:118
 msgid "&Input format:"
-msgstr ""
+msgstr "Định &dạng nguồn:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:119
 msgid "Use &saved conversion settings for individual books"
-msgstr ""
+msgstr "Sử dụng thiết lập đã lưu cho từng cuốn sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
 "Structure\n"
 "Detection"
 msgstr ""
+"Nhận dạng\n"
+"Cấu trúc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:19
 msgid ""
 "Fine tune the detection of chapter headings and other document structure."
 msgstr ""
+"Tinh chỉnh nhận dạng tiêu đề chương sách và các cấu trúc khác của sách."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:37
 msgid "Detect chapters at (XPath expression):"
@@ -5313,7 +5335,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:39
 msgid "Invalid XPath"
-msgstr ""
+msgstr "XPath không hợp lệ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:40
@@ -5326,19 +5348,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:82
 msgid "Remove first &image"
-msgstr ""
+msgstr "Loại bỏ ảnh đầu tiên"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:83
 msgid "Insert &metadata as page at start of book"
-msgstr ""
+msgstr "Chèn thông tin mô tả như một trang vào phần đầu sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:84
 msgid "Remove F&ooter"
-msgstr ""
+msgstr "Loại bỏ dòng &cuối trang"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:85
 msgid "Remove H&eader"
-msgstr ""
+msgstr "&Loại bỏ dòng đầu trang"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:86
 msgid "Line &un-wrap factor during preprocess:"
@@ -5353,10 +5375,12 @@ msgid ""
 "Table of\n"
 "Contents"
 msgstr ""
+"Mục\n"
+"Lục"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:18
 msgid "Control the creation/conversion of the Table of Contents."
-msgstr ""
+msgstr "Thiết lập việc tạo/chuyển đổi Mục Lục."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:30
 msgid "Level &1 TOC (XPath expression):"
@@ -10924,7 +10948,7 @@ msgid ""
 "    files in each directory of the calibre library. This is\n"
 "    useful if your metadata.db file has been corrupted.\n"
 "\n"
-"    WARNING: This completely regenrates your datbase. You will\n"
+"    WARNING: This completely regenerates your datbase. You will\n"
 "    lose stored per-book conversion settings and custom recipes.\n"
 "    "
 msgstr ""

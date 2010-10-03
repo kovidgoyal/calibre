@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-10-01 21:28+0000\n"
-"PO-Revision-Date: 2010-10-01 22:27+0000\n"
+"POT-Creation-Date: 2010-10-02 17:30+0000\n"
+"PO-Revision-Date: 2010-10-02 08:25+0000\n"
 "Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-02 05:03+0000\n"
+"X-Launchpad-Export-Date: 2010-10-03 04:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -6268,7 +6268,7 @@ msgstr "Proveri biblioteku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:29
 msgid "Run the check"
-msgstr ""
+msgstr "Izvrši proveru"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:205
@@ -6683,6 +6683,16 @@ msgid ""
 "information on python's regular expressions, and in particular the 'sub' "
 "function."
 msgstr ""
+"U načinu rada s regularnim izrazima tekst za pretraživanje je proizvoljan "
+"regularni izraz kao u programskom jeziku python. Tekst za zamenu može da "
+"sadrži pokazivače na izraze u zagradama. Pretraživanje nije \"usidreno\" i "
+"može da pronađe i zameni više pojavljivanja istog teksta. Funkcije za izmenu "
+"teksta (prebacivanje u mala slova, itd) se primenjuju samo na pronađeni "
+"tekst, a ne na polje u celini. Odredišno polje određuje gde će biti smešten "
+"rezultat zamene posle pronalaženja i obrade. Tekst u polju možete zameniti, "
+"ili ispred ili iza njega dodati pronađeni. Za više informacija o regularnim "
+"izrazima u programskom jeziku python, a posebno informacije o funkciji 'sub' "
+"vidite <a href=\"http://docs.python.org/library/re.html\">ovo uputstvo</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:432
 msgid "You must specify a destination when source is a composite field"
@@ -6799,6 +6809,11 @@ msgid ""
 "you selected them. So if you selected Book A and then Book B,\n"
 "Book A will have series number 1 and Book B series number 2."
 msgstr ""
+"Ako ova opcija nije izabrana, broj serije za knjige će biti postavljen na "
+"1.\n"
+"Ako jeste, izabrane knjige će biti automatski numerisane, u redosledu\n"
+"kojim ste ih izabrali. Tako, ako izaberete Knjigu A, a zatim Knjigu B,\n"
+"Knjiga A će imati broj 1 u seriji, a Knjiga B broj 2."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:342
 msgid "Automatically number books in this series"
@@ -6810,6 +6825,9 @@ msgid ""
 "for that series. Checking this box will tell calibre to start numbering\n"
 "from the value in the box"
 msgstr ""
+"Serije će obično biti prenumerisane od najvišeg broja za tu seriju\n"
+"u bazi podataka. Ako izaberete ovu opciju calibre će numerisanje\n"
+"početi od broja navedenog u ovom polju"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:347
 msgid "Remove &format:"
@@ -6829,6 +6847,10 @@ msgid ""
 "checked,\n"
 "title and author are swapped before the title case is set"
 msgstr ""
+"Naslov mora biti sa svim velikim početnim slovima. Ako je izabrana i ova, i "
+"opcija\n"
+"da se izmene mesta autoru i naslovu, veličina slova će biti promenjena posle "
+"izmene."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:352
 msgid ""
@@ -6860,17 +6882,19 @@ msgstr "Pretraži po&lje:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:359
 msgid "The name of the field that you want to search"
-msgstr ""
+msgstr "Naziv polja koje želite da pretražujete"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:360
 msgid "Search mode:"
-msgstr ""
+msgstr "Način pretraživanja:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:361
 msgid ""
 "Choose whether to use basic text matching or advanced regular expression "
 "matching"
 msgstr ""
+"Izaberite da li ćete koristiti jednostavno traženje teksta, ili regularne "
+"izraze"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:362
 msgid "&Search for:"
@@ -6881,16 +6905,20 @@ msgid ""
 "Enter the what you are looking for, either plain text or a regular "
 "expression, depending on the mode"
 msgstr ""
+"Unesite izraz za pretražiavnje, bilo običan tekst bilo regularni izraz, u "
+"zavisnosti od izabranog načina pretraživanja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:364
 msgid ""
 "Check this box if the search string must match exactly upper and lower case. "
 "Uncheck it if case is to be ignored"
 msgstr ""
+"Izaberite ovu opciju ako tekst za pretraživanje mora odgovarati i po "
+"veličini slova. Ako opcija nije izabrana veličina slova neće biti bitna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:365
 msgid "Case sensitive"
-msgstr ""
+msgstr "Razlikuj veličinu slova"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:366
 msgid "&Replace with:"
@@ -6900,11 +6928,11 @@ msgstr "&Zameni sa:"
 msgid ""
 "The replacement text. The matched search text will be replaced with this "
 "string"
-msgstr ""
+msgstr "Tekst za zaemnu. Pronađeni tekst će biti zamenjen ovim"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:368
 msgid "Apply function after replace:"
-msgstr ""
+msgstr "Primeni sledeću funkciju posle zamene:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:369
 msgid ""
@@ -6913,24 +6941,30 @@ msgid ""
 "field is processed. In regular expression mode, only the matched text is "
 "processed"
 msgstr ""
+"Odredite kako će tekst biti obrađen posle pronalaženja i zamene. U načinu "
+"rada s običnim tekstom\n"
+"biće obrađeno celo polje. U načinu rada s regularnim izrazima biće obrađen "
+"samo pronađeni tekst."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:371
 msgid "&Destination field:"
-msgstr ""
+msgstr "&Ciljno polje:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:372
 msgid ""
 "The field that the text will be put into after all replacements. If blank, "
 "the source field is used."
 msgstr ""
+"Polje u koje će tekst biti smešten posle zamene. Ako je prazno biće "
+"korišćeno izvorno polje."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:373
 msgid "Mode:"
-msgstr ""
+msgstr "Način rada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:374
 msgid "Specify how the text should be copied into the destination."
-msgstr ""
+msgstr "Odredi kako će tekst biti kopiran u ciljno polje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:375
 msgid ""
@@ -6938,10 +6972,12 @@ msgid ""
 "comma or\n"
 "nothing should be put between the original text and the inserted text"
 msgstr ""
+"Ako je način izmene dodavanje ispred, ili iza, ovo polje označava da li će "
+"između originalnog i umetnutog teksta biti ubačen zarez, ili ništa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:377
 msgid "use comma"
-msgstr ""
+msgstr "koristi zarez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:378
 msgid "Test &text"
@@ -7215,7 +7251,7 @@ msgstr "Ukloni okvir s omota (ako postoji)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:418
 msgid "T&rim"
-msgstr ""
+msgstr "Sk&rati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:419
 msgid "Reset cover to default"
@@ -7772,6 +7808,12 @@ msgid ""
 "windows you used to edit files in the epub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
+"<p>Raširi ePub da pikažeš sadržaj u prozoru za prikaz fajla. Da biste "
+"podesili pojedine fajlove, kliknite desnim dugmetom, a onda na 'Otvori "
+"sa...' programom po sopstvenom izboru. Kada završite podešavanje, zatvorite "
+"prozor za prikaz fajla <b>kao i program kojim ste vršili "
+"izmene</b>.</p><p>Ponovo sastavite ePub i osvežite vašu calibre "
+"biblioteku.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:127
 msgid "No recipe selected"
@@ -8583,23 +8625,23 @@ msgstr "Nema rezultata za ovu knjigu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:190
 msgid "Failed to download metadata"
-msgstr ""
+msgstr "Nisam uspeo da preuzmem metapodatke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:217
 msgid "cover"
-msgstr ""
+msgstr "omot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:218
 msgid "Downloaded"
-msgstr ""
+msgstr "Preuzeto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:218
 msgid "Failed to get"
-msgstr ""
+msgstr "Nisam uspeo da preuzmem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:219
 msgid "%s %s for: %s"
-msgstr ""
+msgstr "%s %s za: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:278
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:162
@@ -8608,11 +8650,11 @@ msgstr "Gotovo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:279
 msgid "Successfully downloaded metadata for %d out of %d books"
-msgstr ""
+msgstr "Uspešno preuzeo metapodatke za %d od %d knjiga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:281
 msgid "Details"
-msgstr ""
+msgstr "Detalji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:36
 msgid ""
@@ -8864,7 +8906,7 @@ msgstr "Da/Ne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:42
 msgid "Column built from other columns"
-msgstr ""
+msgstr "Kolona sačinjena od drugih kolona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 msgid "No column selected"
@@ -8912,7 +8954,7 @@ msgstr "Naziv %s je već u upotrebi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:156
 msgid "You must enter a template for composite columns"
-msgstr ""
+msgstr "Morate uneti šablon za kompleksne kolone"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:147
@@ -8979,19 +9021,19 @@ msgstr "Format za &datume"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:143
 msgid "<p>Field template. Uses the same syntax as save templates."
-msgstr ""
+msgstr "<p>Šablon za polje. Koristi istu sintaksu kao šabloni za snimanje."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:144
 msgid "Similar to save templates. For example, {title} {isbn}"
-msgstr ""
+msgstr "Slično kao šabloni za snimanje. na primer, {title} {isbn}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:145
 msgid "Default: (nothing)"
-msgstr ""
+msgstr "Podrazumevano: (ništa)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:146
 msgid "&Template"
-msgstr ""
+msgstr "Š&ablon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
@@ -9224,13 +9266,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:101
 msgid "Backup metadata"
-msgstr ""
+msgstr "Napravi rezervnu kopiju metapodataka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:102
 msgid ""
 "Metadata will be backed up while calibre is running, at the rate of 30 books "
 "per minute."
 msgstr ""
+"Biće sačinjena rezervna kopija metapodataka dok calibre radi, brzinom od 30 "
+"knjiga u minuti."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:133
 msgid "Failed to install command line tools."
@@ -9281,25 +9325,27 @@ msgstr "&Instaliraj alatke za komandnu liniju"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:76
 msgid "Back up metadata of all books"
-msgstr ""
+msgstr "Napravi rezervnu kopiju metapodataka za sve knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:77
 msgid "Check the library folders for potential problems"
-msgstr ""
+msgstr "Proveri da li ima grešaka u direktorijumima s bibliotekom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:200
 msgid ""
 "That format and device already has a plugboard or conflicts with another "
 "plugboard."
 msgstr ""
+"Ovaj format i uređaj već imaju priključak, ili su u konfliktu s već "
+"postojećim"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:233
 msgid "Invalid destination"
-msgstr ""
+msgstr "Neispravno odredište"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:234
 msgid "The destination field cannot be blank"
-msgstr ""
+msgstr "Odredište ne može biti prazno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:106
 msgid ""
@@ -9320,42 +9366,59 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
+"Ovde mođete da izmenite metapodatke koje calibre koristi da osveži knjige "
+"kada ih snimate na disk, ili šaljete na uređaj.\n"
+"\n"
+"Koristite ovaj prozor da definišete 'priključak' za format (ili sve formate) "
+"i uređaj (ili sve uređaje). Priključak određuje koji šablon će biti povezan "
+"s kojim poljem. Šablon se koristi da odredi vrednost, a ta vrednost se "
+"upisuje u povezano polje.\n"
+"\n"
+"Šabloni će često sadržati jednostavne veze ka kompleksnim korisničkim "
+"kolonama, ali to nije neophodno. U izvornom polju možete koristiti bilo koji "
+"šablon kakav biste koristili drugde u calibreu.\n"
+"\n"
+"Jedna od mogućih upotreba priključaka je da izmenite naslov tako da sadrži i "
+"borj serije. Druga moguća upotreba je da izmenite  način sortiranja po "
+"autoru, što može da bude korisno za MOBI format, jer Kindle zahteva "
+"korišćenje ';'. Treća upotreba je da se naznači jezik na kome je knjiga "
+"napisana."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:113
 msgid "Format (choose first)"
-msgstr ""
+msgstr "Format (izaberite prvi)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:114
 msgid "Device (choose second)"
-msgstr ""
+msgstr "Uređaj (izaberite drugi)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:115
 msgid "Add new plugboard"
-msgstr ""
+msgstr "Dodaj novi priključak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:116
 msgid "Edit existing plugboard"
-msgstr ""
+msgstr "Izmeni postojeći priključak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:117
 msgid "Existing plugboards"
-msgstr ""
+msgstr "Postojeći priključci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:118
 msgid "Source template"
-msgstr ""
+msgstr "Izvorni šablon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:119
 msgid "Destination field"
-msgstr ""
+msgstr "Odredišno polje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:120
 msgid "Save plugboard"
-msgstr ""
+msgstr "Snimi priključak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Delete plugboard"
-msgstr ""
+msgstr "Izbriši priključak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:100
 msgid "%(plugin_type)s %(plugins)s"
@@ -9448,11 +9511,13 @@ msgstr "&Dodaj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
-msgstr ""
+msgstr "Dodaj korisničko polje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "The lookup name of any custom field. These names begin with \"#\")"
 msgstr ""
+"Naziv za pertraživanje bilo kog korisničkog polja. Ovi nazivi počinju sa "
+"\"#\")"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
@@ -11196,35 +11261,35 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:17
 msgid "Invalid titles"
-msgstr ""
+msgstr "Neispravni naslovi"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:18
 msgid "Extra titles"
-msgstr ""
+msgstr "Dodatni naslovi"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:19
 msgid "Invalid authors"
-msgstr ""
+msgstr "Neispravni autori"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:20
 msgid "Extra authors"
-msgstr ""
+msgstr "Dodatni autori"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:21
 msgid "Missing book formats"
-msgstr ""
+msgstr "Nedostajući formati knjiga"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:22
 msgid "Extra book formats"
-msgstr ""
+msgstr "Dodatni formati knjiga"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:23
 msgid "Unknown files in books"
-msgstr ""
+msgstr "Nepoznati fajlovi u knjizi"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:24
 msgid "Folders raising exception"
-msgstr ""
+msgstr "Direktorijumi s greškom"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:43
 msgid ""
@@ -11747,32 +11812,41 @@ msgid ""
 "Perform some checks on the filesystem representing a library. Reports are "
 "{0}\n"
 msgstr ""
+"%prog check_library [opcije]\n"
+"\n"
+"Izvrši neke provere u direktorijumima s bibliotekom. Izveštaji su {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:886
 msgid "Output in CSV"
-msgstr ""
+msgstr "Izveštaj u CSV formatu"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:889
 msgid ""
 "Comma-separated list of reports.\n"
 "Default: all"
 msgstr ""
+"Zarezima razdvojena lista izveštaja.\n"
+"Podrazumevano: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:893
 msgid ""
 "Comma-separated list of extensions to ignore.\n"
 "Default: all"
 msgstr ""
+"Zarezima razdvojena lista ekstenzija koje će biti ignorisane.\n"
+"Podrazumevano: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:897
 msgid ""
 "Comma-separated list of names to ignore.\n"
 "Default: all"
 msgstr ""
+"Zarezima razdvojena lista imena koja će biti ignorisana.\n"
+"Podrazumevano: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:927
 msgid "Unknown report check"
-msgstr ""
+msgstr "Provera za nepoznat izveštaj"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:966
 msgid ""
@@ -11783,7 +11857,7 @@ msgid ""
 "    files in each directory of the calibre library. This is\n"
 "    useful if your metadata.db file has been corrupted.\n"
 "\n"
-"    WARNING: This completely regenrates your datbase. You will\n"
+"    WARNING: This completely regenerates your datbase. You will\n"
 "    lose stored per-book conversion settings and custom recipes.\n"
 "    "
 msgstr ""
@@ -11859,11 +11933,11 @@ msgstr "Ocene"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:117
 msgid "Processed"
-msgstr ""
+msgstr "Obrađeno"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:182
 msgid "creating custom column "
-msgstr ""
+msgstr "kreiram korisničku kolonu "
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:31
 msgid "The title"
@@ -12310,7 +12384,7 @@ msgstr "Nemački (Austrija)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "French (BE)"
-msgstr ""
+msgstr "Francuski (BE)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "Dutch (NL)"
@@ -12322,41 +12396,45 @@ msgstr "Holandski (Belgija)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
-msgstr ""
+msgstr "Izaberite stil (potrebno je pnovno pokretanje)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:188
 msgid "No interpreter"
-msgstr ""
+msgstr "Nema prevodioca"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:189
 msgid "No active interpreter found. Try restarting the console"
 msgstr ""
+"Nije pronađen aktivan prevodilac. Probajte da ponovo pokrenete komandnu "
+"liniju"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:203
 msgid "Interpreter died"
-msgstr ""
+msgstr "Prevodilac je prestao s radom"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:204
 msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
 msgstr ""
+"Prevodilac je prestaio s radom u toku izvršavanja komande. Da biste videli "
+"komandu kliknite na Prikaži detalje"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
-msgstr ""
+msgstr "Dobrodošli u"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:41
 msgid " console "
-msgstr ""
+msgstr " komandna linija "
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:51
 msgid "Code is running"
-msgstr ""
+msgstr "Program se izvršava"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:58
 msgid "Restart console"
-msgstr ""
+msgstr "Ponovo pokreni komandnu liniju"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
