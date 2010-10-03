@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
     QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication, \
-    QPoint, QPixmap, QUrl
+    QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect
 
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
@@ -429,8 +429,32 @@ class BooksView(QTableView): # {{{
             urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
             return [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
 
-    def drag_icon(self, cover):
+    def drag_icon(self, cover, multiple):
         cover = cover.scaledToHeight(120, Qt.SmoothTransformation)
+        if multiple:
+            base_width = cover.width()
+            base_height = cover.height()
+            base = QImage(base_width+21, base_height+21,
+                    QImage.Format_ARGB32_Premultiplied)
+            base.fill(QColor(255, 255, 255, 0).rgba())
+            p = QPainter(base)
+            rect = QRect(20, 0, base_width, base_height)
+            p.fillRect(rect, QColor('white'))
+            p.drawRect(rect)
+            rect.moveLeft(10)
+            rect.moveTop(10)
+            p.fillRect(rect, QColor('white'))
+            p.drawRect(rect)
+            rect.moveLeft(0)
+            rect.moveTop(20)
+            p.fillRect(rect, QColor('white'))
+            p.save()
+            p.setCompositionMode(p.CompositionMode_SourceAtop)
+            p.drawImage(rect.topLeft(), cover)
+            p.restore()
+            p.drawRect(rect)
+            p.end()
+            cover = base
         return QPixmap.fromImage(cover)
 
     def drag_data(self):
@@ -445,7 +469,8 @@ class BooksView(QTableView): # {{{
             for i in selected])
         drag = QDrag(self)
         drag.setMimeData(md)
-        cover = self.drag_icon(m.cover(self.currentIndex().row()))
+        cover = self.drag_icon(m.cover(self.currentIndex().row()),
+                len(selected) > 1)
         drag.setHotSpot(QPoint(cover.width()//3, cover.height()//3))
         drag.setPixmap(cover)
         return drag
@@ -597,7 +622,8 @@ class DeviceBooksView(BooksView): # {{{
         md.setUrls([QUrl.fromLocalFile(p) for p in paths])
         drag = QDrag(self)
         drag.setMimeData(md)
-        cover = self.drag_icon(m.cover(self.currentIndex().row()))
+        cover = self.drag_icon(m.cover(self.currentIndex().row()), len(paths) >
+                1)
         drag.setHotSpot(QPoint(cover.width()//3, cover.height()//3))
         drag.setPixmap(cover)
         return drag
