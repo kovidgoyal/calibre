@@ -180,13 +180,3 @@ content_server_wont_display = ['']
 # level sorts, and if you are seeing a slowdown, reduce the value of this tweak.
 maximum_resort_levels = 5
 
-
-# Tell the Sony driver to apply the plugboard specified by the given format
-# before writing to its database. This can be used to change the title, etc,
-# in the DB, and therefore what the Sony displays.
-# Example:
-# sony_db_use_plugboard_format='epub'
-# Apply the epub plugboard before writing to the Sony DB.
-# Default: ''
-sony_db_use_plugboard_format=''
-

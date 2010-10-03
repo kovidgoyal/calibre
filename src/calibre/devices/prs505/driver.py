@@ -167,10 +167,8 @@ class PRS505(USBMS):
         debug_print('PRS505: finished rebuild_collections')
 
     def use_plugboard_ext(self):
-        ext = tweaks.get('sony_db_use_plugboard_format', None)
-        return ext
+        return 'device_db'
 
     def set_plugboard(self, pb):
-        if tweaks.get('sony_db_use_plugboard_format', None):
-            debug_print('PRS505: use plugboard', pb)
-            self.plugboard = pb
+        debug_print('PRS505: use plugboard', pb)
+        self.plugboard = pb

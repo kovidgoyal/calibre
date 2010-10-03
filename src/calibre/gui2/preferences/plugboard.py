@@ -60,6 +60,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for w in metadata_writers():
             for f in w.file_types:
                 self.formats.append(f)
+        self.formats.append('device_db')
         self.formats.sort()
         self.formats.insert(1, plugboard_any_format_value)
         self.new_format.addItems(self.formats)
