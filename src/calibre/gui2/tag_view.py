@@ -140,11 +140,14 @@ class TagsView(QTreeView): # {{{
                 item.category_key in \
                   ('tags', 'series', 'authors', 'rating', 'publisher'):
                       child = m.data(idx, Qt.UserRole)
-                      self.handle_drop(item, child)
+                      md = event.mimeData()
+                      mime = 'application/calibre+from_library'
+                      ids = list(map(int, str(md.data(mime)).split()))
+                      self.handle_drop(item, child, ids)
                       event.accept()
 
-    def handle_drop(self, parent, child):
-        pass
+    def handle_drop(self, parent, child, ids):
+        print 'Dropped ids:', ids
 
     @property
     def match_all(self):
