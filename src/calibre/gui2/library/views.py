@@ -425,8 +425,10 @@ class BooksView(QTableView): # {{{
         Accept a drop event and return a list of paths that can be read from
         and represent files with extensions.
         '''
-        if event.mimeData().hasFormat('text/uri-list'):
-            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
+        md = event.mimeData()
+        if md.hasFormat('text/uri-list') and not \
+                md.hasFormat('application/calibre+from_library'):
+            urls = [unicode(u.toLocalFile()) for u in md.urls()]
             return [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
 
     def drag_icon(self, cover, multiple):
