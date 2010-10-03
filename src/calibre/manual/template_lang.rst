@@ -165,7 +165,7 @@ For tags, the result cut apart whereever |app| finds a comma. For example, if th
 
 The same thing happens for authors, but using a different character for the cut, a `&` (ampersand) instead of a comma. For example, if the template produces the value ``Blogs, Joe&Posts, Susan``, then the book will end up with two authors, ``Blogs, Joe`` and ``Posts, Susan``. If the template produces the value ``Blogs, Joe;Posts, Susan``, then the book will have one author with a rather strange name.
 
-Plugboards affect only the metadata written into the book. They do not affect calibre's metadata or the metadata used in ``save to disk`` and ``send to device`` templates. Plugboards also do not affect what is written into a Sony's database, so cannot be used for altering the metadata shown on a Sony's menu.
+Plugboards affect the metadata written into the book when it is saved to disk or written to the device. Plugboards do not affect the metadata used by ``save to disk`` and ``send to device`` to create the file names. Instead, file names are constructed using the templates entered on the appropriate preferences window. 
 
 Helpful Tips
 ------------

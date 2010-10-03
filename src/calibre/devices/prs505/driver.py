@@ -63,6 +63,8 @@ class PRS505(USBMS):
                     'series, tags, authors'
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags'])
 
+    plugboard = None
+
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
 
@@ -150,7 +152,7 @@ class PRS505(USBMS):
         else:
             collections = []
         debug_print('PRS505: collection fields:', collections)
-        c.update(blists, collections)
+        c.update(blists, collections, self.plugboard)
         c.write()
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
@@ -163,3 +165,9 @@ class PRS505(USBMS):
         c.write()
         debug_print('PRS505: finished rebuild_collections')
 
+    def use_plugboard_ext(self):
+        return 'device_db'
+
+    def set_plugboard(self, pb):
+        debug_print('PRS505: use plugboard', pb)
+        self.plugboard = pb

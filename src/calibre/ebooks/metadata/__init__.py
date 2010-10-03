@@ -44,7 +44,15 @@ def author_to_author_sort(author):
 def authors_to_sort_string(authors):
     return ' & '.join(map(author_to_author_sort, authors))
 
-_title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
+try:
+    _title_pat = re.compile(tweaks.get('title_sort_articles',
+                                       r'^(A|The|An)\s+'), re.IGNORECASE)
+except:
+    print 'Error in title sort pattern'
+    import traceback
+    traceback.print_exc()
+    _title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
+
 _ignore_starts = u'\'"'+u''.join(unichr(x) for x in range(0x2018, 0x201e)+[0x2032, 0x2033])
 
 def title_sort(title):

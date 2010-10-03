@@ -4,6 +4,52 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.22
+  date: 2010-10-03
+
+  new features:
+    - title: "Drag and drop books from your calibre library"
+      type: major
+      description: >
+        "You can now drag and drop books from your calibre library. You can drag them to the desktop or to a file explorer, to copy them to your computer. You can drag them to the
+        device icon in calibre to send them to the device. You can also drag and drop books from the device view in calibre to the calibre library icon or the operating
+        system to copy them from the device."
+
+    - title: "There were many minor bug fixes for various bugs caused by the major changes in 0.7.21. So if you have updated to 0.7.21, it is highly recommended you update to 0.7.22"
+
+    - title: "Driver for the VelocityMicro ebook reader device"
+
+    - title: "Add a tweak to control how articles in titles are processed during sorting"
+
+    - title: "Add a new format type 'device_db' to plugboards to control the metadata displayed in book lists on SONY devices."
+
+  bug fixes:
+    - title: "Fix ISBN not being read from filenames in 0.7.21"
+      tickets: [7054]
+
+    - title: "Fix instant Search for text not found causes unhandled exception when conversion jobs are running"
+      tickets: [7043]
+
+    - title: "Fix removing a publisher causes an error in 0.7.21"
+      tickets: [7046]
+
+    - title: "MOBI Output: Fix some images being distorted in 0.7.21"
+      tickets: [7049]
+
+    - title: "Fix regression that broke bulk conversion of books without covers in 0.7.21"
+
+    - title: "Fix regression that broke add and set_metadata commands in calibredb in 0.7.21"
+
+    - title: "Workaround for Qt bug in file open dialogs in linux that causes multiple file selection to ignore files with two or more spaces in the file name"
+
+    - title: "Conversion pipeline: Fix regression in 0.7.21 that broke conversion of LIT/EPUB documents that specified no title in their OPF files"
+
+    - title: "Fix regression that broke iPad driver in 0.7.21"
+
+  improved recipes:
+    - Washington Post
+
+
 - version: 0.7.21
   date: 2010-10-01
 
