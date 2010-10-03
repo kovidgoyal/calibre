@@ -42,7 +42,7 @@ class RMF24_opinie(BasicNewsRecipe):
     # thanks to Kovid Goyal
     def get_article_url(self, article):
         link = article.get('link')
-        if 'audio' not in link:
+        if '/audio,aId' not in link:
             return link
 
     preprocess_regexps = [
