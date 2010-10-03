@@ -83,6 +83,15 @@ title_series_sorting = 'library_order'
 # strictly_alphabetic, it would remain "The Client".
 save_template_title_series_sorting = 'library_order'
 
+# Set the list of words that are to be considered 'articles' when computing the
+# title sort strings. The list is a regular expression, with the articles
+# separated by 'or' bars. Comparisons are case insensitive, and that cannot be
+# changed. Changes to this tweak won't have an effect until the book is modified
+# in some way. If you enter an invalid pattern, it is silently ignored.
+# Default: '^(A|The|An)\s+'
+title_sort_articles='^(A|The|An)\s+'
+
+
 # Specify a folder that calibre should connect to at startup using
 # connect_to_folder. This must be a full path to the folder. If the folder does
 # not exist when calibre starts, it is ignored. If there are '\' characters in
