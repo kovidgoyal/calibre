@@ -88,8 +88,9 @@ save_template_title_series_sorting = 'library_order'
 # separated by 'or' bars. Comparisons are case insensitive, and that cannot be
 # changed. Changes to this tweak won't have an effect until the book is modified
 # in some way. If you enter an invalid pattern, it is silently ignored.
+# To disable use the expression: '^$'
 # Default: '^(A|The|An)\s+'
-title_sort_articles='^(A|The|An)\s+'
+title_sort_articles=r'^(A|The|An)\s+'
 
 
 # Specify a folder that calibre should connect to at startup using
