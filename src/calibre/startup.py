@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 Perform various initialization tasks.
 '''
 
-import locale, sys, os
+import locale, sys, os, re
 
 # Default translation is NOOP
 import __builtin__
@@ -114,6 +114,34 @@ if not _run_once:
             r, w, a, rb, wb, ab, r+, w+, a+, r+b, w+b, a+b
         '''
         if iswindows:
+            class fwrapper(object):
+                def __init__(self, name, fobject):
+                    object.__setattr__(self, 'fobject', fobject)
+                    object.__setattr__(self, 'name', name)
+
+                def __getattribute__(self, attr):
+                    if attr == 'name':
+                        return object.__getattribute__(self, attr)
+                    fobject = object.__getattribute__(self, 'fobject')
+                    return getattr(fobject, attr)
+
+                def __setattr__(self, attr, val):
+                    fobject = object.__getattribute__(self, 'fobject')
+                    return setattr(fobject, attr, val)
+
+                def __repr__(self):
+                    fobject = object.__getattribute__(self, 'fobject')
+                    name = object.__getattribute__(self, 'name')
+                    return re.sub(r'''['"]<fdopen>['"]''', repr(name),
+                            repr(fobject))
+
+                def __str__(self):
+                    return repr(self)
+
+                def __unicode__(self):
+                    return repr(self).decode('utf-8')
+
+
             m = mode[0]
             random = len(mode) > 1 and mode[1] == '+'
             binary = mode[-1] == 'b'
@@ -139,6 +167,7 @@ if not _run_once:
             flags |= os.O_NOINHERIT
             fd = os.open(name, flags)
             ans = os.fdopen(fd, mode, bufsize)
+            ans = fwrapper(name, ans)
         else:
             import fcntl
             try:

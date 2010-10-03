@@ -302,7 +302,7 @@ def do_add_empty(db, title, authors, isbn):
     if isbn:
         mi.isbn = isbn
     db.import_book(mi, [])
-    write_dirtied()
+    write_dirtied(db)
     send_message()
 
 def command_add(args, dbpath):
@@ -456,7 +456,7 @@ def do_set_metadata(db, id, stream):
     db.set_metadata(id, mi)
     db.clean()
     do_show_metadata(db, id, False)
-    write_dirtied()
+    write_dirtied(db)
     send_message()
 
 def set_metadata_option_parser():

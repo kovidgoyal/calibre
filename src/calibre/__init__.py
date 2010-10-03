@@ -455,6 +455,24 @@ def prepare_string_for_xml(raw, attribute=False):
 def isbytestring(obj):
     return isinstance(obj, (str, bytes))
 
+def force_unicode(obj, enc=preferred_encoding):
+    if isbytestring(obj):
+        try:
+            obj = obj.decode(enc)
+        except:
+            try:
+                obj = obj.decode(filesystem_encoding if enc ==
+                        preferred_encoding else preferred_encoding)
+            except:
+                try:
+                    obj = obj.decode('utf-8')
+                except:
+                    obj = repr(obj)
+                    if isbytestring(obj):
+                        obj = obj.decode('utf-8')
+    return obj
+
+
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
     divisor, suffix = 1, "B"

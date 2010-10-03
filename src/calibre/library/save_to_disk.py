@@ -19,7 +19,7 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre import strftime
+from calibre import strftime, prints
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
