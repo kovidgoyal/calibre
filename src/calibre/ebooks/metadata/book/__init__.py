@@ -114,7 +114,8 @@ SC_COPYABLE_FIELDS =       SOCIAL_METADATA_FIELDS.union(
                            PUBLICATION_METADATA_FIELDS).union(
                            BOOK_STRUCTURE_FIELDS).union(
                            DEVICE_METADATA_FIELDS).union(
-                           CALIBRE_METADATA_FIELDS) - \
+                           CALIBRE_METADATA_FIELDS).union(
+                           TOP_LEVEL_CLASSIFIERS) - \
                            SC_FIELDS_NOT_COPIED.union(
                            SC_FIELDS_COPY_NOT_NULL)
 

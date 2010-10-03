@@ -361,13 +361,14 @@ class BooksModel(QAbstractTableModel): # {{{
             self.cover_cache.set_cache(ids)
 
     def current_changed(self, current, previous, emit_signal=True):
-        idx = current.row()
-        self.set_cache(idx)
-        data = self.get_book_display_info(idx)
-        if emit_signal:
-            self.new_bookdisplay_data.emit(data)
-        else:
-            return data
+        if current.isValid():
+            idx = current.row()
+            self.set_cache(idx)
+            data = self.get_book_display_info(idx)
+            if emit_signal:
+                self.new_bookdisplay_data.emit(data)
+            else:
+                return data
 
     def get_book_info(self, index):
         if isinstance(index, int):
