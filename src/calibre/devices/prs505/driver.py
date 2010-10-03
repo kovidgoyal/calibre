@@ -14,7 +14,6 @@ from calibre.devices.prs505 import CACHE_XML
 from calibre.devices.prs505.sony_cache import XMLCache
 from calibre import __appname__
 from calibre.devices.usbms.books import CollectionsBookList
-from calibre.utils.config import tweaks
 
 class PRS505(USBMS):
 
