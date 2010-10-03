@@ -340,7 +340,7 @@ class DeviceManager(Thread): # {{{
                             cpb = None
 
                     if DEBUG:
-                        prints('Using plugboard', ext, dev_name, cpb)
+                        prints('Device using plugboard', ext, dev_name, cpb)
                     if ext:
                         try:
                             if DEBUG:
