@@ -465,8 +465,25 @@ class BooksView(QTableView): # {{{
         ids = ' '.join(map(str, selected))
         md = QMimeData()
         md.setData('application/calibre+from_library', ids)
-        md.setUrls([QUrl.fromLocalFile(db.abspath(i, index_is_id=True))
-            for i in selected])
+        fmt = prefs['output_format']
+
+        def url_for_id(i):
+            ans = db.format_abspath(i, fmt, index_is_id=True)
+            if ans is None:
+                fmts = db.formats(i, index_is_id=True)
+                if fmts:
+                    fmts = fmts.split(',')
+                else:
+                    fmts = []
+                for f in fmts:
+                    ans = db.format_abspath(i, f, index_is_id=True)
+                    if ans is not None:
+                        break
+            if ans is None:
+                ans = db.abspath(i, index_is_id=True)
+            return QUrl.fromLocalFile(ans)
+
+        md.setUrls([url_for_id(i) for i in selected])
         drag = QDrag(self)
         drag.setMimeData(md)
         cover = self.drag_icon(m.cover(self.currentIndex().row()),
