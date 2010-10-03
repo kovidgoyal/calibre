@@ -1593,7 +1593,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.commit()
 
     def delete_publisher_using_id(self, old_id):
-        self.dirty_books_referencing('publisher', id, commit=False)
+        self.dirty_books_referencing('publisher', old_id, commit=False)
         self.conn.execute('''DELETE FROM books_publishers_link
                              WHERE publisher=?''', (old_id,))
         self.conn.execute('DELETE FROM publishers WHERE id=?', (old_id,))

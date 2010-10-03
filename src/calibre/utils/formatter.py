@@ -4,7 +4,9 @@ Created on 23 Sep 2010
 @author: charles
 '''
 
-import re, string
+import re, string, traceback
+
+from calibre.constants import DEBUG
 
 class TemplateFormatter(string.Formatter):
     '''
@@ -19,7 +21,6 @@ class TemplateFormatter(string.Formatter):
         string.Formatter.__init__(self)
         self.book = None
         self.kwargs = None
-        self.sanitize = None
 
     def _lookup(self, val, field_if_set, field_not_set):
         if val:
@@ -99,8 +100,8 @@ class TemplateFormatter(string.Formatter):
                 return fmt, '', ''
             return matches.groups()
         except:
-            import traceback
-            traceback.print_exc()
+            if DEBUG:
+                traceback.print_exc()
             return fmt, '', ''
 
     def format_field(self, val, fmt):
@@ -139,14 +140,15 @@ class TemplateFormatter(string.Formatter):
         ans = string.Formatter.vformat(self, fmt, args, kwargs)
         return self.compress_spaces.sub(' ', ans).strip()
 
-    def safe_format(self, fmt, kwargs, error_value, book, sanitize=None):
+    def safe_format(self, fmt, kwargs, error_value, book):
         self.kwargs = kwargs
         self.book = book
-        self.sanitize = sanitize
         self.composite_values = {}
         try:
             ans = self.vformat(fmt, [], kwargs).strip()
         except:
+            if DEBUG:
+                traceback.print_exc()
             ans = error_value
         return ans
 
