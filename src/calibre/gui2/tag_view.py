@@ -79,6 +79,8 @@ class TagsView(QTreeView): # {{{
         self.setHeaderHidden(True)
         self.setItemDelegate(TagDelegate(self))
         self.made_connections = False
+        self.setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
 
     def set_database(self, db, tag_match, sort_by):
         self.hidden_categories = config['tag_browser_hidden_categories']
@@ -103,6 +105,46 @@ class TagsView(QTreeView): # {{{
 
     def database_changed(self, event, ids):
         self.refresh_required.emit()
+
+    def dragEnterEvent(self, event):
+        md = event.mimeData()
+        if md.hasFormat("application/calibre+from_library"):
+            event.setDropAction(Qt.CopyAction)
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        allowed = False
+        idx = self.indexAt(event.pos())
+        m = self.model()
+        p = m.parent(idx)
+        if idx.isValid() and p.isValid():
+            item = m.data(p, Qt.UserRole)
+            if item.type == TagTreeItem.CATEGORY and \
+                item.category_key in \
+                  ('tags', 'series', 'authors', 'rating', 'publisher'):
+                    allowed = True
+        if allowed:
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        idx = self.indexAt(event.pos())
+        m = self.model()
+        p = m.parent(idx)
+        if idx.isValid() and p.isValid():
+            item = m.data(p, Qt.UserRole)
+            if item.type == TagTreeItem.CATEGORY and \
+                item.category_key in \
+                  ('tags', 'series', 'authors', 'rating', 'publisher'):
+                      child = m.data(idx, Qt.UserRole)
+                      self.handle_drop(item, child)
+                      event.accept()
+
+    def handle_drop(self, parent, child):
+        pass
 
     @property
     def match_all(self):
@@ -326,6 +368,8 @@ class TagTreeItem(object): # {{{
         self.children.append(child)
 
     def data(self, role):
+        if role == Qt.UserRole:
+            return self
         if self.type == self.TAG:
             return self.tag_data(role)
         if self.type == self.CATEGORY:
@@ -544,8 +588,14 @@ class TagsModel(QAbstractItemModel): # {{{
     def headerData(self, *args):
         return NONE
 
-    def flags(self, *args):
-        return Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsEditable
+    def flags(self, index, *args):
+        ans = Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsEditable
+        if index.isValid() and self.parent(index).isValid():
+            ans |= Qt.ItemIsDropEnabled
+        return ans
+
+    def supportedDropActions(self):
+        return Qt.CopyAction|Qt.MoveAction
 
     def path_for_index(self, index):
         ans = []
