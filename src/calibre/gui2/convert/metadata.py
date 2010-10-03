@@ -21,6 +21,7 @@ from calibre.gui2.convert import Widget
 def create_opf_file(db, book_id):
     mi = db.get_metadata(book_id, index_is_id=True)
     mi.application_id = uuid.uuid4()
+    mi.cover = None
     raw = metadata_to_opf(mi)
     opf_file = PersistentTemporaryFile('.opf')
     opf_file.write(raw)
