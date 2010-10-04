@@ -484,9 +484,12 @@ class Metadata(object):
                 res = self.format_series_index(res)
             return (name, unicode(res), orig_res, cmeta)
 
-        if key in field_metadata and field_metadata[key]['kind'] == 'field':
+        # Translate aliases into the standard field name
+        fmkey = field_metadata.search_term_to_field_key(key)
+
+        if fmkey in field_metadata and field_metadata[fmkey]['kind'] == 'field':
             res = self.get(key, None)
-            fmeta = field_metadata[key]
+            fmeta = field_metadata[fmkey]
             name = unicode(fmeta['name'])
             if res is None or res == '':
                 return (name, res, None, None)
