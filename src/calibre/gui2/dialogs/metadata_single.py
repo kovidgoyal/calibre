@@ -308,7 +308,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         im = Image()
         im.load(cdata)
         im.trim(10)
-        cdata = im.export('jpg')
+        cdata = im.export('png')
         pix = QPixmap()
         pix.loadFromData(cdata)
         self.cover.setPixmap(pix)
