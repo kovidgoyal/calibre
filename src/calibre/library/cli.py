@@ -302,7 +302,7 @@ def do_add_empty(db, title, authors, isbn):
     if isbn:
         mi.isbn = isbn
     db.import_book(mi, [])
-    write_dirtied()
+    write_dirtied(db)
     send_message()
 
 def command_add(args, dbpath):
@@ -456,7 +456,7 @@ def do_set_metadata(db, id, stream):
     db.set_metadata(id, mi)
     db.clean()
     do_show_metadata(db, id, False)
-    write_dirtied()
+    write_dirtied(db)
     send_message()
 
 def set_metadata_option_parser():
@@ -874,11 +874,93 @@ def command_saved_searches(args, dbpath):
 
     return 0
 
+def check_library_option_parser():
+    from calibre.library.check_library import CHECKS
+    parser = get_parser(_('''\
+%prog check_library [options]
+
+Perform some checks on the filesystem representing a library. Reports are {0}
+''').format(', '.join([c[0] for c in CHECKS])))
+
+    parser.add_option('-c', '--csv', default=False, action='store_true',
+            help=_('Output in CSV'))
+
+    parser.add_option('-r', '--report', default=None, dest='report',
+                      help=_("Comma-separated list of reports.\n"
+                             "Default: all"))
+
+    parser.add_option('-e', '--ignore_extensions', default=None, dest='exts',
+                      help=_("Comma-separated list of extensions to ignore.\n"
+                             "Default: all"))
+
+    parser.add_option('-n', '--ignore_names', default=None, dest='names',
+                      help=_("Comma-separated list of names to ignore.\n"
+                             "Default: all"))
+    return parser
+
+def command_check_library(args, dbpath):
+    from calibre.library.check_library import CheckLibrary, CHECKS
+    parser = check_library_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 0:
+        parser.print_help()
+        return 1
+
+    if opts.library_path is not None:
+        dbpath = opts.library_path
+
+    if isbytestring(dbpath):
+        dbpath = dbpath.decode(preferred_encoding)
+
+    if opts.report is None:
+        checks = CHECKS
+    else:
+        checks = []
+        for r in opts.report.split(','):
+            found = False
+            for c in CHECKS:
+                if c[0] == r:
+                    checks.append(c)
+                    found = True
+                    break
+            if not found:
+                print _('Unknown report check'), r
+                return 1
+
+    if opts.names is None:
+        names = []
+    else:
+        names = [f.strip() for f in opts.names.split(',') if f.strip()]
+    if opts.exts is None:
+        exts = []
+    else:
+        exts = [f.strip() for f in opts.exts.split(',') if f.strip()]
+
+    def print_one(checker, check):
+        attr = check[0]
+        list = getattr(checker, attr, None)
+        if list is None:
+            return
+        if opts.csv:
+            for i in list:
+                print check[1] + ',' + i[0] + ',' + i[1] + ',' + '|'.join(i[2])
+        else:
+            print check[1]
+            for i in list:
+                print '    %-30.30s - %-30.30s - %s'%(i[0], i[1], ', '.join(i[2]))
+
+    db = LibraryDatabase2(dbpath)
+    checker = CheckLibrary(dbpath, db)
+    checker.scan_library(names, exts)
+    for check in checks:
+        print_one(checker, check)
+
 
 COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'show_metadata', 'set_metadata', 'export', 'catalog',
             'saved_searches', 'add_custom_column', 'custom_columns',
-            'remove_custom_column', 'set_custom', 'restore_database')
+            'remove_custom_column', 'set_custom', 'restore_database',
+            'check_library')
 
 def restore_database_option_parser():
     parser = get_parser(_(
@@ -889,7 +971,7 @@ def restore_database_option_parser():
     files in each directory of the calibre library. This is
     useful if your metadata.db file has been corrupted.
 
-    WARNING: This completely regenrates your datbase. You will
+    WARNING: This completely regenerates your datbase. You will
     lose stored per-book conversion settings and custom recipes.
     '''))
     return parser

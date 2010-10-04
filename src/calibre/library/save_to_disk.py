@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, traceback, cStringIO, re
 
+from calibre.constants import DEBUG
 from calibre.utils.config import Config, StringConfig, tweaks
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.filenames import shorten_components_to, supports_long_names, \
@@ -17,7 +18,7 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre import strftime
+from calibre import strftime, prints
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
@@ -114,8 +115,14 @@ class SafeFormat(TemplateFormatter):
 
     def get_value(self, key, args, kwargs):
         try:
-            b = self.book.get_user_metadata(key, False)
             key = key.lower()
+            try:
+                b = self.book.get_user_metadata(key, False)
+            except:
+                if DEBUG:
+                    traceback.print_exc()
+                b = None
+
             if b is not None and b['datatype'] == 'composite':
                 if key in self.composite_values:
                     return self.composite_values[key]
@@ -123,11 +130,13 @@ class SafeFormat(TemplateFormatter):
                 self.composite_values[key] = \
                     self.vformat(b['display']['composite_template'], [], kwargs)
                 return self.composite_values[key]
-            if kwargs[key]:
-                return self.sanitize(kwargs[key.lower()])
+            if key in kwargs:
+                return kwargs[key].replace('/', '_').replace('\\', '_')
             return ''
         except:
-            return ''
+            if DEBUG:
+                traceback.print_exc()
+            return key
 
 safe_formatter = SafeFormat()
 
@@ -174,8 +183,8 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
             elif custom_metadata[key]['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
 
-    components = safe_formatter.safe_format(template, format_args, '', mi,
-                                            sanitize=sanitize_func)
+    components = safe_formatter.safe_format(template, format_args,
+                                            'G_C-EXCEPTION!', mi)
     components = [x.strip() for x in components.split('/') if x.strip()]
     components = [sanitize_func(x) for x in components if x]
     if not components:
@@ -259,7 +268,8 @@ def save_book_to_disk(id, db, root, opts, length):
                 cpb = cpb[dev_name]
             else:
                 cpb = None
-        #prints('Using plugboard:', fmt, cpb)
+        if DEBUG:
+            prints('Save-to-disk using plugboard:', fmt, cpb)
         data = db.format(id, fmt, index_is_id=True)
         if data is None:
             continue
@@ -277,7 +287,8 @@ def save_book_to_disk(id, db, root, opts, length):
                     newmi = mi
                 set_metadata(stream, newmi, fmt)
             except:
-                traceback.print_exc()
+                if DEBUG:
+                    traceback.print_exc()
             stream.seek(0)
             data = stream.read()
         fmt_path = base_path+'.'+str(fmt)

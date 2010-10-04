@@ -707,7 +707,7 @@ OptionRecommendation(name='timestamp',
             if mi.cover.startswith('http:') or mi.cover.startswith('https:'):
                 mi.cover = self.download_cover(mi.cover)
             ext = mi.cover.rpartition('.')[-1].lower().strip()
-            if ext not in ('png', 'jpg', 'jpeg'):
+            if ext not in ('png', 'jpg', 'jpeg', 'gif'):
                 ext = 'jpg'
             mi.cover_data = (ext, open(mi.cover, 'rb').read())
             mi.cover = None

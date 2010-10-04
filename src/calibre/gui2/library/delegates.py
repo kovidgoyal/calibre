@@ -153,7 +153,7 @@ class TextDelegate(QStyledItemDelegate): # {{{
             complete_items = [i[1] for i in self.auto_complete_function()]
             completer = QCompleter(complete_items, self)
             completer.setCaseSensitivity(Qt.CaseInsensitive)
-            completer.setCompletionMode(QCompleter.InlineCompletion)
+            completer.setCompletionMode(QCompleter.PopupCompletion)
             editor.setCompleter(completer)
         return editor
 #}}}

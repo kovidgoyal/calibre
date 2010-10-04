@@ -39,6 +39,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         ConfigWidgetBase.initialize(self)
 
+        if self.gui.device_manager.connected_device is not None:
+            self.device_label.setText(_('Device currently connected: ') +
+                    self.gui.device_manager.connected_device.__class__.__name__)
+        else:
+            self.device_label.setText(_('Device currently connected: None'))
+
         self.devices = ['']
         for device in device_plugins():
             n = device.__class__.__name__
@@ -54,6 +60,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for w in metadata_writers():
             for f in w.file_types:
                 self.formats.append(f)
+        self.formats.append('device_db')
         self.formats.sort()
         self.formats.insert(1, plugboard_any_format_value)
         self.new_format.addItems(self.formats)

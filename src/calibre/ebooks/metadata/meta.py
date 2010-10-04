@@ -108,7 +108,8 @@ def _get_metadata(stream, stream_type, use_libprs_metadata,
     base = metadata_from_filename(name, pat=pattern)
     if force_read_metadata or is_recipe(name) or prefs['read_file_metadata']:
         mi = get_file_type_metadata(stream, stream_type)
-    if base.title == os.path.splitext(name)[0] and base.authors is None:
+    if base.title == os.path.splitext(name)[0] and \
+            base.is_null('authors') and base.is_null('isbn'):
         # Assume that there was no metadata in the file and the user set pattern
         # to match meta info from the file name did not match.
         # The regex is meant to match the standard format filenames are written

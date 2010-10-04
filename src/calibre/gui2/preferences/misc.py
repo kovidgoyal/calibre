@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import QProgressDialog, QThread, Qt, pyqtSignal
 
+from calibre.gui2.dialogs.check_library import CheckLibraryDialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.misc_ui import Ui_Form
 from calibre.gui2 import error_dialog, config, warning_dialog, \
@@ -89,6 +90,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.compact_button.clicked.connect(self.compact)
         self.button_all_books_dirty.clicked.connect(self.mark_dirty)
+        self.button_check_library.clicked.connect(self.check_library)
         self.button_open_config_dir.clicked.connect(self.open_config_dir)
         self.button_osx_symlinks.clicked.connect(self.create_symlinks)
         self.button_osx_symlinks.setVisible(isosx)
@@ -99,6 +101,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         info_dialog(self, _('Backup metadata'),
             _('Metadata will be backed up while calibre is running, at the '
               'rate of 30 books per minute.'), show=True)
+
+    def check_library(self):
+        db = self.gui.library_view.model().db
+        d = CheckLibraryDialog(self.gui.parent(), db)
+        d.exec_()
 
     def debug_device_detection(self, *args):
         from calibre.gui2.preferences.device_debug import DebugDevice

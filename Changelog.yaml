@@ -4,6 +4,164 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.22
+  date: 2010-10-03
+
+  new features:
+    - title: "Drag and drop books from your calibre library"
+      type: major
+      description: >
+        "You can now drag and drop books from your calibre library. You can drag them to the desktop or to a file explorer, to copy them to your computer. You can drag them to the
+        device icon in calibre to send them to the device. You can also drag and drop books from the device view in calibre to the calibre library icon or the operating
+        system to copy them from the device."
+
+    - title: "There were many minor bug fixes for various bugs caused by the major changes in 0.7.21. So if you have updated to 0.7.21, it is highly recommended you update to 0.7.22"
+
+    - title: "Driver for the VelocityMicro ebook reader device"
+
+    - title: "Add a tweak to control how articles in titles are processed during sorting"
+
+    - title: "Add a new format type 'device_db' to plugboards to control the metadata displayed in book lists on SONY devices."
+
+  bug fixes:
+    - title: "Fix ISBN not being read from filenames in 0.7.21"
+      tickets: [7054]
+
+    - title: "Fix instant Search for text not found causes unhandled exception when conversion jobs are running"
+      tickets: [7043]
+
+    - title: "Fix removing a publisher causes an error in 0.7.21"
+      tickets: [7046]
+
+    - title: "MOBI Output: Fix some images being distorted in 0.7.21"
+      tickets: [7049]
+
+    - title: "Fix regression that broke bulk conversion of books without covers in 0.7.21"
+
+    - title: "Fix regression that broke add and set_metadata commands in calibredb in 0.7.21"
+
+    - title: "Workaround for Qt bug in file open dialogs in linux that causes multiple file selection to ignore files with two or more spaces in the file name"
+
+    - title: "Conversion pipeline: Fix regression in 0.7.21 that broke conversion of LIT/EPUB documents that specified no title in their OPF files"
+
+    - title: "Fix regression that broke iPad driver in 0.7.21"
+
+  improved recipes:
+    - Washington Post
+
+
+- version: 0.7.21
+  date: 2010-10-01
+
+  new features:
+    - title: "Automatic backup of the calibre metadata database"
+      type: major
+      description: >
+        "calibre now automatically backups up the metadata for each book in the library into an individual OPF file in that books' folder. This means that if the calibre metadata database is corrupted, for example by a hard disk failure, you can reconstruct it from these OPF files, without losing any metadata. For the moment, only the backup is implemented, restore will be implemented in the future. The backup happens automatically in the background while calibre is running. The first time you start calibre, all the books will need to be backed up, so you may notice calibre running a little slower than usual."
+
+    - title: "Virtual columns"
+      type: major
+      description: >
+        "You can now add virtual columns to the calibre book list. These are built fro other columns using templates and can be used to, for example, create columns to show the books isbn and avaialbale formats. You can do this by right clicking on a column header and select 'Add your own columns'"
+
+    - title: "calibre templates now much more powerful"
+      type: major
+      description: >
+        "The templates used in calibre in send to device and save to disk have now beome much ore powerful. They can use conditinal text and functions to transforms the replacement text. Also they now have access t metadata in user defined columns. For details see the tutorials section of the User Manual."
+
+    - title: "Metadata plugboards: Allow you to perform sophisticated transformations on the metadata of a book when exporting it from the calibre library."
+      type: major
+      description: > 
+        "For example, you can add the series informtion to the title when sendig books to a device. This functionality is accessed from Preferences->Import/Export->Metadata plugboards"
+
+    - title: "User defined columns are now fully integrated into calibre"
+      type: major
+      description: >
+        "User defined columns can nw be used everywhere. In the content server, Search and Replace, to create ondevice collections, and in the save to disk and send to device templates for creating filenames. In addition, user defined metadata is saved to an read back from EPUB/OPF files."
+
+    - title: "Driver for the jetBook Mini"
+
+    - title: "Add tweaks to control which custom columns the content server displays."
+
+    - title: "Bulk downloading of metadata/covers now shows progress and can be canceled"
+
+    - title: "New plugin to download covers from douban.com. It is disabled by default and must be enabled via Preferences->Advanced->Plugins->Cover download plugins"
+
+    - title: "Add option to change titles to title case in the Bulk metadata edit dialog"
+
+    - title: "Add option to bulk metadata edit dialog to force series renumbering to start with a specified value"
+
+  bug fixes:
+    - title: "Fix various bugs that could lead to stale files being left in the calbre library when editing title/author metadata on windows"
+   
+    - title: "Fix various regression in the preprocess and de-hyphenation code that broke conversion of some files, especially PDF ones."
+
+    - title: "Alex driver: Fix books not being placed in sub directories. Send covers. And allow sending of FB2"
+      tickets: [6956]
+
+    - title: "MOBI Output: Fix bug that could caused left margins in the MOBI file to have twice the size of the left margins in the input document, when viewed on the pathetic Kindle MOBI renderer"
+
+    - title: "MOBI Input: Interpret blockquotes as having a left margin of 2em not 1em to reflect recent Amazon practice"
+
+    - title: "MOBI Output: Remove transparencies from images. Pathetic Kindle MOBI renderer strikes again"
+
+    - title: "Revert removal of inline toc from news downloaded in MOBI format as this makes it unusable with the pathetic Kindle For PC application"
+
+    - title: "Content server: Remove special characters from filenames in download links to accomodate broken browsers like the one in the Kindle"
+
+    - title: "Conversion pipeline: When rescaling images, dont replace gif image data with jpeg data"
+
+    - title: "EPUB Input: Ignore OPF files in the EPUB whose names start with a period"
+
+    - title: "RTF Output: Handle a larger set of broken images in the input document"
+      tickets: [7003]
+
+    - title: "epub-fix: Handle dates before 1900"
+      tickets: [7002]
+
+    - title: "Welcome wizard: Prevent the user from choosing a non empty folder as her calibre library"
+
+    - title: "Automatically enable the Douban metadata download plugins if the user choose chinese as the interface language in the welcome wizard"
+
+    - title: "Linux DBUS notifier: Fix causing freezes on some DBUS implementations"
+      tickets: [6969]
+
+    - title: "Workaround for windows limitation when reading from network sockets. Should fix issues with large files in calibre libraries on network shares."
+      tickets: [3248]
+
+  new recipes:
+    - title: "BBC Sport"
+      author: "limawhiskey"
+      
+    - title: "Revista Muy Interesante "
+      author: "Jefferson Frantz"
+
+    - title: "El Universo - Ecuador and Frederik Pohl's Blog"
+      author: "Darko Miletic"
+
+    - title: "Science News"
+      author: "Starson17"
+
+    - title: "Various Belgian news sources"
+      author: "Lionel Bergeret"
+
+    - title: "Oriental Daily"
+      author: "Larry Chan"
+
+    - title: "Rmf24 - Opinie"
+      author: "Tomasz Dlugosz"
+
+    - title: "Jerusalem Post - French and Howto Geek"
+      author: "Tony Stegall"
+
+
+  improved recipes:
+    - Peter Schiff
+    - Telegraph UK
+    - AJC
+    - Boortz
+    - Scientific American
+
 - version: 0.7.20
   date: 2010-09-24
 

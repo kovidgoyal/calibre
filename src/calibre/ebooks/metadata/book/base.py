@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import copy, traceback
 
 from calibre import prints
+from calibre.constants import DEBUG
 from calibre.ebooks.metadata.book import SC_COPYABLE_FIELDS
 from calibre.ebooks.metadata.book import SC_FIELDS_COPY_NOT_NULL
 from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
@@ -50,6 +51,8 @@ class SafeFormat(TemplateFormatter):
                 return ''
             return v
         except:
+            if DEBUG:
+                traceback.print_exc()
             return key
 
 composite_formatter = SafeFormat()
@@ -320,8 +323,8 @@ class Metadata(object):
                 else:
                     self.set(dest, val)
             except:
-                traceback.print_exc()
-                pass
+                if DEBUG:
+                    traceback.print_exc()
 
     # Old Metadata API {{{
     def print_all_attributes(self):

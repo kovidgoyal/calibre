@@ -361,13 +361,14 @@ class BooksModel(QAbstractTableModel): # {{{
             self.cover_cache.set_cache(ids)
 
     def current_changed(self, current, previous, emit_signal=True):
-        idx = current.row()
-        self.set_cache(idx)
-        data = self.get_book_display_info(idx)
-        if emit_signal:
-            self.new_bookdisplay_data.emit(data)
-        else:
-            return data
+        if current.isValid():
+            idx = current.row()
+            self.set_cache(idx)
+            data = self.get_book_display_info(idx)
+            if emit_signal:
+                self.new_bookdisplay_data.emit(data)
+            else:
+                return data
 
     def get_book_info(self, index):
         if isinstance(index, int):
@@ -1081,12 +1082,11 @@ class DeviceBooksModel(BooksModel): # {{{
         self.db = db
         self.map = list(range(0, len(db)))
 
-    def current_changed(self, current, previous):
-        data = {}
-        item = self.db[self.map[current.row()]]
+    def cover(self, row):
+        item = self.db[self.map[row]]
         cdata = item.thumbnail
+        img = QImage()
         if cdata is not None:
-            img = QImage()
             if hasattr(cdata, 'image_path'):
                 img.load(cdata.image_path)
             elif cdata:
@@ -1094,9 +1094,16 @@ class DeviceBooksModel(BooksModel): # {{{
                     img.loadFromData(cdata[-1])
                 else:
                     img.loadFromData(cdata)
-            if img.isNull():
-                img = self.default_image
-            data['cover'] = img
+        if img.isNull():
+            img = self.default_image
+        return img
+
+    def current_changed(self, current, previous):
+        data = {}
+        item = self.db[self.map[current.row()]]
+        cover = self.cover(current.row())
+        if cover is not self.default_image:
+            data['cover'] = cover
         type = _('Unknown')
         ext = os.path.splitext(item.path)[1]
         if ext:
