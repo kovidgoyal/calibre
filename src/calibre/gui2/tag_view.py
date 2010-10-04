@@ -16,10 +16,12 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QPushButton, QWidget, QItemDelegate
 
 from calibre.ebooks.metadata import title_sort
+from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
 from calibre.gui2 import config, NONE
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
@@ -126,7 +128,7 @@ class TagsView(QTreeView): # {{{
             if item.category_key in \
                     ('tags', 'series', 'authors', 'rating', 'publisher') or\
                     (fm['is_custom'] and \
-                     (fm['datatype'] == 'text' or fm['datatype'] == 'rating')):
+                     fm['datatype'] in ['text', 'rating', 'series']):
                 allowed = True
         if allowed:
             event.acceptProposedAction()
@@ -144,7 +146,7 @@ class TagsView(QTreeView): # {{{
                 if item.category_key in \
                         ('tags', 'series', 'authors', 'rating', 'publisher') or\
                         (fm['is_custom'] and \
-                         (fm['datatype'] == 'text' or fm['datatype'] == 'rating')):
+                         fm['datatype'] in ['text', 'rating', 'series']):
                     child = m.data(idx, Qt.UserRole)
                     md = event.mimeData()
                     mime = 'application/calibre+from_library'
@@ -155,6 +157,17 @@ class TagsView(QTreeView): # {{{
     def handle_drop(self, parent, child, ids):
         # print 'Dropped ids:', ids, parent.category_key, child.tag.name
         key = parent.category_key
+        if (key == 'authors' and len(ids) >= 5):
+            if not confirm('<p>'+_('Changing the authors for several books can '
+                           'take a while. Are you sure?')
+                        +'</p>', 'tag_browser_drop_authors', self):
+                return
+        elif len(ids) > 15:
+            if not confirm('<p>'+_('Changing the metadata for that many books '
+                           'can take a while. Are you sure?')
+                        +'</p>', 'tag_browser_many_changes', self):
+                return
+
         fm = self.db.metadata_for_field(key)
         is_multiple = fm['is_multiple']
         val = child.tag.name
@@ -174,6 +187,8 @@ class TagsView(QTreeView): # {{{
                 set_authors=True
             elif fm['datatype'] == 'rating':
                 mi.set(key, len(val) * 2)
+            elif fm['is_custom'] and fm['datatype'] == 'series':
+                mi.set(key, val, extra=1.0)
             elif is_multiple:
                 new_val = mi.get(key, [])
                 if val in new_val:
@@ -185,7 +200,8 @@ class TagsView(QTreeView): # {{{
             else:
                 mi.set(key, val)
             self.db.set_metadata(id, mi, set_title=False,
-                                 set_authors=set_authors)
+                                 set_authors=set_authors, commit=False)
+        self.db.commit()
         self.drag_drop_finished.emit(ids)
 
     @property
