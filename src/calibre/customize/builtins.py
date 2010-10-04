@@ -434,6 +434,7 @@ from calibre.ebooks.rb.output import RBOutput
 from calibre.ebooks.rtf.output import RTFOutput
 from calibre.ebooks.tcr.output import TCROutput
 from calibre.ebooks.txt.output import TXTOutput
+from calibre.ebooks.html.output import HTMLOutput
 
 from calibre.customize.profiles import input_profiles, output_profiles
 
@@ -510,6 +511,7 @@ plugins += [
     RTFOutput,
     TCROutput,
     TXTOutput,
+    HTMLOutput,
 ]
 # Order here matters. The first matched device is the one used.
 plugins += [
@@ -874,4 +876,3 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
         Email, Server, Plugins, Tweaks, Misc]
 
 #}}}
-

@@ -1644,6 +1644,22 @@ class TOC(object):
             node.to_ncx(point)
         return parent
 
+    def to_xhtml(self, parent=None):
+        print parent.__class__
+        if parent is None:
+            parent = etree.Element(XHTML('ul'))
+        elif len(self.nodes):
+            parent = element(parent, (XHTML('ul')))
+        for node in self.nodes:
+            point = element(parent, XHTML('li'))
+            link = element(point, XHTML('a'), href=urlunquote(node.href))
+            title = node.title
+            if title:
+                title = re.sub(r'\s+', ' ', title)
+            link.text=title
+            node.to_xhtml(point)
+        return parent
+
     def rationalize_play_orders(self):
         '''
         Ensure that all nodes with the same play_order have the same href and
@@ -1962,3 +1978,14 @@ class OEBBook(object):
             spine.attrib['page-map'] = id
             results[PAGE_MAP_MIME] = (href, self.pages.to_page_map())
         return results
+
+    def html_toc(self):
+        lang = unicode(self.metadata.language[0])
+        html = etree.Element(XHTML('html'),
+            attrib={XML('lang'): lang},
+            nsmap={None: XHTML_NS})
+        head = etree.SubElement(html, XHTML('head'))
+        title = etree.SubElement(head, XHTML('title'))
+        body = etree.SubElement(html, XHTML('body'))
+        body.append(self.toc.to_xhtml())
+        return html
