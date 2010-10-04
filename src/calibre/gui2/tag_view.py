@@ -66,6 +66,7 @@ class TagsView(QTreeView): # {{{
     author_sort_edit    = pyqtSignal(object, object)
     tag_item_renamed    = pyqtSignal()
     search_item_renamed = pyqtSignal()
+    drag_drop_finished  = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -121,10 +122,12 @@ class TagsView(QTreeView): # {{{
         p = m.parent(idx)
         if idx.isValid() and p.isValid():
             item = m.data(p, Qt.UserRole)
-            if item.type == TagTreeItem.CATEGORY and \
-                item.category_key in \
-                  ('tags', 'series', 'authors', 'rating', 'publisher'):
-                    allowed = True
+            fm = self.db.metadata_for_field(item.category_key)
+            if item.category_key in \
+                    ('tags', 'series', 'authors', 'rating', 'publisher') or\
+                    (fm['is_custom'] and \
+                     (fm['datatype'] == 'text' or fm['datatype'] == 'rating')):
+                allowed = True
         if allowed:
             event.acceptProposedAction()
         else:
@@ -136,18 +139,54 @@ class TagsView(QTreeView): # {{{
         p = m.parent(idx)
         if idx.isValid() and p.isValid():
             item = m.data(p, Qt.UserRole)
-            if item.type == TagTreeItem.CATEGORY and \
-                item.category_key in \
-                  ('tags', 'series', 'authors', 'rating', 'publisher'):
-                      child = m.data(idx, Qt.UserRole)
-                      md = event.mimeData()
-                      mime = 'application/calibre+from_library'
-                      ids = list(map(int, str(md.data(mime)).split()))
-                      self.handle_drop(item, child, ids)
-                      event.accept()
+            if item.type == TagTreeItem.CATEGORY:
+                fm = self.db.metadata_for_field(item.category_key)
+                if item.category_key in \
+                        ('tags', 'series', 'authors', 'rating', 'publisher') or\
+                        (fm['is_custom'] and \
+                         (fm['datatype'] == 'text' or fm['datatype'] == 'rating')):
+                    child = m.data(idx, Qt.UserRole)
+                    md = event.mimeData()
+                    mime = 'application/calibre+from_library'
+                    ids = list(map(int, str(md.data(mime)).split()))
+                    self.handle_drop(item, child, ids)
+                    event.accept()
 
     def handle_drop(self, parent, child, ids):
-        print 'Dropped ids:', ids
+        # print 'Dropped ids:', ids, parent.category_key, child.tag.name
+        key = parent.category_key
+        fm = self.db.metadata_for_field(key)
+        is_multiple = fm['is_multiple']
+        val = child.tag.name
+        for id in ids:
+            mi = self.db.get_metadata(id, index_is_id=True)
+
+            # Prepare to ignore the author, unless it is changed. Title is
+            # always ignored -- see the call to set_metadata
+            set_authors = False
+
+            # Author_sort cannot change explicitly. Changing the author might
+            # change it.
+            mi.author_sort = None # Never will change by itself.
+
+            if key == 'authors':
+                mi.authors = [val]
+                set_authors=True
+            elif fm['datatype'] == 'rating':
+                mi.set(key, len(val) * 2)
+            elif is_multiple:
+                new_val = mi.get(key, [])
+                if val in new_val:
+                    # Fortunately, only one field can change, so the continue
+                    # won't break anything
+                    continue
+                new_val.append(val)
+                mi.set(key, new_val)
+            else:
+                mi.set(key, val)
+            self.db.set_metadata(id, mi, set_title=False,
+                                 set_authors=set_authors)
+        self.drag_drop_finished.emit(ids)
 
     @property
     def match_all(self):
@@ -729,6 +768,7 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.author_sort_edit.connect(self.do_author_sort_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_searches_changed)
+        self.tags_view.drag_drop_finished.connect(self.drag_drop_finished)
         self.edit_categories.clicked.connect(lambda x:
                 self.do_user_categories_edit())
 
@@ -809,6 +849,9 @@ class TagBrowserMixin(object): # {{{
                 db.set_sort_field_for_author(id, unicode(new_sort))
             self.library_view.model().refresh()
             self.tags_view.recount()
+
+    def drag_drop_finished(self, ids):
+        self.library_view.model().refresh_ids(ids)
 
 # }}}
 

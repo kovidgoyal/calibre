@@ -1247,7 +1247,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.set_path(id, True)
         self.notify('metadata', [id])
 
-    def set_metadata(self, id, mi, ignore_errors=False):
+    def set_metadata(self, id, mi, ignore_errors=False,
+                     set_title=True, set_authors=True):
         '''
         Set metadata for the book `id` from the `Metadata` object `mi`
         '''
@@ -1259,14 +1260,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     traceback.print_exc()
                 else:
                     raise
-        if mi.title:
+        if set_title and mi.title:
             self.set_title(id, mi.title, commit=False)
-        if not mi.authors:
-                mi.authors = [_('Unknown')]
-        authors = []
-        for a in mi.authors:
-            authors += string_to_authors(a)
-        self.set_authors(id, authors, notify=False, commit=False)
+        if set_authors:
+            if not mi.authors:
+                    mi.authors = [_('Unknown')]
+            authors = []
+            for a in mi.authors:
+                authors += string_to_authors(a)
+            self.set_authors(id, authors, notify=False, commit=False)
         if mi.author_sort:
             doit(self.set_author_sort, id, mi.author_sort, notify=False,
                     commit=False)
