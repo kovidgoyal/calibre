@@ -164,6 +164,18 @@ class Metadata(object):
     def set(self, field, val, extra=None):
         self.__setattr__(field, val, extra)
 
+    def get_classifiers(self):
+        '''
+        Return a copy of the classifiers dictionary.
+        The dict is small, and the penalty for using a reference where a copy is
+        needed is large. Also, we don't want any manipulations of the returned
+        dict to show up in the book.
+        '''
+        return copy.deepcopy(object.__getattribute__(self, '_data')['classifiers'])
+
+    def set_classifiers(self, classifiers):
+        object.__getattribute__(self, '_data')['classifiers'] = classifiers
+
     # field-oriented interface. Intended to be the same as in LibraryDatabase
 
     def standard_field_keys(self):
@@ -369,6 +381,7 @@ class Metadata(object):
             self.set_all_user_metadata(other.get_all_user_metadata(make_copy=True))
             for x in SC_FIELDS_COPY_NOT_NULL:
                 copy_not_none(self, other, x)
+            self.set_classifiers(other.get_classifiers())
             # language is handled below
         else:
             for attr in SC_COPYABLE_FIELDS:
@@ -422,6 +435,17 @@ class Metadata(object):
                 other_comments = ''
             if len(other_comments.strip()) > len(my_comments.strip()):
                 self.comments = other_comments
+
+            # Copy all the non-none classifiers
+            if callable(getattr(other, 'get_classifiers', None)):
+                d = self.get_classifiers()
+                s = other.get_classifiers()
+                d.update([v for v in s.iteritems() if v[1] is not None])
+                self.set_classifiers(d)
+            else:
+                # other structure not Metadata. Copy the top-level classifiers
+                for attr in TOP_LEVEL_CLASSIFIERS:
+                    copy_not_none(self, other, attr)
 
         other_lang = getattr(other, 'language', None)
         if other_lang and other_lang.lower() != 'und':
