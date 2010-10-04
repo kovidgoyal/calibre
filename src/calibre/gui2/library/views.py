@@ -494,24 +494,35 @@ class BooksView(QTableView): # {{{
         drag.setPixmap(cover)
         return drag
 
+    def event_has_mods(self, event=None):
+        mods = event.modifiers() if event is not None else \
+                QApplication.keyboardModifiers()
+        return mods & Qt.ControlModifier or mods & Qt.ShiftModifier
+
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton and not self.event_has_mods():
             self.drag_start_pos = event.pos()
         return QTableView.mousePressEvent(self, event)
 
     def mouseMoveEvent(self, event):
+        if self.drag_start_pos is None:
+            return QTableView.mouseMoveEvent(self, event)
+
+        if self.event_has_mods():
+            self.drag_start_pos = None
+            return
+
         if not (event.buttons() & Qt.LeftButton) or \
-                self.drag_start_pos is None or \
-                QApplication.keyboardModifiers() != Qt.NoModifier or \
                 (event.pos() - self.drag_start_pos).manhattanLength() \
                       < QApplication.startDragDistance():
-            return QTableView.mouseMoveEvent(self, event)
+            return
 
         index = self.indexAt(event.pos())
         if not index.isValid():
             return
         drag = self.drag_data()
         drag.exec_(Qt.CopyAction)
+        self.drag_start_pos = None
 
     def dragEnterEvent(self, event):
         if int(event.possibleActions() & Qt.CopyAction) + \
