@@ -11,22 +11,57 @@ from calibre.utils.magick import Image, DrawingWand, create_canvas
 from calibre.constants import __appname__, __version__
 from calibre import fit_image
 
+def normalize_format_name(fmt):
+    fmt = fmt.lower()
+    if fmt == 'jpeg':
+        fmt = 'jpg'
+    return fmt
+
 def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
-        return_data=False):
+        return_data=False, compression_quality=90):
     '''
     Saves image in data to path, in the format specified by the path
-    extension. Composes the image onto a blank canvas so as to
-    properly convert transparent images.
+    extension. Removes any transparency. If there is no transparency and no
+    resize and the input and output image formats are the same, no changes are
+    made.
+
+    :param compression_quality: The quality of the image after compression.
+        Number between 1 and 100. 1 means highest compression, 100 means no
+        compression (lossless).
+    :param bgcolor: The color for transparent pixels. Must be specified in hex.
+    :param resize_to: A tuple (width, height) or None for no resizing
+
     '''
+    changed = False
     img = Image()
     img.load(data)
+    orig_fmt = normalize_format_name(img.format)
+    fmt = os.path.splitext(path)[1]
+    fmt = normalize_format_name(fmt[1:])
+
     if resize_to is not None:
         img.size = (resize_to[0], resize_to[1])
-    canvas = create_canvas(img.size[0], img.size[1], bgcolor)
-    canvas.compose(img)
+        changed = True
+    if not hasattr(img, 'has_transparent_pixels') or img.has_transparent_pixels():
+        canvas = create_canvas(img.size[0], img.size[1], bgcolor)
+        canvas.compose(img)
+        img = canvas
+        changed = True
+    if not changed:
+        changed = fmt != orig_fmt
     if return_data:
-        return canvas.export(os.path.splitext(path)[1][1:])
-    canvas.save(path)
+        if changed:
+            if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
+                img.set_compression_quality(compression_quality)
+            return img.export(fmt)
+        return data
+    if changed:
+        if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
+            img.set_compression_quality(compression_quality)
+        img.save(path)
+    else:
+        with lopen(path, 'wb') as f:
+            f.write(data)
 
 def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg'):
     img = Image()
