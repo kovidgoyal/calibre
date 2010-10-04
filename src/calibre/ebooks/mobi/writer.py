@@ -112,15 +112,34 @@ def align_block(raw, multiple=4, pad='\0'):
 
 def rescale_image(data, maxsizeb, dimen=None):
     if dimen is not None:
-        return thumbnail(data, width=dimen, height=dimen)[-1]
-    # Replace transparent pixels with white pixels and convert to JPEG
-    data = save_cover_data_to(data, 'img.jpg', return_data=True)
+        data = thumbnail(data, width=dimen, height=dimen)[-1]
+    else:
+        # Replace transparent pixels with white pixels and convert to JPEG
+        data = save_cover_data_to(data, 'img.jpg', return_data=True)
+    if len(data) <= maxsizeb:
+        return data
+    orig_data = data
+    img = Image()
+    quality = 95
+
+    if hasattr(img, 'set_compression_quality'):
+        img.load(data)
+        while len(data) >= maxsizeb and quality >= 10:
+            quality -= 5
+            img.set_compression_quality(quality)
+            data = img.export('jpg')
+        if len(data) <= maxsizeb:
+            return data
+        orig_data = data
+
     scale = 0.9
     while len(data) >= maxsizeb and scale >= 0.05:
         img = Image()
-        img.load(data)
+        img.load(orig_data)
         w, h = img.size
         img.size = (int(scale*w), int(scale*h))
+        if hasattr(img, 'set_compression_quality'):
+            img.set_compression_quality(quality)
         data = img.export('jpg')
         scale -= 0.05
     return data
