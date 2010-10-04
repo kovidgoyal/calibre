@@ -18,8 +18,9 @@ If this module is run, it will perform a series of unit tests.
 
 import sys, string, operator
 
-from calibre.utils.pyparsing import CaselessKeyword, Group, Forward, CharsNotIn, Suppress, \
-                      OneOrMore, MatchFirst, CaselessLiteral, Optional, NoMatch, ParseException
+from calibre.utils.pyparsing import CaselessKeyword, Group, Forward, \
+        CharsNotIn, Suppress, OneOrMore, MatchFirst, CaselessLiteral, \
+        Optional, NoMatch, ParseException, QuotedString
 from calibre.constants import preferred_encoding
 
 
@@ -127,18 +128,21 @@ class SearchQueryParser(object):
             location |= l
         location     = Optional(location, default='all')
         word_query   = CharsNotIn(string.whitespace + '()')
-        quoted_query = Suppress('"')+CharsNotIn('"')+Suppress('"')
+        #quoted_query = Suppress('"')+CharsNotIn('"')+Suppress('"')
+        quoted_query = QuotedString('"', escChar='\\')
         query        = quoted_query | word_query
         Token        = Group(location + query).setResultsName('token')
 
         if test:
             print 'Testing Token parser:'
+            Token.validate()
             failed = SearchQueryParser.run_tests(Token, 'token',
                 (
                  ('tag:asd',           ['tag', 'asd']),
-                 ('ddsä',              ['all', 'ddsä']),
-                 ('"one two"',         ['all', 'one two']),
-                 ('title:"one two"',   ['title', 'one two']),
+                 (u'ddsä',              ['all', u'ddsä']),
+                 ('"one \\"two"',         ['all', 'one "two']),
+                 ('title:"one \\"1.5\\" two"',   ['title', 'one "1.5" two']),
+                 ('title:abc"def', ['title', 'abc"def']),
                 )
             )
 
@@ -167,7 +171,7 @@ class SearchQueryParser(object):
         ).setResultsName("or") | And)
 
         if test:
-            Or.validate()
+            #Or.validate()
             self._tests_failed = bool(failed)
 
         self._parser = Or
@@ -239,6 +243,8 @@ class SearchQueryParser(object):
         Should return the set of all matches.
         '''
         return set([])
+
+# Testing {{{
 
 class Tester(SearchQueryParser):
 
@@ -599,3 +605,6 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+
+# }}}
+
