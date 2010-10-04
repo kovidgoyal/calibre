@@ -425,8 +425,10 @@ class BooksView(QTableView): # {{{
         Accept a drop event and return a list of paths that can be read from
         and represent files with extensions.
         '''
-        if event.mimeData().hasFormat('text/uri-list'):
-            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
+        md = event.mimeData()
+        if md.hasFormat('text/uri-list') and not \
+                md.hasFormat('application/calibre+from_library'):
+            urls = [unicode(u.toLocalFile()) for u in md.urls()]
             return [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
 
     def drag_icon(self, cover, multiple):
@@ -465,8 +467,25 @@ class BooksView(QTableView): # {{{
         ids = ' '.join(map(str, selected))
         md = QMimeData()
         md.setData('application/calibre+from_library', ids)
-        md.setUrls([QUrl.fromLocalFile(db.abspath(i, index_is_id=True))
-            for i in selected])
+        fmt = prefs['output_format']
+
+        def url_for_id(i):
+            ans = db.format_abspath(i, fmt, index_is_id=True)
+            if ans is None:
+                fmts = db.formats(i, index_is_id=True)
+                if fmts:
+                    fmts = fmts.split(',')
+                else:
+                    fmts = []
+                for f in fmts:
+                    ans = db.format_abspath(i, f, index_is_id=True)
+                    if ans is not None:
+                        break
+            if ans is None:
+                ans = db.abspath(i, index_is_id=True)
+            return QUrl.fromLocalFile(ans)
+
+        md.setUrls([url_for_id(i) for i in selected])
         drag = QDrag(self)
         drag.setMimeData(md)
         cover = self.drag_icon(m.cover(self.currentIndex().row()),

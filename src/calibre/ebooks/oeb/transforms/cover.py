@@ -31,12 +31,14 @@ class CoverManager(object):
                 </style>
             </head>
             <body>
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
-                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                    width="100%%" height="100%%" viewBox="__viewbox__"
-                    preserveAspectRatio="__ar__">
-                    <image width="__width__" height="__height__" xlink:href="%s"/>
-                </svg>
+                <div>
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink"
+                        width="100%%" height="100%%" viewBox="__viewbox__"
+                        preserveAspectRatio="__ar__">
+                        <image width="__width__" height="__height__" xlink:href="%s"/>
+                    </svg>
+                </div>
             </body>
         </html>
         ''')

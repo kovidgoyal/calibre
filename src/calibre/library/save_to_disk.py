@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 import os, traceback, cStringIO, re
 
-from calibre import prints
 from calibre.constants import DEBUG
 from calibre.utils.config import Config, StringConfig, tweaks
 from calibre.utils.formatter import TemplateFormatter

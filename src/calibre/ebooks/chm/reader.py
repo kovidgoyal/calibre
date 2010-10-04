@@ -151,7 +151,8 @@ class CHMReader(CHMFile):
                     continue
                 raise
         self._extracted = True
-        files = os.listdir(output_dir)
+        files = [x for x in os.listdir(output_dir) if
+                os.path.isfile(os.path.join(output_dir, x))]
         if self.hhc_path not in files:
             for f in files:
                 if f.lower() == self.hhc_path.lower():
