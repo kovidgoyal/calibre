@@ -357,7 +357,7 @@ class DeviceManager(Thread): # {{{
                                         f, file=sys.__stdout__)
                             with open(f, 'r+b') as stream:
                                 if cpb:
-                                    newmi = mi.deepcopy()
+                                    newmi = mi.deepcopy_metadata()
                                     newmi.template_to_attribute(mi, cpb)
                                 else:
                                     newmi = mi

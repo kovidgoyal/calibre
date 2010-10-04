@@ -281,7 +281,7 @@ def save_book_to_disk(id, db, root, opts, length):
             stream.seek(0)
             try:
                 if cpb:
-                    newmi = mi.deepcopy()
+                    newmi = mi.deepcopy_metadata()
                     newmi.template_to_attribute(mi, cpb)
                 else:
                     newmi = mi

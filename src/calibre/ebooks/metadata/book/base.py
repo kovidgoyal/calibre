@@ -148,6 +148,11 @@ class Metadata(object):
         object.__setattr__(m, '_data', copy.deepcopy(object.__getattribute__(self, '_data')))
         return m
 
+    def deepcopy_metadata(self):
+        m = Metadata(None)
+        object.__setattr__(m, '_data', copy.deepcopy(object.__getattribute__(self, '_data')))
+        return m
+
     def get(self, field, default=None):
         try:
             return self.__getattribute__(field)

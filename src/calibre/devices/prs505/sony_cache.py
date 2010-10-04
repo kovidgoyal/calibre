@@ -360,7 +360,7 @@ class XMLCache(object):
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
                 if plugboard is not None:
-                    newmi = book.deepcopy()
+                    newmi = book.deepcopy_metadata()
                     newmi.template_to_attribute(book, plugboard)
                 else:
                     newmi = book
