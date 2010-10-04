@@ -184,12 +184,12 @@ class MobiMLizer(object):
             elif tag in NESTABLE_TAGS and istate.rendered:
                 para = wrapper = bstate.nested[-1]
             elif left > 0 and indent >= 0:
-                para = wrapper = etree.SubElement(parent, XHTML('blockquote'))
+                para = wrapper = etree.SubElement(parent, XHTML('div'))
                 para = wrapper
                 emleft = int(round(left / self.profile.fbase)) - 1
                 emleft = min((emleft, 10))
                 while emleft > 0:
-                    para = etree.SubElement(para, XHTML('blockquote'))
+                    para = etree.SubElement(para, XHTML('div'))
                     emleft -= 1
             else:
                 para = wrapper = etree.SubElement(parent, XHTML('p'))
