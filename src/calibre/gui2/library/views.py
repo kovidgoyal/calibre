@@ -500,11 +500,13 @@ class BooksView(QTableView): # {{{
         return QTableView.mousePressEvent(self, event)
 
     def mouseMoveEvent(self, event):
-        if not (event.buttons() & Qt.LeftButton) or self.drag_start_pos is None:
-            return
-        if (event.pos() - self.drag_start_pos).manhattanLength() \
-              < QApplication.startDragDistance():
-            return
+        if not (event.buttons() & Qt.LeftButton) or \
+                self.drag_start_pos is None or \
+                QApplication.keyboardModifiers() != Qt.NoModifier or \
+                (event.pos() - self.drag_start_pos).manhattanLength() \
+                      < QApplication.startDragDistance():
+            return QTableView.mouseMoveEvent(self, event)
+
         index = self.indexAt(event.pos())
         if not index.isValid():
             return
