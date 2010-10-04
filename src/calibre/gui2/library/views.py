@@ -490,7 +490,7 @@ class BooksView(QTableView): # {{{
         drag.setMimeData(md)
         cover = self.drag_icon(m.cover(self.currentIndex().row()),
                 len(selected) > 1)
-        drag.setHotSpot(QPoint(cover.width()//3, cover.height()//3))
+        drag.setHotSpot(QPoint(-15, -15))
         drag.setPixmap(cover)
         return drag
 
@@ -645,7 +645,7 @@ class DeviceBooksView(BooksView): # {{{
         drag.setMimeData(md)
         cover = self.drag_icon(m.cover(self.currentIndex().row()), len(paths) >
                 1)
-        drag.setHotSpot(QPoint(cover.width()//3, cover.height()//3))
+        drag.setHotSpot(QPoint(-15, -15))
         drag.setPixmap(cover)
         return drag
 
