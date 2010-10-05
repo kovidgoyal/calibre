@@ -242,8 +242,9 @@ class USBMS(CLI, Device):
             book = self.book_class(prefix, lpath, other=info)
             if book.size is None:
                 book.size = os.stat(self.normalize_path(path)).st_size
-            book._new_book = True # Must be before add_book
-            booklists[blist].add_book(book, replace_metadata=True)
+            b = booklists[blist].add_book(book, replace_metadata=True)
+            if b:
+                b._new_book = True
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
         debug_print('USBMS: finished adding metadata')
 
