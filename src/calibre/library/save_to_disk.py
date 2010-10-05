@@ -269,7 +269,8 @@ def save_book_to_disk(id, db, root, opts, length):
             else:
                 cpb = None
         # Leave this here for a while, in case problems arise.
-        prints('Save-to-disk using plugboard:', fmt, cpb)
+        if cpb is not None:
+            prints('Save-to-disk using plugboard:', fmt, cpb)
         data = db.format(id, fmt, index_is_id=True)
         if data is None:
             continue
