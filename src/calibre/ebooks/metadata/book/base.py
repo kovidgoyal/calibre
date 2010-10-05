@@ -494,9 +494,12 @@ class Metadata(object):
             tkey = key[:-6] # strip the _index
             cmeta = self.get_user_metadata(tkey, make_copy=False)
             if cmeta['datatype'] == 'series':
-                res = self.get_extra(tkey)
-                return (unicode(cmeta['name']+'_index'),
-                        self.format_series_index(res), res, cmeta)
+                if self.get(tkey):
+                    res = self.get_extra(tkey)
+                    return (unicode(cmeta['name']+'_index'),
+                            self.format_series_index(res), res, cmeta)
+                else:
+                    return (unicode(cmeta['name']+'_index'), '', '', cmeta)
 
         if key in self.custom_field_keys():
             res = self.get(key, None)
