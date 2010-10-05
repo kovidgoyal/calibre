@@ -1645,7 +1645,6 @@ class TOC(object):
         return parent
 
     def to_xhtml(self, parent=None):
-        print parent.__class__
         if parent is None:
             parent = etree.Element(XHTML('ul'))
         elif len(self.nodes):

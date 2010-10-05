@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 import os, re
 
 from lxml import etree
+from Cheetah.Template import Template
 
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre import CurrentDir
@@ -24,19 +25,38 @@ class HTMLOutput(OutputFormatPlugin):
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         self.log  = log
         self.opts = opts
+        output_file = output_path
+        output_path = re.sub(r'\.html', '', output_path)+'_files'
+
+        with open(output_file, 'wb') as f:
+            root = oeb_book.html_toc()
+            html_txt = etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=False)
+            f.write(html_txt)
+
         if not os.path.exists(output_path):
             os.makedirs(output_path)
+
         with CurrentDir(output_path):
-            with open('index.html', 'wb') as f:
-                root = oeb_book.html_toc()
-                html_txt = etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=False)
-                f.write(html_txt)
             for item in oeb_book.manifest:
-                log('write: %s '%item.href)
                 path = os.path.abspath(unquote(item.href))
                 dir = os.path.dirname(path)
                 if not os.path.exists(dir):
                     os.makedirs(dir)
-                with open(path, 'wb') as f:
-                    f.write(str(item))
+                if isinstance(item.data, etree._Element):
+                    root = item.data.getroottree()
+                    body = root.xpath('//h:body', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
+                    ebook_content = etree.tostring(body, pretty_print=True, encoding='utf-8')
+                    ebook_content = re.sub(r'\<\/?body.*\>', '', ebook_content)
+                    vars = {
+                      'ebookContent': ebook_content,
+                      'prevLink': None,
+                      'nextLink': None
+                    }
+                    template_file = os.path.dirname(__file__)+'/outputtemplates/default.tmpl'
+                    t = Template(file=template_file, searchList=[ vars ]) # compilerSettings={'useStackFrames': False}
+                    with open(path, 'wb') as f:
+                        f.write(str(t))
+                else:
+                    with open(path, 'wb') as f:
+                        f.write(str(item))
                 item.unload_data_from_memory(memory=path)
