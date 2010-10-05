@@ -345,6 +345,11 @@ class DeviceManager(Thread): # {{{
 
     def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
         '''Upload books to device: '''
+        if hasattr(self.connected_device, 'use_plugboard_ext') and \
+          callable(self.connected_device.use_plugboard_ext):
+			ext = self.connected_device.use_plugboard_ext()
+			if ext is not None:
+				self.connected_device.set_plugboard(self.find_plugboard(ext, plugboards))
         if metadata and files and len(metadata) == len(files):
             for f, mi in zip(files, metadata):
                 if isinstance(f, unicode):
