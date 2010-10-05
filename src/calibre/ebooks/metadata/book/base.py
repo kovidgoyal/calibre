@@ -488,6 +488,16 @@ class Metadata(object):
         '''
         returns the tuple (field_name, formatted_value)
         '''
+
+        # Handle custom series index
+        if key.startswith('#') and key.endswith('_index'):
+            tkey = key[:-6] # strip the _index
+            cmeta = self.get_user_metadata(tkey, make_copy=False)
+            if cmeta['datatype'] == 'series':
+                res = self.get_extra(tkey)
+                return (unicode(cmeta['name']+'_index'),
+                        self.format_series_index(res), res, cmeta)
+
         if key in self.custom_field_keys():
             res = self.get(key, None)
             cmeta = self.get_user_metadata(key, make_copy=False)
@@ -509,8 +519,6 @@ class Metadata(object):
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
-            elif datatype == 'float' and key.endswith('_index'):
-                res = self.format_series_index(res)
             return (name, unicode(res), orig_res, cmeta)
 
         # Translate aliases into the standard field name
