@@ -8,16 +8,26 @@ www.guardian.co.uk
 '''
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
+from datetime import date
 
 class Guardian(BasicNewsRecipe):
 
-    title = u'The Guardian'
+    title = u'The Guardian / The Observer'
+    if date.today().weekday() == 6:
+        base_url = "http://www.guardian.co.uk/theobserver"
+    else:
+        base_url = "http://www.guardian.co.uk/theguardian"
+
     __author__ = 'Seabound and Sujata Raman'
     language = 'en_GB'
 
     oldest_article = 7
     max_articles_per_feed = 100
     remove_javascript = True
+
+    # List of section titles to ignore
+    # For example: ['Sport']
+    ignore_sections = []
 
     timefmt = ' [%a, %d %b %Y]'
     keep_only_tags = [
@@ -28,6 +38,7 @@ class Guardian(BasicNewsRecipe):
                         dict(name='div', attrs={'id':["article-toolbox","subscribe-feeds",]}),
                         dict(name='ul', attrs={'class':["pagination"]}),
                         dict(name='ul', attrs={'id':["content-actions"]}),
+                        dict(name='img'),
                         ]
     use_embedded_content    = False
 
@@ -42,18 +53,6 @@ class Guardian(BasicNewsRecipe):
                     #full-contents{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
                     #match-stats-summary{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
                 '''
-
-    feeds = [
-        ('Front Page', 'http://www.guardian.co.uk/rss'),
-        ('Business', 'http://www.guardian.co.uk/business/rss'),
-        ('Sport', 'http://www.guardian.co.uk/sport/rss'),
-        ('Culture', 'http://www.guardian.co.uk/culture/rss'),
-        ('Money', 'http://www.guardian.co.uk/money/rss'),
-        ('Life & Style', 'http://www.guardian.co.uk/lifeandstyle/rss'),
-        ('Travel', 'http://www.guardian.co.uk/travel/rss'),
-        ('Environment', 'http://www.guardian.co.uk/environment/rss'),
-        ('Comment','http://www.guardian.co.uk/commentisfree/rss'),
-        ]
 
     def get_article_url(self, article):
           url = article.get('guid', None)
@@ -76,7 +75,8 @@ class Guardian(BasicNewsRecipe):
           return soup
 
     def find_sections(self):
-        soup = self.index_to_soup('http://www.guardian.co.uk/theguardian')
+        # soup = self.index_to_soup("http://www.guardian.co.uk/theobserver")
+        soup = self.index_to_soup(self.base_url)
         # find cover pic
         img = soup.find( 'img',attrs ={'alt':'Guardian digital edition'})
         if img is not None:
@@ -113,13 +113,10 @@ class Guardian(BasicNewsRecipe):
         try:
             feeds = []
             for title, href in self.find_sections():
-                feeds.append((title, list(self.find_articles(href))))
+                if not title in self.ignore_sections:
+                    feeds.append((title, list(self.find_articles(href))))
             return feeds
         except:
             raise NotImplementedError
-
-
-    def postprocess_html(self,soup,first):
-        return soup.findAll('html')[0]
 
 
