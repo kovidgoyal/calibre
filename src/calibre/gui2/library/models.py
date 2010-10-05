@@ -799,7 +799,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
                 else:
                     self.db.set(row, column, val)
-            self.refresh_ids([id], row)
+                self.refresh_ids([id], row)
             self.dataChanged.emit(index, index)
         return True
 
