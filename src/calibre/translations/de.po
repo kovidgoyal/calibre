@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-03 21:03+0000\n"
-"PO-Revision-Date: 2010-10-03 22:00+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-04 20:34+0000\n"
+"Last-Translator: Christine Wagner <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-04 04:54+0000\n"
+"X-Launchpad-Export-Date: 2010-10-05 04:55+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -328,7 +328,7 @@ msgstr "Allgemeine Einstellungen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:753
 msgid "Set conversion options common to all formats"
-msgstr ""
+msgstr "Gemeinsame Konvertierungsoptionen für alle Formate einstellen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:758
 msgid "Output Options"
@@ -365,6 +365,8 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
+"Stellt ein, wie Calibre Dateien aus der Datenbank exportiert, wenn \"Bücher "
+"auf Datenträger speichern\" gewählt wird."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:793
 msgid "Sending books to devices"
@@ -408,6 +410,8 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"Einrichten des Calibre Servers, der Zugriff auf die Bibliothek von überall, "
+"mit jedem Gerät, via Internet ermöglicht."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:841
 msgid "Plugins"
@@ -422,14 +426,16 @@ msgstr "Erweitert"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr ""
+"Hinzufügen/entfernen/einstellen von verschiedenen Calibre- Funktionen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Tweaks"
-msgstr ""
+msgstr "Kniffe"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 msgid "Fine tune how calibre behaves in various contexts"
 msgstr ""
+"Feineinstellungen für das Verhalten von Calibre in verschiedenen Situationen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Miscellaneous"
@@ -685,7 +691,7 @@ msgstr "Kommunikation mit S60-Telefonen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:86
 msgid "Apple device"
-msgstr ""
+msgstr "Apple- Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:88
 msgid "Communicate with iTunes/iBooks."
@@ -925,6 +931,8 @@ msgid ""
 "The Kobo supports only one collection currently: the \"Im_Reading\" list.  "
 "Create a tag called \"Im_Reading\" "
 msgstr ""
+"Der Kobo unterstützt derzeit nur eine Sammlung: die \"Im_Reading\"- Liste. "
+"Erstelle ein Etikett \"Im_Reading\" "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:63
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
@@ -989,7 +997,7 @@ msgstr "Kommunikation mit dem Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:114
 msgid "Communicate with the VelocityMicro"
-msgstr ""
+msgstr "Kommuniziere mit dem VelocityMicro"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:132
 msgid "Communicate with the GM2000"
@@ -1977,6 +1985,11 @@ msgid ""
 "detect these and replace them with constructs that epubcheck likes. This may "
 "cause significant changes to your epub, complain to the epubcheck project."
 msgstr ""
+"Workaround für Bugs in der letzten Version von epubcheck. Epubcheck erkennt "
+"viele Dinge als Fehler, die in Wirklichkeit nicht falsch sind. Epub-fix "
+"versucht, diese Fälle zu erkennen und durch Konstrukte zu ersetzen, die "
+"epubcheck anerkennt. Dies kann zu signifikanten Änderungen im Epub führen, "
+"Beschwerden an das epubcheck- Projekt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:21
 msgid ""
@@ -2663,11 +2676,11 @@ msgstr "LibraryThing.com Server Fehler. Versuchen Sie es später."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:226
 msgid "Download covers from Douban.com"
-msgstr ""
+msgstr "Umschlagbilder von Douban.com herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:235
 msgid "Douban.com API timed out. Try again later."
-msgstr ""
+msgstr "Douban.com API antwortet nicht. Versuchen Sie es später noch einmal."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
@@ -3750,7 +3763,7 @@ msgstr "Zu verwendende Calibre Bibliothek auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:91
 msgid "Switch/create library..."
-msgstr ""
+msgstr "Wechsel/Neuerstellung der Bibliothek..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:99
 msgid "Quick switch"
@@ -3787,7 +3800,7 @@ msgstr "Gibts hier schon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:186
 msgid "The folder %s already exists. Delete it first."
-msgstr ""
+msgstr "Der Ordner %s existiert bereits. Bitte löschen Sie ihn zuerst."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:192
 msgid "Rename failed"
@@ -3798,6 +3811,9 @@ msgid ""
 "Failed to rename the library at %s. The most common cause for this is if one "
 "of the files in the library is open in another program."
 msgstr ""
+"Umbenennung der Bibliothek bei %s fehlgeschlagen. Die häufigste Ursache ist, "
+"dass eine der Dateien in der Bibliothek in einem anderen Programm geöffnet "
+"sind."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:203
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:53
@@ -4050,7 +4066,7 @@ msgstr "An Reader übertragen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:117
 msgid "Connect/share"
-msgstr ""
+msgstr "Verbinden/Teilen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -6328,7 +6344,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 msgid "Additional Information"
-msgstr ""
+msgstr "Zusätzliche Informationen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 msgid "Path from library"
@@ -6387,7 +6403,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:85
 msgid "%s is not an existing folder"
-msgstr ""
+msgstr "%s ist kein existierender Ordner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:71
 msgid "Choose your calibre library"
@@ -6726,7 +6742,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:532
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:623
 msgid "Search/replace invalid"
-msgstr ""
+msgstr "Suchen/ersetzen ungültig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:525
 msgid ""

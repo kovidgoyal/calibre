@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-03 21:03+0000\n"
-"PO-Revision-Date: 2010-10-03 07:59+0000\n"
+"PO-Revision-Date: 2010-10-04 16:17+0000\n"
 "Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-04 04:54+0000\n"
+"X-Launchpad-Export-Date: 2010-10-05 04:55+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -372,7 +372,7 @@ msgstr "Sender bøger til enheder"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:799
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr "Styre hvordan calibre overfører filer til dil e-bogslæser"
+msgstr "Styre hvordan calibre overfører filer til din e-bogslæser"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 msgid "Metadata plugboards"
@@ -992,7 +992,7 @@ msgstr "Kommunikér med Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:114
 msgid "Communicate with the VelocityMicro"
-msgstr ""
+msgstr "Kommunikér med VelocityMicro"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:132
 msgid "Communicate with the GM2000"
@@ -6798,6 +6798,10 @@ msgid ""
 "you selected them. So if you selected Book A and then Book B,\n"
 "Book A will have series number 1 and Book B series number 2."
 msgstr ""
+"Hvis ikke hakket af, vil series nummeret for bøgerne blive sat til 1.\n"
+"Hvis hakket af, valgte bøger vil automatisk blive nummeret, i rækkefølgen\n"
+"du valgte dem i. Så hvis du valgte Bog A og derefter Bog B,\n"
+"vil Bog A have series nummer 1 og Bog B series nummer 2."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:342
 msgid "Automatically number books in this series"
@@ -6809,6 +6813,10 @@ msgid ""
 "for that series. Checking this box will tell calibre to start numbering\n"
 "from the value in the box"
 msgstr ""
+"Series vil normalt blive renummeret fra det højeste nummer i databasen\n"
+"for denne series. Hakkes denne boks vil det gøre at calibre starter "
+"nummerering\n"
+"fra værdien i boksen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:347
 msgid "Remove &format:"
@@ -6820,7 +6828,7 @@ msgstr "&Ombyt titel og forfatter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:349
 msgid "Change title to title case"
-msgstr ""
+msgstr "Skift titel til titel-case"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:350
 msgid ""
@@ -6924,6 +6932,9 @@ msgid ""
 "field is processed. In regular expression mode, only the matched text is "
 "processed"
 msgstr ""
+"Angiv hvordan teksten skal blive behandlet efter match og erstat. I "
+"tegntilstand, behandles\n"
+"hele feltet. I regulært udtryk tilstand, behandles kun den matchede tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:371
 msgid "&Destination field:"
@@ -7754,15 +7765,15 @@ msgstr "&Test"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:55
 msgid "Display contents of exploded ePub"
-msgstr "Vis ePub-kildekode"
+msgstr "Vis indholdet af ePub-arkivet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:56
 msgid "&Explode ePub"
-msgstr "&Vis ePub-kildekode"
+msgstr "&Udpak ePub-arkiv"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:57
 msgid "Rebuild ePub from exploded contents"
-msgstr "Genopbyg ePub fra kildekode"
+msgstr "Genopbyg ePub-arkiv fra de udpakkede arkivdele"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:58
 msgid "&Rebuild ePub"
@@ -7785,6 +7796,12 @@ msgid ""
 "windows you used to edit files in the epub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
+"<p>Udpak ePub-arkivet for at vise indholdet i et fil-browser vindue. For at "
+"tweake individuelle filer, højre-klik, derefter 'Åben med...' dit editor "
+"valg. Når tweaksene er udført, luk fil-browser vinduet <b>og editor-"
+"vinduerne du anvendte til at redigere filerne i epub-"
+"arkivet</b>.</p><p>Genopbyg ePub-arkivet, hvilket også opdaterer dit calibre-"
+"bibliotek.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:127
 msgid "No recipe selected"
@@ -7969,6 +7986,8 @@ msgid ""
 "For help with writing advanced news recipes, please visit <a "
 "href=\"http://calibre-ebook.com/user_manual/news.html\">User Recipes</a>"
 msgstr ""
+"For hjælp med at skrive avancerede nyheds-recipes, besøg venligst <a "
+"href=\"http://calibre-ebook.com/user_manual/news.html\">bruger-recipes</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:282
 msgid "Recipe source code (python)"
@@ -9291,11 +9310,11 @@ msgstr "Check biblioteksmapper for potentielle problemer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:43
 msgid "Device currently connected: "
-msgstr ""
+msgstr "Enhed der er forbundet: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:46
 msgid "Device currently connected: None"
-msgstr ""
+msgstr "Enhed der er forbundet: Ingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:207
 msgid ""
