@@ -46,7 +46,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             self.device_label.setText(_('Device currently connected: None'))
 
-        self.devices = ['']
+        self.devices = ['', 'APPLE', 'FOLDER_DEVICE']
         for device in device_plugins():
             n = device_name_for_plugboards(device)
             if n not in self.devices:
