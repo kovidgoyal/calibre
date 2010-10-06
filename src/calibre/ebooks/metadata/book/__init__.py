@@ -104,7 +104,8 @@ STANDARD_METADATA_FIELDS = SOCIAL_METADATA_FIELDS.union(
 
 SC_FIELDS_NOT_COPIED =     frozenset(['title', 'title_sort', 'authors',
                                       'author_sort', 'author_sort_map',
-                                      'cover_data', 'tags', 'language'])
+                                      'cover_data', 'tags', 'language',
+                                      'classifiers'])
 
 # Metadata fields that smart update should copy only if the source is not None
 SC_FIELDS_COPY_NOT_NULL =  frozenset(['lpath', 'size', 'comments', 'thumbnail'])
@@ -114,8 +115,7 @@ SC_COPYABLE_FIELDS =       SOCIAL_METADATA_FIELDS.union(
                            PUBLICATION_METADATA_FIELDS).union(
                            BOOK_STRUCTURE_FIELDS).union(
                            DEVICE_METADATA_FIELDS).union(
-                           CALIBRE_METADATA_FIELDS).union(
-                           TOP_LEVEL_CLASSIFIERS) - \
+                           CALIBRE_METADATA_FIELDS) - \
                            SC_FIELDS_NOT_COPIED.union(
                            SC_FIELDS_COPY_NOT_NULL)
 

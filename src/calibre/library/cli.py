@@ -971,14 +971,14 @@ def restore_database_option_parser():
     files in each directory of the calibre library. This is
     useful if your metadata.db file has been corrupted.
 
-    WARNING: This completely regenerates your datbase. You will
+    WARNING: This completely regenerates your database. You will
     lose stored per-book conversion settings and custom recipes.
     '''))
     return parser
 
 def command_restore_database(args, dbpath):
     from calibre.library.restore import Restore
-    parser = saved_searches_option_parser()
+    parser = restore_database_option_parser()
     opts, args = parser.parse_args(args)
     if len(args) != 0:
         parser.print_help()
