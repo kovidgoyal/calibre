@@ -1,0 +1,37 @@
+import datetime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1286242553(BasicNewsRecipe):
+    title          = u'CACM'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    needs_subscription = True
+    feeds          = [(u'CACM', u'http://cacm.acm.org/magazine.rss')]
+    language = 'en'
+    __author__ = 'jonmisurda'
+    no_stylesheets        = True
+    remove_tags = [
+        dict(name='div', attrs={'class':['FeatureBox', 'ArticleComments', 'SideColumn', \
+              'LeftColumn', 'RightColumn', 'SiteSearch', 'MainNavBar','more', 'SubMenu', 'inner']})
+    ]
+    cover_url_pattern = 'http://cacm.acm.org/magazines/%d/%d'
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('https://cacm.acm.org/login')
+            br.select_form(nr=1)
+            br['current_member[user]']   = self.username
+            br['current_member[passwd]'] = self.password
+            br.submit()
+        return br
+
+    def get_cover_url(self):
+        now = datetime.datetime.now()
+
+        cover_url = None
+        soup = self.index_to_soup(self.cover_url_pattern % (now.year, now.month))
+        cover_item = soup.find('img',attrs={'alt':'magazine cover image'})
+        if cover_item:
+           cover_url = cover_item['src']
+        return cover_url

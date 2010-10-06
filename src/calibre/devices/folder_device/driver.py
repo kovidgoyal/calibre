@@ -21,6 +21,7 @@ class FOLDER_DEVICE_FOR_CONFIG(USBMS):
     VENDOR_ID   = 0xffff
     PRODUCT_ID  = 0xffff
     BCD         = 0xffff
+    DEVICE_PLUGBOARD_NAME = 'FOLDER_DEVICE'
 
 
 class FOLDER_DEVICE(USBMS):
@@ -36,6 +37,7 @@ class FOLDER_DEVICE(USBMS):
     VENDOR_ID   = 0xffff
     PRODUCT_ID  = 0xffff
     BCD         = 0xffff
+    DEVICE_PLUGBOARD_NAME = 'FOLDER_DEVICE'
 
     THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
 

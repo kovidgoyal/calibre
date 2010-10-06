@@ -268,7 +268,8 @@ def save_book_to_disk(id, db, root, opts, length):
                 cpb = cpb[dev_name]
             else:
                 cpb = None
-        if DEBUG:
+        # Leave this here for a while, in case problems arise.
+        if cpb is not None:
             prints('Save-to-disk using plugboard:', fmt, cpb)
         data = db.format(id, fmt, index_is_id=True)
         if data is None:
@@ -281,7 +282,7 @@ def save_book_to_disk(id, db, root, opts, length):
             stream.seek(0)
             try:
                 if cpb:
-                    newmi = mi.deepcopy()
+                    newmi = mi.deepcopy_metadata()
                     newmi.template_to_attribute(mi, cpb)
                 else:
                     newmi = mi
