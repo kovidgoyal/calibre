@@ -38,11 +38,11 @@ If a particular book does not have a particular piece of metadata, the field in 
 
 If a book has a series, the template will produce::
 
-    {Asimov, Isaac}/Foundation/Second Foundation - 3
+    Asimov, Isaac/Foundation/Second Foundation 3
 
 and if a book does not have a series::
 
-    {Asimov, Isaac}/Second Foundation
+    Asimov, Isaac/Second Foundation
 
 (|app| automatically removes multiple slashes and leading or trailing spaces).
 
