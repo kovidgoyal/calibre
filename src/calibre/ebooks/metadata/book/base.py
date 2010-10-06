@@ -461,7 +461,7 @@ class Metadata(object):
         v = self.series_index if val is None else val
         try:
             x = float(v)
-        except ValueError:
+        except ValueError, TypeError:
             x = 1
         return fmt_sidx(x)
 
@@ -516,8 +516,9 @@ class Metadata(object):
             if datatype == 'text' and cmeta['is_multiple']:
                 res = u', '.join(res)
             elif datatype == 'series' and series_with_index:
-                res = res + \
-                   ' [%s]'%self.format_series_index(val=self.get_extra(key))
+                if self.get_extra(key):
+                    res = res + \
+                        ' [%s]'%self.format_series_index(val=self.get_extra(key))
             elif datatype == 'datetime':
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':
