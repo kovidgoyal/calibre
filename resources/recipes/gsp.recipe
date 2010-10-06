@@ -1,0 +1,20 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1286351181(BasicNewsRecipe):
+    title          = u'gsp.ro'
+    __author__   = 'bucsie'
+    oldest_article = 2
+    max_articles_per_feed = 100
+    language='ro'
+    cover_url ='http://www.gsp.ro/images/sigla_rosu.jpg'
+
+    remove_tags = [
+                       dict(name='div', attrs={'class':['related_articles', 'articol_noteaza straight_line dotted_line_top', 'comentarii','mai_multe_articole']}),
+                       dict(name='div', attrs={'id':'icons'})
+                        ]
+    remove_tags_after = dict(name='div', attrs={'id':'adoceanintactrovccmgpmnyt'})
+
+    feeds          = [(u'toate stirile', u'http://www.gsp.ro/index.php?section=section&screen=rss')]
+
+    def print_version(self, url):
+         return 'http://www1.gsp.ro/print/' + url[(url.rindex('/')+1):]

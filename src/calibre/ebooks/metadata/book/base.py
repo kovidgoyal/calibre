@@ -386,7 +386,8 @@ class Metadata(object):
             self.set_all_user_metadata(other.get_all_user_metadata(make_copy=True))
             for x in SC_FIELDS_COPY_NOT_NULL:
                 copy_not_none(self, other, x)
-            self.set_classifiers(other.get_classifiers())
+            if callable(getattr(other, 'get_classifiers', None)):
+                self.set_classifiers(other.get_classifiers())
             # language is handled below
         else:
             for attr in SC_COPYABLE_FIELDS:
@@ -461,7 +462,7 @@ class Metadata(object):
         v = self.series_index if val is None else val
         try:
             x = float(v)
-        except ValueError, TypeError:
+        except (ValueError, TypeError):
             x = 1
         return fmt_sidx(x)
 

@@ -16,7 +16,6 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
                      QPushButton, QWidget, QItemDelegate
 
 from calibre.ebooks.metadata import title_sort
-from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
 from calibre.gui2 import config, NONE
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.search_query_parser import saved_searches
@@ -154,6 +153,8 @@ class TagsView(QTreeView): # {{{
                     ids = list(map(int, str(md.data(mime)).split()))
                     self.handle_drop(item, child, ids)
                     event.accept()
+                    return
+        event.ignore()
 
     def handle_drop(self, parent, child, ids):
         # print 'Dropped ids:', ids, parent.category_key, child.tag.name
