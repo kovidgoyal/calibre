@@ -1,0 +1,32 @@
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
+'''
+Fetch Anandtech.
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class anan(BasicNewsRecipe):
+
+    title = 'Anandtech'
+    description = 'comprehensive Hardware Tests'
+    __author__ = 'Oliver Niesner'
+    use_embedded_content   = False
+    language = 'en'
+    timefmt = ' [%d %b %Y]'
+    max_articles_per_feed = 40
+    no_stylesheets = True
+    remove_javascript = True
+    encoding = 'utf-8'
+
+    remove_tags=[dict(name='a', attrs={'style':'width:110px; margin-top:0px;text-align:center;'}),
+		 dict(name='a', attrs={'style':'width:110px; margin-top:0px; margin-right:20px;text-align:center;'})]
+
+    feeds =  [ ('Anandtech', 'http://www.anandtech.com/rss/')]
+
+    def print_version(self,url):
+        return url.replace('/show/', '/print/')
+
+

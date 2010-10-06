@@ -9,6 +9,7 @@ from PyQt4 import QtGui
 from PyQt4.Qt import Qt
 
 from calibre.gui2 import error_dialog
+from calibre.gui2.device import device_name_for_plugboards
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugboard_ui import Ui_Form
 from calibre.customize.ui import metadata_writers, device_plugins
@@ -45,12 +46,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             self.device_label.setText(_('Device currently connected: None'))
 
-        self.devices = ['']
+        self.devices = ['', 'APPLE', 'FOLDER_DEVICE']
         for device in device_plugins():
-            n = device.__class__.__name__
-            if n.startswith('FOLDER_DEVICE'):
-                n = 'FOLDER_DEVICE'
-            self.devices.append(n)
+            n = device_name_for_plugboards(device)
+            if n not in self.devices:
+                self.devices.append(n)
         self.devices.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
         self.devices.insert(1, plugboard_save_to_disk_value)
         self.devices.insert(2, plugboard_any_device_value)
