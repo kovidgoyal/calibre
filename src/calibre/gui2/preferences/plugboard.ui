@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>707</width>
-    <height>340</height>
+    <width>931</width>
+    <height>389</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@ Use this dialog to define a 'plugboard' for a format (or all formats) and a devi
 
 Often templates will contain simple references to composite columns, but this is not necessary. You can use any template in a source box that you can use elsewhere in calibre.
 
-One possible use for a plugboard is to alter the title to contain series informaton. Another would be to change the author sort, something that mobi users might do to force it to use the ';' that the kindle requires. A third would be to specify the language.</string>
+One possible use for a plugboard is to alter the title to contain series information. Another would be to change the author sort, something that mobi users might do to force it to use the ';' that the kindle requires. A third would be to specify the language.</string>
      </property>
      <property name="textFormat">
       <enum>Qt::PlainText</enum>
@@ -41,8 +41,7 @@ One possible use for a plugboard is to alter the title to contain series informa
     </widget>
    </item>
    <item row="2" column="0" colspan="2">
-    <widget class="QLabel" name="device_label">
-    </widget>
+    <widget class="QLabel" name="device_label"/>
    </item>
    <item row="3" column="0" colspan="2">
     <widget class="Line" name="line">
