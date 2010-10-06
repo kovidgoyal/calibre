@@ -42,21 +42,41 @@ class HTMLOutput(OutputFormatPlugin):
                 dir = os.path.dirname(path)
                 if not os.path.exists(dir):
                     os.makedirs(dir)
-                if isinstance(item.data, etree._Element):
-                    root = item.data.getroottree()
-                    body = root.xpath('//h:body', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
-                    ebook_content = etree.tostring(body, pretty_print=True, encoding='utf-8')
-                    ebook_content = re.sub(r'\<\/?body.*\>', '', ebook_content)
-                    vars = {
-                      'ebookContent': ebook_content,
-                      'prevLink': None,
-                      'nextLink': None
-                    }
-                    template_file = os.path.dirname(__file__)+'/outputtemplates/default.tmpl'
-                    t = Template(file=template_file, searchList=[ vars ]) # compilerSettings={'useStackFrames': False}
+                if item.spine_position is not None:
                     with open(path, 'wb') as f:
-                        f.write(str(t))
+                        pass
                 else:
                     with open(path, 'wb') as f:
                         f.write(str(item))
+                    item.unload_data_from_memory(memory=path)
+
+            for item in oeb_book.spine:
+                path = os.path.abspath(unquote(item.href))
+                dir = os.path.dirname(path)
+                root = item.data.getroottree()
+                body = root.xpath('//h:body', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
+                ebook_content = etree.tostring(body, pretty_print=True, encoding='utf-8')
+                ebook_content = re.sub(r'\<\/?body.*\>', '', ebook_content)
+                if item.spine_position+1 < len(oeb_book.spine):
+                  nextLink = oeb_book.spine[item.spine_position+1].href
+                  nextLink = os.path.abspath((nextLink))
+                  nextLink = os.path.relpath(nextLink, dir)
+                else:
+                  nextLink = None
+                if item.spine_position > 0:
+                  prevLink = oeb_book.spine[item.spine_position-1].href
+                  prevLink = os.path.abspath((prevLink))
+                  prevLink = os.path.relpath(prevLink, dir)
+                else:
+                  prevLink = None
+                vars = {
+                  'ebookContent': ebook_content,
+                  'prevLink': prevLink,
+                  'nextLink': nextLink
+                }
+                template_file = os.path.dirname(__file__)+'/outputtemplates/default.tmpl'
+                t = Template(file=template_file, searchList=[ vars ]) # compilerSettings={'useStackFrames': False}
+                with open(path, 'wb') as f:
+                    f.write(str(t))
+
                 item.unload_data_from_memory(memory=path)
