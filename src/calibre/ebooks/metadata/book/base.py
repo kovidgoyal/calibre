@@ -516,7 +516,7 @@ class Metadata(object):
             if datatype == 'text' and cmeta['is_multiple']:
                 res = u', '.join(res)
             elif datatype == 'series' and series_with_index:
-                if self.get_extra(key):
+                if self.get_extra(key) is not None:
                     res = res + \
                         ' [%s]'%self.format_series_index(val=self.get_extra(key))
             elif datatype == 'datetime':
