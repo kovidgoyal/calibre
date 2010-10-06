@@ -104,6 +104,28 @@ class DeviceJob(BaseJob): # {{{
 
     # }}}
 
+def find_plugboard(device_name, format, plugboards):
+    cpb = None
+    if format in plugboards:
+        cpb = plugboards[format]
+    elif plugboard_any_format_value in plugboards:
+        cpb = plugboards[plugboard_any_format_value]
+    if cpb is not None:
+        if device_name in cpb:
+            cpb = cpb[device_name]
+        elif plugboard_any_device_value in cpb:
+            cpb = cpb[plugboard_any_device_value]
+        else:
+            cpb = None
+    if DEBUG:
+        prints('Device using plugboard', format, device_name, cpb)
+    return cpb
+
+def device_name_for_plugboards(device_class):
+    if hasattr(device_class, 'DEVICE_PLUGBOARD_NAME'):
+        return device_class.DEVICE_PLUGBOARD_NAME
+    return device_class.__class__.__name__
+
 class DeviceManager(Thread): # {{{
 
     def __init__(self, connected_slot, job_manager, open_feedback_slot, sleep_time=2):
@@ -311,12 +333,9 @@ class DeviceManager(Thread): # {{{
         return self.device.card_prefix(end_session=False), self.device.free_space()
 
     def sync_booklists(self, done, booklists, plugboards):
-        if hasattr(self.connected_device, 'use_plugboard_ext') and \
-                callable(self.connected_device.use_plugboard_ext):
-            ext = self.connected_device.use_plugboard_ext()
-            if ext is not None:
-                self.connected_device.set_plugboard(
-                                        self.find_plugboard(ext, plugboards))
+        if hasattr(self.connected_device, 'set_plugboards') and \
+                callable(self.connected_device.set_plugboards):
+            self.connected_device.set_plugboards(plugboards, find_plugboard)
         return self.create_job(self._sync_booklists, done, args=[booklists],
                         description=_('Send metadata to device'))
 
@@ -325,36 +344,18 @@ class DeviceManager(Thread): # {{{
                                args=[booklist, on_card],
                         description=_('Send collections to device'))
 
-    def find_plugboard(self, ext, plugboards):
-        dev_name = self.connected_device.__class__.__name__
-        cpb = None
-        if ext in plugboards:
-            cpb = plugboards[ext]
-        elif plugboard_any_format_value in plugboards:
-            cpb = plugboards[plugboard_any_format_value]
-        if cpb is not None:
-            if dev_name in cpb:
-                cpb = cpb[dev_name]
-            elif plugboard_any_device_value in cpb:
-                cpb = cpb[plugboard_any_device_value]
-            else:
-                cpb = None
-        if DEBUG:
-            prints('Device using plugboard', ext, dev_name, cpb)
-        return cpb
-
     def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
         '''Upload books to device: '''
-        if hasattr(self.connected_device, 'use_plugboard_ext') and \
-          callable(self.connected_device.use_plugboard_ext):
-			ext = self.connected_device.use_plugboard_ext()
-			if ext is not None:
-				self.connected_device.set_plugboard(self.find_plugboard(ext, plugboards))
+        if hasattr(self.connected_device, 'set_plugboards') and \
+                callable(self.connected_device.set_plugboards):
+            self.connected_device.set_plugboards(plugboards, find_plugboard)
         if metadata and files and len(metadata) == len(files):
             for f, mi in zip(files, metadata):
                 if isinstance(f, unicode):
                     ext = f.rpartition('.')[-1].lower()
-                    cpb = self.find_plugboard(ext, plugboards)
+                    cpb = find_plugboard(
+                            device_name_for_plugboards(self.connected_device),
+                            ext, plugboards)
                     if ext:
                         try:
                             if DEBUG:
@@ -362,7 +363,7 @@ class DeviceManager(Thread): # {{{
                                         f, file=sys.__stdout__)
                             with open(f, 'r+b') as stream:
                                 if cpb:
-                                    newmi = mi.deepcopy()
+                                    newmi = mi.deepcopy_metadata()
                                     newmi.template_to_attribute(mi, cpb)
                                 else:
                                     newmi = mi

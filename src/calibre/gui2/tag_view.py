@@ -80,6 +80,7 @@ class TagsView(QTreeView): # {{{
         self.setItemDelegate(TagDelegate(self))
         self.made_connections = False
         self.setAcceptDrops(True)
+        self.setDragDropMode(self.DropOnly)
         self.setDropIndicatorShown(True)
 
     def set_database(self, db, tag_match, sort_by):

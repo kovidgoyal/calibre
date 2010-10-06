@@ -110,6 +110,9 @@ class ITUNES(DriverBase):
     PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a]
     BCD = [0x01]
 
+    # Plugboard ID
+    DEVICE_PLUGBOARD_NAME = 'APPLE'
+
     # iTunes enumerations
     Audiobooks = [
         'Audible file',
@@ -178,7 +181,8 @@ class ITUNES(DriverBase):
     log = Log()
     manual_sync_mode = False
     path_template = 'iTunes/%s - %s.%s'
-    plugboard = None
+    plugboards = None
+    plugboard_func = None
     problem_titles = []
     problem_msg = None
     report_progress = None
@@ -820,14 +824,14 @@ class ITUNES(DriverBase):
         '''
         self.report_progress = report_progress
 
-    def set_plugboard(self, pb):
+    def set_plugboards(self, plugboards, pb_func):
         # This method is called with the plugboard that matches the format
         # declared in use_plugboard_ext and a device name of ITUNES
         if DEBUG:
             self.log.info("ITUNES.set_plugboard()")
-            self.log.info('  using plugboard %s' % pb)
-        if pb is not None:
-            self.plugboard = pb
+            #self.log.info('  using plugboard %s' % plugboards)
+        self.plugboards = plugboards
+        self.plugboard_func = pb_func
 
     def sync_booklists(self, booklists, end_session=True):
         '''
@@ -991,14 +995,6 @@ class ITUNES(DriverBase):
             self._dump_booklist(new_booklist,header="after upload_books()",indent=2)
             self._dump_cached_books(header="after upload_books()",indent=2)
         return (new_booklist, [], [])
-
-    def use_plugboard_ext(self):
-        ''' Declare which plugboard extension we care about '''
-        ext = 'epub'
-        if DEBUG:
-            self.log.info("ITUNES.use_plugboard_ext(): declaring %s" % ext)
-        return ext
-
 
     # Private methods
     def _add_device_book(self,fpath, metadata):
@@ -1347,8 +1343,8 @@ class ITUNES(DriverBase):
             plist = None
         if plist:
             if DEBUG:
-                self.log.info(" _delete_iTunesMetadata_plist():")
-                self.log.info("   deleting '%s'\n   from '%s'" % (pl_name,fpath))
+                self.log.info("  _delete_iTunesMetadata_plist():")
+                self.log.info("    deleting '%s'\n   from '%s'" % (pl_name,fpath))
                 zf.delete(pl_name)
         zf.close()
 
@@ -2484,10 +2480,16 @@ class ITUNES(DriverBase):
                 if DEBUG:
                     self.log.info("   unable to remove '%s' from iTunes" % cached_book['title'])
 
+    def title_sorter(self, title):
+        return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', title).rstrip()
+
     def _update_epub_metadata(self, fpath, metadata):
         '''
         '''
         self.log.info(" ITUNES._update_epub_metadata()")
+
+        # Fetch plugboard updates
+        metadata_x = self._xform_metadata_via_plugboard(metadata, 'epub')
 
         # Refresh epub metadata
         with open(fpath,'r+b') as zfo:
@@ -2520,9 +2522,14 @@ class ITUNES(DriverBase):
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
 
                 # Force the language declaration for iBooks 1.1
-                metadata.language = get_lang().replace('_', '-')
+                #metadata.language = get_lang().replace('_', '-')
+
+                # Updates from metadata plugboard (ignoring publisher)
+                metadata.language = metadata_x.language
+
                 if DEBUG:
-                    self.log.info("   rewriting language: <dc:language>%s</dc:language>" % metadata.language)
+                    if metadata.language != metadata_x.language:
+                        self.log.info("   rewriting language: <dc:language>%s</dc:language>" % metadata.language)
 
             zf_opf.close()
 
@@ -2604,35 +2611,29 @@ class ITUNES(DriverBase):
 
         # Update metadata from plugboard
         # If self.plugboard is None (no transforms), original metadata is returned intact
-        metadata_x = self._xform_metadata_via_plugboard(metadata)
+        metadata_x = self._xform_metadata_via_plugboard(metadata, this_book.format)
 
         if isosx:
             if lb_added:
+                lb_added.name.set(metadata_x.title)
                 lb_added.album.set(metadata_x.title)
                 lb_added.artist.set(authors_to_string(metadata_x.authors))
                 lb_added.composer.set(metadata_x.uuid)
                 lb_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.enabled.set(True)
                 lb_added.sort_artist.set(metadata_x.author_sort.title())
-                lb_added.sort_name.set(this_book.title_sorter)
-                if this_book.format == 'pdf':
-                    lb_added.name.set(metadata.title)
-                elif this_book.format == 'epub':
-                    lb_added.name.set(metadata_x.title)
+                lb_added.sort_name.set(metadata.title_sort)
 
 
             if db_added:
+                db_added.name.set(metadata_x.title)
                 db_added.album.set(metadata_x.title)
                 db_added.artist.set(authors_to_string(metadata_x.authors))
                 db_added.composer.set(metadata_x.uuid)
                 db_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.enabled.set(True)
                 db_added.sort_artist.set(metadata_x.author_sort.title())
-                db_added.sort_name.set(this_book.title_sorter)
-                if this_book.format == 'pdf':
-                    db_added.name.set(metadata.title)
-                elif this_book.format == 'epub':
-                    db_added.name.set(metadata_x.title)
+                db_added.sort_name.set(metadata.title_sort)
 
             if metadata_x.comments:
                 if lb_added:
@@ -2652,8 +2653,10 @@ class ITUNES(DriverBase):
 
             # Set genre from series if available, else first alpha tag
             # Otherwise iTunes grabs the first dc:subject from the opf metadata
+            # self.settings().read_metadata is used as a surrogate for "Use Series name as Genre"
             if metadata_x.series and self.settings().read_metadata:
                 if DEBUG:
+                    self.log.info(" ITUNES._update_iTunes_metadata()")
                     self.log.info("   using Series name as Genre")
 
                 # Format the index as a sort key
@@ -2662,18 +2665,35 @@ class ITUNES(DriverBase):
                 fraction = index-integer
                 series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
                 if lb_added:
-                    lb_added.sort_name.set("%s %s" % (metadata_x.series, series_index))
-                    lb_added.genre.set(metadata_x.series)
+                    lb_added.sort_name.set("%s %s" % (self.title_sorter(metadata_x.series), series_index))
                     lb_added.episode_ID.set(metadata_x.series)
                     lb_added.episode_number.set(metadata_x.series_index)
 
+                    # If no plugboard transform applied to tags, change the Genre/Category to Series
+                    if metadata.tags == metadata_x.tags:
+                        lb_added.genre.set(self.title_sorter(metadata_x.series))
+                    else:
+                        for tag in metadata_x.tags:
+                            if self._is_alpha(tag[0]):
+                                lb_added.genre.set(tag)
+                                break
+
                 if db_added:
-                    db_added.sort_name.set("%s %s" % (metadata_x.series, series_index))
-                    db_added.genre.set(metadata_x.series)
+                    db_added.sort_name.set("%s %s" % (self.title_sorter(metadata_x.series), series_index))
                     db_added.episode_ID.set(metadata_x.series)
                     db_added.episode_number.set(metadata_x.series_index)
 
-            elif metadata_x.tags:
+                    # If no plugboard transform applied to tags, change the Genre/Category to Series
+                    if metadata.tags == metadata_x.tags:
+                        db_added.genre.set(self.title_sorter(metadata_x.series))
+                    else:
+                        for tag in metadata_x.tags:
+                            if self._is_alpha(tag[0]):
+                                db_added.genre.set(tag)
+                                break
+
+
+            elif metadata_x.tags is not None:
                 if DEBUG:
                     self.log.info("   %susing Tag as Genre" %
                                   "no Series name available, " if self.settings().read_metadata else '')
@@ -2687,30 +2707,24 @@ class ITUNES(DriverBase):
 
         elif iswindows:
             if lb_added:
+                lb_added.Name = metadata_x.title
                 lb_added.Album = metadata_x.title
                 lb_added.Artist = authors_to_string(metadata_x.authors)
                 lb_added.Composer = metadata_x.uuid
                 lb_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.Enabled = True
-                lb_added.SortArtist = (metadata_x.author_sort.title())
-                lb_added.SortName = (this_book.title_sorter)
-                if this_book.format == 'pdf':
-                    lb_added.Name = metadata.title
-                elif this_book.format == 'epub':
-                    lb_added.Name = metadata_x.title
+                lb_added.SortArtist = metadata_x.author_sort.title()
+                lb_added.SortName = metadata.title_sort
 
             if db_added:
+                db_added.Name = metadata_x.title
                 db_added.Album = metadata_x.title
                 db_added.Artist = authors_to_string(metadata_x.authors)
                 db_added.Composer = metadata_x.uuid
                 db_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.Enabled = True
-                db_added.SortArtist = (metadata_x.author_sort.title())
-                db_added.SortName = (this_book.title_sorter)
-                if this_book.format == 'pdf':
-                    db_added.Name = metadata.title
-                elif this_book.format == 'epub':
-                    db_added.Name = metadata_x.title
+                db_added.SortArtist = metadata_x.author_sort.title()
+                db_added.SortName = metadata.title_sort
 
             if metadata_x.comments:
                 if lb_added:
@@ -2743,16 +2757,24 @@ class ITUNES(DriverBase):
                 fraction = index-integer
                 series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
                 if lb_added:
-                    lb_added.SortName = "%s %s" % (metadata_x.series, series_index)
-                    lb_added.Genre = metadata_x.series
+                    lb_added.SortName = "%s %s" % (self.title_sorter(metadata_x.series), series_index)
                     lb_added.EpisodeID = metadata_x.series
                     try:
                         lb_added.EpisodeNumber = metadata_x.series_index
                     except:
                         pass
+
+                    # If no plugboard transform applied to tags, change the Genre/Category to Series
+                    if metadata.tags == metadata_x.tags:
+                        lb_added.Genre = self.title_sorter(metadata_x.series)
+                    else:
+                        for tag in metadata_x.tags:
+                            if self._is_alpha(tag[0]):
+                                lb_added.Genre = tag
+                                break
+
                 if db_added:
-                    db_added.SortName = "%s %s" % (metadata_x.series, series_index)
-                    db_added.Genre = metadata_x.series
+                    db_added.SortName = "%s %s" % (self.title_sorter(metadata_x.series), series_index)
                     db_added.EpisodeID = metadata_x.series
                     try:
                         db_added.EpisodeNumber = metadata_x.series_index
@@ -2760,7 +2782,17 @@ class ITUNES(DriverBase):
                         if DEBUG:
                             self.log.warning("  iTunes automation interface reported an error"
                                              " setting EpisodeNumber on iDevice")
-            elif metadata_x.tags:
+
+                    # If no plugboard transform applied to tags, change the Genre/Category to Series
+                    if metadata.tags == metadata_x.tags:
+                        db_added.Genre = self.title_sorter(metadata_x.series)
+                    else:
+                        for tag in metadata_x.tags:
+                            if self._is_alpha(tag[0]):
+                                db_added.Genre = tag
+                                break
+
+            elif metadata_x.tags is not None:
                 if DEBUG:
                     self.log.info("   using Tag as Genre")
                 for tag in metadata_x.tags:
@@ -2771,20 +2803,31 @@ class ITUNES(DriverBase):
                             db_added.Genre = tag
                         break
 
-    def _xform_metadata_via_plugboard(self, book):
+    def _xform_metadata_via_plugboard(self, book, format):
         ''' Transform book metadata from plugboard templates '''
         if DEBUG:
-            self.log.info("ITUNES._update_metadata_from_plugboard()")
+            self.log.info("  ITUNES._update_metadata_from_plugboard()")
 
-        if self.plugboard is not None:
+        if self.plugboard_func:
+            pb = self.plugboard_func(self.DEVICE_PLUGBOARD_NAME, format, self.plugboards)
             newmi = book.deepcopy_metadata()
-            newmi.template_to_attribute(book, self.plugboard)
+            newmi.template_to_attribute(book, pb)
             if DEBUG:
-                if book.title != newmi.title:
-                    self.log.info("  .title  (original): %s" % book.title)
-                    self.log.info("  .title (templated): %s" % newmi.title)
-                else:
-                    self.log.info("  .title (no change): %s" % book.title)
+                self.log.info(" transforming %s using %s:" % (format, pb))
+                self.log.info("       title: %s %s" % (book.title, ">>> %s" %
+                                           newmi.title if book.title != newmi.title else ''))
+                self.log.info("  title_sort: %s %s" % (book.title_sort, ">>> %s" %
+                                           newmi.title_sort if book.title_sort != newmi.title_sort else ''))
+                self.log.info("     authors: %s %s" % (book.authors, ">>> %s" %
+                                           newmi.authors if book.authors != newmi.authors else ''))
+                self.log.info(" author_sort: %s %s" % (book.author_sort, ">>> %s" %
+                                           newmi.author_sort if book.author_sort != newmi.author_sort else ''))
+                self.log.info("    language: %s %s" % (book.language, ">>> %s" %
+                                           newmi.language if book.language != newmi.language else ''))
+                self.log.info("   publisher: %s %s" % (book.publisher, ">>> %s" %
+                                           newmi.publisher if book.publisher != newmi.publisher else ''))
+                self.log.info("        tags: %s %s" % (book.tags, ">>> %s" %
+                                           newmi.tags if book.tags != newmi.tags else ''))
         else:
             newmi = book
         return newmi
@@ -2799,6 +2842,9 @@ class ITUNES_ASYNC(ITUNES):
     gui_name = 'Apple iTunes'
     icon = I('devices/itunes.png')
     description    = _('Communicate with iTunes.')
+
+    # Plugboard ID
+    DEVICE_PLUGBOARD_NAME = 'APPLE'
 
     connected = False
 
@@ -3080,9 +3126,3 @@ class Book(Metadata):
 
         Metadata.__init__(self, title, authors=[author])
 
-    @dynamic_property
-    def title_sorter(self):
-        doc = '''String to sort the title. If absent, title is returned'''
-        def fget(self):
-            return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', self.title).rstrip()
-        return property(doc=doc, fget=fget)
