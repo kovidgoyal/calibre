@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 import os, re
 
 from lxml import etree
-from Cheetah.Template import Template
+from templite import Templite
 
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre import CurrentDir
@@ -29,7 +29,8 @@ class HTMLOutput(OutputFormatPlugin):
         output_path = re.sub(r'\.html', '', output_path)+'_files'
 
         with open(output_file, 'wb') as f:
-            root = oeb_book.html_toc()
+            link_prefix=os.path.basename(output_path)+'/'
+            root = oeb_book.html_toc(link_prefix=link_prefix)
             html_txt = etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=False)
             f.write(html_txt)
 
@@ -70,13 +71,13 @@ class HTMLOutput(OutputFormatPlugin):
                 else:
                   prevLink = None
                 vars = {
-                  'ebookContent': ebook_content,
-                  'prevLink': prevLink,
-                  'nextLink': nextLink
+
                 }
                 template_file = os.path.dirname(__file__)+'/outputtemplates/default.tmpl'
-                t = Template(file=template_file, searchList=[ vars ]) # compilerSettings={'useStackFrames': False}
+                templite = Templite(open(template_file).read())
+                t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink)
+
                 with open(path, 'wb') as f:
-                    f.write(str(t))
+                    f.write(t)
 
                 item.unload_data_from_memory(memory=path)

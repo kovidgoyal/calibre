@@ -5,17 +5,17 @@
 <title>Unbenanntes Dokument</title>
 </head>
 <body>
-$ebookContent
 
-#if $prevLink
-<a href="$prevLink">previous page</a>
-#end if
+${ebookContent}$
 
-#if $nextLink
-<a href="$nextLink">next page</a>
-#end if
+${if prevLink:}$
+<a href="${prevLink}$">previous page</a>
+${:endif}$
+
+${if nextLink:}$
+<a href="${nextLink}$">next page</a>
+${:endif}$
 
 
 </body>
 </html>
-
