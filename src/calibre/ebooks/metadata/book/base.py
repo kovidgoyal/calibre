@@ -38,6 +38,7 @@ class SafeFormat(TemplateFormatter):
 
     def get_value(self, key, args, kwargs):
         try:
+            key = field_metadata.search_term_to_field_key(key.lower())
             b = self.book.get_user_metadata(key, False)
             if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
                 v = ''
@@ -219,6 +220,11 @@ class Metadata(object):
         _data = object.__getattribute__(self, '_data')
         for attr in STANDARD_METADATA_FIELDS:
             v = _data.get(attr, None)
+            if v is not None:
+                result[attr] = v
+        # separate these because it uses the self.get(), not _data.get()
+        for attr in TOP_LEVEL_CLASSIFIERS:
+            v = self.get(attr, None)
             if v is not None:
                 result[attr] = v
         for attr in _data['user_metadata'].iterkeys():
