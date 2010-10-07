@@ -390,6 +390,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             except:
                 import traceback
                 traceback.print_exc()
+        if self.device_connected:
+            self.set_books_in_library(self.booklists(), reset=True)
+            self.refresh_ondevice()
+            self.memory_view.reset()
+            self.card_a_view.reset()
+            self.card_b_view.reset()
+
 
     def set_window_title(self):
         self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())

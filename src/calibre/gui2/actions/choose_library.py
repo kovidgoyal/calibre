@@ -17,7 +17,7 @@ from calibre.gui2 import gprefs, warning_dialog, Dispatcher, error_dialog, \
     question_dialog, info_dialog
 from calibre.gui2.actions import InterfaceAction
 
-class LibraryUsageStats(object):
+class LibraryUsageStats(object): # {{{
 
     def __init__(self):
         self.stats = {}
@@ -73,7 +73,7 @@ class LibraryUsageStats(object):
         if stats is not None:
             self.stats[newloc] = stats
         self.write_stats()
-
+# }}}
 
 class ChooseLibraryAction(InterfaceAction):
 
@@ -147,9 +147,11 @@ class ChooseLibraryAction(InterfaceAction):
         self.qs_locations = [i[1] for i in locations]
         self.rename_menu.clear()
         self.delete_menu.clear()
+        quick_actions = []
         for name, loc in locations:
-            self.quick_menu.addAction(name, Dispatcher(partial(self.switch_requested,
+            ac = self.quick_menu.addAction(name, Dispatcher(partial(self.switch_requested,
                 loc)))
+            quick_actions.append(ac)
             self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested,
                 name, loc)))
             self.delete_menu.addAction(name, Dispatcher(partial(self.delete_requested,
@@ -164,6 +166,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.quick_menu_action.setVisible(bool(locations))
         self.rename_menu_action.setVisible(bool(locations))
         self.delete_menu_action.setVisible(bool(locations))
+        self.gui.location_manager.set_switch_actions(quick_actions)
 
 
     def location_selected(self, loc):
@@ -263,11 +266,6 @@ class ChooseLibraryAction(InterfaceAction):
         c.exec_()
 
     def change_library_allowed(self):
-        if self.gui.device_connected:
-            warning_dialog(self.gui, _('Not allowed'),
-                    _('You cannot change libraries when a device is'
-                        ' connected.'), show=True)
-            return False
         if self.gui.job_manager.has_jobs():
             warning_dialog(self.gui, _('Not allowed'),
                     _('You cannot change libraries while jobs'

@@ -24,6 +24,7 @@ class LocationManager(QObject): # {{{
     locations_changed = pyqtSignal()
     unmount_device = pyqtSignal()
     location_selected = pyqtSignal(object)
+    switch_actions_set = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -60,7 +61,7 @@ class LocationManager(QObject): # {{{
 
             return ac
 
-        ac('library', _('Library'), 'lt.png',
+        self.library_action = ac('library', _('Library'), 'lt.png',
                 _('Show books in calibre library'))
         ac('main', _('Device'), 'reader.png',
                 _('Show books in the main memory of the device'))
@@ -68,6 +69,13 @@ class LocationManager(QObject): # {{{
                 _('Show books in storage card A'))
         ac('cardb', _('Card B'), 'sd.png',
                 _('Show books in storage card B'))
+
+    def set_switch_actions(self, actions):
+        self.switch_menu = QMenu()
+        for ac in actions:
+            self.switch_menu.addAction(ac)
+        self.library_action.setMenu(self.switch_menu)
+        self.switch_actions_set.emit(bool(actions))
 
     def _location_selected(self, location, *args):
         if location != self.current_location and hasattr(self,
@@ -197,14 +205,14 @@ class SearchBar(QWidget): # {{{
 
 # }}}
 
-class Spacer(QWidget):
+class Spacer(QWidget): # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.l = QHBoxLayout()
         self.setLayout(self.l)
         self.l.addStretch(10)
-
+# }}}
 
 class ToolBar(QToolBar): # {{{
 
