@@ -24,7 +24,6 @@ class LocationManager(QObject): # {{{
     locations_changed = pyqtSignal()
     unmount_device = pyqtSignal()
     location_selected = pyqtSignal(object)
-    switch_actions_set = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -70,12 +69,23 @@ class LocationManager(QObject): # {{{
         ac('cardb', _('Card B'), 'sd.png',
                 _('Show books in storage card B'))
 
-    def set_switch_actions(self, actions):
+    def set_switch_actions(self, quick_actions, rename_actions, delete_actions,
+            switch_actions, choose_action):
         self.switch_menu = QMenu()
-        for ac in actions:
+        self.switch_menu.addAction(choose_action)
+        self.cs_menus = []
+        for t, acs in [(_('Quick switch'), quick_actions),
+                (_('Rename library'), rename_actions),
+                (_('Delete library'), delete_actions)]:
+            if acs:
+                self.cs_menus.append(QMenu(t))
+                for ac in acs:
+                    self.cs_menus[-1].addAction(ac)
+                self.switch_menu.addMenu(self.cs_menus[-1])
+        self.switch_menu.addSeparator()
+        for ac in switch_actions:
             self.switch_menu.addAction(ac)
         self.library_action.setMenu(self.switch_menu)
-        self.switch_actions_set.emit(bool(actions))
 
     def _location_selected(self, location, *args):
         if location != self.current_location and hasattr(self,
