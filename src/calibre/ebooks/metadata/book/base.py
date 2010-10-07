@@ -38,6 +38,7 @@ class SafeFormat(TemplateFormatter):
 
     def get_value(self, key, args, kwargs):
         try:
+            key = field_metadata.search_term_to_field_key(key.lower())
             b = self.book.get_user_metadata(key, False)
             if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
                 v = ''
