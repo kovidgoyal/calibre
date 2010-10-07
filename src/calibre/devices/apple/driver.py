@@ -19,7 +19,6 @@ from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
 from calibre.utils.config import config_dir, prefs
 from calibre.utils.date import isoformat, now, parse_date
-from calibre.utils.localization import get_lang
 from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
 

@@ -144,10 +144,10 @@ class DownloadMetadata(Thread):
 
     def commit_covers(self, all=False):
         if all:
-            self.worker.jobs.put(False)
+            self.worker.jobs.put((False, False))
         while True:
             try:
-                id, fmi, ok, cdata = self.worker.results.get(False)
+                id, fmi, ok, cdata = self.worker.results.get_nowait()
                 if ok:
                     self.fetched_covers[id] = cdata
                     self.results.put((id, 'cover', ok, fmi.title))
@@ -210,6 +210,12 @@ class DoDownload(QObject):
             pass
         if not self.downloader.is_alive():
             self.timer.stop()
+            while True:
+                try:
+                    r = self.downloader.results.get_nowait()
+                    self.handle_result(r)
+                except Empty:
+                    break
             self.pd.accept()
 
     def handle_result(self, r):

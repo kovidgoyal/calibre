@@ -1010,7 +1010,6 @@ def command_restore_database(args, dbpath):
                     'saved to', name)
 
 def list_categories_option_parser():
-    from calibre.library.check_library import CHECKS
     parser = get_parser(_('''\
 %prog list_categories [options]
 
