@@ -101,7 +101,6 @@ STANDARD_METADATA_FIELDS = SOCIAL_METADATA_FIELDS.union(
                            CALIBRE_METADATA_FIELDS)
 
 # Metadata fields that smart update must do special processing to copy.
-
 SC_FIELDS_NOT_COPIED =     frozenset(['title', 'title_sort', 'authors',
                                       'author_sort', 'author_sort_map',
                                       'cover_data', 'tags', 'language',
