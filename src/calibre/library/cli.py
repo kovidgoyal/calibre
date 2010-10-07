@@ -956,12 +956,6 @@ def command_check_library(args, dbpath):
         print_one(checker, check)
 
 
-COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
-            'show_metadata', 'set_metadata', 'export', 'catalog',
-            'saved_searches', 'add_custom_column', 'custom_columns',
-            'remove_custom_column', 'set_custom', 'restore_database',
-            'check_library')
-
 def restore_database_option_parser():
     parser = get_parser(_(
     '''
@@ -1014,6 +1008,134 @@ def command_restore_database(args, dbpath):
                     'wb').write(r.report.encode('utf-8'))
             prints('Some errors occurred. A detailed report was '
                     'saved to', name)
+
+def list_categories_option_parser():
+    from calibre.library.check_library import CHECKS
+    parser = get_parser(_('''\
+%prog list_categories [options]
+
+Produce a report of the category information in the database. The
+information is the equivalent of what is shown in the tags pane.
+'''))
+
+    parser.add_option('-i', '--item_count', default=False, action='store_true',
+            help=_('Output only the number of items in a category instead of the '
+                   'counts per item within the category'))
+    parser.add_option('-c', '--csv', default=False, action='store_true',
+            help=_('Output in CSV'))
+    parser.add_option('-q', '--quote', default='"',
+            help=_('The character to put around the category value in CSV mode. '
+                   'Default is quotes (").'))
+    parser.add_option('-r', '--categories', default=None, dest='report',
+                      help=_("Comma-separated list of category lookup names.\n"
+                             "Default: all"))
+    parser.add_option('-w', '--line-width', default=-1, type=int,
+                      help=_('The maximum width of a single line in the output. '
+                             'Defaults to detecting screen size.'))
+    parser.add_option('-s', '--separator', default=',',
+                      help=_('The string used to separate fields in CSV mode. '
+                             'Default is a comma.'))
+    return parser
+
+def command_list_categories(args, dbpath):
+    parser = list_categories_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 0:
+        parser.print_help()
+        return 1
+
+    if opts.library_path is not None:
+        dbpath = opts.library_path
+
+    if isbytestring(dbpath):
+        dbpath = dbpath.decode(preferred_encoding)
+
+    db = LibraryDatabase2(dbpath)
+    category_data = db.get_categories()
+    data = []
+    categories = [k for k in category_data.keys()
+                  if db.metadata_for_field(k)['kind'] != 'user']
+
+    categories.sort(cmp=lambda x,y: cmp(x if x[0] != '#' else x[1:],
+                                        y if y[0] != '#' else y[1:]))
+    if not opts.item_count:
+        for category in categories:
+            is_rating = db.metadata_for_field(category)['datatype'] == 'rating'
+            for tag in category_data[category]:
+                if is_rating:
+                    tag.name = unicode(len(tag.name))
+                data.append({'category':category, 'tag_name':tag.name,
+                             'count':unicode(tag.count), 'rating':unicode(tag.avg_rating)})
+    else:
+        for category in categories:
+            data.append({'category':category,
+                         'tag_name':_('CATEGORY ITEMS'),
+                         'count': len(category_data[category]), 'rating': 0.0})
+
+    fields = ['category', 'tag_name', 'count', 'rating']
+
+    def do_list():
+        separator = ' '
+        widths = list(map(lambda x : 0, fields))
+        for i in data:
+            for j, field in enumerate(fields):
+                widths[j] = max(widths[j], max(len(field), len(unicode(i[field]))))
+
+        screen_width = terminal_controller.COLS if opts.line_width < 0 else opts.line_width
+        if not screen_width:
+            screen_width = 80
+        field_width = screen_width//len(fields)
+        base_widths = map(lambda x: min(x+1, field_width), widths)
+
+        while sum(base_widths) < screen_width:
+            adjusted = False
+            for i in range(len(widths)):
+                if base_widths[i] < widths[i]:
+                    base_widths[i] += min(screen_width-sum(base_widths), widths[i]-base_widths[i])
+                    adjusted = True
+                    break
+            if not adjusted:
+                break
+
+        widths = list(base_widths)
+        titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
+                widths, fields)
+        print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
+
+        wrappers = map(lambda x: TextWrapper(x-1), widths)
+        o = cStringIO.StringIO()
+
+        for record in data:
+            text = [wrappers[i].wrap(unicode(record[field]).encode('utf-8')) for i, field in enumerate(fields)]
+            lines = max(map(len, text))
+            for l in range(lines):
+                for i, field in enumerate(text):
+                    ft = text[i][l] if l < len(text[i]) else ''
+                    filler = '%*s'%(widths[i]-len(ft)-1, '')
+                    o.write(ft)
+                    o.write(filler+separator)
+                print >>o
+        print o.getvalue()
+
+    def do_csv():
+        lf = '{category},"{tag_name}",{count},{rating}'
+        lf = lf.replace(',', opts.separator).replace(r'\t','\t').replace(r'\n','\n')
+        lf = lf.replace('"', opts.quote)
+        for d in data:
+            print lf.format(**d)
+
+    if opts.csv:
+        do_csv()
+    else:
+        do_list()
+
+
+COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
+            'show_metadata', 'set_metadata', 'export', 'catalog',
+            'saved_searches', 'add_custom_column', 'custom_columns',
+            'remove_custom_column', 'set_custom', 'restore_database',
+            'check_library', 'list_categories')
+
 
 def option_parser():
     parser = OptionParser(_(
