@@ -21,6 +21,7 @@ class Worker(Thread):
     def __init__(self, ids, db, loc, progress, done):
         Thread.__init__(self)
         self.ids = ids
+        self.processed = set([])
         self.db = db
         self.loc = loc
         self.error = None
@@ -71,6 +72,7 @@ class Worker(Thread):
                 co = self.db.conversion_options(x, 'PIPE')
                 if co is not None:
                     newdb.set_conversion_options(x, 'PIPE', co)
+            self.processed.add(x)
 
 
 class CopyToLibraryAction(InterfaceAction):
@@ -107,9 +109,13 @@ class CopyToLibraryAction(InterfaceAction):
         for name, loc in locations:
             self.menu.addAction(name, partial(self.copy_to_library,
                 loc))
+            self.menu.addAction(name + ' ' + _('(delete after copy)'),
+                    partial(self.copy_to_library,  loc, delete_after=True))
+            self.menu.addSeparator()
+
         self.qaction.setVisible(bool(locations))
 
-    def copy_to_library(self, loc):
+    def copy_to_library(self, loc, delete_after=False):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, _('Cannot copy'),
@@ -140,7 +146,16 @@ class CopyToLibraryAction(InterfaceAction):
         else:
             self.gui.status_bar.show_message(_('Copied %d books to %s') %
                     (len(ids), loc), 2000)
+            if delete_after and self.worker.processed:
+                v = self.gui.library_view
+                ci = v.currentIndex()
+                row = None
+                if ci.isValid():
+                    row = ci.row()
 
+                v.model().delete_books_by_id(self.worker.processed)
+                self.gui.iactions['Remove Books'].library_ids_deleted(
+                        self.worker.processed, row)
 
 
 
