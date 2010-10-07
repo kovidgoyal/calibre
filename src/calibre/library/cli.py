@@ -1054,7 +1054,7 @@ def command_list_categories(args, dbpath):
     category_data = db.get_categories()
     data = []
     categories = [k for k in category_data.keys()
-                  if db.metadata_for_field(k)['kind'] != 'user']
+                  if db.metadata_for_field(k)['kind'] not in ['user', 'search']]
 
     categories.sort(cmp=lambda x,y: cmp(x if x[0] != '#' else x[1:],
                                         y if y[0] != '#' else y[1:]))
