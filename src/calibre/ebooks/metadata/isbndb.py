@@ -83,7 +83,7 @@ class ISBNDBMetadata(Metadata):
 
         summ = tostring(book.find('summary'))
         if summ:
-            self.comments = 'SUMMARY:\n'+summ.string
+            self.comments = 'SUMMARY:\n'+summ
 
 
 def build_isbn(base_url, opts):

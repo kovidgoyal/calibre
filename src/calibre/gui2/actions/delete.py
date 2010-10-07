@@ -149,6 +149,18 @@ class DeleteAction(InterfaceAction):
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
 
+
+    def library_ids_deleted(self, ids_deleted, current_row=None):
+        view = self.gui.library_view
+        for v in (self.gui.memory_view, self.gui.card_a_view, self.gui.card_b_view):
+            if v is None:
+                continue
+            v.model().clear_ondevice(ids_deleted)
+        if current_row is not None:
+            ci = view.model().index(current_row, 0)
+            if ci.isValid():
+                view.set_current_row(current_row)
+
     def delete_books(self, *args):
         '''
         Delete selected books from device or library.
@@ -168,14 +180,7 @@ class DeleteAction(InterfaceAction):
             if ci.isValid():
                 row = ci.row()
             ids_deleted = view.model().delete_books(rows)
-            for v in (self.gui.memory_view, self.gui.card_a_view, self.gui.card_b_view):
-                if v is None:
-                    continue
-                v.model().clear_ondevice(ids_deleted)
-            if row is not None:
-                ci = view.model().index(row, 0)
-                if ci.isValid():
-                    view.set_current_row(row)
+            self.library_ids_deleted(ids_deleted, row)
         else:
             if not confirm('<p>'+_('The selected books will be '
                                    '<b>permanently deleted</b> '
