@@ -743,6 +743,8 @@ class BooksModel(QAbstractTableModel): # {{{
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
             val, s_index = parse_series_string(self.db, label, value.toString())
+            if not val:
+                val = s_index = None
         elif typ == 'composite':
             tmpl = unicode(value.toString()).strip()
             disp = cc['display']
