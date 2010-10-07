@@ -59,10 +59,10 @@ class TemplateFormatter(string.Formatter):
             return value_if_empty
 
     def _shorten(self, val, leading, center_string, trailing):
-        l = int(leading)
-        t = int(trailing)
+        l = max(0, int(leading))
+        t = max(0, int(trailing))
         if len(val) > l + len(center_string) + t:
-            return val[0:l] + center_string + val[-t:]
+            return val[0:l] + center_string + ('' if t == 0 else val[-t:])
         else:
             return val
 
