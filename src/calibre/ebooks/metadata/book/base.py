@@ -221,6 +221,11 @@ class Metadata(object):
             v = _data.get(attr, None)
             if v is not None:
                 result[attr] = v
+        # separate these because it uses the self.get(), not _data.get()
+        for attr in TOP_LEVEL_CLASSIFIERS:
+            v = self.get(attr, None)
+            if v is not None:
+                result[attr] = v
         for attr in _data['user_metadata'].iterkeys():
             v = self.get(attr, None)
             if v is not None:
