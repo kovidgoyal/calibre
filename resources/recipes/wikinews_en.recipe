@@ -55,6 +55,9 @@ class WikiNews(BasicNewsRecipe):
         rest, sep, article_id  = url.rpartition('/')
         return 'http://en.wikinews.org/w/index.php?title=' + article_id + '&printable=yes'
 
+    def get_cover_url(self):
+        return 'http://upload.wikimedia.org/wikipedia/commons/b/bd/Wikinews-logo-en.png'
+
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Language" content="en"/><meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
         soup.head.insert(0,mtag)
