@@ -1468,21 +1468,21 @@ class DeviceMixin(object): # {{{
                     # will match if any of the db_id, author, or author_sort
                     # also match.
                     if getattr(book, 'application_id', None) in d['db_ids']:
-                        book.in_library = True
                         # app_id already matches a db_id. No need to set it.
                         if update_metadata:
                             book.smart_update(d['db_ids'][book.application_id],
                                               replace_metadata=True)
+                        book.in_library = True
                         continue
                     # Sonys know their db_id independent of the application_id
                     # in the metadata cache. Check that as well.
                     if getattr(book, 'db_id', None) in d['db_ids']:
-                        book.in_library = True
-                        book.application_id = \
-                                    d['db_ids'][book.db_id].application_id
                         if update_metadata:
                             book.smart_update(d['db_ids'][book.db_id],
                                               replace_metadata=True)
+                        book.in_library = True
+                        book.application_id = \
+                                    d['db_ids'][book.db_id].application_id
                         continue
                     # We now know that the application_id is not right. Set it
                     # to None to prevent book_on_device from accidentally
@@ -1494,19 +1494,19 @@ class DeviceMixin(object): # {{{
                         # either can appear as the author
                         book_authors = clean_string(authors_to_string(book.authors))
                         if book_authors in d['authors']:
-                            book.in_library = True
-                            book.application_id = \
-                                    d['authors'][book_authors].application_id
                             if update_metadata:
                                 book.smart_update(d['authors'][book_authors],
                                                   replace_metadata=True)
-                        elif book_authors in d['author_sort']:
                             book.in_library = True
                             book.application_id = \
-                                d['author_sort'][book_authors].application_id
+                                    d['authors'][book_authors].application_id
+                        elif book_authors in d['author_sort']:
                             if update_metadata:
                                 book.smart_update(d['author_sort'][book_authors],
                                                   replace_metadata=True)
+                            book.in_library = True
+                            book.application_id = \
+                                d['author_sort'][book_authors].application_id
                 else:
                     # Book definitely not matched. Clear its application ID
                     book.application_id = None
