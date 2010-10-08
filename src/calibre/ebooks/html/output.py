@@ -46,6 +46,10 @@ class HTMLOutput(OutputFormatPlugin):
             wrap.append(build_node(oeb_book.toc))
             return wrap
 
+    def generate_html_toc(self, oeb_book, ref_url, output_dir):
+        root = self.generate_toc(oeb_book, ref_url, output_dir)
+        return etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=False)
+
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         self.log  = log
         self.opts = opts
@@ -56,8 +60,7 @@ class HTMLOutput(OutputFormatPlugin):
 
         with open(output_file, 'wb') as f:
             link_prefix=basename(output_dir)+'/'
-            root = self.generate_toc(oeb_book, output_dir, output_dir)
-            html_toc = etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=False)
+            html_toc = self.generate_html_toc(oeb_book, output_file, output_dir)
             templite = Templite(P('templates/html_export_default_index.tmpl', data=True))
             t = templite.render(toc=html_toc)
             f.write(t)
@@ -94,7 +97,8 @@ class HTMLOutput(OutputFormatPlugin):
                 else:
                     prevLink = None
                 templite = Templite(P('templates/html_export_default.tmpl', data=True))
-                t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink)
+                toc = lambda: self.generate_html_toc(oeb_book, path, output_dir)
+                t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink, toc=toc)
                 with open(path, 'wb') as f:
                     f.write(t)
                 item.unload_data_from_memory(memory=path)
