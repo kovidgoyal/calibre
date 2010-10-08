@@ -985,7 +985,8 @@ def command_restore_database(args, dbpath):
         return 1
 
     if not opts.really_do_it:
-        print _('You must provide the --really-do-it option to do a recovery\n')
+        prints(_('You must provide the --really-do-it option to do a'
+            ' recovery'), end='\n\n')
         parser.print_help()
         return 1
 
