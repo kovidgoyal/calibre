@@ -958,17 +958,17 @@ def command_check_library(args, dbpath):
 
 def restore_database_option_parser():
     parser = get_parser(_(
-    '''
-    %prog restore_database [options]
+    '''\
+%prog restore_database [options]
 
-    Restore this database from the metadata stored in OPF files in each
-    directory of the calibre library. This is useful if your metadata.db file
-    has been corrupted.
+Restore this database from the metadata stored in OPF files in each
+directory of the calibre library. This is useful if your metadata.db file
+has been corrupted.
 
-    WARNING: This command completely regenerates your database. You will lose
-    all saved searches, user categories, plugboards, stored per-book conversion
-    settings, and custom recipes. Restored metadata will only be as accurate as
-    what is found in the OPF files.
+WARNING: This command completely regenerates your database. You will lose
+all saved searches, user categories, plugboards, stored per-book conversion
+settings, and custom recipes. Restored metadata will only be as accurate as
+what is found in the OPF files.
     '''))
 
     parser.add_option('-r', '--really-do-it', default=False, action='store_true',
