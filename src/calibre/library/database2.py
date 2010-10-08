@@ -681,7 +681,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi = self.data.get(idx, self.FIELD_MAP['all_metadata'],
                            row_is_id = index_is_id)
         if mi is not None:
-            if get_cover and mi.cover is None:
+            if get_cover:
+                # Always get the cover, because the value can be wrong if the
+                # original mi was from the OPF
                 mi.cover = self.cover(idx, index_is_id=index_is_id, as_path=True)
             return mi
 
@@ -1281,8 +1283,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             doit(self.set_series, id, mi.series, notify=False, commit=False)
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1]) # doesn't use commit
-        elif mi.cover is not None and os.access(mi.cover, os.R_OK):
-            doit(self.set_cover, id, lopen(mi.cover, 'rb'))
+        elif mi.cover is not None:
+            if os.access(mi.cover, os.R_OK):
+                with lopen(mi.cover, 'rb') as f:
+                    doit(self.set_cover, id, f)
         if mi.tags:
             doit(self.set_tags, id, mi.tags, notify=False, commit=False)
         if mi.comments:
@@ -2157,6 +2161,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 with lopen(path, 'rb') as f:
                     self.add_format(id, ext, f, index_is_id=True)
+        # Mark the book dirty, It probably already has been done by
+        # set_metadata, but probably isn't good enough
+        self.dirtied([id], commit=False)
         self.conn.commit()
         self.data.refresh_ids(self, [id]) # Needed to update format list and size
         if notify:
