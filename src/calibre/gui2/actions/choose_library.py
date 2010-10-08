@@ -147,26 +147,32 @@ class ChooseLibraryAction(InterfaceAction):
         self.qs_locations = [i[1] for i in locations]
         self.rename_menu.clear()
         self.delete_menu.clear()
-        quick_actions = []
+        quick_actions, rename_actions, delete_actions = [], [], []
         for name, loc in locations:
             ac = self.quick_menu.addAction(name, Dispatcher(partial(self.switch_requested,
                 loc)))
             quick_actions.append(ac)
-            self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested,
+            ac = self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested,
                 name, loc)))
-            self.delete_menu.addAction(name, Dispatcher(partial(self.delete_requested,
+            rename_actions.append(ac)
+            ac = self.delete_menu.addAction(name, Dispatcher(partial(self.delete_requested,
                 name, loc)))
+            delete_actions.append(ac)
 
+        qs_actions = []
         for i, x in enumerate(locations[:len(self.switch_actions)]):
             name, loc = x
             ac = self.switch_actions[i]
             ac.setText(name)
             ac.setVisible(True)
+            qs_actions.append(ac)
 
         self.quick_menu_action.setVisible(bool(locations))
         self.rename_menu_action.setVisible(bool(locations))
         self.delete_menu_action.setVisible(bool(locations))
-        self.gui.location_manager.set_switch_actions(quick_actions)
+        self.gui.location_manager.set_switch_actions(quick_actions,
+                rename_actions, delete_actions, qs_actions,
+                self.action_choose)
 
 
     def location_selected(self, loc):
