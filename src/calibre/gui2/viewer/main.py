@@ -166,6 +166,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def __init__(self, pathtoebook=None, debug_javascript=False):
         MainWindow.__init__(self, None)
         self.setupUi(self)
+        self.show_toc_on_open = False
+        self.current_book_has_toc = False
         self.base_window_title = unicode(self.windowTitle())
         self.iterator          = None
         self.current_page      = None
@@ -214,11 +216,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_metadata.setCheckable(True)
         self.action_metadata.setShortcut(Qt.CTRL+Qt.Key_I)
         self.action_table_of_contents.setCheckable(True)
+        self.toc.setMinimumWidth(80)
         self.action_reference_mode.setCheckable(True)
         self.connect(self.action_reference_mode, SIGNAL('triggered(bool)'),
                      lambda x: self.view.reference_mode(x))
         self.connect(self.action_metadata, SIGNAL('triggered(bool)'), lambda x:self.metadata.setVisible(x))
-        self.connect(self.action_table_of_contents, SIGNAL('triggered(bool)'), lambda x:self.toc.setVisible(x))
+        self.connect(self.action_table_of_contents, SIGNAL('toggled(bool)'), lambda x:self.toc.setVisible(x))
         self.connect(self.action_copy, SIGNAL('triggered(bool)'), self.copy)
         self.connect(self.action_font_size_larger, SIGNAL('triggered(bool)'),
                      self.font_size_larger)
@@ -259,7 +262,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             f = functools.partial(self.load_ebook, pathtoebook)
             QTimer.singleShot(50, f)
         self.view.setMinimumSize(100, 100)
-        self.splitter.setSizes([1, 300])
         self.toc.setCursor(Qt.PointingHandCursor)
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
         self.tool_bar2.setContextMenuPolicy(Qt.PreventContextMenu)
@@ -285,6 +287,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def save_state(self):
         state = str(self.saveState(self.STATE_VERSION))
         dynamic['viewer_toolbar_state'] = state
+        dynamic.set('viewer_window_geometry', self.saveGeometry())
+        if self.current_book_has_toc:
+            dynamic.set('viewer_toc_isvisible', bool(self.toc.isVisible()))
+        if self.toc.isVisible():
+            dynamic.set('viewer_splitter_state',
+                bytearray(self.splitter.saveState()))
 
     def restore_state(self):
         state = dynamic.get('viewer_toolbar_state', None)
@@ -609,10 +617,15 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             title = self.iterator.opf.title
             if not title:
                 title = os.path.splitext(os.path.basename(pathtoebook))[0]
-            self.action_table_of_contents.setDisabled(not self.iterator.toc)
             if self.iterator.toc:
                 self.toc_model = TOC(self.iterator.toc)
                 self.toc.setModel(self.toc_model)
+                if self.show_toc_on_open:
+                    self.action_table_of_contents.setChecked(True)
+            else:
+                self.action_table_of_contents.setChecked(False)
+            self.action_table_of_contents.setDisabled(not self.iterator.toc)
+            self.current_book_has_toc = bool(self.iterator.toc)
             self.current_title = title
             self.setWindowTitle(self.base_window_title+' - '+title)
             self.pos.setMaximum(sum(self.iterator.pages))
@@ -656,22 +669,21 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         return self
 
     def __exit__(self, *args):
-        self.write_settings()
         if self.iterator is not None:
             self.save_current_position()
             self.iterator.__exit__(*args)
 
-    def write_settings(self):
-        dynamic.set('viewer_window_geometry', self.saveGeometry())
-
     def read_settings(self):
         c = config().parse()
-        wg = dynamic['viewer_window_geometry']
-        if wg is not None and c.remember_window_size:
-            self.restoreGeometry(wg)
-
-
-
+        self.splitter.setSizes([1, 300])
+        if c.remember_window_size:
+            wg = dynamic.get('viewer_window_geometry', None)
+            if wg is not None:
+                self.restoreGeometry(wg)
+            ss = dynamic.get('viewer_splitter_state', None)
+            if ss is not None:
+                self.splitter.restoreState(ss)
+            self.show_toc_on_open = dynamic.get('viewer_toc_isvisible', False)
 
 def config(defaults=None):
     desc = _('Options to control the ebook viewer')

@@ -299,7 +299,9 @@ class Series(Base):
         val, s_index = self.gui_val
         val = self.normalize_ui_val(val)
         if val != self.initial_val or s_index != self.initial_index:
-            if s_index == 0.0:
+            if val == '':
+                val = s_index = None
+            elif s_index == 0.0:
                 if tweaks['series_index_auto_increment'] == 'next':
                     s_index = self.db.get_next_cc_series_num_for(val,
                                                              num=self.col_id)
@@ -488,7 +490,7 @@ class BulkSeries(BulkBase):
 
     def commit(self, book_ids, notify=False):
         val, update_indices, force_start, at_value, clear = self.gui_val
-        val = '' if clear else self.normalize_ui_val(val)
+        val = None if clear else self.normalize_ui_val(val)
         if clear or val != '':
             extras = []
             next_index = self.db.get_next_cc_series_num_for(val, num=self.col_id)
