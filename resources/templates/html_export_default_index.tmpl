@@ -2,10 +2,24 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
+<link rel="schema.DCTERMS" href="http://purl.org/dc/terms/" />
+
 <title></title>
+${for item_name in meta.items:}$
+  ${for item in meta[item_name]:}$
+    ${if namespace(item.term) == DC11_NS:}$
+      <meta ${print 'name="DC.'+barename(item.term)+'"',}$ ${print 'content="'+item.value+'"',}$ />
+    ${:endif}$
+  ${:endfor}$
+${:endfor}$
+
 </head>
 <body>
 
+
+<h1>Table of contents</h1>
 ${toc}$
 
 </body>

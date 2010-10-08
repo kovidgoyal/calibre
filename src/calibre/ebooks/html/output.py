@@ -10,7 +10,7 @@ from os.path import dirname, abspath, relpath, exists, basename
 from lxml import etree
 from templite import Templite
 
-from calibre.ebooks.oeb.base import element
+from calibre.ebooks.oeb.base import element, namespace, barename, DC11_NS
 from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
 
@@ -25,6 +25,9 @@ class HTMLOutput(OutputFormatPlugin):
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
 
     def generate_toc(self, oeb_book, ref_url, output_dir):
+        '''
+        Generate table of contents
+        '''
         with CurrentDir(output_dir):
             def build_node(current_node, parent=None):
                 if parent is None:
@@ -62,7 +65,8 @@ class HTMLOutput(OutputFormatPlugin):
             link_prefix=basename(output_dir)+'/'
             html_toc = self.generate_html_toc(oeb_book, output_file, output_dir)
             templite = Templite(P('templates/html_export_default_index.tmpl', data=True))
-            t = templite.render(toc=html_toc)
+            print oeb_book.metadata.items
+            t = templite.render(toc=html_toc, meta=oeb_book.metadata, namespace=lambda x:namespace(x), barename=lambda x:barename(x), DC11_NS=DC11_NS)
             f.write(t)
 
         with CurrentDir(output_dir):
@@ -83,27 +87,38 @@ class HTMLOutput(OutputFormatPlugin):
                 path = abspath(unquote(item.href))
                 dir = dirname(path)
                 root = item.data.getroottree()
+
+                # get & clean HTML <HEAD>-data
                 head = root.xpath('//h:head', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
                 head_content = etree.tostring(head, pretty_print=True, encoding='utf-8')
                 head_content = re.sub(r'\<\/?head.*\>', '', head_content)
                 head_content = re.sub(re.compile(r'\<style.*\/style\>', re.M|re.S), '', head_content)
 
+                # get & clean HTML <BODY>-data
                 body = root.xpath('//h:body', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
                 ebook_content = etree.tostring(body, pretty_print=True, encoding='utf-8')
                 ebook_content = re.sub(r'\<\/?body.*\>', '', ebook_content)
+
+                # generate link to next page
                 if item.spine_position+1 < len(oeb_book.spine):
                     nextLink = oeb_book.spine[item.spine_position+1].href
                     nextLink = relpath(abspath(nextLink), dir)
                 else:
                     nextLink = None
+
+                # generate link to previous page
                 if item.spine_position > 0:
                     prevLink = oeb_book.spine[item.spine_position-1].href
                     prevLink = relpath(abspath(prevLink), dir)
                 else:
                     prevLink = None
+
+                # render template
                 templite = Templite(P('templates/html_export_default.tmpl', data=True))
                 toc = lambda: self.generate_html_toc(oeb_book, path, output_dir)
                 t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink, toc=toc, head_content=head_content)
+
+                # write html to file
                 with open(path, 'wb') as f:
                     f.write(t)
                 item.unload_data_from_memory(memory=path)
