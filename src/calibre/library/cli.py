@@ -989,7 +989,6 @@ def command_restore_database(args, dbpath):
         parser.print_help()
         return 1
 
-    return
     if opts.library_path is not None:
         dbpath = opts.library_path
 
