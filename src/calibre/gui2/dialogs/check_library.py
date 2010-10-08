@@ -32,7 +32,7 @@ class CheckLibraryDialog(QDialog):
         self.copy = QPushButton(_('Copy to clipboard'))
         self.copy.setDefault(False)
         self.copy.clicked.connect(self.copy_to_clipboard)
-        self.ok = QPushButton('&OK')
+        self.ok = QPushButton('&Done')
         self.ok.setDefault(True)
         self.ok.clicked.connect(self.accept)
         self.cancel = QPushButton('&Cancel')

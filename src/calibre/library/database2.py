@@ -681,7 +681,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi = self.data.get(idx, self.FIELD_MAP['all_metadata'],
                            row_is_id = index_is_id)
         if mi is not None:
-            if get_cover and mi.cover is None:
+            if get_cover:
+                # Always get the cover, because the value can be wrong if the
+                # original mi was from the OPF
                 mi.cover = self.cover(idx, index_is_id=index_is_id, as_path=True)
             return mi
 
@@ -1281,8 +1283,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             doit(self.set_series, id, mi.series, notify=False, commit=False)
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1]) # doesn't use commit
-        elif mi.cover is not None and os.access(mi.cover, os.R_OK):
-            doit(self.set_cover, id, lopen(mi.cover, 'rb'))
+        elif mi.cover is not None:
+            if os.access(mi.cover, os.R_OK):
+                with lopen(mi.cover, 'rb') as f:
+                    doit(self.set_cover, id, f)
         if mi.tags:
             doit(self.set_tags, id, mi.tags, notify=False, commit=False)
         if mi.comments:
@@ -1462,6 +1466,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if notify:
                 self.notify('metadata', [id])
 
+    def set_uuid(self, id, uuid, notify=True, commit=True):
+        if uuid:
+            self.conn.execute('UPDATE books SET uuid=? WHERE id=?', (uuid, id))
+            self.data.set(id, self.FIELD_MAP['uuid'], uuid, row_is_id=True)
+            self.dirtied([id], commit=False)
+            if commit:
+                self.conn.commit()
+            if notify:
+                self.notify('metadata', [id])
+
     # Convenience methods for tags_list_editor
     # Note: we generally do not need to refresh_ids because library_view will
     # refresh everything.
@@ -1485,7 +1499,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return result
 
     def rename_tag(self, old_id, new_name):
-        new_name = new_name.strip()
+        # It is possible that new_name is in fact a set of names. Split it on
+        # comma to find out. If it is, then rename the first one and append the
+        # rest
+        new_names = [t.strip() for t in new_name.strip().split(',') if t.strip()]
+        new_name = new_names[0]
+        new_names = new_names[1:]
+
+        # get the list of books that reference the tag being changed
+        books = self.conn.get('''SELECT book from books_tags_link
+                                 WHERE tag=?''', (old_id,))
+        books = [b[0] for b in books]
+
         new_id = self.conn.get(
                     '''SELECT id from tags
                        WHERE name=?''', (new_name,), all=False)
@@ -1501,9 +1526,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # all the changes. To get around this, we first delete any links
             # to the new_id from books referencing the old_id, so that
             # renaming old_id to new_id will be unique on the book
-            books = self.conn.get('''SELECT book from books_tags_link
-                                     WHERE tag=?''', (old_id,))
-            for (book_id,) in books:
+            for book_id in books:
                 self.conn.execute('''DELETE FROM books_tags_link
                                      WHERE book=? and tag=?''', (book_id, new_id))
 
@@ -1512,7 +1535,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                  WHERE tag=?''',(new_id, old_id,))
             # Get rid of the no-longer used publisher
             self.conn.execute('DELETE FROM tags WHERE id=?', (old_id,))
-        self.dirty_books_referencing('tags', new_id, commit=False)
+
+        if new_names:
+            # have some left-over names to process. Add them to the book.
+            for book_id in books:
+                self.set_tags(book_id, new_names, append=True, notify=False,
+                              commit=False)
+        self.dirtied(books, commit=False)
         self.conn.commit()
 
     def delete_tag_using_id(self, id):
@@ -2110,7 +2139,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return None, len(ids)
 
     def import_book(self, mi, formats, notify=True, import_hooks=True,
-            apply_import_tags=True):
+            apply_import_tags=True, preserve_uuid=False):
         series_index = 1.0 if mi.series_index is None else mi.series_index
         if apply_import_tags:
             self._add_newbook_tag(mi)
@@ -2133,6 +2162,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.pubdate is None:
             mi.pubdate = utcnow()
         self.set_metadata(id, mi, ignore_errors=True)
+        if preserve_uuid and mi.uuid:
+            self.set_uuid(id, mi.uuid, commit=False)
         for path in formats:
             ext = os.path.splitext(path)[1][1:].lower()
             if ext == 'opf':
@@ -2142,6 +2173,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 with lopen(path, 'rb') as f:
                     self.add_format(id, ext, f, index_is_id=True)
+        # Mark the book dirty, It probably already has been done by
+        # set_metadata, but probably isn't good enough
+        self.dirtied([id], commit=False)
         self.conn.commit()
         self.data.refresh_ids(self, [id]) # Needed to update format list and size
         if notify:

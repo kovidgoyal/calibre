@@ -836,11 +836,11 @@ class TagBrowserMixin(object): # {{{
                 rename_func = partial(db.rename_custom_item, label=cc_label)
                 delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
             if rename_func:
+                for item in to_delete:
+                    delete_func(item)
                 for text in to_rename:
                         for old_id in to_rename[text]:
                             rename_func(old_id, new_name=unicode(text))
-                for item in to_delete:
-                    delete_func(item)
 
             # Clean up everything, as information could have changed for many books.
             self.library_view.model().refresh()
