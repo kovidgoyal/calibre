@@ -18,7 +18,7 @@ from calibre.utils.config import prefs, tweaks
 
 class Worker(Thread):
 
-    def __init__(self, ids, db, loc, progress, done):
+    def __init__(self, ids, db, loc, progress, done, delete_after):
         Thread.__init__(self)
         self.ids = ids
         self.processed = set([])
@@ -27,6 +27,7 @@ class Worker(Thread):
         self.error = None
         self.progress = progress
         self.done = done
+        self.delete_after = delete_after
 
     def run(self):
         try:
@@ -68,7 +69,8 @@ class Worker(Thread):
                         self.add_formats(identical_book, paths, newdb, replace=False)
             if not added:
                 newdb.import_book(mi, paths, notify=False, import_hooks=False,
-                        apply_import_tags=tweaks['add_new_book_tags_when_importing_books'])
+                    apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
+                    preserve_uuid=self.delete_after)
                 co = self.db.conversion_options(x, 'PIPE')
                 if co is not None:
                     newdb.set_conversion_options(x, 'PIPE', co)
@@ -134,7 +136,8 @@ class CopyToLibraryAction(InterfaceAction):
             self.pd.set_msg(_('Copying') + ' ' + title)
             self.pd.set_value(idx)
 
-        self.worker = Worker(ids, db, loc, Dispatcher(progress), Dispatcher(self.pd.accept))
+        self.worker = Worker(ids, db, loc, Dispatcher(progress),
+                             Dispatcher(self.pd.accept), delete_after)
         self.worker.start()
 
         self.pd.exec_()

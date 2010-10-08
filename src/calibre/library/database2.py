@@ -1466,6 +1466,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if notify:
                 self.notify('metadata', [id])
 
+    def set_uuid(self, id, uuid, notify=True, commit=True):
+        if uuid:
+            self.conn.execute('UPDATE books SET uuid=? WHERE id=?', (uuid, id))
+            self.data.set(id, self.FIELD_MAP['uuid'], uuid, row_is_id=True)
+            self.dirtied([id], commit=False)
+            if commit:
+                self.conn.commit()
+            if notify:
+                self.notify('metadata', [id])
+
     # Convenience methods for tags_list_editor
     # Note: we generally do not need to refresh_ids because library_view will
     # refresh everything.
@@ -2129,7 +2139,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return None, len(ids)
 
     def import_book(self, mi, formats, notify=True, import_hooks=True,
-            apply_import_tags=True):
+            apply_import_tags=True, preserve_uuid=False):
         series_index = 1.0 if mi.series_index is None else mi.series_index
         if apply_import_tags:
             self._add_newbook_tag(mi)
@@ -2152,6 +2162,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.pubdate is None:
             mi.pubdate = utcnow()
         self.set_metadata(id, mi, ignore_errors=True)
+        if preserve_uuid and mi.uuid:
+            self.set_uuid(id, mi.uuid, commit=False)
         for path in formats:
             ext = os.path.splitext(path)[1][1:].lower()
             if ext == 'opf':
