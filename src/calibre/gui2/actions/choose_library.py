@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, shutil
 from functools import partial
 
-from PyQt4.Qt import QMenu, Qt, QInputDialog
+from PyQt4.Qt import QMenu, Qt, QInputDialog, QThread, pyqtSignal, QProgressDialog
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
@@ -16,6 +16,7 @@ from calibre.utils.config import prefs
 from calibre.gui2 import gprefs, warning_dialog, Dispatcher, error_dialog, \
     question_dialog, info_dialog
 from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.dialogs.check_library import CheckLibraryDialog
 
 class LibraryUsageStats(object): # {{{
 
@@ -75,6 +76,72 @@ class LibraryUsageStats(object): # {{{
         self.write_stats()
 # }}}
 
+# Check Integrity {{{
+
+class VacThread(QThread):
+
+    check_done = pyqtSignal(object, object)
+    callback   = pyqtSignal(object, object)
+
+    def __init__(self, parent, db):
+        QThread.__init__(self, parent)
+        self.db = db
+        self._parent = parent
+
+    def run(self):
+        err = bad = None
+        try:
+            bad = self.db.check_integrity(self.callbackf)
+        except:
+            import traceback
+            err = traceback.format_exc()
+        self.check_done.emit(bad, err)
+
+    def callbackf(self, progress, msg):
+        self.callback.emit(progress, msg)
+
+
+class CheckIntegrity(QProgressDialog):
+
+    def __init__(self, db, parent=None):
+        QProgressDialog.__init__(self, parent)
+        self.db = db
+        self.setCancelButton(None)
+        self.setMinimum(0)
+        self.setMaximum(100)
+        self.setWindowTitle(_('Checking database integrity'))
+        self.setAutoReset(False)
+        self.setValue(0)
+
+        self.vthread = VacThread(self, db)
+        self.vthread.check_done.connect(self.check_done,
+                type=Qt.QueuedConnection)
+        self.vthread.callback.connect(self.callback, type=Qt.QueuedConnection)
+        self.vthread.start()
+
+    def callback(self, progress, msg):
+        self.setLabelText(msg)
+        self.setValue(int(100*progress))
+
+    def check_done(self, bad, err):
+        if err:
+            error_dialog(self, _('Error'),
+                    _('Failed to check database integrity'),
+                    det_msg=err, show=True)
+        elif bad:
+            titles = [self.db.title(x, index_is_id=True) for x in bad]
+            det_msg = '\n'.join(titles)
+            warning_dialog(self, _('Some inconsistencies found'),
+                    _('The following books had formats listed in the '
+                        'database that are not actually available. '
+                        'The entries for the formats have been removed. '
+                        'You should check them manually. This can '
+                        'happen if you manipulate the files in the '
+                        'library folder directly.'), det_msg=det_msg, show=True)
+        self.reset()
+
+# }}}
+
 class ChooseLibraryAction(InterfaceAction):
 
     name = 'Choose Library'
@@ -117,11 +184,28 @@ class ChooseLibraryAction(InterfaceAction):
 
         self.rename_separator = self.choose_menu.addSeparator()
 
-        self.create_action(spec=(_('Library backup status...'), 'lt.png', None,
-            None), attr='action_backup_status')
-        self.action_backup_status.triggered.connect(self.backup_status,
-                type=Qt.QueuedConnection)
-        self.choose_menu.addAction(self.action_backup_status)
+        self.maintenance_menu = QMenu(_('Library Maintenance'))
+        ac = self.create_action(spec=(_('Library metadata backup status'),
+                        'lt.png', None, None), attr='action_backup_status')
+        ac.triggered.connect(self.backup_status, type=Qt.QueuedConnection)
+        self.maintenance_menu.addAction(ac)
+        ac = self.create_action(spec=(_('Start backing up metadata of all books'),
+                        'lt.png', None, None), attr='action_backup_metadata')
+        ac.triggered.connect(self.mark_dirty, type=Qt.QueuedConnection)
+        self.maintenance_menu.addAction(ac)
+        ac = self.create_action(spec=(_('Check library'), 'lt.png',
+                                      None, None), attr='action_check_library')
+        ac.triggered.connect(self.check_library, type=Qt.QueuedConnection)
+        self.maintenance_menu.addAction(ac)
+        ac = self.create_action(spec=(_('Check database integrity'), 'lt.png',
+                                      None, None), attr='action_check_database')
+        ac.triggered.connect(self.check_database, type=Qt.QueuedConnection)
+        self.maintenance_menu.addAction(ac)
+        ac = self.create_action(spec=(_('Recover database'), 'lt.png',
+                                    None, None), attr='action_restore_database')
+        ac.triggered.connect(self.restore_database, type=Qt.QueuedConnection)
+        self.maintenance_menu.addAction(ac)
+        self.choose_menu.addMenu(self.maintenance_menu)
 
     def library_name(self):
         db = self.gui.library_view.model().db
@@ -233,6 +317,37 @@ class ChooseLibraryAction(InterfaceAction):
         info_dialog(self.gui, _('Backup status'), '<p>'+
                 _('Book metadata files remaining to be written: %s') % dirty_text,
                 show=True)
+
+    def mark_dirty(self):
+        db = self.gui.library_view.model().db
+        db.dirtied(list(db.data.iterallids()))
+        info_dialog(self.gui, _('Backup metadata'),
+            _('Metadata will be backed up while calibre is running, at the '
+              'rate of approximately 1 book per second.'), show=True)
+
+    def check_library(self):
+        db = self.gui.library_view.model().db
+        d = CheckLibraryDialog(self.gui.parent(), db)
+        d.exec_()
+
+    def check_database(self, *args):
+        m = self.gui.library_view.model()
+        m.stop_metadata_backup()
+        try:
+            d = CheckIntegrity(m.db, self.gui)
+            d.exec_()
+        finally:
+            m.start_metadata_backup()
+
+    def restore_database(self):
+        info_dialog(self.gui, _('Recover database'),
+            _(
+              'This command rebuilds your calibre database from the information '
+              'stored by calibre in the OPF files.' + '<p>' +
+              'This function is not currently available in the GUI. You can '
+              'recover your database using the \'calibredb restore_database\' '
+              'command line function.'
+              ), show=True)
 
     def switch_requested(self, location):
         if not self.change_library_allowed():

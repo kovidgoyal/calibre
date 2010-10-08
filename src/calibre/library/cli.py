@@ -961,13 +961,19 @@ def restore_database_option_parser():
     '''
     %prog restore_database [options]
 
-    Restore this database from the metadata stored in OPF
-    files in each directory of the calibre library. This is
-    useful if your metadata.db file has been corrupted.
+    Restore this database from the metadata stored in OPF files in each
+    directory of the calibre library. This is useful if your metadata.db file
+    has been corrupted.
 
-    WARNING: This completely regenerates your database. You will
-    lose stored per-book conversion settings and custom recipes.
+    WARNING: This command completely regenerates your database. You will lose
+    all saved searches, user categories, plugboards, stored per-book conversion
+    settings, and custom recipes. Restored metadata will only be as accurate as
+    what is found in the OPF files.
     '''))
+
+    parser.add_option('-r', '--really-do-it', default=False, action='store_true',
+            help=_('Really do the recovery. The command will not run '
+                   'unless this option is specified.'))
     return parser
 
 def command_restore_database(args, dbpath):
@@ -978,6 +984,12 @@ def command_restore_database(args, dbpath):
         parser.print_help()
         return 1
 
+    if not opts.really_do_it:
+        print _('You must provide the --really-do-it option to do a recovery\n')
+        parser.print_help()
+        return 1
+
+    return
     if opts.library_path is not None:
         dbpath = opts.library_path
 
@@ -1028,7 +1040,7 @@ information is the equivalent of what is shown in the tags pane.
     parser.add_option('-r', '--categories', default='', dest='report',
                       help=_("Comma-separated list of category lookup names.\n"
                              "Default: all"))
-    parser.add_option('-w', '--line-width', default=-1, type=int,
+    parser.add_option('-w', '--idth', default=-1, type=int,
                       help=_('The maximum width of a single line in the output. '
                              'Defaults to detecting screen size.'))
     parser.add_option('-s', '--separator', default=',',
