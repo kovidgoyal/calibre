@@ -108,6 +108,16 @@ class PDNOVEL(USBMS):
             with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
                 coverfile.write(coverdata[2])
 
+class PDNOVEL_KOBO(PDNOVEL):
+    name = 'Pandigital Kobo device interface'
+    gui_name = 'PD Novel (Kobo)'
+    description = _('Communicate with the Pandigital Novel')
+
+    BCD         = [0x222]
+
+    EBOOK_DIR_MAIN = 'eBooks/Kobo'
+
+
 class VELOCITYMICRO(USBMS):
     name = 'VelocityMicro device interface'
     gui_name = 'VelocityMicro'
