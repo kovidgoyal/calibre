@@ -417,14 +417,16 @@ class DevicePlugin(Plugin):
         select a specific plugboard. This method is called immediately before
         add_books and sync_booklists.
 
-        pb_func is a callable with the following signature:
+        pb_func is a callable with the following signature::
             def pb_func(device_name, format, plugboards)
+
         You give it the current device name (either the class name or
         DEVICE_PLUGBOARD_NAME), the format you are interested in (a 'real'
         format or 'device_db'), and the plugboards (you were given those by
         set_plugboards, the same place you got this method).
 
-        Return value: None or a single plugboard instance.
+        :return: None or a single plugboard instance.
+
         '''
         pass
 

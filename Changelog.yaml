@@ -32,7 +32,7 @@
 
     - title: "When saving cover images don't re-encode the image data unless absolutely neccessary. This prevents information loss due to JPEG re-compression"
 
-    - title: "Fix regression that broke setting of MOBI metadata for some files"
+    - title: "Fix regression that broke setting of metadata for some MOBI/AZW/PRC files"
 
     - title: "Fix regression in last release that could cause download of metadata for multiple files to only download the metadata for a few of them"
       tickets: [7071]

@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.7.22\n"
-"POT-Creation-Date: 2010-10-08 12:55+MDT\n"
-"PO-Revision-Date: 2010-10-08 12:55+MDT\n"
+"Project-Id-Version: calibre 0.7.23\n"
+"POT-Creation-Date: 2010-10-08 14:22+MDT\n"
+"PO-Revision-Date: 2010-10-08 14:22+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -621,43 +621,43 @@ msgstr ""
 msgid "Updating device metadata listing..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:333
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:372
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:941
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:981
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2939
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2979
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:335
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:374
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:943
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:983
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2945
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2985
 msgid "%d of %d"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:379
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:986
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2985
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:381
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:988
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2991
 msgid "finished"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:554
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:556
 msgid "Use Series as Category in iTunes/iBooks"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:556
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:558
 msgid "Cache covers from iTunes/iBooks"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:568
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:570
 msgid ""
 "Some books not found in iTunes database.\n"
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:905
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:907
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2536
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2542
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:817
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:823
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:853
@@ -669,7 +669,7 @@ msgstr ""
 msgid "News"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2537
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2543
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:556
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1970
@@ -677,7 +677,7 @@ msgstr ""
 msgid "Catalog"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2843
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2849
 msgid "Communicate with iTunes."
 msgstr ""
 
@@ -3022,7 +3022,7 @@ msgid "Note that the actual library folder will be renamed."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:278
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:185
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:190
 msgid "Already exists"
 msgstr ""
 
@@ -6348,7 +6348,7 @@ msgid "Cannot download news as no internet connection is active"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:198
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:278
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:283
 msgid "Recipes"
 msgstr ""
 
@@ -6735,82 +6735,82 @@ msgstr ""
 msgid "<p>Explode the ePub to display contents in a file browser window. To tweak individual files, right-click, then 'Open with...' your editor of choice. When tweaks are complete, close the file browser window <b>and the editor windows you used to edit files in the epub</b>.</p><p>Rebuild the ePub, updating your calibre library.</p>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:132
 msgid "No recipe selected"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:137
 msgid "The attached file: %s is a recipe to download %s."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:138
 msgid "Recipe for "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:150
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:260
 msgid "Switch to Advanced mode"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:156
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:164
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:169
 msgid "Switch to Basic mode"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:179
 msgid "Feed must have a title"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:180
 msgid "The feed must have a title"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:179
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:184
 msgid "Feed must have a URL"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:185
 msgid "The feed %s must have a URL"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:191
 msgid "This feed has already been added to the recipe"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:227
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:236
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:286
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:232
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:241
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:291
 msgid "Invalid input"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:228
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:237
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:287
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:233
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:242
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:292
 msgid "<p>Could not create recipe. Error:<br>%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:241
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:263
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:290
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:246
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:268
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:295
 msgid "Replace recipe?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:242
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:264
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:291
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:247
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:269
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:296
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:257
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:262
 msgid "Pick recipe"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:257
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:262
 msgid "Pick the recipe to customize"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:277
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:282
 msgid "Choose a recipe file"
 msgstr ""
 
