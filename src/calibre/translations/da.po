@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-03 21:03+0000\n"
-"PO-Revision-Date: 2010-10-04 16:17+0000\n"
+"PO-Revision-Date: 2010-10-07 01:46+0000\n"
 "Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-05 04:55+0000\n"
+"X-Launchpad-Export-Date: 2010-10-08 04:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -719,7 +719,7 @@ msgstr "afsluttet"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:545
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr "Brug Series som kategori i iTunes/iBooks"
+msgstr "Brug serier som kategori i iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:547
 msgid "Cache covers from iTunes/iBooks"
@@ -1865,12 +1865,12 @@ msgstr "Angiv e-bogsudgiver."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:474
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:60
 msgid "Set the series this ebook belongs to."
-msgstr "Angiv e-bogens ønskede bogserie."
+msgstr "Angiv serie som e-bogen skal høre til."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:478
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:62
 msgid "Set the index of the book in this series."
-msgstr "Angiv bogens indeks anvendt i bogserien."
+msgstr "Angiv bogens indeks i denne serie."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:482
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:64
@@ -1911,7 +1911,7 @@ msgstr "Kunne ikke finde en e-bog i arkivet"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:664
 msgid "Values of series index and rating must be numbers. Ignoring"
-msgstr "Serieindeks og vurdering skal være heltal. Ignoreres"
+msgstr "Serie-indeks og vurdering skal være heltal. Ignoreres"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:671
 msgid "Failed to parse date/time"
@@ -2684,7 +2684,7 @@ msgstr "Downloader sociale metadata fra amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:230
 msgid "Downloads series/tags/rating information from librarything.com"
-msgstr "Downloader serie/mærke/vurdering information fra librarything.com"
+msgstr "Henter serie-/mærke-/vurdering-information fra librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:109
 msgid ""
@@ -4863,7 +4863,7 @@ msgstr "Sortér numre som tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
 msgid "Include 'Series' Section"
-msgstr "Inkludér 'Series' sektion"
+msgstr "Inkludér 'serie' sektion"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:28
 msgid "Tab template for catalog.ui"
@@ -5897,7 +5897,7 @@ msgstr " indeks:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:460
 msgid "Remove series"
-msgstr "Fjerner series"
+msgstr "Fjerner serier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:463
 msgid "Automatically number books"
@@ -6785,11 +6785,11 @@ msgstr "Fjern alt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:336
 msgid "If checked, the series will be cleared"
-msgstr "Hvis hakket af, vil series blive fjernet"
+msgstr "Hvis hakket af, vil serier blive fjernet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:337
 msgid "Clear series"
-msgstr "Fjern series"
+msgstr "Fjern serier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:338
 msgid ""
@@ -6798,10 +6798,11 @@ msgid ""
 "you selected them. So if you selected Book A and then Book B,\n"
 "Book A will have series number 1 and Book B series number 2."
 msgstr ""
-"Hvis ikke hakket af, vil series nummeret for bøgerne blive sat til 1.\n"
-"Hvis hakket af, valgte bøger vil automatisk blive nummeret, i rækkefølgen\n"
+"Hvis ikke hakket af, vil serie-nummeret for bøgerne blive sat til 1.\n"
+"Hvis hakket af, valgte bøgers serie vil automatisk blive nummeret, i "
+"rækkefølgen\n"
 "du valgte dem i. Så hvis du valgte Bog A og derefter Bog B,\n"
-"vil Bog A have series nummer 1 og Bog B series nummer 2."
+"vil Bog A have serie-nummer 1 og Bog B serie-nummer 2."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:342
 msgid "Automatically number books in this series"
@@ -6813,8 +6814,8 @@ msgid ""
 "for that series. Checking this box will tell calibre to start numbering\n"
 "from the value in the box"
 msgstr ""
-"Series vil normalt blive renummeret fra det højeste nummer i databasen\n"
-"for denne series. Hakkes denne boks vil det gøre at calibre starter "
+"Serier vil normalt blive omnummeret fra det højeste nummer i databasen\n"
+"for den givne serie. Hakkes denne boks vil det gøre at calibre starter "
 "nummerering\n"
 "fra værdien i boksen"
 
@@ -7184,7 +7185,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:396
 msgid "Remove unused series (Series that have no books)"
-msgstr "Fjern ubenyttede serier (Serier uden bøger)"
+msgstr "Fjern ubenyttede serier (serier uden bøger)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:398
 msgid "IS&BN:"
@@ -8084,7 +8085,7 @@ msgstr "Regulært udtryk (?P<series>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:132
 msgid "Series index:"
-msgstr "Serieindeks:"
+msgstr "Serie-indeks:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:133
 msgid "Regular expression (?P<series_index>)"
@@ -8625,7 +8626,7 @@ msgstr "Hentning fejlede"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:219
 msgid "%s %s for: %s"
-msgstr ""
+msgstr "%s %s til: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:278
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:162
@@ -8872,7 +8873,7 @@ msgstr "Lang tekst, ligesom kommentarer, ikke vist i mærke-browser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:28
 msgid "Text column for keeping series-like information"
-msgstr "Tekstkolonne til at holde serie-lignende information"
+msgstr "Tekstsøjle til at gemme serie-lignende information i"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:33
 msgid "Floating point numbers"
@@ -9008,11 +9009,11 @@ msgstr "Format for &datoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:143
 msgid "<p>Field template. Uses the same syntax as save templates."
-msgstr ""
+msgstr "<p>Felt-skabelon. Anvender den samme syntaks som gem-skabeloner."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:144
 msgid "Similar to save templates. For example, {title} {isbn}"
-msgstr ""
+msgstr "Svarer til gem-skabeloner. For eksempel, {title} {isbn}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:145
 msgid "Default: (nothing)"
@@ -9351,6 +9352,22 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
+"Her kan du ændre metadata, som calibre anvender til at opdatere en bog når "
+"den sendes til disk eller til en enhed.\n"
+"\n"
+"Anvend denne dialog til at definere et 'plugboard' til et format (eller alle "
+"formater) og en enhed (eller alle enheder). Plugboardet angiver hvilken "
+"skabelon som er forbundet til hvilket felt. Skabelonen anvendes til at "
+"beregne en værdi - og denne værdi tildeles til det forbundne felt.\n"
+"\n"
+"Ofte vil skabeloner indeholde simple referencer til sammensatte søjler, men "
+"dette er ikke nødvendigt. Du kan anvende enhver skabelon i en kildeboks som "
+"du kan anvende andre steder i calibre.\n"
+"\n"
+"En mulig anvendelse af et plugboard er at ændre titlen til at indeholde "
+"serie-information. En kan være at ændre forfatter-sort, noget som mobi-"
+"brugere kan gøre for at tvinge den til at anvende ';' som kindle kræver. En "
+"tredje kunne være at angive sproget."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"
@@ -9485,6 +9502,8 @@ msgstr "Ethvert brugerdefineret felt"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "The lookup name of any custom field. These names begin with \"#\")"
 msgstr ""
+"Opslagsnavnet til ethvert brugerdefineret felt. Disse navne begynder med "
+"\"#\")"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
@@ -11159,7 +11178,7 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Inkludér 'Series' sektion i katalog.\n"
+"Inkludér 'serie' sektion i katalog.\n"
 "Standard: '%default'\n"
 "Anvendes på: ePub, MOBI output-formater"
 
@@ -11945,7 +11964,7 @@ msgid ""
 "The series number. To get leading zeros use {series_index:0>3s} or "
 "{series_index:>3s} for leading spaces"
 msgstr ""
-"Seriens nummer. For at få foranstillede nuller brug {series_index:0>3s} "
+"Seriens nummer. For at få foranstillede nuller brug {series_index:0>3s} - "
 "eller {series_index:>3s} for foranstillede mellemrum"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:41

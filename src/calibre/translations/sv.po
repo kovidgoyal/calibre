@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-03 21:03+0000\n"
-"PO-Revision-Date: 2010-10-03 21:58+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-06 18:58+0000\n"
+"Last-Translator: Johan Segerstedt <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-04 04:56+0000\n"
+"X-Launchpad-Export-Date: 2010-10-08 04:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -993,7 +993,7 @@ msgstr "Kommunicera med Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:114
 msgid "Communicate with the VelocityMicro"
-msgstr ""
+msgstr "Kommunicera med VelocityMicro"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:132
 msgid "Communicate with the GM2000"
@@ -7993,6 +7993,8 @@ msgid ""
 "For help with writing advanced news recipes, please visit <a "
 "href=\"http://calibre-ebook.com/user_manual/news.html\">User Recipes</a>"
 msgstr ""
+"För instruktioner om hur avancerade nyhetsrecept skrivs, gå till <a "
+"href=\"http://calibre-ebook.com/user_manual/news.html\">användarrecept</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:282
 msgid "Recipe source code (python)"
@@ -9312,11 +9314,11 @@ msgstr "Kontrollera biblioteksmappar för möjliga problem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:43
 msgid "Device currently connected: "
-msgstr ""
+msgstr "Ansluten enhet: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:46
 msgid "Device currently connected: None"
-msgstr ""
+msgstr "Ansluten enhet: ingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:207
 msgid ""

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-03 21:03+0000\n"
-"PO-Revision-Date: 2010-10-04 11:24+0000\n"
+"PO-Revision-Date: 2010-10-07 05:19+0000\n"
 "Last-Translator: Alice Joseph <Unknown>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-05 04:56+0000\n"
+"X-Launchpad-Export-Date: 2010-10-08 04:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -5632,7 +5632,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:321
 msgid "Send metadata to device"
-msgstr ""
+msgstr "Gửi thông tin mô tả sang thiết bị."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:326
 msgid "Send collections to device"
@@ -5640,19 +5640,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:374
 msgid "Upload %d books to device"
-msgstr ""
+msgstr "Tải %d sách lên thiết bị."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:389
 msgid "Delete books from device"
-msgstr ""
+msgstr "Xóa sách trên thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:406
 msgid "Download books from device"
-msgstr ""
+msgstr "Tải sách từ thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:416
 msgid "View book on device"
-msgstr ""
+msgstr "Xem sách trên thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:450
 msgid "Set default send to device action"
@@ -5660,28 +5660,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:456
 msgid "Send to main memory"
-msgstr ""
+msgstr "Gửi đến bộ nhớ chính"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:458
 msgid "Send to storage card A"
-msgstr ""
+msgstr "Gửi đến thẻ lưu trữ/thẻ nhớ A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:460
 msgid "Send to storage card B"
-msgstr ""
+msgstr "Gửi đến thẻ lưu trữ/thẻ nhớ M"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:465
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:474
 msgid "Main Memory"
-msgstr ""
+msgstr "Bộ Nhớ Chính"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:485
 msgid "Send and delete from library"
-msgstr ""
+msgstr "Gửi rồi xóa khỏi thư viện"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:486
 msgid "Send specific format"
-msgstr ""
+msgstr "Gửi định dạng chỉ định"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:522
 msgid "Eject device"
@@ -5696,59 +5696,61 @@ msgstr "Lỗi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:640
 msgid "Error communicating with device"
-msgstr ""
+msgstr "Lỗi giao tiếp với thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:661
 msgid "Select folder to open as device"
-msgstr ""
+msgstr "Chọn thư mục để kết nối như một thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:708
 msgid "Error talking to device"
-msgstr ""
+msgstr "Lỗi giao tiếp với thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:709
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
 msgstr ""
+"Có lỗi tạm thời khi giao tiếp với thiết bị. Xin thử tháo rồi kết nối lại "
+"thiết bị hoặc khởi động lại."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:752
 msgid "Device: "
-msgstr ""
+msgstr "Thiết bị "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:754
 msgid " detected."
-msgstr ""
+msgstr " đã phát hiện."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:846
 msgid "selected to send"
-msgstr ""
+msgstr "được chọn để gửi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:851
 msgid "Choose format to send to device"
-msgstr ""
+msgstr "Chọn định dạng để gửi đến thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:860
 msgid "No device"
-msgstr ""
+msgstr "Không có thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:861
 msgid "Cannot send: No device is connected"
-msgstr ""
+msgstr "Không thể gửi: Chưa có thiết bị được kết nối"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:864
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:868
 msgid "No card"
-msgstr ""
+msgstr "Không có thẻ nhớ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:865
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:869
 msgid "Cannot send: Device has no storage card"
-msgstr ""
+msgstr "Không thể gửi: Thiết bị không có thẻ lưu trữ/thẻ nhớ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:910
 msgid "E-book:"
-msgstr ""
+msgstr "Sách điện tử:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:913
 msgid "Attached, you will find the e-book"
@@ -5765,7 +5767,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:928
 msgid "Sending email to"
-msgstr ""
+msgstr "Gửi thư điện tử đến"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:958
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:966
@@ -5774,32 +5776,34 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1240
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1248
 msgid "No suitable formats"
-msgstr ""
+msgstr "Không có định dạng phù hợp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:959
 msgid "Auto convert the following books before sending via email?"
 msgstr ""
+"Tự động chuyển đổi những cuốn sách sau trước khi gửi qua thư điện tử?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:967
 msgid ""
 "Could not email the following books as no suitable formats were found:"
 msgstr ""
+"Không thể gửi những cuốn sách sau vì chúng không có định dạng phù hợp:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:985
 msgid "Failed to email books"
-msgstr ""
+msgstr "Thất bại khi gửi sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:986
 msgid "Failed to email the following books:"
-msgstr ""
+msgstr "Thất bại khi gửi những cuốn sách sau:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:990
 msgid "Sent by email:"
-msgstr ""
+msgstr "Đã gửi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1018
 msgid "News:"
-msgstr ""
+msgstr "Tin tức:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1019
 msgid "Attached is the"
@@ -5807,13 +5811,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1030
 msgid "Sent news to"
-msgstr ""
+msgstr "Gửi tin đến"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1060
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1122
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1241
 msgid "Auto convert the following books before uploading to the device?"
-msgstr ""
+msgstr "Tự động chuyển đổi những cuốn sách sau trước khi tải lên thiết bị?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1090
 msgid "Sending catalogs to device."
@@ -5821,26 +5825,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1154
 msgid "Sending news to device."
-msgstr ""
+msgstr "Đang gửi tin đến thiết bị."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1207
 msgid "Sending books to device."
-msgstr ""
+msgstr "Đang gửi sách đến thiết bị."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1249
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
 msgstr ""
+"Không thể tải những cuốn sách sau lên thiết bị vì chúng không có định dạng "
+"phù hợp. Chuyển đổi chúng sang định dạng mà thiết bị của bạn hỗ trợ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1313
 msgid "No space on device"
-msgstr ""
+msgstr "Không còn chỗ trống trên thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1314
 msgid ""
 "<p>Cannot upload books to device there is no more free space available "
-msgstr ""
+msgstr "<p>Không thể tải sách lên thiết bị vì không còn chỗ trống "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:324
@@ -5859,10 +5865,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:83
 msgid "Select available formats and their order for this device"
 msgstr ""
+"Chọn định dạng được hỗ trợ và thứ tự ưu tiên của chúng cho thiết bị này"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:87
 msgid "Use sub directories"
-msgstr ""
+msgstr "Sử dụng thư mục con"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:88
 msgid "Use author sort for author"
@@ -5874,7 +5881,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:48
 msgid "Add books by ISBN"
-msgstr ""
+msgstr "Thêm sách bằng ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:49
 msgid ""
@@ -5883,6 +5890,9 @@ msgid ""
 "metadata and covers for them.<p>Any invalid ISBNs in the list will be "
 "ignored."
 msgstr ""
+"<p>Điền danh sách các ISBN vào hộp bên trái, một ISBN/dòng. calibre sẽ tự "
+"động tạo các mục sách dựa trên ISBN rồi tải thông tin mô tả và bìa cho "
+"chúng.<p>Các ISBN không hợp lệ sẽ bị bỏ qua."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:50
 msgid "&Paste from clipboard"
@@ -5894,15 +5904,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:74
 msgid "&Previous"
-msgstr ""
+msgstr "&Trước"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:75
 msgid "&Next"
-msgstr ""
+msgstr "Tiế&p"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:38
 msgid "My Books"
-msgstr ""
+msgstr "Sách của tôi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:304
@@ -5932,11 +5942,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:21
 msgid "Check Library"
-msgstr ""
+msgstr "Kiểm Tra Thư Viện"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:29
 msgid "Run the check"
-msgstr ""
+msgstr "Kiểm tra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:205
@@ -5945,15 +5955,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:48
 msgid "Names to ignore:"
-msgstr ""
+msgstr "Bỏ qua các tên:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:54
 msgid "Extensions to ignore"
-msgstr ""
+msgstr "Bỏ qua các định dạng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 msgid "Additional Information"
-msgstr ""
+msgstr "Thông tin bổ sung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 msgid "Path from library"
@@ -5962,52 +5972,52 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:89
 msgid "Name"
-msgstr ""
+msgstr "Tên"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:45
 msgid "Choose Format"
-msgstr ""
+msgstr "Chọn định dạng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:38
 msgid "Choose location for calibre library"
-msgstr ""
+msgstr "Chọn đường dẫn cho thư viện calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:45
 msgid "Same as current"
-msgstr ""
+msgstr "Giống như hiện tại"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:46
 msgid "The location %s contains the current calibre library"
-msgstr ""
+msgstr "Đường dẫn %s chứa thư viện calibre hiện tại"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:51
 msgid "No existing library found"
-msgstr ""
+msgstr "Không tìm thấy thư viện"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:52
 msgid "There is no existing calibre library at %s"
-msgstr ""
+msgstr "Không có thư viện calibre tại %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:56
 msgid "Not empty"
-msgstr ""
+msgstr "Không trống"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:57
 msgid "The folder %s is not empty. Please choose an empty folder"
-msgstr ""
+msgstr "%s không phải là thư mục trống. Xin chọn một thư mục trống"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:80
 msgid "No location"
-msgstr ""
+msgstr "Không có đường dẫn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:80
 msgid "No location selected"
-msgstr ""
+msgstr "Không có đường dẫn nào được chọn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:628
 msgid "Bad location"
-msgstr ""
+msgstr "Đường dẫn không hợp lệ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:85
 msgid "%s is not an existing folder"
@@ -6015,69 +6025,72 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:71
 msgid "Choose your calibre library"
-msgstr ""
+msgstr "Chọn thư viện calibre của bạn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:72
 msgid "Your calibre library is currently located at {0}"
-msgstr ""
+msgstr "Thư viện calibre của bạn hiện đang được đặt tại {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:73
 msgid "New &Location:"
-msgstr ""
+msgstr "Đường &dẫn mới:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:74
 msgid "Use &existing library at the new location"
-msgstr ""
+msgstr "&Sử dụng thư viện hiện tại ở đường dẫn mới"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:75
 msgid "&Create an empty library at the new location"
-msgstr ""
+msgstr "&Tạo một thư viện trống ở đường dẫn mới"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:76
 msgid "&Move current library to new location"
-msgstr ""
+msgstr "&Chuyển thư viện hiện tại sang đường dẫn mới"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
 msgstr ""
+"Thiết lập mặc định cho việc chuyển đổi truyện tranh (tập tin CBR/CBZ)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 msgid "Set options for converting %s"
-msgstr ""
+msgstr "Thiết lập tùy chọn cho chuyển đổi %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:97
 msgid "&Title:"
-msgstr ""
+msgstr "&Tựa đề:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:98
 msgid "&Author(s):"
-msgstr ""
+msgstr "Tác &giả:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:100
 msgid "&Profile:"
-msgstr ""
+msgstr "&Hồ sơ:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog_ui.py:41
 msgid "Edit Comments"
-msgstr ""
+msgstr "Thay đổi Lời bình/chú thích"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:55
 msgid "&Show this warning again"
-msgstr ""
+msgstr "&Hiện lại cảnh báo này"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/conversion_error_ui.py:47
 msgid "ERROR"
-msgstr ""
+msgstr "LỖI"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:67
 msgid ""
 "All checked books will be <b>permanently deleted</b> from your device. "
 "Please verify the list."
 msgstr ""
+"Những sách được chọn sẽ bị <b>xóa vĩnh viễn</b> khỏi thiết bị của bạn. Xin "
+"kiểm tra trước."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 msgid "Location"
-msgstr ""
+msgstr "Đường dẫn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:69
@@ -6086,16 +6099,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:280
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:588
 msgid "Date"
-msgstr ""
+msgstr "Ngày"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1111
 msgid "Format"
-msgstr ""
+msgstr "Định dạng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device_ui.py:50
 msgid "Delete from device"
-msgstr ""
+msgstr "Xóa khỏi thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:34
 msgid "Author sort"
@@ -6104,20 +6117,20 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:511
 msgid "Invalid author name"
-msgstr ""
+msgstr "Tên tác giả không hợp lệ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:512
 msgid "Author names cannot contain & characters."
-msgstr ""
+msgstr "Tên tác giả không được chứa kí tự &."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:66
 msgid "Manage authors"
-msgstr ""
+msgstr "Quản lý tên tác giả"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:67
 msgid "Sort by author"
-msgstr ""
+msgstr "Sắp xếp theo tên tác giả"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:68
 msgid "Sort by author sort"
@@ -6140,15 +6153,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:62
 msgid "ISBN"
-msgstr ""
+msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:162
 msgid "Finding metadata..."
-msgstr ""
+msgstr "Đang tìm thông tin mô tả..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:176
 msgid "Could not find metadata"
-msgstr ""
+msgstr "Không thể tìm thấy thông tin mô tả"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:177
 msgid "The metadata download seems to have stalled. Try again later."
@@ -6156,24 +6169,25 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:186
 msgid "Warning"
-msgstr ""
+msgstr "Cảnh báo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:187
 msgid "Could not fetch metadata from:"
-msgstr ""
+msgstr "Không thể lấy thông tin mô tả từ:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:191
 msgid "No metadata found"
-msgstr ""
+msgstr "Không tìm thấy thông tin mô tả"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:192
 msgid ""
 "No metadata found, try adjusting the title and author or the ISBN key."
 msgstr ""
+"Không tìm thấy thông tin mô tả, thử điều chỉnh tựa đề và tác giả hoặc số ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:90
 msgid "Fetch metadata"
-msgstr ""
+msgstr "Lấy thông tin mô tả"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:91
 msgid ""
@@ -6182,23 +6196,27 @@ msgid ""
 "<a href=\"http://www.isbndb.com\">free account</a> and enter your access key "
 "below."
 msgstr ""
+"<p>calibre có thể tìm thông tin mô tả cho sách của bạn từ hai nơi: <b>Google "
+"Books</b> và <b>isbndb.com</b>. <p>Để sử dụng isbndb.com bạn phải đăng kí "
+"một <a href=\"http://www.isbndb.com\">tài khoản miễn phí</a> và điền mã truy "
+"cập (access key) vào khung dưới."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:92
 msgid "&Access Key:"
-msgstr ""
+msgstr "&Mã truy cập (access key):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:93
 msgid "Fetch"
-msgstr ""
+msgstr "Lấy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:94
 msgid "Matches"
-msgstr ""
+msgstr "Khớp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:95
 msgid ""
 "Select the book that most closely matches your copy from the list below"
-msgstr ""
+msgstr "Chọn cuốn sách giống với bản sao của bạn nhất từ danh sách dưới đây"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:96
 msgid "Download &social metadata (tags/rating/etc.) for the selected book"
@@ -6208,34 +6226,35 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:97
 msgid "Overwrite author and title with author and title of selected book"
 msgstr ""
+"Ghi đè tác giả và tựa đề bằng tác giả và tựa đề của cuốn sách được chọn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:42
 msgid "Details of job"
-msgstr ""
+msgstr "Chi tiết về tác vụ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:49
 msgid "Active Jobs"
-msgstr ""
+msgstr "Tác vụ đang hoạt động"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:50
 msgid "&Stop selected job"
-msgstr ""
+msgstr "&Dừng tác vụ được chọn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:51
 msgid "Show job &details"
-msgstr ""
+msgstr "&Hiển thị chi tiết về tác vụ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:52
 msgid "Stop &all non device jobs"
-msgstr ""
+msgstr "Dừng &mọi tác vụ không liên quan đến thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:25
 msgid "Title/Author"
-msgstr ""
+msgstr "Tựa đề/Tác giả"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:26
 msgid "Standard metadata"
-msgstr ""
+msgstr "Thông tin mô tả chuẩn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:27
 msgid "Custom metadata"
@@ -6243,27 +6262,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:28
 msgid "Search/Replace"
-msgstr ""
+msgstr "Tìm/Thay thế"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:76
 msgid "Working"
-msgstr ""
+msgstr "Đang làm việc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:385
 msgid "Lower Case"
-msgstr ""
+msgstr "Chữ in thường"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:384
 msgid "Upper Case"
-msgstr ""
+msgstr "Chữ in hoa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:387
 msgid "Title Case"
-msgstr ""
+msgstr "Chữ Hoa Đầu Từ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:185
 msgid "Character match"
