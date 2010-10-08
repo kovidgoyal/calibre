@@ -83,6 +83,11 @@ class HTMLOutput(OutputFormatPlugin):
                 path = abspath(unquote(item.href))
                 dir = dirname(path)
                 root = item.data.getroottree()
+                head = root.xpath('//h:head', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
+                head_content = etree.tostring(head, pretty_print=True, encoding='utf-8')
+                head_content = re.sub(r'\<\/?head.*\>', '', head_content)
+                head_content = re.sub(re.compile(r'\<style.*\/style\>', re.M|re.S), '', head_content)
+
                 body = root.xpath('//h:body', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
                 ebook_content = etree.tostring(body, pretty_print=True, encoding='utf-8')
                 ebook_content = re.sub(r'\<\/?body.*\>', '', ebook_content)
@@ -98,7 +103,7 @@ class HTMLOutput(OutputFormatPlugin):
                     prevLink = None
                 templite = Templite(P('templates/html_export_default.tmpl', data=True))
                 toc = lambda: self.generate_html_toc(oeb_book, path, output_dir)
-                t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink, toc=toc)
+                t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink, toc=toc, head_content=head_content)
                 with open(path, 'wb') as f:
                     f.write(t)
                 item.unload_data_from_memory(memory=path)
