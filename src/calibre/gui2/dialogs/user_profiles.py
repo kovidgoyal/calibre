@@ -38,7 +38,10 @@ class CustomRecipeModel(QAbstractListModel):
         return False
 
     def rowCount(self, *args):
-        return len(self.recipe_model.custom_recipe_collection)
+        try:
+            return len(self.recipe_model.custom_recipe_collection)
+        except:
+            return 0
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
