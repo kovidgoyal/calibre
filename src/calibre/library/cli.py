@@ -1025,7 +1025,7 @@ information is the equivalent of what is shown in the tags pane.
     parser.add_option('-q', '--quote', default='"',
             help=_('The character to put around the category value in CSV mode. '
                    'Default is quotes (").'))
-    parser.add_option('-r', '--categories', default=None, dest='report',
+    parser.add_option('-r', '--categories', default='', dest='report',
                       help=_("Comma-separated list of category lookup names.\n"
                              "Default: all"))
     parser.add_option('-w', '--line-width', default=-1, type=int,
@@ -1052,8 +1052,10 @@ def command_list_categories(args, dbpath):
     db = LibraryDatabase2(dbpath)
     category_data = db.get_categories()
     data = []
+    report_on = [c.strip() for c in opts.report.split(',') if c.strip()]
     categories = [k for k in category_data.keys()
-                  if db.metadata_for_field(k)['kind'] not in ['user', 'search']]
+                  if db.metadata_for_field(k)['kind'] not in ['user', 'search'] and
+                  (not report_on or k in report_on)]
 
     categories.sort(cmp=lambda x,y: cmp(x if x[0] != '#' else x[1:],
                                         y if y[0] != '#' else y[1:]))
