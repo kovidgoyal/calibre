@@ -100,6 +100,8 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
 
     def break_cycles(self):
         self.recipe_model = self._model.recipe_model = None
+        self.available_profiles = None
+        self.model = self._model = None
 
     def remove_selected_items(self):
         indices = self.available_profiles.selectionModel().selectedRows()
