@@ -17,9 +17,10 @@ import routes
 from calibre.constants import __appname__
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.library.comments import comments_to_html
+from calibre.library.server import custom_fields_to_display
+from calibre.library.server.utils import format_tag_string
 from calibre import guess_type
 from calibre.utils.ordered_dict import OrderedDict
-from calibre.utils.date import format_date
 
 BASE_HREFS = {
         0 : '/stanza',
@@ -131,7 +132,8 @@ def CATALOG_GROUP_ENTRY(item, category, base_href, version, updated):
             link
             )
 
-def ACQUISITION_ENTRY(item, version, FM, updated, CFM, CKEYS):
+def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS):
+    FM = db.FIELD_MAP
     title = item[FM['title']]
     if not title:
         title = _('Unknown')
@@ -147,28 +149,25 @@ def ACQUISITION_ENTRY(item, version, FM, updated, CFM, CKEYS):
         extra.append(_('RATING: %s<br />')%rating)
     tags = item[FM['tags']]
     if tags:
-        extra.append(_('TAGS: %s<br />')%\
-                ', '.join(tags.split(',')))
+        extra.append(_('TAGS: %s<br />')%format_tag_string(tags, ',',
+                                                           ignore_max=True,
+                                                           no_tag_count=True))
     series = item[FM['series']]
     if series:
         extra.append(_('SERIES: %s [%s]<br />')%\
                 (series,
                 fmt_sidx(float(item[FM['series_index']]))))
     for key in CKEYS:
-        val = item[CFM[key]['rec_index']]
-        if val is not None:
-            name = CFM[key]['name']
+        mi = db.get_metadata(item[CFM['id']['rec_index']], index_is_id=True)
+        name, val = mi.format_field(key)
+        if val:
             datatype = CFM[key]['datatype']
             if datatype == 'text' and CFM[key]['is_multiple']:
-                extra.append('%s: %s<br />'%(name, ', '.join(val.split('|'))))
-            elif datatype == 'series':
-                extra.append('%s: %s [%s]<br />'%(name, val,
-                              fmt_sidx(item[CFM.cc_series_index_column_for(key)])))
-            elif datatype == 'datetime':
-                extra.append('%s: %s<br />'%(name,
-                    format_date(val, CFM[key]['display'].get('date_format','dd MMM yyyy'))))
+                extra.append('%s: %s<br />'%(name, format_tag_string(val, ',',
+                                                           ignore_max=True,
+                                                           no_tag_count=True)))
             else:
-                extra.append('%s: %s <br />' % (CFM[key]['name'], val))
+                extra.append('%s: %s<br />'%(name, val))
     comments = item[FM['comments']]
     if comments:
         comments = comments_to_html(comments)
@@ -276,13 +275,14 @@ class NavFeed(Feed):
 class AcquisitionFeed(NavFeed):
 
     def __init__(self, updated, id_, items, offsets, page_url, up_url, version,
-            FM, CFM):
+            db):
         NavFeed.__init__(self, id_, updated, version, offsets, page_url, up_url)
-        CKEYS = [key for key in sorted(CFM.get_custom_fields(),
+        CFM = db.field_metadata
+        CKEYS = [key for key in sorted(custom_fields_to_display(db),
                  cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
                                      CFM[y]['name'].lower()))]
         for item in items:
-            self.root.append(ACQUISITION_ENTRY(item, version, FM, updated,
+            self.root.append(ACQUISITION_ENTRY(item, version, db, updated,
                                                CFM, CKEYS))
 
 class CategoryFeed(NavFeed):
@@ -380,7 +380,7 @@ class OPDSServer(object):
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'application/atom+xml;profile=opds-catalog'
         return str(AcquisitionFeed(updated, id_, items, offsets,
-            page_url, up_url, version, self.db.FIELD_MAP, self.db.field_metadata))
+                                   page_url, up_url, version, self.db))
 
     def opds_search(self, query=None, version=0, offset=0):
         try:

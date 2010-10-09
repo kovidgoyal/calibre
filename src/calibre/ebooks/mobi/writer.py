@@ -15,7 +15,6 @@ from struct import pack
 import time
 from urlparse import urldefrag
 
-from PIL import Image
 from cStringIO import StringIO
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS
@@ -28,6 +27,7 @@ from calibre.ebooks.oeb.base import namespace
 from calibre.ebooks.oeb.base import prefixname
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.compression.palmdoc import compress_doc
+from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
 
 INDEXING = True
 FCIS_FLIS = True
@@ -111,46 +111,35 @@ def align_block(raw, multiple=4, pad='\0'):
     return raw + pad*(multiple - extra)
 
 def rescale_image(data, maxsizeb, dimen=None):
-    image = Image.open(StringIO(data))
-    format = image.format
-    changed = False
-    if image.format not in ('JPEG', 'GIF'):
-        width, height = image.size
-        area = width * height
-        if area <= 40000:
-            format = 'GIF'
-        else:
-            image = image.convert('RGBA')
-            format = 'JPEG'
-        changed = True
     if dimen is not None:
-        image.thumbnail(dimen, Image.ANTIALIAS)
-        changed = True
-    if changed:
-        data = StringIO()
-        image.save(data, format)
-        data = data.getvalue()
+        data = thumbnail(data, width=dimen, height=dimen)[-1]
+    else:
+        # Replace transparent pixels with white pixels and convert to JPEG
+        data = save_cover_data_to(data, 'img.jpg', return_data=True)
     if len(data) <= maxsizeb:
         return data
-    image = image.convert('RGBA')
-    for quality in xrange(95, -1, -1):
-        data = StringIO()
-        image.save(data, 'JPEG', quality=quality)
-        data = data.getvalue()
-        if len(data) <= maxsizeb:
-            return data
-    width, height = image.size
-    for scale in xrange(99, 0, -1):
-        scale = scale / 100.
-        data = StringIO()
-        scaled = image.copy()
-        size = (int(width * scale), (height * scale))
-        scaled.thumbnail(size, Image.ANTIALIAS)
-        scaled.save(data, 'JPEG', quality=0)
-        data = data.getvalue()
-        if len(data) <= maxsizeb:
-            return data
-    # Well, we tried?
+    orig_data = data
+    img = Image()
+    quality = 95
+
+    img.load(data)
+    while len(data) >= maxsizeb and quality >= 10:
+        quality -= 5
+        img.set_compression_quality(quality)
+        data = img.export('jpg')
+    if len(data) <= maxsizeb:
+        return data
+    orig_data = data
+
+    scale = 0.9
+    while len(data) >= maxsizeb and scale >= 0.05:
+        img = Image()
+        img.load(orig_data)
+        w, h = img.size
+        img.size = (int(scale*w), int(scale*h))
+        img.set_compression_quality(quality)
+        data = img.export('jpg')
+        scale -= 0.05
     return data
 
 class Serializer(object):
@@ -1796,12 +1785,13 @@ class MobiWriter(object):
                 self._oeb.log.debug('Index records dumped to', t)
 
     def _clean_text_value(self, text):
-        if not text:
-            text = u'(none)'
-        text = text.strip()
-        if not isinstance(text, unicode):
-            text = text.decode('utf-8', 'replace')
-        text = text.encode('ascii','replace')
+        if text is not None and text.strip() :
+            text = text.strip()
+            if not isinstance(text, unicode):
+                text = text.decode('utf-8', 'replace')
+            text = text.encode('utf-8')
+        else :
+            text = "(none)".encode('utf-8')
         return text
 
     def _add_to_ctoc(self, ctoc_str, record_offset):

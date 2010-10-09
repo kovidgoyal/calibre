@@ -8,14 +8,22 @@ __docformat__ = 'restructuredtext en'
 
 import os, traceback, cStringIO, re
 
+from calibre.constants import DEBUG
 from calibre.utils.config import Config, StringConfig, tweaks
+from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.filenames import shorten_components_to, supports_long_names, \
                                     ascii_filename, sanitize_file_name
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import preferred_encoding, filesystem_encoding
+from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre import strftime
+from calibre import strftime, prints
+
+plugboard_any_device_value = 'any device'
+plugboard_any_format_value = 'any format'
+plugboard_save_to_disk_value = 'save_to_disk'
+
 
 DEFAULT_TEMPLATE = '{author_sort}/{title}/{title} - {authors}'
 DEFAULT_SEND_TEMPLATE = '{author_sort}/{title} - {authors}'
@@ -83,6 +91,9 @@ def config(defaults=None):
     x('timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %d - day, %b - month, '
                 '%Y - year. Default is: %b, %Y'))
+    x('send_timefmt', default='%b, %Y',
+            help=_('The format in which to display dates. %d - day, %b - month, '
+                '%Y - year. Default is: %b, %Y'))
     x('to_lowercase', default=False,
             help=_('Convert paths to lowercase.'))
     x('replace_whitespace', default=False,
@@ -97,29 +108,50 @@ def preprocess_template(template):
         template = template.decode(preferred_encoding, 'replace')
     return template
 
-def safe_format(x, format_args):
-    try:
-        ans = x.format(**format_args).strip()
-        return re.sub(r'\s+', ' ', ans)
-    except IndexError: # Thrown if user used [] and index is out of bounds
-        pass
-    except AttributeError: # Thrown if user used a non existing attribute
-        pass
-    return ''
+class SafeFormat(TemplateFormatter):
+    '''
+    Provides a format function that substitutes '' for any missing value
+    '''
+
+    def get_value(self, key, args, kwargs):
+        try:
+            key = key.lower()
+            try:
+                b = self.book.get_user_metadata(key, False)
+            except:
+                if DEBUG:
+                    traceback.print_exc()
+                b = None
+
+            if b is not None and b['datatype'] == 'composite':
+                if key in self.composite_values:
+                    return self.composite_values[key]
+                self.composite_values[key] = 'RECURSIVE_COMPOSITE FIELD (S2D) ' + key
+                self.composite_values[key] = \
+                    self.vformat(b['display']['composite_template'], [], kwargs)
+                return self.composite_values[key]
+            if key in kwargs:
+                return kwargs[key].replace('/', '_').replace('\\', '_')
+            return ''
+        except:
+            if DEBUG:
+                traceback.print_exc()
+            return key
+
+safe_formatter = SafeFormat()
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
         to_lowercase=False):
     library_order = tweaks['save_template_title_series_sorting'] == 'library_order'
     tsfmt = title_sort if library_order else lambda x: x
-    format_args = dict(**FORMAT_ARGS)
+    format_args = FORMAT_ARGS.copy()
+    format_args.update(mi.all_non_none_fields())
     if mi.title:
         format_args['title'] = tsfmt(mi.title)
     if mi.authors:
         format_args['authors'] = mi.format_authors()
         format_args['author'] = format_args['authors']
-    if mi.author_sort:
-        format_args['author_sort'] = mi.author_sort
     if mi.tags:
         format_args['tags'] = mi.format_tags()
         if format_args['tags'].startswith('/'):
@@ -132,17 +164,28 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         template = re.sub(r'\{series_index[^}]*?\}', '', template)
     if mi.rating is not None:
         format_args['rating'] = mi.format_rating()
-    if mi.isbn:
-        format_args['isbn'] = mi.isbn
-    if mi.publisher:
-        format_args['publisher'] = mi.publisher
     if hasattr(mi.timestamp, 'timetuple'):
         format_args['timestamp'] = strftime(timefmt, mi.timestamp.timetuple())
     if hasattr(mi.pubdate, 'timetuple'):
         format_args['pubdate'] = strftime(timefmt, mi.pubdate.timetuple())
     format_args['id'] = str(id)
-    components = [x.strip() for x in template.split('/') if x.strip()]
-    components = [safe_format(x, format_args) for x in components]
+    # Now format the custom fields
+    custom_metadata = mi.get_all_user_metadata(make_copy=False)
+    for key in custom_metadata:
+        if key in format_args:
+            ## TODO: NEWMETA: should ratings be divided by 2? The standard rating isn't...
+            if custom_metadata[key]['datatype'] == 'series':
+                format_args[key] = tsfmt(format_args[key])
+                if key+'_index' in format_args:
+                    format_args[key+'_index'] = fmt_sidx(format_args[key+'_index'])
+            elif custom_metadata[key]['datatype'] == 'datetime':
+                format_args[key] = strftime(timefmt, format_args[key].timetuple())
+            elif custom_metadata[key]['datatype'] == 'bool':
+                format_args[key] = _('yes') if format_args[key] else _('no')
+
+    components = safe_formatter.safe_format(template, format_args,
+                                            'G_C-EXCEPTION!', mi)
+    components = [x.strip() for x in components.split('/') if x.strip()]
     components = [sanitize_func(x) for x in components if x]
     if not components:
         components = [str(id)]
@@ -209,6 +252,25 @@ def save_book_to_disk(id, db, root, opts, length):
 
     written = False
     for fmt in formats:
+        global plugboard_save_to_disk_value, plugboard_any_format_value
+        dev_name = plugboard_save_to_disk_value
+        plugboards = db.prefs.get('plugboards', {})
+        cpb = None
+        if fmt in plugboards:
+            cpb = plugboards[fmt]
+            if dev_name in cpb:
+                cpb = cpb[dev_name]
+            else:
+                cpb = None
+        if cpb is None and plugboard_any_format_value in plugboards:
+            cpb = plugboards[plugboard_any_format_value]
+            if dev_name in cpb:
+                cpb = cpb[dev_name]
+            else:
+                cpb = None
+        # Leave this here for a while, in case problems arise.
+        if cpb is not None:
+            prints('Save-to-disk using plugboard:', fmt, cpb)
         data = db.format(id, fmt, index_is_id=True)
         if data is None:
             continue
@@ -219,9 +281,15 @@ def save_book_to_disk(id, db, root, opts, length):
             stream.write(data)
             stream.seek(0)
             try:
-                set_metadata(stream, mi, fmt)
+                if cpb:
+                    newmi = mi.deepcopy_metadata()
+                    newmi.template_to_attribute(mi, cpb)
+                else:
+                    newmi = mi
+                set_metadata(stream, newmi, fmt)
             except:
-                traceback.print_exc()
+                if DEBUG:
+                    traceback.print_exc()
             stream.seek(0)
             data = stream.read()
         fmt_path = base_path+'.'+str(fmt)

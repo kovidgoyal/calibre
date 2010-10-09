@@ -230,17 +230,18 @@ class AddAction(InterfaceAction):
         self._files_added(paths, names, infos, on_card=on_card)
         # set the in-library flags, and as a consequence send the library's
         # metadata for this book to the device. This sets the uuid to the
-        # correct value.
+        # correct value. Note that set_books_in_library might sync_booklists
         self.gui.set_books_in_library(booklists=[model.db], reset=True)
-        model.reset()
+        self.gui.refresh_ondevice()
 
-    def add_books_from_device(self, view):
-        rows = view.selectionModel().selectedRows()
-        if not rows or len(rows) == 0:
-            d = error_dialog(self.gui, _('Add to library'), _('No book selected'))
-            d.exec_()
-            return
-        paths = [p for p in view._model.paths(rows) if p is not None]
+    def add_books_from_device(self, view, paths=None):
+        if paths is None:
+            rows = view.selectionModel().selectedRows()
+            if not rows or len(rows) == 0:
+                d = error_dialog(self.gui, _('Add to library'), _('No book selected'))
+                d.exec_()
+                return
+            paths = [p for p in view.model().paths(rows) if p is not None]
         ve = self.gui.device_manager.device.VIRTUAL_BOOK_EXTENSIONS
         def ext(x):
             ans = os.path.splitext(x)[1]
@@ -261,7 +262,7 @@ class AddAction(InterfaceAction):
             return
         from calibre.gui2.add import Adder
         self.__adder_func = partial(self._add_from_device_adder, on_card=None,
-                                                    model=view._model)
+                                                    model=view.model())
         self._adder = Adder(self.gui, self.gui.library_view.model().db,
                 self.Dispatcher(self.__adder_func), spare_server=self.gui.spare_server)
         self._adder.add(paths)

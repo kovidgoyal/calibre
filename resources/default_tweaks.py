@@ -83,6 +83,16 @@ title_series_sorting = 'library_order'
 # strictly_alphabetic, it would remain "The Client".
 save_template_title_series_sorting = 'library_order'
 
+# Set the list of words that are to be considered 'articles' when computing the
+# title sort strings. The list is a regular expression, with the articles
+# separated by 'or' bars. Comparisons are case insensitive, and that cannot be
+# changed. Changes to this tweak won't have an effect until the book is modified
+# in some way. If you enter an invalid pattern, it is silently ignored.
+# To disable use the expression: '^$'
+# Default: '^(A|The|An)\s+'
+title_sort_articles=r'^(A|The|An)\s+'
+
+
 # Specify a folder that calibre should connect to at startup using
 # connect_to_folder. This must be a full path to the folder. If the folder does
 # not exist when calibre starts, it is ignored. If there are '\' characters in
@@ -91,6 +101,37 @@ save_template_title_series_sorting = 'library_order'
 #     auto_connect_to_folder = 'C:\\Users\\someone\\Desktop\\testlib'
 #     auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'
 auto_connect_to_folder = ''
+
+
+# Specify renaming rules for sony collections. Collections on Sonys are named
+# depending upon whether the field is standard or custom. A collection derived
+# from a standard field is named for the value in that field. For example, if
+# the standard 'series' column contains the name 'Darkover', then the series
+# will be named 'Darkover'. A collection derived from a custom field will have
+# the name of the field added to the value. For example, if a custom series
+# column named 'My Series' contains the name 'Darkover', then the collection
+# will be named 'Darkover (My Series)'. If two books have fields that generate
+# the same collection name, then both books will be in that collection. This
+# tweak lets you specify for a standard or custom field the value to be put
+# inside the parentheses. You can use it to add a parenthetical description to a
+# standard field, for example 'Foo (Tag)' instead of the 'Foo'. You can also use
+# it to force multiple fields to end up in the same collection. For example, you
+# could force the values in 'series', '#my_series_1', and '#my_series_2' to
+# appear in collections named 'some_value (Series)', thereby merging all of the
+# fields into one set of collections. The syntax of this tweak is
+# {'field_lookup_name':'name_to_use', 'lookup_name':'name', ...}
+# Example 1: I want three series columns to be merged into one set of
+# collections. If the column lookup names are 'series', '#series_1' and
+# '#series_2', and if I want nothing in the parenthesis, then the value to use
+# in the tweak value would be:
+# sony_collection_renaming_rules={'series':'', '#series_1':'', '#series_2':''}
+# Example 2: I want the word '(Series)' to appear on collections made from
+# series, and the word '(Tag)' to appear on collections made from tags. Use:
+# sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}
+# Example 3: I want 'series' and '#myseries' to be merged, and for the
+# collection name to have '(Series)' appended. The renaming rule is:
+# sony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}
+sony_collection_renaming_rules={}
 
 
 # Create search terms to apply a query across several built-in search terms.
@@ -113,6 +154,24 @@ add_new_book_tags_when_importing_books = False
 
 # Set the maximum number of tags to show per book in the content server
 max_content_server_tags_shown=5
+
+# Set custom metadata fields that the content server will or will not display.
+# content_server_will_display is a list of custom fields to be displayed.
+# content_server_wont_display is a list of custom fields not to be displayed.
+# wont_display has priority over will_display.
+# The special value '*' means all custom fields.
+# Defaults:
+#    content_server_will_display = ['*']
+#    content_server_wont_display = ['']
+# Examples:
+# To display only the custom fields #mytags and #genre:
+#   content_server_will_display = ['#mytags', '#genre']
+#   content_server_wont_display = ['']
+# To display all fields except #mycomments:
+#   content_server_will_display = ['*']
+#   content_server_wont_display['#mycomments']
+content_server_will_display = ['*']
+content_server_wont_display = ['']
 
 
 # Set the maximum number of sort 'levels' that calibre will use to resort the

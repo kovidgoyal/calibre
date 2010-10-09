@@ -16,10 +16,12 @@ class FOLDER_DEVICE_FOR_CONFIG(USBMS):
     description    = _('Use an arbitrary folder as a device.')
     author         = 'John Schember/Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    FORMATS     = ['epub', 'fb2', 'mobi', 'azw', 'lrf', 'tcr', 'pmlz', 'lit', 'rtf', 'rb', 'pdf', 'oeb', 'txt', 'pdb']
+    FORMATS     = ['epub', 'fb2', 'mobi', 'azw', 'lrf', 'tcr', 'pmlz', 'lit',
+                   'rtf', 'rb', 'pdf', 'oeb', 'txt', 'pdb', 'prc']
     VENDOR_ID   = 0xffff
     PRODUCT_ID  = 0xffff
     BCD         = 0xffff
+    DEVICE_PLUGBOARD_NAME = 'FOLDER_DEVICE'
 
 
 class FOLDER_DEVICE(USBMS):
@@ -30,15 +32,16 @@ class FOLDER_DEVICE(USBMS):
     description    = _('Use an arbitrary folder as a device.')
     author         = 'John Schember/Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    FORMATS     = ['epub', 'fb2', 'mobi', 'azw', 'lrf', 'tcr', 'pmlz', 'lit', 'rtf', 'rb', 'pdf', 'oeb', 'txt', 'pdb']
+    FORMATS     = FOLDER_DEVICE_FOR_CONFIG.FORMATS
 
     VENDOR_ID   = 0xffff
     PRODUCT_ID  = 0xffff
     BCD         = 0xffff
+    DEVICE_PLUGBOARD_NAME = 'FOLDER_DEVICE'
 
     THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
 
-    CAN_SET_METADATA = True
+    CAN_SET_METADATA = ['title', 'authors']
     SUPPORTS_SUB_DIRS = True
 
     #: Icon for this device

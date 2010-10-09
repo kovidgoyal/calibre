@@ -6,7 +6,9 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import QWidget, QListWidgetItem, Qt, QVariant, SIGNAL
 
+from calibre.gui2 import error_dialog
 from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
+from calibre.utils.formatter import validation_formatter
 
 class ConfigWidget(QWidget, Ui_ConfigWidget):
 
@@ -77,3 +79,15 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def use_author_sort(self):
         return self.opt_use_author_sort.isChecked()
+
+    def validate(self):
+        tmpl = unicode(self.opt_save_template.text())
+        try:
+            validation_formatter.validate(tmpl)
+            return True
+        except Exception, err:
+            error_dialog(self, _('Invalid template'),
+                    '<p>'+_('The template %s is invalid:')%tmpl + \
+                    '<br>'+unicode(err), show=True)
+
+            return False

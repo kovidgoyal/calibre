@@ -21,7 +21,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def genesis(self, gui):
         self.gui = gui
         db = self.gui.library_view.model().db
-        self.custcols = copy.deepcopy(db.field_metadata.get_custom_field_metadata())
+        self.custcols = copy.deepcopy(db.field_metadata.custom_field_metadata())
 
         self.column_up.clicked.connect(self.up_column)
         self.column_down.clicked.connect(self.down_column)

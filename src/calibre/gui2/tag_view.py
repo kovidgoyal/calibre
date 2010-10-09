@@ -20,6 +20,7 @@ from calibre.gui2 import config, NONE
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
@@ -66,6 +67,7 @@ class TagsView(QTreeView): # {{{
     author_sort_edit    = pyqtSignal(object, object)
     tag_item_renamed    = pyqtSignal()
     search_item_renamed = pyqtSignal()
+    drag_drop_finished  = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -79,6 +81,9 @@ class TagsView(QTreeView): # {{{
         self.setHeaderHidden(True)
         self.setItemDelegate(TagDelegate(self))
         self.made_connections = False
+        self.setAcceptDrops(True)
+        self.setDragDropMode(self.DropOnly)
+        self.setDropIndicatorShown(True)
 
     def set_database(self, db, tag_match, sort_by):
         self.hidden_categories = config['tag_browser_hidden_categories']
@@ -103,6 +108,103 @@ class TagsView(QTreeView): # {{{
 
     def database_changed(self, event, ids):
         self.refresh_required.emit()
+
+    def dragEnterEvent(self, event):
+        md = event.mimeData()
+        if md.hasFormat("application/calibre+from_library"):
+            event.setDropAction(Qt.CopyAction)
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        allowed = False
+        idx = self.indexAt(event.pos())
+        m = self.model()
+        p = m.parent(idx)
+        if idx.isValid() and p.isValid():
+            item = m.data(p, Qt.UserRole)
+            fm = self.db.metadata_for_field(item.category_key)
+            if item.category_key in \
+                    ('tags', 'series', 'authors', 'rating', 'publisher') or\
+                    (fm['is_custom'] and \
+                     fm['datatype'] in ['text', 'rating', 'series']):
+                allowed = True
+        if allowed:
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        idx = self.indexAt(event.pos())
+        m = self.model()
+        p = m.parent(idx)
+        if idx.isValid() and p.isValid():
+            item = m.data(p, Qt.UserRole)
+            if item.type == TagTreeItem.CATEGORY:
+                fm = self.db.metadata_for_field(item.category_key)
+                if item.category_key in \
+                        ('tags', 'series', 'authors', 'rating', 'publisher') or\
+                        (fm['is_custom'] and \
+                         fm['datatype'] in ['text', 'rating', 'series']):
+                    child = m.data(idx, Qt.UserRole)
+                    md = event.mimeData()
+                    mime = 'application/calibre+from_library'
+                    ids = list(map(int, str(md.data(mime)).split()))
+                    self.handle_drop(item, child, ids)
+                    event.accept()
+                    return
+        event.ignore()
+
+    def handle_drop(self, parent, child, ids):
+        # print 'Dropped ids:', ids, parent.category_key, child.tag.name
+        key = parent.category_key
+        if (key == 'authors' and len(ids) >= 5):
+            if not confirm('<p>'+_('Changing the authors for several books can '
+                           'take a while. Are you sure?')
+                        +'</p>', 'tag_browser_drop_authors', self):
+                return
+        elif len(ids) > 15:
+            if not confirm('<p>'+_('Changing the metadata for that many books '
+                           'can take a while. Are you sure?')
+                        +'</p>', 'tag_browser_many_changes', self):
+                return
+
+        fm = self.db.metadata_for_field(key)
+        is_multiple = fm['is_multiple']
+        val = child.tag.name
+        for id in ids:
+            mi = self.db.get_metadata(id, index_is_id=True)
+
+            # Prepare to ignore the author, unless it is changed. Title is
+            # always ignored -- see the call to set_metadata
+            set_authors = False
+
+            # Author_sort cannot change explicitly. Changing the author might
+            # change it.
+            mi.author_sort = None # Never will change by itself.
+
+            if key == 'authors':
+                mi.authors = [val]
+                set_authors=True
+            elif fm['datatype'] == 'rating':
+                mi.set(key, len(val) * 2)
+            elif fm['is_custom'] and fm['datatype'] == 'series':
+                mi.set(key, val, extra=1.0)
+            elif is_multiple:
+                new_val = mi.get(key, [])
+                if val in new_val:
+                    # Fortunately, only one field can change, so the continue
+                    # won't break anything
+                    continue
+                new_val.append(val)
+                mi.set(key, new_val)
+            else:
+                mi.set(key, val)
+            self.db.set_metadata(id, mi, set_title=False,
+                                 set_authors=set_authors, commit=False)
+        self.db.commit()
+        self.drag_drop_finished.emit(ids)
 
     @property
     def match_all(self):
@@ -326,6 +428,8 @@ class TagTreeItem(object): # {{{
         self.children.append(child)
 
     def data(self, role):
+        if role == Qt.UserRole:
+            return self
         if self.type == self.TAG:
             return self.tag_data(role)
         if self.type == self.CATEGORY:
@@ -505,7 +609,12 @@ class TagsModel(QAbstractItemModel): # {{{
         key = item.parent.category_key
         # make certain we know about the item's category
         if key not in self.db.field_metadata:
-            return
+            return False
+        if key == 'authors':
+            if val.find('&') >= 0:
+                error_dialog(self.tags_view, _('Invalid author name'),
+                        _('Author names cannot contain & characters.')).exec_()
+                return False
         if key == 'search':
             if val in saved_searches().names():
                 error_dialog(self.tags_view, _('Duplicate search name'),
@@ -539,8 +648,14 @@ class TagsModel(QAbstractItemModel): # {{{
     def headerData(self, *args):
         return NONE
 
-    def flags(self, *args):
-        return Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsEditable
+    def flags(self, index, *args):
+        ans = Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsEditable
+        if index.isValid() and self.parent(index).isValid():
+            ans |= Qt.ItemIsDropEnabled
+        return ans
+
+    def supportedDropActions(self):
+        return Qt.CopyAction|Qt.MoveAction
 
     def path_for_index(self, index):
         ans = []
@@ -671,6 +786,7 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.author_sort_edit.connect(self.do_author_sort_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_searches_changed)
+        self.tags_view.drag_drop_finished.connect(self.drag_drop_finished)
         self.edit_categories.clicked.connect(lambda x:
                 self.do_user_categories_edit())
 
@@ -720,11 +836,11 @@ class TagBrowserMixin(object): # {{{
                 rename_func = partial(db.rename_custom_item, label=cc_label)
                 delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
             if rename_func:
+                for item in to_delete:
+                    delete_func(item)
                 for text in to_rename:
                         for old_id in to_rename[text]:
                             rename_func(old_id, new_name=unicode(text))
-                for item in to_delete:
-                    delete_func(item)
 
             # Clean up everything, as information could have changed for many books.
             self.library_view.model().refresh()
@@ -751,6 +867,9 @@ class TagBrowserMixin(object): # {{{
                 db.set_sort_field_for_author(id, unicode(new_sort))
             self.library_view.model().refresh()
             self.tags_view.recount()
+
+    def drag_drop_finished(self, ids):
+        self.library_view.model().refresh_ids(ids)
 
 # }}}
 

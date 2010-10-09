@@ -38,7 +38,10 @@ class CustomRecipeModel(QAbstractListModel):
         return False
 
     def rowCount(self, *args):
-        return len(self.recipe_model.custom_recipe_collection)
+        try:
+            return len(self.recipe_model.custom_recipe_collection)
+        except:
+            return 0
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
@@ -100,6 +103,8 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
 
     def break_cycles(self):
         self.recipe_model = self._model.recipe_model = None
+        self.available_profiles = None
+        self.model = self._model = None
 
     def remove_selected_items(self):
         indices = self.available_profiles.selectionModel().selectedRows()

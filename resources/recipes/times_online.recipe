@@ -1,103 +1,106 @@
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
-timesonline.co.uk
+www.thetimes.co.uk
 '''
-import re
-
+import urllib
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
-class Timesonline(BasicNewsRecipe):
-    title                  = 'The Times Online'
-    __author__             = 'Darko Miletic and Sujata Raman'
-    description            = 'UK news'
-    publisher              = 'timesonline.co.uk'
-    category               = 'news, politics, UK'
-    oldest_article         = 2
-    max_articles_per_feed  = 100
-    no_stylesheets         = True
-    use_embedded_content   = False
-    simultaneous_downloads = 1
-    encoding               = 'ISO-8859-1'
-    remove_javascript = True
-    language = 'en_GB'
-    recursions = 9
-    match_regexps = [r'http://www.timesonline.co.uk/.*page=[2-9]']
+class TimesOnline(BasicNewsRecipe):
+    title                 = 'The Times UK'
+    __author__            = 'Darko Miletic'
+    description           = 'news from United Kingdom and World'
+    language              = 'en_GB'
+    publisher             = 'Times Newspapers Ltd'
+    category              = 'news, politics, UK'
+    oldest_article        = 3
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf-8'
+    delay                 = 1
+    needs_subscription    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.thetimes.co.uk/tto/public/img/the_times_460.gif'
+    INDEX                 = 'http://www.thetimes.co.uk'
+    PREFIX                = u'http://www.thetimes.co.uk/tto/'
+    extra_css             = """
+                                .f-ha{font-size: xx-large; font-weight: bold}
+                                .f-author{font-family: Arial,Helvetica,sans-serif}
+                                .caption{font-size: small}
+                                body{font-family: Georgia,"Times New Roman",Times,serif}
+                            """
+    conversion_options = {
+                          'comment'    : description
+                        , 'tags'       : category
+                        , 'publisher'  : publisher
+                        , 'language'   : language
+                        }
 
-    preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
 
-    keep_only_tags =  [
-                        dict(name='div', attrs= {'id':['region-column1and2-layout2']}),
-                        {'class' : ['subheading']},
-                        dict(name='div', attrs= {'id':['dynamic-image-holder']}),
-                        dict(name='div', attrs= {'class':['article-author']}),
-                        dict(name='div', attrs= {'id':['related-article-links']}),
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        br.open('http://www.timesplus.co.uk/tto/news/?login=false&url=http://www.thetimes.co.uk/tto/news/?lightbox=false')
+        if self.username is not None and self.password is not None:
+            data = urllib.urlencode({ 'userName':self.username
+                                     ,'password':self.password
+                                     ,'keepMeLoggedIn':'false'
+                                   })
+            br.open('https://www.timesplus.co.uk/iam/app/authenticate',data)
+        return br
+
+    remove_tags      = [
+                           dict(name=['object','link','iframe','base','meta'])
+                          ,dict(attrs={'class':'tto-counter' })
                         ]
+    remove_attributes=['lang']
+    keep_only_tags   = [
+                          dict(attrs={'class':'heading' })
+                         ,dict(attrs={'class':'f-author'})
+                         ,dict(attrs={'id':'bodycopy'})
+                       ]
 
-    remove_tags        = [
-                          dict(name=['embed','object','form','iframe']),
-                          dict(name='span', attrs = {'class':'float-left padding-left-8 padding-top-2'}),
-                          dict(name='div', attrs= {'id':['region-footer','region-column2-layout2','grid-column4','login-status','comment-sort-order']}),
-                          dict(name='div', attrs= {'class': ['debate-quote-container','clear','your-comment','float-left related-attachements-container','float-left padding-bottom-5 padding-top-8','puff-top']}),
-                          dict(name='span', attrs = {'id': ['comment-count']}),
-                          dict(name='ul',attrs = {'id': 'read-all-comments'}),
-                          dict(name='a', attrs = {'class':'reg-bold'}),
-                          ]
-
-
-    extra_css = '''
-                .small{font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
-                .byline{font-family :Arial,Helvetica,sans-serif; font-size:x-small; background:#F8F1D8;}
-                .color-666{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#666666; }
-                h1{font-family:Georgia,Times New Roman,Times,serif;font-size:large; }
-                .color-999 {color:#999999;}
-                .x-small {font-size:x-small;}
-                #related-article-links{font-family :Arial,Helvetica,sans-serif; font-size:small;}
-                h2{color:#333333;font-family :Georgia,Times New Roman,Times,serif; font-size:small;}
-                p{font-family :Arial,Helvetica,sans-serif; font-size:small;}
-                '''
-
-    feeds          = [
-                        (u'Top stories from Times Online', u'http://www.timesonline.co.uk/tol/feeds/rss/topstories.xml'     ),
-                        ('Latest Business News', 'http://www.timesonline.co.uk/tol/feeds/rss/business.xml'),
-                        ('Economics', 'http://www.timesonline.co.uk/tol/feeds/rss/economics.xml'),
-                        ('World News', 'http://www.timesonline.co.uk/tol/feeds/rss/worldnews.xml'),
-                        ('UK News', 'http://www.timesonline.co.uk/tol/feeds/rss/uknews.xml'),
-                        ('Travel News', 'http://www.timesonline.co.uk/tol/feeds/rss/travel.xml'),
-                        ('Sports News', 'http://www.timesonline.co.uk/tol/feeds/rss/sport.xml'),
-                        ('Film News', 'http://www.timesonline.co.uk/tol/feeds/rss/film.xml'),
-                        ('Tech news', 'http://www.timesonline.co.uk/tol/feeds/rss/tech.xml'),
-                        ('Literary Supplement', 'http://www.timesonline.co.uk/tol/feeds/rss/thetls.xml'),
-                     ]
-
-    def get_cover_url(self):
-        cover_url = None
-        index = 'http://www.timesonline.co.uk/tol/newspapers/'
-        soup = self.index_to_soup(index)
-        link_item = soup.find(name = 'div',attrs ={'class': "float-left margin-right-15"})
-        if link_item:
-           cover_url = link_item.img['src']
-        return cover_url
-
-    def get_article_url(self, article):
-        return article.get('guid',  None)
-
+    feeds = [
+                (u'UK News'     , PREFIX + u'news/uk/?view=list'      )
+               ,(u'World'       , PREFIX + u'news/world/?view=list'   )
+               ,(u'Politics'    , PREFIX + u'news/politics/?view=list')
+               ,(u'Health'      , PREFIX + u'health/news/?view=list'  )
+               ,(u'Education'   , PREFIX + u'education/?view=list'    )
+               ,(u'Technology'  , PREFIX + u'technology/?view=list'   )
+               ,(u'Science'     , PREFIX + u'science/?view=list'      )
+               ,(u'Environment' , PREFIX + u'environment/?view=list'  )
+               ,(u'Faith'       , PREFIX + u'faith/?view=list'        )
+               ,(u'Opinion'     , PREFIX + u'opinion/?view=list'      )
+               ,(u'Sport'       , PREFIX + u'sport/?view=list'        )
+               ,(u'Business'    , PREFIX + u'business/?view=list'     )
+               ,(u'Money'       , PREFIX + u'money/?view=list'        )
+               ,(u'Life'        , PREFIX + u'life/?view=list'         )
+               ,(u'Arts'        , PREFIX + u'arts/?view=list'         )
+            ]
 
     def preprocess_html(self, soup):
-        soup.html['xml:lang'] = self.language
-        soup.html['lang']     = self.language
-        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.language)])
-        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=ISO-8859-1")])
-        soup.head.insert(0,mlang)
-        soup.head.insert(1,mcharset)
+        for item in soup.findAll(style=True):
+            del item['style']
         return self.adeify_images(soup)
 
-    def postprocess_html(self,soup,first):
-        for tag in soup.findAll(text = ['Previous Page','Next Page']):
-            tag.extract()
-        return soup
-
-
+    def parse_index(self):
+        totalfeeds = []
+        lfeeds = self.get_feeds()
+        for feedobj in lfeeds:
+            feedtitle, feedurl = feedobj
+            self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
+            articles = []
+            soup = self.index_to_soup(feedurl)
+            for item in soup.findAll('td', attrs={'class':'title'}):
+                atag          = item.find('a')
+                url           = self.INDEX + atag['href']
+                title         = self.tag_to_string(atag)
+                articles.append({
+                                      'title'      :title
+                                     ,'date'       :''
+                                     ,'url'        :url
+                                     ,'description':''
+                                    })
+            totalfeeds.append((feedtitle, articles))
+        return totalfeeds

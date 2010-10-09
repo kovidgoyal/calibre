@@ -1,0 +1,110 @@
+from calibre.web.feeds.news import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from BeautifulSoup import Tag
+
+class RevistaMuyInteresante(BasicNewsRecipe):
+
+    title       = 'Revista Muy Interesante'
+    __author__  = 'Jefferson Frantz'
+    description = 'Revista de divulgacion'
+    timefmt = ' [%d %b, %Y]'
+    language = 'es'
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    extra_css              = ' .txt_articulo{ font-family: sans-serif; font-size: medium; text-align: justify } .contentheading{font-family: serif; font-size: large; font-weight: bold; color: #000000; text-align: center}'
+
+
+    def preprocess_html(self, soup):
+            for item in soup.findAll(style=True):
+               del item['style']
+
+            for img_tag in soup.findAll('img'):
+                imagen = img_tag
+                new_tag = Tag(soup,'p')
+                img_tag.replaceWith(new_tag)
+                div = soup.find(attrs={'class':'article_category'})
+                div.insert(0,imagen)
+                break
+            return soup
+
+
+    preprocess_regexps = [
+        (re.compile(r'<td class="contentheading" width="100%">.*?</td>', re.DOTALL|re.IGNORECASE), lambda match: '<td class="contentheading">' + match.group().replace('<td class="contentheading" width="100%">','').strip().replace('</td>','').strip() + '</td>'),
+
+    ]
+
+
+    keep_only_tags = [dict(name='div', attrs={'class':['article']}),dict(name='td', attrs={'class':['txt_articulo']})]
+
+    remove_tags        = [
+                             dict(name=['object','link','script','ul'])
+                            ,dict(name='div', attrs={'id':['comment']})
+                            ,dict(name='td', attrs={'class':['buttonheading']})
+                            ,dict(name='div', attrs={'class':['tags_articles']})
+                            ,dict(name='table', attrs={'class':['pagenav']})
+                         ]
+
+    remove_tags_after = dict(name='div', attrs={'class':'tags_articles'})
+
+
+    #TO GET ARTICLES IN SECTION
+    def nz_parse_section(self, url):
+            soup = self.index_to_soup(url)
+            div = soup.find(attrs={'class':'contenido'})
+            current_articles = []
+            for x in div.findAllNext(attrs={'class':['headline']}):
+                    a = x.find('a', href=True)
+                    if a is None:
+                        continue
+                    title = self.tag_to_string(a)
+                    url = a.get('href', False)
+                    if not url or not title:
+                        continue
+                    if url.startswith('/'):
+                         url = 'http://www.muyinteresante.es'+url
+#                    self.log('\t\tFound article:', title)
+#                    self.log('\t\t\t', url)
+                    current_articles.append({'title': title, 'url':url,
+                        'description':'', 'date':''})
+
+            return current_articles
+
+
+    # To GET SECTIONS
+    def parse_index(self):
+            feeds = []
+            for title, url in [
+                ('Historia',
+                 'http://www.muyinteresante.es/historia-articulos'),
+                ('Ciencia',
+                 'http://www.muyinteresante.es/ciencia-articulos'),
+                ('Naturaleza',
+                 'http://www.muyinteresante.es/naturaleza-articulos'),
+                ('Tecnología',
+                 'http://www.muyinteresante.es/tecnologia-articulos'),
+                ('Salud',
+                 'http://www.muyinteresante.es/salud-articulos'),
+                ('Más Muy',
+                 'http://www.muyinteresante.es/muy'),
+                ('Innova - Automoción',
+                 'http://www.muyinteresante.es/articulos-innovacion-autos'),
+                ('Innova - Salud',
+                 'http://www.muyinteresante.es/articulos-innovacion-salud'),
+                ('Innova - Medio Ambiente',
+                 'http://www.muyinteresante.es/articulos-innovacion-medio-ambiente'),
+                ('Innova - Alimentación',
+                 'http://www.muyinteresante.es/articulos-innovacion-alimentacion'),
+                ('Innova - Sociedad',
+                 'http://www.muyinteresante.es/articulos-innovacion-sociedad'),
+                ('Innova - Tecnología',
+                 'http://www.muyinteresante.es/articulos-innovacion-tecnologia'),
+                ('Innova - Ocio',
+                 'http://www.muyinteresante.es/articulos-innovacion-ocio'),
+             ]:
+               articles = self.nz_parse_section(url)
+               if articles:
+                   feeds.append((title, articles))
+            return feeds
+

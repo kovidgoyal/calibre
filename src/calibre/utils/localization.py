@@ -112,6 +112,7 @@ _extra_lang_codes = {
         'en_CN' : _('English (China)'),
         'es_PY' : _('Spanish (Paraguay)'),
         'de_AT' : _('German (AT)'),
+        'fr_BE' : _('French (BE)'),
         'nl'    : _('Dutch (NL)'),
         'nl_BE' : _('Dutch (BE)'),
         'und'   : _('Unknown')

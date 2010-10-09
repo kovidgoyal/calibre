@@ -120,7 +120,7 @@ def enable_plugin(plugin_or_name):
     config['enabled_plugins'] = ep
 
 default_disabled_plugins = set([
-    'Douban Books',
+    'Douban Books', 'Douban.com covers',
 ])
 
 def is_disabled(plugin):

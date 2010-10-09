@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>382</width>
-    <height>242</height>
+    <height>265</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,7 @@
       <string>&amp;Explode ePub</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../../../../resources/images.qrc">
        <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
      </property>
     </widget>
@@ -49,7 +49,7 @@
       <string>&amp;Rebuild ePub</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../../../../resources/images.qrc">
        <normaloff>:/images/exec.png</normaloff>:/images/exec.png</iconset>
      </property>
     </widget>
@@ -63,7 +63,7 @@
       <string>&amp;Cancel</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../../../../resources/images.qrc">
        <normaloff>:/images/window-close.png</normaloff>:/images/window-close.png</iconset>
      </property>
     </widget>
@@ -71,7 +71,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Explode the ePub to display contents in a file browser window. To tweak individual files, right-click, then 'Open with...' your editor of choice. When tweaks are complete, close the file browser window. Rebuild the ePub, updating your calibre library.</string>
+      <string>&lt;p&gt;Explode the ePub to display contents in a file browser window. To tweak individual files, right-click, then 'Open with...' your editor of choice. When tweaks are complete, close the file browser window &lt;b&gt;and the editor windows you used to edit files in the epub&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Rebuild the ePub, updating your calibre library.&lt;/p&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

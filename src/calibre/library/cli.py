@@ -10,7 +10,8 @@ Command line interface to the calibre database.
 import sys, os, cStringIO, re
 from textwrap import TextWrapper
 
-from calibre import terminal_controller, preferred_encoding, prints
+from calibre import terminal_controller, preferred_encoding, prints, \
+    isbytestring
 from calibre.utils.config import OptionParser, prefs, tweaks
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
@@ -32,8 +33,9 @@ def send_message(msg=''):
         t.conn.send('refreshdb:'+msg)
         t.conn.close()
 
-
-
+def write_dirtied(db):
+    prints('Backing up metadata')
+    db.dump_metadata()
 
 def get_parser(usage):
     parser = OptionParser(usage)
@@ -259,6 +261,7 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
                     print >>sys.stderr, '\t', title+':'
                     print >>sys.stderr, '\t\t ', path
 
+        write_dirtied(db)
         send_message()
     finally:
         sys.stdout = orig
@@ -299,6 +302,7 @@ def do_add_empty(db, title, authors, isbn):
     if isbn:
         mi.isbn = isbn
     db.import_book(mi, [])
+    write_dirtied(db)
     send_message()
 
 def command_add(args, dbpath):
@@ -448,10 +452,11 @@ def command_show_metadata(args, dbpath):
     return 0
 
 def do_set_metadata(db, id, stream):
-    mi = OPF(stream)
+    mi = OPF(stream).to_book_metadata()
     db.set_metadata(id, mi)
     db.clean()
     do_show_metadata(db, id, False)
+    write_dirtied(db)
     send_message()
 
 def set_metadata_option_parser():
@@ -869,11 +874,280 @@ def command_saved_searches(args, dbpath):
 
     return 0
 
+def check_library_option_parser():
+    from calibre.library.check_library import CHECKS
+    parser = get_parser(_('''\
+%prog check_library [options]
+
+Perform some checks on the filesystem representing a library. Reports are {0}
+''').format(', '.join([c[0] for c in CHECKS])))
+
+    parser.add_option('-c', '--csv', default=False, action='store_true',
+            help=_('Output in CSV'))
+
+    parser.add_option('-r', '--report', default=None, dest='report',
+                      help=_("Comma-separated list of reports.\n"
+                             "Default: all"))
+
+    parser.add_option('-e', '--ignore_extensions', default=None, dest='exts',
+                      help=_("Comma-separated list of extensions to ignore.\n"
+                             "Default: all"))
+
+    parser.add_option('-n', '--ignore_names', default=None, dest='names',
+                      help=_("Comma-separated list of names to ignore.\n"
+                             "Default: all"))
+    return parser
+
+def command_check_library(args, dbpath):
+    from calibre.library.check_library import CheckLibrary, CHECKS
+    parser = check_library_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 0:
+        parser.print_help()
+        return 1
+
+    if opts.library_path is not None:
+        dbpath = opts.library_path
+
+    if isbytestring(dbpath):
+        dbpath = dbpath.decode(preferred_encoding)
+
+    if opts.report is None:
+        checks = CHECKS
+    else:
+        checks = []
+        for r in opts.report.split(','):
+            found = False
+            for c in CHECKS:
+                if c[0] == r:
+                    checks.append(c)
+                    found = True
+                    break
+            if not found:
+                print _('Unknown report check'), r
+                return 1
+
+    if opts.names is None:
+        names = []
+    else:
+        names = [f.strip() for f in opts.names.split(',') if f.strip()]
+    if opts.exts is None:
+        exts = []
+    else:
+        exts = [f.strip() for f in opts.exts.split(',') if f.strip()]
+
+    def print_one(checker, check):
+        attr = check[0]
+        list = getattr(checker, attr, None)
+        if list is None:
+            return
+        if opts.csv:
+            for i in list:
+                print check[1] + ',' + i[0] + ',' + i[1] + ',' + '|'.join(i[2])
+        else:
+            print check[1]
+            for i in list:
+                print '    %-30.30s - %-30.30s - %s'%(i[0], i[1], ', '.join(i[2]))
+
+    db = LibraryDatabase2(dbpath)
+    checker = CheckLibrary(dbpath, db)
+    checker.scan_library(names, exts)
+    for check in checks:
+        print_one(checker, check)
+
+
+def restore_database_option_parser():
+    parser = get_parser(_(
+    '''\
+%prog restore_database [options]
+
+Restore this database from the metadata stored in OPF files in each
+directory of the calibre library. This is useful if your metadata.db file
+has been corrupted.
+
+WARNING: This command completely regenerates your database. You will lose
+all saved searches, user categories, plugboards, stored per-book conversion
+settings, and custom recipes. Restored metadata will only be as accurate as
+what is found in the OPF files.
+    '''))
+
+    parser.add_option('-r', '--really-do-it', default=False, action='store_true',
+            help=_('Really do the recovery. The command will not run '
+                   'unless this option is specified.'))
+    return parser
+
+def command_restore_database(args, dbpath):
+    from calibre.library.restore import Restore
+    parser = restore_database_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 0:
+        parser.print_help()
+        return 1
+
+    if not opts.really_do_it:
+        prints(_('You must provide the --really-do-it option to do a'
+            ' recovery'), end='\n\n')
+        parser.print_help()
+        return 1
+
+    if opts.library_path is not None:
+        dbpath = opts.library_path
+
+    if isbytestring(dbpath):
+        dbpath = dbpath.decode(preferred_encoding)
+
+    class Progress(object):
+        def __init__(self): self.total = 1
+
+        def __call__(self, msg, step):
+            if msg is None:
+                self.total = float(step)
+            else:
+                prints(msg, '...', '%d%%'%int(100*(step/self.total)))
+    r = Restore(dbpath, progress_callback=Progress())
+    r.start()
+    r.join()
+
+    if r.tb is not None:
+        prints('Restoring database failed with error:')
+        prints(r.tb)
+    else:
+        prints('Restoring database succeeded')
+        prints('old database saved as', r.olddb)
+        if r.errors_occurred:
+            name = 'calibre_db_restore_report.txt'
+            open('calibre_db_restore_report.txt',
+                    'wb').write(r.report.encode('utf-8'))
+            prints('Some errors occurred. A detailed report was '
+                    'saved to', name)
+
+def list_categories_option_parser():
+    parser = get_parser(_('''\
+%prog list_categories [options]
+
+Produce a report of the category information in the database. The
+information is the equivalent of what is shown in the tags pane.
+'''))
+
+    parser.add_option('-i', '--item_count', default=False, action='store_true',
+            help=_('Output only the number of items in a category instead of the '
+                   'counts per item within the category'))
+    parser.add_option('-c', '--csv', default=False, action='store_true',
+            help=_('Output in CSV'))
+    parser.add_option('-q', '--quote', default='"',
+            help=_('The character to put around the category value in CSV mode. '
+                   'Default is quotes (").'))
+    parser.add_option('-r', '--categories', default='', dest='report',
+                      help=_("Comma-separated list of category lookup names.\n"
+                             "Default: all"))
+    parser.add_option('-w', '--idth', default=-1, type=int,
+                      help=_('The maximum width of a single line in the output. '
+                             'Defaults to detecting screen size.'))
+    parser.add_option('-s', '--separator', default=',',
+                      help=_('The string used to separate fields in CSV mode. '
+                             'Default is a comma.'))
+    return parser
+
+def command_list_categories(args, dbpath):
+    parser = list_categories_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 0:
+        parser.print_help()
+        return 1
+
+    if opts.library_path is not None:
+        dbpath = opts.library_path
+
+    if isbytestring(dbpath):
+        dbpath = dbpath.decode(preferred_encoding)
+
+    db = LibraryDatabase2(dbpath)
+    category_data = db.get_categories()
+    data = []
+    report_on = [c.strip() for c in opts.report.split(',') if c.strip()]
+    categories = [k for k in category_data.keys()
+                  if db.metadata_for_field(k)['kind'] not in ['user', 'search'] and
+                  (not report_on or k in report_on)]
+
+    categories.sort(cmp=lambda x,y: cmp(x if x[0] != '#' else x[1:],
+                                        y if y[0] != '#' else y[1:]))
+    if not opts.item_count:
+        for category in categories:
+            is_rating = db.metadata_for_field(category)['datatype'] == 'rating'
+            for tag in category_data[category]:
+                if is_rating:
+                    tag.name = unicode(len(tag.name))
+                data.append({'category':category, 'tag_name':tag.name,
+                             'count':unicode(tag.count), 'rating':unicode(tag.avg_rating)})
+    else:
+        for category in categories:
+            data.append({'category':category,
+                         'tag_name':_('CATEGORY ITEMS'),
+                         'count': len(category_data[category]), 'rating': 0.0})
+
+    fields = ['category', 'tag_name', 'count', 'rating']
+
+    def do_list():
+        separator = ' '
+        widths = list(map(lambda x : 0, fields))
+        for i in data:
+            for j, field in enumerate(fields):
+                widths[j] = max(widths[j], max(len(field), len(unicode(i[field]))))
+
+        screen_width = terminal_controller.COLS if opts.line_width < 0 else opts.line_width
+        if not screen_width:
+            screen_width = 80
+        field_width = screen_width//len(fields)
+        base_widths = map(lambda x: min(x+1, field_width), widths)
+
+        while sum(base_widths) < screen_width:
+            adjusted = False
+            for i in range(len(widths)):
+                if base_widths[i] < widths[i]:
+                    base_widths[i] += min(screen_width-sum(base_widths), widths[i]-base_widths[i])
+                    adjusted = True
+                    break
+            if not adjusted:
+                break
+
+        widths = list(base_widths)
+        titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
+                widths, fields)
+        print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
+
+        wrappers = map(lambda x: TextWrapper(x-1), widths)
+        o = cStringIO.StringIO()
+
+        for record in data:
+            text = [wrappers[i].wrap(unicode(record[field]).encode('utf-8')) for i, field in enumerate(fields)]
+            lines = max(map(len, text))
+            for l in range(lines):
+                for i, field in enumerate(text):
+                    ft = text[i][l] if l < len(text[i]) else ''
+                    filler = '%*s'%(widths[i]-len(ft)-1, '')
+                    o.write(ft)
+                    o.write(filler+separator)
+                print >>o
+        print o.getvalue()
+
+    def do_csv():
+        lf = '{category},"{tag_name}",{count},{rating}'
+        lf = lf.replace(',', opts.separator).replace(r'\t','\t').replace(r'\n','\n')
+        lf = lf.replace('"', opts.quote)
+        for d in data:
+            print lf.format(**d)
+
+    if opts.csv:
+        do_csv()
+    else:
+        do_list()
+
 
 COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'show_metadata', 'set_metadata', 'export', 'catalog',
             'saved_searches', 'add_custom_column', 'custom_columns',
-            'remove_custom_column', 'set_custom')
+            'remove_custom_column', 'set_custom', 'restore_database',
+            'check_library', 'list_categories')
 
 
 def option_parser():

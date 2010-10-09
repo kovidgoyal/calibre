@@ -218,7 +218,7 @@ class MetadataReaderPlugin(Plugin): # {{{
         with the input data.
         :param type: The type of file. Guaranteed to be one of the entries
         in :attr:`file_types`.
-        :return: A :class:`calibre.ebooks.metadata.MetaInformation` object
+        :return: A :class:`calibre.ebooks.metadata.book.Metadata` object
         '''
         return None
 # }}}
@@ -248,7 +248,7 @@ class MetadataWriterPlugin(Plugin): # {{{
         with the input data.
         :param type: The type of file. Guaranteed to be one of the entries
         in :attr:`file_types`.
-        :param mi: A :class:`calibre.ebooks.metadata.MetaInformation` object
+        :param mi: A :class:`calibre.ebooks.metadata.book.Metadata` object
         '''
         pass
 

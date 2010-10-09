@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 Perform various initialization tasks.
 '''
 
-import locale, sys, os
+import locale, sys, os, re
 
 # Default translation is NOOP
 import __builtin__
@@ -105,6 +105,114 @@ if not _run_once:
         return res
 
     os.path.join = my_join
+
+    def local_open(name, mode='r', bufsize=-1):
+        '''
+        Open a file that wont be inherited by child processes
+
+        Only supports the following modes:
+            r, w, a, rb, wb, ab, r+, w+, a+, r+b, w+b, a+b
+        '''
+        if iswindows:
+            class fwrapper(object):
+                def __init__(self, name, fobject):
+                    object.__setattr__(self, 'fobject', fobject)
+                    object.__setattr__(self, 'name', name)
+
+                def __getattribute__(self, attr):
+                    if attr == 'name':
+                        return object.__getattribute__(self, attr)
+                    fobject = object.__getattribute__(self, 'fobject')
+                    return getattr(fobject, attr)
+
+                def __setattr__(self, attr, val):
+                    fobject = object.__getattribute__(self, 'fobject')
+                    return setattr(fobject, attr, val)
+
+                def __repr__(self):
+                    fobject = object.__getattribute__(self, 'fobject')
+                    name = object.__getattribute__(self, 'name')
+                    return re.sub(r'''['"]<fdopen>['"]''', repr(name),
+                            repr(fobject))
+
+                def __str__(self):
+                    return repr(self)
+
+                def __unicode__(self):
+                    return repr(self).decode('utf-8')
+
+
+            m = mode[0]
+            random = len(mode) > 1 and mode[1] == '+'
+            binary = mode[-1] == 'b'
+
+            if m == 'a':
+                flags = os.O_APPEND| os.O_RDWR
+                flags |= os.O_RANDOM if random else os.O_SEQUENTIAL
+            elif m == 'r':
+                if random:
+                    flags = os.O_RDWR | os.O_RANDOM
+                else:
+                    flags = os.O_RDONLY | os.O_SEQUENTIAL
+            elif m == 'w':
+                if random:
+                    flags = os.O_RDWR | os.O_RANDOM
+                else:
+                    flags = os.O_WRONLY | os.O_SEQUENTIAL
+                flags |= os.O_TRUNC | os.O_CREAT
+            if binary:
+                flags |= os.O_BINARY
+            else:
+                flags |= os.O_TEXT
+            flags |= os.O_NOINHERIT
+            fd = os.open(name, flags)
+            ans = os.fdopen(fd, mode, bufsize)
+            ans = fwrapper(name, ans)
+        else:
+            import fcntl
+            try:
+                cloexec_flag = fcntl.FD_CLOEXEC
+            except AttributeError:
+                cloexec_flag = 1
+            ans = open(name, mode, bufsize)
+            old = fcntl.fcntl(ans, fcntl.F_GETFD)
+            fcntl.fcntl(ans, fcntl.F_SETFD, old | cloexec_flag)
+        return ans
+
+    __builtin__.__dict__['lopen'] = local_open
+
+def test_lopen():
+    from calibre.ptempfile import TemporaryDirectory
+    from calibre import CurrentDir
+    n = u'f\xe4llen'
+
+    with TemporaryDirectory() as tdir:
+        with CurrentDir(tdir):
+            with lopen(n, 'w') as f:
+                f.write('one')
+            print 'O_CREAT tested'
+            with lopen(n, 'w+b') as f:
+                f.write('two')
+            with lopen(n, 'r') as f:
+                if f.read() == 'two':
+                    print 'O_TRUNC tested'
+                else:
+                    raise Exception('O_TRUNC failed')
+            with lopen(n, 'ab') as f:
+                f.write('three')
+            with lopen(n, 'r+') as f:
+                if f.read() == 'twothree':
+                    print 'O_APPEND tested'
+                else:
+                    raise Exception('O_APPEND failed')
+            with lopen(n, 'r+') as f:
+                f.seek(3)
+                f.write('xxxxx')
+                f.seek(0)
+                if f.read() == 'twoxxxxx':
+                    print 'O_RANDOM tested'
+                else:
+                    raise Exception('O_RANDOM failed')
 
 
 

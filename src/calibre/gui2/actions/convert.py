@@ -181,5 +181,6 @@ class ConvertAction(InterfaceAction):
         self.gui.tags_view.recount()
         if self.gui.current_view() is self.gui.library_view:
             current = self.gui.library_view.currentIndex()
-            self.gui.library_view.model().current_changed(current, QModelIndex())
+            if current.isValid():
+                self.gui.library_view.model().current_changed(current, QModelIndex())
 

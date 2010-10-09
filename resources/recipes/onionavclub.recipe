@@ -12,6 +12,7 @@ class BBC(BasicNewsRecipe):
     title          = u'The Onion AV Club'
     __author__     = 'Stephen Williams'
     description    = 'Film, Television and Music Reviews'
+    language = 'en'
     no_stylesheets = True
     oldest_article        = 2
     max_articles_per_feed = 100

@@ -1,3 +1,4 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -251,6 +252,12 @@ class OutputProfile(Plugin):
     #: The character used to represent a star in ratings
     ratings_char = u'*'
 
+    #: Unsupported unicode characters to be replaced during preprocessing
+    unsupported_unicode_chars = []
+
+    #: Number of ems that the left margin of a blockquote is rendered as
+    mobi_ems_per_blockquote = 1.0
+
     @classmethod
     def tags_to_string(cls, tags):
         return escape(', '.join(tags))
@@ -422,6 +429,8 @@ class SonyReaderOutput(OutputProfile):
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+    unsupported_unicode_chars = [u'\u201f', u'\u201b']
+
 
 class KoboReaderOutput(OutputProfile):
 
@@ -558,6 +567,7 @@ class KindleOutput(OutputProfile):
     supports_mobi_indexing = True
     periodical_date_in_title = False
     ratings_char = u'\u2605'
+    mobi_ems_per_blockquote = 2.0
 
     @classmethod
     def tags_to_string(cls, tags):
@@ -576,6 +586,7 @@ class KindleDXOutput(OutputProfile):
     comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
+    mobi_ems_per_blockquote = 2.0
 
     @classmethod
     def tags_to_string(cls, tags):

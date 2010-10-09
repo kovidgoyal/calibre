@@ -38,6 +38,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                         'is_multiple':False},
                     8:{'datatype':'bool',
                         'text':_('Yes/No'), 'is_multiple':False},
+                    9:{'datatype':'composite',
+                        'text':_('Column built from other columns'), 'is_multiple':False},
                 }
 
     def __init__(self, parent, editing, standard_colheads, standard_colnames):
@@ -80,12 +82,15 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         ct = c['datatype'] if not c['is_multiple'] else '*text'
         self.orig_column_number = c['colnum']
         self.orig_column_name = col
-        column_numbers = dict(map(lambda x:(self.column_types[x]['datatype'], x), self.column_types))
+        column_numbers = dict(map(lambda x:(self.column_types[x]['datatype'], x),
+                                  self.column_types))
         self.column_type_box.setCurrentIndex(column_numbers[ct])
         self.column_type_box.setEnabled(False)
         if ct == 'datetime':
             if c['display'].get('date_format', None):
                 self.date_format_box.setText(c['display'].get('date_format', ''))
+        elif ct == 'composite':
+            self.composite_box.setText(c['display'].get('composite_template', ''))
         self.datatype_changed()
         self.exec_()
 
@@ -94,9 +99,10 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         except:
             col_type = None
-        df_visible = col_type == 'datetime'
         for x in ('box', 'default_label', 'label'):
-            getattr(self, 'date_format_'+x).setVisible(df_visible)
+            getattr(self, 'date_format_'+x).setVisible(col_type == 'datetime')
+        for x in ('box', 'default_label', 'label'):
+            getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
 
 
     def accept(self):
@@ -104,9 +110,11 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if not col:
             return self.simple_error('', _('No lookup name was provided'))
         if re.match('^\w*$', col) is None or not col[0].isalpha() or col.lower() != col:
-            return self.simple_error('', _('The lookup name must contain only lower case letters, digits and underscores, and start with a letter'))
+            return self.simple_error('', _('The lookup name must contain only '
+                    'lower case letters, digits and underscores, and start with a letter'))
         if col.endswith('_index'):
-            return self.simple_error('', _('Lookup names cannot end with _index, because these names are reserved for the index of a series column.'))
+            return self.simple_error('', _('Lookup names cannot end with _index, '
+                    'because these names are reserved for the index of a series column.'))
         col_heading = unicode(self.column_heading_box.text())
         col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         if col_type == '*text':
@@ -118,14 +126,17 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             return self.simple_error('', _('No column heading was provided'))
         bad_col = False
         if col in self.parent.custcols:
-            if not self.editing_col or self.parent.custcols[col]['colnum'] != self.orig_column_number:
+            if not self.editing_col or \
+                    self.parent.custcols[col]['colnum'] != self.orig_column_number:
                 bad_col = True
         if bad_col:
             return self.simple_error('', _('The lookup name %s is already used')%col)
+
         bad_head = False
         for t in self.parent.custcols:
             if self.parent.custcols[t]['name'] == col_heading:
-                if not self.editing_col or self.parent.custcols[t]['colnum'] != self.orig_column_number:
+                if not self.editing_col or \
+                        self.parent.custcols[t]['colnum'] != self.orig_column_number:
                     bad_head = True
         for t in self.standard_colheads:
             if self.standard_colheads[t] == col_heading:
@@ -133,12 +144,18 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if bad_head:
             return self.simple_error('', _('The heading %s is already used')%col_heading)
 
-        date_format = {}
+        display_dict = {}
         if col_type == 'datetime':
             if self.date_format_box.text():
-                date_format = {'date_format':unicode(self.date_format_box.text())}
+                display_dict = {'date_format':unicode(self.date_format_box.text())}
             else:
-                date_format = {'date_format': None}
+                display_dict = {'date_format': None}
+
+        if col_type == 'composite':
+            if not self.composite_box.text():
+                return self.simple_error('', _('You must enter a template for'
+                    ' composite columns'))
+            display_dict = {'composite_template':unicode(self.composite_box.text())}
 
         db = self.parent.gui.library_view.model().db
         key = db.field_metadata.custom_field_prefix+col
@@ -148,8 +165,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'label':col,
                     'name':col_heading,
                     'datatype':col_type,
-                    'editable':True,
-                    'display':date_format,
+                    'display':display_dict,
                     'normalized':None,
                     'colnum':None,
                     'is_multiple':is_multiple,
@@ -164,7 +180,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             item.setText(col_heading)
             self.parent.custcols[self.orig_column_name]['label'] = col
             self.parent.custcols[self.orig_column_name]['name'] = col_heading
-            self.parent.custcols[self.orig_column_name]['display'].update(date_format)
+            self.parent.custcols[self.orig_column_name]['display'].update(display_dict)
             self.parent.custcols[self.orig_column_name]['*edited'] = True
             self.parent.custcols[self.orig_column_name]['*must_restart'] = True
         QDialog.accept(self)

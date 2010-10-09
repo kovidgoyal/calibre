@@ -8,15 +8,14 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import Qt, QTimer, QMenu
+from PyQt4.Qt import Qt, QMenu
 
-from calibre.gui2 import error_dialog, config, warning_dialog
+from calibre.gui2 import error_dialog, config
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2.dialogs.progress import BlockingBusy
 
 class EditMetadataAction(InterfaceAction):
 
@@ -84,52 +83,33 @@ class EditMetadataAction(InterfaceAction):
 
     def do_download_metadata(self, ids, covers=True, set_metadata=True,
             set_social_metadata=None):
-        db = self.gui.library_view.model().db
+        m = self.gui.library_view.model()
+        db = m.db
         if set_social_metadata is None:
             get_social_metadata = config['get_social_metadata']
         else:
             get_social_metadata = set_social_metadata
-        from calibre.gui2.metadata import DownloadMetadata
-        self._download_book_metadata = DownloadMetadata(db, ids,
-                get_covers=covers, set_metadata=set_metadata,
-                get_social_metadata=get_social_metadata)
-        self._download_book_metadata.start()
+        from calibre.gui2.metadata import DoDownload
         if set_social_metadata is not None and set_social_metadata:
             x = _('social metadata')
         else:
             x = _('covers') if covers and not set_metadata else _('metadata')
-        self._book_metadata_download_check = QTimer(self.gui)
-        self._book_metadata_download_check.timeout.connect(self.book_metadata_download_check,
-                type=Qt.QueuedConnection)
-        self._book_metadata_download_check.start(100)
-        self._bb_dialog = BlockingBusy(_('Downloading %s for %d book(s)')%(x,
-            len(ids)), parent=self.gui)
-        self._bb_dialog.exec_()
-
-    def book_metadata_download_check(self):
-        if self._download_book_metadata.is_alive():
-            return
-        self._book_metadata_download_check.stop()
-        self._bb_dialog.accept()
+        title = _('Downloading %s for %d book(s)')%(x, len(ids))
+        self._download_book_metadata = DoDownload(self.gui, title, db, ids,
+                get_covers=covers, set_metadata=set_metadata,
+                get_social_metadata=get_social_metadata)
+        m.stop_metadata_backup()
+        try:
+            self._download_book_metadata.exec_()
+        finally:
+            m.start_metadata_backup()
         cr = self.gui.library_view.currentIndex().row()
         x = self._download_book_metadata
-        self._download_book_metadata = None
-        if x.exception is None:
+        if x.updated:
             self.gui.library_view.model().refresh_ids(
                 x.updated, cr)
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
-            if x.failures:
-                details = ['%s: %s'%(title, reason) for title,
-                        reason in x.failures.values()]
-                details = '%s\n'%('\n'.join(details))
-                warning_dialog(self.gui, _('Failed to download some metadata'),
-                    _('Failed to download metadata for the following:'),
-                    det_msg=details).exec_()
-        else:
-            err = _('Failed to download metadata:')
-            error_dialog(self.gui, _('Error'), err, det_msg=x.tb).exec_()
-
 
     def edit_metadata(self, checked, bulk=None):
         '''
@@ -184,12 +164,13 @@ class EditMetadataAction(InterfaceAction):
         self.gui.tags_view.blockSignals(True)
         try:
             changed = MetadataBulkDialog(self.gui, rows,
-                self.gui.library_view.model().db).changed
+                self.gui.library_view.model()).changed
         finally:
             self.gui.tags_view.blockSignals(False)
         if changed:
-            self.gui.library_view.model().resort(reset=False)
-            self.gui.library_view.model().research()
+            m = self.gui.library_view.model()
+            m.resort(reset=False)
+            m.research()
             self.gui.tags_view.recount()
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()

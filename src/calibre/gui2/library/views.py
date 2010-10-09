@@ -9,16 +9,18 @@ import os
 from functools import partial
 
 from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
-    QModelIndex, QIcon
+    QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication, \
+    QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect
 
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
-    CcBoolDelegate, CcCommentsDelegate, CcDateDelegate
+    CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.library import DEFAULT_SORT
-
+from calibre.constants import filesystem_encoding
+from calibre import force_unicode
 
 class BooksView(QTableView): # {{{
 
@@ -31,6 +33,7 @@ class BooksView(QTableView): # {{{
         self.setDragEnabled(True)
         self.setDragDropOverwriteMode(False)
         self.setDragDropMode(self.DragDrop)
+        self.drag_start_pos = None
         self.setAlternatingRowColors(True)
         self.setSelectionBehavior(self.SelectRows)
         self.setShowGrid(False)
@@ -47,6 +50,7 @@ class BooksView(QTableView): # {{{
         self.cc_text_delegate = CcTextDelegate(self)
         self.cc_bool_delegate = CcBoolDelegate(self)
         self.cc_comments_delegate = CcCommentsDelegate(self)
+        self.cc_template_delegate = CcTemplateDelegate(self)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
@@ -391,6 +395,8 @@ class BooksView(QTableView): # {{{
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)
                 elif cc['datatype'] == 'rating':
                     self.setItemDelegateForColumn(cm.index(colhead), self.rating_delegate)
+                elif cc['datatype'] == 'composite':
+                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_template_delegate)
             else:
                 dattr = colhead+'_delegate'
                 delegate = colhead if hasattr(self, dattr) else 'text'
@@ -419,9 +425,104 @@ class BooksView(QTableView): # {{{
         Accept a drop event and return a list of paths that can be read from
         and represent files with extensions.
         '''
-        if event.mimeData().hasFormat('text/uri-list'):
-            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
+        md = event.mimeData()
+        if md.hasFormat('text/uri-list') and not \
+                md.hasFormat('application/calibre+from_library'):
+            urls = [unicode(u.toLocalFile()) for u in md.urls()]
             return [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
+
+    def drag_icon(self, cover, multiple):
+        cover = cover.scaledToHeight(120, Qt.SmoothTransformation)
+        if multiple:
+            base_width = cover.width()
+            base_height = cover.height()
+            base = QImage(base_width+21, base_height+21,
+                    QImage.Format_ARGB32_Premultiplied)
+            base.fill(QColor(255, 255, 255, 0).rgba())
+            p = QPainter(base)
+            rect = QRect(20, 0, base_width, base_height)
+            p.fillRect(rect, QColor('white'))
+            p.drawRect(rect)
+            rect.moveLeft(10)
+            rect.moveTop(10)
+            p.fillRect(rect, QColor('white'))
+            p.drawRect(rect)
+            rect.moveLeft(0)
+            rect.moveTop(20)
+            p.fillRect(rect, QColor('white'))
+            p.save()
+            p.setCompositionMode(p.CompositionMode_SourceAtop)
+            p.drawImage(rect.topLeft(), cover)
+            p.restore()
+            p.drawRect(rect)
+            p.end()
+            cover = base
+        return QPixmap.fromImage(cover)
+
+    def drag_data(self):
+        m = self.model()
+        db = m.db
+        rows = self.selectionModel().selectedRows()
+        selected = map(m.id, rows)
+        ids = ' '.join(map(str, selected))
+        md = QMimeData()
+        md.setData('application/calibre+from_library', ids)
+        fmt = prefs['output_format']
+
+        def url_for_id(i):
+            ans = db.format_abspath(i, fmt, index_is_id=True)
+            if ans is None:
+                fmts = db.formats(i, index_is_id=True)
+                if fmts:
+                    fmts = fmts.split(',')
+                else:
+                    fmts = []
+                for f in fmts:
+                    ans = db.format_abspath(i, f, index_is_id=True)
+                    if ans is not None:
+                        break
+            if ans is None:
+                ans = db.abspath(i, index_is_id=True)
+            return QUrl.fromLocalFile(ans)
+
+        md.setUrls([url_for_id(i) for i in selected])
+        drag = QDrag(self)
+        drag.setMimeData(md)
+        cover = self.drag_icon(m.cover(self.currentIndex().row()),
+                len(selected) > 1)
+        drag.setHotSpot(QPoint(-15, -15))
+        drag.setPixmap(cover)
+        return drag
+
+    def event_has_mods(self, event=None):
+        mods = event.modifiers() if event is not None else \
+                QApplication.keyboardModifiers()
+        return mods & Qt.ControlModifier or mods & Qt.ShiftModifier
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and not self.event_has_mods():
+            self.drag_start_pos = event.pos()
+        return QTableView.mousePressEvent(self, event)
+
+    def mouseMoveEvent(self, event):
+        if self.drag_start_pos is None:
+            return QTableView.mouseMoveEvent(self, event)
+
+        if self.event_has_mods():
+            self.drag_start_pos = None
+            return
+
+        if not (event.buttons() & Qt.LeftButton) or \
+                (event.pos() - self.drag_start_pos).manhattanLength() \
+                      < QApplication.startDragDistance():
+            return
+
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            return
+        drag = self.drag_data()
+        drag.exec_(Qt.CopyAction)
+        self.drag_start_pos = None
 
     def dragEnterEvent(self, event):
         if int(event.possibleActions() & Qt.CopyAction) + \
@@ -485,29 +586,29 @@ class BooksView(QTableView): # {{{
         Select rows identified by identifiers. identifiers can be a set of ids,
         row numbers or QModelIndexes.
         '''
-        selmode = self.selectionMode()
-        self.setSelectionMode(QAbstractItemView.MultiSelection)
-        try:
-            rows = set([x.row() if hasattr(x, 'row') else x for x in
-                identifiers])
-            if using_ids:
-                rows = set([])
-                identifiers = set(identifiers)
-                m = self.model()
-                for row in range(m.rowCount(QModelIndex())):
-                    if m.id(row) in identifiers:
-                        rows.add(row)
-            if rows:
-                row = list(sorted(rows))[0]
-                if change_current:
-                    self.set_current_row(row, select=False)
-                if scroll:
-                    self.scroll_to_row(row)
-            self.clearSelection()
-            for r in rows:
-                self.selectRow(r)
-        finally:
-            self.setSelectionMode(selmode)
+        rows = set([x.row() if hasattr(x, 'row') else x for x in
+            identifiers])
+        if using_ids:
+            rows = set([])
+            identifiers = set(identifiers)
+            m = self.model()
+            for row in xrange(m.rowCount(QModelIndex())):
+                if m.id(row) in identifiers:
+                    rows.add(row)
+        rows = list(sorted(rows))
+        if rows:
+            row = rows[0]
+            if change_current:
+                self.set_current_row(row, select=False)
+            if scroll:
+                self.scroll_to_row(row)
+        sm = self.selectionModel()
+        sel = QItemSelection()
+        m = self.model()
+        max_col = m.columnCount(QModelIndex()) - 1
+        for row in rows:
+            sel.select(m.index(row, 0), m.index(row, max_col))
+        sm.select(sel, sm.ClearAndSelect)
 
     def close(self):
         self._model.close()
@@ -543,6 +644,21 @@ class DeviceBooksView(BooksView): # {{{
             self.setItemDelegateForColumn(i, TextDelegate(self))
         self.setDragDropMode(self.NoDragDrop)
         self.setAcceptDrops(False)
+
+    def drag_data(self):
+        m = self.model()
+        rows = self.selectionModel().selectedRows()
+        paths = [force_unicode(p, enc=filesystem_encoding) for p in m.paths(rows) if p]
+        md = QMimeData()
+        md.setData('application/calibre+from_device', 'dummy')
+        md.setUrls([QUrl.fromLocalFile(p) for p in paths])
+        drag = QDrag(self)
+        drag.setMimeData(md)
+        cover = self.drag_icon(m.cover(self.currentIndex().row()), len(paths) >
+                1)
+        drag.setHotSpot(QPoint(-15, -15))
+        drag.setPixmap(cover)
+        return drag
 
     def contextMenuEvent(self, event):
         edit_collections = callable(getattr(self._model.db, 'supports_collections', None)) and \

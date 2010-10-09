@@ -325,12 +325,6 @@ class XMLCache(object):
         for book in bl:
             record = lpath_map.get(book.lpath, None)
             if record is not None:
-                title = record.get('title', None)
-                if title is not None and title != book.title:
-                    debug_print('Renaming title', book.title, 'to', title)
-                    book.title = title
-                    # Don't set the author, because the reader strips all but
-                    # the first author.
                 for thumbnail in record.xpath(
                         'descendant::*[local-name()="thumbnail"]'):
                     for img in thumbnail.xpath(
@@ -350,7 +344,7 @@ class XMLCache(object):
     # }}}
 
     # Update XML from JSON {{{
-    def update(self, booklists, collections_attributes):
+    def update(self, booklists, collections_attributes, plugboard):
         debug_print('Starting update', collections_attributes)
         use_tz_var = False
         for i, booklist in booklists.items():
@@ -365,8 +359,14 @@ class XMLCache(object):
                 record = lpath_map.get(book.lpath, None)
                 if record is None:
                     record = self.create_text_record(root, i, book.lpath)
+                if plugboard is not None:
+                    newmi = book.deepcopy_metadata()
+                    newmi.template_to_attribute(book, plugboard)
+                    newmi.set('_new_book', getattr(book, '_new_book', False))
+                else:
+                    newmi = book
                 (gtz_count, ltz_count, use_tz_var) = \
-                    self.update_text_record(record, book, path, i,
+                    self.update_text_record(record, newmi, path, i,
                                             gtz_count, ltz_count, use_tz_var)
                 # Ensure the collections in the XML database are recorded for
                 # this book

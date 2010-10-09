@@ -18,7 +18,7 @@ from calibre.utils.date import parse_date
 class CustomColumns(object):
 
     CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
-        'int', 'float', 'bool', 'series'])
+        'int', 'float', 'bool', 'series', 'composite'])
 
     def custom_table_names(self, num):
         return 'custom_column_%d'%num, 'books_custom_column_%d_link'%num
@@ -214,6 +214,7 @@ class CustomColumns(object):
             'SELECT id FROM %s WHERE value=?'%table, (new_name,), all=False)
         if new_id is None or old_id == new_id:
             self.conn.execute('UPDATE %s SET value=? WHERE id=?'%table, (new_name, old_id))
+            new_id = old_id
         else:
             # New id exists. If the column is_multiple, then process like
             # tags, otherwise process like publishers (see database2)
@@ -226,6 +227,7 @@ class CustomColumns(object):
             self.conn.execute('''UPDATE %s SET value=?
                                  WHERE value=?'''%lt, (new_id, old_id,))
             self.conn.execute('DELETE FROM %s WHERE id=?'%table, (old_id,))
+        self.dirty_books_referencing('#'+data['label'], new_id, commit=False)
         self.conn.commit()
 
     def delete_custom_item_using_id(self, id, label=None, num=None):
@@ -382,6 +384,7 @@ class CustomColumns(object):
             )
         # get rid of the temp tables
         self.conn.executescript(drops)
+        self.dirtied(ids, commit=False)
         self.conn.commit()
 
         # set the in-memory copies of the tags
@@ -402,19 +405,21 @@ class CustomColumns(object):
         same length as ids.
         '''
         if extras is not None and len(extras) != len(ids):
-            raise ValueError('Lentgh of ids and extras is not the same')
+            raise ValueError('Length of ids and extras is not the same')
         ev = None
         for idx,id in enumerate(ids):
             if extras is not None:
                 ev = extras[idx]
             self._set_custom(id, val, label=label, num=num, append=append,
                              notify=notify, extra=ev)
+        self.dirtied(ids, commit=False)
         self.conn.commit()
 
     def set_custom(self, id, val, label=None, num=None,
                    append=False, notify=True, extra=None, commit=True):
         self._set_custom(id, val, label=label, num=num, append=append,
                          notify=notify, extra=extra)
+        self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
 
@@ -424,6 +429,8 @@ class CustomColumns(object):
             data = self.custom_column_label_map[label]
         if num is not None:
             data = self.custom_column_num_map[num]
+        if data['datatype'] == 'composite':
+            return None
         if not data['editable']:
             raise ValueError('Column %r is not editable'%data['label'])
         table, lt = self.custom_table_names(data['num'])
@@ -540,7 +547,7 @@ class CustomColumns(object):
         if datatype not in self.CUSTOM_DATA_TYPES:
             raise ValueError('%r is not a supported data type'%datatype)
         normalized  = datatype not in ('datetime', 'comments', 'int', 'bool',
-                'float')
+                'float', 'composite')
         is_multiple = is_multiple and datatype in ('text',)
         num = self.conn.execute(
                 ('INSERT INTO '
@@ -551,7 +558,7 @@ class CustomColumns(object):
 
         if datatype in ('rating', 'int'):
             dt = 'INT'
-        elif datatype in ('text', 'comments', 'series'):
+        elif datatype in ('text', 'comments', 'series', 'composite'):
             dt = 'TEXT'
         elif datatype in ('float',):
             dt = 'REAL'

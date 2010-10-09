@@ -7,18 +7,20 @@
 	width: 50%;
 }
 
-.button a,.button:visited a {
-	padding: 0.5em;
-	font-size: 1.25em;
-	border: 1px solid black;
-	text-color: black;
-	background-color: #ddd;
-	border-top: 1px solid ThreeDLightShadow;
-	border-right: 1px solid ButtonShadow;
-	border-bottom: 1px solid ButtonShadow;
-	border-left: 1 px solid ThreeDLightShadow;
-	-moz-border-radius: 0.25em;
-	-webkit-border-radius: 0.25em;
+.button a, .button:visited a {
+    padding: 0.5em;
+    font-size: 1.25em;
+    border: 1px solid black;
+    text-color: black;
+    text-decoration: none;
+    margin-right: 0.5em;
+    background-color: #ddd;
+    border-top: 1px solid ThreeDLightShadow;
+    border-right: 1px solid ButtonShadow;
+    border-bottom: 1px solid ButtonShadow;
+    border-left: 1 px solid ThreeDLightShadow;
+    -moz-border-radius: 0.25em;
+    -webkit-border-radius: 0.25em;
 }
 
 .button:hover a {
@@ -60,13 +62,14 @@ div.navigation {
 	background: #eee;
 }
 
-#listing .button a {
-	display: inline-block;
-	width: 2.5em;
-	padding-left: 0em;
-	padding-right: 0em;
-	overflow: hidden;
-	text-align: center;
+#listing .button a{
+    display: inline-block;
+    width: 2.5em;
+    padding-left: 0em;
+    padding-right: 0em;
+    overflow: hidden;
+    text-align: center;
+    text-decoration: none;
 }
 
 #logo {

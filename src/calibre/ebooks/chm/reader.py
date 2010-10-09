@@ -15,7 +15,6 @@ from calibre.utils.chm.chmlib import (
   chm_enumerate,
 )
 
-from calibre.utils.config import OptionParser
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.chardet import xml_to_unicode
 
@@ -36,41 +35,6 @@ def check_all_prev_empty(tag):
 def check_empty(s, rex = re.compile(r'\S')):
     return rex.search(s) is None
 
-
-def option_parser():
-    parser = OptionParser(usage=_('%prog [options] mybook.chm'))
-    parser.add_option('--output-dir', '-d', default='.', help=_('Output directory. Defaults to current directory'), dest='output')
-    parser.add_option('--verbose', default=False, action='store_true', dest='verbose')
-    parser.add_option("-t", "--title", action="store", type="string", \
-                    dest="title", help=_("Set the book title"))
-    parser.add_option('--title-sort', action='store', type='string', default=None,
-                      dest='title_sort', help=_('Set sort key for the title'))
-    parser.add_option("-a", "--author", action="store", type="string", \
-                    dest="author", help=_("Set the author"))
-    parser.add_option('--author-sort', action='store', type='string', default=None,
-                      dest='author_sort', help=_('Set sort key for the author'))
-    parser.add_option("-c", "--category", action="store", type="string", \
-                    dest="category", help=_("The category this book belongs"
-                    " to. E.g.: History"))
-    parser.add_option("--thumbnail", action="store", type="string", \
-                    dest="thumbnail", help=_("Path to a graphic that will be"
-                    " set as this files' thumbnail"))
-    parser.add_option("--comment", action="store", type="string", \
-                    dest="freetext", help=_("Path to a txt file containing a comment."))
-    parser.add_option("--get-thumbnail", action="store_true", \
-                    dest="get_thumbnail", default=False, \
-                    help=_("Extract thumbnail from LRF file"))
-    parser.add_option('--publisher', default=None, help=_('Set the publisher'))
-    parser.add_option('--classification', default=None, help=_('Set the book classification'))
-    parser.add_option('--creator', default=None, help=_('Set the book creator'))
-    parser.add_option('--producer', default=None, help=_('Set the book producer'))
-    parser.add_option('--get-cover', action='store_true', default=False,
-                      help=_('Extract cover from LRF file. Note that the LRF format has no defined cover, so we use some heuristics to guess the cover.'))
-    parser.add_option('--bookid', action='store', type='string', default=None,
-                      dest='book_id', help=_('Set book ID'))
-    parser.add_option('--font-delta', action='store', type='int', default=0,
-                      dest='font_delta', help=_('Set font delta'))
-    return parser
 
 class CHMError(Exception):
     pass
@@ -151,7 +115,8 @@ class CHMReader(CHMFile):
                     continue
                 raise
         self._extracted = True
-        files = os.listdir(output_dir)
+        files = [x for x in os.listdir(output_dir) if
+                os.path.isfile(os.path.join(output_dir, x))]
         if self.hhc_path not in files:
             for f in files:
                 if f.lower() == self.hhc_path.lower():
