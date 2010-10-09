@@ -529,14 +529,6 @@ class OPF(object): # {{{
         self.find_toc()
         self.read_user_metadata()
 
-    def get_all_user_metadata(self, make_copy):
-        '''
-        return a dict containing all the custom field metadata associated with
-        the book.
-        '''
-        self.read_user_metadata()
-        return self._user_metadata_
-
     def read_user_metadata(self):
         self._user_metadata_ = {}
         temp = Metadata('x', ['x'])
