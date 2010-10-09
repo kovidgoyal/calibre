@@ -19,7 +19,7 @@ __all__ = [
         'upload_user_manual', 'upload_to_mobileread', 'upload_demo',
         'upload_to_sourceforge', 'upload_to_google_code',
         'linux32', 'linux64', 'linux', 'linux_freeze', 'linux_freeze2',
-        'osx32_freeze', 'osx32', 'osx', 'rsync',
+        'osx32_freeze', 'osx32', 'osx', 'rsync', 'push',
         'win32_freeze', 'win32', 'win',
         'stage1', 'stage2', 'stage3', 'stage4', 'publish'
         ]
@@ -68,8 +68,9 @@ upload_to_server = UploadToServer()
 upload_to_sourceforge = UploadToSourceForge()
 upload_to_google_code = UploadToGoogleCode()
 
-from setup.installer import Rsync
+from setup.installer import Rsync, Push
 rsync = Rsync()
+push = Push()
 
 from setup.installer.linux import Linux, Linux32, Linux64
 linux = Linux()
