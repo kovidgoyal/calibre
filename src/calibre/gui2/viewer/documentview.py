@@ -815,6 +815,7 @@ class DocumentView(QWebView):
     def wheelEvent(self, event):
         if event.delta() < -14:
             if self.document.at_bottom:
+                self.scroll_by(y=15) # at_bottom can lie on windows
                 if self.manager is not None:
                     self.manager.next_document()
                     event.accept()
