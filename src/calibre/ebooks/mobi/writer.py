@@ -122,15 +122,14 @@ def rescale_image(data, maxsizeb, dimen=None):
     img = Image()
     quality = 95
 
-    if hasattr(img, 'set_compression_quality'):
-        img.load(data)
-        while len(data) >= maxsizeb and quality >= 10:
-            quality -= 5
-            img.set_compression_quality(quality)
-            data = img.export('jpg')
-        if len(data) <= maxsizeb:
-            return data
-        orig_data = data
+    img.load(data)
+    while len(data) >= maxsizeb and quality >= 10:
+        quality -= 5
+        img.set_compression_quality(quality)
+        data = img.export('jpg')
+    if len(data) <= maxsizeb:
+        return data
+    orig_data = data
 
     scale = 0.9
     while len(data) >= maxsizeb and scale >= 0.05:
@@ -138,8 +137,7 @@ def rescale_image(data, maxsizeb, dimen=None):
         img.load(orig_data)
         w, h = img.size
         img.size = (int(scale*w), int(scale*h))
-        if hasattr(img, 'set_compression_quality'):
-            img.set_compression_quality(quality)
+        img.set_compression_quality(quality)
         data = img.export('jpg')
         scale -= 0.05
     return data
