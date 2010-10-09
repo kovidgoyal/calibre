@@ -121,7 +121,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
                         book['id'], fmt)
                 ),
                 CLASS('button'))
-            s.tail = u'\u202f' # &nbsp;
+            s.tail = u''
             last = s
             data.append(s)
 
