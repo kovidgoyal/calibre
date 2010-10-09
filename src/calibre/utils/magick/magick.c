@@ -725,6 +725,49 @@ magick_Image_set_page(magick_Image *self, PyObject *args, PyObject *kwargs) {
 }
 // }}}
 
+// Image.set_compression_quality {{{
+
+static PyObject *
+magick_Image_set_compression_quality(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    Py_ssize_t quality;
+    
+    if (!PyArg_ParseTuple(args, "n", &quality)) return NULL;
+
+    if (!MagickSetImageCompressionQuality(self->wand, quality)) return magick_set_exception(self->wand);
+
+    Py_RETURN_NONE;
+}
+// }}}
+
+// Image.has_transparent_pixels {{{
+
+static PyObject *
+magick_Image_has_transparent_pixels(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    PixelIterator *pi = NULL;
+    PixelWand **pixels = NULL;
+    int found = 0;
+    size_t r, c, width, height;
+    double alpha;
+
+    height = MagickGetImageHeight(self->wand);
+    pi = NewPixelIterator(self->wand);
+
+    for (r = 0; r < height; r++) {
+        pixels = PixelGetNextIteratorRow(pi, &width);
+        for (c = 0; c < width; c++) {
+            alpha = PixelGetAlpha(pixels[c]);
+            if (alpha < 1.00) {
+                found = 1;
+                c = width; r = height;
+            }
+        }
+    }
+    pi = DestroyPixelIterator(pi);
+    if (found) Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+// }}}
+
 // Image.normalize {{{
 
 static PyObject *
@@ -870,6 +913,14 @@ static PyMethodDef magick_Image_methods[] = {
 
     {"set_page", (PyCFunction)magick_Image_set_page, METH_VARARGS,
      "set_page(width, height, x, y) \n\n Sets the page geometry of the image."
+    },
+
+    {"set_compression_quality", (PyCFunction)magick_Image_set_compression_quality, METH_VARARGS,
+     "set_compression_quality(quality) \n\n Sets the compression quality when exporting the image."
+    },
+
+    {"has_transparent_pixels", (PyCFunction)magick_Image_has_transparent_pixels, METH_VARARGS,
+     "has_transparent_pixels() \n\n Returns True iff image has a (semi-) transparent pixel"
     },
 
     {"thumbnail", (PyCFunction)magick_Image_thumbnail, METH_VARARGS,

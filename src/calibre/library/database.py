@@ -1333,7 +1333,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             id = obj.lastrowid
             self.conn.commit()
             self.set_metadata(id, mi)
-            stream = path if hasattr(path, 'read') else open(path, 'rb')
+            stream = path if hasattr(path, 'read') else lopen(path, 'rb')
             stream.seek(0, 2)
             usize = stream.tell()
             stream.seek(0)

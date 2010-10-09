@@ -148,10 +148,10 @@ class SNBOutput(OutputFormatPlugin):
                             outputFiles[item[0]].append((item[1], tocitem.title)) 
                 else:
                     if tocitem.href in outputFiles:
-                        outputFiles[tocitem.href].append(("", tocitem)) 
+                        outputFiles[tocitem.href].append(("", tocitem.title)) 
                     else:
                         outputFiles[tocitem.href] = [] 
-                        outputFiles[tocitem.href].append(("", tocitem))
+                        outputFiles[tocitem.href].append(("", tocitem.title))
 
             etree.SubElement(tocHead, "chapters").text = '%d' % len(tocBody)
 

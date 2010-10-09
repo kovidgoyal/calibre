@@ -23,7 +23,7 @@ from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                         warning_dialog, \
                         question_dialog, info_dialog, choose_dir
 from calibre.ebooks.metadata import authors_to_string
-from calibre import preferred_encoding, prints
+from calibre import preferred_encoding, prints, force_unicode
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
@@ -34,6 +34,8 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import thumbnail
+from calibre.library.save_to_disk import plugboard_any_device_value, \
+                                         plugboard_any_format_value
 # }}}
 
 class DeviceJob(BaseJob): # {{{
@@ -101,6 +103,28 @@ class DeviceJob(BaseJob): # {{{
         return cStringIO.StringIO(self._details.encode('utf-8'))
 
     # }}}
+
+def find_plugboard(device_name, format, plugboards):
+    cpb = None
+    if format in plugboards:
+        cpb = plugboards[format]
+    elif plugboard_any_format_value in plugboards:
+        cpb = plugboards[plugboard_any_format_value]
+    if cpb is not None:
+        if device_name in cpb:
+            cpb = cpb[device_name]
+        elif plugboard_any_device_value in cpb:
+            cpb = cpb[plugboard_any_device_value]
+        else:
+            cpb = None
+    if DEBUG:
+        prints('Device using plugboard', format, device_name, cpb)
+    return cpb
+
+def device_name_for_plugboards(device_class):
+    if hasattr(device_class, 'DEVICE_PLUGBOARD_NAME'):
+        return device_class.DEVICE_PLUGBOARD_NAME
+    return device_class.__class__.__name__
 
 class DeviceManager(Thread): # {{{
 
@@ -308,7 +332,10 @@ class DeviceManager(Thread): # {{{
         self.device.sync_booklists(booklists, end_session=False)
         return self.device.card_prefix(end_session=False), self.device.free_space()
 
-    def sync_booklists(self, done, booklists):
+    def sync_booklists(self, done, booklists, plugboards):
+        if hasattr(self.connected_device, 'set_plugboards') and \
+                callable(self.connected_device.set_plugboards):
+            self.connected_device.set_plugboards(plugboards, find_plugboard)
         return self.create_job(self._sync_booklists, done, args=[booklists],
                         description=_('Send metadata to device'))
 
@@ -317,19 +344,30 @@ class DeviceManager(Thread): # {{{
                                args=[booklist, on_card],
                         description=_('Send collections to device'))
 
-    def _upload_books(self, files, names, on_card=None, metadata=None):
+    def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
         '''Upload books to device: '''
+        if hasattr(self.connected_device, 'set_plugboards') and \
+                callable(self.connected_device.set_plugboards):
+            self.connected_device.set_plugboards(plugboards, find_plugboard)
         if metadata and files and len(metadata) == len(files):
             for f, mi in zip(files, metadata):
                 if isinstance(f, unicode):
                     ext = f.rpartition('.')[-1].lower()
+                    cpb = find_plugboard(
+                            device_name_for_plugboards(self.connected_device),
+                            ext, plugboards)
                     if ext:
                         try:
                             if DEBUG:
                                 prints('Setting metadata in:', mi.title, 'at:',
                                         f, file=sys.__stdout__)
                             with open(f, 'r+b') as stream:
-                                set_metadata(stream, mi, stream_type=ext)
+                                if cpb:
+                                    newmi = mi.deepcopy_metadata()
+                                    newmi.template_to_attribute(mi, cpb)
+                                else:
+                                    newmi = mi
+                                set_metadata(stream, newmi, stream_type=ext)
                         except:
                             if DEBUG:
                                 prints(traceback.format_exc(), file=sys.__stdout__)
@@ -338,12 +376,12 @@ class DeviceManager(Thread): # {{{
                                         metadata=metadata, end_session=False)
 
     def upload_books(self, done, files, names, on_card=None, titles=None,
-                     metadata=None):
+                     metadata=None, plugboards=None):
         desc = _('Upload %d books to device')%len(names)
         if titles:
             desc += u':' + u', '.join(titles)
         return self.create_job(self._upload_books, done, args=[files, names],
-                kwargs={'on_card':on_card,'metadata':metadata}, description=desc)
+                kwargs={'on_card':on_card,'metadata':metadata,'plugboards':plugboards}, description=desc)
 
     def add_books_to_metadata(self, locations, metadata, booklists):
         self.device.add_books_to_metadata(locations, metadata, booklists)
@@ -721,14 +759,16 @@ class DeviceMixin(object): # {{{
                 self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = device_kind
-            self.refresh_ondevice_info (device_connected = True, reset_only = True)
+            self.library_view.set_device_connected(self.device_connected)
+            self.refresh_ondevice (reset_only = True)
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
             self.location_manager.update_devices()
-            self.refresh_ondevice_info(device_connected=False)
+            self.library_view.set_device_connected(self.device_connected)
+            self.refresh_ondevice()
 
     def info_read(self, job):
         '''
@@ -760,9 +800,9 @@ class DeviceMixin(object): # {{{
         self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.sync_news()
         self.sync_catalogs()
-        self.refresh_ondevice_info(device_connected = True)
+        self.refresh_ondevice()
 
-    def refresh_ondevice_info(self, device_connected, reset_only = False):
+    def refresh_ondevice(self, reset_only = False):
         '''
         Force the library view to refresh, taking into consideration new
         device books information
@@ -770,7 +810,7 @@ class DeviceMixin(object): # {{{
         self.book_on_device(None, reset=True)
         if reset_only:
             return
-        self.library_view.set_device_connected(device_connected)
+        self.library_view.model().refresh_ondevice()
 
     # }}}
 
@@ -803,7 +843,7 @@ class DeviceMixin(object): # {{{
         self.book_on_device(None, reset=True)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
-        self.refresh_ondevice_info(device_connected=True, reset_only=False)
+        self.refresh_ondevice(reset_only=False)
 
     def dispatch_sync_event(self, dest, delete, specific):
         rows = self.library_view.selectionModel().selectedRows()
@@ -939,12 +979,12 @@ class DeviceMixin(object): # {{{
         for jobname, exception, tb in results:
             title = jobname.partition(':')[-1]
             if exception is not None:
-                errors.append([title, exception, tb])
+                errors.append(list(map(force_unicode, [title, exception, tb])))
             else:
                 good.append(title)
         if errors:
-            errors = '\n'.join([
-                    '%s\n\n%s\n%s\n' %
+            errors = u'\n'.join([
+                    u'%s\n\n%s\n%s\n' %
                     (title, e, tb) for \
                             title, e, tb in errors
                     ])
@@ -1222,8 +1262,9 @@ class DeviceMixin(object): # {{{
         '''
         Upload metadata to device.
         '''
+        plugboards = self.library_view.model().db.prefs.get('plugboards', {})
         self.device_manager.sync_booklists(Dispatcher(self.metadata_synced),
-                                           self.booklists())
+                                           self.booklists(), plugboards)
 
     def metadata_synced(self, job):
         '''
@@ -1255,10 +1296,11 @@ class DeviceMixin(object): # {{{
         :param files: List of either paths to files or file like objects
         '''
         titles = [i.title for i in metadata]
+        plugboards = self.library_view.model().db.prefs.get('plugboards', {})
         job = self.device_manager.upload_books(
                 Dispatcher(self.books_uploaded),
                 files, names, on_card=on_card,
-                metadata=metadata, titles=titles
+                metadata=metadata, titles=titles, plugboards=plugboards
               )
         self.upload_memory[job] = (metadata, on_card, memory, files)
 
@@ -1300,7 +1342,7 @@ class DeviceMixin(object): # {{{
         if not self.set_books_in_library(self.booklists(), reset=True):
             self.upload_booklists()
         self.book_on_device(None, reset=True)
-        self.refresh_ondevice_info(device_connected = True)
+        self.refresh_ondevice()
 
         view = self.card_a_view if on_card == 'carda' else \
             self.card_b_view if on_card == 'cardb' else self.memory_view
@@ -1371,15 +1413,16 @@ class DeviceMixin(object): # {{{
 
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
+            # Build a cache (map) of the library, so the search isn't On**2
+            self.db_book_title_cache = {}
+            self.db_book_uuid_cache = {}
             # It might be possible to get here without having initialized the
             # library view. In this case, simply give up
             try:
                 db = self.library_view.model().db
             except:
                 return False
-            # Build a cache (map) of the library, so the search isn't On**2
-            self.db_book_title_cache = {}
-            self.db_book_uuid_cache = {}
+
             for id in db.data.iterallids():
                 mi = db.get_metadata(id, index_is_id=True)
                 title = clean_string(mi.title)
@@ -1413,7 +1456,7 @@ class DeviceMixin(object): # {{{
                     if update_metadata:
                         book.smart_update(self.db_book_uuid_cache[book.uuid],
                                           replace_metadata=True)
-                    book.in_library = True
+                    book.in_library = 'UUID'
                     # ensure that the correct application_id is set
                     book.application_id = \
                         self.db_book_uuid_cache[book.uuid].application_id
@@ -1426,21 +1469,21 @@ class DeviceMixin(object): # {{{
                     # will match if any of the db_id, author, or author_sort
                     # also match.
                     if getattr(book, 'application_id', None) in d['db_ids']:
-                        book.in_library = True
                         # app_id already matches a db_id. No need to set it.
                         if update_metadata:
                             book.smart_update(d['db_ids'][book.application_id],
                                               replace_metadata=True)
+                        book.in_library = 'APP_ID'
                         continue
                     # Sonys know their db_id independent of the application_id
                     # in the metadata cache. Check that as well.
                     if getattr(book, 'db_id', None) in d['db_ids']:
-                        book.in_library = True
-                        book.application_id = \
-                                    d['db_ids'][book.db_id].application_id
                         if update_metadata:
                             book.smart_update(d['db_ids'][book.db_id],
                                               replace_metadata=True)
+                        book.in_library = 'DB_ID'
+                        book.application_id = \
+                                    d['db_ids'][book.db_id].application_id
                         continue
                     # We now know that the application_id is not right. Set it
                     # to None to prevent book_on_device from accidentally
@@ -1452,19 +1495,19 @@ class DeviceMixin(object): # {{{
                         # either can appear as the author
                         book_authors = clean_string(authors_to_string(book.authors))
                         if book_authors in d['authors']:
-                            book.in_library = True
-                            book.application_id = \
-                                    d['authors'][book_authors].application_id
                             if update_metadata:
                                 book.smart_update(d['authors'][book_authors],
                                                   replace_metadata=True)
-                        elif book_authors in d['author_sort']:
-                            book.in_library = True
+                            book.in_library = 'AUTHOR'
                             book.application_id = \
-                                d['author_sort'][book_authors].application_id
+                                    d['authors'][book_authors].application_id
+                        elif book_authors in d['author_sort']:
                             if update_metadata:
                                 book.smart_update(d['author_sort'][book_authors],
                                                   replace_metadata=True)
+                            book.in_library = 'AUTH_SORT'
+                            book.application_id = \
+                                d['author_sort'][book_authors].application_id
                 else:
                     # Book definitely not matched. Clear its application ID
                     book.application_id = None
@@ -1476,8 +1519,10 @@ class DeviceMixin(object): # {{{
 
         if update_metadata:
             if self.device_manager.is_device_connected:
+                plugboards = self.library_view.model().db.prefs.get('plugboards', {})
                 self.device_manager.sync_booklists(
-                                    Dispatcher(self.metadata_synced), booklists)
+                                    Dispatcher(self.metadata_synced), booklists,
+                                    plugboards)
         return update_metadata
     # }}}
 

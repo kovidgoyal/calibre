@@ -56,10 +56,11 @@ class LocationManager(QObject): # {{{
                 self._mem.append(a)
             else:
                 ac.setToolTip(tooltip)
+            ac.calibre_name = name
 
             return ac
 
-        ac('library', _('Library'), 'lt.png',
+        self.library_action = ac('library', _('Library'), 'lt.png',
                 _('Show books in calibre library'))
         ac('main', _('Device'), 'reader.png',
                 _('Show books in the main memory of the device'))
@@ -67,6 +68,24 @@ class LocationManager(QObject): # {{{
                 _('Show books in storage card A'))
         ac('cardb', _('Card B'), 'sd.png',
                 _('Show books in storage card B'))
+
+    def set_switch_actions(self, quick_actions, rename_actions, delete_actions,
+            switch_actions, choose_action):
+        self.switch_menu = QMenu()
+        self.switch_menu.addAction(choose_action)
+        self.cs_menus = []
+        for t, acs in [(_('Quick switch'), quick_actions),
+                (_('Rename library'), rename_actions),
+                (_('Delete library'), delete_actions)]:
+            if acs:
+                self.cs_menus.append(QMenu(t))
+                for ac in acs:
+                    self.cs_menus[-1].addAction(ac)
+                self.switch_menu.addMenu(self.cs_menus[-1])
+        self.switch_menu.addSeparator()
+        for ac in switch_actions:
+            self.switch_menu.addAction(ac)
+        self.library_action.setMenu(self.switch_menu)
 
     def _location_selected(self, location, *args):
         if location != self.current_location and hasattr(self,
@@ -112,7 +131,6 @@ class LocationManager(QObject): # {{{
             ac.setWhatsThis(t)
             ac.setStatusTip(t)
 
-
     @property
     def has_device(self):
         return max(self.free) > -1
@@ -152,7 +170,7 @@ class SearchBar(QWidget): # {{{
         l.addWidget(x)
         x.setToolTip(_("Advanced search"))
 
-        self.label = x = QLabel('&Search:')
+        self.label = x = QLabel(_('&Search:'))
         l.addWidget(self.label)
         x.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
@@ -197,14 +215,14 @@ class SearchBar(QWidget): # {{{
 
 # }}}
 
-class Spacer(QWidget):
+class Spacer(QWidget): # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.l = QHBoxLayout()
         self.setLayout(self.l)
         self.l.addStretch(10)
-
+# }}}
 
 class ToolBar(QToolBar): # {{{
 
@@ -228,6 +246,7 @@ class ToolBar(QToolBar): # {{{
         self.added_actions = []
         self.build_bar()
         self.preferred_width = self.sizeHint().width()
+        self.setAcceptDrops(True)
 
     def apply_settings(self):
         sz = gprefs['toolbar_icon_size']
@@ -316,6 +335,59 @@ class ToolBar(QToolBar): # {{{
 
     def database_changed(self, db):
         pass
+
+    #support drag&drop from/to library from/to reader/card
+    def dragEnterEvent(self, event):
+        md = event.mimeData()
+        if md.hasFormat("application/calibre+from_library") or \
+           md.hasFormat("application/calibre+from_device"):
+            event.setDropAction(Qt.CopyAction)
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        allowed = False
+        md = event.mimeData()
+        #Drop is only allowed in the location manager widget's different from the selected one
+        for ac in self.location_manager.available_actions:
+            w = self.widgetForAction(ac)
+            if w is not None:
+                if ( md.hasFormat("application/calibre+from_library") or \
+                     md.hasFormat("application/calibre+from_device") ) and \
+                        w.geometry().contains(event.pos()) and \
+                        isinstance(w, QToolButton) and not w.isChecked():
+                    allowed = True
+                    break
+        if allowed:
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        data = event.mimeData()
+
+        mime = 'application/calibre+from_library'
+        if data.hasFormat(mime):
+            ids = list(map(int, str(data.data(mime)).split()))
+            tgt = None
+            for ac in self.location_manager.available_actions:
+                w = self.widgetForAction(ac)
+                if w is not None and w.geometry().contains(event.pos()):
+                    tgt = ac.calibre_name
+            if tgt is not None:
+                if tgt == 'main':
+                    tgt = None
+                self.gui.sync_to_device(tgt, False, send_ids=ids)
+                event.accept()
+
+        mime = 'application/calibre+from_device'
+        if data.hasFormat(mime):
+            paths = [unicode(u.toLocalFile()) for u in data.urls()]
+            if paths:
+                self.gui.iactions['Add Books'].add_books_from_device(
+                        self.gui.current_view(), paths=paths)
+                event.accept()
 
 # }}}
 

@@ -30,21 +30,33 @@ class hnaDe(BasicNewsRecipe):
 		   dict(id='superbanner'),
 		   dict(id='navigation'),
 		   dict(id='skyscraper'),
+		   dict(id='idNavigationWrap'),
+		   dict(id='idHeaderSearchForm'),
+		   dict(id='idLoginBarWrap'),
+		   dict(id='idAccountButtons'),
+		   dict(id='idHeadButtons'),
+		   dict(id='idBoxesWrap'),
 		   dict(id=''),
                    dict(name='span'),
 		   dict(name='ul', attrs={'class':'linklist'}),
 		   dict(name='a', attrs={'href':'#'}),
 		   dict(name='div', attrs={'class':'hlist'}),
+		   dict(name='li', attrs={'class':'idButton idIsLoginGroup idHeaderRegister '}),
+		   dict(name='li', attrs={'class':'idVideoBar idFirst'}),
+		   dict(name='li', attrs={'class':'idSetStartPageLink idLast'}),
+		   dict(name='li', attrs={'class':'idKinderNetzBar idLast'}),
+		   dict(name='li', attrs={'class':'idFotoBar '}),
 		   dict(name='div', attrs={'class':'subc noprint'}),
+		   dict(name='div', attrs={'class':'idBreadcrumb'}),
+		   dict(name='div', attrs={'class':'idLay idAdvertising idClStandard '}),
+		   dict(name='span', attrs={'class':'idHeadLineIntro'}),
 		   dict(name='p', attrs={'class':'breadcrumb'}),
 		   dict(name='a', attrs={'style':'cursor:hand'}),
-		   dict(name='p', attrs={'class':'h5'})]
+		   dict(name='p', attrs={'class':'h5'}),
+		   dict(name='p', attrs={'class':'idMoreEnd'})]
     #remove_tags_after = [dict(name='div', attrs={'class':'rahmenbreaking'})]
-    remove_tags_after = [dict(name='a', attrs={'href':'#'})]
+    remove_tags_after = [dict(name='p', attrs={'class':'idMoreEnd'})]
 
     feeds =  [ ('hna_soehre', 'http://feeds2.feedburner.com/hna/soehre'),
 	       ('hna_kassel', 'http://feeds2.feedburner.com/hna/kassel') ]
-
-
-
 

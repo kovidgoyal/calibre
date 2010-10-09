@@ -28,7 +28,7 @@ class Sueddeutsche(BasicNewsRecipe):
 						  "SKY_AD","NT1_AD","navbar1","sdesiteheader"]}),
 
                     dict(name='div', attrs={'class':["similar-article-box","artikelliste","nteaser301bg",
-					             "pages closed","basebox right narrow"]}),
+					             "pages closed","basebox right narrow","headslot galleried"]}),
 
                     dict(name='div', attrs={'class':["articleDistractor","listHeader","listHeader2","hr2",
 						     "item","videoBigButton","articlefooter full-column",
@@ -38,10 +38,11 @@ class Sueddeutsche(BasicNewsRecipe):
                     dict(name='div', attrs={'style':["position:relative;"]}),
                     dict(name='span', attrs={'class':["nlinkheaderteaserschwarz","artikelLink","r10000000"]}),
                     dict(name='table', attrs={'class':["stoerBS","kommentare","footer","pageBoxBot","pageAktiv","bgcontent"]}),
-                    dict(name='ul', attrs={'class':["breadcrumb","articles","activities","sitenav"]}),
+                    dict(name='ul', attrs={'class':["breadcrumb","articles","activities","sitenav","actions"]}),
                     dict(name='td', attrs={'class':["artikelDruckenRight"]}),
                     dict(name='p', text = "ANZEIGE")
                      ]
+    remove_tags_after = [dict(name='div', attrs={'class':["themenbox full-column"]})]
 
     extra_css = '''
                     h2{font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #003399;}
@@ -70,9 +71,8 @@ class Sueddeutsche(BasicNewsRecipe):
              (u'Reise', u'http://suche.sueddeutsche.de/query/reise/nav/%C2%A7ressort%3AReise/sort/-docdatetime?output=rss')
              ]
 
+
+
     def print_version(self, url):
-        return url.replace('/text/', '/text/print.html')
-
-
-
-
+        main, sep, id = url.rpartition('/')
+        return main + '/2.220/' + id

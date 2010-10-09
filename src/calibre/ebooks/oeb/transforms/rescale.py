@@ -39,7 +39,7 @@ class RescaleImages(object):
             if item.media_type.startswith('image'):
                 ext = item.media_type.split('/')[-1].upper()
                 if ext == 'JPG': ext = 'JPEG'
-                if ext not in ('PNG', 'JPEG'):
+                if ext not in ('PNG', 'JPEG', 'GIF'):
                     ext = 'JPEG'
 
                 raw = item.data

@@ -108,7 +108,8 @@ def _get_metadata(stream, stream_type, use_libprs_metadata,
     base = metadata_from_filename(name, pat=pattern)
     if force_read_metadata or is_recipe(name) or prefs['read_file_metadata']:
         mi = get_file_type_metadata(stream, stream_type)
-    if base.title == os.path.splitext(name)[0] and base.authors is None:
+    if base.title == os.path.splitext(name)[0] and \
+            base.is_null('authors') and base.is_null('isbn'):
         # Assume that there was no metadata in the file and the user set pattern
         # to match meta info from the file name did not match.
         # The regex is meant to match the standard format filenames are written
@@ -181,7 +182,7 @@ def metadata_from_filename(name, pat=None):
             mi.isbn = si
         except (IndexError, ValueError):
             pass
-    if not mi.title:
+    if mi.is_null('title'):
         mi.title = name
     return mi
 
@@ -194,7 +195,7 @@ def opf_metadata(opfpath):
     try:
         opf = OPF(f, os.path.dirname(opfpath))
         if opf.application_id is not None:
-            mi = MetaInformation(opf)
+            mi = opf.to_book_metadata()
             if hasattr(opf, 'cover') and opf.cover:
                 cpath = os.path.join(os.path.dirname(opfpath), opf.cover)
                 if os.access(cpath, os.R_OK):

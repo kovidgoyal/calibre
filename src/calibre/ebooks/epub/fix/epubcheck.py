@@ -43,7 +43,11 @@ class Epubcheck(ePubFixer):
                         default=default)
             except:
                 raise InvalidEpub('Invalid date set in OPF', raw)
-            sval = ts.strftime('%Y-%m-%d')
+            try:
+                sval = ts.strftime('%Y-%m-%d')
+            except:
+                from calibre import strftime
+                sval = strftime('%Y-%m-%d', ts.timetuple())
             if sval != raw:
                 self.log.error(
                     'OPF contains date', raw, 'that epubcheck does not like')

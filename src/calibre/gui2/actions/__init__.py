@@ -131,6 +131,7 @@ class InterfaceAction(QObject):
         Called whenever the current library is changed.
 
         :param db: The LibraryDatabase corresponding to the current library.
+
         '''
         pass
 
@@ -148,6 +149,7 @@ class InterfaceAction(QObject):
         long periods of time.
 
         :return: False to halt the shutdown. You are responsible for telling
-        the user why the shutdown was halted.
+                 the user why the shutdown was halted.
+
         '''
         return True

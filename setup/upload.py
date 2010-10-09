@@ -6,9 +6,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, cStringIO, base64, httplib, subprocess
+import os, re, cStringIO, base64, httplib, subprocess, hashlib, shutil
 from subprocess import check_call
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, mkdtemp
 
 from setup import Command, __version__, installer_name, __appname__
 
@@ -331,5 +331,19 @@ class UploadToServer(Command):
                    %(__version__, DOWNLOADS), shell=True)
         check_call('ssh divok /etc/init.d/apache2 graceful',
                    shell=True)
+        tdir = mkdtemp()
+        for installer in installers():
+            if not os.path.exists(installer):
+                continue
+            with open(installer, 'rb') as f:
+                raw = f.read()
+            fingerprint = hashlib.sha512(raw).hexdigest()
+            fname = os.path.basename(installer+'.sha512')
+            with open(os.path.join(tdir, fname), 'wb') as f:
+                f.write(fingerprint)
+        check_call('scp %s/*.sha512 divok:%s/signatures/' % (tdir, DOWNLOADS),
+                shell=True)
+        shutil.rmtree(tdir)
+
 
 

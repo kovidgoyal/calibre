@@ -701,13 +701,13 @@ OptionRecommendation(name='timestamp',
                                             self.opts.read_metadata_from_opf)
             opf = OPF(open(self.opts.read_metadata_from_opf, 'rb'),
                       os.path.dirname(self.opts.read_metadata_from_opf))
-            mi = MetaInformation(opf)
+            mi = opf.to_book_metadata()
         self.opts_to_mi(mi)
         if mi.cover:
             if mi.cover.startswith('http:') or mi.cover.startswith('https:'):
                 mi.cover = self.download_cover(mi.cover)
             ext = mi.cover.rpartition('.')[-1].lower().strip()
-            if ext not in ('png', 'jpg', 'jpeg'):
+            if ext not in ('png', 'jpg', 'jpeg', 'gif'):
                 ext = 'jpg'
             mi.cover_data = (ext, open(mi.cover, 'rb').read())
             mi.cover = None

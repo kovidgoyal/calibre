@@ -11,48 +11,45 @@ an empty list/dictionary for complex types and (None, None) for cover_data
 '''
 
 SOCIAL_METADATA_FIELDS = frozenset([
-    'tags', # Ordered list
-    # A floating point number between 0 and 10
-    'rating',
-    # A simple HTML enabled string
-    'comments',
-    # A simple string
-    'series',
-    # A floating point number
-    'series_index',
+    'tags',             # Ordered list
+    'rating',           # A floating point number between 0 and 10
+    'comments',         # A simple HTML enabled string
+    'series',           # A simple string
+    'series_index',     # A floating point number
     # Of the form { scheme1:value1, scheme2:value2}
     # For example: {'isbn':'123456789', 'doi':'xxxx', ... }
     'classifiers',
-    'isbn', # Pseudo field for convenience, should get/set isbn classifier
+])
 
+'''
+The list of names that convert to classifiers when in get and set.
+'''
+
+TOP_LEVEL_CLASSIFIERS = frozenset([
+    'isbn',
 ])
 
 PUBLICATION_METADATA_FIELDS = frozenset([
-    # title must never be None. Should be _('Unknown')
-    'title',
+    'title',            # title must never be None. Should be _('Unknown')
     # Pseudo field that can be set, but if not set is auto generated
     # from title and languages
     'title_sort',
-    # Ordered list of authors. Must never be None, can be [_('Unknown')]
-    'authors',
-    # Map of sort strings for each author
-    'author_sort_map',
+    'authors',          # Ordered list. Must never be None, can be [_('Unknown')]
+    'author_sort_map',  # Map of sort strings for each author
     # Pseudo field that can be set, but if not set is auto generated
     # from authors and languages
     'author_sort',
     'book_producer',
-    # Dates and times must be timezone aware
-    'timestamp',
+    'timestamp',        # Dates and times must be timezone aware
     'pubdate',
     'rights',
     # So far only known publication type is periodical:calibre
     # If None, means book
     'publication_type',
-    # A UUID usually of type 4
-    'uuid',
-    'languages', # ordered list
-    # Simple string, no special semantics
-    'publisher',
+    'uuid',             # A UUID usually of type 4
+    'language',         # the primary language of this book
+    'languages',        # ordered list
+    'publisher',        # Simple string, no special semantics
     # Absolute path to image file encoded in filesystem_encoding
     'cover',
     # Of the form (format, data) where format is, for e.g. 'jpeg', 'png', 'gif'...
@@ -69,33 +66,63 @@ BOOK_STRUCTURE_FIELDS = frozenset([
     ])
 
 USER_METADATA_FIELDS = frozenset([
-    # A dict of a form to be specified
+    # A dict of dicts similar to field_metadata. Each field description dict
+    # also contains a value field with the key #value#.
     'user_metadata',
 ])
 
 DEVICE_METADATA_FIELDS = frozenset([
-    # Ordered list of strings
-    'device_collections',
-    'lpath', # Unicode, / separated
-    # In bytes
-    'size',
-    # Mimetype of the book file being represented
-    'mime',
+    'device_collections',   # Ordered list of strings
+    'lpath',                # Unicode, / separated
+    'size',                 # In bytes
+    'mime',                 # Mimetype of the book file being represented
+
 ])
 
 CALIBRE_METADATA_FIELDS = frozenset([
-    # An application id
-    # Semantics to be defined. Is it a db key? a db name + key? A uuid?
-    'application_id',
+    'application_id',   # An application id, currently set to the db_id.
+    'db_id',            # the calibre primary key of the item.
+    'formats',          # list of formats (extensions) for this book
     ]
 )
 
+ALL_METADATA_FIELDS =      SOCIAL_METADATA_FIELDS.union(
+                           PUBLICATION_METADATA_FIELDS).union(
+                           BOOK_STRUCTURE_FIELDS).union(
+                           USER_METADATA_FIELDS).union(
+                           DEVICE_METADATA_FIELDS).union(
+                           CALIBRE_METADATA_FIELDS)
 
-SERIALIZABLE_FIELDS = SOCIAL_METADATA_FIELDS.union(
-                      USER_METADATA_FIELDS).union(
-                      PUBLICATION_METADATA_FIELDS).union(
-                      CALIBRE_METADATA_FIELDS).union(
-        frozenset(['lpath'])) # I don't think we need device_collections
+# All fields except custom fields
+STANDARD_METADATA_FIELDS = SOCIAL_METADATA_FIELDS.union(
+                           PUBLICATION_METADATA_FIELDS).union(
+                           BOOK_STRUCTURE_FIELDS).union(
+                           DEVICE_METADATA_FIELDS).union(
+                           CALIBRE_METADATA_FIELDS)
 
-# Serialization of covers/thumbnails will have to be handled carefully, maybe
-# as an option to the serializer class
+# Metadata fields that smart update must do special processing to copy.
+SC_FIELDS_NOT_COPIED =     frozenset(['title', 'title_sort', 'authors',
+                                      'author_sort', 'author_sort_map',
+                                      'cover_data', 'tags', 'language',
+                                      'classifiers'])
+
+# Metadata fields that smart update should copy only if the source is not None
+SC_FIELDS_COPY_NOT_NULL =  frozenset(['lpath', 'size', 'comments', 'thumbnail'])
+
+# Metadata fields that smart update should copy without special handling
+SC_COPYABLE_FIELDS =       SOCIAL_METADATA_FIELDS.union(
+                           PUBLICATION_METADATA_FIELDS).union(
+                           BOOK_STRUCTURE_FIELDS).union(
+                           DEVICE_METADATA_FIELDS).union(
+                           CALIBRE_METADATA_FIELDS) - \
+                           SC_FIELDS_NOT_COPIED.union(
+                           SC_FIELDS_COPY_NOT_NULL)
+
+SERIALIZABLE_FIELDS =      SOCIAL_METADATA_FIELDS.union(
+                           USER_METADATA_FIELDS).union(
+                           PUBLICATION_METADATA_FIELDS).union(
+                           CALIBRE_METADATA_FIELDS).union(
+                           DEVICE_METADATA_FIELDS) - \
+                           frozenset(['device_collections', 'formats',
+                               'cover_data'])
+                           # these are rebuilt when needed

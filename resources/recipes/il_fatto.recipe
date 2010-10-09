@@ -1,0 +1,30 @@
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1286477122(BasicNewsRecipe):
+     title          = u'Il Fatto Quotidiano'
+     oldest_article = 7
+     max_articles_per_feed = 25
+     language = 'it'
+     __author__ = 'egilh'
+
+     feeds          = [
+      (u'Politica & Palazzo',  u'http://www.ilfattoquotidiano.it/category/politica-palazzo/feed/'),
+      (u'Giustizia & impunit\xe0', u'http://www.ilfattoquotidiano.it/category/giustizia-impunita/feed/'),
+      (u'Media & regime',  u'http://www.ilfattoquotidiano.it/category/media-regime/feed/'),
+      (u'Economia & Lobby', u'http://www.ilfattoquotidiano.it/category/economia-lobby/feed/'),
+      (u'Lavoro & precari', u'http://www.ilfattoquotidiano.it/category/lavoro-precari/feed/'),
+      (u'Ambiente & Veleni', u'http://www.ilfattoquotidiano.it/category/ambiente-veleni/feed/'),
+      (u'Sport & miliardi', u'http://www.ilfattoquotidiano.it/category/sport-miliardi/feed/'),
+      (u'Cronaca', u'http://www.ilfattoquotidiano.it/category/cronaca/feed/'),
+      (u'Mondo', u'http://www.ilfattoquotidiano.it/category/mondo/feed/'),
+      (u'Societ\xe0',  u'http://www.ilfattoquotidiano.it/category/societa/feed/'),
+      (u'Scuola', u'http://www.ilfattoquotidiano.it/category/scuola/feed/'),
+      (u'Tecno', u'http://www.ilfattoquotidiano.it/category/tecno/feed/'),
+      (u'Terza pagina', u'http://www.ilfattoquotidiano.it/category/terza-pagina/feed/'),
+      (u'Piacere quotidiano', u'http://www.ilfattoquotidiano.it/category/piacere-quotidiano/feed/'),
+      (u'Cervelli in fuga', u'http://www.ilfattoquotidiano.it/category/cervelli-in-fuga/feed/'),
+      (u'Documentati!', u'http://www.ilfattoquotidiano.it/category/documentati/feed/'),
+      (u'Misfatto', u'http://www.ilfattoquotidiano.it/category/misfatto/feed/')
+]
+

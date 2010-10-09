@@ -6,11 +6,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, os, sys, time
+import subprocess, os, sys, time, binascii, cPickle
 
 from calibre.constants import iswindows, isosx, isfrozen, isnewosx
 from calibre.utils.config import prefs
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, base_dir
 
 if iswindows:
     import win32process
@@ -21,13 +21,15 @@ class Worker(object):
     Platform independent object for launching child processes. All processes
     have the environment variable :envvar:`CALIBRE_WORKER` set.
 
-    Useful attributes: ``is_alive``, ``returncode``
-    usefule methods: ``kill``
+    Useful attributes: ``is_alive``, ``returncode``, ``pid``
+    Useful methods: ``kill``
 
     To launch child simply call the Worker object. By default, the child's
     output is redirected to an on disk file, the path to which is returned by
     the call.
     '''
+
+    exe_name = 'calibre-parallel'
 
     @property
     def osx_interpreter(self):
@@ -41,32 +43,33 @@ class Worker(object):
 
     @property
     def executable(self):
+        e = self.exe_name
         if iswindows:
             return os.path.join(os.path.dirname(sys.executable),
-                   'calibre-parallel.exe' if isfrozen else \
-                           'Scripts\\calibre-parallel.exe')
+                   e+'.exe' if isfrozen else \
+                           'Scripts\\%s.exe'%e)
         if isnewosx:
-            return os.path.join(sys.console_binaries_path, 'calibre-parallel')
+            return os.path.join(sys.console_binaries_path, e)
 
         if isosx:
-            if not isfrozen: return 'calibre-parallel'
+            if not isfrozen: return e
             contents = os.path.join(self.osx_contents_dir,
                     'console.app', 'Contents')
             return os.path.join(contents, 'MacOS', self.osx_interpreter)
 
         if isfrozen:
-            return os.path.join(getattr(sys, 'frozen_path'), 'calibre-parallel')
+            return os.path.join(getattr(sys, 'frozen_path'), e)
 
-        c = os.path.join(sys.executables_location, 'calibre-parallel')
+        c = os.path.join(sys.executables_location, e)
         if os.access(c, os.X_OK):
             return c
-        return 'calibre-parallel'
+        return e
 
 
     @property
     def gui_executable(self):
         if isnewosx:
-           return os.path.join(sys.binaries_path, 'calibre-parallel')
+           return os.path.join(sys.binaries_path, self.exe_name)
 
         if isfrozen and isosx:
             return os.path.join(self.osx_contents_dir,
@@ -78,6 +81,8 @@ class Worker(object):
     def env(self):
         env = dict(os.environ)
         env['CALIBRE_WORKER'] = '1'
+        td = binascii.hexlify(cPickle.dumps(base_dir()))
+        env['CALIBRE_WORKER_TEMP_DIR'] = td
         env.update(self._env)
         return env
 
@@ -90,6 +95,11 @@ class Worker(object):
         if not hasattr(self, 'child'): return None
         self.child.poll()
         return self.child.returncode
+
+    @property
+    def pid(self):
+        if not hasattr(self, 'child'): return None
+        return getattr(self.child, 'pid', None)
 
     def kill(self):
         try:
@@ -174,6 +184,12 @@ class Worker(object):
             args['stdin'] = subprocess.PIPE
             args['stdout'] = _windows_null_file
             args['stderr'] = subprocess.STDOUT
+
+        if not iswindows:
+            # Close inherited file descriptors in worker
+            # On windows, this is done in the worker process
+            # itself
+            args['close_fds'] = True
 
         self.child = subprocess.Popen(cmd, **args)
         if 'stdin' in args:

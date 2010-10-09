@@ -5,6 +5,7 @@ Created on 25 May 2010
 '''
 
 from calibre.utils.ordered_dict import OrderedDict
+from calibre.utils.config import tweaks
 
 class TagsIcons(dict):
     '''
@@ -67,7 +68,7 @@ class FieldMetadata(dict):
     '''
 
     VALID_DATA_TYPES = frozenset([None, 'rating', 'text', 'comments', 'datetime',
-                                  'int', 'float', 'bool', 'series'])
+                                  'int', 'float', 'bool', 'series', 'composite'])
 
     # Builtin metadata {{{
 
@@ -208,12 +209,21 @@ class FieldMetadata(dict):
                            'search_terms':[],
                            'is_custom':False,
                            'is_category':False}),
+            ('all_metadata',{'table':None,
+                             'column':None,
+                             'datatype':None,
+                             'is_multiple':None,
+                             'kind':'field',
+                             'name':None,
+                             'search_terms':[],
+                             'is_custom':False,
+                             'is_category':False}),
             ('ondevice',  {'table':None,
                            'column':None,
                            'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('On Device'),
                            'search_terms':['ondevice'],
                            'is_custom':False,
                            'is_category':False}),
@@ -231,7 +241,7 @@ class FieldMetadata(dict):
                            'datatype':'datetime',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Published'),
                            'search_terms':['pubdate'],
                            'is_custom':False,
                            'is_category':False}),
@@ -249,8 +259,8 @@ class FieldMetadata(dict):
                            'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
-                           'search_terms':[],
+                           'name':_('Title Sort'),
+                           'search_terms':['title_sort'],
                            'is_custom':False,
                            'is_category':False}),
             ('size',      {'table':None,
@@ -258,7 +268,7 @@ class FieldMetadata(dict):
                            'datatype':'float',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Size (MB)'),
                            'search_terms':['size'],
                            'is_custom':False,
                            'is_category':False}),
@@ -267,7 +277,7 @@ class FieldMetadata(dict):
                            'datatype':'datetime',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Date'),
                            'search_terms':['date'],
                            'is_custom':False,
                            'is_category':False}),
@@ -276,7 +286,7 @@ class FieldMetadata(dict):
                            'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Title'),
                            'search_terms':['title'],
                            'is_custom':False,
                            'is_category':False}),
@@ -294,7 +304,6 @@ class FieldMetadata(dict):
 
     # search labels that are not db columns
     search_items = [    'all',
-#                        'date',
                         'search',
                     ]
 
@@ -310,6 +319,10 @@ class FieldMetadata(dict):
             self._tb_cats[k]['display'] = {}
             self._tb_cats[k]['is_editable'] = True
             self._add_search_terms_to_map(k, v['search_terms'])
+        self._tb_cats['timestamp']['display'] = {
+                        'date_format': tweaks['gui_timestamp_display_format']}
+        self._tb_cats['pubdate']['display'] = {
+                        'date_format': tweaks['gui_pubdate_display_format']}
         self.custom_field_prefix = '#'
         self.get = self._tb_cats.get
 
@@ -335,7 +348,26 @@ class FieldMetadata(dict):
     def keys(self):
         return self._tb_cats.keys()
 
-    def field_keys(self):
+    def sortable_field_keys(self):
+        return [k for k in self._tb_cats.keys()
+                if self._tb_cats[k]['kind']=='field' and
+                   self._tb_cats[k]['datatype'] is not None]
+
+    def standard_field_keys(self):
+        return [k for k in self._tb_cats.keys()
+                if self._tb_cats[k]['kind']=='field' and
+                   not self._tb_cats[k]['is_custom']]
+
+    def custom_field_keys(self, include_composites=True):
+        res = []
+        for k in self._tb_cats.keys():
+            fm = self._tb_cats[k]
+            if fm['kind']=='field' and fm['is_custom'] and \
+                   (fm['datatype'] != 'composite' or include_composites):
+                res.append(k)
+        return res
+
+    def all_field_keys(self):
         return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind']=='field']
 
     def iterkeys(self):
@@ -374,20 +406,16 @@ class FieldMetadata(dict):
                 return self.custom_label_to_key_map[label]
         raise ValueError('Unknown key [%s]'%(label))
 
-    def get_custom_fields(self):
-        return [l for l in self._tb_cats if self._tb_cats[l]['is_custom']]
-
     def all_metadata(self):
         l = {}
         for k in self._tb_cats:
             l[k] = self._tb_cats[k]
         return l
 
-    def get_custom_field_metadata(self):
+    def custom_field_metadata(self, include_composites=True):
         l = {}
-        for k in self._tb_cats:
-            if self._tb_cats[k]['is_custom']:
-                l[k] = self._tb_cats[k]
+        for k in self.custom_field_keys(include_composites):
+            l[k] = self._tb_cats[k]
         return l
 
     def add_custom_field(self, label, table, column, datatype, colnum, name,
@@ -410,7 +438,7 @@ class FieldMetadata(dict):
         if datatype == 'series':
             key += '_index'
             self._tb_cats[key] = {'table':None,        'column':None,
-                                 'datatype':'float',   'is_multiple':False,
+                                 'datatype':'float',   'is_multiple':None,
                                  'kind':'field',       'name':'',
                                  'search_terms':[key], 'label':label+'_index',
                                  'colnum':None,        'display':{},
@@ -459,36 +487,10 @@ class FieldMetadata(dict):
                 key = self.custom_field_prefix+label
         self._tb_cats[key]['rec_index'] = index  # let the exception fly ...
 
-
-#    DEFAULT_LOCATIONS = frozenset([
-#        'all',
-#        'author',       # compatibility
-#        'authors',
-#        'comment',      # compatibility
-#        'comments',
-#        'cover',
-#        'date',
-#        'format',       # compatibility
-#        'formats',
-#        'isbn',
-#        'ondevice',
-#        'pubdate',
-#        'publisher',
-#        'search',
-#        'series',
-#        'rating',
-#        'tag',          # compatibility
-#        'tags',
-#        'title',
-#                 ])
-
     def get_search_terms(self):
         s_keys = sorted(self._search_term_map.keys())
         for v in self.search_items:
             s_keys.append(v)
-#        if set(s_keys) != self.DEFAULT_LOCATIONS:
-#            print 'search labels and default_locations do not match:'
-#            print set(s_keys) ^ self.DEFAULT_LOCATIONS
         return s_keys
 
     def _add_search_terms_to_map(self, key, terms):
@@ -499,7 +501,12 @@ class FieldMetadata(dict):
                     raise ValueError('Attempt to add duplicate search term "%s"'%t)
                 self._search_term_map[t] = key
 
-    def search_term_to_key(self, term):
+    def search_term_to_field_key(self, term):
         if term in self._search_term_map:
             return  self._search_term_map[term]
         return term
+
+    def searchable_fields(self):
+        return [k for k in self._tb_cats.keys()
+                if self._tb_cats[k]['kind']=='field' and
+                   len(self._tb_cats[k]['search_terms']) > 0]

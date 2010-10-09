@@ -20,7 +20,7 @@ class IREXDR1000(USBMS):
 
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
-    FORMATS     = ['epub', 'mobi', 'prc', 'html', 'pdf', 'txt']
+    FORMATS     = ['epub', 'mobi', 'prc', 'html', 'pdf', 'djvu', 'txt']
 
     VENDOR_ID   = [0x1e6b]
     PRODUCT_ID  = [0x001]
