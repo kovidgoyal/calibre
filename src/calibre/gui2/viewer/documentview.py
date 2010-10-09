@@ -175,9 +175,9 @@ class Document(QWebPage):
         self.set_user_stylesheet()
         self.misc_config()
 
-        # Load jQuery
-        self.connect(self.mainFrame(), SIGNAL('javaScriptWindowObjectCleared()'),
-                     self.load_javascript_libraries)
+        # Load javascript
+        self.mainFrame().javaScriptWindowObjectCleared.connect(
+                self.load_javascript_libraries)
 
     def set_user_stylesheet(self):
         raw = config().parse().user_css
