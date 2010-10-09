@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Provides platform independent temporary files that persist even after
 being closed.
 """
-import tempfile, os, atexit
+import tempfile, os, atexit, binascii, cPickle
 
 from calibre import __version__, __appname__
 
@@ -30,9 +30,18 @@ def remove_dir(x):
 def base_dir():
     global _base_dir
     if _base_dir is None:
-        _base_dir = tempfile.mkdtemp(prefix='%s_%s_tmp_'%(__appname__,
-            __version__))
-        atexit.register(remove_dir, _base_dir)
+        td = os.environ.get('CALIBRE_WORKER_TEMP_DIR', None)
+        if td is not None:
+            try:
+                td = cPickle.loads(binascii.unhexlify(td))
+            except:
+                td = None
+        if td and os.path.exists(td):
+            _base_dir = td
+        else:
+            _base_dir = tempfile.mkdtemp(prefix='%s_%s_tmp_'%(__appname__,
+                __version__))
+            atexit.register(remove_dir, _base_dir)
     return _base_dir
 
 class PersistentTemporaryFile(object):
