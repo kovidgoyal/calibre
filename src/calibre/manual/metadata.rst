@@ -62,9 +62,9 @@ If you want the search to ignore upper/lowercase differences, uncheck the `Case 
 
 You can have |app| change the case of the result (information after the replace has happened) by choosing one of the functions from the `Apply function after replace` box. The operations available are:
 
-    *`Lower case` -- change all the characters in the field to lower case
-    *`Upper case` -- change all the characters in the field to upper case
-    *`Title case` -- capitalize each word in the result.
+    * `Lower case` -- change all the characters in the field to lower case
+    * `Upper case` -- change all the characters in the field to upper case
+    * `Title case` -- capitalize each word in the result.
 
 The `Your test` box is provided for you to enter text to check that search/replace is doing what you want. In the majority of cases the book test boxes will be sufficient, but it is possible that there is a case you want to check that isn't shown in these boxes. Enter that case into `Your test`.
 

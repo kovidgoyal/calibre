@@ -340,10 +340,10 @@ class ChooseLibraryAction(InterfaceAction):
             m.start_metadata_backup()
 
     def restore_database(self):
-        info_dialog(self.gui, _('Recover database'),
+        info_dialog(self.gui, _('Recover database'), '<p>'+
             _(
               'This command rebuilds your calibre database from the information '
-              'stored by calibre in the OPF files.' + '<p>' +
+              'stored by calibre in the OPF files.<p>'
               'This function is not currently available in the GUI. You can '
               'recover your database using the \'calibredb restore_database\' '
               'command line function.'

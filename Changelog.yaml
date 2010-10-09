@@ -4,6 +4,85 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.23
+  date: 2010-10-08
+
+  new features:
+    - title: "Drag and drop to Tag Browser. You can use this to conveniently add tags, set series/publisher etc for a group of books"
+
+    - title: "Allow switching of library even when a device is connected"
+
+    - title: "Support for the PD Novel running Kobo"
+
+    - title: "Move check library integrity from preferences to drop down menu accessed by clicking arrow next to calibre icon"
+
+    - title: "Nicer, non-blocking update available notification"
+
+    - title: "E-book viewer: If you choose to remeber last used window size, the state of the Table of Contents view is also remembered"
+      tickets: [7082]
+
+    - title: "Allow moving as well as copying of books to another library"
+
+    - title: "Apple devices: Add support for plugboards"
+
+    - title: "Allow DJVU to be sent to the DR1000"
+
+  bug fixes:
+    - title: "Searching: Fix search expression parser to allow use of escaped double quotes in the search expression"
+
+    - title: "When saving cover images don't re-encode the image data unless absolutely neccessary. This prevents information loss due to JPEG re-compression"
+
+    - title: "Fix regression that broke setting of metadata for some MOBI/AZW/PRC files"
+
+    - title: "Fix regression in last release that could cause download of metadata for multiple files to only download the metadata for a few of them"
+      tickets: [7071]
+
+    - title: "MOBI Output: More tweaking of the margin handling to yield results closer to the input document."
+
+    - title: "Device drivers: Fix regression that could cause geenration of invalid metadata.calibre cache files"
+
+    - title: "Fix saving to disk with ISBN  in filename"
+      tickets: [7090]
+
+    - title: "Fix another regression in the ISBNdb.com metadata download plugin"
+
+    - title: "Fix dragging to not interfere with multi-selection. Also dont allow drag and drop from the library to itself"
+
+    - title: "CHM input: handle another class of broken CHM files"
+      tickets: [7058]
+
+
+  new recipes:
+    - title: "Communications of the Association for Computing Machinery"
+      author: jonmisurda
+
+    - title: "Anand Tech"
+      author: "Oliver Niesner"
+
+    - title: "gsp.ro"
+      author: "bucsie"
+      
+    - title: "Il Fatto Quotidiano"
+      author: "egilh"
+
+    - title: "Serbian Literature blog and Rusia Hoy"
+      author: "Darko Miletic"
+
+    - title: "Medscape"
+      author: "Tony Stegall"
+
+
+  improved recipes:
+    - The Age
+    - Australian
+    - Wiki news
+    - Times Online
+    - New Yorker
+    - Guardian
+    - Sueddeutsche
+    - HNA
+    - Revista Muy Interesante
+
 - version: 0.7.22
   date: 2010-10-03
 
