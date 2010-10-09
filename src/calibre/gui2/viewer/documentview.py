@@ -150,6 +150,7 @@ class Document(QWebPage):
         self.setObjectName("py_bridge")
         self.debug_javascript = False
         self.current_language = None
+        self.loaded_javascript = False
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.scroll_marks = []
@@ -177,7 +178,7 @@ class Document(QWebPage):
 
         # Load javascript
         self.mainFrame().javaScriptWindowObjectCleared.connect(
-                self.load_javascript_libraries)
+                self.add_window_objects)
 
     def set_user_stylesheet(self):
         raw = config().parse().user_css
@@ -196,16 +197,20 @@ class Document(QWebPage):
         if self.do_fit_images:
             self.javascript('setup_image_scaling_handlers()')
 
+    def add_window_objects(self):
+        self.mainFrame().addToJavaScriptWindowObject("py_bridge", self)
+        self.loaded_javascript = False
+
     def load_javascript_libraries(self):
         global bookmarks, referencing, hyphenation, jquery, jquery_scrollTo, hyphenator, images
-        self.mainFrame().addToJavaScriptWindowObject("py_bridge", self)
+        if self.loaded_javascript:
+            return
+        self.loaded_javascript = True
         if jquery is None:
             jquery = P('content_server/jquery.js', data=True)
+        self.javascript(jquery)
         if jquery_scrollTo is None:
             jquery_scrollTo = P('viewer/jquery_scrollTo.js', data=True)
-        if hyphenator is None:
-            hyphenator = P('viewer/hyphenate/Hyphenator.js', data=True).decode('utf-8')
-        self.javascript(jquery)
         self.javascript(jquery_scrollTo)
         if bookmarks is None:
             bookmarks = P('viewer/bookmarks.js', data=True)
@@ -224,6 +229,8 @@ class Document(QWebPage):
         if not lang:
             lang = default_lang
         lang = lang.lower()[:2]
+        if hyphenator is None:
+            hyphenator = P('viewer/hyphenate/Hyphenator.js', data=True).decode('utf-8')
         self.javascript(hyphenator)
         p = P('viewer/hyphenate/patterns/%s.js'%lang)
         if not os.path.exists(p):
@@ -256,6 +263,9 @@ class Document(QWebPage):
         self.javascript('goto_reference("%s")'%ref)
 
     def goto_bookmark(self, bm):
+        bm = bm.strip()
+        if bm.startswith('>'):
+            bm = bm[1:].strip()
         self.javascript('scroll_to_bookmark("%s")'%bm)
 
     def javascript(self, string, typ=None):
@@ -641,6 +651,7 @@ class DocumentView(QWebView):
             # An <iframe> finished loading
             return
         self.loading_url = None
+        self.document.load_javascript_libraries()
         self.document.set_bottom_padding(0)
         self.document.fit_images()
         self._size_hint = self.document.mainFrame().contentsSize()
