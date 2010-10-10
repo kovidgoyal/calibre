@@ -116,11 +116,19 @@ class SNBOutput(OutputFormatPlugin):
                 log.warn('This SNB file has no Table of Contents. '
                     'Creating a default TOC')
                 first = iter(oeb_book.spine).next()
-                oeb_book.toc.add(_('Start'), first.href)
+                oeb_book.toc.add(_('Start Page'), first.href)
             else:
                 first = iter(oeb_book.spine).next()
                 if oeb_book.toc[0].href != first.href:
-                    oeb_book.toc.add(_('Start'), first.href)
+                    # The pages before the fist item in toc will be stored as 
+                    # "Cover Pages".
+                    # oeb_book.toc does not support "insert", so we generate 
+                    # the tocInfoTree directly instead of modifying the toc
+                    ch = etree.SubElement(tocBody, "chapter")
+                    ch.set("src", ProcessFileName(first.href) + ".snbc")
+                    ch.text = _('Cover Pages')
+                    outputFiles[first.href] = []
+                    outputFiles[first.href].append(("", _("Cover Pages"))) 
 
             for tocitem in oeb_book.toc:
                 if tocitem.href.find('#') != -1:
@@ -133,10 +141,10 @@ class SNBOutput(OutputFormatPlugin):
                         else:
                             outputFiles[item[0]] = [] 
                             if not "" in outputFiles[item[0]]:
-                                outputFiles[item[0]].append(("", _("Start"))) 
+                                outputFiles[item[0]].append(("", _("Chapter Start"))) 
                                 ch = etree.SubElement(tocBody, "chapter")
                                 ch.set("src", ProcessFileName(item[0]) + ".snbc")
-                                ch.text = _("Start")
+                                ch.text = _("Chapter Start")
                             outputFiles[item[0]].append((item[1], tocitem.title)) 
                 else:
                     if tocitem.href in outputFiles:
