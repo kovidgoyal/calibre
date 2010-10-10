@@ -135,7 +135,6 @@ class SNBFile:
     def FromDir(self, tdir):
         for root, dirs, files in os.walk(tdir):
             for name in files:
-                print name
                 p, ext = os.path.splitext(name)
                 if ext in [ ".snbf", ".snbc" ]:
                     self.AppendPlain(os.path.relpath(os.path.join(root, name), tdir), tdir)
@@ -148,7 +147,6 @@ class SNBFile:
         f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
         f.fileName = fileName.replace(os.sep, '/')
-        print f.fileSize
         self.files.append(f)
 
     def AppendBinary(self, fileName, tdir):
@@ -157,7 +155,6 @@ class SNBFile:
         f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
         f.fileName = fileName.replace(os.sep, '/')
-        print f.fileSize
         self.files.append(f)
         
     def Output(self, outputFile):

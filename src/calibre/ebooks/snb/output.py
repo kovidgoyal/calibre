@@ -203,7 +203,6 @@ class SNBOutput(OutputFormatPlugin):
         from calibre.utils.magick import Image
         img = Image()
         img.load(imageData)
-        print img.size
         (x,y) = img.size
         # TODO use the data from device profile
         SCREEN_X = 540
@@ -219,7 +218,6 @@ class SNBOutput(OutputFormatPlugin):
             #     img = img.rotate(90)
             #     x,y = y,x
             img.size = (x / scale, y / scale)
-        print img.size
         img.save(imagePath)
 
 if __name__ == '__main__':

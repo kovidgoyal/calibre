@@ -51,12 +51,13 @@ SPACE_TAGS = [
     'td',
 ]
 
-CLIABRE_SNB_IMG_TAG = "<calibre_snb_temp_img>"
+CALIBRE_SNB_IMG_TAG = "<$$calibre_snb_temp_img$$>"
+CALIBRE_SNB_BM_TAG = "<$$calibre_snb_bm_tag$$>"
 
 class SNBMLizer(object):
     
     curSubItem = ""
-    curText = [ ]
+#    curText = [ ]
 
     def __init__(self, log):
         self.log = log
@@ -71,6 +72,7 @@ class SNBMLizer(object):
 
 
     def mlize(self):
+        output = [ u'' ]
         stylizer = Stylizer(self.item.data, self.item.href, self.oeb_book, self.opts, self.opts.output_profile)
         content = unicode(etree.tostring(self.item.data.find(XHTML('body')), encoding=unicode))
         content = self.remove_newlines(content)
@@ -80,9 +82,20 @@ class SNBMLizer(object):
             etree.SubElement(etree.SubElement(snbcTree, "head"), "title").text = subtitle
             etree.SubElement(snbcTree, "body")
             trees[subitem] = snbcTree
+        output.append(u'%s%s\n\n' % (CALIBRE_SNB_BM_TAG, ""))
+        output += self.dump_text(self.subitems, etree.fromstring(content), stylizer)
+        output = self.cleanup_text(u''.join(output))
 
-        self.dump_text(trees, self.subitems, etree.fromstring(content), stylizer)
-        self.Output(trees)
+        subitem = ''
+        for line in output.splitlines():
+            line = line.strip(' \t\n\r')
+            if len(line) != 0:
+                if line.find(CALIBRE_SNB_IMG_TAG) == 0:
+                    etree.SubElement(trees[subitem], "img").text = line[len(CALIBRE_SNB_IMG_TAG):]
+                elif line.find(CALIBRE_SNB_BM_TAG) == 0:
+                    subitem = line[len(CALIBRE_SNB_BM_TAG):]
+                else:
+                    etree.SubElement(trees[subitem], "text").text = etree.CDATA(unicode(u'\u3000\u3000' + line))
         return trees
 
     def remove_newlines(self, text):
@@ -93,25 +106,86 @@ class SNBMLizer(object):
 
         return text
 
-    def dump_text(self, trees, subitems, elem, stylizer, end=''):
-        '''
-        @elem: The element in the etree that we are working on.
-        @stylizer: The style information attached to the element.
-        @end: The last two characters of the text from the previous element.
-              This is used to determine if a blank line is needed when starting
-              a new block element.
-        '''
+    def cleanup_text(self, text):
+        self.log.debug('\tClean up text...')
+        # Replace bad characters.
+        text = text.replace(u'\xc2', '')
+        text = text.replace(u'\xa0', ' ')
+        text = text.replace(u'\xa9', '(C)')
+
+        # Replace tabs, vertical tags and form feeds with single space.
+        text = text.replace('\t+', ' ')
+        text = text.replace('\v+', ' ')
+        text = text.replace('\f+', ' ')
+
+        # Single line paragraph.
+        text = re.sub('(?<=.)%s(?=.)' % os.linesep, ' ', text)
+
+        # Remove multiple spaces.
+        text = re.sub('[ ]{2,}', ' ', text)
+
+        # Remove excessive newlines.
+        text = re.sub('\n[ ]+\n', '\n\n', text)
+        if self.opts.remove_paragraph_spacing:
+            text = re.sub('\n{2,}', '\n', text)
+            text = re.sub('(?imu)^(?=.)', '\t', text)
+        else:
+            text = re.sub('\n{3,}', '\n\n', text)
+
+        # Replace spaces at the beginning and end of lines
+        text = re.sub('(?imu)^[ ]+', '', text)
+        text = re.sub('(?imu)[ ]+$', '', text)
+
+        if self.opts.max_line_length:
+            max_length = self.opts.max_line_length
+            if self.opts.max_line_length < 25 and not self.opts.force_max_line_length:
+                max_length = 25
+            short_lines = []
+            lines = text.splitlines()
+            for line in lines:
+                while len(line) > max_length:
+                    space = line.rfind(' ', 0, max_length)
+                    if space != -1:
+                        # Space was found.
+                        short_lines.append(line[:space])
+                        line = line[space + 1:]
+                    else:
+                        # Space was not found.
+                        if self.opts.force_max_line_length:
+                            # Force breaking at max_lenght.
+                            short_lines.append(line[:max_length])
+                            line = line[max_length:]
+                        else:
+                            # Look for the first space after max_length.
+                            space = line.find(' ', max_length, len(line))
+                            if space != -1:
+                                # Space was found.
+                                short_lines.append(line[:space])
+                                line = line[space + 1:]
+                            else:
+                                # No space was found cannot break line.
+                                short_lines.append(line)
+                                line = ''
+                # Add the text that was less than max_lengh to the list
+                short_lines.append(line)
+            text = '\n'.join(short_lines)
+
+        return text
+
+    def dump_text(self, subitems, elem, stylizer, end=''):
+
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
             return ['']
 
+
+        text = ['']
+        style = stylizer.style(elem)
+
         if elem.attrib.get('id') != None and elem.attrib['id'] in [ href for href, title in subitems ]:
             if self.curSubItem != None and self.curSubItem != elem.attrib['id']:
-                self.Output(trees)
                 self.curSubItem = elem.attrib['id']
-                self.curText = [ ]
-
-        style = stylizer.style(elem)
+                text.append(u'%s%s\n\n' % (CALIBRE_SNB_BM_TAG, self.curSubItem))
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
@@ -124,37 +198,29 @@ class SNBMLizer(object):
         if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
             in_block = True
             if not end.endswith(u'\n\n') and hasattr(elem, 'text') and elem.text:
-                self.curText.append(u'\n\n')
+                text.append(u'\n\n')
 
         if tag in SPACE_TAGS:
             if not end.endswith('u ') and hasattr(elem, 'text') and elem.text:
-                self.curText.append(u' ')
+                text.append(u' ')
 
         if tag == 'img':
-            self.curText.append(u'%s%s' % (CLIABRE_SNB_IMG_TAG, ProcessFileName(elem.attrib['src'])))
+            text.append(u'%s%s' % (CALIBRE_SNB_IMG_TAG, ProcessFileName(elem.attrib['src'])))
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
-            self.curText.append(elem.text)
+            text.append(elem.text)
 
         for item in elem:
             en = u''
-            if len(self.curText) >= 2:
-                en = self.curText[-1][-2:]
-            self.dump_text(trees, subitems, item, stylizer, en)
+            if len(text) >= 2:
+                en = text[-1][-2:]
+            text += self.dump_text(subitems, item, stylizer, en)
 
         if in_block:
-            self.curText.append(u'\n\n')
+            text.append(u'\n\n')
 
         if hasattr(elem, 'tail') and elem.tail:
-            self.curText.append(elem.tail)
+            text.append(elem.tail)
 
-    def Output(self, trees):
-        if self.curSubItem == None or not self.curSubItem in trees:
-            return
-        for t in self.curText:
-            if len(t.strip(' \t\n\r')) != 0:
-                if t.find(CLIABRE_SNB_IMG_TAG) == 0:
-                    etree.SubElement(trees[self.curSubItem], "img").text = t[len(CLIABRE_SNB_IMG_TAG):]
-                else:
-                    etree.SubElement(trees[self.curSubItem], "text").text = etree.CDATA(unicode(u'\u3000\u3000' + t))
+        return text
