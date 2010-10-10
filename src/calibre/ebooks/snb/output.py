@@ -141,10 +141,10 @@ class SNBOutput(OutputFormatPlugin):
                         else:
                             outputFiles[item[0]] = [] 
                             if not "" in outputFiles[item[0]]:
-                                outputFiles[item[0]].append(("", _("Chapter Start"))) 
+                                outputFiles[item[0]].append(("", tocitem.title + _(" (Preface)"))) 
                                 ch = etree.SubElement(tocBody, "chapter")
                                 ch.set("src", ProcessFileName(item[0]) + ".snbc")
-                                ch.text = _("Chapter Start")
+                                ch.text = tocitem.title + _(" (Preface)")
                             outputFiles[item[0]].append((item[1], tocitem.title)) 
                 else:
                     if tocitem.href in outputFiles:
