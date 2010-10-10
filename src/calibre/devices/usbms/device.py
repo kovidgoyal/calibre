@@ -626,6 +626,50 @@ class Device(DeviceConfig, DevicePlugin):
                 setattr(self, prefix, mp)
                 self._linux_mount_map[card] = mp
 
+        self.filter_read_only_mount_points()
+
+    def filter_read_only_mount_points(self):
+
+        def is_readonly(mp):
+            if mp is None:
+                return True
+            path = os.path.join(mp, 'calibre_readonly_test')
+            ro = True
+            try:
+                with open(path, 'wb'):
+                    ro = False
+            except:
+                pass
+            else:
+                try:
+                    os.remove(path)
+                except:
+                    pass
+            return ro
+
+        for mp in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
+            if is_readonly(getattr(self, mp, None)):
+                setattr(self, mp, None)
+
+        if self._main_prefix is None:
+            for p in ('_card_a_prefix', '_card_b_prefix'):
+                nmp = getattr(self, p, None)
+                if nmp is not None:
+                    self._main_prefix = nmp
+                    setattr(self, p, None)
+                    break
+
+        if self._main_prefix is None:
+            raise DeviceError(_('The main memory of %s is read only. '
+            'This usually happens because of file system errors.')
+                    %self.__class__.__name__)
+
+        if self._card_a_prefix is None and self._card_b_prefix is not None:
+            self._card_a_prefix = self._card_b_prefix
+            self._card_b_prefix = None
+
+
+
     def open(self):
         time.sleep(5)
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None

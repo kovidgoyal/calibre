@@ -46,26 +46,29 @@ class ISBNDBMetadata(Metadata):
 
     def __init__(self, book):
         Metadata.__init__(self, None, [])
+        self.getmetadata(book)
 
-        def tostring(e):
-            if not hasattr(e, 'string'):
-                return None
-            ans = e.string
-            if ans is not None:
-                ans = unicode(ans).strip()
-            if not ans:
-                ans = None
-            return ans
-
+    def tostring(self, e):
+        if not hasattr(e, 'string'):
+            return None
+        ans = e.string
+        if ans is not None:
+            ans = unicode(ans).strip()
+        if not ans:
+            ans = None
+        return ans
+        
+    def getmetadata(self, book):
         self.isbn = unicode(book.get('isbn13', book.get('isbn')))
-        self.title = tostring(book.find('titlelong'))
-        if not self.title:
-            self.title = tostring(book.find('title'))
-        if not self.title:
+        temptitle = self.tostring(book.find('titlelong'))
+        if not temptitle:
+            temptitle = self.tostring(book.find('title'))
+        if temptitle:            
+            self.title = unicode(temptitle).strip()
+        else:
             self.title = _('Unknown')
-        self.title = unicode(self.title).strip()
         self.authors = []
-        au = tostring(book.find('authorstext'))
+        au = self.tostring(book.find('authorstext'))
         if au:
             au = au.strip()
             temp = au.split(',')
@@ -74,14 +77,14 @@ class ISBNDBMetadata(Metadata):
                 self.authors.extend([a.strip() for a in au.split('&amp;')])
 
         try:
-            self.author_sort = tostring(book.find('authors').find('person'))
+            self.author_sort = self.tostring(book.find('authors').find('person'))
             if self.authors and self.author_sort == self.authors[0]:
                 self.author_sort = None
         except:
             pass
-        self.publisher = tostring(book.find('publishertext'))
+        self.publisher = self.tostring(book.find('publishertext'))
 
-        summ = tostring(book.find('summary'))
+        summ = self.tostring(book.find('summary'))
         if summ:
             self.comments = 'SUMMARY:\n'+summ
 
@@ -139,7 +142,7 @@ def create_books(opts, args, timeout=5.):
 
     if opts.verbose:
         print ('ISBNDB query: '+url)
-
+    
     tans = [ISBNDBMetadata(book) for book in fetch_metadata(url, timeout=timeout)]
     ans = []
     for x in tans:

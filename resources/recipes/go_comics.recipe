@@ -11,8 +11,8 @@ import mechanize
 class GoComics(BasicNewsRecipe):
     title               = 'GoComics'
     __author__          = 'Starson17'
-    __version__         = '1.02'
-    __date__            = '14 August 2010'
+    __version__         = '1.03'
+    __date__            = '09 October 2010'
     description         = u'200+ Comics - Customize for more days/comics: Defaults to 7 days, 25 comics - 20 general, 5 editorial.'
     category            = 'news, comics'
     language            = 'en'
@@ -273,6 +273,7 @@ class GoComics(BasicNewsRecipe):
                             # ("Wit of the World","http://www.gocomics.com/witoftheworld"),
                             # ("Don Wright","http://www.gocomics.com/donwright"),
                              ]:
+            print 'Working on: ', title
             articles = self.make_links(url)
             if articles:
                 feeds.append((title, articles))
@@ -286,28 +287,30 @@ class GoComics(BasicNewsRecipe):
             page_soup = self.index_to_soup(url)
             if page_soup:
                 try:
-                  strip_title = page_soup.h1.a.string
+                  strip_title = page_soup.find(name='div', attrs={'class':'top'}).h1.a.string
                 except:
-                  strip_title = 'Error - no page_soup.h1.a.string'
+                  strip_title = 'Error - no Title found'
                 try:
                   date_title = page_soup.find('ul', attrs={'class': 'feature-nav'}).li.string
+                  if not date_title:
+                      date_title = page_soup.find('ul', attrs={'class': 'feature-nav'}).li.string
                 except:
-                  date_title = 'Error - no page_soup.h1.li.string'
+                  date_title = 'Error - no Date found'
                 title = strip_title + ' - ' + date_title
                 for i in range(2):
                   try:
-                    strip_url_date = page_soup.h1.a['href']
+                    strip_url_date = page_soup.find(name='div', attrs={'class':'top'}).h1.a['href']
                     break #success - this is normal exit
                   except:
+                    strip_url_date = None
                     continue #try to get strip_url_date again
-                  continue # give up on this strip date
                 for i in range(2):
                   try:
                     prev_strip_url_date = page_soup.find('a', attrs={'class': 'prev'})['href']
                     break #success - this is normal exit
                   except:
+                    prev_strip_url_date = None
                     continue #try to get prev_strip_url_date again
-                  continue # give up on this prev strip date
                 if strip_url_date:
                   page_url = 'http://www.gocomics.com' + strip_url_date
                 else:
