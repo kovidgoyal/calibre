@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-08 20:49+0000\n"
-"Last-Translator: Ricardo A. Hermosilla Carrillo <ra.hermosillac@gmail.com>\n"
+"PO-Revision-Date: 2010-10-09 12:54+0000\n"
+"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-09 12:11+0000\n"
+"X-Launchpad-Export-Date: 2010-10-10 04:55+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:480
@@ -3814,28 +3814,28 @@ msgstr "Eliminar biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "Library Maintenance"
-msgstr ""
+msgstr "Mantenimiento de la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:188
 msgid "Library metadata backup status"
-msgstr ""
+msgstr "Estado de la copia de respaldo de metadatos de la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:192
 msgid "Start backing up metadata of all books"
-msgstr ""
+msgstr "Iniciar copia de respaldo de los metadatos de todos los libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:196
 msgid "Check library"
-msgstr ""
+msgstr "Comprobar biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:200
 msgid "Check database integrity"
-msgstr ""
+msgstr "Comprobar integridad de la base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:343
 msgid "Recover database"
-msgstr ""
+msgstr "Recuperar base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:269
 msgid "Rename"
@@ -3903,6 +3903,8 @@ msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book per second."
 msgstr ""
+"Los metadatos se guardarán en la copia de respaldo mientras calibre se esté "
+"ejecutando, a una velocidad de aproximadamente 1 libro por segundo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:344
 msgid ""
@@ -3911,6 +3913,10 @@ msgid ""
 "GUI. You can recover your database using the 'calibredb restore_database' "
 "command line function."
 msgstr ""
+"Esta orden reconstruye su base de datos de calibre con la información "
+"almacenada por calibre en los archivos OPF.<p>Esta función no está "
+"disponible actualmente desde la interfaz gráfica. Puede recuperar su base de "
+"datos usando la orden del terminal «calibredb restore_database»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:358
 msgid "No library found"
@@ -3969,7 +3975,7 @@ msgstr "Copiando los libros seleccionados a la biblioteca especificada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:114
 msgid "(delete after copy)"
-msgstr ""
+msgstr "(eliminar después de copiar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Cannot copy"
@@ -8507,7 +8513,7 @@ msgstr "El nombre de búsqueda es \"{0}\""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:704
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1239
 msgid "This book's UUID is \"{0}\""
-msgstr ""
+msgstr "El UUID de este libro es «{0}»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:923
 msgid "In Library"
@@ -10096,11 +10102,13 @@ msgstr "&Atajo alternativo:"
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
 msgstr ""
+"Cambiar los autores de varios libros puede tardar un rato. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:168
 msgid ""
 "Changing the metadata for that many books can take a while. Are you sure?"
 msgstr ""
+"Cambiar los metadatos de muchos libros puede tardar un rato. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:295
 msgid "Rename '%s'"
@@ -10314,15 +10322,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:59
 msgid "Update available!"
-msgstr ""
+msgstr "Actualización disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:64
 msgid "Show this notification for future updates"
-msgstr ""
+msgstr "Mostrar esta notificación para actualizaciones futuras"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:69
 msgid "&Get update"
-msgstr ""
+msgstr "&Actualizar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -12065,10 +12073,13 @@ msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
+"Hacer la recuperación. Esta orden no se ejecutará a menos que se especifique "
+"esta opción."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:988
 msgid "You must provide the --really-do-it option to do a recovery"
 msgstr ""
+"Ha de proporcionar la opción --really-do-it para realizar la recuperación"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1025
 msgid ""
@@ -12077,6 +12088,10 @@ msgid ""
 "Produce a report of the category information in the database. The\n"
 "information is the equivalent of what is shown in the tags pane.\n"
 msgstr ""
+"%prog list_categories [opciones]\n"
+"\n"
+"Genera un informe de la información de la categoría en la base de datos. La\n"
+"información es el equivalente a lo que se muestra en el panel de etiquetas.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1033
 msgid ""
@@ -12089,6 +12104,8 @@ msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
+"El carácter que se pondrá alrededor del valor de la categoría en modo CSV. "
+"Por defecto son las comillas ('')."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1041
 msgid ""
@@ -12099,10 +12116,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1047
 msgid "The string used to separate fields in CSV mode. Default is a comma."
 msgstr ""
+"La cadena que se usará para separar los campos en el modo CSV. Por defecto "
+"es una coma."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1085
 msgid "CATEGORY ITEMS"
-msgstr ""
+msgstr "ELEMENTOS DE CATEGORÍAS"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1154
 msgid ""
@@ -12177,7 +12196,7 @@ msgstr "Calificaciones"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:262
 msgid "Title Sort"
-msgstr ""
+msgstr "Ordenar por títulos"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:117
 msgid "Processed"

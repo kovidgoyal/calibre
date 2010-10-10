@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-08 20:55+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-09 13:31+0000\n"
+"Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-09 12:09+0000\n"
+"X-Launchpad-Export-Date: 2010-10-10 04:54+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3745,28 +3745,28 @@ msgstr "Slet bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "Library Maintenance"
-msgstr ""
+msgstr "Biblioteksvedligeholdelse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:188
 msgid "Library metadata backup status"
-msgstr ""
+msgstr "Sikkerhedskopieringsstatus af bibliotekets metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:192
 msgid "Start backing up metadata of all books"
-msgstr ""
+msgstr "Start sikkerhedskopiering af alle bøgers metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:196
 msgid "Check library"
-msgstr ""
+msgstr "Check bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:200
 msgid "Check database integrity"
-msgstr ""
+msgstr "Check database integritet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:343
 msgid "Recover database"
-msgstr ""
+msgstr "Genopret database"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:269
 msgid "Rename"
@@ -3833,6 +3833,8 @@ msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book per second."
 msgstr ""
+"Metadata vil blive sikkerhedskopieret mens calibre kører, med hastigheden af "
+"omkring 1 bog per sekund."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:344
 msgid ""
@@ -3841,6 +3843,10 @@ msgid ""
 "GUI. You can recover your database using the 'calibredb restore_database' "
 "command line function."
 msgstr ""
+"Denne kommando genopbygger din calibre-database fra information gemt af "
+"calibre i OPF-filerne.<p>Denne funktion er i øjeblikket ikke tilgængelig i "
+"GUI-grænsefladen. Du kan genoprette din database ved at anvende 'calibredb "
+"restore_database' kommandolinje funktion."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:358
 msgid "No library found"
@@ -3898,7 +3904,7 @@ msgstr "Kopiér udvalgte bøger til det angivne bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:114
 msgid "(delete after copy)"
-msgstr ""
+msgstr "(slet efter kopiering)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Cannot copy"
@@ -8387,7 +8393,7 @@ msgstr "Opslaget/søgenavn er \"{0}\""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:704
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1239
 msgid "This book's UUID is \"{0}\""
-msgstr ""
+msgstr "Denne bogs UUID er \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:923
 msgid "In Library"

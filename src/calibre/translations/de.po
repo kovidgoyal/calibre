@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-08 20:49+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-09 19:44+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-09 12:10+0000\n"
+"X-Launchpad-Export-Date: 2010-10-10 04:54+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -279,7 +279,7 @@ msgstr "Bedienungsoberfläche"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:697
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr "Passen sie das Erscheinungsbild von calibre ihren Bedürfnissen an."
+msgstr "Passen Sie das Erscheinungsbild von Calibre ihren Bedürfnissen an."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:703
 msgid "Behavior"
@@ -287,7 +287,7 @@ msgstr "Verhalten"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:709
 msgid "Change the way calibre behaves"
-msgstr "Ändern sie das Verhalten von calibre."
+msgstr "Ändern Sie das Verhalten von Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:714
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:180
@@ -296,7 +296,7 @@ msgstr "Eigene Spalten hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:720
 msgid "Add/remove your own columns to the calibre book list"
-msgstr "Hinzufügen/Entfernen eigener Spalten in der calibre Buchliste"
+msgstr "Hinzufügen/Entfernen eigener Spalten in der Calibre Buchliste"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:725
 msgid "Customize the toolbar"
@@ -341,7 +341,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Adding books"
-msgstr "Bücher hinzuzufügen"
+msgstr "Bücher hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:772
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:784
@@ -382,7 +382,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "Ändere Metadaten-Felder vor dem Speichern/Senden"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Sharing books by email"
@@ -425,8 +425,7 @@ msgstr "Erweitert"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
-"Hinzufügen/entfernen/einstellen von verschiedenen Calibre- Funktionen"
+msgstr "Hinzufügen/Entfernen/Einstellen von verschiedenen Calibre-Funktionen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:854
 msgid "Tweaks"
@@ -443,7 +442,7 @@ msgstr "Verschiedenes"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:871
 msgid "Miscellaneous advanced configuration"
-msgstr "Konfiguration verschiedener fortgeschrittener Parameter."
+msgstr "Konfiguration verschiedener fortgeschrittener Parameter"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -723,7 +722,7 @@ msgstr "abgeschlossen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:556
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr "Verwende Reihen als Kategorie in iTunes/iBooks"
+msgstr "Verwende Reihen als Kategorien in iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:558
 msgid "Cache covers from iTunes/iBooks"
@@ -870,7 +869,7 @@ msgstr "Bücher vom Gerät entfernen ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:119
 msgid "Communicate with the Azbooka"
-msgstr "kommuniziere mit Azooka"
+msgstr "Kommunikation mit Azbooka"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:138
 msgid "Communicate with the Elonex EB 511 eBook reader."
@@ -908,7 +907,7 @@ msgstr "Kommunikation mit dem MiBuk Wolder Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:116
 msgid "Communicate with the JetBook Mini reader."
-msgstr ""
+msgstr "Kommunikation mit dem JetBook Mini Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:43
 msgid "Communicate with the Kindle eBook reader."
@@ -1800,6 +1799,9 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
+"Konvertiere einfache und doppelte Anführungszeichen sowie Quotierungszeichen "
+"zu deren typografisch korrekten Form. Details finden Sie unter "
+"http://daringfireball.net/projects/smartypants (nur in Englisch)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:384
 msgid "Use a regular expression to try and remove the header."
@@ -1969,7 +1971,7 @@ msgstr "Erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr ""
+msgstr "Konnte %s nicht analysieren. Folgender Fehler trat auf: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
@@ -2002,6 +2004,12 @@ msgid ""
 "By default, no fixing is done and messages are printed out for each error "
 "detected. Use the options to control which errors are automatically fixed."
 msgstr ""
+"%prog [options] file.epub\n"
+"Korrigiere allgemeine Fehler in EPUB Dateien, die eine Ablehnung durch "
+"schlecht designte Verlagsprogramme auslösen können.\n"
+"Standardmäßig werden keine Korrekturen durchgeführt. Stattdessen wird für "
+"jeden erkannten Fehler eine Mitteilung ausgegeben. Verwenden Sie diese "
+"Option, um zu kontrollieren, welche Fehler automatisch korrigiert werden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
@@ -2125,6 +2133,9 @@ msgid ""
 "experimental. It can cause conversion to fail. It can also produce "
 "unexpected output."
 msgstr ""
+"Versuche Kapitel in einzelne Sektionen zu unterteilen. WARNUNG: Diese Option "
+"ist experimentell. Wenn sie eingeschaltet ist, kann es sein, dass die "
+"Konvertierung schief geht. Sie kann auch unerwartete Resultate liefern."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:249
 msgid ""
@@ -2420,7 +2431,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:114
 msgid "TEMPLATE ERROR"
-msgstr ""
+msgstr "Vorlagenfehler"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:533
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:59
@@ -3826,16 +3837,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:196
 msgid "Check library"
-msgstr ""
+msgstr "Bibliothek überprüfen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:200
 msgid "Check database integrity"
-msgstr ""
+msgstr "Datenbankintegrität überprüfen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:343
 msgid "Recover database"
-msgstr ""
+msgstr "Datenbank wiederherstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:269
 msgid "Rename"
@@ -3888,7 +3899,7 @@ msgstr "kein"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:317
 msgid "Backup status"
-msgstr ""
+msgstr "Backupstatus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:318
 msgid "Book metadata files remaining to be written: %s"
@@ -3970,7 +3981,7 @@ msgstr "Gewählte Bücher in die angegebene Bibliothek kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:114
 msgid "(delete after copy)"
-msgstr ""
+msgstr "(Nach dem Kopieren löschen)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Cannot copy"
@@ -5900,7 +5911,7 @@ msgstr "&Maximale Zeilenlänge:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:49
 msgid "Force maximum line length"
-msgstr ""
+msgstr "Erzwinge maximale Zeilenlänge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:70
@@ -6038,16 +6049,16 @@ msgstr " Index:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:462
 msgid "Remove series"
-msgstr ""
+msgstr "Reihen entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:465
 msgid "Automatically number books"
-msgstr ""
+msgstr "Bücher automatisch nummerieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:468
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:346
 msgid "Force numbers to start with "
-msgstr ""
+msgstr "Start der Nummerierung erzwingen bei "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:531
 msgid "Remove all tags"
@@ -6329,7 +6340,7 @@ msgstr "Vor&lage speichern:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:48
 msgid "Add books by ISBN"
-msgstr ""
+msgstr "Bücher nach ISBN hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:49
 msgid ""
@@ -6338,14 +6349,18 @@ msgid ""
 "metadata and covers for them.<p>Any invalid ISBNs in the list will be "
 "ignored."
 msgstr ""
+"<p>Geben Sie eine Liste von ISBNs in die linke Box ein (eine ISBN pro "
+"Zeile). Calibre wird automatisch Bucheinträge basierend auf den ISBNs "
+"anlegen und sowohl Metadaten als auch Buchumschläge für diese Einträge "
+"herunterladen.<p>Alle ungültigen ISBNs in der Liste werden ignoriert."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:50
 msgid "&Paste from clipboard"
-msgstr ""
+msgstr "Aus Zwischenablage einfügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:73
 msgid "Fit &cover within view"
-msgstr ""
+msgstr "Ums&chlagbild in Ansicht einpassen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:74
 msgid "&Previous"
@@ -6388,11 +6403,11 @@ msgstr "Katalogeinstellungen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:21
 msgid "Check Library"
-msgstr ""
+msgstr "Bibliothek überprüfen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:29
 msgid "Run the check"
-msgstr ""
+msgstr "Überprüfung starten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:205
@@ -6401,11 +6416,11 @@ msgstr "In die Zwischenablage kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:48
 msgid "Names to ignore:"
-msgstr ""
+msgstr "Zu ignorierende Namen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:54
 msgid "Extensions to ignore"
-msgstr ""
+msgstr "Zu ignorierende Endungen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 msgid "Additional Information"
@@ -6413,7 +6428,7 @@ msgstr "Zusätzliche Informationen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 msgid "Path from library"
-msgstr ""
+msgstr "Pfad der Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:89
@@ -6569,7 +6584,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:616
 msgid "Author names cannot contain & characters."
-msgstr ""
+msgstr "Autorennamen dürfen nicht das Zeichen & enthalten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:66
 msgid "Manage authors"
@@ -6703,19 +6718,19 @@ msgstr "&Alle geräteunabhängigen Aufträge beenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:25
 msgid "Title/Author"
-msgstr ""
+msgstr "Titel/Autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:26
 msgid "Standard metadata"
-msgstr ""
+msgstr "Standard Metadaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:27
 msgid "Custom metadata"
-msgstr ""
+msgstr "Benutzerdefinierte Metadaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:28
 msgid "Search/Replace"
-msgstr ""
+msgstr "Suchen/Ersetzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:76
@@ -6743,19 +6758,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:186
 msgid "Regular Expression"
-msgstr ""
+msgstr "Regulärer Ausdruck"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:189
 msgid "Replace field"
-msgstr ""
+msgstr "Feld ersetzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:190
 msgid "Prepend to field"
-msgstr ""
+msgstr "Vorne an das Feld anfügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:191
 msgid "Append to field"
-msgstr ""
+msgstr "Hinten an das Feld anhängen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:202
 msgid "Editing meta information for <b>%d books</b>"
@@ -6763,7 +6778,7 @@ msgstr "Meta-Informationen für <b>%d books</b> editieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:255
 msgid "Book %d:"
-msgstr ""
+msgstr "Buch %d:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:270
 msgid ""

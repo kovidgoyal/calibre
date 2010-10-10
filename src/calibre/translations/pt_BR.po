@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-08 20:48+0000\n"
-"Last-Translator: Viniciusxp <viniciusxp@gmail.com>\n"
+"PO-Revision-Date: 2010-10-09 17:03+0000\n"
+"Last-Translator: Thomaz Rodrigues Botelho <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-09 12:12+0000\n"
+"X-Launchpad-Export-Date: 2010-10-10 04:55+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -381,7 +381,7 @@ msgstr "Controla como o calibre transfere arquivos do seu leitor de ebook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "Configuração dos Metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Change metadata fields before saving/sending"
@@ -3726,28 +3726,28 @@ msgstr "Deletar biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "Library Maintenance"
-msgstr ""
+msgstr "Manutenção da Biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:188
 msgid "Library metadata backup status"
-msgstr ""
+msgstr "Status do backup dos metadados da biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:192
 msgid "Start backing up metadata of all books"
-msgstr ""
+msgstr "Iniciar o backup dos metadados de todos os livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:196
 msgid "Check library"
-msgstr ""
+msgstr "Verificar biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:200
 msgid "Check database integrity"
-msgstr ""
+msgstr "Verificar a integridade do banco de dados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:343
 msgid "Recover database"
-msgstr ""
+msgstr "Recuperar banco de dados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:269
 msgid "Rename"
@@ -3815,6 +3815,8 @@ msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book per second."
 msgstr ""
+"O backup dos metadados será feito enquanto o calibre estiver rodando, na "
+"média de aproximadamente 1 livro por segundo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:344
 msgid ""
@@ -3823,6 +3825,10 @@ msgid ""
 "GUI. You can recover your database using the 'calibredb restore_database' "
 "command line function."
 msgstr ""
+"Este comando reconstroi seu banco de dados do calibre a partir da informação "
+"armazenada pelo calibre nos arquivos OPF.<p>Está função não está atualmente "
+"disponível na inteface gráfica. Você pode recuperar seu banco de dados "
+"usando a função de linha de comando 'calibredb restore_database'."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:358
 msgid "No library found"
@@ -4866,7 +4872,7 @@ msgstr "tag 'Marque este livro como lido':"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:79
 msgid "Additional note tag prefix:"
-msgstr ""
+msgstr "Nota adicional do prefixo da tag:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:80
 msgid "Regex pattern describing tags to exclude as genres:"
@@ -6281,11 +6287,11 @@ msgstr "Opções do catálogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:21
 msgid "Check Library"
-msgstr ""
+msgstr "Verificar Biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:29
 msgid "Run the check"
-msgstr ""
+msgstr "Rodar a checagem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:205
@@ -6294,19 +6300,19 @@ msgstr "Copiar para a área de transferência"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:48
 msgid "Names to ignore:"
-msgstr ""
+msgstr "Nomes para ignorar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:54
 msgid "Extensions to ignore"
-msgstr ""
+msgstr "Extensões para ignorar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 msgid "Additional Information"
-msgstr ""
+msgstr "Informação Adicional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 msgid "Path from library"
-msgstr ""
+msgstr "Caminho na biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:89
@@ -6455,7 +6461,7 @@ msgstr "Autor ordenado"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:615
 msgid "Invalid author name"
-msgstr ""
+msgstr "Nome de autor inválido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:616
@@ -6810,6 +6816,11 @@ msgid ""
 "for that series. Checking this box will tell calibre to start numbering\n"
 "from the value in the box"
 msgstr ""
+"Séries serão normalmente renumeradas a partir do maior número no banco de "
+"dados\n"
+"para aquela série. Marcando esta caixa você irá dizer pro calibre iniciar a "
+"numeração\n"
+"a partir do valor da caixa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:347
 msgid "Remove &format:"
@@ -11131,31 +11142,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:17
 msgid "Invalid titles"
-msgstr ""
+msgstr "Títulos Inválidos"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:18
 msgid "Extra titles"
-msgstr ""
+msgstr "Títulos extras"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:19
 msgid "Invalid authors"
-msgstr ""
+msgstr "Autores Inválidos"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:20
 msgid "Extra authors"
-msgstr ""
+msgstr "Autores extras"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:21
 msgid "Missing book formats"
-msgstr ""
+msgstr "Formatos de livro faltando"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:22
 msgid "Extra book formats"
-msgstr ""
+msgstr "Formatos de livro extras"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:23
 msgid "Unknown files in books"
-msgstr ""
+msgstr "Arquivos desconhecidos em livros"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:24
 msgid "Folders raising exception"
@@ -11780,11 +11791,11 @@ msgstr "Compactando banco de dados"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2446
 msgid "Checking SQL integrity..."
-msgstr ""
+msgstr "Checando a integridade do SQL..."
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2485
 msgid "Checking for missing files."
-msgstr ""
+msgstr "Checando por arquivos faltando."
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2507
 msgid "Checked id"

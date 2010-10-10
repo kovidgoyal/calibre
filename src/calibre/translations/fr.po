@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-08 20:49+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-09 20:48+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-09 12:10+0000\n"
+"X-Launchpad-Export-Date: 2010-10-10 04:54+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -3855,28 +3855,28 @@ msgstr "Effacer la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "Library Maintenance"
-msgstr ""
+msgstr "Maintenance de la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:188
 msgid "Library metadata backup status"
-msgstr ""
+msgstr "Status de la sauvegarde des métadonnées de la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:192
 msgid "Start backing up metadata of all books"
-msgstr ""
+msgstr "Commencer à sauvegarder les métadonnées de tous les livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:196
 msgid "Check library"
-msgstr ""
+msgstr "Vérifier la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:200
 msgid "Check database integrity"
-msgstr ""
+msgstr "Vérifier l'intégrité de la base de données"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:343
 msgid "Recover database"
-msgstr ""
+msgstr "Récupérer la base de données"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:269
 msgid "Rename"
@@ -3945,6 +3945,8 @@ msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book per second."
 msgstr ""
+"Les métadonnées vont être sauvegardées pendant l'exécution de Calibre, à un "
+"rythme approximatif de 1 livre/seconde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:344
 msgid ""
@@ -3953,6 +3955,11 @@ msgid ""
 "GUI. You can recover your database using the 'calibredb restore_database' "
 "command line function."
 msgstr ""
+"Cette commande reconstruit votre base de données Calibre à partir des "
+"informations stockées par Calibre dans les fichiers OPF.<p>Cette fonction "
+"n'est actuellement pas disponible dans l'IU. Vous pouvez récupérez votre "
+"base de données en utilisant la fonction en ligne de commande 'calibredb "
+"restore_database'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:358
 msgid "No library found"
@@ -4012,7 +4019,7 @@ msgstr "Copier les livres sélectionnés vers la bibliothèque spécifiée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:114
 msgid "(delete after copy)"
-msgstr ""
+msgstr "(supprimer après copie)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Cannot copy"
@@ -8001,7 +8008,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:81
 msgid "Rename the item in every book where it is used."
-msgstr "Renommer l'article"
+msgstr "Renommer l'article dans chaque livre où il est utilisé."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:106
@@ -8586,7 +8593,7 @@ msgstr "Le nom recherché/consulté est \"{0}\""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:704
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1239
 msgid "This book's UUID is \"{0}\""
-msgstr ""
+msgstr "L'UUID de ce livre est \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:923
 msgid "In Library"
@@ -9614,6 +9621,25 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
+"Vous pouvez changer ici les métadonnées qu'utilise Calibre pour mettre à "
+"jour un livre quand il le sauvegarde sur le disque ou qu'il l'envoie à "
+"l'appareil.\n"
+"\n"
+"Utilisez cette boite de dialogue pour définir un \"tableau de connexions\" "
+"pour un format (ou tous les formats) et un appareil (ou tous les appareils). "
+"Ce tableau de connexions définit quel modèle est connecté à quel champ. Ce "
+"modèle est utilisé pour calculer une valeur, et cette valeur est assignée au "
+"champ connecté.\n"
+"\n"
+"Souvent les modèles vont contenir de simples références à des colonnes "
+"mixtes, mais ce n'est pas nécessaire. Vous pouvez utilisez n'importe quel "
+"modèle dans la boite source que vous pouvez utilisez ailleurs dans Calibre.\n"
+"\n"
+"Une des utilisations possibles du tableau de connexions est de permettre "
+"l'altération du titre pour contenir les informations de série. Une autre "
+"serait de changer la clé de tri d'auteur, quelque chose que les utilisateurs "
+"de mobi pouraient avoir à faire pour forcer l'utilisation de \";\" que le "
+"kindle requiert. Une troisième serait de spécifier le language."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"
@@ -10190,11 +10216,15 @@ msgstr "Raccourci &alternatif :"
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
 msgstr ""
+"Changer les auteurs pour plusieurs livres peut prendre un certain temps. "
+"Etes-vous sûr?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:168
 msgid ""
 "Changing the metadata for that many books can take a while. Are you sure?"
 msgstr ""
+"Changer les métadonnées pourautant de livres peut prendre un certain temps. "
+"Etes-vous sûr?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:295
 msgid "Rename '%s'"
@@ -10405,18 +10435,21 @@ msgid ""
 "%s has been updated to version <b>%s</b>. See the <a href=\"http://calibre-"
 "ebook.com/whats-new\">new features</a>. Visit the download page?"
 msgstr ""
+"%s a été mis à jour vers la version <b>%s</b>. Veuillez vous référer à la "
+"page des <a href=\"http://calibre-ebook.com/whats-new\">nouvelles "
+"caractéristiques</a>. Visiter la page de téléchargement?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:59
 msgid "Update available!"
-msgstr ""
+msgstr "Mise à jour disponible!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:64
 msgid "Show this notification for future updates"
-msgstr ""
+msgstr "Afficher cette notification pour des mises à jour futures"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:69
 msgid "&Get update"
-msgstr ""
+msgstr "&Obtenir une mise à jour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -12160,16 +12193,35 @@ msgid ""
 "what is found in the OPF files.\n"
 "    "
 msgstr ""
+"%prog restore_database [options]\n"
+"\n"
+"Restaure la base de données à partir des métadonnées stockées\n"
+"dans les fichiers OPF présents dans chaque dossier de la bibliothèque "
+"Calibre.\n"
+"Ceci est utile si votre fichier metadata.db a été corrompu.\n"
+"\n"
+"ATTENTION : cette commande régénére complétement votre base de données.\n"
+"Vous perdrez toutes les recherches sauvegardées, les catégories "
+"utilisateur,\n"
+"les tableaux de connexions, les réglages de conversion par livre et les "
+"recetttes personnalisées.\n"
+"Les métadonnées restaurées seront aussi précises que ce qui sera trouvé dans "
+"les fichiers OPF.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:975
 msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
+"Effectuer réellement la récupération. La commande ne sera pas exécuté si "
+"cette option n'est pas spécifiée."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:988
 msgid "You must provide the --really-do-it option to do a recovery"
 msgstr ""
+"Vous devez entrer l'option --really-do-it pour effectuer réellement une "
+"récupération"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1025
 msgid ""
@@ -12178,32 +12230,46 @@ msgid ""
 "Produce a report of the category information in the database. The\n"
 "information is the equivalent of what is shown in the tags pane.\n"
 msgstr ""
+"%prog list_categories [options]\n"
+"\n"
+"Produit un rapport sur les informations des catégories dans la base de "
+"données.\n"
+"Les informations sont les équivalents de ce qui est affiché dans le panneau "
+"des étiquettes.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1033
 msgid ""
 "Output only the number of items in a category instead of the counts per item "
 "within the category"
 msgstr ""
+"Sort seulement le nombre d'articles dans une catégorie au lieu du nombre "
+"d'occurences par article à l'intérieur de la catégorie"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1038
 msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
+"Le caractère à mettre autour de la valeur de la catégorie dans le mode CSV. "
+"Des guillemets (\") constituent le défaut."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1041
 msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
+"Liste de catégories de noms de recherche séparées par des virgules.\n"
+"Par défaut: tous"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1047
 msgid "The string used to separate fields in CSV mode. Default is a comma."
 msgstr ""
+"La chaîne utilisée pour séparer les champs en mode CSV. Par défaut une "
+"virgule."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1085
 msgid "CATEGORY ITEMS"
-msgstr ""
+msgstr "CATEGORIES D'ARTICLES"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1154
 msgid ""
@@ -12276,7 +12342,7 @@ msgstr "Notes"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:262
 msgid "Title Sort"
-msgstr ""
+msgstr "Tri par titre"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:117
 msgid "Processed"
