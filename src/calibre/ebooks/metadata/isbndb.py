@@ -45,7 +45,7 @@ def fetch_metadata(url, max=100, timeout=5.):
 class ISBNDBMetadata(Metadata):
 
     def __init__(self, book):
-        Metadata.__init__(self, None, [])
+        Metadata.__init__(self, None)
 
         def tostring(e):
             if not hasattr(e, 'string'):
@@ -58,21 +58,21 @@ class ISBNDBMetadata(Metadata):
             return ans
 
         self.isbn = unicode(book.get('isbn13', book.get('isbn')))
-        self.title = tostring(book.find('titlelong'))
-        if not self.title:
-            self.title = tostring(book.find('title'))
-        if not self.title:
-            self.title = _('Unknown')
+        title = tostring(book.find('titlelong'))
+        if not title:
+            title = tostring(book.find('title'))
+        self.title = title
         self.title = unicode(self.title).strip()
-        self.authors = []
+        authors = []
         au = tostring(book.find('authorstext'))
         if au:
             au = au.strip()
             temp = au.split(',')
             for au in temp:
                 if not au: continue
-                self.authors.extend([a.strip() for a in au.split('&amp;')])
-
+                authors.extend([a.strip() for a in au.split('&amp;')])
+        if authors:
+            self.authors = authors
         try:
             self.author_sort = tostring(book.find('authors').find('person'))
             if self.authors and self.author_sort == self.authors[0]:
