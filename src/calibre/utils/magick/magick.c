@@ -414,6 +414,24 @@ magick_Image_load(magick_Image *self, PyObject *args, PyObject *kwargs) {
 
 // }}}
 
+// Image.load {{{
+static PyObject *
+magick_Image_read(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    const char *data;
+    MagickBooleanType res;
+    
+    if (!PyArg_ParseTuple(args, "s", &data)) return NULL;
+
+    res = MagickReadImage(self->wand, data);
+
+    if (!res)
+        return magick_set_exception(self->wand);
+
+    Py_RETURN_NONE;
+}
+
+// }}}
+
 // Image.create_canvas {{{
 static PyObject *
 magick_Image_create_canvas(magick_Image *self, PyObject *args, PyObject *kwargs)
@@ -871,6 +889,10 @@ magick_Image_type_setter(magick_Image *self, PyObject *val, void *closure) {
 static PyMethodDef magick_Image_methods[] = {
     {"load", (PyCFunction)magick_Image_load, METH_VARARGS,
      "Load an image from a byte buffer (string)"
+    },
+
+    {"read", (PyCFunction)magick_Image_read, METH_VARARGS,
+     "Read image from path. Path must be a bytestring in the filesystem encoding"
     },
 
     {"export", (PyCFunction)magick_Image_export, METH_VARARGS,
