@@ -1,49 +1,56 @@
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fb="http://www.gribuser.ru/xml/fictionbook/2.0">
-<!--
-#########################################################################
-#                                                                       #
-#                                                                       #
-#   copyright 2002 Paul Henry Tremblay                                  #
-#                                                                       #
-#   This program is distributed in the hope that it will be useful,     #
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of      #
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
-#   General Public License for more details.                            #
-#                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
-#                                                                       #
-#########################################################################
-
--->
-	<xsl:output method="xml" encoding="UTF-8"/>
-	<xsl:key name="note-link" match="fb:section" use="@id"/>
+<xsl:stylesheet version="1.0"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:fb="http://www.gribuser.ru/xml/fictionbook/2.0">
+	<!-- ######################################################################### 
+		# # # # # copyright 2002 Paul Henry Tremblay # # # # This program is distributed 
+		in the hope that it will be useful, # # but WITHOUT ANY WARRANTY; without 
+		even the implied warranty of # # MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+		PURPOSE. See the GNU # # General Public License for more details. # # # # 
+		You should have received a copy of the GNU General Public License # # along 
+		with this program; if not, write to the Free Software # # Foundation, Inc., 
+		59 Temple Place, Suite 330, Boston, MA # # 02111-1307 USA # # # # # ######################################################################### -->
+	<xsl:output method="xml" encoding="UTF-8" />
+	<xsl:key name="note-link" match="fb:section" use="@id" />
 	<xsl:template match="/*">
 		<html>
 			<head>
 				<xsl:if test="fb:description/fb:title-info/fb:lang = 'ru'">
-					<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8"/>
+					<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8" />
 				</xsl:if>
 				<title>
-					<xsl:value-of select="fb:description/fb:title-info/fb:book-title"/>
+					<xsl:value-of select="fb:description/fb:title-info/fb:book-title" />
 				</title>
 				<style type="text/x-oeb1-css">
 					A { color : #0002CC }
 					A:HOVER { color : #BF0000 }
-					BODY { background-color : #FEFEFE; color : #000000; font-family : Verdana, Geneva, Arial, Helvetica, sans-serif; text-align : justify }
-					H1{ font-size : 160%; font-style : normal; font-weight : bold; text-align : left; border : 1px solid Black;  background-color : #E7E7E7; margin-left : 0px;  page-break-before : always; }
-					H2{ font-size : 130%; font-style : normal; font-weight : bold; text-align : left; background-color : #EEEEEE;  border : 1px solid Gray;  page-break-before : always; }
-					H3{ font-size : 110%; font-style : normal; font-weight : bold; text-align : left;  background-color : #F1F1F1;  border : 1px solid Silver;}
-					H4{ font-size : 100%; font-style : normal; font-weight : bold; text-align : left; border : 1px solid Gray;  background-color : #F4F4F4;}
-					H5{ font-size : 100%; font-style : italic; font-weight : bold; text-align : left; border : 1px solid Gray;  background-color : #F4F4F4;}
-					H6{ font-size : 100%; font-style : italic; font-weight : normal; text-align : left; border : 1px solid Gray;  background-color : #F4F4F4;}
-					SMALL{ font-size : 80% }
-					BLOCKQUOTE{ margin-left :4em; margin-top:1em; margin-right:0.2em;}
+					BODY { background-color : #FEFEFE; color : #000000; font-family :
+					Verdana, Geneva, Arial, Helvetica, sans-serif; text-align : justify
+					}
+					H1{ font-size : 160%; font-style : normal; font-weight : bold;
+					text-align : left; border : 1px solid Black; background-color :
+					#E7E7E7; margin-left : 0px; page-break-before : always; }
+					H2{
+					font-size : 130%; font-style : normal; font-weight : bold;
+					text-align : left; background-color : #EEEEEE; border : 1px solid
+					Gray; page-break-before : always; }
+					H3{ font-size : 110%; font-style
+					: normal; font-weight : bold; text-align : left; background-color :
+					#F1F1F1; border : 1px solid Silver;}
+					H4{ font-size : 100%;
+					font-style : normal; font-weight : bold; text-align : left; border
+					: 1px solid Gray; background-color : #F4F4F4;}
+					H5{ font-size : 100%;
+					font-style : italic; font-weight : bold; text-align : left; border
+					: 1px solid Gray; background-color : #F4F4F4;}
+					H6{ font-size : 100%;
+					font-style : italic; font-weight : normal; text-align : left;
+					border : 1px solid Gray; background-color : #F4F4F4;}
+					SMALL{
+					font-size : 80% }
+					BLOCKQUOTE{ margin-left :4em; margin-top:1em;
+					margin-right:0.2em;}
 					HR{ color : Black }
-                    DIV{font-family : "Times New Roman", Times, serif; text-align : justify}
+					DIV{font-family : "Times New Roman", Times, serif; text-align : justify}
 					UL{margin-left: 0}
 					.epigraph{width:50%; margin-left : 35%;}
 				</style>
@@ -51,37 +58,37 @@
 			<body>
 				<xsl:for-each select="fb:description/fb:title-info/fb:annotation">
 					<div>
-						<xsl:call-template name="annotation"/>
+						<xsl:call-template name="annotation" />
 					</div>
-					<hr/>
+					<hr />
 				</xsl:for-each>
 				<!-- BUILD TOC -->
 				<ul>
-					<xsl:apply-templates select="fb:body" mode="toc"/>
+					<xsl:apply-templates select="fb:body" mode="toc" />
 				</ul>
-				<hr/>
-                <!-- END BUILD TOC -->
+				<hr />
+				<!-- END BUILD TOC -->
 				<!-- BUILD BOOK -->
 				<xsl:for-each select="fb:body">
 					<xsl:if test="position()!=1">
-						<hr/>
+						<hr />
 					</xsl:if>
 					<xsl:if test="@name">
 						<h4 align="center">
-							<xsl:value-of select="@name"/>
+							<xsl:value-of select="@name" />
 						</h4>
 					</xsl:if>
 					<!-- <xsl:apply-templates /> -->
-					<xsl:apply-templates/>
+					<xsl:apply-templates />
 				</xsl:for-each>
 			</body>
 		</html>
 	</xsl:template>
 	<!-- author template -->
 	<xsl:template name="author">
-		<xsl:value-of select="fb:first-name"/>
+		<xsl:value-of select="fb:first-name" />
 		<xsl:text disable-output-escaping="no">&#032;</xsl:text>
-		<xsl:value-of select="fb:middle-name"/>&#032;
+		<xsl:value-of select="fb:middle-name" />&#032;
          <xsl:text disable-output-escaping="no">&#032;</xsl:text>
 		<xsl:value-of select="fb:last-name"/>
 		<br/>

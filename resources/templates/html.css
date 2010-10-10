@@ -35,9 +35,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 @
-namespace url (http: //www.w3.org /1999/xhtml);
- @namespace svg url (http: //www.w3.org /2000/svg);
-	/* blocks */ 
+namespace url  (http: //www.w3.org /1999/xhtml);
+  @namespace svg url  (http: //www.w3.org /2000/svg);
+	/* blocks */  
 
 html,div,map,dt,isindex,form {
 	display: block;
@@ -161,10 +161,29 @@ table[align="right"] {
 	float: right;
 }
 
-table[rules]:not ([rules="none"] ) {
-	border-collapse: collapse;
-}
+table
+[
+rules
+]
+:not
+ 
+(
+[
+rules
+=
+"none"
+]
+ 
+)
+{
+border-collapse
+:
+ 
+collapse
+;
 
+
+}
 /* caption inherits from table not table-outer */
 caption {
 	display: table-caption;
@@ -322,7 +341,7 @@ ol ol ul,ol ul ul,ol menu ul,ol dir ul,ol ol menu,ol ul menu,ol menu menu,ol dir
 }
 
 /* leafs */
-	/* <hr> noshade and color attributes are handled completely by
+/* <hr> noshade and color attributes are handled completely by
  * the nsHTMLHRElement attribute mapping code
  */
 hr {
@@ -381,7 +400,7 @@ br {
 }
 
 /* Images, embedded object, and SVG size defaults */
-img,object,svg |svg {
+img,object,svg  |svg {
 	width: auto;
 	height: auto;
 }
