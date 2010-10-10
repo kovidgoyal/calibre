@@ -26,6 +26,7 @@ class BrowseServer(object):
         connect('browse_json', base_href+'/json/{query}', self.browse_json)
 
     def browse_template(self, category=True):
+
         def generate():
             if category:
                 sort_opts = [('rating', _('Average rating')), ('name',
