@@ -35,7 +35,7 @@ class BrowseServer(object):
                 sort_opts = [(x, fm[x]['name']) for x in fm.sortable_field_keys()
                         if fm[x]['name']]
             prefix = 'category' if category else 'book'
-            ans = P('content_server/browse.html', data=True)
+            ans = P('content_server/browse/browse.html', data=True)
             ans = ans.replace('{sort_select_label}', xml(_('Sort by')+':'))
             opts = ['<option value="%s_%s">%s</option>' % (prefix, xml(k),
                 xml(n)) for k, n in
