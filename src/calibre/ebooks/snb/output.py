@@ -12,21 +12,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.snb.snbfile import SNBFile
-from calibre.ebooks.snb.snbml import SNBMLizer
-
-def ProcessFileName(fileName):
-    # Flat the path 
-    fileName = fileName.replace("/", "_").replace(os.sep, "_")
-    # Handle bookmark for HTML file
-    fileName = fileName.replace("#", "_")
-    # Make it lower case
-    fileName = fileName.lower()
-    # Change extension for image files to png
-    root, ext = os.path.splitext(fileName) 
-    if ext in [ '.jpeg', '.jpg', '.gif', '.svg' ]:
-        fileName = root + '.png'
-    return fileName
-    
+from calibre.ebooks.snb.snbml import SNBMLizer, ProcessFileName
 
 class SNBOutput(OutputFormatPlugin):
 
