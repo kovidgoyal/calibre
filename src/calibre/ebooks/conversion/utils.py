@@ -146,7 +146,7 @@ class PreProcessor(object):
                #print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
-        self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")
+        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")
         # detect chapters/sections to match xpath or splitting logic
         #
         # Build the Regular Expressions in pieces
@@ -230,6 +230,7 @@ class PreProcessor(object):
             html = dehyphenator(html,'html', length)
             self.log("Done dehyphenating")
             # Unwrap lines using punctation and line length
+            unwrap_quotes = re.compile(u"(?<=.{%i}\"')\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*(?=[a-z])" % length, re.UNICODE)
             unwrap = re.compile(u"(?<=.{%i}([a-z,:)\IA\u00DF]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
             html = unwrap.sub(' ', html)
             #check any remaining hyphens, but only unwrap if there is a match
@@ -259,5 +260,8 @@ class PreProcessor(object):
 
         # put back non-breaking spaces in empty paragraphs to preserve original formatting
         html = blankreg.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
+        
+        # Center separator lines
+        html = re.sub(u'<p>\s*(?P<break>([*#•]+\s*)+)\s*</p>', '<p style="text-align:center">' + '\g<break>' + '</p>', html)
 
         return html
