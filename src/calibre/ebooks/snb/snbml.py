@@ -99,7 +99,13 @@ class SNBMLizer(object):
             line = line.strip(' \t\n\r')
             if len(line) != 0:
                 if line.find(CALIBRE_SNB_IMG_TAG) == 0:
-                    etree.SubElement(trees[subitem].find(".//body"), "img").text = line[len(CALIBRE_SNB_IMG_TAG):]
+                    prefix = ProcessFileName(os.path.dirname(self.item.href))
+                    if prefix != '':
+                        etree.SubElement(trees[subitem].find(".//body"), "img").text = \
+                            prefix + '_' + line[len(CALIBRE_SNB_IMG_TAG):]
+                    else:
+                        etree.SubElement(trees[subitem].find(".//body"), "img").text = \
+                            line[len(CALIBRE_SNB_IMG_TAG):]
                 elif line.find(CALIBRE_SNB_BM_TAG) == 0:
                     subitem = line[len(CALIBRE_SNB_BM_TAG):]
                 else:
