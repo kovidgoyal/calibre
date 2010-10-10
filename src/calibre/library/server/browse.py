@@ -10,7 +10,7 @@ import operator, os
 import cherrypy
 
 from calibre.constants import filesystem_encoding
-from calibre import isbytestring, force_unicode
+from calibre import isbytestring, force_unicode, prepare_string_for_xml as xml
 
 class BrowseServer(object):
 
@@ -36,18 +36,20 @@ class BrowseServer(object):
                         if fm[x]['name']]
             prefix = 'category' if category else 'book'
             ans = P('content_server/browse.html', data=True)
-            ans = ans.replace('{sort_select_label}', _('Sort by')+':')
-            opts = ['<option value="%s_%s">%s</option>' % (prefix, k, n) for k, n in
+            ans = ans.replace('{sort_select_label}', xml(_('Sort by')+':'))
+            opts = ['<option value="%s_%s">%s</option>' % (prefix, xml(k),
+                xml(n)) for k, n in
                     sorted(sort_opts, key=operator.itemgetter(1))]
-            opts = ['<option value="_default">'+_('Select one') +
+            opts = ['<option value="_default">'+xml(_('Select one')) +
                     '&hellip;</option>'] + opts
             ans = ans.replace('{sort_select_options}', '\n\t\t\t'.join(opts))
-            lp = os.path.basename(self.db.library_path)
+            lp = self.db.library_path
             if isbytestring(lp):
                 lp = force_unicode(lp, filesystem_encoding)
             if isinstance(ans, unicode):
                 ans = ans.encode('utf-8')
-            ans = ans.replace('{library_name}', lp)
+            ans = ans.replace('{library_name}', xml(os.path.basename(lp)))
+            ans = ans.replace('{library_path}', xml(lp, True))
             return ans
 
         if self.opts.develop:
