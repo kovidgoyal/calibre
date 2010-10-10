@@ -133,9 +133,6 @@ class SNBOutput(OutputFormatPlugin):
                 oeb_book.toc.add(_('Start'), first.href)
 
             for tocitem in oeb_book.toc:
-                ch = etree.SubElement(tocBody, "chapter")
-                ch.set("src", ProcessFileName(tocitem.href) + ".snbc")
-                ch.text = tocitem.title
                 if tocitem.href.find('#') != -1:
                     item = string.split(tocitem.href, '#')
                     if len(item) != 2:
@@ -145,6 +142,11 @@ class SNBOutput(OutputFormatPlugin):
                             outputFiles[item[0]].append((item[1], tocitem.title)) 
                         else:
                             outputFiles[item[0]] = [] 
+                            if not "" in outputFiles[item[0]]:
+                                outputFiles[item[0]].append(("", _("Start"))) 
+                                ch = etree.SubElement(tocBody, "chapter")
+                                ch.set("src", ProcessFileName(item[0]) + ".snbc")
+                                ch.text = _("Start")
                             outputFiles[item[0]].append((item[1], tocitem.title)) 
                 else:
                     if tocitem.href in outputFiles:
@@ -152,6 +154,10 @@ class SNBOutput(OutputFormatPlugin):
                     else:
                         outputFiles[tocitem.href] = [] 
                         outputFiles[tocitem.href].append(("", tocitem.title))
+                ch = etree.SubElement(tocBody, "chapter")
+                ch.set("src", ProcessFileName(tocitem.href) + ".snbc")
+                ch.text = tocitem.title
+
 
             etree.SubElement(tocHead, "chapters").text = '%d' % len(tocBody)
 
