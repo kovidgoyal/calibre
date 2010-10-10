@@ -147,7 +147,7 @@ class SNBFile:
         f.attr = 0x41000000
         f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
-        f.fileName = fileName
+        f.fileName = fileName.replace(os.sep, '/')
         print f.fileSize
         self.files.append(f)
 
@@ -156,7 +156,7 @@ class SNBFile:
         f.attr = 0x01000000
         f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
-        f.fileName = fileName
+        f.fileName = fileName.replace(os.sep, '/')
         print f.fileSize
         self.files.append(f)
         
