@@ -109,6 +109,13 @@ class Image(_magick.Image): # {{{
         return _magick.Image.load(self, bytes(data))
 
     def open(self, path_or_file):
+        if not hasattr(path_or_file, 'read') and \
+            path_or_file.lower().endswith('.wmf'):
+            # Special handling for WMF files as ImageMagick seems
+            # to hand while reading them from a blob on linux
+            if isinstance(path_or_file, unicode):
+                path_or_file = path_or_file.encode(filesystem_encoding)
+            return _magick.Image.read(self, path_or_file)
         data = path_or_file
         if hasattr(data, 'read'):
             data = data.read()

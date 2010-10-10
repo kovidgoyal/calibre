@@ -45,37 +45,34 @@ def fetch_metadata(url, max=100, timeout=5.):
 class ISBNDBMetadata(Metadata):
 
     def __init__(self, book):
-        Metadata.__init__(self, None, [])
-        self.getmetadata(book)
+        Metadata.__init__(self, None)
 
-    def tostring(self, e):
-        if not hasattr(e, 'string'):
-            return None
-        ans = e.string
-        if ans is not None:
-            ans = unicode(ans).strip()
-        if not ans:
-            ans = None
-        return ans
-        
-    def getmetadata(self, book):
+        def tostring(e):
+            if not hasattr(e, 'string'):
+                return None
+            ans = e.string
+            if ans is not None:
+                ans = unicode(ans).strip()
+            if not ans:
+                ans = None
+            return ans
+
         self.isbn = unicode(book.get('isbn13', book.get('isbn')))
-        temptitle = self.tostring(book.find('titlelong'))
-        if not temptitle:
-            temptitle = self.tostring(book.find('title'))
-        if temptitle:            
-            self.title = unicode(temptitle).strip()
-        else:
-            self.title = _('Unknown')
-        self.authors = []
-        au = self.tostring(book.find('authorstext'))
+        title = tostring(book.find('titlelong'))
+        if not title:
+            title = tostring(book.find('title'))
+        self.title = title
+        self.title = unicode(self.title).strip()
+        authors = []
+        au = tostring(book.find('authorstext'))
         if au:
             au = au.strip()
             temp = au.split(',')
             for au in temp:
                 if not au: continue
-                self.authors.extend([a.strip() for a in au.split('&amp;')])
-
+                authors.extend([a.strip() for a in au.split('&amp;')])
+        if authors:
+            self.authors = authors
         try:
             self.author_sort = self.tostring(book.find('authors').find('person'))
             if self.authors and self.author_sort == self.authors[0]:
