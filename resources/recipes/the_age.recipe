@@ -9,15 +9,19 @@ theage.com.au
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-
+import re
 
 class TheAge(BasicNewsRecipe):
 
-    title = 'The Age'
-    description = 'Business News, World News and Breaking News in Melbourne, Australia'
-    __author__ = 'Matthew Briggs'
-    language = 'en_AU'
-
+    title            = 'The Age'
+    description      = 'Business News, World News and Breaking News in Melbourne, Australia'
+    publication_type = 'newspaper'
+    __author__       = 'Matthew Briggs'
+    language         = 'en_AU'
+    
+    max_articles_per_feed = 1000
+    recursions        = 0
+    remove_tags       = [dict(name=['table', 'script', 'noscript', 'style']), dict(name='a', attrs={'href':'/'}), dict(name='a', attrs={'href':'/text/'})]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -28,30 +32,81 @@ class TheAge(BasicNewsRecipe):
 
         soup = BeautifulSoup(self.browser.open('http://www.theage.com.au/text/').read())
 
-        feeds, articles = [], []
-        feed = None
-
+        section = None
+        sections = {}
 
         for tag in soup.findAll(['h3', 'a']):
             if tag.name == 'h3':
-                if articles:
-                    feeds.append((feed, articles))
-                    articles = []
-                feed = self.tag_to_string(tag)
-            elif feed is not None and tag.has_key('href') and tag['href'].strip():
+                section = self.tag_to_string(tag)
+                sections[section] = []
+
+            # Make sure to skip: <a href="/">TheAge</a>
+
+            elif section and tag.has_key('href') and len(tag['href'].strip())>1:
                 url = tag['href'].strip()
                 if url.startswith('/'):
-                    url   = 'http://www.theage.com.au' + url
+                    url = 'http://www.theage.com.au' + url
                 title = self.tag_to_string(tag)
-                articles.append({
+                sections[section].append({
                                  'title': title,
                                  'url'  : url,
                                  'date' : strftime('%a, %d %b'),
                                  'description' : '',
                                  'content'     : '',
                                  })
+                                 
+        feeds = []
 
+        # Insert feeds in specified order, if available
+        
+        feedSort = [ 'National', 'World', 'Opinion', 'Columns', 'Business', 'Sport', 'Entertainment' ]
+        for i in feedSort:
+          if i in sections:
+            feeds.append((i,sections[i]))
+
+        # Done with the sorted feeds
+
+        for i in feedSort:
+          del sections[i]
+        
+        # Append what is left over...
+
+        for i in sections:
+          feeds.append((i,sections[i]))
+            
         return feeds
 
+    def get_cover_url(self):
 
+        soup = BeautifulSoup(self.browser.open('http://www.theage.com.au/todays-paper').read())
 
+        for i in soup.findAll('a'):
+          href = i['href']
+          if href and re.match('http://www.theage.com.au/frontpage/[0-9]+/[0-9]+/[0-9]+/frontpage.pdf',href):
+            return href
+
+        return None
+
+    def preprocess_html(self,soup):
+        
+        for p in soup.findAll('p'):
+        
+          # Collapse the paragraph by joining the non-tag contents
+
+          contents = [i for i in p.contents if isinstance(i,unicode)]
+          if len(contents):
+            contents = ''.join(contents)
+
+            # Filter out what's left of the text-mode navigation stuff
+
+            if re.match('((\s)|(\&nbsp\;))*\[[\|\s*]*\]((\s)|(\&nbsp\;))*$',contents):
+              p.extract()
+              continue
+
+            # Shrink the fine print font 
+
+            if contents=='This material is subject to copyright and any unauthorised use, copying or mirroring is prohibited.':
+              p['style'] = 'font-size:small'
+              continue        
+        
+        return soup

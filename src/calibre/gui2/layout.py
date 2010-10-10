@@ -60,7 +60,7 @@ class LocationManager(QObject): # {{{
 
             return ac
 
-        ac('library', _('Library'), 'lt.png',
+        self.library_action = ac('library', _('Library'), 'lt.png',
                 _('Show books in calibre library'))
         ac('main', _('Device'), 'reader.png',
                 _('Show books in the main memory of the device'))
@@ -68,6 +68,24 @@ class LocationManager(QObject): # {{{
                 _('Show books in storage card A'))
         ac('cardb', _('Card B'), 'sd.png',
                 _('Show books in storage card B'))
+
+    def set_switch_actions(self, quick_actions, rename_actions, delete_actions,
+            switch_actions, choose_action):
+        self.switch_menu = QMenu()
+        self.switch_menu.addAction(choose_action)
+        self.cs_menus = []
+        for t, acs in [(_('Quick switch'), quick_actions),
+                (_('Rename library'), rename_actions),
+                (_('Delete library'), delete_actions)]:
+            if acs:
+                self.cs_menus.append(QMenu(t))
+                for ac in acs:
+                    self.cs_menus[-1].addAction(ac)
+                self.switch_menu.addMenu(self.cs_menus[-1])
+        self.switch_menu.addSeparator()
+        for ac in switch_actions:
+            self.switch_menu.addAction(ac)
+        self.library_action.setMenu(self.switch_menu)
 
     def _location_selected(self, location, *args):
         if location != self.current_location and hasattr(self,
@@ -197,14 +215,14 @@ class SearchBar(QWidget): # {{{
 
 # }}}
 
-class Spacer(QWidget):
+class Spacer(QWidget): # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.l = QHBoxLayout()
         self.setLayout(self.l)
         self.l.addStretch(10)
-
+# }}}
 
 class ToolBar(QToolBar): # {{{
 

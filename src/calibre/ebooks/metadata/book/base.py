@@ -38,6 +38,8 @@ class SafeFormat(TemplateFormatter):
 
     def get_value(self, key, args, kwargs):
         try:
+            if key != 'title_sort':
+                key = field_metadata.search_term_to_field_key(key.lower())
             b = self.book.get_user_metadata(key, False)
             if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
                 v = ''
@@ -148,6 +150,11 @@ class Metadata(object):
         object.__setattr__(m, '_data', copy.deepcopy(object.__getattribute__(self, '_data')))
         return m
 
+    def deepcopy_metadata(self):
+        m = Metadata(None)
+        object.__setattr__(m, '_data', copy.deepcopy(object.__getattribute__(self, '_data')))
+        return m
+
     def get(self, field, default=None):
         try:
             return self.__getattribute__(field)
@@ -163,6 +170,18 @@ class Metadata(object):
 
     def set(self, field, val, extra=None):
         self.__setattr__(field, val, extra)
+
+    def get_classifiers(self):
+        '''
+        Return a copy of the classifiers dictionary.
+        The dict is small, and the penalty for using a reference where a copy is
+        needed is large. Also, we don't want any manipulations of the returned
+        dict to show up in the book.
+        '''
+        return copy.deepcopy(object.__getattribute__(self, '_data')['classifiers'])
+
+    def set_classifiers(self, classifiers):
+        object.__getattribute__(self, '_data')['classifiers'] = classifiers
 
     # field-oriented interface. Intended to be the same as in LibraryDatabase
 
@@ -202,6 +221,11 @@ class Metadata(object):
         _data = object.__getattribute__(self, '_data')
         for attr in STANDARD_METADATA_FIELDS:
             v = _data.get(attr, None)
+            if v is not None:
+                result[attr] = v
+        # separate these because it uses the self.get(), not _data.get()
+        for attr in TOP_LEVEL_CLASSIFIERS:
+            v = self.get(attr, None)
             if v is not None:
                 result[attr] = v
         for attr in _data['user_metadata'].iterkeys():
@@ -369,6 +393,8 @@ class Metadata(object):
             self.set_all_user_metadata(other.get_all_user_metadata(make_copy=True))
             for x in SC_FIELDS_COPY_NOT_NULL:
                 copy_not_none(self, other, x)
+            if callable(getattr(other, 'get_classifiers', None)):
+                self.set_classifiers(other.get_classifiers())
             # language is handled below
         else:
             for attr in SC_COPYABLE_FIELDS:
@@ -423,6 +449,17 @@ class Metadata(object):
             if len(other_comments.strip()) > len(my_comments.strip()):
                 self.comments = other_comments
 
+            # Copy all the non-none classifiers
+            if callable(getattr(other, 'get_classifiers', None)):
+                d = self.get_classifiers()
+                s = other.get_classifiers()
+                d.update([v for v in s.iteritems() if v[1] is not None])
+                self.set_classifiers(d)
+            else:
+                # other structure not Metadata. Copy the top-level classifiers
+                for attr in TOP_LEVEL_CLASSIFIERS:
+                    copy_not_none(self, other, attr)
+
         other_lang = getattr(other, 'language', None)
         if other_lang and other_lang.lower() != 'und':
             self.language = other_lang
@@ -432,7 +469,7 @@ class Metadata(object):
         v = self.series_index if val is None else val
         try:
             x = float(v)
-        except ValueError:
+        except (ValueError, TypeError):
             x = 1
         return fmt_sidx(x)
 
@@ -459,6 +496,19 @@ class Metadata(object):
         '''
         returns the tuple (field_name, formatted_value)
         '''
+
+        # Handle custom series index
+        if key.startswith('#') and key.endswith('_index'):
+            tkey = key[:-6] # strip the _index
+            cmeta = self.get_user_metadata(tkey, make_copy=False)
+            if cmeta['datatype'] == 'series':
+                if self.get(tkey):
+                    res = self.get_extra(tkey)
+                    return (unicode(cmeta['name']+'_index'),
+                            self.format_series_index(res), res, cmeta)
+                else:
+                    return (unicode(cmeta['name']+'_index'), '', '', cmeta)
+
         if key in self.custom_field_keys():
             res = self.get(key, None)
             cmeta = self.get_user_metadata(key, make_copy=False)
@@ -474,19 +524,21 @@ class Metadata(object):
             if datatype == 'text' and cmeta['is_multiple']:
                 res = u', '.join(res)
             elif datatype == 'series' and series_with_index:
-                res = res + \
-                   ' [%s]'%self.format_series_index(val=self.get_extra(key))
+                if self.get_extra(key) is not None:
+                    res = res + \
+                        ' [%s]'%self.format_series_index(val=self.get_extra(key))
             elif datatype == 'datetime':
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
-            elif datatype == 'float' and key.endswith('_index'):
-                res = self.format_series_index(res)
             return (name, unicode(res), orig_res, cmeta)
 
-        if key in field_metadata and field_metadata[key]['kind'] == 'field':
+        # Translate aliases into the standard field name
+        fmkey = field_metadata.search_term_to_field_key(key)
+
+        if fmkey in field_metadata and field_metadata[fmkey]['kind'] == 'field':
             res = self.get(key, None)
-            fmeta = field_metadata[key]
+            fmeta = field_metadata[fmkey]
             name = unicode(fmeta['name'])
             if res is None or res == '':
                 return (name, res, None, None)

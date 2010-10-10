@@ -104,6 +104,28 @@ class DeviceJob(BaseJob): # {{{
 
     # }}}
 
+def find_plugboard(device_name, format, plugboards):
+    cpb = None
+    if format in plugboards:
+        cpb = plugboards[format]
+    elif plugboard_any_format_value in plugboards:
+        cpb = plugboards[plugboard_any_format_value]
+    if cpb is not None:
+        if device_name in cpb:
+            cpb = cpb[device_name]
+        elif plugboard_any_device_value in cpb:
+            cpb = cpb[plugboard_any_device_value]
+        else:
+            cpb = None
+    if DEBUG:
+        prints('Device using plugboard', format, device_name, cpb)
+    return cpb
+
+def device_name_for_plugboards(device_class):
+    if hasattr(device_class, 'DEVICE_PLUGBOARD_NAME'):
+        return device_class.DEVICE_PLUGBOARD_NAME
+    return device_class.__class__.__name__
+
 class DeviceManager(Thread): # {{{
 
     def __init__(self, connected_slot, job_manager, open_feedback_slot, sleep_time=2):
@@ -311,12 +333,9 @@ class DeviceManager(Thread): # {{{
         return self.device.card_prefix(end_session=False), self.device.free_space()
 
     def sync_booklists(self, done, booklists, plugboards):
-        if hasattr(self.connected_device, 'use_plugboard_ext') and \
-                callable(self.connected_device.use_plugboard_ext):
-            ext = self.connected_device.use_plugboard_ext()
-            if ext is not None:
-                self.connected_device.set_plugboard(
-                                        self.find_plugboard(ext, plugboards))
+        if hasattr(self.connected_device, 'set_plugboards') and \
+                callable(self.connected_device.set_plugboards):
+            self.connected_device.set_plugboards(plugboards, find_plugboard)
         return self.create_job(self._sync_booklists, done, args=[booklists],
                         description=_('Send metadata to device'))
 
@@ -325,31 +344,18 @@ class DeviceManager(Thread): # {{{
                                args=[booklist, on_card],
                         description=_('Send collections to device'))
 
-    def find_plugboard(self, ext, plugboards):
-        dev_name = self.connected_device.__class__.__name__
-        cpb = None
-        if ext in plugboards:
-            cpb = plugboards[ext]
-        elif plugboard_any_format_value in plugboards:
-            cpb = plugboards[plugboard_any_format_value]
-        if cpb is not None:
-            if dev_name in cpb:
-                cpb = cpb[dev_name]
-            elif plugboard_any_device_value in cpb:
-                cpb = cpb[plugboard_any_device_value]
-            else:
-                cpb = None
-        if DEBUG:
-            prints('Device using plugboard', ext, dev_name, cpb)
-        return cpb
-
     def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
         '''Upload books to device: '''
+        if hasattr(self.connected_device, 'set_plugboards') and \
+                callable(self.connected_device.set_plugboards):
+            self.connected_device.set_plugboards(plugboards, find_plugboard)
         if metadata and files and len(metadata) == len(files):
             for f, mi in zip(files, metadata):
                 if isinstance(f, unicode):
                     ext = f.rpartition('.')[-1].lower()
-                    cpb = self.find_plugboard(ext, plugboards)
+                    cpb = find_plugboard(
+                            device_name_for_plugboards(self.connected_device),
+                            ext, plugboards)
                     if ext:
                         try:
                             if DEBUG:
@@ -357,7 +363,7 @@ class DeviceManager(Thread): # {{{
                                         f, file=sys.__stdout__)
                             with open(f, 'r+b') as stream:
                                 if cpb:
-                                    newmi = mi.deepcopy()
+                                    newmi = mi.deepcopy_metadata()
                                     newmi.template_to_attribute(mi, cpb)
                                 else:
                                     newmi = mi
@@ -1407,15 +1413,16 @@ class DeviceMixin(object): # {{{
 
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
+            # Build a cache (map) of the library, so the search isn't On**2
+            self.db_book_title_cache = {}
+            self.db_book_uuid_cache = {}
             # It might be possible to get here without having initialized the
             # library view. In this case, simply give up
             try:
                 db = self.library_view.model().db
             except:
                 return False
-            # Build a cache (map) of the library, so the search isn't On**2
-            self.db_book_title_cache = {}
-            self.db_book_uuid_cache = {}
+
             for id in db.data.iterallids():
                 mi = db.get_metadata(id, index_is_id=True)
                 title = clean_string(mi.title)
@@ -1449,7 +1456,7 @@ class DeviceMixin(object): # {{{
                     if update_metadata:
                         book.smart_update(self.db_book_uuid_cache[book.uuid],
                                           replace_metadata=True)
-                    book.in_library = True
+                    book.in_library = 'UUID'
                     # ensure that the correct application_id is set
                     book.application_id = \
                         self.db_book_uuid_cache[book.uuid].application_id
@@ -1462,21 +1469,21 @@ class DeviceMixin(object): # {{{
                     # will match if any of the db_id, author, or author_sort
                     # also match.
                     if getattr(book, 'application_id', None) in d['db_ids']:
-                        book.in_library = True
                         # app_id already matches a db_id. No need to set it.
                         if update_metadata:
                             book.smart_update(d['db_ids'][book.application_id],
                                               replace_metadata=True)
+                        book.in_library = 'APP_ID'
                         continue
                     # Sonys know their db_id independent of the application_id
                     # in the metadata cache. Check that as well.
                     if getattr(book, 'db_id', None) in d['db_ids']:
-                        book.in_library = True
-                        book.application_id = \
-                                    d['db_ids'][book.db_id].application_id
                         if update_metadata:
                             book.smart_update(d['db_ids'][book.db_id],
                                               replace_metadata=True)
+                        book.in_library = 'DB_ID'
+                        book.application_id = \
+                                    d['db_ids'][book.db_id].application_id
                         continue
                     # We now know that the application_id is not right. Set it
                     # to None to prevent book_on_device from accidentally
@@ -1488,19 +1495,19 @@ class DeviceMixin(object): # {{{
                         # either can appear as the author
                         book_authors = clean_string(authors_to_string(book.authors))
                         if book_authors in d['authors']:
-                            book.in_library = True
-                            book.application_id = \
-                                    d['authors'][book_authors].application_id
                             if update_metadata:
                                 book.smart_update(d['authors'][book_authors],
                                                   replace_metadata=True)
-                        elif book_authors in d['author_sort']:
-                            book.in_library = True
+                            book.in_library = 'AUTHOR'
                             book.application_id = \
-                                d['author_sort'][book_authors].application_id
+                                    d['authors'][book_authors].application_id
+                        elif book_authors in d['author_sort']:
                             if update_metadata:
                                 book.smart_update(d['author_sort'][book_authors],
                                                   replace_metadata=True)
+                            book.in_library = 'AUTH_SORT'
+                            book.application_id = \
+                                d['author_sort'][book_authors].application_id
                 else:
                     # Book definitely not matched. Clear its application ID
                     book.application_id = None

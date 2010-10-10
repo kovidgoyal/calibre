@@ -11,21 +11,41 @@ import subprocess, tempfile, os, time
 from setup import Command, installer_name
 from setup.build_environment import HOST, PROJECT
 
+BASE_RSYNC = 'rsync -avz --delete'.split()
+EXCLUDES = []
+for x in [
+    'src/calibre/plugins', 'src/calibre/manual', 'src/calibre/trac',
+    '.bzr', '.build', '.svn', 'build', 'dist', 'imgsrc', '*.pyc', '*.pyo', '*.swp',
+    '*.swo']:
+    EXCLUDES.extend(['--exclude', x])
+SAFE_EXCLUDES = ['"%s"'%x if '*' in x else x for x in EXCLUDES]
+
 class Rsync(Command):
 
     description = 'Sync source tree from development machine'
 
-    SYNC_CMD = ('rsync -avz --delete --exclude src/calibre/plugins '
-               '--exclude src/calibre/manual --exclude src/calibre/trac '
-               '--exclude .bzr --exclude .build --exclude .svn --exclude build --exclude dist '
-               '--exclude imgsrc '
-               '--exclude "*.pyc" --exclude "*.pyo" --exclude "*.swp" --exclude "*.swo" '
-               'rsync://{host}/work/{project} ..')
+    SYNC_CMD = ' '.join(BASE_RSYNC+SAFE_EXCLUDES+
+            ['rsync://{host}/work/{project}', '..'])
 
     def run(self, opts):
         cmd = self.SYNC_CMD.format(host=HOST, project=PROJECT)
         self.info(cmd)
         subprocess.check_call(cmd, shell=True)
+
+
+class Push(Command):
+
+    description = 'Push code to another host'
+
+    def run(self, opts):
+        for host in (
+            r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre',
+            'kovid@ox:calibre'
+            ):
+            rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
+            print '\n\nPushing to:', host, '\n'
+            subprocess.check_call(rcmd)
+
 
 
 class VMInstaller(Command):

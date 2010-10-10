@@ -37,7 +37,7 @@ class ContentServer(object):
         connect('root', '/', self.index)
         connect('get', '/get/{what}/{id}', self.get,
                 conditions=dict(method=["GET", "HEAD"]))
-        connect('static', '/static/{name}', self.static,
+        connect('static', '/static/{name:.*?}', self.static,
                 conditions=dict(method=["GET", "HEAD"]))
 
     # Utility methods {{{

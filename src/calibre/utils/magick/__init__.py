@@ -158,7 +158,7 @@ class Image(_magick.Image): # {{{
             format = ext[1:]
         format = format.upper()
 
-        with open(path, 'wb') as f:
+        with lopen(path, 'wb') as f:
             f.write(self.export(format))
 
     def compose(self, img, left=0, top=0, operation='OverCompositeOp'):

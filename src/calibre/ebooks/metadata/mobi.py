@@ -404,14 +404,16 @@ class MetadataUpdater(object):
                 if self.cover_record is not None:
                     size = len(self.cover_record)
                     cover = rescale_image(data, size)
-                    cover += '\0' * (size - len(cover))
-                    self.cover_record[:] = cover
+                    if len(cover) <= size:
+                        cover += '\0' * (size - len(cover))
+                        self.cover_record[:] = cover
                 if self.thumbnail_record is not None:
                     size = len(self.thumbnail_record)
                     thumbnail = rescale_image(data, size, dimen=MAX_THUMB_DIMEN)
-                    thumbnail += '\0' * (size - len(thumbnail))
-                    self.thumbnail_record[:] = thumbnail
-        return
+                    if len(thumbnail) <= size:
+                        thumbnail += '\0' * (size - len(thumbnail))
+                        self.thumbnail_record[:] = thumbnail
+                return
 
 def set_metadata(stream, mi):
     mu = MetadataUpdater(stream)

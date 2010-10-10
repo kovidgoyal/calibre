@@ -1,0 +1,64 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__author__    = 'Tony Stegall'
+__copyright__ = '2010, Tony Stegall or Tonythebookworm on mobileread.com'
+__version__   = '1'
+__date__      = '01, October 2010'
+__docformat__ = 'English'
+
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class MedScrape(BasicNewsRecipe):
+
+    title       = 'MedScape'
+    __author__  = 'Tony Stegall'
+    description = 'Nursing News'
+    language    = 'en'
+    timefmt = ' [%a, %d %b, %Y]'
+    needs_subscription = True
+    masthead_url = 'http://images.medscape.com/pi/global/header/sp/bg-sp-medscape.gif'
+    no_stylesheets = True
+    remove_javascript   = True
+    conversion_options = {'linearize_tables' : True}
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+
+
+                    p.authors{text-align:right; font-size:small;margin-top:0px;margin-bottom: 0px;}
+                    p.postingdate{text-align:right; font-size:small;margin-top:0px;margin-bottom: 0px;}
+                    h2{text-align:right; font-size:small;margin-top:0px;margin-bottom: 0px;}
+
+
+                    p{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		        '''
+
+    remove_tags = [dict(name='div', attrs={'class':['closewindow2']}),
+                   dict(name='div', attrs={'id': ['basicheaderlinks']})
+                  ]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('https://profreg.medscape.com/px/getlogin.do')
+            br.select_form(name='LoginForm')
+            br['userId']   = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
+    feeds = [
+              ('MedInfo', 'http://www.medscape.com/cx/rssfeeds/2685.xml'),
+            ]
+
+    def print_version(self,url):
+        #the original url is: http://www.medscape.com/viewarticle/728955?src=rss
+        #the print    url is: http://www.medscape.com/viewarticle/728955_print
+         print_url = url.partition('?')[0] +'_print'
+         #print 'the printable version is: ',print_url
+         return print_url
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(attrs={'style':True}):
+            del item['style']
+        return soup

@@ -1,50 +1,61 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 newyorker.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class NewYorker(BasicNewsRecipe):
     title                 = 'The New Yorker'
     __author__            = 'Darko Miletic'
     description           = 'The best of US journalism'
     oldest_article        = 15
-    language = 'en'
-
+    language              = 'en'
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     publisher             = 'Conde Nast Publications'
     category              = 'news, politics, USA'
     encoding              = 'cp1252'
+    publication_type      = 'magazine'
+    masthead_url          = 'http://www.newyorker.com/css/i/hed/logo.gif'
+    extra_css             = """
+                                body {font-family: "Times New Roman",Times,serif}
+                                .articleauthor{color: #9F9F9F; font-family: Arial, sans-serif; font-size: small; text-transform: uppercase}
+                                .rubric{color: #CD0021; font-family: Arial, sans-serif; font-size: small; text-transform: uppercase}
+                            """
 
-    keep_only_tags = [dict(name='div', attrs={'id':'printbody'})]
-    remove_tags_after = dict(name='div',attrs={'id':'articlebody'})
-    remove_tags = [
-                     dict(name='div', attrs={'class':['utils','articleRailLinks','icons'] })
-                    ,dict(name='link')
-                  ]
-
-    feeds          = [(u'The New Yorker', u'http://feeds.newyorker.com/services/rss/feeds/everything.xml')]
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+    
+    keep_only_tags = [
+                        dict(name='div', attrs={'class':'headers'})
+                       ,dict(name='div', attrs={'id':['articleheads','items-container','articleRail','articletext','photocredits']})
+                     ]
+    remove_tags    = [
+                         dict(name=['meta','iframe','base','link','embed','object'])
+                        ,dict(attrs={'class':['utils','articleRailLinks','icons'] })                        
+                        ,dict(attrs={'id':['show-header','show-footer'] })                        
+                     ]
+    remove_attributes = ['lang']
+    feeds             = [(u'The New Yorker', u'http://feeds.newyorker.com/services/rss/feeds/everything.xml')]
 
     def print_version(self, url):
         return url + '?printable=true'
 
-    def get_article_url(self, article):
-        return article.get('guid',  None)
+    def image_url_processor(self, baseurl, url):
+        return url.strip()
 
-    def postprocess_html(self, soup, x):
-        body = soup.find('body')
-        if body:
-            html = soup.find('html')
-            if html:
-                body.extract()
-                html.insert(2, body)
-        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
-        soup.head.insert(1,mcharset)
-        return soup
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup('http://www.newyorker.com/magazine/toc/')
+        cover_item = soup.find('img',attrs={'id':'inThisIssuePhoto'})
+        if cover_item:
+           cover_url = 'http://www.newyorker.com' + cover_item['src'].strip()
+        return cover_url
+        

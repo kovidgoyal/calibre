@@ -411,6 +411,24 @@ class DevicePlugin(Plugin):
         '''
         raise NotImplementedError()
 
+    def set_plugboards(self, plugboards, pb_func):
+        '''
+        provide the driver the current set of plugboards and a function to
+        select a specific plugboard. This method is called immediately before
+        add_books and sync_booklists.
+
+        pb_func is a callable with the following signature::
+            def pb_func(device_name, format, plugboards)
+
+        You give it the current device name (either the class name or
+        DEVICE_PLUGBOARD_NAME), the format you are interested in (a 'real'
+        format or 'device_db'), and the plugboards (you were given those by
+        set_plugboards, the same place you got this method).
+
+        :return: None or a single plugboard instance.
+
+        '''
+        pass
 
 class BookList(list):
     '''

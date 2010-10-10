@@ -71,17 +71,21 @@ class BookList(_BookList):
         return False
 
     def add_book(self, book, replace_metadata):
+        '''
+        Add the book to the booklist, if needed. Return None if the book is
+        already there and not updated, otherwise return the book.
+        '''
         try:
             b = self.index(book)
         except (ValueError, IndexError):
             b = None
         if b is None:
             self.append(book)
-            return True
+            return book
         if replace_metadata:
             self[b].smart_update(book, replace_metadata=True)
-            return True
-        return False
+            return self[b]
+        return None
 
     def remove_book(self, book):
         self.remove(book)

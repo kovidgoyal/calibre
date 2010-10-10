@@ -59,10 +59,10 @@ class TemplateFormatter(string.Formatter):
             return value_if_empty
 
     def _shorten(self, val, leading, center_string, trailing):
-        l = int(leading)
-        t = int(trailing)
+        l = max(0, int(leading))
+        t = max(0, int(trailing))
         if len(val) > l + len(center_string) + t:
-            return val[0:l] + center_string + val[-t:]
+            return val[0:l] + center_string + ('' if t == 0 else val[-t:])
         else:
             return val
 
@@ -82,6 +82,7 @@ class TemplateFormatter(string.Formatter):
 
     format_string_re = re.compile(r'^(.*)\|(.*)\|(.*)$')
     compress_spaces = re.compile(r'\s+')
+    backslash_comma_to_comma = re.compile(r'\\,')
 
     arg_parser = re.Scanner([
                 (r',', lambda x,t: ''),
@@ -123,6 +124,7 @@ class TemplateFormatter(string.Formatter):
                 field = fmt[colon:p]
                 func = self.functions[field]
                 args = self.arg_parser.scan(fmt[p+1:])[0]
+                args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
                 if (func[0] == 0 and (len(args) != 1 or args[0])) or \
                         (func[0] > 0 and func[0] != len(args)):
                     raise ValueError('Incorrect number of arguments for function '+ fmt[0:p])

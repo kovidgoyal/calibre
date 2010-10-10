@@ -24,7 +24,7 @@ from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
     REGEXP_MATCH, CoverCache, MetadataBackup
 from calibre.library.cli import parse_series_string
 from calibre import strftime, isbytestring, prepare_string_for_xml
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, DEBUG
 from calibre.gui2.library import DEFAULT_SORT
 
 def human_readable(size, precision=1):
@@ -699,6 +699,10 @@ class BooksModel(QAbstractTableModel): # {{{
             if role == Qt.DisplayRole:
                 return QVariant(self.headers[self.column_map[section]])
             return NONE
+        if DEBUG and role == Qt.ToolTipRole and orientation == Qt.Vertical:
+                col = self.db.field_metadata['uuid']['rec_index']
+                return QVariant(_('This book\'s UUID is "{0}"').format(self.db.data[section][col]))
+
         if role == Qt.DisplayRole: # orientation is vertical
             return QVariant(section+1)
         return NONE
@@ -743,6 +747,8 @@ class BooksModel(QAbstractTableModel): # {{{
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
             val, s_index = parse_series_string(self.db, label, value.toString())
+            if not val:
+                val = s_index = None
         elif typ == 'composite':
             tmpl = unicode(value.toString()).strip()
             disp = cc['display']
@@ -799,7 +805,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
                 else:
                     self.db.set(row, column, val)
-            self.refresh_rows([row], row)
+                self.refresh_ids([id], row)
             self.dataChanged.emit(index, index)
         return True
 
@@ -1204,6 +1210,8 @@ class DeviceBooksModel(BooksModel): # {{{
                 if tags:
                     tags.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
                     return QVariant(', '.join(tags))
+            elif DEBUG and cname == 'inlibrary':
+                return QVariant(self.db[self.map[row]].in_library)
         elif role == Qt.ToolTipRole and index.isValid():
             if self.map[row] in self.indices_to_be_deleted():
                 return QVariant(_('Marked for deletion'))
@@ -1225,8 +1233,10 @@ class DeviceBooksModel(BooksModel): # {{{
         return NONE
 
     def headerData(self, section, orientation, role):
-        if role == Qt.ToolTipRole:
+        if role == Qt.ToolTipRole and orientation == Qt.Horizontal:
             return QVariant(_('The lookup/search name is "{0}"').format(self.column_map[section]))
+        if DEBUG and role == Qt.ToolTipRole and orientation == Qt.Vertical:
+            return QVariant(_('This book\'s UUID is "{0}"').format(self.db[self.map[section]].uuid))
         if role != Qt.DisplayRole:
             return NONE
         if orientation == Qt.Horizontal:

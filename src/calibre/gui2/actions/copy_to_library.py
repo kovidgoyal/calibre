@@ -18,14 +18,16 @@ from calibre.utils.config import prefs, tweaks
 
 class Worker(Thread):
 
-    def __init__(self, ids, db, loc, progress, done):
+    def __init__(self, ids, db, loc, progress, done, delete_after):
         Thread.__init__(self)
         self.ids = ids
+        self.processed = set([])
         self.db = db
         self.loc = loc
         self.error = None
         self.progress = progress
         self.done = done
+        self.delete_after = delete_after
 
     def run(self):
         try:
@@ -67,10 +69,12 @@ class Worker(Thread):
                         self.add_formats(identical_book, paths, newdb, replace=False)
             if not added:
                 newdb.import_book(mi, paths, notify=False, import_hooks=False,
-                        apply_import_tags=tweaks['add_new_book_tags_when_importing_books'])
+                    apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
+                    preserve_uuid=self.delete_after)
                 co = self.db.conversion_options(x, 'PIPE')
                 if co is not None:
                     newdb.set_conversion_options(x, 'PIPE', co)
+            self.processed.add(x)
 
 
 class CopyToLibraryAction(InterfaceAction):
@@ -107,9 +111,13 @@ class CopyToLibraryAction(InterfaceAction):
         for name, loc in locations:
             self.menu.addAction(name, partial(self.copy_to_library,
                 loc))
+            self.menu.addAction(name + ' ' + _('(delete after copy)'),
+                    partial(self.copy_to_library,  loc, delete_after=True))
+            self.menu.addSeparator()
+
         self.qaction.setVisible(bool(locations))
 
-    def copy_to_library(self, loc):
+    def copy_to_library(self, loc, delete_after=False):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, _('Cannot copy'),
@@ -128,7 +136,8 @@ class CopyToLibraryAction(InterfaceAction):
             self.pd.set_msg(_('Copying') + ' ' + title)
             self.pd.set_value(idx)
 
-        self.worker = Worker(ids, db, loc, Dispatcher(progress), Dispatcher(self.pd.accept))
+        self.worker = Worker(ids, db, loc, Dispatcher(progress),
+                             Dispatcher(self.pd.accept), delete_after)
         self.worker.start()
 
         self.pd.exec_()
@@ -140,7 +149,16 @@ class CopyToLibraryAction(InterfaceAction):
         else:
             self.gui.status_bar.show_message(_('Copied %d books to %s') %
                     (len(ids), loc), 2000)
+            if delete_after and self.worker.processed:
+                v = self.gui.library_view
+                ci = v.currentIndex()
+                row = None
+                if ci.isValid():
+                    row = ci.row()
 
+                v.model().delete_books_by_id(self.worker.processed)
+                self.gui.iactions['Remove Books'].library_ids_deleted(
+                        self.worker.processed, row)
 
 
 
