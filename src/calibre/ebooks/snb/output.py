@@ -160,7 +160,7 @@ class SNBOutput(OutputFormatPlugin):
             mergeLast = False
             lastName = None
             for item in s:
-                from calibre.ebooks.oeb.base import OEB_DOCS, OEB_IMAGES, PNG_MIME
+                from calibre.ebooks.oeb.base import OEB_DOCS, OEB_IMAGES
                 if m.hrefs[item.href].media_type in OEB_DOCS:
                     if not item.href in outputFiles:
                         log.debug('File %s is unused in TOC. Continue in last chapter' % item.href)
@@ -203,14 +203,9 @@ class SNBOutput(OutputFormatPlugin):
                 if m.hrefs[item.href].media_type in OEB_IMAGES:
                     log.debug('Converting image: %s ...' % item.href)
                     content = m.hrefs[item.href].data
-                    if m.hrefs[item.href].media_type != PNG_MIME:
-                        # Convert & Resize image
-                        self.HandleImage(content, os.path.join(snbiDir, ProcessFileName(item.href)))
-                    else:
-                        outputFile = open(os.path.join(snbiDir, ProcessFileName(item.href)), 'wb')
-                        outputFile.write(content)
-                        outputFile.close()
-            
+                    # Convert & Resize image
+                    self.HandleImage(content, os.path.join(snbiDir, ProcessFileName(item.href)))
+
             # Package as SNB File
             snbFile = SNBFile()
             snbFile.FromDir(tdir)

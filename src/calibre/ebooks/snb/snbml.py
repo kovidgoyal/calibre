@@ -23,10 +23,10 @@ def ProcessFileName(fileName):
     fileName = fileName.replace("#", "_")
     # Make it lower case
     fileName = fileName.lower()
-    # Change extension from jpeg to jpg
+    # Change all images to jpg
     root, ext = os.path.splitext(fileName) 
     if ext in [ '.jpeg', '.jpg', '.gif', '.svg' ]:
-        fileName = root + '.png'
+        fileName = root + '.jpg'
     return fileName
     
 
