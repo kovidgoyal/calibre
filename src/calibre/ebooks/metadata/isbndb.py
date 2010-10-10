@@ -74,14 +74,14 @@ class ISBNDBMetadata(Metadata):
         if authors:
             self.authors = authors
         try:
-            self.author_sort = self.tostring(book.find('authors').find('person'))
+            self.author_sort = tostring(book.find('authors').find('person'))
             if self.authors and self.author_sort == self.authors[0]:
                 self.author_sort = None
         except:
             pass
-        self.publisher = self.tostring(book.find('publishertext'))
+        self.publisher = tostring(book.find('publishertext'))
 
-        summ = self.tostring(book.find('summary'))
+        summ = tostring(book.find('summary'))
         if summ:
             self.comments = 'SUMMARY:\n'+summ
 
@@ -141,7 +141,7 @@ def create_books(opts, args, timeout=5.):
         print ('ISBNDB query: '+url)
     
     tans = [ISBNDBMetadata(book) for book in fetch_metadata(url, timeout=timeout)]
-    ans = []
+    '''ans = []
     for x in tans:
         add = True
         for y in ans:
@@ -149,7 +149,9 @@ def create_books(opts, args, timeout=5.):
                 add = False
         if add:
             ans.append(x)
-    return ans
+    return ans'''
+    #remove duplicates ISBN
+    return dict((book.isbn, book) for book in tans).values()
 
 def main(args=sys.argv):
     parser = option_parser()
