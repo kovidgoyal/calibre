@@ -131,6 +131,10 @@ class SNBOutput(OutputFormatPlugin):
                     'Creating a default TOC')
                 first = iter(oeb_book.spine).next()
                 oeb_book.toc.add(_('Start'), first.href)
+            else:
+                first = iter(oeb_book.spine).next()
+                if oeb_book.toc[0].href != first.href:
+                    oeb_book.toc.add(_('Start'), first.href)
 
             for tocitem in oeb_book.toc:
                 if tocitem.href.find('#') != -1:
@@ -166,22 +170,49 @@ class SNBOutput(OutputFormatPlugin):
             tocInfoFile.close()
 
             # Output Files
+            oldTree = None
+            mergeLast = False
+            lastName = None
             for item in s:
                 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_IMAGES, PNG_MIME
                 if m.hrefs[item.href].media_type in OEB_DOCS:
                     if not item.href in outputFiles:
-                        log.debug('Skipping %s because unused in TOC.' % item.href)
-                        continue
+                        log.debug('File %s is unused in TOC. Continue in last chapter' % item.href)
+                        mergeLast = True
+                    else:
+                        log.debug('Output the modified chapter again: %s' % lastName)
+                        if oldTree != None and mergeLast:
+                            outputFile = open(os.path.join(snbcDir, lastName), 'wb')
+                            outputFile.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
+                            outputFile.close()
+                            mergeLast = False
+                            
                     log.debug('Converting %s to snbc...' % item.href)
                     snbwriter = SNBMLizer(log)
-                    snbcTrees = snbwriter.extract_content(oeb_book, item, outputFiles[item.href], opts)
-                    for subName in snbcTrees:
-                        postfix = ''
-                        if subName != '':
-                             postfix = '_' + subName
-                        outputFile = open(os.path.join(snbcDir, ProcessFileName(item.href + postfix + ".snbc")), 'wb')
-                        outputFile.write(etree.tostring(snbcTrees[subName], pretty_print=True, encoding='utf-8'))
-                        outputFile.close()
+                    snbcTrees = None
+                    if not mergeLast:
+                        snbcTrees = snbwriter.extract_content(oeb_book, item, outputFiles[item.href], opts)
+                        for subName in snbcTrees:
+                            postfix = ''
+                            if subName != '':
+                                postfix = '_' + subName
+                            lastName = ProcessFileName(item.href + postfix + ".snbc")
+                            oldTree = snbcTrees[subName]
+                            outputFile = open(os.path.join(snbcDir, lastName), 'wb')
+                            outputFile.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
+                            outputFile.close()
+                    else:
+                        log.debug('Merge %s with last TOC item...' % item.href)
+                        snbwriter.merge_content(oldTree, oeb_book, item, [('', _("Start"))], opts)
+
+            # Output the last one if needed
+            log.debug('Output the last modified chapter again: %s' % lastName)
+            if oldTree != None and mergeLast:
+                outputFile = open(os.path.join(snbcDir, lastName), 'wb')
+                outputFile.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
+                outputFile.close()
+                mergeLast = False
+
             for item in m:
                 if m.hrefs[item.href].media_type in OEB_IMAGES:
                     log.debug('Converting image: %s ...' % item.href)

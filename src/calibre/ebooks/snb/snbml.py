@@ -70,6 +70,14 @@ class SNBMLizer(object):
         self.subitems = subitems
         return self.mlize();
 
+    def merge_content(self, old_tree, oeb_book, item, subitems, opts):
+        newTrees = self.extract_content(oeb_book, item, subitems, opts)
+        body = old_tree.find(".//body")
+        if body != None:
+            for subName in newTrees:
+                newbody = newTrees[subName].find(".//body")
+                for entity in newbody:
+                    body.append(entity)
 
     def mlize(self):
         output = [ u'' ]
@@ -91,11 +99,12 @@ class SNBMLizer(object):
             line = line.strip(' \t\n\r')
             if len(line) != 0:
                 if line.find(CALIBRE_SNB_IMG_TAG) == 0:
-                    etree.SubElement(trees[subitem], "img").text = line[len(CALIBRE_SNB_IMG_TAG):]
+                    etree.SubElement(trees[subitem].find(".//body"), "img").text = line[len(CALIBRE_SNB_IMG_TAG):]
                 elif line.find(CALIBRE_SNB_BM_TAG) == 0:
                     subitem = line[len(CALIBRE_SNB_BM_TAG):]
                 else:
-                    etree.SubElement(trees[subitem], "text").text = etree.CDATA(unicode(u'\u3000\u3000' + line))
+                    etree.SubElement(trees[subitem].find(".//body"), "text").text = \
+                        etree.CDATA(unicode(u'\u3000\u3000' + line))
         return trees
 
     def remove_newlines(self, text):
