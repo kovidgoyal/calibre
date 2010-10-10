@@ -21,7 +21,7 @@ def ProcessFileName(fileName):
     fileName = fileName.replace("#", "_")
     # Make it lower case
     fileName = fileName.lower()
-    # Change extension from jpeg to jpg
+    # Change extension for image files to png
     root, ext = os.path.splitext(fileName) 
     if ext in [ '.jpeg', '.jpg', '.gif', '.svg' ]:
         fileName = root + '.png'
@@ -187,11 +187,8 @@ class SNBOutput(OutputFormatPlugin):
                     log.debug('Converting image: %s ...' % item.href)
                     content = m.hrefs[item.href].data
                     if m.hrefs[item.href].media_type != PNG_MIME:
-                        # Convert
-                        from calibre.utils.magick import Image
-                        img = Image()
-                        img.load(content)
-                        img.save(os.path.join(snbiDir, ProcessFileName(item.href)))
+                        # Convert & Resize image
+                        self.HandleImage(content, os.path.join(snbiDir, ProcessFileName(item.href)))
                     else:
                         outputFile = open(os.path.join(snbiDir, ProcessFileName(item.href)), 'wb')
                         outputFile.write(content)
@@ -201,6 +198,29 @@ class SNBOutput(OutputFormatPlugin):
             snbFile = SNBFile()
             snbFile.FromDir(tdir)
             snbFile.Output(output_path)
+
+    def HandleImage(self, imageData, imagePath):
+        from calibre.utils.magick import Image
+        img = Image()
+        img.load(imageData)
+        print img.size
+        (x,y) = img.size
+        # TODO use the data from device profile
+        SCREEN_X = 540
+        SCREEN_Y = 700
+        # Handle big image only
+        if x > SCREEN_X or y > SCREEN_Y:
+            SCREEN_RATIO = float(SCREEN_Y) / SCREEN_X
+            imgRatio = float(y) / x
+            xScale = float(x) / SCREEN_X
+            yScale = float(y) / SCREEN_Y
+            scale = max(xScale, yScale)
+            # TODO : intelligent image rotation
+            #     img = img.rotate(90)
+            #     x,y = y,x
+            img.size = (x / scale, y / scale)
+        print img.size
+        img.save(imagePath)
 
 if __name__ == '__main__':
     from calibre.ebooks.oeb.reader import OEBReader
