@@ -166,8 +166,8 @@ class SNBOutput(OutputFormatPlugin):
                         log.debug('File %s is unused in TOC. Continue in last chapter' % item.href)
                         mergeLast = True
                     else:
-                        log.debug('Output the modified chapter again: %s' % lastName)
                         if oldTree != None and mergeLast:
+                            log.debug('Output the modified chapter again: %s' % lastName)
                             outputFile = open(os.path.join(snbcDir, lastName), 'wb')
                             outputFile.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
                             outputFile.close()
