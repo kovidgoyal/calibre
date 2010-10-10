@@ -157,4 +157,4 @@ class SNBMLizer(object):
                 if t.find(CLIABRE_SNB_IMG_TAG) == 0:
                     etree.SubElement(trees[self.curSubItem], "img").text = t[len(CLIABRE_SNB_IMG_TAG):]
                 else:
-                    etree.SubElement(trees[self.curSubItem], "text").text = etree.CDATA(unicode('' + t))
+                    etree.SubElement(trees[self.curSubItem], "text").text = etree.CDATA(unicode(u'\u3000\u3000' + t))
