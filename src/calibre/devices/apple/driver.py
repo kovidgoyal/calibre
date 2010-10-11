@@ -97,6 +97,9 @@ class ITUNES(DriverBase):
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
+    BACKLOADING_ERROR_MESSAGE = _(
+        "Cannot copy books directly from iDevice. "
+        "Drag from iTunes Library to desktop, then add to calibre's Library window.")
 
     # Product IDs:
     #  0x1291   iPod Touch
