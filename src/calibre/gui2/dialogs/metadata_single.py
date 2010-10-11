@@ -434,9 +434,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.pubdate.setDate(QDate(pubdate.year, pubdate.month,
             pubdate.day))
         timestamp = db.timestamp(self.id, index_is_id=True)
-        self.orig_timestamp = timestamp.astimezone(utc_tz)
         self.date.setDate(QDate(timestamp.year, timestamp.month,
             timestamp.day))
+        self.orig_date = qt_to_dt(self.date.date())
 
         exts = self.db.formats(row)
         if exts:
@@ -802,7 +802,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_pubdate(self.id, d, notify=False, commit=False)
             d = self.date.date()
             d = qt_to_dt(d)
-            if d.date() != self.orig_timestamp.date():
+            if d != self.orig_date:
                 self.db.set_timestamp(self.id, d, notify=False, commit=False)
             self.db.commit()
 
