@@ -39,6 +39,10 @@ class DevicePlugin(Plugin):
     #: Whether the metadata on books can be set via the GUI.
     CAN_SET_METADATA = ['title', 'authors', 'collections']
 
+    # Set this to True if the books on the device are files that the GUI can
+    # access in order to add the books from the device to the library
+    SUPPORTS_BACKLOADING = False
+
     #: Path separator for paths to books on device
     path_sep = os.sep
 
