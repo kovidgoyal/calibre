@@ -73,6 +73,8 @@ class SearchBox2(QComboBox):
         self.normal_background = 'rgb(255, 255, 255, 0%)'
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
+        c = self.line_edit.completer()
+        c.setCompletionMode(c.PopupCompletion)
         self.line_edit.key_pressed.connect(self.key_pressed,
                 type=Qt.DirectConnection)
         self.line_edit.mouse_released.connect(self.mouse_released,

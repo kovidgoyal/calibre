@@ -26,7 +26,7 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
 
     if text is not None:
         from email.mime.text import MIMEText
-        msg = MIMEText(text)
+        msg = MIMEText(text, 'plain', 'utf-8')
         outer.attach(msg)
 
     if attachment_data is not None:
