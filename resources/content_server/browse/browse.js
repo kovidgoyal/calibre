@@ -118,5 +118,6 @@ function init() {
 
 // Top-level feed {{{
 function toplevel() {
+    $(".sort_select").hide();
 }
 // }}}
