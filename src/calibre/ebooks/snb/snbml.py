@@ -53,6 +53,7 @@ SPACE_TAGS = [
 
 CALIBRE_SNB_IMG_TAG = "<$$calibre_snb_temp_img$$>"
 CALIBRE_SNB_BM_TAG = "<$$calibre_snb_bm_tag$$>"
+CALIBRE_SNB_PRE_TAG = "<$$calibre_snb_pre_tag$$>"
 
 class SNBMLizer(object):
     
@@ -83,7 +84,7 @@ class SNBMLizer(object):
         output = [ u'' ]
         stylizer = Stylizer(self.item.data, self.item.href, self.oeb_book, self.opts, self.opts.output_profile)
         content = unicode(etree.tostring(self.item.data.find(XHTML('body')), encoding=unicode))
-        content = self.remove_newlines(content)
+#        content = self.remove_newlines(content)
         trees = { }
         for subitem, subtitle in self.subitems:
             snbcTree = etree.Element("snbc")
@@ -96,7 +97,12 @@ class SNBMLizer(object):
 
         subitem = ''
         for line in output.splitlines():
-            line = line.strip(u' \t\n\r\u3000')
+            if not line.find(CALIBRE_SNB_PRE_TAG) == 0:
+                line = line.strip(u' \t\n\r\u3000')
+            else:
+                etree.SubElement(trees[subitem].find(".//body"), "text").text = \
+                    etree.CDATA(line[len(CALIBRE_SNB_PRE_TAG):])
+                continue
             if len(line) != 0:
                 if line.find(CALIBRE_SNB_IMG_TAG) == 0:
                     prefix = ProcessFileName(os.path.dirname(self.item.href))
@@ -137,7 +143,7 @@ class SNBMLizer(object):
         text = re.sub('(?<=.)%s(?=.)' % os.linesep, ' ', text)
 
         # Remove multiple spaces.
-        text = re.sub('[ ]{2,}', ' ', text)
+        #text = re.sub('[ ]{2,}', ' ', text)
 
         # Remove excessive newlines.
         text = re.sub('\n[ ]+\n', '\n\n', text)
@@ -187,7 +193,7 @@ class SNBMLizer(object):
 
         return text
 
-    def dump_text(self, subitems, elem, stylizer, end=''):
+    def dump_text(self, subitems, elem, stylizer, end='', pre=False):
 
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
@@ -225,20 +231,27 @@ class SNBMLizer(object):
         if tag == 'br':
             text.append(u'\n\n')
 
+        pre = (tag == 'pre' or pre)
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
-            text.append(elem.text)
-
+            if pre:
+                text.append((u'\n\n%s' % CALIBRE_SNB_PRE_TAG ).join(elem.text.splitlines()))
+            else:
+                text.append(elem.text)
+            
         for item in elem:
             en = u''
             if len(text) >= 2:
                 en = text[-1][-2:]
-            text += self.dump_text(subitems, item, stylizer, en)
+            text += self.dump_text(subitems, item, stylizer, en, pre)
 
         if in_block:
             text.append(u'\n\n')
 
         if hasattr(elem, 'tail') and elem.tail:
-            text.append(elem.tail)
+            if pre:
+                text.append((u'\n\n%s' % CALIBRE_SNB_PRE_TAG ).join(elem.tail.splitlines()))
+            else:
+                text.append(elem.tail)
 
         return text
