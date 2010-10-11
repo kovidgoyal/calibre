@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, re, time, sys
 
+from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.interface import BookList as _BookList
@@ -54,7 +55,7 @@ class Book(Metadata):
     def title_sorter(self):
         doc = '''String to sort the title. If absent, title is returned'''
         def fget(self):
-            return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', self.title).rstrip()
+            return title_sort(self.title)
         return property(doc=doc, fget=fget)
 
     @dynamic_property

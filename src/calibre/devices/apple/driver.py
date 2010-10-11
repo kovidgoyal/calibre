@@ -13,7 +13,8 @@ from calibre.devices.errors import UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.ebooks.metadata import authors_to_string, MetaInformation
+from calibre.ebooks.metadata import authors_to_string, MetaInformation, \
+    title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
@@ -96,6 +97,9 @@ class ITUNES(DriverBase):
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
+    BACKLOADING_ERROR_MESSAGE = _(
+        "Cannot copy books directly from iDevice. "
+        "Drag from iTunes Library to desktop, then add to calibre's Library window.")
 
     # Product IDs:
     #  0x1291   iPod Touch
@@ -3128,6 +3132,9 @@ class Book(Metadata):
     See ebooks.metadata.book.base
     '''
     def __init__(self,title,author):
-
         Metadata.__init__(self, title, authors=[author])
+
+    @property
+    def title_sorter(self):
+        return title_sort(self.title)
 

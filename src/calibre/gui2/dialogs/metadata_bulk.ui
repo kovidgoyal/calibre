@@ -263,7 +263,7 @@
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>00</height>
+               <height>0</height>
               </size>
              </property>
             </spacer>
@@ -357,12 +357,12 @@ from the value in the box</string>
          </item>
          <item row="12" column="0" colspan="2">
           <widget class="QCheckBox" name="change_title_to_title_case">
-           <property name="text">
-            <string>Change title to title case</string>
-           </property>
            <property name="toolTip">
             <string>Force the title to be in title case. If both this and swap authors are checked,
 title and author are swapped before the title case is set</string>
+           </property>
+           <property name="text">
+            <string>Change title to title case</string>
            </property>
           </widget>
          </item>
@@ -486,14 +486,14 @@ Future conversion of these books will use the default settings.</string>
          </item>
          <item row="4" column="1">
           <widget class="HistoryLineEdit" name="search_for">
-           <property name="toolTip">
-            <string>Enter the what you are looking for, either plain text or a regular expression, depending on the mode</string>
-           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>100</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Enter the what you are looking for, either plain text or a regular expression, depending on the mode</string>
            </property>
           </widget>
          </item>
@@ -656,6 +656,14 @@ nothing should be put between the original text and the inserted text</string>
             <bool>true</bool>
            </property>
            <widget class="QWidget" name="gridLayoutWidget_2">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>122</width>
+              <height>34</height>
+             </rect>
+            </property>
             <layout class="QGridLayout" name="testgrid">
              <item row="8" column="0">
               <widget class="QLabel" name="label_31">
@@ -733,14 +741,33 @@ nothing should be put between the original text and the inserted text</string>
   <tabstop>author_sort</tabstop>
   <tabstop>rating</tabstop>
   <tabstop>publisher</tabstop>
-  <tabstop>tag_editor_button</tabstop>
   <tabstop>tags</tabstop>
+  <tabstop>tag_editor_button</tabstop>
   <tabstop>remove_tags</tabstop>
+  <tabstop>remove_all_tags</tabstop>
   <tabstop>series</tabstop>
+  <tabstop>clear_series</tabstop>
   <tabstop>autonumber_series</tabstop>
+  <tabstop>series_numbering_restarts</tabstop>
+  <tabstop>series_start_number</tabstop>
   <tabstop>remove_format</tabstop>
+  <tabstop>remove_conversion_settings</tabstop>
   <tabstop>swap_title_and_author</tabstop>
+  <tabstop>change_title_to_title_case</tabstop>
   <tabstop>button_box</tabstop>
+  <tabstop>central_widget</tabstop>
+  <tabstop>search_field</tabstop>
+  <tabstop>search_mode</tabstop>
+  <tabstop>search_for</tabstop>
+  <tabstop>case_sensitive</tabstop>
+  <tabstop>replace_with</tabstop>
+  <tabstop>replace_func</tabstop>
+  <tabstop>destination_field</tabstop>
+  <tabstop>replace_mode</tabstop>
+  <tabstop>comma_separated</tabstop>
+  <tabstop>scrollArea11</tabstop>
+  <tabstop>test_text</tabstop>
+  <tabstop>test_result</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/images.qrc"/>
