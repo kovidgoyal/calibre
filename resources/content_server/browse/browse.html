@@ -28,13 +28,37 @@
 </head>
 <body>
     <div id="container">
+
+        <!-- Header -->
         <div id="header">
             <div class="area">
               <div class="bubble">
-                  <p title="Showing library: {library_path}">&rarr;&nbsp;{library_name}</p>
+                  <p title="Showing library: {library_path}"
+                      >&rarr;&nbsp;{library_name}&nbsp;&larr;</p>
               </div>
             </div>
+            <ul id="primary-nav">
+                <li><a id="nav-mobile" href="/mobile" title="A version of this website suited for mobile browsers">Mobile</a></li>
+
+                <li><a id="nav-demo" href="/old" title="The old version of this webiste">Old</a></li>
+                <li><a id="nav-download" href="/opds" title="A feed based version of this website, used in special purpose applications">Feed</a></li>
+            </ul>
+
+            <form id="donate" action="https://www.paypal.com/cgi-bin/webscr"
+                method="post" title="Donate to support the development of calibre">
+                <div>
+                    <input type="hidden" name="cmd" value="_s-xclick"></input>
+                    <input type="hidden" name="hosted_button_id" value="3028915"></input>
+                    <input type="image"
+                        src="http://calibre-ebook.com/site_media//img/button-donate.png"
+                        name="submit"></input>
+                    <img alt="" src="https://www.paypal.com/en_US/i/scr/pixel.gif"
+                        width="1" height="1"></img>
+                </div>
+            </form>
         </div>
+        <!-- End header -->
+
         <div id="content">
             <div class="sort_select">
                 <label>{sort_select_label}&nbsp;</label>

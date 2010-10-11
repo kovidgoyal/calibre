@@ -63,6 +63,7 @@ class BrowseServer(object):
     # Catalogs {{{
     def browse_catalog(self, category=None):
         if category == None:
+            #categories = self.categories_cache()
             ans = self.browse_template().format(title='',
                     script='toplevel();')
         else:

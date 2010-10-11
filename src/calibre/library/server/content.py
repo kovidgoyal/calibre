@@ -35,6 +35,7 @@ class ContentServer(object):
 
     def add_routes(self, connect):
         connect('root', '/', self.index)
+        connect('old', '/old', self.old)
         connect('get', '/get/{what}/{id}', self.get,
                 conditions=dict(method=["GET", "HEAD"]))
         connect('static', '/static/{name:.*?}', self.static,
@@ -121,6 +122,9 @@ class ContentServer(object):
         if want_mobile:
             return self.mobile()
 
+        return self.static('index.html')
+
+    def old(self, **kwargs):
         return self.static('index.html')
 
     # Actually get content from the database {{{

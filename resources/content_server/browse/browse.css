@@ -1,6 +1,8 @@
 body {
     background-color: #fffcf2;
     font-family: sans-serif;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
 }
 
 #container {
@@ -51,7 +53,50 @@ body {
   text-align: center;
 }
 
-/* }}} */
+ul#primary-nav {
+  display: block;
+  margin-right: 60px;
+  text-align: right;
+  margin-top: 60px;
+  line-height: 20px;
+  cursor: default;
+  position: relative;
+  top: -100px;
+}
+
+ul#primary-nav li {
+  display: inline;
+  padding: 0 4px;
+}
+
+ul#primary-nav li a {
+  padding: 6px;
+  color: white;
+  text-decoration: none;
+  font-variant: small-caps;
+  /*text-transform: uppercase;*/
+  font-size: 80%;
+  font-weight: bold;
+  white-space: nowrap;
+  text-shadow: #27211b 2px 2px 2px;
+}
+
+ul#primary-nav li a:hover {
+  background-color: #39a9cf;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  text-shadow: #27211b 1px 1px 1px;
+}
+
+#donate {
+  display: block;
+  width: 200px;
+  height: 38px;
+  overflow: hidden;
+  position: relative;
+  top: -230px;
+  left: 65%;
+}
 
 h2.library_name {
     font-family: monospace;
@@ -62,6 +107,8 @@ h2.library_name {
     padding-top: 40px;
 }
 
+/* }}} */
+
 /* Combobox {{{ */
 
 .ui-button { margin-left: -1px; }
@@ -69,6 +116,7 @@ h2.library_name {
 .ui-autocomplete-input { margin: 0; padding: 0.48em 0 0.47em 0.45em; }
 
 /* }}} */
+
 
 /* Sort select  {{{ */
 
