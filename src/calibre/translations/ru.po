@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-08 20:54+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-10 09:15+0000\n"
+"Last-Translator: Daemon <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-09 12:11+0000\n"
+"X-Launchpad-Export-Date: 2010-10-11 04:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -1277,18 +1277,18 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:265
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
-msgstr "Задать формат картинки. По умолчанию на весь экран."
+msgstr "Установить формат картинки. По умолчанию во весь экран."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:267
 msgid "Disable sharpening."
-msgstr "Отменить повышение резкости."
+msgstr "Отключить повышение резкости."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:269
 msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
 msgstr ""
-"Отключить обрезку страниц комиксов. В некоторых коммиксах данная опция может "
+"Отключить обрезку страниц комиксов. В некоторых комиксах данная опция может "
 "удалять содержимое вместе с границами."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:272
@@ -1334,7 +1334,7 @@ msgid ""
 "experiment to see which format gives you optimal size and look on your "
 "device."
 msgstr ""
-"Формат картинок в созданной книге. Вы можете подбирать нужный Вам формат с "
+"Формат картинок в созданной книге. Вы можете выбрать нужный Вам формат с "
 "оптимальным размером и отображением на вашем устройстве."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
@@ -1343,7 +1343,7 @@ msgstr "Не обрабатывать изображения"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:294
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr "Не преобразовать изображение в градациях серого (черный и белый)"
+msgstr "Не преобразовать изображение в градации серого (черный и белый)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:431
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:442
@@ -1400,7 +1400,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
-msgstr "ВХОДНЫЕ ОПЦИИ"
+msgstr "ВХОДНЫЕ НАСТРОЙКИ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:98
 msgid "Options to control the processing of the input %s file"
@@ -1408,11 +1408,11 @@ msgstr "Опции для контроля обработки входного �
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "OUTPUT OPTIONS"
-msgstr "ВЫХОДНЫЕ ОПЦИИ"
+msgstr "ВЫХОДНЫЕ НАСТРОЙКИ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
-msgstr "Опции для контроля обработки выходного файла %s"
+msgstr "Настройки для контроля обработки выходного файла %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
@@ -1434,11 +1434,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:155
 msgid "Options to set metadata in the output"
-msgstr "Опции для установки метаданных выходного файла"
+msgstr "Настройки для установки метаданных выходного файла"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:158
 msgid "Options to help with debugging the conversion"
-msgstr "Опции для облегчения отладки преобразования"
+msgstr "Настройки для облегчения отладки преобразования"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"

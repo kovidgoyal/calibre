@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-09 04:01+0000\n"
-"Last-Translator: 黄家友 <Unknown>\n"
+"PO-Revision-Date: 2010-10-11 01:51+0000\n"
+"Last-Translator: Charlie Liu <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-09 12:12+0000\n"
+"X-Launchpad-Export-Date: 2010-10-11 04:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -161,7 +161,7 @@ msgstr "未知"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
-msgstr "基本目录"
+msgstr "基于"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:172
 msgid "File type"
@@ -1896,7 +1896,7 @@ msgid ""
 "Try to turn chapters into individual sections. WARNING: This option is "
 "experimental. It can cause conversion to fail. It can also produce "
 "unexpected output."
-msgstr ""
+msgstr "尝试将章节划分为多个区。警告：此选项尚处于测试阶段，可能引起转换失败或产生不可预料的输出结果。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:249
 msgid ""
@@ -3130,7 +3130,7 @@ msgstr "用户界面的版式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:133
 msgid "Show the average rating per item indication in the tag browser"
-msgstr ""
+msgstr "在标签浏览器中显示每个项目说明的平均星级"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:135
 msgid "Disable UI animations"
@@ -3440,7 +3440,7 @@ msgstr "快速切换"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:78
 msgid "Rename library"
-msgstr "重命名图书馆"
+msgstr "重命名书库"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
@@ -3449,28 +3449,28 @@ msgstr "删除书库"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "Library Maintenance"
-msgstr ""
+msgstr "书库维护"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:188
 msgid "Library metadata backup status"
-msgstr ""
+msgstr "书库元数据的备份状态"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:192
 msgid "Start backing up metadata of all books"
-msgstr ""
+msgstr "开始备份所有图书的元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:196
 msgid "Check library"
-msgstr ""
+msgstr "检查书库"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:200
 msgid "Check database integrity"
-msgstr ""
+msgstr "检查数据库完整性"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:343
 msgid "Recover database"
-msgstr ""
+msgstr "恢复数据库"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:269
 msgid "Rename"
@@ -3527,13 +3527,13 @@ msgstr "书籍元数据文件写入还剩余：%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "Backup metadata"
-msgstr ""
+msgstr "备份元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
 msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book per second."
-msgstr ""
+msgstr "在calibra运行的时候，元数据会以大约一秒钟一本书的速度备份起来。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:344
 msgid ""
@@ -3542,6 +3542,8 @@ msgid ""
 "GUI. You can recover your database using the 'calibredb restore_database' "
 "command line function."
 msgstr ""
+"本命令将基于在OPF文件中由calibre保存的信息重建你的calibre数据库。<p>本功能目前在GUI模式下不可用。你可以在命令行下使用'calibr"
+"edb restore_database'来恢复你的数据库。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:358
 msgid "No library found"
@@ -3597,7 +3599,7 @@ msgstr "复制选定书籍到指定的书库"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:114
 msgid "(delete after copy)"
-msgstr ""
+msgstr "(拷贝后删除)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Cannot copy"
@@ -3990,7 +3992,7 @@ msgid ""
 "You are trying to save files into the calibre library. This can cause "
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
-msgstr ""
+msgstr "你正将要保存文件到calibre数据库。这可能会破坏你的数据库。保存到磁盘的意思是导出文件到你的calibre数据库之外的任何地方。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:136
 msgid "Error while saving"
@@ -4538,6 +4540,12 @@ msgid ""
 "   wil be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"关于此模板的几个说明：\n"
+" -有效的字段是‘作者_排序’，‘作者’，‘ID’；\n"
+"    ‘isbn’，‘出版日期’，‘出版商’，‘系列_索引’，‘系列’；\n"
+"   ‘标签’，‘时间信息’，‘标题’，‘UUID’；\n"
+" -对于列表类型即作者和标签，仅有第一元素才会被选定。\n"
+" -对于时间字段，仅日期会被使用到。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -4849,7 +4857,7 @@ msgstr "控制输出文件外观"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:31
 msgid "Original"
-msgstr "初始的"
+msgstr "原始"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:32
 msgid "Left align"
@@ -4857,7 +4865,7 @@ msgstr "左对齐"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:33
 msgid "Justify text"
-msgstr "对齐文本"
+msgstr "两端对齐"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:123
 msgid "&Disable font size rescaling"
@@ -5573,7 +5581,7 @@ msgstr "未评星级"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:156
 msgid "Set '%s' to today"
-msgstr ""
+msgstr "将'%s'设为今天"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:266
 msgid " index:"
@@ -6061,7 +6069,7 @@ msgstr "错误"
 msgid ""
 "All checked books will be <b>permanently deleted</b> from your device. "
 "Please verify the list."
-msgstr ""
+msgstr "所有选中的书籍将从您的设备上<b>永久删除</b>。请检查此列表。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 msgid "Location"
@@ -6873,7 +6881,7 @@ msgstr "正在中止..."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:54
 msgid ""
 "The current saved search will be <b>permanently deleted</b>. Are you sure?"
-msgstr ""
+msgstr "当前保存的查找会被<b>永久的删除</b>。你确定要这样做吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:88
 msgid "Saved Search Editor"
@@ -7826,7 +7834,7 @@ msgstr "重置快速搜索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:199
 msgid "Copy current search text (instead of search name)"
-msgstr "复制当前搜索结果"
+msgstr "复制当前搜索结果列表项至搜索栏"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:205
 msgid "Save current search under the name shown in the box"
@@ -7920,7 +7928,7 @@ msgstr "居中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:161
 msgid "Show column"
-msgstr ""
+msgstr "显示列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:173
 msgid "Restore default layout"
@@ -8046,7 +8054,7 @@ msgstr "为您的新 calibre 电子书库选择位置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:153
 msgid "Initializing user interface..."
-msgstr ""
+msgstr "初始化用户界面..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:178
 msgid "Repairing failed"
@@ -8152,7 +8160,7 @@ msgstr "未找到匹配此书信息"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:190
 msgid "Failed to download metadata"
-msgstr ""
+msgstr "下载元数据失败"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:223
 msgid "cover"
@@ -8327,15 +8335,15 @@ msgstr "使用内部浏览器显示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:96
 msgid "You must select a column to delete it"
-msgstr ""
+msgstr "你必须选择一列来删除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:101
 msgid "The selected column is not a custom column"
-msgstr ""
+msgstr "所选列不是自定义列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:103
 msgid "Do you really want to delete column %s and all its data?"
-msgstr ""
+msgstr "你确认要删除 %s 列及其数据？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:82
@@ -8363,7 +8371,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:91
 msgid "Add &custom column"
-msgstr ""
+msgstr "增加自定义列(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/conversion.py:37
 msgid ""
@@ -8454,7 +8462,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:147
 msgid "Create or edit custom columns"
-msgstr ""
+msgstr "创建或编辑自定义列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:128
 msgid "&Lookup name"
@@ -9355,7 +9363,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:332
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:336
 msgid "Manage User Categories"
-msgstr ""
+msgstr "管理用户分类"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:537
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:317
@@ -11103,7 +11111,7 @@ msgstr "没有提供标签"
 msgid ""
 "The label must contain only lower case letters, digits and underscores, and "
 "start with a letter"
-msgstr ""
+msgstr "标签必须只包含小写字母，数字及下划线，并且以字母开头。"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:81
 msgid "%sAverage rating is %3.1f"

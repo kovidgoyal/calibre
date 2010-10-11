@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.51\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-09 09:28+0000\n"
+"PO-Revision-Date: 2010-10-10 06:34+0000\n"
 "Last-Translator: Alexander Ivanov <Unknown>\n"
 "Language-Team: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-10 04:54+0000\n"
+"X-Launchpad-Export-Date: 2010-10-11 04:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -159,7 +159,7 @@ msgstr "Неизвестно"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
-msgstr ""
+msgstr "Основен"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:172
 msgid "File type"
@@ -175,7 +175,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:268
 msgid "Catalog generator"
-msgstr ""
+msgstr "Генератор на каталог"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:369
 msgid "User Interface Action"
@@ -221,7 +221,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:94
 msgid "Extract cover from comic files"
-msgstr ""
+msgstr "Извличане на корица от comic файлове"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:121
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:132
