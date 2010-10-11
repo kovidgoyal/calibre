@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<!--
+  Base template that defines navigation/footers etc. 
+ -->
+<head>
+    <title>..:: calibre library ::.. {title}</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=100" />
+    <link rel="icon" type="image/x-icon" href="http://calibre-ebook.com/favicon.ico" />
+
+    <link rel="stylesheet" type="text/css" href="/static/browse/browse.css" />
+    <link type="text/css" href="/static/jquery_ui/css/pepper-grinder/jquery-ui-1.8.5.custom.css" rel="stylesheet" />
+
+    <script type="text/javascript" src="/static/jquery.js"></script>
+    <script type="text/javascript" src="/static/jquery.corner.js"></script>
+    <script type="text/javascript" src="/static/jquery_ui/js/jquery-ui-1.8.5.custom.min.js"></script>
+
+    <script type="text/javascript" src="/static/browse/browse.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {{
+                init();
+                {script}
+        }});
+    </script>
+</head>
+<body>
+    <div id="container">
+
+        <!-- Header -->
+        <div id="header">
+            <div class="area">
+              <div class="bubble">
+                  <p title="Showing library: {library_path}"
+                      >&rarr;&nbsp;{library_name}&nbsp;&larr;</p>
+              </div>
+            </div>
+            <ul id="primary-nav">
+                <li><a id="nav-mobile" href="/mobile" title="A version of this website suited for mobile browsers">Mobile</a></li>
+
+                <li><a id="nav-demo" href="/old" title="The old version of this webiste">Old</a></li>
+                <li><a id="nav-download" href="/opds" title="A feed based version of this website, used in special purpose applications">Feed</a></li>
+            </ul>
+
+            <form id="donate" action="https://www.paypal.com/cgi-bin/webscr"
+                method="post" title="Donate to support the development of calibre">
+                <div>
+                    <input type="hidden" name="cmd" value="_s-xclick"></input>
+                    <input type="hidden" name="hosted_button_id" value="3028915"></input>
+                    <input type="image"
+                        src="http://calibre-ebook.com/site_media//img/button-donate.png"
+                        name="submit"></input>
+                    <img alt="" src="https://www.paypal.com/en_US/i/scr/pixel.gif"
+                        width="1" height="1"></img>
+                </div>
+            </form>
+        </div>
+        <!-- End header -->
+
+        <div id="content">
+            <div class="sort_select">
+                <label>{sort_select_label}&nbsp;</label>
+                <select id="sort_combobox">
+                    {sort_select_options}
+                </select>
+            </div>
+            <div id="search_box">
+                <form name="search_form"  action="/browse/search" method="get">
+                    Search:&nbsp;<input value="" type="text" title="Search"
+                                        class="search_input" />
+                    <input type="submit" value="Search" title="Search" alt="Search" />
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

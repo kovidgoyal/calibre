@@ -1254,6 +1254,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         Set metadata for the book `id` from the `Metadata` object `mi`
         '''
+        if callable(getattr(mi, 'to_book_metadata', None)):
+            # Handle code passing in a OPF object instead of a Metadata object
+            mi = mi.to_book_metadata()
+
         def doit(func, *args, **kwargs):
             try:
                 func(*args, **kwargs)

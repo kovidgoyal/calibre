@@ -42,7 +42,7 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     if resize_to is not None:
         img.size = (resize_to[0], resize_to[1])
         changed = True
-    if not hasattr(img, 'has_transparent_pixels') or img.has_transparent_pixels():
+    if img.has_transparent_pixels():
         canvas = create_canvas(img.size[0], img.size[1], bgcolor)
         canvas.compose(img)
         img = canvas
@@ -72,7 +72,7 @@ def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg'):
         img.size = (nwidth, nheight)
     canvas = create_canvas(img.size[0], img.size[1], bgcolor)
     canvas.compose(img)
-    if fmt == 'jpg' and hasattr(canvas, 'set_compression_quality'):
+    if fmt == 'jpg':
         canvas.set_compression_quality(70)
     return (canvas.size[0], canvas.size[1], canvas.export(fmt))
 

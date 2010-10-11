@@ -6,7 +6,18 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+'''
+ Modified by Tony Stegall
+ on 10/10/10 to include function to grab print version of articles
+'''
+
 from calibre.web.feeds.news import BasicNewsRecipe
+'''
+added by Tony Stegall
+'''
+#######################################################
+from calibre.ptempfile import PersistentTemporaryFile
+#######################################################
 
 class AdvancedUserRecipe1249039563(BasicNewsRecipe):
     title          = u'De Volkskrant'
@@ -16,20 +27,54 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
     no_stylesheets = True
     language = 'nl'
 
-    keep_only_tags = [dict(name='div', attrs={'id':'leftColumnArticle'}) ]
-    remove_tags    = [
-        dict(name='div',attrs={'class':'article_tools'}),
-        dict(name='div',attrs={'id':'article_tools'}),
-        dict(name='div',attrs={'class':'articletools'}),
-        dict(name='div',attrs={'id':'articletools'}),
-        dict(name='div',attrs={'id':'myOverlay'}),
-        dict(name='div',attrs={'id':'trackback'}),
-        dict(name='div',attrs={'id':'googleBanner'}),
-        dict(name='div',attrs={'id':'article_headlines'}),
-        ]
+
     extra_css      = '''
                         body{font-family:Arial,Helvetica,sans-serif; font-size:small;}
                         h1{font-size:large;}
                      '''
+    '''
+      Change Log:
+        Date:       10/10/10  - Modified code to include obfuscated to get the print version
+        Author:   Tony Stegall
+    '''
+   #######################################################################################################
+    temp_files = []
+    articles_are_obfuscated = True
 
-    feeds          = [(u'Laatste Nieuws', u'http://volkskrant.nl/rss/laatstenieuws.rss'), (u'Binnenlands nieuws', u'http://volkskrant.nl/rss/nederland.rss'), (u'Buitenlands nieuws', u'http://volkskrant.nl/rss/internationaal.rss'), (u'Economisch nieuws', u'http://volkskrant.nl/rss/economie.rss'), (u'Sportnieuws', u'http://volkskrant.nl/rss/sport.rss'), (u'Kunstnieuws', u'http://volkskrant.nl/rss/kunst.rss'), (u'Wetenschapsnieuws', u'http://feeds.feedburner.com/DeVolkskrantWetenschap'), (u'Technologienieuws', u'http://feeds.feedburner.com/vkmedia')]
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        br.open(url)
+
+        try:
+         response = br.follow_link(url_regex='.*?(2010)(\\/)(article)(\\/)(print)(\\/)', nr = 0)
+         html = response.read()
+        except:
+         response = br.open(url)
+         html = response.read()
+
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(html)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+
+   ###############################################################################################################
+
+    feeds          = [
+                      (u'Laatste Nieuws', u'http://volkskrant.nl/rss/laatstenieuws.rss'),
+                      (u'Binnenlands nieuws', u'http://volkskrant.nl/rss/nederland.rss'),
+                      (u'Buitenlands nieuws', u'http://volkskrant.nl/rss/internationaal.rss'),
+                      (u'Economisch nieuws', u'http://volkskrant.nl/rss/economie.rss'),
+                      (u'Sportnieuws', u'http://volkskrant.nl/rss/sport.rss'),
+                      (u'Kunstnieuws', u'http://volkskrant.nl/rss/kunst.rss'),
+
+                        #both of these rss feeds link back to the main volksrant.nl url a.k.a Broken
+                        #If someone happens to know the correct paths then they can put them in here
+                      #(u'Wetenschapsnieuws', u'http://feeds.feedburner.com/DeVolkskrantWetenschap'),
+                      #(u'Technologienieuws', u'http://feeds.feedburner.com/vkmedia')
+                      ]
+
+'''
+example for formating
+'''
+# original url: http://www.volkskrant.nl/vk/nl/2668/Buitenland/article/detail/1031493/2010/10/10/Noord-Korea-ziet-nieuwe-leider.dhtml
+# print url :   http://www.volkskrant.nl/vk/nl/2668/2010/article/print/detail/1031493/Noord-Korea-ziet-nieuwe-leider.dhtml

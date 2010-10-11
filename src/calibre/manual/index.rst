@@ -17,10 +17,10 @@ To get started with more advanced usage, you should read about the :ref:`Graphic
 
 You will find the list of :ref:`Frequently Asked Questions <faq>` useful as well. 
 
-.. only:: html and online
+.. only:: online
     
-    An e-book version of this User Manual is available in `EPUB format <calibre.epub>`_. Because the User Manual uses advanced formatting, it is only suitable for use with the |app| e-book viewer.
-
+    An e-book version of this User Manual is available in `EPUB format <calibre.epub>`_. 
+    
 Sections
 ------------
 
