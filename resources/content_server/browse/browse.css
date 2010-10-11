@@ -23,7 +23,18 @@ body {
     max-width: 1000px;
     min-width: 400px;
     min-height: 100px;
-    padding-bottom: 30px;
+}
+
+#main {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+#footer {
+    font-size: small;
+    color: #a6a399;
+    text-align: right;
+    margin-right: 30px;
 }
 
 /* Header {{{ */
@@ -36,6 +47,7 @@ body {
   font-size: xx-large;
   font-family: monospace;
   overflow: hidden;
+  z-index: 2;
 }
 
 #header .bubble {
@@ -51,6 +63,21 @@ body {
   display: table-cell;
   vertical-align: middle;
   text-align: center;
+}
+
+#header a {
+    text-decoration: none;
+    color: white;
+    cursor: pointer;
+    white-space: nowrap;
+    text-shadow: #27211b 2px 2px 2px;
+}
+
+#header a:hover {
+  background-color: #39a9cf;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  text-shadow: #27211b 1px 1px 1px;
 }
 
 #nav-container {
@@ -78,22 +105,11 @@ ul#primary-nav li {
 
 ul#primary-nav li a {
   padding: 6px;
-  color: white;
-  text-decoration: none;
   font-variant: small-caps;
-  /*text-transform: uppercase;
-  font-size: 80%;*/
   font-weight: bold;
   white-space: nowrap;
-  text-shadow: #27211b 2px 2px 2px;
 }
 
-ul#primary-nav li a:hover {
-  background-color: #39a9cf;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  text-shadow: #27211b 1px 1px 1px;
-}
 
 #donate {
   display: block;
@@ -137,8 +153,18 @@ h2.library_name {
 
 /* Sort select  {{{ */
 
-.sort_select { float: left; margin-left: 1em; margin-top: 2ex; font-size: small; }
-.sort_select label { font-size: medium; }
+.sort_select { 
+    float: left;
+    margin-left: 1em;
+    margin-top: 2ex;
+    font-size: small;
+    max-height: 2.75em;
+    overflow: hidden;
+}
+
+.sort_select label {
+    font-size: medium;
+}
 
 /* }}} */
 
@@ -149,6 +175,8 @@ h2.library_name {
     margin-right: 1em;
     margin-top: 2ex;
     font-size: small;
+    max-height: 2.75em;
+    overflow: hidden;
 }
 
 #search_box .search_input { padding: 0.35em }
