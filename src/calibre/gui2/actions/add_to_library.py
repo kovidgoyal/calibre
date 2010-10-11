@@ -19,12 +19,7 @@ class AddToLibraryAction(InterfaceAction):
         self.qaction.triggered.connect(self.add_books_to_library)
 
     def location_selected(self, loc):
-        enabled = False
-        if loc != 'library':
-            if self.gui.device_manager.is_device_connected:
-                device = self.gui.device_manager.connected_device
-                if device is not None:
-                    enabled = getattr(device, 'SUPPORTS_BACKLOADING', False)
+        enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
 
     def add_books_to_library(self, *args):

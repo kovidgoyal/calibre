@@ -96,7 +96,7 @@ class Device(DeviceConfig, DevicePlugin):
 
     # USB disk-based devices can see the book files on the device, so can
     # copy these back to the library
-    SUPPORTS_BACKLOADING = True
+    BACKLOADING_ERROR_MESSAGE = None
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
