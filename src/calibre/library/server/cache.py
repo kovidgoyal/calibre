@@ -30,7 +30,10 @@ class Cache(object):
 
     def categories_cache(self, restrict_to=frozenset([])):
         base_restriction = self.search_cache('')
-        restrict_to = frozenset(restrict_to).intersection(base_restriction)
+        if restrict_to:
+            restrict_to = frozenset(restrict_to).intersection(base_restriction)
+        else:
+            restrict_to = base_restriction
         old = self._category_cache.pop(frozenset(restrict_to), None)
         if old is None or old[0] <= self.db.last_modified():
             categories = self.db.get_categories(ids=restrict_to)

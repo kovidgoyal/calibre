@@ -63,13 +63,37 @@ class BrowseServer(object):
     # Catalogs {{{
     def browse_catalog(self, category=None):
         if category == None:
-            #categories = self.categories_cache()
+            categories = self.categories_cache()
+            category_meta = self.db.field_metadata
+            cats = [
+                    (_('Newest'), 'newest'),
+                    ]
+            def getter(x):
+                return category_meta[x]['name'].lower()
+            for category in sorted(categories,
+                                cmp=lambda x,y: cmp(getter(x), getter(y))):
+                if len(categories[category]) == 0:
+                    continue
+                if category == 'formats':
+                    continue
+                meta = category_meta.get(category, None)
+                if meta is None:
+                    continue
+                cats.append((meta['name'], category))
+            cats = ['<li title="{2} {0}">{0}<span>/browse/category/{1}</span></li>'.format(xml(x, True),
+                            xml(y), xml(_('Browse books by'))) for x, y in cats]
+
+            main = '<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
+                    .format(_('Choose a category to browse by:'), '\n\n'.join(cats))
             ans = self.browse_template().format(title='',
-                    script='toplevel();')
+                        script='toplevel();', main=main)
         else:
             raise cherrypy.HTTPError(404, 'Not found')
+
         cherrypy.response.headers['Content-Type'] = 'text/html'
-        cherrypy.response.headers['Last-Modified'] = self.last_modified(self.build_time)
+        updated = self.db.last_modified()
+        cherrypy.response.headers['Last-Modified'] = \
+            self.last_modified(max(updated, self.build_time))
         return ans
 
     # }}}
