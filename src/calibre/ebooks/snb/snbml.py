@@ -92,7 +92,7 @@ class SNBMLizer(object):
             etree.SubElement(snbcTree, "body")
             trees[subitem] = snbcTree
         output.append(u'%s%s\n\n' % (CALIBRE_SNB_BM_TAG, ""))
-        output += self.dump_text(self.subitems, etree.fromstring(content), stylizer)
+        output += self.dump_text(self.subitems, etree.fromstring(content), stylizer)[0]
         output = self.cleanup_text(u''.join(output))
 
         subitem = ''
@@ -193,7 +193,7 @@ class SNBMLizer(object):
 
         return text
 
-    def dump_text(self, subitems, elem, stylizer, end='', pre=False):
+    def dump_text(self, subitems, elem, stylizer, end='', pre=False, li = ''):
 
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
@@ -231,19 +231,24 @@ class SNBMLizer(object):
         if tag == 'br':
             text.append(u'\n\n')
 
+        if tag == 'li':
+            li = '-- '
+
         pre = (tag == 'pre' or pre)
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             if pre:
-                text.append((u'\n\n%s' % CALIBRE_SNB_PRE_TAG ).join(elem.text.splitlines()))
+                text.append((u'\n\n%s' % CALIBRE_SNB_PRE_TAG ).join((li + elem.text).splitlines()))
             else:
-                text.append(elem.text)
+                text.append(li + elem.text)
+            li = ''
             
         for item in elem:
             en = u''
             if len(text) >= 2:
                 en = text[-1][-2:]
-            text += self.dump_text(subitems, item, stylizer, en, pre)
+            t, li = self.dump_text(subitems, item, stylizer, en, pre, li)
+            text += t
 
         if in_block:
             text.append(u'\n\n')
@@ -252,6 +257,7 @@ class SNBMLizer(object):
             if pre:
                 text.append((u'\n\n%s' % CALIBRE_SNB_PRE_TAG ).join(elem.tail.splitlines()))
             else:
-                text.append(elem.tail)
+                text.append(li + elem.tail)
+            li = ''
 
-        return text
+        return text, li
