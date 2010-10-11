@@ -109,6 +109,7 @@ function init_sort_combobox() {
 function init() {
     $("#container").corner("30px");
     $("#header").corner("30px");
+    $("#calibre-home-link").click(function() { window.location = "http://calibre-ebook.com"; });
 
     init_sort_combobox();
 

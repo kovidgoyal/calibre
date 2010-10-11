@@ -53,15 +53,22 @@ body {
   text-align: center;
 }
 
+#nav-container {
+    position: relative;
+    height: 130px;
+    top: -130px;
+    left: 0%;
+}
+
 ul#primary-nav {
   display: block;
   margin-right: 60px;
   text-align: right;
-  margin-top: 60px;
+  margin-top: 90px;
   line-height: 20px;
   cursor: default;
   position: relative;
-  top: -100px;
+  top: -2ex;
 }
 
 ul#primary-nav li {
@@ -74,8 +81,8 @@ ul#primary-nav li a {
   color: white;
   text-decoration: none;
   font-variant: small-caps;
-  /*text-transform: uppercase;*/
-  font-size: 80%;
+  /*text-transform: uppercase;
+  font-size: 80%;*/
   font-weight: bold;
   white-space: nowrap;
   text-shadow: #27211b 2px 2px 2px;
@@ -94,8 +101,18 @@ ul#primary-nav li a:hover {
   height: 38px;
   overflow: hidden;
   position: relative;
-  top: -230px;
+  top: -260px;
   left: 65%;
+}
+
+#calibre-home-link {
+    position: relative;
+    top: -298px;
+    left: 0%;
+    z-index: 2;
+    height: 130px;
+    width: 230px;
+    cursor: pointer;
 }
 
 h2.library_name {
@@ -121,6 +138,7 @@ h2.library_name {
 /* Sort select  {{{ */
 
 .sort_select { float: left; margin-left: 1em; margin-top: 2ex; font-size: small; }
+.sort_select label { font-size: medium; }
 
 /* }}} */
 
