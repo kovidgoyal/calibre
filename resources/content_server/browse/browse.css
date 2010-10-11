@@ -183,3 +183,28 @@ h2.library_name {
 
 /* }}} */
 
+
+/* Top level {{{ */
+.toplevel ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.toplevel li {
+    margin: 0.75em;
+    padding: 0.75em;
+    text-align: center;
+    cursor: pointer;
+}
+
+.toplevel li:hover {
+    background-color: #d6d3c9;
+    font-weight: bold;
+}
+
+.toplevel li span { display: none }
+
+/* }}} */
+
+

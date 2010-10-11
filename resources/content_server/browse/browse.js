@@ -119,5 +119,12 @@ function init() {
 // Top-level feed {{{
 function toplevel() {
     $(".sort_select").hide();
+
+    $(".toplevel li").corner("15px");
+
+    $(".toplevel li").click(function() {
+        var href = $(this).children("span").html();
+        window.location = href;
+    });
 }
 // }}}
