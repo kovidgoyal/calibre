@@ -222,6 +222,9 @@ class SNBMLizer(object):
         if tag == 'img':
             text.append(u'%s%s' % (CALIBRE_SNB_IMG_TAG, ProcessFileName(elem.attrib['src'])))
 
+        if tag == 'br':
+            text.append(u'\n\n')
+
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             text.append(elem.text)
