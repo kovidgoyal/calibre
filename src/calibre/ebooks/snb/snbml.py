@@ -96,7 +96,7 @@ class SNBMLizer(object):
 
         subitem = ''
         for line in output.splitlines():
-            line = line.strip(' \t\n\r')
+            line = line.strip(u' \t\n\r\u3000')
             if len(line) != 0:
                 if line.find(CALIBRE_SNB_IMG_TAG) == 0:
                     prefix = ProcessFileName(os.path.dirname(self.item.href))
