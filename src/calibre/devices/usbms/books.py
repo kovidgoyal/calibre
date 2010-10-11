@@ -125,7 +125,6 @@ class CollectionsBookList(BookList):
         collections = {}
         # This map of sets is used to avoid linear searches when testing for
         # book equality
-        collections_lpaths = {}
         for book in self:
             # Make sure we can identify this book via the lpath
             lpath = getattr(book, 'lpath', None)
@@ -199,20 +198,22 @@ class CollectionsBookList(BookList):
                         cat_name = category
 
                     if cat_name not in collections:
-                        collections[cat_name] = []
-                        collections_lpaths[cat_name] = set()
-                    if lpath in collections_lpaths[cat_name]:
-                        continue
-                    collections_lpaths[cat_name].add(lpath)
+                        collections[cat_name] = {}
                     if is_series:
-                        collections[cat_name].append(
-                            (book, book.get(attr+'_index', sys.maxint)))
+                        if doing_dc:
+                            collections[cat_name][lpath] = \
+                                    (book, book.get('series_index', sys.maxint))
+                        else:
+                            collections[cat_name][lpath] = \
+                                    (book, book.get(attr+'_index', sys.maxint))
                     else:
-                        collections[cat_name].append(
-                            (book, book.get('title_sort', 'zzzz')))
+                        if lpath not in collections[cat_name]:
+                            collections[cat_name][lpath] = \
+                                (book, book.get('title_sort', 'zzzz'))
         # Sort collections
         result = {}
-        for category, books in collections.items():
+        for category, lpaths in collections.items():
+            books = lpaths.values()
             books.sort(cmp=lambda x,y:cmp(x[1], y[1]))
             result[category] = [x[0] for x in books]
         return result
