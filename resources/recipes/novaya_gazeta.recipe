@@ -1,0 +1,18 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1286819935(BasicNewsRecipe):
+    title = u'Novaya Gazeta'
+    __author__ = 'muwa'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    conversion_options = {'linearize_tables' : True}
+    remove_attributes = ['style']
+    language = 'ru'
+
+    feeds = [(u'Articles', u'http://www.novayagazeta.ru/rss_number.xml')]
+
+
+    def print_version(self, url):
+        return url + '?print=true'
+
