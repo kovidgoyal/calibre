@@ -13,6 +13,27 @@ from calibre import strftime as _strftime, prints
 from calibre.utils.date import now as nowf
 from calibre.utils.config import tweaks
 
+class Offsets(object):
+    'Calculate offsets for a paginated view'
+
+    def __init__(self, offset, delta, total):
+        if offset < 0:
+            offset = 0
+        if offset >= total:
+            raise cherrypy.HTTPError(404, 'Invalid offset: %r'%offset)
+        last_allowed_index = total - 1
+        last_current_index = offset + delta - 1
+        self.offset = offset
+        self.next_offset = last_current_index + 1
+        if self.next_offset > last_allowed_index:
+            self.next_offset = -1
+        self.previous_offset = self.offset - delta
+        if self.previous_offset < 0:
+            self.previous_offset = 0
+        self.last_offset = last_allowed_index - delta
+        if self.last_offset < 0:
+            self.last_offset = 0
+
 
 def expose(func):
 

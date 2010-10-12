@@ -94,7 +94,7 @@ class PageProcessor(list):
         from calibre.utils.magick import PixelWand
         for i, wand in enumerate(self.pages):
             pw = PixelWand()
-            pw.color = 'white'
+            pw.color = '#ffffff'
 
             wand.set_border_color(pw)
             if self.rotate:

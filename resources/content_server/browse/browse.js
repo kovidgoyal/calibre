@@ -105,7 +105,6 @@ function init_sort_combobox() {
 
 // }}}
 
-
 function init() {
     $("#container").corner("30px");
     $("#header").corner("30px");
