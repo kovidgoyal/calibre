@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-09 19:44+0000\n"
-"Last-Translator: S. Dorscht <Unknown>\n"
+"PO-Revision-Date: 2010-10-11 15:35+0000\n"
+"Last-Translator: Manichean <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-10 04:54+0000\n"
+"X-Launchpad-Export-Date: 2010-10-12 04:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -180,7 +180,7 @@ msgstr "Katalogerstellung"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:369
 msgid "User Interface Action"
-msgstr ""
+msgstr "Benutzeroberflächenaktion"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:386
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:17
@@ -1793,6 +1793,12 @@ msgid ""
 "books  with hard line breaks, but should be reduced if the line length is "
 "variable."
 msgstr ""
+"Wert, der festlegt, bei welcher Zeilenlänge der Zeilenumbruch gelöscht "
+"werden sollte, wenn die Vorverarbeitung eingeschaltet ist. Gültige Werte "
+"sind Dezimalzahlen zwischen 0 und 1. Der Standardwert ist 0,40 und ist damit "
+"knapp unter dem Median. Damit werden die Zeilenumbrüche typischer Bücher mit "
+"fixer Zeilenlänge repariert. Der Wert sollte verringert werden, wenn die "
+"Zeilenlänge des Buches variabel ist."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:376
 msgid ""
@@ -3556,7 +3562,7 @@ msgstr "Leeres Buch hinzufügen. (Bucheintrag ohne Formate)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:45
 msgid "Add from ISBN"
-msgstr ""
+msgstr "Von ISBN hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:84
 msgid "How many empty books?"
@@ -3825,15 +3831,15 @@ msgstr "Bibliothek löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "Library Maintenance"
-msgstr ""
+msgstr "Wartung der Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:188
 msgid "Library metadata backup status"
-msgstr ""
+msgstr "Status der Metadaten- Sicherung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:192
 msgid "Start backing up metadata of all books"
-msgstr ""
+msgstr "Starte Sicherung der Metadaten aller Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:196
 msgid "Check library"
@@ -3903,11 +3909,11 @@ msgstr "Backupstatus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:318
 msgid "Book metadata files remaining to be written: %s"
-msgstr ""
+msgstr "Noch zu schreibende Buch- Metadaten: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "Backup metadata"
-msgstr ""
+msgstr "Metadaten sichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
 msgid ""
@@ -4137,7 +4143,7 @@ msgstr " und aus der Bibliothek löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:81
 msgid "Setup email based sharing of books"
-msgstr ""
+msgstr "Richtet den Email- Versand von Büchern ein"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:98
 msgid "D"
@@ -4937,11 +4943,11 @@ msgstr "Buch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:94
 msgid "Create a citation tag?"
-msgstr ""
+msgstr "Zitier- Tag erstellen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:95
 msgid "Expression to form the BibTeX citation tag:"
-msgstr ""
+msgstr "Ausdruck zum Formen des BibTeX Zitier- Tags:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:96
 msgid ""
@@ -6579,7 +6585,7 @@ msgstr "Autorensortierung"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:615
 msgid "Invalid author name"
-msgstr ""
+msgstr "Ungültiger Autorenname"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:616
@@ -6604,10 +6610,13 @@ msgid ""
 "author. Exactly how this value is automatically generated can be controlled "
 "via Preferences->Advanced->Tweaks"
 msgstr ""
+"Werte der Sortierung nach Autor auf einen aus dem Autorenfeld automatisch "
+"generierten Wert zurücksetzen. Wie genau dieser Wert erzeugt wird, kann via "
+"Einstellungen->Erweitert->Kniffe eingestellt werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:70
 msgid "Recalculate all author sort values"
-msgstr ""
+msgstr "Neuerzeugung aller Sortierung nach Autor- Werte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:60
 msgid "Author Sort"
@@ -6907,7 +6916,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:331
 msgid "Check this box to remove all tags from the books."
-msgstr ""
+msgstr "Auswählen, um alle Etiketten des Buches zu entfernen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:332
 msgid "Remove all"
@@ -6915,11 +6924,11 @@ msgstr "Alle entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:336
 msgid "If checked, the series will be cleared"
-msgstr ""
+msgstr "Wenn ausgewählt, wird der Serien- Eintrag entfernt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:337
 msgid "Clear series"
-msgstr ""
+msgstr "Serie löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:338
 msgid ""
@@ -6988,21 +6997,23 @@ msgstr "Ben&utzerdefinierte Metadaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:358
 msgid "Search &field:"
-msgstr ""
+msgstr "Such&feld:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:359
 msgid "The name of the field that you want to search"
-msgstr ""
+msgstr "Name des zu durchsuchenden Feldes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:360
 msgid "Search mode:"
-msgstr ""
+msgstr "Suchmodus:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:361
 msgid ""
 "Choose whether to use basic text matching or advanced regular expression "
 "matching"
 msgstr ""
+"Auswählen, ob Wortsuche oder Suche mittels regulären Ausdrücken angewandt "
+"werden soll."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:362
 msgid "&Search for:"
@@ -7013,16 +7024,20 @@ msgid ""
 "Enter the what you are looking for, either plain text or a regular "
 "expression, depending on the mode"
 msgstr ""
+"Hier Text, nach dem gesucht werden soll, eingeben, je nach Modus einfacher "
+"Text oder einen regulären Ausdruck"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:364
 msgid ""
 "Check this box if the search string must match exactly upper and lower case. "
 "Uncheck it if case is to be ignored"
 msgstr ""
+"Auswählen, wenn der Suchtext auf Groß/Kleinschreibung achten soll, abwählen, "
+"wenn dies ignoriert werden soll"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:365
 msgid "Case sensitive"
-msgstr ""
+msgstr "Groß/Kleinschreibung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:366
 msgid "&Replace with:"
@@ -7033,10 +7048,12 @@ msgid ""
 "The replacement text. The matched search text will be replaced with this "
 "string"
 msgstr ""
+"Der Ersetzungstext. Die Vorkommen des Suchtextes werden durch diesen Text "
+"ersetzt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:368
 msgid "Apply function after replace:"
-msgstr ""
+msgstr "Funktion nach Ersetzung anwenden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:369
 msgid ""
@@ -7048,21 +7065,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:371
 msgid "&Destination field:"
-msgstr ""
+msgstr "&Zielfeld:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:372
 msgid ""
 "The field that the text will be put into after all replacements. If blank, "
 "the source field is used."
 msgstr ""
+"Das Feld, in das der Text nach allen Ersetzungen geschrieben wird. Wenn "
+"leer, wird das Ursprungsfeld benutzt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:373
 msgid "Mode:"
-msgstr ""
+msgstr "Modus:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:374
 msgid "Specify how the text should be copied into the destination."
-msgstr ""
+msgstr "Bestimmen Sie, wie der Text in das Zielfeld geschrieben wird."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:375
 msgid ""
@@ -7073,7 +7092,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:377
 msgid "use comma"
-msgstr ""
+msgstr "Komma benutzen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:378
 msgid "Test &text"
@@ -7152,12 +7171,16 @@ msgid ""
 " The green color indicates that the current author sort matches the current "
 "author"
 msgstr ""
+" Die grüne Farbe zeigt an, dass die derzeitige Sortierung nach Autor mit dem "
+"Autor übereinstimmt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:354
 msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author"
 msgstr ""
+" Die rote Farbe zeigt an, dass die derzeitige Sortierung nach Autor nicht "
+"mit dem Autor übereinstimmt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:359
 msgid "Abort the editing of all remaining books"
@@ -7213,6 +7236,8 @@ msgstr ""
 msgid ""
 "For the error message from each cover source, click Show details below."
 msgstr ""
+"Für die Fehlerbeschreibung von jeder Umschlagsbild- Quelle, klicken Sie "
+"unten auf Details anzeigen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:669
 msgid "Bad cover"
@@ -7333,11 +7358,11 @@ msgstr "&Durchsuchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:417
 msgid "Remove border (if any) from cover"
-msgstr ""
+msgstr "Rand des Umschlagbildes, wenn vorhanden, entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:418
 msgid "T&rim"
-msgstr ""
+msgstr "&Schneiden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:419
 msgid "Reset cover to default"
@@ -7877,28 +7902,28 @@ msgstr "&Test"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:55
 msgid "Display contents of exploded ePub"
-msgstr ""
+msgstr "Inhalt des entpackten ePubs anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:56
 msgid "&Explode ePub"
-msgstr ""
+msgstr "ePub &entpacken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:57
 msgid "Rebuild ePub from exploded contents"
-msgstr ""
+msgstr "ePub aus entpackten Inhalten neu erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:58
 msgid "&Rebuild ePub"
-msgstr ""
+msgstr "ePub neu &packen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:59
 msgid "Discard changes"
-msgstr ""
+msgstr "Änderungen verwerfen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:218
 msgid "&Cancel"
-msgstr ""
+msgstr "&Abbruch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:61
 msgid ""
@@ -8429,7 +8454,7 @@ msgstr "Der Such-Name ist \"{0}\""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:704
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1239
 msgid "This book's UUID is \"{0}\""
-msgstr ""
+msgstr "Die UUID dieses Buches ist \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:923
 msgid "In Library"
@@ -8727,11 +8752,11 @@ msgstr "Keine Treffer für dieses Buch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:190
 msgid "Failed to download metadata"
-msgstr ""
+msgstr "Download der Metadaten fehlgeschlagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:223
 msgid "cover"
-msgstr ""
+msgstr "Umschlagbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:224
 msgid "Downloaded"
@@ -8743,7 +8768,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:225
 msgid "%s %s for: %s"
-msgstr ""
+msgstr "%s %s für: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:284
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:162
@@ -8752,11 +8777,11 @@ msgstr "Fertig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:285
 msgid "Successfully downloaded metadata for %d out of %d books"
-msgstr ""
+msgstr "Erfolgreich Metadaten heruntergeladen für %d von %d Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:287
 msgid "Details"
-msgstr ""
+msgstr "Einzelheiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:36
 msgid ""
@@ -8778,7 +8803,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:50
 msgid "Read metadata from &file contents rather than file name"
-msgstr ""
+msgstr "Metadaten aus &Dateiinhalt statt aus Dateinamen lesen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:51
 msgid ""
@@ -8898,6 +8923,8 @@ msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
 msgstr ""
+"Durch Kommata getrennte Liste an Etiketten, die neu zur Bibliothek "
+"hinzugefügten Büchern angehängt werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:153
 msgid "Tags to apply when adding a book:"
@@ -8963,6 +8990,8 @@ msgid ""
 "Restore settings to default values. Only settings for the currently selected "
 "section are restored."
 msgstr ""
+"Einstellungen auf Standardwerte zurücksetzen. Nur Einstellungen für den "
+"derzeit gewählten Abschnitt werden zurückgesetzt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:19
 msgid "Text, column shown in the tag browser"
@@ -8979,7 +9008,7 @@ msgstr "Langer Text, wie Kommentare, nicht im Etiketten-Browser angezeigt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:28
 msgid "Text column for keeping series-like information"
-msgstr ""
+msgstr "Textspalte für die Verwaltung von Serien- ähnlichen Informationen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:33
 msgid "Floating point numbers"
@@ -8999,7 +9028,7 @@ msgstr "Ja/Nein"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:42
 msgid "Column built from other columns"
-msgstr ""
+msgstr "Aus anderen Spalten zusammengesetzte Spalte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 msgid "No column selected"

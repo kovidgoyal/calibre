@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-10 20:44+0000\n"
+"PO-Revision-Date: 2010-10-11 18:38+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-11 04:44+0000\n"
+"X-Launchpad-Export-Date: 2010-10-12 04:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -8888,6 +8888,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:50
 msgid "Read metadata from &file contents rather than file name"
 msgstr ""
+"Llegeix les metadades del contingut del &fitxer en lloc de fer-ho del nom "
+"del fitxer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:51
 msgid ""
@@ -8899,26 +8901,38 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"Si es troba una llibre amb un títol i autor semblant i no té el format que "
+"s'està afegint, s'afegeix el format\n"
+"al llibre existent en lloc de crear una nova entrada. Si el llibre ja té el "
+"format, s'ignora sense donar cap avís.\n"
+"\n"
+"Per fer coincidir títols s'ignoren els articles inicials (\"el\", \"un\"), "
+"la puntuació, majúscula o minúscula...  Amb els autors la coincidència és "
+"exacta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:55
 msgid ""
 "If books with similar titles and authors found, &merge the new files "
 "automatically"
 msgstr ""
+"Si es troba llibres amb títols i autors semblant, &fusiona'ls automàticament "
+"als fitxers nous"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:56
 msgid "&Configure metadata from file name"
-msgstr ""
+msgstr "&Configura les metadades a partir del nom de fitxer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:57
 msgid ""
 "Swap the firstname and lastname of the author. This affects only metadata "
 "read from file names."
 msgstr ""
+"Intercanvia el nom i el cognom de l'autor. Afecta només les metadades que "
+"s'ha aconseguit del nom dels fitxers."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:58
 msgid "&Swap author firstname and lastname"
-msgstr ""
+msgstr "&Intercanvia el nom i el cognom de l'autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:145
@@ -8937,37 +8951,44 @@ msgstr "Baix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:163
 msgid "Confirmation dialogs have all been reset"
-msgstr ""
+msgstr "S'ha reinicialitzat tot els diàlegs de confirmació"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:137
 msgid "&Overwrite author and title by default when fetching metadata"
 msgstr ""
+"Per defecte, s&obreescriu el títol i l'autor quan s'obtinguin metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:138
 msgid "Download &social metadata (tags/ratings/etc.) by default"
 msgstr ""
+"Per defecte, descarrega les metadades &socials (etiquetes, puntuacions...)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:139
 msgid "Show notification when &new version is available"
-msgstr ""
+msgstr "Mostra un avís quan hi hagi una &nova versió disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:140
 msgid "Automatically send downloaded &news to ebook reader"
 msgstr ""
+"Envia automàticament les &notícies que es descarreguin al lector de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:141
 msgid "&Delete news from library when it is automatically sent to reader"
 msgstr ""
+"&Suprimeix les notícies de la llibreria quan s'enviïn automàticament al "
+"lector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:142
 msgid "Default network &timeout:"
-msgstr ""
+msgstr "&Temps d'espera màxim per defecte de la xarxa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:143
 msgid ""
 "Set the default timeout for network fetches (i.e. anytime we go out to the "
 "internet to get information)"
 msgstr ""
+"Configura el temps d'espera per defecte per a les sol·licituds de xarxa (per "
+"exemple cada cop que s'hagi d'anar a internet per aconseguir informació)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:144
 msgid " seconds"
@@ -8975,15 +8996,15 @@ msgstr " segons"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:148
 msgid "Job &priority:"
-msgstr ""
+msgstr "&Prioritat de les tasques:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:149
 msgid "Preferred &output format:"
-msgstr ""
+msgstr "F&ormat de sortida preferit:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:150
 msgid "Restriction to apply when the current library is opened:"
-msgstr ""
+msgstr "Restriccions que s'aplicaran quan la biblioteca actual s'obri:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:151
 msgid ""
@@ -8991,6 +9012,9 @@ msgid ""
 "used. Also applied when switching to this library. Note that this setting is "
 "per library. "
 msgstr ""
+"Aplica aquesta restricció a l'inici del calibre si s'està fent servir la "
+"biblioteca actual. També s'aplica si es canvia a aquesta biblioteca. Tingueu "
+"en compte que aquest paràmetre és per a cada biblioteca. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:152
 msgid ""
@@ -11534,7 +11558,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:789
 msgid "y"
-msgstr ""
+msgstr "s"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:795
 msgid ""

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-08 20:48+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-11 11:37+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-09 12:11+0000\n"
+"X-Launchpad-Export-Date: 2010-10-12 04:50+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3756,28 +3756,28 @@ msgstr "Izbriši biblioteku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "Library Maintenance"
-msgstr ""
+msgstr "Održavanje biblioteke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:188
 msgid "Library metadata backup status"
-msgstr ""
+msgstr "Status rezervne kopije metapodataka iz bilioteke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:192
 msgid "Start backing up metadata of all books"
-msgstr ""
+msgstr "Počni da praviš rezervnu kopiju metapodataka svih knjiga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:196
 msgid "Check library"
-msgstr ""
+msgstr "Proveri ispravnost biblioteke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:200
 msgid "Check database integrity"
-msgstr ""
+msgstr "Proveri integritet biblioteke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:343
 msgid "Recover database"
-msgstr ""
+msgstr "Popravi bazu podataka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:269
 msgid "Rename"
@@ -3846,6 +3846,8 @@ msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book per second."
 msgstr ""
+"Rezervna kopija metapodataka će biti načinjena u toku rada calibrea, brzinom "
+"od oko jedne knjige u sekundi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:344
 msgid ""
@@ -3854,6 +3856,10 @@ msgid ""
 "GUI. You can recover your database using the 'calibredb restore_database' "
 "command line function."
 msgstr ""
+"Ova komanda ponovo kreira vašu calibre bazu podataka iz informacija "
+"sačuvanih u OPF fajlovima.<p>Ova funkcija trentuno nije na raspolaganju u "
+"grafičkom korisničkom interfejsu. Bazu podataka možete ponovo kreirati "
+"korišćenjem 'calibredb restore_database' naredbe s komandne linije."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:358
 msgid "No library found"
@@ -3911,7 +3917,7 @@ msgstr "Kopiraj izabranu knjigu u navedenu biblioteku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:114
 msgid "(delete after copy)"
-msgstr ""
+msgstr "(izbriši posle kopiranja)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Cannot copy"
@@ -8403,7 +8409,7 @@ msgstr "Ime za pretragu je \"{0}\""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:704
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1239
 msgid "This book's UUID is \"{0}\""
-msgstr ""
+msgstr "UUID ove knjige je \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:923
 msgid "In Library"
@@ -9401,6 +9407,22 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
+"Ovde možete izmeniti metapodatke koje calibre koristi kako bi ažurirao "
+"knjige kada ih snima na disk, ili šalje na uređaj.\n"
+"\n"
+"Koristite ovaj dijalog da definišete 'priključak' za format (ili sve "
+"formate), ili uređaj (ili sve uređaje). Priključak određuje koji šablon će "
+"biti povezan s kojim poljem. Šablon se koristi da odredi vrednost koj aće "
+"biti dodeljena priključenom polju.\n"
+"\n"
+"Šabloni će često sadržati jednostavne veze ka složenim kolonama, ali to nije "
+"neophodno. U izvornom polju možete koristiti bilo koji šablon koji može da "
+"se koristi drugde u calibreu.\n"
+"\n"
+"Jedna moguća upotreba priključaka je da u naslov daodate informaciju o "
+"seriji. Druga mogućša upotreba je da se izmeni način sortiranja po autoru, "
+"nešto što bi korisnici formata MOBI mogli da urade kako bi dodali ';' koji "
+"Kindle zahteva. Treća upotreba bi mogla da bude definisanje jezika."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"
@@ -9967,12 +9989,13 @@ msgstr "&Alternativna prečica:"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:163
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
-msgstr ""
+msgstr "Promena autora za više knjiga može potrajati. Da li ste sigurni?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:168
 msgid ""
 "Changing the metadata for that many books can take a while. Are you sure?"
 msgstr ""
+"Izmena metapodataka za ovoliko knjiga može potrajati. Da li ste sigurni?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:295
 msgid "Rename '%s'"
@@ -10182,18 +10205,21 @@ msgid ""
 "%s has been updated to version <b>%s</b>. See the <a href=\"http://calibre-"
 "ebook.com/whats-new\">new features</a>. Visit the download page?"
 msgstr ""
+"%s je unapređena u verziju <b>%s</b>. Vidite opis <a href=\"http://calibre-"
+"ebook.com/whats-new\">novih funkcija</a>. Da li želite da posetite stranicu "
+"za preuzimanje?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:59
 msgid "Update available!"
-msgstr ""
+msgstr "Na raspolaganju je nova verzija!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:64
 msgid "Show this notification for future updates"
-msgstr ""
+msgstr "Prikaži ovo obaveštenje i za buduće nove verzije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:69
 msgid "&Get update"
-msgstr ""
+msgstr "&Preuzmi novu verziju"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -11897,16 +11923,33 @@ msgid ""
 "what is found in the OPF files.\n"
 "    "
 msgstr ""
+"%prog restore_database [opcije]\n"
+"\n"
+"Ponovo kreiraj ovu bazu podataka od metapodataka sačuvanih u OPF fajlovima\n"
+"u svakom direktorijumu calibre biblioteke. Ovo je korisno ako vam se "
+"pokvario\n"
+"fajl metadata.db.\n"
+"\n"
+"UPOZORENJE: Ova komanda kreira potpuno novu bazu podataka. Izgubićete sve\n"
+"sačuvane pretrage, korisničke kategorije, priključke, uputstva za konverziju "
+"pojedinih\n"
+"knjiga, i sve korisničke recepte. Novi metapodaci će biti onoliko tačni "
+"koliko su tačni\n"
+"podaci u OPF fajlovima.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:975
 msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
+"Zaista izvrši oporavak. Ova komanda neće biti pokrenuta ako ne izaberete ovu "
+"opciju."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:988
 msgid "You must provide the --really-do-it option to do a recovery"
 msgstr ""
+"Morate da navedete --really-do-it opciju da biste zaista izvršili oporavak"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1025
 msgid ""
@@ -11915,32 +11958,42 @@ msgid ""
 "Produce a report of the category information in the database. The\n"
 "information is the equivalent of what is shown in the tags pane.\n"
 msgstr ""
+"%prog list_categories [opcije]\n"
+"\n"
+"Sačini izveštaj o kategorijama u bazi podataka. Ovi podaci\n"
+"su identični onima prikazanim u prozoru sa etiketama.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1033
 msgid ""
 "Output only the number of items in a category instead of the counts per item "
 "within the category"
 msgstr ""
+"Ispiši samo broj stavki po kategoriji umesto broja po stavki u kategoriji"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1038
 msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
+"Znak kojim će biti uokvirena kategorija u CSV načinu rada. Podrazumeva se "
+"navodnik (\")."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1041
 msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
+"Zarezima razdvojena lista imena za pretraživanje kategorija.\n"
+"Podrazumeva se: sve"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1047
 msgid "The string used to separate fields in CSV mode. Default is a comma."
 msgstr ""
+"Niz znakova koji razdvaja polja u CSV načinu rada. Podrazumeva se zarez."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1085
 msgid "CATEGORY ITEMS"
-msgstr ""
+msgstr "STAVKE U KATEGORIJI"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1154
 msgid ""
@@ -12013,7 +12066,7 @@ msgstr "Ocene"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:262
 msgid "Title Sort"
-msgstr ""
+msgstr "Sortiranje po naslovu"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:117
 msgid "Processed"
