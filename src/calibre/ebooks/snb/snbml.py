@@ -206,7 +206,7 @@ class SNBMLizer(object):
         if elem.attrib.get('id') != None and elem.attrib['id'] in [ href for href, title in subitems ]:
             if self.curSubItem != None and self.curSubItem != elem.attrib['id']:
                 self.curSubItem = elem.attrib['id']
-                text.append(u'%s%s\n\n' % (CALIBRE_SNB_BM_TAG, self.curSubItem))
+                text.append(u'\n\n%s%s\n\n' % (CALIBRE_SNB_BM_TAG, self.curSubItem))
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
@@ -226,13 +226,13 @@ class SNBMLizer(object):
                 text.append(u' ')
 
         if tag == 'img':
-            text.append(u'%s%s' % (CALIBRE_SNB_IMG_TAG, ProcessFileName(elem.attrib['src'])))
+            text.append(u'\n\n%s%s\n\n' % (CALIBRE_SNB_IMG_TAG, ProcessFileName(elem.attrib['src'])))
 
         if tag == 'br':
             text.append(u'\n\n')
 
         if tag == 'li':
-            li = '-- '
+            li = '- '
 
         pre = (tag == 'pre' or pre)
         # Process tags that contain text.
