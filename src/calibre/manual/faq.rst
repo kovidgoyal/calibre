@@ -418,3 +418,14 @@ How do I run calibre from my USB stick?
 
 A portable version of calibre is available at: `portableapps.com <http://portableapps.com/node/20518>`_. However, this is usually out of date. You can also setup your own portable calibre install by following :ref:`these instructions <portablecalibre>`.
 
+Why are there so many calibre-parallel processes on my system?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|app| maintains two separate worker process pools. One is used for adding books/saving to disk and the other for conversions. You can control the number of worker processes via :guilabel:`Preferences->Advanced->Miscellaneous`. So if you set it to 6 that means a maximum of 3 conversions will run simultaneously. And that is why you will see the number of worker processes changes by two when you use the up and down arrows. On windows, you can set the priority that these processes run with. This can be useful on older, single CPU machines, if you find them slowing down to a crawl when conversions are running. 
+
+In addition to this some conversion plugins run tasks in their own pool of processes, so for example if you bulk convert comics, each comic conversion will use three separate processes to render the images. The job manager knows this so it will run only a single comic conversion simultaneously.
+
+And since I'm sure someone will ask: The reason adding/saving books are in separate processes is because of PDF. PDF processing libraries can crash on reading PDFs and I dont want the crash to take down all of calibre. Also when adding EPUB books, in order to extract the cover you have to sometimes render the HTML of the first page, which means that it either has to run the GUI thread of the main process or in a separate process.
+
+Finally, the reason calibre keep workers alive and idle instead of launching on demand is to workaround the slow startup time of python processes.
+
