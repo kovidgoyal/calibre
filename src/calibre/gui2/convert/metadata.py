@@ -172,7 +172,7 @@ class MetadataWidget(Widget, Ui_Form):
         if _file:
             _file = os.path.abspath(_file)
             if not os.access(_file, os.R_OK):
-                d = error_dialog(self.window, _('Cannot read'),
+                d = error_dialog(self.parent(), _('Cannot read'),
                         _('You do not have permission to read the file: ') + _file)
                 d.exec_()
                 return
@@ -181,14 +181,14 @@ class MetadataWidget(Widget, Ui_Form):
                 cf = open(_file, "rb")
                 cover = cf.read()
             except IOError, e:
-                d = error_dialog(self.window, _('Error reading file'),
+                d = error_dialog(self.parent(), _('Error reading file'),
                         _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
                 d.exec_()
             if cover:
                 pix = QPixmap()
                 pix.loadFromData(cover)
                 if pix.isNull():
-                    d = error_dialog(self.window, _('Error reading file'),
+                    d = error_dialog(self.parent(), _('Error reading file'),
                                       _file + _(" is not a valid picture"))
                     d.exec_()
                 else:
