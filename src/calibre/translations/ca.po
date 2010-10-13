@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-11 18:38+0000\n"
+"PO-Revision-Date: 2010-10-12 18:01+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-12 04:49+0000\n"
+"X-Launchpad-Export-Date: 2010-10-13 04:55+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -8293,7 +8293,7 @@ msgstr "Expressió regular (?P<series>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:132
 msgid "Series index:"
-msgstr ""
+msgstr "Número dins la sèrie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:133
 msgid "Regular expression (?P<series_index>)"
@@ -9021,34 +9021,37 @@ msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
 msgstr ""
+"S'afegirà una llista d'etiquetes separada per comes als llibres que "
+"s'afegeixin a la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:153
 msgid "Tags to apply when adding a book:"
-msgstr ""
+msgstr "Etiquetes que s'aplicaran quan s'afegeixi un llibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:154
 msgid "Reset all disabled &confirmation dialogs"
-msgstr ""
+msgstr "Reinicia tots els diàlegs de &confirmació que s'hagin desactivat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:155
 msgid "Preferred &input format order:"
-msgstr ""
+msgstr "Ordre de formats d'entrada prefer&it:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:158
 msgid "Use internal &viewer for:"
-msgstr ""
+msgstr "Fes servir el &visor intern per a:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:96
 msgid "You must select a column to delete it"
-msgstr ""
+msgstr "Heu de seleccionar una columna per suprimir-la"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:101
 msgid "The selected column is not a custom column"
-msgstr ""
+msgstr "La columna que s'ha seleccionat no és una columna personalitzada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:103
 msgid "Do you really want to delete column %s and all its data?"
 msgstr ""
+"Esteu segur que voleu suprimir la columna %s i totes les seves dades?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:82
@@ -9057,60 +9060,68 @@ msgid ""
 "book list. You can hide columns by unchecking them. You can also create your "
 "own, custom columns."
 msgstr ""
+"Aquí podeu redistribuir la disposició de les columnes a llista de llibres de "
+"la biblioteca del calibre. Podeu ocultar columnes si les desmarqueu. També "
+"podeu crear columnes personalitzades vostres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:84
 msgid "Remove a user-defined column"
-msgstr ""
+msgstr "Suprimeix una columna definida per l'usuari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:86
 msgid "Add a user-defined column"
-msgstr ""
+msgstr "Afegeix una columna definida per l'usuari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:88
 msgid "Edit settings of a user-defined column"
-msgstr ""
+msgstr "Edita els paràmetres d'una columna definida per l'usuari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:91
 msgid "Add &custom column"
-msgstr ""
+msgstr "Afegeix una &columna personalitzada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/conversion.py:37
 msgid ""
 "Restore settings to default values. Only settings for the currently selected "
 "section are restored."
 msgstr ""
+"Restaura els paràmetres als valors per defecte. Només es restauren els "
+"paràmetres de la secció que estigui seleccionada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:19
 msgid "Text, column shown in the tag browser"
-msgstr ""
+msgstr "Text, columna que es mostra a l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:22
 msgid "Comma separated text, like tags, shown in the tag browser"
 msgstr ""
+"Text separat per comes, com les etiquetes, que es mostra a l'explorador "
+"d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:25
 msgid "Long text, like comments, not shown in the tag browser"
 msgstr ""
+"Text llarg, com els comentaris, que no es mostra a l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:28
 msgid "Text column for keeping series-like information"
-msgstr ""
+msgstr "Columna de text per mantenir informació com una sèrie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:33
 msgid "Floating point numbers"
-msgstr ""
+msgstr "Números amb decimals"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:35
 msgid "Integers"
-msgstr ""
+msgstr "Enters"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:37
 msgid "Ratings, shown with stars"
-msgstr ""
+msgstr "Valoracions, es mostren amb estrelles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:40
 msgid "Yes/No"
@@ -9118,29 +9129,32 @@ msgstr "Sí/No"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:42
 msgid "Column built from other columns"
-msgstr ""
+msgstr "Columna generada a partir d'altres columnes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 msgid "No column selected"
-msgstr ""
+msgstr "No s'ha seleccionat cap columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:72
 msgid "No column has been selected"
-msgstr ""
+msgstr "No s'ha seleccionat cap columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:76
 msgid "Selected column is not a user-defined column"
 msgstr ""
+"La columna que s'ha seleccionat no és una columna definida per l'usuari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:111
 msgid "No lookup name was provided"
-msgstr ""
+msgstr "No s'ha donat cap nom per a la cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:113
 msgid ""
 "The lookup name must contain only lower case letters, digits and "
 "underscores, and start with a letter"
 msgstr ""
+"El nom de la cerca només ha de contenir minúscules, números i barres baixes, "
+"i ha de començar amb una lletra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:116
 msgid ""
@@ -9150,51 +9164,55 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:126
 msgid "No column heading was provided"
-msgstr ""
+msgstr "No s'ha donat cap encapçalament de columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:133
 msgid "The lookup name %s is already used"
-msgstr ""
+msgstr "El nom de cerca %s ja existeix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:145
 msgid "The heading %s is already used"
-msgstr ""
+msgstr "L'encapçalament %s ja existeix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:156
 msgid "You must enter a template for composite columns"
-msgstr ""
+msgstr "Heu d'introduir una plantilla per a les columnes compostes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:147
 msgid "Create or edit custom columns"
-msgstr ""
+msgstr "Crea o edita columnes personalitzades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:128
 msgid "&Lookup name"
-msgstr ""
+msgstr "&Nom de la cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:129
 msgid "Column &heading"
-msgstr ""
+msgstr "&Encapçalament de la columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:130
 msgid ""
 "Used for searching the column. Must contain only digits and lower case "
 "letters."
 msgstr ""
+"Es fa servir per cercar dins la columna. Ha de contenir només números i "
+"minúscules."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:131
 msgid ""
 "Column heading in the library view and category name in the tag browser"
 msgstr ""
+"Encapçalament de la columna a la vista de biblioteca i nom de la categoria a "
+"l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:132
 msgid "Column &type"
-msgstr ""
+msgstr "&Tipus de columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:133
 msgid "What kind of information will be kept in the column."
-msgstr ""
+msgstr "Tipus d'informació que hi haurà a la columna."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:134
 msgid ""
@@ -9206,30 +9224,39 @@ msgid ""
 "<li>dd MMMM yy gives 05 January 10</li>\n"
 "</ul> "
 msgstr ""
+"<p>Format de data. Fes servir 1-4 lletres 'd' per al dia, 1-4 lletres 'M' "
+"per al mes, i 2 or 4 lletres 'y' per a l'any.</p>\n"
+"<p>Per exemple:\n"
+"<ul>\n"
+"<li> ddd, d MMM yyyy dóna Dil, 5 Gen 2010<li>\n"
+"<li>dd MMMM yy dóna 05 Gener 10</li>\n"
+"</ul> "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:140
 msgid "Use MMM yyyy for month + year, yyyy for year only"
-msgstr ""
+msgstr "Feu servir MMM yyyy per al mes i any, yyy per a només l'any"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:141
 msgid "Default: dd MMM yyyy."
-msgstr ""
+msgstr "Fer defecte: dd MMM yyyy."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:142
 msgid "Format for &dates"
-msgstr ""
+msgstr "Format per a les &dates"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:143
 msgid "<p>Field template. Uses the same syntax as save templates."
 msgstr ""
+"<p>Plantilla de camp. Fa servir la mateixa sintaxi que les plantilles de "
+"desar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:144
 msgid "Similar to save templates. For example, {title} {isbn}"
-msgstr ""
+msgstr "Semblant a les plantilles de desar. Per exemple, {title} {isbn}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:145
 msgid "Default: (nothing)"
-msgstr ""
+msgstr "Per defecte: (no res)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:146
 msgid "&Template"
@@ -9237,15 +9264,15 @@ msgstr "&Plantilla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
-msgstr ""
+msgstr "S'està aconseguint la informació de depuració"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:22
 msgid "Copy to &clipboard"
-msgstr ""
+msgstr "&Copia al porta-retalls"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Debug device detection"
-msgstr ""
+msgstr "Depura la detecció de dispositius"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:66
 msgid ""
@@ -9253,26 +9280,29 @@ msgid ""
 "automatically sent for downloaded news to all email addresses that have Auto-"
 "send checked."
 msgstr ""
+"El calibre pot enviar-vos llibres (a vós o al vostre lector) per correu "
+"electrònic. S'enviaran automàticament correus amb les notícies que es "
+"descarreguin a totes les adreces que tinguin activat l'enviament automàtic,"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:67
 msgid "Add an email address to which to send books"
-msgstr ""
+msgstr "Afegeix una adreça de correu electrònic per enviar-hi llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:68
 msgid "&Add email"
-msgstr ""
+msgstr "&Afegeix una adreça"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:69
 msgid "Make &default"
-msgstr ""
+msgstr "Fes que sigui la pre&determinada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:70
 msgid "&Remove email"
-msgstr ""
+msgstr "Elimina d'ad&reça"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:24
 msgid "Auto send"
-msgstr ""
+msgstr "Enviament automàtic"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:24
 msgid "Email"
@@ -9280,17 +9310,20 @@ msgstr "Correu electrònic"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Formats to email. The first matching format will be sent."
-msgstr ""
+msgstr "Formats per al correu. S'enviarà el primer format que coincideixi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:30
 msgid ""
 "If checked, downloaded news will be automatically mailed <br>to this email "
 "address (provided it is in one of the listed formats)."
 msgstr ""
+"Si es selecciona, les notícies que es descarreguin s'enviaran automàticament "
+"<br>a aquesta adreça de correu electrònic (si està en un dels formats de la "
+"llista)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:104
 msgid "new email address"
-msgstr ""
+msgstr "nova adreça de correu electrònic"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:24
 msgid "Narrow"
@@ -9326,51 +9359,54 @@ msgstr "Mai"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:106
 msgid "User Interface &layout (needs restart):"
-msgstr ""
+msgstr "Disposició de &la interfície d'usuari (caldrà reiniciar):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:107
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr ""
+"&Número de portades que es mostraran al mode explorador (caldrà reiniciar):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:108
 msgid "Choose &language (requires restart):"
-msgstr ""
+msgstr "Trieu &l'idioma (caldrà reiniciar):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:109
 msgid "Show &average ratings in the tags browser"
-msgstr ""
+msgstr "Mostra l&a mitjana de les valoracions al navegador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:110
 msgid "Disable all animations. Useful if you have a slow/old computer."
 msgstr ""
+"Inhabilita totes les animacions. Útil si teniu un ordinador lent o vell."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:111
 msgid "Disable &animations"
-msgstr ""
+msgstr "Inhabilita les &animacions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:112
 msgid "Enable system &tray icon (needs restart)"
-msgstr ""
+msgstr "Habilita la icona a la safata del sis&tema (caldrà reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:113
 msgid "Show &splash screen at startup"
-msgstr ""
+msgstr "Mostra la pantalla de presentació a l'inici"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:114
 msgid "Disable &notifications in system tray"
-msgstr ""
+msgstr "Inhabilita les &notificacions de la safata del sistema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:115
 msgid "Use &Roman numerals for series"
-msgstr ""
+msgstr "Fes servir números &romans per a les sèries"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:116
 msgid "Show cover &browser in a separate window (needs restart)"
 msgstr ""
+"Mostra l'explorador de &portades en una finestra separada (caldrà reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:117
 msgid "Search as you type"
-msgstr ""
+msgstr "Cerca mentre escriviu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:118
 msgid "&Toolbar"
@@ -9378,15 +9414,15 @@ msgstr "&Barra d'eines"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:119
 msgid "&Icon size:"
-msgstr ""
+msgstr "Mida de la &icona:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:120
 msgid "Show &text under icons:"
-msgstr ""
+msgstr "Mostra el &text sota les icones:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:121
 msgid "&Split the toolbar into two toolbars"
-msgstr ""
+msgstr "Divideix la barra d'eine&s en dues"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:215
 msgid "&Apply"
@@ -9394,7 +9430,7 @@ msgstr "&Aplica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:222
 msgid "Restore &defaults"
-msgstr ""
+msgstr "Restaura els pre&determinats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:223
 msgid "Save changes"
@@ -9402,87 +9438,96 @@ msgstr "Desa els canvis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:224
 msgid "Cancel and return to overview"
-msgstr ""
+msgstr "Cancel·la i torna a la vista general"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:259
 msgid "Restoring to defaults not supported for"
-msgstr ""
+msgstr "No es pot tornar als predeterminats per a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:294
 msgid ""
 "Some of the changes you made require a restart. Please restart calibre as "
 "soon as possible."
 msgstr ""
+"Heu fet alguns canvis que fan que calgui reiniciar. Si us plau, reinicieu el "
+"calibre quan pugueu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:297
 msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed set any more preferences, until you restart."
 msgstr ""
+"Heu fet canvis que fan que calgui reiniciar el calibre immediatament. No "
+"podreu establir més preferències fins que s'hagi reiniciat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
 msgid "Restart needed"
-msgstr ""
+msgstr "Cal reiniciar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:42
 msgid "Failed to install command line tools."
-msgstr ""
+msgstr "No s'ha pogut instal·lar les eines de la línia de comandaments."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:45
 msgid "Command line tools installed"
-msgstr ""
+msgstr "S'ha instal·lat les eines de la línia de comandaments"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:46
 msgid "Command line tools installed in"
-msgstr ""
+msgstr "S'ha instal·lat les eines de la línia de comandaments a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:47
 msgid ""
 "If you move calibre.app, you have to re-install the command line tools."
 msgstr ""
+"Si moveu calibre.app, caldrà reinstal·lar les eines de la línia de "
+"comandaments."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:61
 msgid "&Maximum number of waiting worker processes (needs restart):"
-msgstr ""
+msgstr "Número &màxim de processos de treball en espera (caldrà reiniciar):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:62
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
 msgstr ""
+"Limita el número de tasques simultànies als nuclis de CPU disponibles."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:63
 msgid "Debug &device detection"
-msgstr ""
+msgstr "&Depura la selecció de dispositius"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:64
 msgid "Open calibre &configuration directory"
-msgstr ""
+msgstr "Obre la carpeta de &configuració del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:65
 msgid "&Install command line tools"
-msgstr ""
+msgstr "&Instal·la les eines de la línia de comandaments"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:44
 msgid "Device currently connected: "
-msgstr ""
+msgstr "Dispositiu que està connectat: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:47
 msgid "Device currently connected: None"
-msgstr ""
+msgstr "Dispositiu que està connectat: cap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:207
 msgid ""
 "That format and device already has a plugboard or conflicts with another "
 "plugboard."
 msgstr ""
+"Aquest dispositiu i format ja té un ﻿quadre de connexions o té un conflicte "
+"amb un altre ﻿quadre de connexions."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:240
 msgid "Invalid destination"
-msgstr ""
+msgstr "El destí no és vàlid."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:241
 msgid "The destination field cannot be blank"
-msgstr ""
+msgstr "El camp de destí no pot estar en blanc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:114
 msgid ""
@@ -9503,138 +9548,163 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
+"Aquí podeu canviar les metadades que el calibre fa servir per actualitzar un "
+"llibre quan el desa o l'envia a un dispositiu.\n"
+"\n"
+"Feu servir aquest quadre per definir un '﻿quadre de connexions' per a un "
+"format (o per a tots els formats) i un dispositiu (o tots els dispositius). "
+"El ﻿quadre de connexions indica quina plantilla es connecta a cada camp. La "
+"plantilla es fa servir per calcular un valor i aquest valor s'assigna al "
+"camp connectat.\n"
+"\n"
+"Sovint les plantilles contenen referències simples a columnes compostes, "
+"però això no és necessari. Podeu fer servir qualsevol plantilla en un quadre "
+"d'origen que es pot utilitzar a d'altres parts del calibre.\n"
+"\n"
+"Un ús possible per a un ﻿quadre de connexions és alterar el títol perquè "
+"contingui la informació de la sèrie. Un altre pot ser canviar l'ordre "
+"d'autor, una cosa que els usuaris de mobi poden fer per forçar-lo a fer "
+"servir el ';' que necessita el Kindle. Un tercer ús seria especificar "
+"l'idioma."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"
-msgstr ""
+msgstr "Format (trieu-ho primer)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:122
 msgid "Device (choose second)"
-msgstr ""
+msgstr "Dispositiu (trieu-ho segon)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:123
 msgid "Add new plugboard"
-msgstr ""
+msgstr "Afegeix un ﻿quadre de connexions nou"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:124
 msgid "Edit existing plugboard"
-msgstr ""
+msgstr "Edita un ﻿quadre de connexions existent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:125
 msgid "Existing plugboards"
-msgstr ""
+msgstr "Quadres de connexions que existeixen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:126
 msgid "Source template"
-msgstr ""
+msgstr "Plantilla d'origen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:127
 msgid "Destination field"
-msgstr ""
+msgstr "Camp de destí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:128
 msgid "Save plugboard"
-msgstr ""
+msgstr "Desa el ﻿quadre de connexions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:129
 msgid "Delete plugboard"
-msgstr ""
+msgstr "Suprimeix el ﻿quadre de connexions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:100
 msgid "%(plugin_type)s %(plugins)s"
-msgstr ""
+msgstr "%(plugin_type)s %(plugins)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:101
 msgid "plugins"
-msgstr ""
+msgstr "connectors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:110
 msgid ""
 "\n"
 "Customization: "
 msgstr ""
+"\n"
+"Personalització: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:155
 msgid "No valid plugin path"
-msgstr ""
+msgstr "No hi ha una ruta de connectors vàlida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:156
 msgid "%s is not a valid plugin path"
-msgstr ""
+msgstr "%s no és una ruta de connectors vàlida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:159
 msgid "Choose plugin"
-msgstr ""
+msgstr "Tria de connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:171
 msgid "Plugin cannot be disabled"
-msgstr ""
+msgstr "No es pot inhabilitar el connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:172
 msgid "The plugin: %s cannot be disabled"
-msgstr ""
+msgstr "El connector %s no es pot inhabilitar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:182
 msgid "Plugin not customizable"
-msgstr ""
+msgstr "El connector no es pot personalitzar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:183
 msgid "Plugin: %s does not need customization"
-msgstr ""
+msgstr "El connector %s no necessita personalització"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:193
 msgid "Customize"
-msgstr ""
+msgstr "Personalitza"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:236
 msgid "Cannot remove builtin plugin"
-msgstr ""
+msgstr "No es pot suprimir un complement integrat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:237
 msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
 msgstr ""
+" no es pot suprimir. És un connector integrat. Intenteu inhabilitar-lo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:82
 msgid ""
 "Here you can customize the behavior of Calibre by controlling what plugins "
 "it uses."
 msgstr ""
+"Aquí podeu personalitzar el comportament del calibre controlant quins "
+"connectors fa servir."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:83
 msgid "Enable/&Disable plugin"
-msgstr ""
+msgstr "&Habilita/Inhabilita el connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:84
 msgid "&Customize plugin"
-msgstr ""
+msgstr "&Personalitza el connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:85
 msgid "&Remove plugin"
-msgstr ""
+msgstr "&Suprimeix el connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:86
 msgid "Add new plugin"
-msgstr ""
+msgstr "Afegeix el nou connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:87
 msgid "Plugin &file:"
-msgstr ""
+msgstr "&Fitxer del connector:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:89
 msgid "&Add"
-msgstr ""
+msgstr "&Afegeix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
-msgstr ""
+msgstr "Qualsevol camp personalitzat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "The lookup name of any custom field. These names begin with \"#\")"
 msgstr ""
+"El nom de cerca de qualsevol camp personalitzat. Aquests noms comencen per "
+"\"#\")"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
-msgstr ""
+msgstr "Desa la plan&tilla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:48
 msgid ""
@@ -9644,68 +9714,75 @@ msgid ""
 "particular book does not have some metadata, the variable will be replaced "
 "by the empty string."
 msgstr ""
+"Ajustant la plantilla següent podeu controlar les carpetes on es desen els "
+"fitxers i els noms que se'ls dóna. Podeu fer servir el caràcter '/' per "
+"especificar subcarpetes. Les variables de metadades disponibles es descriuen "
+"més avall. Si un llibre concret no té alguna metadada, la variable es "
+"substitueix per una cadena en blanc."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:49
 msgid "Available variables:"
-msgstr ""
+msgstr "Variables que es disposa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:68
 msgid ""
 "Here you can control how calibre will save your books when you click the "
 "Save to Disk button:"
 msgstr ""
+"Aquí podeu controlar com el calibre desarà els vostres llibres quan feu clic "
+"al botó 'Desa al disc':"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:69
 msgid "Save &cover separately"
-msgstr ""
+msgstr "Desa la &portada per separat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:70
 msgid "Replace space with &underscores"
-msgstr ""
+msgstr "Substitueix els espais per g&uions baixos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "Update &metadata in saved copies"
-msgstr ""
+msgstr "Actualitza les &metadades a les còpies desades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:72
 msgid "Change paths to &lowercase"
-msgstr ""
+msgstr "Canvia els camins a mi&núscules"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:76
 msgid "Format &dates as:"
-msgstr ""
+msgstr "Fes servir aquest format de &dates:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:74
 msgid "File &formats to save:"
-msgstr ""
+msgstr "&Formats de fitxer en què es desarà:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:75
 msgid "Convert non-English characters to &English equivalents"
-msgstr ""
+msgstr "Converteix els caràcters no-ASCII a &equivalents ASCII"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:76
 msgid "Save metadata in &OPF file"
-msgstr ""
+msgstr "Desa les metadades a un fitxer &OPF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
 msgid "Manual management"
-msgstr ""
+msgstr "Gestió manual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:71
 msgid "Only on send"
-msgstr ""
+msgstr "Només en enviar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:72
 msgid "Automatic management"
-msgstr ""
+msgstr "Gestió automàtica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:69
 msgid "Metadata &management:"
-msgstr ""
+msgstr "Gestió de les &metadades:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:73
 msgid ""
@@ -9732,11 +9809,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:99
 msgid "Error log:"
-msgstr ""
+msgstr "Registre d'error:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:106
 msgid "Access log:"
-msgstr ""
+msgstr "Registre d'accés:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:121
 msgid "You need to restart the server for changes to take effect"
@@ -9829,7 +9906,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:39
 msgid "Separator"
-msgstr ""
+msgstr "Separador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:52
 msgid "Choose library"
@@ -9952,7 +10029,7 @@ msgstr "(tots els llibres)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:59
 msgid "({0} of {1})"
-msgstr ""
+msgstr "({0} de {1})"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:67
 msgid "({0} of all)"
@@ -9960,7 +10037,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:58
 msgid "Press a key..."
-msgstr ""
+msgstr "Premeu una tecla..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:79
 msgid "Already assigned"
@@ -9978,7 +10055,7 @@ msgstr " o "
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:74
 msgid "&Default"
-msgstr ""
+msgstr "Per &defecte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:135
 msgid "Customize shortcuts for"
@@ -9994,25 +10071,25 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:73
 msgid "Frame"
-msgstr ""
+msgstr "Marc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:75
 msgid "&Custom"
-msgstr ""
+msgstr "&Personalitzat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:76
 msgid "&Shortcut:"
-msgstr ""
+msgstr "&Drecera:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:82
 msgid "Click to change"
-msgstr ""
+msgstr "Feu clic per canviar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:84
 msgid "Clear"
-msgstr ""
+msgstr "Neteja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:81
 msgid "&Alternate shortcut:"
@@ -10051,7 +10128,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:318
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:322
 msgid "Manage %s"
-msgstr ""
+msgstr "Gestiona %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:325
 msgid "Manage Saved Searches"
@@ -10153,7 +10230,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:168
 msgid "&Restore"
-msgstr ""
+msgstr "&Restaura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:170
 msgid "&Donate to support calibre"
