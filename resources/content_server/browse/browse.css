@@ -82,9 +82,9 @@ body {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   text-shadow: #27211b 1px 1px 1px;
-    -moz-box-shadow: 5px 5px 5px #222;
-    -webkit-box-shadow: 5px 5px 5px #222;
-    box-shadow: 5px 5px 5px #222;
+  -moz-box-shadow: 5px 5px 5px #222;
+  -webkit-box-shadow: 5px 5px 5px #222;
+  box-shadow: 5px 5px 5px #222;
 
 }
 
@@ -216,6 +216,35 @@ h2.library_name {
 }
 
 .toplevel li span { display: none }
+
+/* }}} */
+
+
+/* Category {{{ */
+.category ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.category li.category-item {
+    margin: 0.75em;
+    padding: 0.75em;
+    text-align: center;
+    cursor: pointer;
+}
+
+.category li.category-item:hover {
+    background-color: #d6d3c9;
+    font-weight: bold;
+    -moz-box-shadow: 5px 5px 5px #ccc;
+    -webkit-box-shadow: 5px 5px 5px #ccc;
+    box-shadow: 5px 5px 5px #ccc;
+
+}
+
+.category li.category-item h4 { display: inline }
+.category li.category-item span.href { display: none }
 
 /* }}} */
 

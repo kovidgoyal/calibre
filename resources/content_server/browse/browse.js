@@ -127,3 +127,16 @@ function toplevel() {
     });
 }
 // }}}
+
+// Category feed {{{
+function category() {
+    $(".category li").corner("15px");
+
+    $(".category li").click(function() {
+        var href = $(this).children("span.href").html();
+        window.location = href;
+    });
+}
+// }}}
+
+
