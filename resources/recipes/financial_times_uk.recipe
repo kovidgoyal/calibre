@@ -1,0 +1,74 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+ft.com
+'''
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class FinancialTimes(BasicNewsRecipe):
+    title                 = u'Financial Times - UK printed edition'
+    __author__            = 'Darko Miletic'
+    description           = 'Financial world news'
+    oldest_article        = 2
+    language              = 'en_GB'
+    max_articles_per_feed = 250
+    no_stylesheets        = True
+    use_embedded_content  = False
+    needs_subscription    = True
+    encoding              = 'utf8'
+    simultaneous_downloads= 1
+    delay                 = 1
+    LOGIN                 = 'https://registration.ft.com/registration/barrier/login'
+    INDEX                 = 'http://www.ft.com/uk-edition'
+    PREFIX                = 'http://www.ft.com'
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open(self.LOGIN)
+            br.select_form(name='loginForm')
+            br['username'] = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
+    keep_only_tags    = [ dict(name='div', attrs={'id':'cont'}) ]
+    remove_tags_after = dict(name='p', attrs={'class':'copyright'})
+    remove_tags = [
+                      dict(name='div', attrs={'id':'floating-con'})
+                     ,dict(name=['meta','iframe','base','object','embed','link'])
+                  ]
+    remove_attributes = ['width','height','lang']
+
+    extra_css = """
+                body{font-family:Arial,Helvetica,sans-serif;}
+                h2{font-size:large;}
+                .ft-story-header{font-size:xx-small;}
+                .ft-story-body{font-size:small;}
+                a{color:#003399;}
+                .container{font-size:x-small;}
+                h3{font-size:x-small;color:#003399;}
+                .copyright{font-size: x-small}
+                """
+
+    def parse_index(self):
+        articles = []
+        soup = self.index_to_soup(self.INDEX)
+        wide = soup.find('div',attrs={'class':'wide'})
+        if wide:
+            for item in wide.findAll('a',href=True):
+                url   = self.PREFIX + item['href']
+                title = self.tag_to_string(item)
+                date = strftime(self.timefmt)
+                articles.append({
+                                  'title'      :title
+                                 ,'date'       :date
+                                 ,'url'        :url
+                                 ,'description':''
+                                })
+        return [('FT UK edition',articles)]
+
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)
+

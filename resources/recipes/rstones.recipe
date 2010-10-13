@@ -1,0 +1,82 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__author__      = 'Tony Stegall'
+__copyright__   = '2010, Tony Stegall or Tonythebookworm on mobileread.com'
+__version__     = 'v1.01'
+__date__        = '07, October 2010'
+__description__ = 'Rolling Stones Mag'
+
+'''
+http://www.rollingstone.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class RollingStones(BasicNewsRecipe):
+    __author__    = 'Tony Stegall'
+    description   = 'Rolling Stones Mag'
+    cover_url     = 'http://gallery.celebritypro.com/data/media/648/kid-rock-rolling-stone-cover.jpg'
+    masthead_url  = 'http://origin.myfonts.com/s/ec/cc-200804/Rolling_Stone-logo.gif'
+
+
+    title          = 'Rolling Stones Mag'
+    category       = 'Music Reviews, Movie Reviews, entertainment news'
+
+    language       = 'en'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article        = 15
+    max_articles_per_feed = 25
+    use_embedded_content  = False
+    no_stylesheets = True
+
+    remove_javascript     = True
+    #####################################################################################
+    # cleanup section                                                                   #
+    #####################################################################################
+    keep_only_tags       = [
+                            dict(name='div', attrs={'class':['c65l']}),
+                            dict(name='div', attrs={'id':['col1']}),
+
+
+                           ]
+    remove_tags = [
+                    dict(name='div', attrs={'class': ['storyActions upper','storyActions lowerArticleNav']}),
+                    dict(name='div', attrs={'id': ['comments','related']}),
+                  ]
+
+
+    feeds          = [
+                       (u'News', u'http://www.rollingstone.com/siteServices/rss/allNews'),
+                       (u'Blogs', u'http://www.rollingstone.com/siteServices/rss/allBlogs'),
+                       (u'Movie Reviews', u'http://www.rollingstone.com/siteServices/rss/movieReviews'),
+                       (u'Album Reviews', u'http://www.rollingstone.com/siteServices/rss/albumReviews'),
+                       (u'Song Reviews', u'http://www.rollingstone.com/siteServices/rss/songReviews'),
+
+
+                     ]
+
+
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+
+
+    def append_page(self, soup, appendtag, position):
+        '''
+        Some are the articles are multipage so the below function
+        will get the articles that have <next>
+        '''
+        pager = soup.find('li',attrs={'class':'next'})
+        if pager:
+           nexturl = pager.a['href']
+           soup2 = self.index_to_soup(nexturl)
+           texttag = soup2.find('div', attrs={'id':'storyTextContainer'})
+           for it in texttag.findAll(style=True):
+               del it['style']
+           newpos = len(texttag.contents)
+           self.append_page(soup2,texttag,newpos)
+           texttag.extract()
+           appendtag.insert(position,texttag)
+
+

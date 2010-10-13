@@ -14,7 +14,10 @@ from calibre.ptempfile import PersistentTemporaryFile, base_dir
 
 if iswindows:
     import win32process
-    _windows_null_file = open(os.devnull, 'wb')
+    try:
+        _windows_null_file = open(os.devnull, 'wb')
+    except:
+        raise RuntimeError('NUL %r file missing in windows'%os.devnull)
 
 class Worker(object):
     '''

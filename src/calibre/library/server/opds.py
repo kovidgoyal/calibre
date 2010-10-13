@@ -18,7 +18,7 @@ from calibre.constants import __appname__
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
-from calibre.library.server.utils import format_tag_string
+from calibre.library.server.utils import format_tag_string, Offsets
 from calibre import guess_type
 from calibre.utils.ordered_dict import OrderedDict
 
@@ -321,26 +321,6 @@ class CategoryGroupFeed(NavFeed):
             self.root.append(CATALOG_GROUP_ENTRY(item, which, base_href, version, updated))
 
 
-class OPDSOffsets(object):
-
-    def __init__(self, offset, delta, total):
-        if offset < 0:
-            offset = 0
-        if offset >= total:
-            raise cherrypy.HTTPError(404, 'Invalid offset: %r'%offset)
-        last_allowed_index = total - 1
-        last_current_index = offset + delta - 1
-        self.offset = offset
-        self.next_offset = last_current_index + 1
-        if self.next_offset > last_allowed_index:
-            self.next_offset = -1
-        self.previous_offset = self.offset - delta
-        if self.previous_offset < 0:
-            self.previous_offset = 0
-        self.last_offset = last_allowed_index - delta
-        if self.last_offset < 0:
-            self.last_offset = 0
-
 
 class OPDSServer(object):
 
@@ -374,7 +354,7 @@ class OPDSServer(object):
         items = [x for x in self.db.data.iterall() if x[idx] in ids]
         self.sort(items, sort_by, ascending)
         max_items = self.opts.max_opds_items
-        offsets = OPDSOffsets(offset, max_items, len(items))
+        offsets = Offsets(offset, max_items, len(items))
         items = items[offsets.offset:offsets.offset+max_items]
         updated = self.db.last_modified()
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
@@ -448,7 +428,7 @@ class OPDSServer(object):
         id_ = 'calibre-category-group-feed:'+category+':'+which
 
         max_items = self.opts.max_opds_items
-        offsets = OPDSOffsets(offset, max_items, len(items))
+        offsets = Offsets(offset, max_items, len(items))
         items = list(items)[offsets.offset:offsets.offset+max_items]
 
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
@@ -495,7 +475,7 @@ class OPDSServer(object):
 
         if len(items) <= MAX_ITEMS:
             max_items = self.opts.max_opds_items
-            offsets = OPDSOffsets(offset, max_items, len(items))
+            offsets = Offsets(offset, max_items, len(items))
             items = list(items)[offsets.offset:offsets.offset+max_items]
             ans = CategoryFeed(items, which, id_, updated, version, offsets,
                 page_url, up_url, self.db)
@@ -516,7 +496,7 @@ class OPDSServer(object):
                     getattr(y, 'sort', y.name).startswith(x)])
             items = [Group(x, y) for x, y in category_groups.items()]
             max_items = self.opts.max_opds_items
-            offsets = OPDSOffsets(offset, max_items, len(items))
+            offsets = Offsets(offset, max_items, len(items))
             items = items[offsets.offset:offsets.offset+max_items]
             ans = CategoryGroupFeed(items, which, id_, updated, version, offsets,
                 page_url, up_url)
