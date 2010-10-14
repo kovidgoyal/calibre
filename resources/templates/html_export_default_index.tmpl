@@ -14,14 +14,30 @@ ${:endfor}$
 </head>
 <body>
 
-${for title in meta.titles():}$
-  <h1>${print title}$</h1>
-${:endfor}$
+<div class="meta">
+  <div class="metaTitle">
+  ${pos1=1}$
+  ${for title in meta.titles():}$
+    ${if pos1:}$
+    <h1>${print title}$</h1>
+    ${:else:}$
+    <div class="metaSubtitle">${print title}$</div>
+    ${:endif}$
+    ${pos1=0}$
+  ${:endfor}$
+  </div>
+  <div class="metaAuthor">
+    ${print ', '.join(meta.creators())}$
+  </div>
+</div>
 
-${print ', '.join(meta.creators())}$
+<h2>Table of contents</h2>
 
-<h1>Table of contents</h1>
-${toc}$
+<div class="ebookContent">
+
+  ${toc}$
+
+</div>
 
 </body>
 </html>

@@ -60,6 +60,7 @@ class HTMLOutput(OutputFormatPlugin):
         self.opts = opts
         output_file = output_path
         output_dir = re.sub(r'\.html', '', output_path)+'_files'
+        meta=EasyMeta(oeb_book.metadata)
         if not exists(output_dir):
             os.makedirs(output_dir)
 
@@ -68,7 +69,7 @@ class HTMLOutput(OutputFormatPlugin):
             html_toc = self.generate_html_toc(oeb_book, output_file, output_dir)
             templite = Templite(P('templates/html_export_default_index.tmpl', data=True))
             print oeb_book.metadata.items
-            t = templite.render(toc=html_toc, meta=EasyMeta(oeb_book.metadata))
+            t = templite.render(toc=html_toc, meta=meta)
             f.write(t)
 
         with CurrentDir(output_dir):
@@ -118,7 +119,7 @@ class HTMLOutput(OutputFormatPlugin):
                 # render template
                 templite = Templite(P('templates/html_export_default.tmpl', data=True))
                 toc = lambda: self.generate_html_toc(oeb_book, path, output_dir)
-                t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink, toc=toc, head_content=head_content)
+                t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink, toc=toc, head_content=head_content, meta=meta)
 
                 # write html to file
                 with open(path, 'wb') as f:
