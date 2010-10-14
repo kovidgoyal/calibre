@@ -69,7 +69,7 @@ copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 class Tag(object):
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
-                 tooltip=None, icon=None):
+                 tooltip=None, icon=None, category=None):
         self.name = name
         self.id = id
         self.count = count
@@ -82,9 +82,11 @@ class Tag(object):
             tooltip = _('%sAverage rating is %3.1f')%(tooltip, self.avg_rating)
         self.tooltip = tooltip
         self.icon = icon
+        self.category = category
 
     def __unicode__(self):
-        return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.tooltip)
+        return u'%s:%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state,
+                                  self.category, self.tooltip)
 
     def __str__(self):
         return unicode(self).encode('utf-8')
@@ -1117,8 +1119,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 formatter = (lambda x:unicode(x))
 
             categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
-                                        avg=avgr(r), sort=r[4],
-                                        icon=icon, tooltip=tooltip)
+                                        avg=avgr(r), sort=r[4], icon=icon,
+                                        tooltip=tooltip, category=category)
                                     for r in data if item_not_zero_func(r)]
 
         # Needed for legacy databases that have multiple ratings that
@@ -1150,7 +1152,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                        WHERE format="%s"'''%fmt,
                                        all=False)
             if count > 0:
-                categories['formats'].append(Tag(fmt, count=count, icon=icon))
+                categories['formats'].append(Tag(fmt, count=count, icon=icon,
+                                                 category='formats'))
 
         if sort == 'popularity':
             categories['formats'].sort(key=lambda x: x.count, reverse=True)
@@ -1196,7 +1199,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if icon_map and 'search' in icon_map:
                 icon = icon_map['search']
         for srch in saved_searches().names():
-            items.append(Tag(srch, tooltip=saved_searches().lookup(srch), icon=icon))
+            items.append(Tag(srch, tooltip=saved_searches().lookup(srch),
+                             icon=icon, category='search'))
         if len(items):
             if icon_map is not None:
                 icon_map['search'] = icon_map['search']
