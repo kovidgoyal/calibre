@@ -86,6 +86,10 @@ function toplevel() {
 }
 // }}}
 
+function render_error(msg) {
+    return '<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding: 0pt 0.7em"><p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: 0.3em">&nbsp;</span><strong>Error: </strong>'+msg+"</p></div></div>"
+}
+
 // Category feed {{{
 function category() {
     $(".category li").corner("15px");
@@ -96,6 +100,39 @@ function category() {
     });
 
     $(".category a.navlink").button();
+    
+    $("#groups").accordion({
+        collapsible: true,
+        active: false,
+        autoHeight: false,
+        clearStyle: true,
+        header: "h3",
+
+        change: function(event, ui) {
+            if (ui.newContent) {
+                var href = ui.newContent.children("span.load_href").html();
+                ui.newContent.children(".loading").show();
+                if (href) {
+                    $.ajax({
+                        url:href,
+                        success: function(data) {
+                            this.children(".loaded").html(data);
+                            this.children(".loaded").show();
+                            this.children(".loading").hide();
+                        },
+                        context: ui.newContent,
+                        dataType: "json",
+                        timeout: 600000, //milliseconds (10 minutes)
+                        error: function(xhr, stat, err) {
+                            this.children(".loaded").html(render_error(stat));
+                            this.children(".loaded").show();
+                            this.children(".loading").hide();
+                        }
+                    });
+                }
+            }
+        }
+    });
 }
 // }}}
 

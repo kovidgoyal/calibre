@@ -150,19 +150,6 @@ h2.library_name {
 
 /* }}} */
 
-/* Widgets {{{ */
-
-#content .ui-widget { font-size: medium; font-family: monospace; }
-
-#content .ui-button, #content .ui-button-text { 
-    padding: 0.2em 0.5em;
-    font-family: monospace;
-    line-height: 1 
-}
-
-
-/* }}} */
-
 /* Sort select  {{{ */
 
 .sort_select { 
@@ -179,7 +166,6 @@ h2.library_name {
 
 /* }}} */
 
-
 /* Search bar {{{ */
 
 #search_box {
@@ -191,7 +177,6 @@ h2.library_name {
 }
 
 /* }}} */
-
 
 /* Top level {{{ */
 .toplevel ul {
@@ -220,7 +205,6 @@ h2.library_name {
 
 /* }}} */
 
-
 /* Category {{{ */
 .category ul {
     list-style-type: none;
@@ -247,16 +231,19 @@ h2.library_name {
 .category li.category-item h4 { display: inline }
 .category li.category-item span.href { display: none }
 
-/*
-.category a.navlink { 
-    text-decoration: none;
-    color: inherit;
+#groups span.load_href { display: none }
+
+#groups h3 {
+    font-weight: bold;
+    margin-top: 1ex;
+    padding-left: 2em;
+    padding-top: 0.5ex;
+    padding-bottom: 0.5ex;
 }
 
-.category a.navlink:hover { 
-    color: red;
+#groups h3 span {
+    font-weight: normal
 }
-*/
 
 /* }}} */
 

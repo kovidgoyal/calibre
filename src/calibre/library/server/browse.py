@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import operator, os
+import operator, os, json
 from urllib import quote
 from binascii import hexlify
 
@@ -13,6 +13,7 @@ import cherrypy
 
 from calibre.constants import filesystem_encoding
 from calibre import isbytestring, force_unicode, prepare_string_for_xml as xml
+from calibre.utils.ordered_dict import OrderedDict
 
 def paginate(offsets, content, base_url, up_url=None): # {{{
     'Create markup for pagination'
@@ -102,7 +103,7 @@ def render_rating(rating, container='span'): # {{{
 
 # }}}
 
-def get_category_items(category, items, db): # {{{
+def get_category_items(category, items, db, datatype): # {{{
 
     def item(i):
         templ = (u'<li title="{4}" class="category-item">'
@@ -110,6 +111,8 @@ def get_category_items(category, items, db): # {{{
                 '<span class="href">{3}</span></li>')
         rating, rstring = render_rating(i.avg_rating)
         name = xml(i.name)
+        if datatype == 'rating':
+            name = xml(_('%d stars')%int(i.avg_rating))
         id_ = i.id
         if id_ is None:
             id_ = hexlify(force_unicode(name).encode('utf-8'))
@@ -164,6 +167,9 @@ class BrowseServer(object):
         connect('browse', base_href, self.browse_catalog)
         connect('browse_catalog', base_href+'/category/{category}',
                 self.browse_catalog)
+        connect('browse_category_group',
+                base_href+'/category_group/{category}/{group}',
+                self.browse_category_group)
         connect('browse_list', base_href+'/list/{query}', self.browse_list)
         connect('browse_search', base_href+'/search/{query}',
                 self.browse_search)
@@ -243,32 +249,66 @@ class BrowseServer(object):
         return self.browse_template('name').format(title='',
                     script='toplevel();', main=main)
 
-    def browse_category(self, category, sort):
+    def browse_sort_categories(self, items, sort):
         if sort not in ('rating', 'name', 'popularity'):
             sort = 'name'
+        def sorter(x):
+            ans = getattr(x, 'sort', x.name)
+            if hasattr(ans, 'upper'):
+                ans = ans.upper()
+            return ans
+        items.sort(key=sorter)
+        if sort == 'popularity':
+            items.sort(key=operator.attrgetter('count'), reverse=True)
+        elif sort == 'rating':
+            items.sort(key=operator.attrgetter('avg_rating'), reverse=True)
+        return sort
+
+    def browse_category(self, category, sort):
         categories = self.categories_cache()
         category_meta = self.db.field_metadata
         category_name = category_meta[category]['name']
+        datatype = category_meta[category]['datatype']
 
         if category not in categories:
             raise cherrypy.HTTPError(404, 'category not found')
 
         items = categories[category]
+        sort = self.browse_sort_categories(items, sort)
 
-        name_keyg = lambda x: getattr(x, 'sort', x.name).lower()
-        items.sort(key=name_keyg)
-        if sort == 'popularity':
-            items.sort(key=operator.attrgetter('count'), reverse=True)
-        elif sort == 'rating':
-            items.sort(key=operator.attrgetter('avg_rating'), reverse=True)
+        script = 'true'
 
-        base_url='/browse/category/'+category
-        if sort is not None:
-            base_url += '?sort='+quote(sort)
+        if len(items) <= self.opts.max_opds_ungrouped_items:
+            script = 'false'
+            items = get_category_items(category, items, self.db, datatype)
+        else:
+            getter = lambda x: unicode(getattr(x, 'sort', x.name))
+            starts = set([])
+            for x in items:
+                val = getter(x)
+                if not val:
+                    val = u'A'
+                starts.add(val[0].upper())
+            category_groups = OrderedDict()
+            for x in sorted(starts):
+                category_groups[x] = len([y for y in items if
+                    getter(y).upper().startswith(x)])
+            items = [(u'<h3 title="{0}">{0} <span>[{2}]</span></h3><div>'
+                      u'<div class="loaded" style="display:none"></div>'
+                      u'<div class="loading"><em>{1}</em></div>'
+                      u'<span class="load_href">{3}</span></div>').format(
+                        xml(s, True),
+                        xml(_('Loading, please wait'))+'&hellip;',
+                        unicode(c),
+                        xml(u'/browse/category_group/%s/%s'%(category, s)))
+                    for s, c in category_groups.items()]
+            items = '\n\n'.join(items)
+            items = u'<div id="groups">\n{0}</div>'.format(items)
 
-        script = 'category();'
 
-        items = get_category_items(category, items, self.db)
+
+        script = 'category(%s);'%script
+
         main = u'''
             <div class="category">
                 <h3>{0}</h3>
@@ -282,6 +322,35 @@ class BrowseServer(object):
 
         return self.browse_template(sort).format(title=category_name,
                 script=script, main=main)
+
+    @Endpoint(mimetype='application/json; charset=utf-8')
+    def browse_category_group(self, category=None, group=None,
+            category_sort=None):
+        sort = category_sort
+        if sort not in ('rating', 'name', 'popularity'):
+            sort = 'name'
+        categories = self.categories_cache()
+        category_meta = self.db.field_metadata
+        datatype = category_meta[category]['datatype']
+
+        if category not in categories:
+            raise cherrypy.HTTPError(404, 'category not found')
+        if not group:
+            raise cherrypy.HTTPError(404, 'invalid group')
+
+        items = categories[category]
+        entries = []
+        getter = lambda x: unicode(getattr(x, 'sort', x.name))
+        for x in items:
+            val = getter(x)
+            if not val:
+                val = u'A'
+            if val.upper().startswith(group):
+                entries.append(x)
+
+        sort = self.browse_sort_categories(entries, sort)
+        entries = get_category_items(category, entries, self.db, datatype)
+        return json.dumps(entries, ensure_ascii=False)
 
 
 
