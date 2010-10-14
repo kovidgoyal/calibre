@@ -84,6 +84,7 @@ class TagsView(QTreeView): # {{{
         self.setAcceptDrops(True)
         self.setDragDropMode(self.DropOnly)
         self.setDropIndicatorShown(True)
+        self.setAutoExpandDelay(500)
 
     def set_database(self, db, tag_match, sort_by):
         self.hidden_categories = config['tag_browser_hidden_categories']

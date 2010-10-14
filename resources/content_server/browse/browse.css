@@ -190,6 +190,10 @@ h2.library_name {
     padding: 0.75em;
     text-align: center;
     cursor: pointer;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+
 }
 
 .toplevel li:hover {
@@ -206,30 +210,38 @@ h2.library_name {
 /* }}} */
 
 /* Category {{{ */
-.category ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+.category > div.category-container {
+    width: 100%;
+    margin-top: 1ex;
+    margin-bottom: 1ex;
+    display: table;
 }
 
-.category li.category-item {
-    margin: 0.75em;
+.category div.category-item {
+    display: table-row;
+}
+
+.category div.category-item > div {
     padding: 0.75em;
     text-align: center;
     cursor: pointer;
+    display: table-cell;
 }
 
-.category li.category-item:hover {
+.category div.category-name { font-weight: bold }
+
+.category div.category-item:hover > div {
     background-color: #d6d3c9;
-    font-weight: bold;
     -moz-box-shadow: 5px 5px 5px #ccc;
     -webkit-box-shadow: 5px 5px 5px #ccc;
     box-shadow: 5px 5px 5px #ccc;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
 
 }
 
-.category li.category-item h4 { display: inline }
-.category li.category-item span.href { display: none }
+.category div.category-item span.href { display: none }
 
 #groups span.load_href { display: none }
 

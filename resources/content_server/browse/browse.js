@@ -77,8 +77,6 @@ function init() {
 function toplevel() {
     $(".sort_select").hide();
 
-    $(".toplevel li").corner("15px");
-
     $(".toplevel li").click(function() {
         var href = $(this).children("span").html();
         window.location = href;
@@ -92,10 +90,8 @@ function render_error(msg) {
 
 // Category feed {{{
 function category() {
-    $(".category li").corner("15px");
-
-    $(".category li").click(function() {
-        var href = $(this).children("span.href").html();
+    $(".category .category-item").click(function() {
+        var href = $(this).find("span.href").html();
         window.location = href;
     });
 

@@ -106,9 +106,10 @@ def render_rating(rating, container='span'): # {{{
 def get_category_items(category, items, db, datatype): # {{{
 
     def item(i):
-        templ = (u'<li title="{4}" class="category-item">'
-                '<h4>{0}&nbsp;&nbsp;{1}</h4>&nbsp;&nbsp;{2}'
-                '<span class="href">{3}</span></li>')
+        templ = (u'<div title="{4}" class="category-item">'
+                '<div class="category-name">{0}</div><div>{1}</div>'
+                '<div>{2}'
+                '<span class="href">{3}</span></div></div>')
         rating, rstring = render_rating(i.avg_rating)
         name = xml(i.name)
         if datatype == 'rating':
@@ -125,7 +126,7 @@ def get_category_items(category, items, db, datatype): # {{{
                 xml(desc), xml(quote(href)), rstring)
 
     items = list(map(item, items))
-    return '\n'.join(['<ul>'] + items + ['</ul>'])
+    return '\n'.join(['<div class="category-container">'] + items + ['</div>'])
 
 # }}}
 
