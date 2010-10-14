@@ -292,6 +292,17 @@ class RTFMetadataReader(MetadataReaderPlugin):
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.rtf import get_metadata
         return get_metadata(stream)
+        
+class SNBMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read SNB metadata'
+    file_types  = set(['snb'])
+    description = _('Read metadata from %s files') % 'SNB'
+    author      = 'Li Fanxi'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.snb import get_metadata
+        return get_metadata(stream)
 
 class TOPAZMetadataReader(MetadataReaderPlugin):
 
@@ -420,6 +431,7 @@ from calibre.ebooks.tcr.input import TCRInput
 from calibre.ebooks.txt.input import TXTInput
 from calibre.ebooks.lrf.input import LRFInput
 from calibre.ebooks.chm.input import CHMInput
+from calibre.ebooks.snb.input import SNBInput
 
 from calibre.ebooks.epub.output import EPUBOutput
 from calibre.ebooks.fb2.output import FB2Output
@@ -496,6 +508,7 @@ plugins += [
     TXTInput,
     LRFInput,
     CHMInput,
+    SNBInput,
 ]
 plugins += [
     EPUBOutput,
