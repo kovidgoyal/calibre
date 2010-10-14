@@ -5,6 +5,7 @@ __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 __docformat__ = 'restructuredtext en'
 
 import sys, struct, zlib, bz2, os, math
+from mimetypes import types_map
 
 class FileStream:
     def IsBinary(self):
@@ -18,9 +19,6 @@ class BlockData:
 
 class SNBFile:
 
-    files = []
-    blocks = [] 
-    
     MAGIC = 'SNBP000B'
     REV80 = 0x00008000
     REVA3 = 0x00A3A3A3
@@ -28,15 +26,21 @@ class SNBFile:
     REVZ2 = 0x00000000
     
     def __init__(self, inputFile = None):
+        self.files = []
+        self.blocks = [] 
+    
         if inputFile != None:
-            self.Parse(inputFile);
-        
-    def Parse(self, inputFile):
+            self.Open(inputFile)
+            
+    def Open(self, inputFile):    
         self.fileName = inputFile
         
         snbFile = open(self.fileName, "rb")
         snbFile.seek(0)
+        self.Parse(snbFile)
+        snbFile.close()
         
+    def Parse(self, snbFile, metaOnly = False):
         # Read header
         vmbr = snbFile.read(44)
         (self.magic, self.rev80, self.revA3, self.revZ1, 
@@ -47,7 +51,7 @@ class SNBFile:
         # Read FAT
         self.vfat = zlib.decompress(snbFile.read(self.vfatCompressed))
         self.ParseFile(self.vfat, self.fileCount)
-        
+
         # Read tail 
         snbFile.seek(-16, os.SEEK_END)
         #plainStreamEnd = snbFile.tell()
@@ -57,7 +61,7 @@ class SNBFile:
         self.vTailUncompressed = zlib.decompress(snbFile.read(self.tailSize))
         self.tailSizeUncompressed = len(self.vTailUncompressed)
         self.ParseTail(self.vTailUncompressed, self.fileCount)
-        
+
         # Uncompress file data
         # Read files
         binPos = 0
@@ -78,7 +82,7 @@ class SNBFile:
                         try:
                             data = snbFile.read(bSize)
                             uncompressedData += bzdc.decompress(data)
-                        except EOFError, e:
+                        except Exception, e:
                             print e
                 f.fileBody = uncompressedData[plainPos:plainPos+f.fileSize]
                 plainPos += f.fileSize
@@ -90,7 +94,6 @@ class SNBFile:
             else:
                 print f.attr, f.fileName
                 raise Exception("Invalid file")
-        snbFile.close()
 
     def ParseFile(self, vfat, fileCount):
         fileNames = vfat[fileCount*12:].split('\0');
@@ -156,6 +159,24 @@ class SNBFile:
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
         f.fileName = fileName.replace(os.sep, '/')
         self.files.append(f)
+    
+    def GetFileStream(self, fileName):
+        for file in self.files:
+            if file.fileName == fileName:
+                return file.fileBody
+        return None
+
+    def OutputImageFiles(self, path):
+        fileNames = []
+        for f in self.files:
+            fname = os.path.basename(f.fileName)
+            root, ext = os.path.splitext(fname)
+            if ext in [ '.jpeg', '.jpg', '.gif', '.svg', '.png' ]:
+                file = open(os.path.join(path, fname), 'wb')
+                file.write(f.fileBody)
+                file.close()
+                fileNames.append((fname, types_map[ext]))
+        return fileNames
         
     def Output(self, outputFile):
 
@@ -247,7 +268,8 @@ class SNBFile:
         return 
 
     def Dump(self):
-        print "File Name:\t", self.fileName
+        if self.fileName:
+            print "File Name:\t", self.fileName
         print "File Count:\t", self.fileCount
         print "VFAT Size(Compressed):\t%d(%d)" % (self.vfatSize, self.vfatCompressed)
         print "Binary Stream Size:\t", self.binStreamSize
