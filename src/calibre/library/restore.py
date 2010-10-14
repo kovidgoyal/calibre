@@ -200,6 +200,8 @@ class Restore(Thread):
     def restore_book(self, book, db):
         db.create_book_entry(book['mi'], add_duplicates=True,
                 force_id=book['id'])
+        if book['mi'].uuid:
+            db.set_uuid(book['id'], book['mi'].uuid, commit=False, notify=False)
         db.conn.execute('UPDATE books SET path=? WHERE id=?', (book['path'],
             book['id']))
 

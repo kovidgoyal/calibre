@@ -38,7 +38,7 @@ class Guardian(BasicNewsRecipe):
                         dict(name='div', attrs={'id':["article-toolbox","subscribe-feeds",]}),
                         dict(name='ul', attrs={'class':["pagination"]}),
                         dict(name='ul', attrs={'id':["content-actions"]}),
-                        dict(name='img'),
+                        #dict(name='img'),
                         ]
     use_embedded_content    = False
 

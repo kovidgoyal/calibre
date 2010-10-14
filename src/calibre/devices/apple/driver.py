@@ -13,7 +13,8 @@ from calibre.devices.errors import UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.ebooks.metadata import authors_to_string, MetaInformation
+from calibre.ebooks.metadata import authors_to_string, MetaInformation, \
+    title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
@@ -96,6 +97,9 @@ class ITUNES(DriverBase):
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
+    BACKLOADING_ERROR_MESSAGE = _(
+        "Cannot copy books directly from iDevice. "
+        "Drag from iTunes Library to desktop, then add to calibre's Library window.")
 
     # Product IDs:
     #  0x1291   iPod Touch
@@ -259,6 +263,8 @@ class ITUNES(DriverBase):
                 self.report_progress(1.0, _('Updating device metadata listing...'))
 
         # Add new books to booklists[0]
+        # Charles thinks this should be
+        # for new_book in metadata[0]:
         for new_book in locations[0]:
             if DEBUG:
                 self.log.info("  adding '%s' by '%s' to booklists[0]" %
@@ -1208,6 +1214,10 @@ class ITUNES(DriverBase):
                 except:
                     self.problem_titles.append("'%s' by %s" % (metadata.title, metadata.author[0]))
                     self.log.error("  error scaling '%s' for '%s'" % (metadata.cover,metadata.title))
+
+                    import traceback
+                    traceback.print_exc()
+
                     return thumb
 
                 if isosx:
@@ -2400,7 +2410,7 @@ class ITUNES(DriverBase):
             try:
                 storage_path = os.path.split(cached_book['lib_book'].location().path)
                 if cached_book['lib_book'].location().path.startswith(self.iTunes_media) and \
-                   not storage_path[0].startswith(self.calibre_library_path):
+                   not storage_path[0].startswith(prefs['library_path']):
                     title_storage_path = storage_path[0]
                     if DEBUG:
                         self.log.info("  removing title_storage_path: %s" % title_storage_path)
@@ -2452,7 +2462,7 @@ class ITUNES(DriverBase):
 
             if book:
                 if self.iTunes_media and path.startswith(self.iTunes_media) and \
-                   not path.startswith(self.calibre_library_path):
+                   not path.startswith(prefs['library_path']):
                     storage_path = os.path.split(path)
                     if DEBUG:
                         self.log.info("   removing '%s' at %s" %
@@ -3122,6 +3132,9 @@ class Book(Metadata):
     See ebooks.metadata.book.base
     '''
     def __init__(self,title,author):
-
         Metadata.__init__(self, title, authors=[author])
+
+    @property
+    def title_sorter(self):
+        return title_sort(self.title)
 

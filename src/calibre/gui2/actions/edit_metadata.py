@@ -169,7 +169,7 @@ class EditMetadataAction(InterfaceAction):
             self.gui.tags_view.blockSignals(False)
         if changed:
             m = self.gui.library_view.model()
-            m.resort(reset=False)
+            m.refresh(reset=False)
             m.research()
             self.gui.tags_view.recount()
             if self.gui.cover_flow:

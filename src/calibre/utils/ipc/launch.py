@@ -6,15 +6,18 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, os, sys, time
+import subprocess, os, sys, time, binascii, cPickle
 
 from calibre.constants import iswindows, isosx, isfrozen, isnewosx
 from calibre.utils.config import prefs
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, base_dir
 
 if iswindows:
     import win32process
-    _windows_null_file = open(os.devnull, 'wb')
+    try:
+        _windows_null_file = open(os.devnull, 'wb')
+    except:
+        raise RuntimeError('NUL %r file missing in windows'%os.devnull)
 
 class Worker(object):
     '''
@@ -81,6 +84,8 @@ class Worker(object):
     def env(self):
         env = dict(os.environ)
         env['CALIBRE_WORKER'] = '1'
+        td = binascii.hexlify(cPickle.dumps(base_dir()))
+        env['CALIBRE_WORKER_TEMP_DIR'] = td
         env.update(self._env)
         return env
 

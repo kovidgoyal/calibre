@@ -793,11 +793,17 @@ class DeviceMixin(object): # {{{
         self.set_books_in_library(job.result, reset=True)
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
-        self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
+        self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA,
+                                      self.device_manager.device.BACKLOADING_ERROR_MESSAGE
+                                      is None)
         self.card_a_view.set_database(cardalist)
-        self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
+        self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA,
+                                      self.device_manager.device.BACKLOADING_ERROR_MESSAGE
+                                      is None)
         self.card_b_view.set_database(cardblist)
-        self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
+        self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA,
+                                      self.device_manager.device.BACKLOADING_ERROR_MESSAGE
+                                      is None)
         self.sync_news()
         self.sync_catalogs()
         self.refresh_ondevice()
@@ -1413,15 +1419,16 @@ class DeviceMixin(object): # {{{
 
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
+            # Build a cache (map) of the library, so the search isn't On**2
+            self.db_book_title_cache = {}
+            self.db_book_uuid_cache = {}
             # It might be possible to get here without having initialized the
             # library view. In this case, simply give up
             try:
                 db = self.library_view.model().db
             except:
                 return False
-            # Build a cache (map) of the library, so the search isn't On**2
-            self.db_book_title_cache = {}
-            self.db_book_uuid_cache = {}
+
             for id in db.data.iterallids():
                 mi = db.get_metadata(id, index_is_id=True)
                 title = clean_string(mi.title)
@@ -1455,7 +1462,7 @@ class DeviceMixin(object): # {{{
                     if update_metadata:
                         book.smart_update(self.db_book_uuid_cache[book.uuid],
                                           replace_metadata=True)
-                    book.in_library = True
+                    book.in_library = 'UUID'
                     # ensure that the correct application_id is set
                     book.application_id = \
                         self.db_book_uuid_cache[book.uuid].application_id
@@ -1468,21 +1475,21 @@ class DeviceMixin(object): # {{{
                     # will match if any of the db_id, author, or author_sort
                     # also match.
                     if getattr(book, 'application_id', None) in d['db_ids']:
-                        book.in_library = True
                         # app_id already matches a db_id. No need to set it.
                         if update_metadata:
                             book.smart_update(d['db_ids'][book.application_id],
                                               replace_metadata=True)
+                        book.in_library = 'APP_ID'
                         continue
                     # Sonys know their db_id independent of the application_id
                     # in the metadata cache. Check that as well.
                     if getattr(book, 'db_id', None) in d['db_ids']:
-                        book.in_library = True
-                        book.application_id = \
-                                    d['db_ids'][book.db_id].application_id
                         if update_metadata:
                             book.smart_update(d['db_ids'][book.db_id],
                                               replace_metadata=True)
+                        book.in_library = 'DB_ID'
+                        book.application_id = \
+                                    d['db_ids'][book.db_id].application_id
                         continue
                     # We now know that the application_id is not right. Set it
                     # to None to prevent book_on_device from accidentally
@@ -1494,19 +1501,19 @@ class DeviceMixin(object): # {{{
                         # either can appear as the author
                         book_authors = clean_string(authors_to_string(book.authors))
                         if book_authors in d['authors']:
-                            book.in_library = True
-                            book.application_id = \
-                                    d['authors'][book_authors].application_id
                             if update_metadata:
                                 book.smart_update(d['authors'][book_authors],
                                                   replace_metadata=True)
-                        elif book_authors in d['author_sort']:
-                            book.in_library = True
+                            book.in_library = 'AUTHOR'
                             book.application_id = \
-                                d['author_sort'][book_authors].application_id
+                                    d['authors'][book_authors].application_id
+                        elif book_authors in d['author_sort']:
                             if update_metadata:
                                 book.smart_update(d['author_sort'][book_authors],
                                                   replace_metadata=True)
+                            book.in_library = 'AUTH_SORT'
+                            book.application_id = \
+                                d['author_sort'][book_authors].application_id
                 else:
                     # Book definitely not matched. Clear its application ID
                     book.application_id = None

@@ -13,6 +13,8 @@
     font-size: 1.25em;
     border: 1px solid black;
     text-color: black;
+    text-decoration: none;
+    margin-right: 0.5em;
     background-color: #ddd;
     border-top: 1px solid ThreeDLightShadow;
     border-right: 1px solid ButtonShadow;
@@ -70,6 +72,7 @@ div.navigation {
     padding-right: 0em;
     overflow: hidden;
     text-align: center;
+    text-decoration: none;
 }
 
 #logo {
