@@ -295,7 +295,7 @@ class BrowseServer(object):
                     getter(y).upper().startswith(x)])
             items = [(u'<h3 title="{0}">{0} <span>[{2}]</span></h3><div>'
                       u'<div class="loaded" style="display:none"></div>'
-                      u'<div class="loading"><em>{1}</em></div>'
+                      u'<div class="loading"><img alt="{1}" src="/static/loading.gif" /><em>{1}</em></div>'
                       u'<span class="load_href">{3}</span></div>').format(
                         xml(s, True),
                         xml(_('Loading, please wait'))+'&hellip;',
