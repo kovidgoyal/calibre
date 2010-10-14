@@ -695,6 +695,9 @@ def config(defaults=None):
     c.add_opt('raise_window', ['--raise-window'], default=False,
               help=_('If specified, viewer window will try to come to the '
                      'front when started.'))
+    c.add_opt('full_screen', ['--full-screen', '--fullscreen', '-f'], default=False,
+              help=_('If specified, viewer window will try to open '
+                     'full screen when started.'))
     c.add_opt('remember_window_size', default=False,
         help=_('Remember last used window size'))
     c.add_opt('debug_javascript', ['--debug-javascript'], default=False,
@@ -726,6 +729,8 @@ def main(args=sys.argv):
         main.show()
         if opts.raise_window:
             main.raise_()
+    if opts.full_screen:
+        main.action_full_screen.trigger()
         with main:
             return app.exec_()
     return 0

@@ -10,6 +10,7 @@ import os, sys, shutil, cStringIO, glob, time, functools, traceback, re
 from itertools import repeat
 from math import floor
 from Queue import Queue
+from operator import itemgetter
 
 from PyQt4.QtGui import QImage
 
@@ -1104,20 +1105,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     tooltip = self.custom_column_label_map[label]['name']
 
             datatype = cat['datatype']
+            avgr = itemgetter(3)
+            item_not_zero_func = lambda x: x[2] > 0
             if datatype == 'rating':
                 # eliminate the zero ratings line as well as count == 0
                 item_not_zero_func = (lambda x: x[1] > 0 and x[2] > 0)
                 formatter = (lambda x:u'\u2605'*int(x/2))
+                avgr = itemgetter(1)
             elif category == 'authors':
-                item_not_zero_func = (lambda x: x[2] > 0)
                 # Clean up the authors strings to human-readable form
                 formatter = (lambda x: x.replace('|', ','))
             else:
-                item_not_zero_func = (lambda x: x[2] > 0)
                 formatter = (lambda x:unicode(x))
 
             categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
-                                        avg=r[3], sort=r[4], icon=icon,
+                                        avg=avgr(r), sort=r[4], icon=icon,
                                         tooltip=tooltip, category=category)
                                     for r in data if item_not_zero_func(r)]
 
