@@ -259,4 +259,15 @@ h2.library_name {
 
 /* }}} */
 
+/* Booklist {{{ */
+
+#booklist .page { 
+    display: none; 
+}
+
+.loading img {
+    vertical-align: middle;
+}
+
+/* }}} */
 
