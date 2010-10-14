@@ -25,7 +25,7 @@ def ProcessFileName(fileName):
     fileName = fileName.lower()
     # Change all images to jpg
     root, ext = os.path.splitext(fileName) 
-    if ext in [ '.jpeg', '.jpg', '.gif', '.svg' ]:
+    if ext in [ '.jpeg', '.jpg', '.gif', '.svg', '.png' ]:
         fileName = root + '.jpg'
     return fileName
     
