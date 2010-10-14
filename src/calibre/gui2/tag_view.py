@@ -29,7 +29,7 @@ class TagDelegate(QItemDelegate): # {{{
 
     def paint(self, painter, option, index):
         item = index.internalPointer()
-        if True or item.type != TagTreeItem.TAG:
+        if item.type != TagTreeItem.TAG:
             QItemDelegate.paint(self, painter, option, index)
             return
         r = option.rect
