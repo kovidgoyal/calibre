@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext en'
  on 10/10/10 to include function to grab print version of articles
 '''
 
+from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe
 '''
 added by Tony Stegall
@@ -27,7 +28,6 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
     no_stylesheets = True
     language = 'nl'
 
-
     extra_css      = '''
                         body{font-family:Arial,Helvetica,sans-serif; font-size:small;}
                         h1{font-size:large;}
@@ -43,14 +43,16 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
 
     def get_obfuscated_article(self, url):
         br = self.get_browser()
+        print 'THE CURRENT URL IS: ', url
         br.open(url)
+        year = date.today().year
 
         try:
-         response = br.follow_link(url_regex='.*?(2010)(\\/)(article)(\\/)(print)(\\/)', nr = 0)
-         html = response.read()
+          response = br.follow_link(url_regex='.*?(%d)(\\/)(article)(\\/)(print)(\\/)'%year, nr = 0)
+          html = response.read()
         except:
-         response = br.open(url)
-         html = response.read()
+          response = br.open(url)
+          html = response.read()
 
         self.temp_files.append(PersistentTemporaryFile('_fa.html'))
         self.temp_files[-1].write(html)
@@ -59,19 +61,22 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
 
    ###############################################################################################################
 
-    feeds          = [
-                      (u'Laatste Nieuws', u'http://volkskrant.nl/rss/laatstenieuws.rss'),
-                      (u'Binnenlands nieuws', u'http://volkskrant.nl/rss/nederland.rss'),
-                      (u'Buitenlands nieuws', u'http://volkskrant.nl/rss/internationaal.rss'),
-                      (u'Economisch nieuws', u'http://volkskrant.nl/rss/economie.rss'),
-                      (u'Sportnieuws', u'http://volkskrant.nl/rss/sport.rss'),
-                      (u'Kunstnieuws', u'http://volkskrant.nl/rss/kunst.rss'),
+    '''
+      Change Log:
+       Date: 10/15/2010
+       Feeds updated by Martin Tarenskeen
+    '''
 
-                        #both of these rss feeds link back to the main volksrant.nl url a.k.a Broken
-                        #If someone happens to know the correct paths then they can put them in here
-                      #(u'Wetenschapsnieuws', u'http://feeds.feedburner.com/DeVolkskrantWetenschap'),
-                      #(u'Technologienieuws', u'http://feeds.feedburner.com/vkmedia')
-                      ]
+    feeds          = [
+                      (u'Laatste Nieuws', u'http://www.volkskrant.nl/rss/laatstenieuws.rss'),
+                      (u'Binnenland', u'http://www.volkskrant.nl/rss/nederland.rss'),
+                      (u'Buitenland', u'http://www.volkskrant.nl/rss/internationaal.rss'),
+                      (u'Economie', u'http://www.volkskrant.nl/rss/economie.rss'),
+                      (u'Sport', u'http://www.volkskrant.nl/rss/sport.rss'),
+                      (u'Cultuur', u'http://www.volkskrant.nl/rss/kunst.rss'),
+                      (u'Gezondheid & Wetenschap', u'http://www.volkskrant.nl/rss/wetenschap.rss'),
+                      (u'Internet & Media', u'http://www.volkskrant.nl/rss/media.rss') ]
+
 
 '''
 example for formating
