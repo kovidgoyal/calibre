@@ -94,6 +94,8 @@ function category() {
         var href = $(this).children("span.href").html();
         window.location = href;
     });
+
+    $(".category a.navlink").button({ primary: 'ui-icon-arrow-1-n'});
 }
 // }}}
 

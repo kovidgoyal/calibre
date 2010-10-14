@@ -272,9 +272,7 @@ class BrowseServer(object):
         main = u'''
             <div class="category">
                 <h3>{0}</h3>
-                <p><a class="navlink" href="/browse" title="{2}"
-                    >[{2}&nbsp;&uarr;]</a>
-                </p>
+                    <a class="navlink" href="/browse" title="{2}">{2}</a>
                 {1}
             </div>
         '''.format(

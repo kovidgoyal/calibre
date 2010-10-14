@@ -150,14 +150,13 @@ h2.library_name {
 
 /* }}} */
 
-/* Combobox {{{ */
+/* Widgets {{{ */
 
-.ui-button { margin-left: -1px; }
-.ui-button-icon-only .ui-button-text { padding: 0.35em; } 
-.ui-autocomplete-input { margin: 0; padding: 0.48em 0 0.47em 0.45em; }
+#content .ui-widget { font-size: medium }
+
+#content .ui-button, #content .ui-button-text { padding: 0.2em 0.5em; line-height: 1 }
 
 /* }}} */
-
 
 /* Sort select  {{{ */
 
@@ -165,7 +164,6 @@ h2.library_name {
     float: left;
     margin-left: 1em;
     margin-top: 2ex;
-    font-size: small;
     max-height: 2.75em;
     overflow: hidden;
 }
@@ -176,18 +174,16 @@ h2.library_name {
 
 /* }}} */
 
+
 /* Search bar {{{ */
 
 #search_box {
     float: right;
     margin-right: 1em;
     margin-top: 2ex;
-    font-size: small;
     max-height: 2.75em;
     overflow: hidden;
 }
-
-#search_box .search_input { padding: 0.35em }
 
 /* }}} */
 
@@ -245,6 +241,17 @@ h2.library_name {
 
 .category li.category-item h4 { display: inline }
 .category li.category-item span.href { display: none }
+
+/*
+.category a.navlink { 
+    text-decoration: none;
+    color: inherit;
+}
+
+.category a.navlink:hover { 
+    color: red;
+}
+*/
 
 /* }}} */
 
