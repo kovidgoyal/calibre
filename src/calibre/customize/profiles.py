@@ -655,6 +655,7 @@ class BambookOutput(OutputProfile):
 
     # Screen size is a best guess
     screen_size               = (800, 600)
+    comic_screen_size         = (700, 540)
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [10, 12, 14, 16]

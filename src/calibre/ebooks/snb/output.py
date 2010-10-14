@@ -50,6 +50,7 @@ class SNBOutput(OutputFormatPlugin):
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        self.opts = opts
         # Create temp dir
         with TemporaryDirectory('_snb_output') as tdir:
             # Create stub directories
@@ -224,9 +225,12 @@ class SNBOutput(OutputFormatPlugin):
         img = Image()
         img.load(imageData)
         (x,y) = img.size
-        # TODO use the data from device profile
-        SCREEN_X = 540
-        SCREEN_Y = 700
+        if self.opts:
+            SCREEN_Y, SCREEN_X = self.opts.output_profile.comic_screen_size
+            print SCREEN_Y, SCREEN_X
+        else:
+            SCREEN_X = 540
+            SCREEN_Y = 700
         # Handle big image only
         if x > SCREEN_X or y > SCREEN_Y:
             SCREEN_RATIO = float(SCREEN_Y) / SCREEN_X
