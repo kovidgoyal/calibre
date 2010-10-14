@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import operator, os, sys
+import operator, os
 from urllib import quote
 from binascii import hexlify
 
@@ -13,9 +13,8 @@ import cherrypy
 
 from calibre.constants import filesystem_encoding
 from calibre import isbytestring, force_unicode, prepare_string_for_xml as xml
-from calibre.library.server.utils import Offsets
 
-def paginate(offsets, content, base_url, up_url=None):
+def paginate(offsets, content, base_url, up_url=None): # {{{
     'Create markup for pagination'
 
     if '?' not in base_url:
@@ -72,13 +71,15 @@ def paginate(offsets, content, base_url, up_url=None):
         </div>
     '''
     return templ.format(navbar=navbar, content=content)
+# }}}
 
-def utf8(x):
+def utf8(x): # {{{
     if isinstance(x, unicode):
         x = x.encode('utf-8')
     return x
+# }}}
 
-def render_rating(rating, container='span'):
+def render_rating(rating, container='span'): # {{{
     if rating < 0.1:
         return '', ''
     added = 0
@@ -99,7 +100,9 @@ def render_rating(rating, container='span'):
     ans.append('</%s>'%container)
     return u''.join(ans), rstring
 
-def get_category_items(category, items, offsets, db):
+# }}}
+
+def get_category_items(category, items, db): # {{{
 
     def item(i):
         templ = (u'<li title="{4}" class="category-item">'
@@ -118,9 +121,41 @@ def get_category_items(category, items, offsets, db):
         return templ.format(xml(name), rating,
                 xml(desc), xml(quote(href)), rstring)
 
-    items = list(map(item, items[offsets.offset:offsets.slice_upper_bound]))
+    items = list(map(item, items))
     return '\n'.join(['<ul>'] + items + ['</ul>'])
 
+# }}}
+
+class Endpoint(object): # {{{
+    'Manage encoding, mime-type, last modified, cookies, etc.'
+
+    def __init__(self, mimetype='text/html', sort_type='category'):
+        self.mimetype = mimetype
+        self.sort_type = sort_type
+        self.sort_kwarg = sort_type + '_sort'
+        self.sort_cookie_name = 'calibre_browse_server_sort_'+self.sort_type
+
+    def __call__(eself, func):
+
+        def do(self, *args, **kwargs):
+            sort_val = None
+            cookie = cherrypy.request.cookie
+            if cookie.has_key(eself.sort_cookie_name):
+                sort_val = cookie[eself.sort_cookie_name].value
+            kwargs[eself.sort_kwarg] = sort_val
+
+            ans = func(self, *args, **kwargs)
+            cherrypy.response.headers['Content-Type'] = eself.mimetype
+            updated = self.db.last_modified()
+            cherrypy.response.headers['Last-Modified'] = \
+                self.last_modified(max(updated, self.build_time))
+            ans = utf8(ans)
+            return ans
+
+        do.__name__ = func.__name__
+
+        return do
+# }}}
 
 class BrowseServer(object):
 
@@ -134,26 +169,34 @@ class BrowseServer(object):
                 self.browse_search)
         connect('browse_book', base_href+'/book/{uuid}', self.browse_book)
 
-    def browse_template(self, category=True):
+    def browse_template(self, sort, category=True):
 
         def generate():
+            scn = 'calibre_browse_server_sort_'
+
             if category:
                 sort_opts = [('rating', _('Average rating')), ('name',
                     _('Name')), ('popularity', _('Popularity'))]
+                scn += 'category'
             else:
+                scn += 'list'
                 fm = self.db.field_metadata
-                sort_opts = [(x, fm[x]['name']) for x in fm.sortable_field_keys()
-                        if fm[x]['name']]
-            prefix = 'category' if category else 'book'
+                sort_opts, added = [], set([])
+                for x in fm.sortable_field_keys():
+                    n = fm[x]['name']
+                    if n not in added:
+                        added.add(n)
+                        sort_opts.append((x, n))
+
             ans = P('content_server/browse/browse.html',
                     data=True).decode('utf-8')
             ans = ans.replace('{sort_select_label}', xml(_('Sort by')+':'))
-            opts = ['<option value="%s_%s">%s</option>' % (prefix, xml(k),
-                xml(n)) for k, n in
+            ans = ans.replace('{sort_cookie_name}', scn)
+            opts = ['<option %svalue="%s">%s</option>' % (
+                'selected="selected" ' if k==sort else '',
+                xml(k), xml(n), ) for k, n in
                     sorted(sort_opts, key=operator.itemgetter(1))]
-            opts = ['<option value="_default">'+xml(_('Select one')) +
-                    '&hellip;</option>'] + opts
-            ans = ans.replace('{sort_select_options}', '\n\t\t\t'.join(opts))
+            ans = ans.replace('{sort_select_options}', ('\n'+' '*20).join(opts))
             lp = self.db.library_path
             if isbytestring(lp):
                 lp = force_unicode(lp, filesystem_encoding)
@@ -197,10 +240,12 @@ class BrowseServer(object):
 
         main = '<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
                 .format(_('Choose a category to browse by:'), '\n\n'.join(cats))
-        return self.browse_template().format(title='',
+        return self.browse_template('name').format(title='',
                     script='toplevel();', main=main)
 
-    def browse_category(self, category, offset, sort, subcategory=None):
+    def browse_category(self, category, sort):
+        if sort not in ('rating', 'name', 'popularity'):
+            sort = 'name'
         categories = self.categories_cache()
         category_meta = self.db.field_metadata
         category_name = category_meta[category]['name']
@@ -210,18 +255,20 @@ class BrowseServer(object):
 
         items = categories[category]
 
-        base_url='/browse/category/'+category+'?'
-        if subcategory is not None:
-            base_url += 'subcategory='+quote(subcategory)
+        name_keyg = lambda x: getattr(x, 'sort', x.name).lower()
+        items.sort(key=name_keyg)
+        if sort == 'popularity':
+            items.sort(key=operator.attrgetter('count'), reverse=True)
+        elif sort == 'rating':
+            items.sort(key=operator.attrgetter('avg_rating'), reverse=True)
+
+        base_url='/browse/category/'+category
         if sort is not None:
-            base_url += 'sort='+quote(sort)
+            base_url += '?sort='+quote(sort)
 
         script = 'category();'
 
-        max_items = sys.maxint
-        offsets = Offsets(offset, max_items, len(items))
-        items = list(items)[offsets.offset:offsets.offset+max_items]
-        items = get_category_items(category, items, offsets, self.db)
+        items = get_category_items(category, items, self.db)
         main = u'''
             <div class="category">
                 <h3>{0}</h3>
@@ -234,29 +281,20 @@ class BrowseServer(object):
                 xml(_('Browsing by')+': ' + category_name), items,
                 xml(_('Up'), True))
 
-        return self.browse_template().format(title=category_name,
+        return self.browse_template(sort).format(title=category_name,
                 script=script, main=main)
 
 
 
-    def browse_catalog(self, category=None, offset=0, sort=None,
-            subcategory=None):
+    @Endpoint()
+    def browse_catalog(self, category=None, category_sort=None):
         'Entry point for top-level, categories and sub-categories'
-        try:
-            offset = int(offset)
-        except:
-            raise cherrypy.HTTPError(404, 'Not found')
-
         if category == None:
             ans = self.browse_toplevel()
         else:
-            ans = self.browse_category(category, offset, sort)
+            ans = self.browse_category(category, category_sort)
 
-        cherrypy.response.headers['Content-Type'] = 'text/html'
-        updated = self.db.last_modified()
-        cherrypy.response.headers['Last-Modified'] = \
-            self.last_modified(max(updated, self.build_time))
-        return utf8(ans)
+        return ans
 
     # }}}
 

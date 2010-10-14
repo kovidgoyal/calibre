@@ -1,106 +1,64 @@
 
-// Widgets {{{
+// Cookies {{{
 
-// Combobox {{{
-
-(function( $ ) {
-    $.widget( "ui.combobox", {
-        _create: function() {
-            var self = this,
-                select = this.element.hide(),
-                selected = select.children( ":selected" ),
-                value = selected.val() ? selected.text() : "";
-            var input = $( "<input>" )
-                .insertAfter( select )
-                .val( value )
-                .autocomplete({
-                    delay: 0,
-                    minLength: 0,
-                    source: function( request, response ) {
-                        var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
-                        response( select.children( "option" ).map(function() {
-                            var text = $( this ).text();
-                            if ( this.value && ( !request.term || matcher.test(text) ) )
-                                return {
-                                    label: text.replace(
-                                        new RegExp(
-                                            "(?![^&;]+;)(?!<[^<>]*)(" +
-                                            $.ui.autocomplete.escapeRegex(request.term) +
-                                            ")(?![^<>]*>)(?![^&;]+;)", "gi"
-                                        ), "<strong>$1</strong>" ),
-                                    value: text,
-                                    option: this
-                                };
-                        }) );
-                    },
-                    select: function( event, ui ) {
-                        ui.item.option.selected = true;
-                        self._trigger( "selected", event, {
-                            item: ui.item.option
-                        });
-                    },
-                    change: function( event, ui ) {
-                        if ( !ui.item ) {
-                            var matcher = new RegExp( "^" + $.ui.autocomplete.escapeRegex( $(this).val() ) + "$", "i" ),
-                                valid = false;
-                            select.children( "option" ).each(function() {
-                                if ( this.value.match( matcher ) ) {
-                                    this.selected = valid = true;
-                                    return false;
-                                }
-                            });
-                            if ( !valid ) {
-                                // remove invalid value, as it didn't match anything
-                                $( this ).val( "" );
-                                select.val( "" );
-                                return false;
-                            }
-                        }
-                    }
-                })
-                .addClass( "ui-widget ui-widget-content ui-corner-left" );
-
-            input.data( "autocomplete" )._renderItem = function( ul, item ) {
-                return $( "<li></li>" )
-                    .data( "item.autocomplete", item )
-                    .append( "<a>" + item.label + "</a>" )
-                    .appendTo( ul );
-            };
-
-            $( "<button>&nbsp;</button>" )
-                .attr( "tabIndex", -1 )
-                .attr( "title", "Show All Items" )
-                .insertAfter( input )
-                .button({
-                    icons: {
-                        primary: "ui-icon-triangle-1-s"
-                    },
-                    text: false
-                })
-                .removeClass( "ui-corner-all" )
-                .addClass( "ui-corner-right ui-button-icon" )
-                .click(function() {
-                    // close if already visible
-                    if ( input.autocomplete( "widget" ).is( ":visible" ) ) {
-                        input.autocomplete( "close" );
-                        return;
-                    }
-
-                    // pass empty string as value to search for, displaying all results
-                    input.autocomplete( "search", "" );
-                    input.focus();
-                });
+function cookie(name, value, options) {
+    if (typeof value != 'undefined') { // name and value given, set cookie
+        options = options || {};
+        if (value === null) {
+            value = '';
+            options.expires = -1;
         }
-    });
-})( jQuery );
-// }}}
+        var expires = '';
+        if (options.expires && (typeof options.expires == 'number' || options.expires.toUTCString)) {
+            var date;
+            if (typeof options.expires == 'number') {
+                date = new Date();
+                date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
+            } else {
+                date = options.expires;
+            }
+            expires = '; expires=' + date.toUTCString(); // use expires attribute, max-age is not supported by IE
+        }
+        // CAUTION: Needed to parenthesize options.path and options.domain
+        // in the following expressions, otherwise they evaluate to undefined
+        // in the packed version for some reason...
+        var path = options.path ? '; path=' + (options.path) : '';
+        var domain = options.domain ? '; domain=' + (options.domain) : '';
+        var secure = options.secure ? '; secure' : '';
+        document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
+    } else { // only name given, get cookie
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+};
 
 // }}}
 
 // Sort {{{
 
 function init_sort_combobox() {
-    $("#sort_combobox").combobox();
+    $("#sort_combobox").multiselect({
+       multiple: false,
+       header: sort_select_label,
+       noneSelectedText: sort_select_label,
+       selectedList: 1,
+       click: function(event, ui){
+            $(this).multiselect("close");
+            cookie(sort_cookie_name, ui.value, {expires: 365});
+            window.location.reload();
+       }
+    });
 }
 
 // }}}

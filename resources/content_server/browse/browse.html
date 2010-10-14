@@ -12,17 +12,22 @@
 
     <link rel="stylesheet" type="text/css" href="/static/browse/browse.css" />
     <link type="text/css" href="/static/jquery_ui/css/pepper-grinder/jquery-ui-1.8.5.custom.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="/static/jquery.multiselect.css" />
 
     <script type="text/javascript" src="/static/jquery.js"></script>
     <script type="text/javascript" src="/static/jquery.corner.js"></script>
 
     <script type="text/javascript"
         src="/static/jquery_ui/js/jquery-ui-1.8.5.custom.min.js"></script>
+    <script type="text/javascript"
+        src="/static/jquery.multiselect.min.js"></script>
 
 
     <script type="text/javascript" src="/static/browse/browse.js"></script>
 
     <script type="text/javascript">
+        var sort_cookie_name = "{sort_cookie_name}";
+        var sort_select_label = "{sort_select_label}";
         $(document).ready(function() {{
                 init();
                 {script}
@@ -67,7 +72,7 @@
 
         <div id="content">
             <div class="sort_select">
-                <label>{sort_select_label}&nbsp;</label>
+                <label>{sort_select_label}</label>
                 <select id="sort_combobox">
                     {sort_select_options}
                 </select>
