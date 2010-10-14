@@ -1,6 +1,6 @@
 from __future__ import with_statement
 __license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'
 
 import os, re
@@ -15,6 +15,8 @@ from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendatio
 from calibre import CurrentDir
 
 from urllib import unquote
+
+from calibre.ebooks.html.meta import EasyMeta
 
 class HTMLOutput(OutputFormatPlugin):
 
@@ -66,7 +68,7 @@ class HTMLOutput(OutputFormatPlugin):
             html_toc = self.generate_html_toc(oeb_book, output_file, output_dir)
             templite = Templite(P('templates/html_export_default_index.tmpl', data=True))
             print oeb_book.metadata.items
-            t = templite.render(toc=html_toc, meta=oeb_book.metadata, namespace=lambda x:namespace(x), barename=lambda x:barename(x), DC11_NS=DC11_NS)
+            t = templite.render(toc=html_toc, meta=EasyMeta(oeb_book.metadata))
             f.write(t)
 
         with CurrentDir(output_dir):
