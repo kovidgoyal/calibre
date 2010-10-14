@@ -95,7 +95,7 @@ function category() {
         window.location = href;
     });
 
-    $(".category a.navlink").button({ primary: 'ui-icon-arrow-1-n'});
+    $(".category a.navlink").button();
 }
 // }}}
 

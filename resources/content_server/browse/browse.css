@@ -152,9 +152,14 @@ h2.library_name {
 
 /* Widgets {{{ */
 
-#content .ui-widget { font-size: medium }
+#content .ui-widget { font-size: medium; font-family: monospace; }
 
-#content .ui-button, #content .ui-button-text { padding: 0.2em 0.5em; line-height: 1 }
+#content .ui-button, #content .ui-button-text { 
+    padding: 0.2em 0.5em;
+    font-family: monospace;
+    line-height: 1 
+}
+
 
 /* }}} */
 

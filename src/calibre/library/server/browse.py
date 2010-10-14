@@ -129,7 +129,7 @@ def get_category_items(category, items, db): # {{{
 class Endpoint(object): # {{{
     'Manage encoding, mime-type, last modified, cookies, etc.'
 
-    def __init__(self, mimetype='text/html', sort_type='category'):
+    def __init__(self, mimetype='text/html; charset=utf-8', sort_type='category'):
         self.mimetype = mimetype
         self.sort_type = sort_type
         self.sort_kwarg = sort_type + '_sort'
@@ -272,7 +272,8 @@ class BrowseServer(object):
         main = u'''
             <div class="category">
                 <h3>{0}</h3>
-                    <a class="navlink" href="/browse" title="{2}">{2}</a>
+                    <a class="navlink" href="/browse"
+                        title="{2}">{2}&nbsp;&uarr;</a>
                 {1}
             </div>
         '''.format(
