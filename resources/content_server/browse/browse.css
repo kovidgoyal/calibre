@@ -206,30 +206,29 @@ h2.library_name {
 /* }}} */
 
 /* Category {{{ */
-.category ul {
-    list-style-type: none;
+.category table {
     margin: 0;
     padding: 0;
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.category li.category-item {
-    margin: 0.75em;
+.category tr.category-item td {
     padding: 0.75em;
     text-align: center;
     cursor: pointer;
 }
 
-.category li.category-item:hover {
+.category tr.category-item:hover {
     background-color: #d6d3c9;
-    font-weight: bold;
     -moz-box-shadow: 5px 5px 5px #ccc;
     -webkit-box-shadow: 5px 5px 5px #ccc;
     box-shadow: 5px 5px 5px #ccc;
 
 }
 
-.category li.category-item h4 { display: inline }
-.category li.category-item span.href { display: none }
+.category tr.category-item h4 { display: inline }
+.category tr.category-item span.href { display: none }
 
 #groups span.load_href { display: none }
 

@@ -92,10 +92,8 @@ function render_error(msg) {
 
 // Category feed {{{
 function category() {
-    $(".category li").corner("15px");
-
-    $(".category li").click(function() {
-        var href = $(this).children("span.href").html();
+    $(".category tr").click(function() {
+        var href = $(this).find("span.href").html();
         window.location = href;
     });
 
