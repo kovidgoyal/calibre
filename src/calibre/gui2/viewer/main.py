@@ -731,8 +731,8 @@ def main(args=sys.argv):
             main.raise_()
     if opts.full_screen:
         main.action_full_screen.trigger()
-        with main:
-            return app.exec_()
+    with main:
+        return app.exec_()
     return 0
 
 if __name__ == '__main__':
