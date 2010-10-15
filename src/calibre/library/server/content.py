@@ -5,18 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, cStringIO
+import re, os
 
 import cherrypy
-try:
-    from PIL import Image as PILImage
-    PILImage
-except ImportError:
-    import Image as PILImage
 
 from calibre import fit_image, guess_type
 from calibre.utils.date import fromtimestamp
 from calibre.library.caches import SortKeyGenerator
+from calibre.utils.magick.draw import save_cover_data_to, Image, \
+        thumbnail as generate_thumbnail
 
 class CSSortKeyGenerator(SortKeyGenerator):
 
@@ -77,8 +74,13 @@ class ContentServer(object):
             id = int(match.group())
         if not self.db.has_id(id):
             raise cherrypy.HTTPError(400, 'id:%d does not exist in database'%id)
-        if what == 'thumb':
-            return self.get_cover(id, thumbnail=True)
+        if what == 'thumb' or what.startswith('thumb_'):
+            try:
+                width, height = map(int, what.split('_')[1:])
+            except:
+                width, height = 60, 80
+            return self.get_cover(id, thumbnail=True, thumb_width=width,
+                    thumb_height=height)
         if what == 'cover':
             return self.get_cover(id)
         return self.get_format(id, what)
@@ -128,37 +130,39 @@ class ContentServer(object):
         return self.static('index.html')
 
     # Actually get content from the database {{{
-    def get_cover(self, id, thumbnail=False):
-        cover = self.db.cover(id, index_is_id=True, as_file=False)
-        if cover is None:
-            cover = self.default_cover
-        cherrypy.response.headers['Content-Type'] = 'image/jpeg'
-        cherrypy.response.timeout = 3600
-        path = getattr(cover, 'name', False)
-        updated = fromtimestamp(os.stat(path).st_mtime) if path and \
-            os.access(path, os.R_OK) else self.build_time
-        cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
+    def get_cover(self, id, thumbnail=False, thumb_width=60, thumb_height=80):
         try:
-            f = cStringIO.StringIO(cover)
-            try:
-                im = PILImage.open(f)
-            except IOError:
-                raise cherrypy.HTTPError(404, 'No valid cover found')
-            width, height = im.size
+            cherrypy.response.headers['Content-Type'] = 'image/jpeg'
+            cherrypy.response.timeout = 3600
+            cover = self.db.cover(id, index_is_id=True, as_file=True)
+            if cover is None:
+                cover = self.default_cover
+                updated = self.build_time
+            else:
+                with cover as f:
+                    updated = fromtimestamp(os.stat(f.name).st_mtime)
+                    cover = f.read()
+            cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
+
+            if thumbnail:
+                return generate_thumbnail(cover,
+                        width=thumb_width, height=thumb_height)[-1]
+
+            img = Image()
+            img.load(cover)
+            width, height = img.size
             scaled, width, height = fit_image(width, height,
-                60 if thumbnail else self.max_cover_width,
-                80 if thumbnail else self.max_cover_height)
+                thumb_width if thumbnail else self.max_cover_width,
+                thumb_height if thumbnail else self.max_cover_height)
             if not scaled:
                 return cover
-            im = im.resize((int(width), int(height)), PILImage.ANTIALIAS)
-            of = cStringIO.StringIO()
-            im.convert('RGB').save(of, 'JPEG')
-            return of.getvalue()
+            return save_cover_data_to(img, 'img.jpg', return_data=True,
+                    resize_to=(width, height))
         except Exception, err:
             import traceback
             cherrypy.log.error('Failed to generate cover:')
             cherrypy.log.error(traceback.print_exc())
-            raise cherrypy.HTTPError(404, 'Failed to generate cover: %s'%err)
+            raise cherrypy.HTTPError(404, 'Failed to generate cover: %r'%err)
 
     def get_format(self, id, format):
         format = format.upper()
