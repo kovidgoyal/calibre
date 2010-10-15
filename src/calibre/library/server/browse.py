@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import operator, os, json
 from urllib import quote
-from binascii import hexlify
+from binascii import hexlify, unhexlify
 
 import cherrypy
 
@@ -15,64 +15,33 @@ from calibre.constants import filesystem_encoding
 from calibre import isbytestring, force_unicode, prepare_string_for_xml as xml
 from calibre.utils.ordered_dict import OrderedDict
 
-def paginate(offsets, content, base_url, up_url=None): # {{{
-    'Create markup for pagination'
-
-    if '?' not in base_url:
-        base_url += '?'
-
-    if base_url[-1] != '?':
-        base_url += '&'
-
-    def navlink(decoration, name, cls, offset):
-        label = xml(name)
-        if cls in ('next', 'last'):
-            label += '&nbsp;' + decoration
-        else:
-            label = decoration + '&nbsp;' + label
-        return (u'<a class="{cls}" href="{base_url}&amp;offset={offset}" title={name}>'
-                u'{label}</a>').format(cls=cls, decoration=decoration,
-                        name=xml(name, True), offset=offset,
-                        base_url=xml(base_url, True), label=label)
-    left = ''
-    if offsets.offset > 0 and offsets.previous_offset > 0:
-        left += navlink(u'\u219e', _('First'), 'first', 0)
-    if offsets.offset > 0:
-        left += ' ' + navlink('&larr;', _('Previous'), 'previous',
-                offsets.previous_offset)
-
-    middle = ''
-    if up_url:
-        middle = '<a href="{0}" title="{1}">[{1} &uarr;]</a>'.format(xml(up_url, True),
-                xml(_('Up')))
-
-    right = ''
-    if offsets.next_offset > -1:
-        right += navlink('&rarr', _('Next'), 'next', offsets.next_offset)
-    if offsets.last_offset > offsets.next_offset and offsets.last_offset > 0:
-        right += ' ' + navlink(u'\u21A0', _('Last'), 'last', offsets.last_offset)
-
-    navbar = u'''
-            <table class="navbar">
-                <tr>
-                    <td class="left">{left}</td>
-                    <td class="middle">{middle}</td>
-                    <td class="right">{right}</td>
-                </tr>
-            <table>
-    '''.format(left=left, right=right, middle=middle)
-
-    templ = u'''
-        <div class="page">
-            {navbar}
-            <div class="page-contents">
-            {content}
+def render_book_list(ids):
+    pages = []
+    while ids:
+        page = list(ids[:25])
+        pages.append(page)
+        ids = ids[25:]
+    page_template = u'''\
+            <div class="page" id="page{0}">
+                <div class="load_data" title="{1}"></div>
+                <div class="loading"><img src="/static/loading.gif" /> {2}</div>
+                <div class="loaded"></div>
             </div>
-            {navbar}
-        </div>
-    '''
-    return templ.format(navbar=navbar, content=content)
-# }}}
+            '''
+    rpages = []
+    for i, pg in enumerate(pages):
+        ld = xml(json.dumps(pg), True)
+        rpages.append(page_template.format(i, ld,
+            xml(_('Loading, please wait')) + '&hellip;'))
+    rpages = u'\n\n'.join(rpages)
+
+    templ = u'''\
+            <h3>{0}</h3>
+            <div id="booklist">
+                {pages}
+            </div>
+            '''
+    return templ.format(_('Browsing %d books')%len(ids), pages=rpages)
 
 def utf8(x): # {{{
     if isinstance(x, unicode):
@@ -171,10 +140,15 @@ class BrowseServer(object):
         connect('browse_category_group',
                 base_href+'/category_group/{category}/{group}',
                 self.browse_category_group)
-        connect('browse_list', base_href+'/list/{query}', self.browse_list)
+        connect('browse_matches',
+                base_href+'/matches/{category}/{cid}',
+                self.browse_matches)
+        connect('browse_booklist_page',
+                base_href+'/booklist_page',
+                self.browse_booklist_page)
+
         connect('browse_search', base_href+'/search/{query}',
                 self.browse_search)
-        connect('browse_book', base_href+'/book/{uuid}', self.browse_book)
 
     def browse_template(self, sort, category=True):
 
@@ -267,12 +241,12 @@ class BrowseServer(object):
 
     def browse_category(self, category, sort):
         categories = self.categories_cache()
+        if category not in categories:
+            raise cherrypy.HTTPError(404, 'category not found')
         category_meta = self.db.field_metadata
         category_name = category_meta[category]['name']
         datatype = category_meta[category]['datatype']
 
-        if category not in categories:
-            raise cherrypy.HTTPError(404, 'category not found')
 
         items = categories[category]
         sort = self.browse_sort_categories(items, sort)
@@ -331,11 +305,12 @@ class BrowseServer(object):
         if sort not in ('rating', 'name', 'popularity'):
             sort = 'name'
         categories = self.categories_cache()
+        if category not in categories:
+            raise cherrypy.HTTPError(404, 'category not found')
+
         category_meta = self.db.field_metadata
         datatype = category_meta[category]['datatype']
 
-        if category not in categories:
-            raise cherrypy.HTTPError(404, 'category not found')
         if not group:
             raise cherrypy.HTTPError(404, 'invalid group')
 
@@ -360,6 +335,8 @@ class BrowseServer(object):
         'Entry point for top-level, categories and sub-categories'
         if category == None:
             ans = self.browse_toplevel()
+        elif category == 'newest':
+            raise cherrypy.InternalRedirect('/browse/matches/newest/dummy')
         else:
             ans = self.browse_category(category, category_sort)
 
@@ -368,8 +345,63 @@ class BrowseServer(object):
     # }}}
 
     # Book Lists {{{
-    def browse_list(self, query=None, offset=0, sort=None):
-        raise NotImplementedError()
+
+    def browse_sort_book_list(self, items, sort):
+        fm = self.db.field_metadata
+        keys = frozenset(fm.sortable_field_keys())
+        if sort not in keys:
+            sort = 'title'
+        self.sort(items, 'title', True)
+        if sort != 'title':
+            ascending = fm[sort]['datatype'] not in ('rating', 'datetime')
+            self.sort(items, sort, ascending)
+        return sort
+
+    @Endpoint(sort_type='list')
+    def browse_matches(self, category=None, cid=None, list_sort=None):
+        if not cid:
+            raise cherrypy.HTTPError(404, 'invalid category id: %r'%cid)
+        categories = self.categories_cache()
+
+        if category not in categories and category != 'newest':
+            raise cherrypy.HTTPError(404, 'category not found')
+        try:
+            category_name = self.db.field_metadata[category]['name']
+        except:
+            if category != 'newest':
+                raise
+            category_name = _('Newest')
+
+        if category == 'search':
+            which = unhexlify(cid)
+            try:
+                ids = self.search_cache('search:"%s"'%which)
+            except:
+                raise cherrypy.HTTPError(404, 'Search: %r not understood'%which)
+        elif category == 'newest':
+            ids = list(self.db.data.iterallids())
+        else:
+            ids = self.db.get_books_for_category(category, cid)
+
+        items = [self.db.data._data[x] for x in ids]
+        if category == 'newest':
+            list_sort = 'timestamp'
+        sort = self.browse_sort_book_list(items, list_sort)
+        ids = [x[0] for x in items]
+        html = render_book_list(ids)
+        return self.browse_template(sort).format(
+                title=_('Books in') + " " +category_name,
+                script='booklist();', main=html)
+
+    @Endpoint(mimetype='application/json; charset=utf-8', sort_type='list')
+    def browse_booklist_page(self, ids=None, list_sort=None):
+        if ids is None:
+            ids = json.dumps('[]')
+        try:
+            ids = json.loads(ids)
+        except:
+            raise cherrypy.HTTPError(404, 'invalid ids')
+
     # }}}
 
     # Search {{{

@@ -387,6 +387,12 @@ solve it, look for a corrupted font file on your system, in ~/Library/Fonts or t
 check for corrupted fonts in OS X is to start the "Font Book" application, select all fonts and then in the File
 menu, choose "Validate fonts".
 
+
+I downloaded the installer, but it is not working?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Downloading from the internet can sometimes result in a corrupted download. If the |app| installer you downloaded is not opening, try downloading it again. If re-downloading it does not work, download it from `an alternate location <http://sourceforge.net/projects/calibre/files/>`_. If the installer still doesn't work, then something on your computer is preventing it from running. Best place to ask for more help is in the `forums <http://www.mobileread.com/forums/usercp.php>`_.
+
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
