@@ -21,31 +21,62 @@ from calibre.library.comments import comments_to_html
 def render_book_list(ids):
     pages = []
     num = len(ids)
+    pos = 0
+    delta = 25
     while ids:
-        page = list(ids[:25])
-        pages.append(page)
-        ids = ids[25:]
+        page = list(ids[:delta])
+        pages.append((page, pos))
+        ids = ids[delta:]
+        pos += len(page)
     page_template = u'''\
             <div class="page" id="page{0}">
-                <div class="load_data" title="{1}">/browse/booklist_page</div>
+                <div class="load_data" title="{1}">
+                    <span class="url" title="/browse/booklist_page"></span>
+                    <span class="start" title="{start}"></span>
+                    <span class="end" title="{end}"></span>
+                </div>
                 <div class="loading"><img src="/static/loading.gif" /> {2}</div>
                 <div class="loaded"></div>
             </div>
             '''
     rpages = []
-    for i, pg in enumerate(pages):
+    for i, x in enumerate(pages):
+        pg, pos = x
         ld = xml(json.dumps(pg), True)
         rpages.append(page_template.format(i, ld,
-            xml(_('Loading, please wait')) + '&hellip;'))
+            xml(_('Loading, please wait')) + '&hellip;',
+            start=pos+1, end=pos+len(pg)))
     rpages = u'\n\n'.join(rpages)
 
     templ = u'''\
             <h3>{0}</h3>
             <div id="booklist">
+                <div class="listnav topnav">
+                {navbar}
+                </div>
                 {pages}
+                <div class="listnav bottomnav">
+                {navbar}
+                </div>
             </div>
             '''
-    return templ.format(_('Browsing %d books')%num, pages=rpages)
+
+    navbar = u'''\
+        <div class="navleft">
+            <a href="#" onclick="first_page(); return false;">{first}</a>
+            <a href="#" onclick="previous_page(); return false;">{previous}</a>
+        </div>
+        <div class="navmiddle">
+            <span class="start">0</span> to <span class="end">0</span> of {num}
+        </div>
+        <div class="navright">
+            <a href="#" onclick="next_page(); return false;">{next}</a>
+            <a href="#" onclick="last_page(); return false;">{last}</a>
+        </div>
+    '''.format(first=_('First'), last=_('Last'), previous=_('Previous'),
+            next=_('Next'), num=num)
+
+    return templ.format(_('Browsing %d books')%num, pages=rpages, navbar=navbar)
 
 def utf8(x): # {{{
     if isinstance(x, unicode):
@@ -182,7 +213,7 @@ class BrowseServer(object):
             opts = ['<option %svalue="%s">%s</option>' % (
                 'selected="selected" ' if k==sort else '',
                 xml(k), xml(n), ) for k, n in
-                    sorted(sort_opts, key=operator.itemgetter(1))]
+                    sorted(sort_opts, key=operator.itemgetter(1)) if k and n]
             ans = ans.replace('{sort_select_options}', ('\n'+' '*20).join(opts))
             lp = self.db.library_path
             if isbytestring(lp):
@@ -402,7 +433,7 @@ class BrowseServer(object):
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
         html = render_book_list(ids)
-        return self.browse_template(sort).format(
+        return self.browse_template(sort, category=False).format(
                 title=_('Books in') + " " +category_name,
                 script='booklist();', main=html)
 

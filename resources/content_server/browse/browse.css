@@ -279,6 +279,7 @@ h2.library_name {
 #booklist div.left {
     float: left;
     height: 190px;
+    width: 100px;
     vertical-align: middle;
     text-align: center;
     margin-left: 1em;
@@ -288,6 +289,8 @@ h2.library_name {
 #booklist div.left img {
     display: block;
     margin-bottom: 1ex;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #booklist div.right {
@@ -312,6 +315,7 @@ h2.library_name {
 
 #booklist .formats a {
     text-decoration: none;
+    color: blue;
 }
 
 #booklist .formats a:hover {
@@ -324,6 +328,48 @@ h2.library_name {
     padding-right: 0.25em;
     padding-top: 0.25em;
     padding-bottom: 0.25em;
+}
+
+#booklist .listnav {
+    display: table;
+    width: 100%;
+}
+
+#booklist .listnav a {
+    color: blue;
+    text-decoration: none;
+}
+
+#booklist .listnav a:hover {
+    color: red;
+}
+
+#booklist .topnav {
+    border-bottom: solid black 1px;
+    margin-bottom: 1ex;
+}
+
+#booklist .navleft {
+    display: table-cell;
+    text-align: left;
+}
+
+#booklist .navleft a {
+    margin-right: 1em;
+}
+
+#booklist .navmiddle {
+    display: table-cell;
+    text-align: center;
+}
+
+#booklist .navright {
+    display: table-cell;
+    text-align: right;
+}
+
+#booklist .navright a {
+    margin-left: 1em;
 }
 
 /* }}} */

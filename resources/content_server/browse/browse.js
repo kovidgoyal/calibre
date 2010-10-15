@@ -138,9 +138,33 @@ function category() {
 
 // Booklist {{{
 
+function first_page() {
+    load_page($("#booklist #page0"));
+}
+
+function last_page() {
+    load_page($("#booklist .page").last());
+}
+
+function next_page() {
+    var elem = $("#booklist .page:visible").next('.page');
+    if (elem.length > 0) load_page(elem);
+    else first_page();
+}
+
+function previous_page() {
+    var elem = $("#booklist .page:visible").prev('.page');
+    if (elem.length > 0) load_page(elem);
+    else last_page();
+}
+
 function load_page(elem) {
-    var ids = elem.find(".load_data").attr('title');
-    var href = elem.find(".load_data").html();
+    if (elem.is(":visible")) return;
+    var ld = elem.find('.load_data');
+    var ids = ld.attr('title');
+    var href = ld.find(".url").attr('title');
+    elem.children(".loaded").hide();
+
     $.ajax({
         url: href,
         context: elem,
@@ -155,12 +179,14 @@ function load_page(elem) {
         },
         success: function(data) {
             this.children(".loaded").html(data);
-            this.children(".loaded").show();
-            this.children(".loading").hide();
             this.find(".left a.read").button();
+            this.children(".loading").hide();
+            this.parent().find('.navmiddle .start').html(this.find('.load_data .start').attr('title'));
+            this.parent().find('.navmiddle .end').html(this.find('.load_data .end').attr('title'));
+            this.children(".loaded").fadeIn(1000);
         }
     });
-    $("#booklist .page").hide();
+    $("#booklist .page:visible").hide();
     elem.children(".loaded").hide();
     elem.children(".loading").show();
     elem.show();
@@ -173,8 +199,7 @@ function booklist() {
         return;
     }
 
-    load_page($("#booklist #page0"));
-    
+    first_page(); 
 }
 
 // }}}
