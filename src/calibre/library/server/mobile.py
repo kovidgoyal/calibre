@@ -17,7 +17,7 @@ from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import strftime, format_tag_string
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import __appname__
-from calibre import human_readable
+from calibre import human_readable, isbytestring
 from calibre.utils.date import utcfromtimestamp
 from calibre.utils.filenames import ascii_filename
 
@@ -29,6 +29,8 @@ def CLASS(*args, **kwargs): # class is a reserved word in Python
 def build_search_box(num, search, sort, order): # {{{
     div = DIV(id='search_box')
     form = FORM('Show ', method='get', action='mobile')
+    form.set('accept-charset', 'UTF-8')
+
     div.append(form)
 
     num_select = SELECT(name='num')
@@ -193,6 +195,8 @@ class MobileServer(object):
             raise cherrypy.HTTPError(400, 'num: %s is not an integer'%num)
         if not search:
             search = ''
+        if isbytestring(search):
+            search = search.decode('UTF-8')
         ids = self.db.search_getting_ids(search.strip(), self.search_restriction)
         FM = self.db.FIELD_MAP
         items = [r for r in iter(self.db) if r[FM['id']] in ids]
