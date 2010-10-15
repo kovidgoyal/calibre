@@ -793,11 +793,17 @@ class DeviceMixin(object): # {{{
         self.set_books_in_library(job.result, reset=True)
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
-        self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
+        self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA,
+                                      self.device_manager.device.BACKLOADING_ERROR_MESSAGE
+                                      is None)
         self.card_a_view.set_database(cardalist)
-        self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
+        self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA,
+                                      self.device_manager.device.BACKLOADING_ERROR_MESSAGE
+                                      is None)
         self.card_b_view.set_database(cardblist)
-        self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
+        self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA,
+                                      self.device_manager.device.BACKLOADING_ERROR_MESSAGE
+                                      is None)
         self.sync_news()
         self.sync_catalogs()
         self.refresh_ondevice()

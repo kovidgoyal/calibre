@@ -84,12 +84,14 @@ class TagsView(QTreeView): # {{{
         self.setAcceptDrops(True)
         self.setDragDropMode(self.DropOnly)
         self.setDropIndicatorShown(True)
+        self.setAutoExpandDelay(500)
 
     def set_database(self, db, tag_match, sort_by):
         self.hidden_categories = config['tag_browser_hidden_categories']
         self._model = TagsModel(db, parent=self,
                                 hidden_categories=self.hidden_categories,
-                                search_restriction=None)
+                                search_restriction=None,
+                                drag_drop_finished=self.drag_drop_finished)
         self.sort_by = sort_by
         self.tag_match = tag_match
         self.db = db
@@ -108,103 +110,6 @@ class TagsView(QTreeView): # {{{
 
     def database_changed(self, event, ids):
         self.refresh_required.emit()
-
-    def dragEnterEvent(self, event):
-        md = event.mimeData()
-        if md.hasFormat("application/calibre+from_library"):
-            event.setDropAction(Qt.CopyAction)
-            event.accept()
-        else:
-            event.ignore()
-
-    def dragMoveEvent(self, event):
-        allowed = False
-        idx = self.indexAt(event.pos())
-        m = self.model()
-        p = m.parent(idx)
-        if idx.isValid() and p.isValid():
-            item = m.data(p, Qt.UserRole)
-            fm = self.db.metadata_for_field(item.category_key)
-            if item.category_key in \
-                    ('tags', 'series', 'authors', 'rating', 'publisher') or\
-                    (fm['is_custom'] and \
-                     fm['datatype'] in ['text', 'rating', 'series']):
-                allowed = True
-        if allowed:
-            event.acceptProposedAction()
-        else:
-            event.ignore()
-
-    def dropEvent(self, event):
-        idx = self.indexAt(event.pos())
-        m = self.model()
-        p = m.parent(idx)
-        if idx.isValid() and p.isValid():
-            item = m.data(p, Qt.UserRole)
-            if item.type == TagTreeItem.CATEGORY:
-                fm = self.db.metadata_for_field(item.category_key)
-                if item.category_key in \
-                        ('tags', 'series', 'authors', 'rating', 'publisher') or\
-                        (fm['is_custom'] and \
-                         fm['datatype'] in ['text', 'rating', 'series']):
-                    child = m.data(idx, Qt.UserRole)
-                    md = event.mimeData()
-                    mime = 'application/calibre+from_library'
-                    ids = list(map(int, str(md.data(mime)).split()))
-                    self.handle_drop(item, child, ids)
-                    event.accept()
-                    return
-        event.ignore()
-
-    def handle_drop(self, parent, child, ids):
-        # print 'Dropped ids:', ids, parent.category_key, child.tag.name
-        key = parent.category_key
-        if (key == 'authors' and len(ids) >= 5):
-            if not confirm('<p>'+_('Changing the authors for several books can '
-                           'take a while. Are you sure?')
-                        +'</p>', 'tag_browser_drop_authors', self):
-                return
-        elif len(ids) > 15:
-            if not confirm('<p>'+_('Changing the metadata for that many books '
-                           'can take a while. Are you sure?')
-                        +'</p>', 'tag_browser_many_changes', self):
-                return
-
-        fm = self.db.metadata_for_field(key)
-        is_multiple = fm['is_multiple']
-        val = child.tag.name
-        for id in ids:
-            mi = self.db.get_metadata(id, index_is_id=True)
-
-            # Prepare to ignore the author, unless it is changed. Title is
-            # always ignored -- see the call to set_metadata
-            set_authors = False
-
-            # Author_sort cannot change explicitly. Changing the author might
-            # change it.
-            mi.author_sort = None # Never will change by itself.
-
-            if key == 'authors':
-                mi.authors = [val]
-                set_authors=True
-            elif fm['datatype'] == 'rating':
-                mi.set(key, len(val) * 2)
-            elif fm['is_custom'] and fm['datatype'] == 'series':
-                mi.set(key, val, extra=1.0)
-            elif is_multiple:
-                new_val = mi.get(key, [])
-                if val in new_val:
-                    # Fortunately, only one field can change, so the continue
-                    # won't break anything
-                    continue
-                new_val.append(val)
-                mi.set(key, new_val)
-            else:
-                mi.set(key, val)
-            self.db.set_metadata(id, mi, set_title=False,
-                                 set_authors=set_authors, commit=False)
-        self.db.commit()
-        self.drag_drop_finished.emit(ids)
 
     @property
     def match_all(self):
@@ -374,7 +279,8 @@ class TagsView(QTreeView): # {{{
         try:
             self._model = TagsModel(self.db, parent=self,
                                     hidden_categories=self.hidden_categories,
-                                    search_restriction=self.search_restriction)
+                                    search_restriction=self.search_restriction,
+                                    drag_drop_finished=self.drag_drop_finished)
             self.setModel(self._model)
         except:
             # The DB must be gone. Set the model to None and hope that someone
@@ -469,7 +375,8 @@ class TagTreeItem(object): # {{{
 
 class TagsModel(QAbstractItemModel): # {{{
 
-    def __init__(self, db, parent, hidden_categories=None, search_restriction=None):
+    def __init__(self, db, parent, hidden_categories=None,
+            search_restriction=None, drag_drop_finished=None):
         QAbstractItemModel.__init__(self, parent)
 
         # must do this here because 'QPixmap: Must construct a QApplication
@@ -487,6 +394,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     ':user'     : QIcon(I('drawer.png')),
                     'search'    : QIcon(I('search.png'))})
         self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
+        self.drag_drop_finished = drag_drop_finished
 
         self.icon_state_map = [None, QIcon(I('plus.png')), QIcon(I('minus.png'))]
         self.db = db
@@ -518,6 +426,79 @@ class TagsModel(QAbstractItemModel): # {{{
                             not self.db.field_metadata[r]['kind'] == 'user':
                     tag.avg_rating = None
                 TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
+
+    def mimeTypes(self):
+        return ["application/calibre+from_library"]
+
+    def dropMimeData(self, md, action, row, column, parent):
+        if not md.hasFormat("application/calibre+from_library") or \
+                action != Qt.CopyAction:
+            return False
+        idx = parent
+        if idx.isValid():
+            node = self.data(idx, Qt.UserRole)
+            if node.type == TagTreeItem.TAG:
+                fm = self.db.metadata_for_field(node.tag.category)
+                if node.tag.category in \
+                    ('tags', 'series', 'authors', 'rating', 'publisher') or \
+                    (fm['is_custom'] and \
+                        fm['datatype'] in ['text', 'rating', 'series']):
+                    mime = 'application/calibre+from_library'
+                    ids = list(map(int, str(md.data(mime)).split()))
+                    self.handle_drop(node, ids)
+                    return True
+        return False
+
+
+    def handle_drop(self, on_node, ids):
+        #print 'Dropped ids:', ids, on_node.tag
+        key = on_node.tag.category
+        if (key == 'authors' and len(ids) >= 5):
+            if not confirm('<p>'+_('Changing the authors for several books can '
+                           'take a while. Are you sure?')
+                        +'</p>', 'tag_browser_drop_authors', self.parent()):
+                return
+        elif len(ids) > 15:
+            if not confirm('<p>'+_('Changing the metadata for that many books '
+                           'can take a while. Are you sure?')
+                        +'</p>', 'tag_browser_many_changes', self.parent()):
+                return
+
+        fm = self.db.metadata_for_field(key)
+        is_multiple = fm['is_multiple']
+        val = on_node.tag.name
+        for id in ids:
+            mi = self.db.get_metadata(id, index_is_id=True)
+
+            # Prepare to ignore the author, unless it is changed. Title is
+            # always ignored -- see the call to set_metadata
+            set_authors = False
+
+            # Author_sort cannot change explicitly. Changing the author might
+            # change it.
+            mi.author_sort = None # Never will change by itself.
+
+            if key == 'authors':
+                mi.authors = [val]
+                set_authors=True
+            elif fm['datatype'] == 'rating':
+                mi.set(key, len(val) * 2)
+            elif fm['is_custom'] and fm['datatype'] == 'series':
+                mi.set(key, val, extra=1.0)
+            elif is_multiple:
+                new_val = mi.get(key, [])
+                if val in new_val:
+                    # Fortunately, only one field can change, so the continue
+                    # won't break anything
+                    continue
+                new_val.append(val)
+                mi.set(key, new_val)
+            else:
+                mi.set(key, val)
+            self.db.set_metadata(id, mi, set_title=False,
+                                 set_authors=set_authors, commit=False)
+        self.db.commit()
+        self.drag_drop_finished.emit(ids)
 
     def set_search_restriction(self, s):
         self.search_restriction = s
@@ -650,12 +631,19 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def flags(self, index, *args):
         ans = Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsEditable
-        if index.isValid() and self.parent(index).isValid():
-            ans |= Qt.ItemIsDropEnabled
+        if index.isValid():
+            node = self.data(index, Qt.UserRole)
+            if node.type == TagTreeItem.TAG:
+                fm = self.db.metadata_for_field(node.tag.category)
+                if node.tag.category in \
+                    ('tags', 'series', 'authors', 'rating', 'publisher') or \
+                    (fm['is_custom'] and \
+                        fm['datatype'] in ['text', 'rating', 'series']):
+                    ans |= Qt.ItemIsDropEnabled
         return ans
 
     def supportedDropActions(self):
-        return Qt.CopyAction|Qt.MoveAction
+        return Qt.CopyAction
 
     def path_for_index(self, index):
         ans = []
