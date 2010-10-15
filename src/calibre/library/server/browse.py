@@ -18,7 +18,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs
 from calibre.library.comments import comments_to_html
 
-def render_book_list(ids):
+def render_book_list(ids): # {{{
     pages = []
     num = len(ids)
     pos = 0
@@ -77,6 +77,8 @@ def render_book_list(ids):
             next=_('Next'), num=num)
 
     return templ.format(_('Browsing %d books')%num, pages=rpages, navbar=navbar)
+
+# }}}
 
 def utf8(x): # {{{
     if isinstance(x, unicode):
@@ -184,10 +186,10 @@ class BrowseServer(object):
                 base_href+'/booklist_page',
                 self.browse_booklist_page)
 
-        connect('browse_search', base_href+'/search/{query}',
+        connect('browse_search', base_href+'/search',
                 self.browse_search)
 
-    def browse_template(self, sort, category=True):
+    def browse_template(self, sort, category=True, initial_search=''):
 
         def generate():
             scn = 'calibre_browse_server_sort_'
@@ -222,6 +224,7 @@ class BrowseServer(object):
                 ans = ans.encode('utf-8')
             ans = ans.replace('{library_name}', xml(os.path.basename(lp)))
             ans = ans.replace('{library_path}', xml(lp, True))
+            ans = ans.replace('{initial_search}', initial_search)
             return ans
 
         if self.opts.develop:
@@ -495,8 +498,19 @@ class BrowseServer(object):
     # }}}
 
     # Search {{{
-    def browse_search(self, query=None):
-        raise NotImplementedError()
+    @Endpoint(sort_type='list')
+    def browse_search(self, query='', list_sort=None):
+        if isbytestring(query):
+            query = query.decode('UTF-8')
+        ids = self.db.search_getting_ids(query.strip(), self.search_restriction)
+        items = [self.db.data._data[x] for x in ids]
+        sort = self.browse_sort_book_list(items, list_sort)
+        ids = [x[0] for x in items]
+        html = render_book_list(ids)
+        return self.browse_template(sort, category=False, initial_search=query).format(
+                title=_('Matching books'),
+                script='booklist();', main=html)
+
     # }}}
 
 
