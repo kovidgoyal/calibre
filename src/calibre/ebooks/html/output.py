@@ -56,11 +56,6 @@ class HTMLOutput(OutputFormatPlugin):
         return etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=False)
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        if oeb_book.toc.count() == 0:
-          if len(oeb_book.spine) > 1:
-            pass
-          else:
-            pass
         self.log  = log
         self.opts = opts
         output_file = output_path
@@ -69,12 +64,18 @@ class HTMLOutput(OutputFormatPlugin):
         if not exists(output_dir):
             os.makedirs(output_dir)
 
+        css_path = output_dir+os.sep+'calibreHtmlOutBasicCss.css'
+        with open(css_path, 'wb') as f:
+            f.write(P('templates/html_export_default.css', data=True))
+
         with open(output_file, 'wb') as f:
             link_prefix=basename(output_dir)+'/'
             html_toc = self.generate_html_toc(oeb_book, output_file, output_dir)
             templite = Templite(P('templates/html_export_default_index.tmpl', data=True))
-            print oeb_book.metadata.items
-            t = templite.render(toc=html_toc, meta=meta)
+            nextLink = oeb_book.spine[0].href
+            nextLink = relpath(output_dir+os.sep+nextLink, dirname(output_file))
+            cssLink = relpath(abspath(css_path), dirname(output_file))
+            t = templite.render(has_toc=bool(oeb_book.toc.count()), toc=html_toc, meta=meta, nextLink=nextLink, tocUrl=output_file, cssLink=cssLink)
             f.write(t)
 
         with CurrentDir(output_dir):
@@ -121,10 +122,12 @@ class HTMLOutput(OutputFormatPlugin):
                 else:
                     prevLink = None
 
+                cssLink = relpath(abspath(css_path), dir)
+
                 # render template
                 templite = Templite(P('templates/html_export_default.tmpl', data=True))
                 toc = lambda: self.generate_html_toc(oeb_book, path, output_dir)
-                t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink, toc=toc, head_content=head_content, meta=meta)
+                t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink, has_toc=bool(oeb_book.toc.count()), toc=toc, tocUrl=output_file, head_content=head_content, meta=meta, cssLink=cssLink)
 
                 # write html to file
                 with open(path, 'wb') as f:
