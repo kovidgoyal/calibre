@@ -56,6 +56,11 @@ class HTMLOutput(OutputFormatPlugin):
         return etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=False)
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        if oeb_book.toc.count() == 0:
+          if len(oeb_book.spine) > 1:
+            pass
+          else:
+            pass
         self.log  = log
         self.opts = opts
         output_file = output_path

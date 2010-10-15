@@ -27,11 +27,11 @@ ${:endfor}$
   ${:endfor}$
   </div>
   <div class="metaAuthor">
-    ${print ', '.join(meta.creators())}$
+    ${print ', '.join(meta.creators()),}$
   </div>
 </div>
 
-<h2>Table of contents</h2>
+<h2>${print _('Table of contents'),}$</h2>
 
 <div class="ebookContent">
 
