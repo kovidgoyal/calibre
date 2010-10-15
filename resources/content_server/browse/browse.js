@@ -89,11 +89,14 @@ function render_error(msg) {
 }
 
 // Category feed {{{
+
+function category_clicked() {
+   var href = $(this).find("span.href").html();
+   window.location = href;
+}
+
 function category() {
-    $(".category .category-item").click(function() {
-        var href = $(this).find("span.href").html();
-        window.location = href;
-    });
+    $(".category .category-item").click(category_clicked);
 
     $(".category a.navlink").button();
     
@@ -115,6 +118,7 @@ function category() {
                             this.children(".loaded").html(data);
                             this.children(".loaded").show();
                             this.children(".loading").hide();
+                            this.find('.category-item').click(category_clicked);
                         },
                         context: ui.newContent,
                         dataType: "json",
@@ -132,4 +136,45 @@ function category() {
 }
 // }}}
 
+// Booklist {{{
 
+function load_page(elem) {
+    var ids = elem.find(".load_data").attr('title');
+    var href = elem.find(".load_data").html();
+    $.ajax({
+        url: href,
+        context: elem,
+        dataType: "json",
+        type: 'POST',
+        timeout: 600000, //milliseconds (10 minutes)
+        data: {'ids': ids},
+        error: function(xhr, stat, err) {
+            this.children(".loaded").html(render_error(stat));
+            this.children(".loaded").show();
+            this.children(".loading").hide();
+        },
+        success: function(data) {
+            this.children(".loaded").html(data);
+            this.children(".loaded").show();
+            this.children(".loading").hide();
+            this.find(".left a.read").button();
+        }
+    });
+    $("#booklist .page").hide();
+    elem.children(".loaded").hide();
+    elem.children(".loading").show();
+    elem.show();
+}
+
+function booklist() {
+    var test = $("#booklist #page0").html();
+    if (!test) {
+        $("#booklist").html(render_error("No books found"));
+        return;
+    }
+
+    load_page($("#booklist #page0"));
+    
+}
+
+// }}}

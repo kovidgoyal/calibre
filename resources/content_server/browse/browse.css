@@ -265,8 +265,65 @@ h2.library_name {
     display: none; 
 }
 
+#booklist .load_data { display: none }
+
 .loading img {
     vertical-align: middle;
+}
+
+#booklist .summary {
+    margin-bottom: 2ex;
+    border-bottom: solid 1px black;
+}
+
+#booklist div.left {
+    float: left;
+    height: 190px;
+    vertical-align: middle;
+    text-align: center;
+    margin-left: 1em;
+    margin-right: 2em;
+}
+
+#booklist div.left img {
+    display: block;
+    margin-bottom: 1ex;
+}
+
+#booklist div.right {
+    height: 190px;
+    overflow: auto;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+#booklist div.right .stars {
+    float:right;
+    margin-right: 1em;
+}
+
+#booklist div.right .stars .rating_container {
+    display: block;
+}
+
+#booklist .title {
+    font-size: larger;
+}
+
+#booklist .formats a {
+    text-decoration: none;
+}
+
+#booklist .formats a:hover {
+    color: red;
+}
+
+#booklist .left .ui-button-text {
+    font-weight: bold;
+    padding-left: 0.25em;
+    padding-right: 0.25em;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
 }
 
 /* }}} */

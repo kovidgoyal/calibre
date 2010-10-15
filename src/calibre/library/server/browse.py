@@ -14,16 +14,20 @@ import cherrypy
 from calibre.constants import filesystem_encoding
 from calibre import isbytestring, force_unicode, prepare_string_for_xml as xml
 from calibre.utils.ordered_dict import OrderedDict
+from calibre.utils.filenames import ascii_filename
+from calibre.utils.config import prefs
+from calibre.library.comments import comments_to_html
 
 def render_book_list(ids):
     pages = []
+    num = len(ids)
     while ids:
         page = list(ids[:25])
         pages.append(page)
         ids = ids[25:]
     page_template = u'''\
             <div class="page" id="page{0}">
-                <div class="load_data" title="{1}"></div>
+                <div class="load_data" title="{1}">/browse/booklist_page</div>
                 <div class="loading"><img src="/static/loading.gif" /> {2}</div>
                 <div class="loaded"></div>
             </div>
@@ -41,7 +45,7 @@ def render_book_list(ids):
                 {pages}
             </div>
             '''
-    return templ.format(_('Browsing %d books')%len(ids), pages=rpages)
+    return templ.format(_('Browsing %d books')%num, pages=rpages)
 
 def utf8(x): # {{{
     if isinstance(x, unicode):
@@ -49,11 +53,13 @@ def utf8(x): # {{{
     return x
 # }}}
 
-def render_rating(rating, container='span'): # {{{
+def render_rating(rating, container='span', prefix=None): # {{{
     if rating < 0.1:
         return '', ''
     added = 0
-    rstring = xml(_('Average rating: %.1f stars')% (rating if rating else 0.0),
+    if prefix is None:
+        prefix = _('Average rating')
+    rstring = xml(_('%s: %.1f stars')% (prefix, rating if rating else 0.0),
             True)
     ans = ['<%s class="rating">' % (container)]
     for i in range(5):
@@ -89,7 +95,7 @@ def get_category_items(category, items, db, datatype): # {{{
         id_ = xml(str(id_))
         desc = ''
         if i.count > 0:
-            desc += '[' + _('%d items')%i.count + ']'
+            desc += '[' + _('%d books')%i.count + ']'
         href = '/browse/matches/%s/%s'%(category, id_)
         return templ.format(xml(name), rating,
                 xml(desc), xml(quote(href)), rstring)
@@ -192,6 +198,14 @@ class BrowseServer(object):
         if not hasattr(self, '__browse_template__'):
             self.__browse_template__ = generate()
         return self.__browse_template__
+
+    @property
+    def browse_summary_template(self):
+        if not hasattr(self, '__browse_summary_template__') or \
+                self.opts.develop:
+            self.__browse_summary_template__ = \
+                P('content_server/browse/summary.html', data=True).decode('utf-8')
+        return self.__browse_summary_template__
 
 
     # Catalogs {{{
@@ -329,7 +343,6 @@ class BrowseServer(object):
         return json.dumps(entries, ensure_ascii=False)
 
 
-
     @Endpoint()
     def browse_catalog(self, category=None, category_sort=None):
         'Entry point for top-level, categories and sub-categories'
@@ -401,16 +414,57 @@ class BrowseServer(object):
             ids = json.loads(ids)
         except:
             raise cherrypy.HTTPError(404, 'invalid ids')
+        summs = []
+        for id_ in ids:
+            try:
+                id_ = int(id_)
+                mi = self.db.get_metadata(id_, index_is_id=True)
+            except:
+                continue
+            fmts = self.db.formats(id_, index_is_id=True)
+            if not fmts:
+                fmts = ''
+            fmts = [x.lower() for x in fmts.split(',') if x]
+            pf = prefs['output_format'].lower()
+            fmt = pf if pf in fmts else fmts[0]
+            args = {'id':id_, 'mi':mi, 'read_string':_('Read'),}
+            for key in mi.all_field_keys():
+                val = mi.format_field(key)[1]
+                if not val:
+                    val = ''
+                args[key] = xml(val, True)
+            fname = ascii_filename(args['title']) + ' - ' + ascii_filename(args['authors'])
+            args['href'] = '/get/%s/%s_%d.%s'%(
+                    fmt, fname, id_, fmt)
+            args['comments'] = comments_to_html(mi.comments)
+            args['read_tooltip'] = \
+                    _('Read %s in the %s format')%(args['title'], fmt.upper())
+            args['stars'] = ''
+            if mi.rating:
+                args['stars'] = render_rating(mi.rating/2.0, prefix=_('Rating'))[0]
+            if args['tags']:
+                args['tags'] = u'<strong>%s: </strong>'%_('Tags') + args['tags']
+            args['other_formats'] = ''
+            other_fmts = [x for x in fmts if x.lower() != fmt.lower()]
+
+            if other_fmts:
+                ofmts = [u'<a href="/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
+                        .format(fmt, fname, id_, fmt.upper()) for fmt in
+                        other_fmts]
+                ofmts = ', '.join(ofmts)
+                args['other_formats'] = u'<strong>%s: </strong>' % \
+                        _('Other formats') + ofmts
+
+
+            summs.append(self.browse_summary_template.format(**args))
+
+
+        return json.dumps('\n'.join(summs), ensure_ascii=False)
 
     # }}}
 
     # Search {{{
-    def browse_search(self, query=None, offset=0, sort=None):
-        raise NotImplementedError()
-    # }}}
-
-    # Book {{{
-    def browse_book(self, uuid=None):
+    def browse_search(self, query=None):
         raise NotImplementedError()
     # }}}
 
