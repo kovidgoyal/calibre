@@ -26,31 +26,12 @@ class GlobeAndMail(BasicNewsRecipe):
     #credit {margin-top:0px;}
     .tag {font-size: 22pt;}'''
     description = 'Canada\'s national newspaper'
-    remove_tags_before = dict(id="article-top")
-    remove_tags = [
-		{'id':['util', 'article-tabs', 'comments', 'article-relations',
-		'gallery-controls', 'video', 'galleryLoading','deck','header',
-        'toolsBottom'] },
-		{'class':['credit','inline-img-caption','tab-pointer'] },
-		dict(name='div', attrs={'id':['lead-photo', 'most-popular-story']}),
-		dict(name='div', attrs={'class':'right'}),
-		dict(name='div', attrs={'id':'footer'}),
-		dict(name='div', attrs={'id':'beta-msg'}),
-		dict(name='img', attrs={'class':'headshot'}),
-		dict(name='div', attrs={'class':'brand'}),
-		dict(name='div', attrs={'id':'nav-wrap'}),
-		dict(name='div', attrs={'id':'featureTopics'}),
-		dict(name='div', attrs={'id':'videoNav'}),
-		dict(name='div', attrs={'id':'blog-header'}),
-		dict(name='div', attrs={'id':'right-rail'}),
-		dict(name='div', attrs={'id':'group-footer-container'}),
-		dict(name=['iframe', 'style'])
-		]
-    remove_attributes = ['style']
-    remove_tags_after = [{'id':['article-content']},
-		{'class':['pull','inline-img'] },
-		dict(name='img', attrs={'class':'inline-media-embed'}),
-		]
+    keep_only_tags = [dict(name='article')]
+    remove_tags = [dict(name='aside'),
+                   dict(name='footer'),
+                   dict(name='div', attrs={'class':(lambda x: isinstance(x, (str,unicode)) and 'articlecommentcountholder' in x.split(' '))}),
+                   dict(name='ul', attrs={'class':(lambda x: isinstance(x, (str,unicode)) and 'articletoolbar' in x.split(' '))}),
+                  ]
     feeds = [
             (u'Latest headlines', u'http://www.theglobeandmail.com/?service=rss'),
             (u'Top stories', u'http://www.theglobeandmail.com/?service=rss&feed=topstories'),

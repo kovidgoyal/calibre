@@ -82,9 +82,9 @@ body {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   text-shadow: #27211b 1px 1px 1px;
-    -moz-box-shadow: 5px 5px 5px #222;
-    -webkit-box-shadow: 5px 5px 5px #222;
-    box-shadow: 5px 5px 5px #222;
+  -moz-box-shadow: 5px 5px 5px #222;
+  -webkit-box-shadow: 5px 5px 5px #222;
+  box-shadow: 5px 5px 5px #222;
 
 }
 
@@ -150,22 +150,12 @@ h2.library_name {
 
 /* }}} */
 
-/* Combobox {{{ */
-
-.ui-button { margin-left: -1px; }
-.ui-button-icon-only .ui-button-text { padding: 0.35em; } 
-.ui-autocomplete-input { margin: 0; padding: 0.48em 0 0.47em 0.45em; }
-
-/* }}} */
-
-
 /* Sort select  {{{ */
 
 .sort_select { 
     float: left;
     margin-left: 1em;
     margin-top: 2ex;
-    font-size: small;
     max-height: 2.75em;
     overflow: hidden;
 }
@@ -182,15 +172,11 @@ h2.library_name {
     float: right;
     margin-right: 1em;
     margin-top: 2ex;
-    font-size: small;
     max-height: 2.75em;
     overflow: hidden;
 }
 
-#search_box .search_input { padding: 0.35em }
-
 /* }}} */
-
 
 /* Top level {{{ */
 .toplevel ul {
@@ -204,6 +190,10 @@ h2.library_name {
     padding: 0.75em;
     text-align: center;
     cursor: pointer;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+
 }
 
 .toplevel li:hover {
@@ -212,7 +202,6 @@ h2.library_name {
     -moz-box-shadow: 5px 5px 5px #ccc;
     -webkit-box-shadow: 5px 5px 5px #ccc;
     box-shadow: 5px 5px 5px #ccc;
-    text-shadow: #27211b 1px 1px 1px;
 
 }
 
@@ -220,4 +209,65 @@ h2.library_name {
 
 /* }}} */
 
+/* Category {{{ */
+.category > div.category-container {
+    width: 100%;
+    margin-top: 1ex;
+    margin-bottom: 1ex;
+    display: table;
+}
+
+.category div.category-item {
+    display: table-row;
+}
+
+.category div.category-item > div {
+    padding: 0.75em;
+    text-align: center;
+    cursor: pointer;
+    display: table-cell;
+}
+
+.category div.category-name { font-weight: bold }
+
+.category div.category-item:hover > div {
+    background-color: #d6d3c9;
+    -moz-box-shadow: 5px 5px 5px #ccc;
+    -webkit-box-shadow: 5px 5px 5px #ccc;
+    box-shadow: 5px 5px 5px #ccc;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+
+}
+
+.category div.category-item span.href { display: none }
+
+#groups span.load_href { display: none }
+
+#groups h3 {
+    font-weight: bold;
+    margin-top: 1ex;
+    padding-left: 30px;
+    padding-top: 0.5ex;
+    padding-bottom: 0.5ex;
+}
+
+#groups h3 span {
+    font-weight: normal
+}
+
+/* }}} */
+
+/* Booklist {{{ */
+
+#booklist .page { 
+    display: none; 
+}
+
+.loading img {
+    vertical-align: middle;
+}
+
+/* }}} */
 

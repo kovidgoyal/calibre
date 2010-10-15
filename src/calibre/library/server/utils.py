@@ -23,6 +23,7 @@ class Offsets(object):
             raise cherrypy.HTTPError(404, 'Invalid offset: %r'%offset)
         last_allowed_index = total - 1
         last_current_index = offset + delta - 1
+        self.slice_upper_bound = offset+delta
         self.offset = offset
         self.next_offset = last_current_index + 1
         if self.next_offset > last_allowed_index:
