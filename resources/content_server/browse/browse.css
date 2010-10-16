@@ -417,12 +417,12 @@ h2.library_name {
     margin-bottom: 2ex;
 }
 
-#book_details_dialog .details a {
+.details .right .formats a {
     color: blue;
     text-decoration: none;
 }
 
-#book_details_dialog .details a:hover {
+.details .right .formats a:hover {
     color: red;
 }
 

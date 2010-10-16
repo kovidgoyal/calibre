@@ -197,6 +197,8 @@ class BrowseServer(object):
                 self.browse_search)
         connect('browse_details', base_href+'/details/{id}',
                 self.browse_details)
+        connect('browse_book', base_href+'/book/{id}',
+                self.browse_book)
         connect('browse_category_icon', base_href+'/icon/{name}',
                 self.browse_icon)
 
@@ -589,23 +591,19 @@ class BrowseServer(object):
                 args['series'] = args['series']
             args['details'] = xml(_('Details'), True)
             args['details_tt'] = xml(_('Show book details'), True)
+            args['permalink'] = xml(_('Permalink'), True)
+            args['permalink_tt'] = xml(_('A permanent link to this book'), True)
 
             summs.append(self.browse_summary_template.format(**args))
 
 
         return json.dumps('\n'.join(summs), ensure_ascii=False)
 
-    @Endpoint(mimetype='application/json; charset=utf-8')
-    def browse_details(self, id=None):
-        try:
-            id_ = int(id)
-        except:
-            raise cherrypy.HTTPError(404, 'invalid id: %r'%id)
-
+    def browse_render_details(self, id_):
         try:
             mi = self.db.get_metadata(id_, index_is_id=True)
         except:
-            ans = _('This book has been deleted')
+            return _('This book has been deleted')
         else:
             args, fmt, fmts, fname = self.browse_get_book_args(mi, id_)
             args['formats'] = ''
@@ -646,12 +644,33 @@ class BrowseServer(object):
                          u'<div class="comment">%s</div></div>') % (xml(c[0]),
                              c[1]) for c in comments]
             comments = u'<div class="comments">%s</div>'%('\n\n'.join(comments))
-            ans = self.browse_details_template.format(id=id_,
+
+            return self.browse_details_template.format(id=id_,
                     title=xml(mi.title, True), fields=fields,
                     formats=args['formats'], comments=comments)
 
+    @Endpoint(mimetype='application/json; charset=utf-8')
+    def browse_details(self, id=None):
+        try:
+            id_ = int(id)
+        except:
+            raise cherrypy.HTTPError(404, 'invalid id: %r'%id)
+
+        ans = self.browse_render_details(id_)
+
         return json.dumps(ans, ensure_ascii=False)
 
+
+    @Endpoint()
+    def browse_book(self, id=None, category_sort=None):
+        try:
+            id_ = int(id)
+        except:
+            raise cherrypy.HTTPError(404, 'invalid id: %r'%id)
+
+        ans = self.browse_render_details(id_)
+        return self.browse_template('').format(
+                title='', script='book();', main=ans)
 
 
     # }}}

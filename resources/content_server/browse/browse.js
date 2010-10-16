@@ -235,8 +235,10 @@ function load_page(elem) {
     elem.show();
 }
 
+function hidesort() {$("#content > .sort_select").hide();}
+
 function booklist(hide_sort) {
-    if (hide_sort) $("#content > .sort_select").hide();
+    if (hide_sort) hidesort();
     var test = $("#booklist #page0").html();
     if (!test) {
         $("#booklist").html(render_error("No books found"));
@@ -275,3 +277,13 @@ function show_details(a_dom) {
 }
 
 // }}}
+
+function book() {
+    hidesort();
+    $('.details .left img').load(function() {
+        var img = $('.details .left img');
+        var height = $('#main').height();
+        height = Math.max(height, img.height() + 100);
+        $('#main').height(height);
+    });
+}
