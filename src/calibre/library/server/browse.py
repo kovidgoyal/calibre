@@ -12,7 +12,8 @@ from binascii import hexlify, unhexlify
 import cherrypy
 
 from calibre.constants import filesystem_encoding
-from calibre import isbytestring, force_unicode, prepare_string_for_xml as xml
+from calibre import isbytestring, force_unicode, fit_image, \
+        prepare_string_for_xml as xml
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs
@@ -267,7 +268,10 @@ class BrowseServer(object):
             raise cherrypy.HTTPError(404, 'no icon named: %r'%name)
         img = Image()
         img.load(data)
-        img.size = (48, 48)
+        width, height = img.size
+        scaled, width, height = fit_image(width, height, 48, 48)
+        if scaled:
+            img.size = (width, height)
         cherrypy.response.headers['Content-Type'] = 'image/png'
         cherrypy.response.headers['Last-Modified'] = self.last_modified(self.build_time)
 
@@ -277,7 +281,7 @@ class BrowseServer(object):
         categories = self.categories_cache()
         category_meta = self.db.field_metadata
         cats = [
-                (_('Newest'), 'newest', 'blank.png'),
+                (_('Newest'), 'newest', 'forward.png'),
                 ]
 
         def getter(x):
