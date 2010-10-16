@@ -245,6 +245,14 @@ class BrowseServer(object):
                 P('content_server/browse/summary.html', data=True).decode('utf-8')
         return self.__browse_summary_template__
 
+    @property
+    def browse_details_template(self):
+        if not hasattr(self, '__browse_details_template__') or \
+                self.opts.develop:
+            self.__browse_details_template__ = \
+                P('content_server/browse/details.html', data=True).decode('utf-8')
+        return self.__browse_details_template__
+
     # }}}
 
     # Catalogs {{{
@@ -503,10 +511,10 @@ class BrowseServer(object):
             if mi.rating:
                 args['stars'] = render_rating(mi.rating/2.0, prefix=_('Rating'))[0]
             if args['tags']:
-                args['tags'] = u'<strong>%s: </strong>'%_('Tags') + \
-                    xml(args['tags'])
+                args['tags'] = u'<strong>%s: </strong>'%xml(_('Tags')) + \
+                    args['tags']
             if args['series']:
-                args['series'] = xml(args['series'])
+                args['series'] = args['series']
             args['read_string'] = xml(_('Read'), True)
             args['details'] = xml(_('Details'), True)
             args['details_tt'] = xml(_('Show book details'), True)
@@ -535,9 +543,38 @@ class BrowseServer(object):
                         .format(fmt, fname, id_, fmt.upper()) for fmt in
                         fmts]
                 ofmts = ', '.join(ofmts)
-                args['formats'] = u'<strong>%s: </strong>' % \
-                        _('Formats') + ofmts
+                args['formats'] = ofmts
+            fields, comments = [], []
+            for field, m in list(mi.get_all_standard_metadata(False).items()) + \
+                    list(mi.get_all_user_metadata(False).items()):
+                if m['datatype'] == 'comments' or field == 'comments':
+                    comments.append((m['name'], comments_to_html(mi.get(field,
+                        ''))))
+                    continue
+                if field in ('title', 'formats') or not args.get(field, False) \
+                        or not m['name']:
+                    continue
+                if m['datatype'] == 'rating':
+                    r = u'<strong>%s: </strong>'%xml(m['name']) + \
+                            render_rating(mi.rating/2.0, prefix=m['name'])[0]
+                else:
+                    r = u'<strong>%s: </strong>'%xml(m['name']) + \
+                                args[field]
+                fields.append((m['name'], r))
 
+            fields.sort(key=lambda x: x[0].lower())
+            fields = [u'<div class="field">{0}</div>'.format(f[1]) for f in
+                    fields]
+            fields = u'<div class="fields">%s</div>'%('\n\n'.join(fields))
+
+            comments.sort(key=lambda x: x[0].lower())
+            comments = [(u'<div class="field"><strong>%s: </strong>'
+                         u'<div class="comment">%s</div></div>') % (xml(c[0]),
+                             c[1]) for c in comments]
+            comments = u'<div class="comments">%s</div>'%('\n\n'.join(comments))
+            ans = self.browse_details_template.format(id=id_,
+                    title=xml(mi.title, True), fields=fields,
+                    formats=args['formats'], comments=comments)
 
         return json.dumps(ans, ensure_ascii=False)
 

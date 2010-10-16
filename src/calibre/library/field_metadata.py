@@ -161,7 +161,7 @@ class FieldMetadata(dict):
                            'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Comments'),
                            'search_terms':['comments', 'comment'],
                            'is_custom':False, 'is_category':False}),
             ('cover',     {'table':None,

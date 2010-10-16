@@ -384,3 +384,41 @@ h2.library_name {
 
 /* }}} */
 
+/* Details {{{ */
+
+.details .left {
+    float: left;
+    max-width: 50%;
+    margin-right: 2em;
+    overflow: auto;
+}
+
+.details .right {
+    overflow: auto;
+}
+
+.details .formats {
+    margin-bottom: 2ex;
+}
+
+#book_details_dialog .details a {
+    color: blue;
+    text-decoration: none;
+}
+
+#book_details_dialog .details a:hover {
+    color: red;
+}
+
+.details .field {
+    margin-bottom: 0.5em;
+}
+
+.details .comment {
+    margin-left: 1em;
+    overflow: auto;
+    max-height: 50%;
+}
+
+/* }}} */
+
