@@ -216,7 +216,14 @@ class BrowseServer(object):
             scn += 'list'
             fm = self.db.field_metadata
             sort_opts, added = [], set([])
+            displayed_custom_fields = custom_fields_to_display(self.db)
             for x in fm.sortable_field_keys():
+                if x == 'ondevice':
+                    continue
+                if fm[x]['is_custom'] and x not in displayed_custom_fields:
+                        continue
+                if x == 'comments' or fm[x]['datatype'] == 'comments':
+                    continue
                 n = fm[x]['name']
                 if n not in added:
                     added.add(n)
