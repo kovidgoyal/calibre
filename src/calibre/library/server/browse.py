@@ -477,14 +477,17 @@ class BrowseServer(object):
 
         if category not in categories and category != 'newest':
             raise cherrypy.HTTPError(404, 'category not found')
+        fm = self.db.field_metadata
         try:
-            category_name = self.db.field_metadata[category]['name']
+            category_name = fm[category]['name']
+            dt = fm[category]['datatype']
         except:
             if category != 'newest':
                 raise
             category_name = _('Newest')
+            dt = None
 
-        hide_sort = 'false'
+        hide_sort = 'true' if dt == 'series' else 'false'
         if category == 'search':
             which = unhexlify(cid)
             try:
@@ -503,6 +506,8 @@ class BrowseServer(object):
         items = [self.db.data._data[x] for x in ids]
         if category == 'newest':
             list_sort = 'timestamp'
+        if dt == 'series':
+            list_sort = category
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
         html = render_book_list(ids, suffix=_('in') + ' ' + category_name)
