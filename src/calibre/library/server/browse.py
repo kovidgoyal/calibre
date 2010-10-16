@@ -133,7 +133,10 @@ def get_category_items(category, items, db, datatype): # {{{
         desc = ''
         if i.count > 0:
             desc += '[' + _('%d books')%i.count + ']'
-        href = '/browse/matches/%s/%s'%(category, id_)
+        q = i.category
+        if not q:
+            q = category
+        href = '/browse/matches/%s/%s'%(q, id_)
         return templ.format(xml(name), rating,
                 xml(desc), xml(href), rstring)
 
