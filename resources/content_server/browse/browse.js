@@ -78,7 +78,7 @@ function toplevel() {
     $(".sort_select").hide();
 
     $(".toplevel li").click(function() {
-        var href = $(this).children("span").html();
+        var href = $(this).children("span.url").text();
         window.location = href;
     });
 
