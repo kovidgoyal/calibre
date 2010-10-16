@@ -6,7 +6,6 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import operator, os, json
-from urllib import quote
 from binascii import hexlify, unhexlify
 
 import cherrypy
@@ -136,7 +135,7 @@ def get_category_items(category, items, db, datatype): # {{{
             desc += '[' + _('%d books')%i.count + ']'
         href = '/browse/matches/%s/%s'%(category, id_)
         return templ.format(xml(name), rating,
-                xml(desc), xml(quote(href)), rstring)
+                xml(desc), xml(href), rstring)
 
     items = list(map(item, items))
     return '\n'.join(['<div class="category-container">'] + items + ['</div>'])
@@ -325,7 +324,7 @@ class BrowseServer(object):
         cats = [('<li title="{2} {0}"><img src="{src}" alt="{0}" />'
                  '<span class="label">{0}</span>'
                  '<span class="url">/browse/category/{1}</span></li>')
-                .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
+                .format(xml(x, True), xml(y), xml(_('Browse books by')),
                     src='/browse/icon/'+z)
                 for x, y, z in cats]
 
@@ -492,7 +491,10 @@ class BrowseServer(object):
             ids = list(self.db.data.iterallids())
             hide_sort = 'true'
         else:
-            ids = self.db.get_books_for_category(category, cid)
+            q = category
+            if q == 'news':
+                q = 'tags'
+            ids = self.db.get_books_for_category(q, cid)
 
         items = [self.db.data._data[x] for x in ids]
         if category == 'newest':
