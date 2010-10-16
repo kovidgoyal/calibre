@@ -210,13 +210,25 @@ function booklist(hide_sort) {
 
 function show_details(a_dom) {
     var book = $(a_dom).closest('div.summary');
-    var id = book.attr('id').split('_')[1];
     var bd = $('#book_details_dialog');
     bd.html('<span class="loading"><img src="/static/loading.gif" alt="Loading" />Loading, please wait&hellip;</span>');
     bd.dialog('option', 'width', $(window).width() - 100);
     bd.dialog('option', 'height', $(window).height() - 100);
-
     bd.dialog('option', 'title', book.find('.title').text());
+
+    $.ajax({
+        url: book.find('.details-href').attr('title'),
+        context: bd,
+        dataType: "json",
+        timeout: 600000, //milliseconds (10 minutes)
+        error: function(xhr, stat, err) {
+            this.html(render_error(stat));
+        },
+        success: function(data) {
+            this.html(data);
+        }
+    });
+
     bd.dialog('open');
 }
 

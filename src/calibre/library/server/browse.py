@@ -187,9 +187,10 @@ class BrowseServer(object):
         connect('browse_booklist_page',
                 base_href+'/booklist_page',
                 self.browse_booklist_page)
-
         connect('browse_search', base_href+'/search',
                 self.browse_search)
+        connect('browse_details', base_href+'/details/{id}',
+                self.browse_details)
 
     # Templates {{{
     def browse_template(self, sort, category=True, initial_search=''):
@@ -447,6 +448,23 @@ class BrowseServer(object):
                 title=_('Books in') + " " +category_name,
                 script='booklist(%s);'%hide_sort, main=html)
 
+    def browse_get_book_args(self, mi, id_):
+        fmts = self.db.formats(id_, index_is_id=True)
+        if not fmts:
+            fmts = ''
+        fmts = [x.lower() for x in fmts.split(',') if x]
+        pf = prefs['output_format'].lower()
+        fmt = pf if pf in fmts else fmts[0]
+        args = {'id':id_, 'mi':mi,
+                }
+        for key in mi.all_field_keys():
+            val = mi.format_field(key)[1]
+            if not val:
+                val = ''
+            args[key] = xml(val, True)
+        fname = ascii_filename(args['title']) + ' - ' + ascii_filename(args['authors'])
+        return args, fmt, fmts, fname
+
     @Endpoint(mimetype='application/json; charset=utf-8')
     def browse_booklist_page(self, ids=None, sort=None):
         if sort == 'null':
@@ -464,36 +482,9 @@ class BrowseServer(object):
                 mi = self.db.get_metadata(id_, index_is_id=True)
             except:
                 continue
-            fmts = self.db.formats(id_, index_is_id=True)
-            if not fmts:
-                fmts = ''
-            fmts = [x.lower() for x in fmts.split(',') if x]
-            pf = prefs['output_format'].lower()
-            fmt = pf if pf in fmts else fmts[0]
-            args = {'id':id_, 'mi':mi,
-                    'read_string':xml(_('Read'), True),
-                    'details': xml(_('Details'), True),
-                    'details_tt': xml(_('Show book details'), True)
-                    }
-            for key in mi.all_field_keys():
-                val = mi.format_field(key)[1]
-                if not val:
-                    val = ''
-                args[key] = xml(val, True)
-            fname = ascii_filename(args['title']) + ' - ' + ascii_filename(args['authors'])
-            args['href'] = '/get/%s/%s_%d.%s'%(
-                    fmt, fname, id_, fmt)
-            args['comments'] = comments_to_html(mi.comments)
-            args['read_tooltip'] = \
-                    _('Read %s in the %s format')%(args['title'], fmt.upper())
-            args['stars'] = ''
-            if mi.rating:
-                args['stars'] = render_rating(mi.rating/2.0, prefix=_('Rating'))[0]
-            if args['tags']:
-                args['tags'] = u'<strong>%s: </strong>'%_('Tags') + args['tags']
+            args, fmt, fmts, fname = self.browse_get_book_args(mi, id_)
             args['other_formats'] = ''
             other_fmts = [x for x in fmts if x.lower() != fmt.lower()]
-
             if other_fmts:
                 ofmts = [u'<a href="/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
                         .format(fmt, fname, id_, fmt.upper()) for fmt in
@@ -502,11 +493,55 @@ class BrowseServer(object):
                 args['other_formats'] = u'<strong>%s: </strong>' % \
                         _('Other formats') + ofmts
 
+            args['details_href'] = '/browse/details/'+str(id_)
+            args['read_tooltip'] = \
+                _('Read %s in the %s format')%(args['title'], fmt.upper())
+            args['href'] = '/get/%s/%s_%d.%s'%(
+                    fmt, fname, id_, fmt)
+            args['comments'] = comments_to_html(mi.comments)
+            args['stars'] = ''
+            if mi.rating:
+                args['stars'] = render_rating(mi.rating/2.0, prefix=_('Rating'))[0]
+            if args['tags']:
+                args['tags'] = u'<strong>%s: </strong>'%_('Tags') + \
+                    xml(args['tags'])
+            if args['series']:
+                args['series'] = xml(args['series'])
+            args['read_string'] = xml(_('Read'), True)
+            args['details'] = xml(_('Details'), True)
+            args['details_tt'] = xml(_('Show book details'), True)
 
             summs.append(self.browse_summary_template.format(**args))
 
 
         return json.dumps('\n'.join(summs), ensure_ascii=False)
+
+    @Endpoint(mimetype='application/json; charset=utf-8')
+    def browse_details(self, id=None):
+        try:
+            id_ = int(id)
+        except:
+            raise cherrypy.HTTPError(404, 'invalid id: %r'%id)
+
+        try:
+            mi = self.db.get_metadata(id_, index_is_id=True)
+        except:
+            ans = _('This book has been deleted')
+        else:
+            args, fmt, fmts, fname = self.browse_get_book_args(mi, id_)
+            args['formats'] = ''
+            if fmts:
+                ofmts = [u'<a href="/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
+                        .format(fmt, fname, id_, fmt.upper()) for fmt in
+                        fmts]
+                ofmts = ', '.join(ofmts)
+                args['formats'] = u'<strong>%s: </strong>' % \
+                        _('Formats') + ofmts
+
+
+        return json.dumps(ans, ensure_ascii=False)
+
+
 
     # }}}
 
