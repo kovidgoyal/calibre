@@ -74,6 +74,14 @@ function init() {
 }
 
 // Top-level feed {{{
+
+function toplevel_layout() {
+    var last = $(".toplevel li").last();
+    var title = $('.toplevel h3').first();
+    var bottom = last.position().top + last.height() - title.position().top;
+    $("#main").height(Math.max(200, bottom));
+}
+
 function toplevel() {
     $(".sort_select").hide();
 
@@ -82,10 +90,8 @@ function toplevel() {
         window.location = href;
     });
 
-
-    var last = $(".toplevel li").last();
-    var bottom = last.position().top + last.height();
-    $("#main").height(Math.max(680, bottom+150));
+    toplevel_layout();
+    $(window).resize(toplevel_layout);
 
 }
 // }}}
