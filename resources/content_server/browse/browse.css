@@ -214,7 +214,10 @@ h2.library_name {
 
 }
 
-.toplevel li span { display: none }
+.toplevel li span.url { display: none }
+.toplevel li span.label {
+}
+
 
 /* }}} */
 

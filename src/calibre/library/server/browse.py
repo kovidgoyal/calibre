@@ -315,8 +315,9 @@ class BrowseServer(object):
                 icon = 'blank.png'
             cats.append((meta['name'], category, icon))
 
-        cats = [('<li title="{2} {0}"><img src="{src}" alt="{0}" /> {0}'
-                 '<span>/browse/category/{1}</span></li>')
+        cats = [('<li title="{2} {0}"><img src="{src}" alt="{0}" />'
+                 '<span class="label">{0}</span>'
+                 '<span class="url">/browse/category/{1}</span></li>')
                 .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
                     src='/browse/icon/'+z)
                 for x, y, z in cats]
