@@ -466,7 +466,10 @@ class BrowseServer(object):
             fmts = ''
         fmts = [x.lower() for x in fmts.split(',') if x]
         pf = prefs['output_format'].lower()
-        fmt = pf if pf in fmts else fmts[0]
+        try:
+            fmt = pf if pf in fmts else fmts[0]
+        except:
+            fmt = None
         args = {'id':id_, 'mi':mi,
                 }
         for key in mi.all_field_keys():
@@ -496,20 +499,29 @@ class BrowseServer(object):
                 continue
             args, fmt, fmts, fname = self.browse_get_book_args(mi, id_)
             args['other_formats'] = ''
-            other_fmts = [x for x in fmts if x.lower() != fmt.lower()]
-            if other_fmts:
-                ofmts = [u'<a href="/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
-                        .format(f, fname, id_, f.upper()) for f in
-                        other_fmts]
-                ofmts = ', '.join(ofmts)
-                args['other_formats'] = u'<strong>%s: </strong>' % \
-                        _('Other formats') + ofmts
+            if fmts and fmt:
+                other_fmts = [x for x in fmts if x.lower() != fmt.lower()]
+                if other_fmts:
+                    ofmts = [u'<a href="/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
+                            .format(f, fname, id_, f.upper()) for f in
+                            other_fmts]
+                    ofmts = ', '.join(ofmts)
+                    args['other_formats'] = u'<strong>%s: </strong>' % \
+                            _('Other formats') + ofmts
 
             args['details_href'] = '/browse/details/'+str(id_)
-            args['read_tooltip'] = \
-                _('Read %s in the %s format')%(args['title'], fmt.upper())
-            args['href'] = '/get/%s/%s_%d.%s'%(
-                    fmt, fname, id_, fmt)
+
+            if fmt:
+                href = '/get/%s/%s_%d.%s'%(
+                        fmt, fname, id_, fmt)
+                rt = xml(_('Read %s in the %s format')%(args['title'],
+                        fmt.upper()), True)
+
+                args['get_button'] = \
+                        '<a href="%s" class="read" title="%s">%s</a>' % \
+                        (xml(href, True), rt, xml(_('Get')))
+            else:
+                args['get_button'] = ''
             args['comments'] = comments_to_html(mi.comments)
             args['stars'] = ''
             if mi.rating:
@@ -519,7 +531,6 @@ class BrowseServer(object):
                     args['tags']
             if args['series']:
                 args['series'] = args['series']
-            args['read_string'] = xml(_('Read'), True)
             args['details'] = xml(_('Details'), True)
             args['details_tt'] = xml(_('Show book details'), True)
 
