@@ -267,6 +267,7 @@ class BrowseServer(object):
         def getter(x):
             return category_meta[x]['name'].lower()
 
+        displayed_custom_fields = custom_fields_to_display(self.db)
         for category in sorted(categories,
                             cmp=lambda x,y: cmp(getter(x), getter(y))):
             if len(categories[category]) == 0:
@@ -275,6 +276,8 @@ class BrowseServer(object):
                 continue
             meta = category_meta.get(category, None)
             if meta is None:
+                continue
+            if meta['is_custom'] and category not in displayed_custom_fields:
                 continue
             cats.append((meta['name'], category))
         cats = ['<li title="{2} {0}">{0}<span>/browse/category/{1}</span></li>'\
