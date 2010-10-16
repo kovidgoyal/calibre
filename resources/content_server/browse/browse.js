@@ -193,7 +193,8 @@ function load_page(elem) {
     elem.show();
 }
 
-function booklist() {
+function booklist(hide_sort) {
+    if (hide_sort) $("#content > .sort_select").hide();
     var test = $("#booklist #page0").html();
     if (!test) {
         $("#booklist").html(render_error("No books found"));

@@ -18,7 +18,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs
 from calibre.library.comments import comments_to_html
 
-def render_book_list(ids): # {{{
+def render_book_list(ids, suffix=''): # {{{
     pages = []
     num = len(ids)
     pos = 0
@@ -49,7 +49,7 @@ def render_book_list(ids): # {{{
     rpages = u'\n\n'.join(rpages)
 
     templ = u'''\
-            <h3>{0}</h3>
+            <h3>{0} {suffix}</h3>
             <div id="booklist">
                 <div class="listnav topnav">
                 {navbar}
@@ -76,7 +76,8 @@ def render_book_list(ids): # {{{
     '''.format(first=_('First'), last=_('Last'), previous=_('Previous'),
             next=_('Next'), num=num)
 
-    return templ.format(_('Browsing %d books')%num, pages=rpages, navbar=navbar)
+    return templ.format(_('Browsing %d books')%num, suffix=suffix,
+            pages=rpages, navbar=navbar)
 
 # }}}
 
@@ -420,6 +421,7 @@ class BrowseServer(object):
                 raise
             category_name = _('Newest')
 
+        hide_sort = 'false'
         if category == 'search':
             which = unhexlify(cid)
             try:
@@ -428,6 +430,7 @@ class BrowseServer(object):
                 raise cherrypy.HTTPError(404, 'Search: %r not understood'%which)
         elif category == 'newest':
             ids = list(self.db.data.iterallids())
+            hide_sort = 'true'
         else:
             ids = self.db.get_books_for_category(category, cid)
 
@@ -436,10 +439,11 @@ class BrowseServer(object):
             list_sort = 'timestamp'
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
-        html = render_book_list(ids)
+        html = render_book_list(ids, suffix=_('in') + ' ' + category_name)
+
         return self.browse_template(sort, category=False).format(
                 title=_('Books in') + " " +category_name,
-                script='booklist();', main=html)
+                script='booklist(%s);'%hide_sort, main=html)
 
     @Endpoint(mimetype='application/json; charset=utf-8')
     def browse_booklist_page(self, ids=None, sort=None):
@@ -509,7 +513,7 @@ class BrowseServer(object):
         items = [self.db.data._data[x] for x in ids]
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
-        html = render_book_list(ids)
+        html = render_book_list(ids, suffix=_('in search')+': '+query)
         return self.browse_template(sort, category=False, initial_search=query).format(
                 title=_('Matching books'),
                 script='booklist();', main=html)
