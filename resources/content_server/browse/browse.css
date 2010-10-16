@@ -192,12 +192,17 @@ h2.library_name {
 .toplevel li {
     margin: 0.75em;
     padding: 0.75em;
-    text-align: center;
     cursor: pointer;
+    font-size: larger;
     border-radius: 15px;
     -moz-border-radius: 15px;
     -webkit-border-radius: 15px;
 
+}
+
+.toplevel li img {
+    vertical-align: middle;
+    margin-right: 2em;
 }
 
 .toplevel li:hover {

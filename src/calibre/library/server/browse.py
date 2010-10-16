@@ -16,6 +16,7 @@ from calibre import isbytestring, force_unicode, prepare_string_for_xml as xml
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs
+from calibre.utils.magick import Image
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.field_metadata import category_icon_map
@@ -193,50 +194,51 @@ class BrowseServer(object):
                 self.browse_search)
         connect('browse_details', base_href+'/details/{id}',
                 self.browse_details)
+        connect('browse_category_icon', base_href+'/icon/{name}',
+                self.browse_icon)
 
     # Templates {{{
     def browse_template(self, sort, category=True, initial_search=''):
 
-        def generate():
-            scn = 'calibre_browse_server_sort_'
+        if not hasattr(self, '__browse_template__') or \
+                self.opts.develop:
+            self.__browse_template__ = \
+                P('content_server/browse/browse.html', data=True).decode('utf-8')
 
-            if category:
-                sort_opts = [('rating', _('Average rating')), ('name',
-                    _('Name')), ('popularity', _('Popularity'))]
-                scn += 'category'
-            else:
-                scn += 'list'
-                fm = self.db.field_metadata
-                sort_opts, added = [], set([])
-                for x in fm.sortable_field_keys():
-                    n = fm[x]['name']
-                    if n not in added:
-                        added.add(n)
-                        sort_opts.append((x, n))
+        ans = self.__browse_template__
+        scn = 'calibre_browse_server_sort_'
 
-            ans = P('content_server/browse/browse.html',
-                    data=True).decode('utf-8')
-            ans = ans.replace('{sort_select_label}', xml(_('Sort by')+':'))
-            ans = ans.replace('{sort_cookie_name}', scn)
-            opts = ['<option %svalue="%s">%s</option>' % (
-                'selected="selected" ' if k==sort else '',
-                xml(k), xml(n), ) for k, n in
-                    sorted(sort_opts, key=operator.itemgetter(1)) if k and n]
-            ans = ans.replace('{sort_select_options}', ('\n'+' '*20).join(opts))
-            lp = self.db.library_path
-            if isbytestring(lp):
-                lp = force_unicode(lp, filesystem_encoding)
-            if isinstance(ans, unicode):
-                ans = ans.encode('utf-8')
-            ans = ans.replace('{library_name}', xml(os.path.basename(lp)))
-            ans = ans.replace('{library_path}', xml(lp, True))
-            ans = ans.replace('{initial_search}', initial_search)
-            return ans
+        if category:
+            sort_opts = [('rating', _('Average rating')), ('name',
+                _('Name')), ('popularity', _('Popularity'))]
+            scn += 'category'
+        else:
+            scn += 'list'
+            fm = self.db.field_metadata
+            sort_opts, added = [], set([])
+            for x in fm.sortable_field_keys():
+                n = fm[x]['name']
+                if n not in added:
+                    added.add(n)
+                    sort_opts.append((x, n))
 
-        if self.opts.develop:
-            return generate()
-        if not hasattr(self, '__browse_template__'):
-            self.__browse_template__ = generate()
+        ans = ans.replace('{sort_select_label}', xml(_('Sort by')+':'))
+        ans = ans.replace('{sort_cookie_name}', scn)
+        opts = ['<option %svalue="%s">%s</option>' % (
+            'selected="selected" ' if k==sort else '',
+            xml(k), xml(n), ) for k, n in
+                sorted(sort_opts, key=operator.itemgetter(1)) if k and n]
+        ans = ans.replace('{sort_select_options}', ('\n'+' '*20).join(opts))
+        lp = self.db.library_path
+        if isbytestring(lp):
+            lp = force_unicode(lp, filesystem_encoding)
+        if isinstance(ans, unicode):
+            ans = ans.encode('utf-8')
+        ans = ans.replace('{library_name}', xml(os.path.basename(lp)))
+        ans = ans.replace('{library_path}', xml(lp, True))
+        ans = ans.replace('{initial_search}', initial_search)
+        return ans
+
         return self.__browse_template__
 
     @property
@@ -258,11 +260,24 @@ class BrowseServer(object):
     # }}}
 
     # Catalogs {{{
+    def browse_icon(self, name='blank.png'):
+        try:
+            data = I(name, data=True)
+        except:
+            raise cherrypy.HTTPError(404, 'no icon named: %r'%name)
+        img = Image()
+        img.load(data)
+        img.size = (48, 48)
+        cherrypy.response.headers['Content-Type'] = 'image/png'
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(self.build_time)
+
+        return img.export('png')
+
     def browse_toplevel(self):
         categories = self.categories_cache()
         category_meta = self.db.field_metadata
         cats = [
-                (_('Newest'), 'newest'),
+                (_('Newest'), 'newest', 'blank.png'),
                 ]
 
         def getter(x):
@@ -282,18 +297,20 @@ class BrowseServer(object):
                 continue
             # get the icon files
             if category in category_icon_map:
-                icon = I(category_icon_map[category])
+                icon = category_icon_map[category]
             elif meta['is_custom']:
-                icon = I(category_icon_map[':custom'])
+                icon = category_icon_map[':custom']
             elif meta['kind'] == 'user':
-                icon = I(category_icon_map[':user'])
+                icon = category_icon_map[':user']
             else:
-                icon = None # shouldn't get here
+                icon = 'blank.png'
+            cats.append((meta['name'], category, icon))
 
-            cats.append((meta['name'], category))
-        cats = ['<li title="{2} {0}">{0}<span>/browse/category/{1}</span></li>'\
-                .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')))
-                for x, y in cats]
+        cats = [('<li title="{2} {0}"><img src="{src}" alt="{0}" /> {0}'
+                 '<span>/browse/category/{1}</span></li>')
+                .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
+                    src='/browse/icon/'+z)
+                for x, y, z in cats]
 
         main = '<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
                 .format(_('Choose a category to browse by:'), '\n\n'.join(cats))
