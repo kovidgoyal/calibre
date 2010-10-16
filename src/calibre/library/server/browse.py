@@ -464,7 +464,8 @@ class BrowseServer(object):
             sort = 'title'
         self.sort(items, 'title', True)
         if sort != 'title':
-            ascending = fm[sort]['datatype'] not in ('rating', 'datetime')
+            ascending = fm[sort]['datatype'] not in ('rating', 'datetime',
+                    'series')
             self.sort(items, sort, ascending)
         return sort
 
