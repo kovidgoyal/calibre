@@ -16,8 +16,10 @@ from calibre import isbytestring, force_unicode, prepare_string_for_xml as xml
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs
+from calibre.utils.magick import Image
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
+from calibre.library.field_metadata import category_icon_map
 
 def render_book_list(ids, suffix=''): # {{{
     pages = []
@@ -192,6 +194,8 @@ class BrowseServer(object):
                 self.browse_search)
         connect('browse_details', base_href+'/details/{id}',
                 self.browse_details)
+        connect('browse_category_icon', base_href+'/icon/{name}',
+                self.browse_icon)
 
     # Templates {{{
     def browse_template(self, sort, category=True, initial_search=''):
@@ -257,11 +261,24 @@ class BrowseServer(object):
     # }}}
 
     # Catalogs {{{
+    def browse_icon(self, name='blank.png'):
+        try:
+            data = I(name, data=True)
+        except:
+            raise cherrypy.HTTPError(404, 'no icon named: %r'%name)
+        img = Image()
+        img.load(data)
+        img.size = (48, 48)
+        cherrypy.response.headers['Content-Type'] = 'image/png'
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(self.build_time)
+
+        return img.export('png')
+
     def browse_toplevel(self):
         categories = self.categories_cache()
         category_meta = self.db.field_metadata
         cats = [
-                (_('Newest'), 'newest'),
+                (_('Newest'), 'newest', 'blank.png'),
                 ]
 
         def getter(x):
@@ -279,10 +296,22 @@ class BrowseServer(object):
                 continue
             if meta['is_custom'] and category not in displayed_custom_fields:
                 continue
-            cats.append((meta['name'], category))
-        cats = ['<li title="{2} {0}">{0}<span>/browse/category/{1}</span></li>'\
-                .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')))
-                for x, y in cats]
+            # get the icon files
+            if category in category_icon_map:
+                icon = category_icon_map[category]
+            elif meta['is_custom']:
+                icon = category_icon_map[':custom']
+            elif meta['kind'] == 'user':
+                icon = category_icon_map[':user']
+            else:
+                icon = 'blank.png'
+            cats.append((meta['name'], category, icon))
+
+        cats = [('<li title="{2} {0}"><img src="{src}" alt="{0}" /> {0}'
+                 '<span>/browse/category/{1}</span></li>')
+                .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
+                    src='/browse/icon/'+z)
+                for x, y, z in cats]
 
         main = '<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
                 .format(_('Choose a category to browse by:'), '\n\n'.join(cats))
