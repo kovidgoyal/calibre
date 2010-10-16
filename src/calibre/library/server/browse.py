@@ -191,6 +191,7 @@ class BrowseServer(object):
         connect('browse_search', base_href+'/search',
                 self.browse_search)
 
+    # Templates {{{
     def browse_template(self, sort, category=True, initial_search=''):
 
         def generate():
@@ -243,6 +244,7 @@ class BrowseServer(object):
                 P('content_server/browse/summary.html', data=True).decode('utf-8')
         return self.__browse_summary_template__
 
+    # }}}
 
     # Catalogs {{{
     def browse_toplevel(self):
