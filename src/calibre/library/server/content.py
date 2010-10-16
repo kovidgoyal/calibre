@@ -140,7 +140,7 @@ class ContentServer(object):
                 updated = self.build_time
             else:
                 with cover as f:
-                    updated = fromtimestamp(os.stat(f.name).st_mtime)
+                    updated = fromtimestamp(os.fstat(f.fileno()).st_mtime)
                     cover = f.read()
             cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
 
