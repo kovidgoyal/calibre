@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-09 13:31+0000\n"
+"PO-Revision-Date: 2010-10-15 18:45+0000\n"
 "Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-10 04:54+0000\n"
+"X-Launchpad-Export-Date: 2010-10-16 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -9946,11 +9946,15 @@ msgstr "&Alternativ genvej:"
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
 msgstr ""
+"Ændring af forfatterne for adskillige bøger kan tage et stykke tid. Er du "
+"sikker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:168
 msgid ""
 "Changing the metadata for that many books can take a while. Are you sure?"
 msgstr ""
+"Ændring af metadataene for adskillige bøger kan tage et stykke tid. Er du "
+"sikker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:295
 msgid "Rename '%s'"
@@ -10159,18 +10163,20 @@ msgid ""
 "%s has been updated to version <b>%s</b>. See the <a href=\"http://calibre-"
 "ebook.com/whats-new\">new features</a>. Visit the download page?"
 msgstr ""
+"%s er blevet opdateret til version <b>%s</b>. Se de <a href=\"http://calibre-"
+"ebook.com/whats-new\">nye egenskaber</a>. Besøg download siden?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:59
 msgid "Update available!"
-msgstr ""
+msgstr "Updatering tilgængelig!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:64
 msgid "Show this notification for future updates"
-msgstr ""
+msgstr "Vis denne notifikation for fremtidige opdateringer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:69
 msgid "&Get update"
-msgstr ""
+msgstr "&Hent opdatering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -11885,10 +11891,12 @@ msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
+"Skal opretningen virkelig udføres. Kommanden vil ikke køre, medmindre denne "
+"mulighed bliver angivet."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:988
 msgid "You must provide the --really-do-it option to do a recovery"
-msgstr ""
+msgstr "Du skal give --really-do-it muligheden for at udføre genopretningen"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1025
 msgid ""
@@ -11897,32 +11905,43 @@ msgid ""
 "Produce a report of the category information in the database. The\n"
 "information is the equivalent of what is shown in the tags pane.\n"
 msgstr ""
+"%prog list_categories [options]\n"
+"\n"
+"Laver en rapport af kategoriinformationen i databasen.\n"
+"Informationen er ækvivalenten af hvad som vises i mærkeruden.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1033
 msgid ""
 "Output only the number of items in a category instead of the counts per item "
 "within the category"
 msgstr ""
+"Output kun antallet af emner i en kategori, istedet for antallet per emne "
+"indenfor kategorien"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1038
 msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
+"Tegn til at sætte omkring kategoriværdien i CSV-tilstand. Standard er "
+"gåseøjne (\")."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1041
 msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
+"Kommasepareret liste af kategori opslagsnavne.\n"
+"Standard: alle"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1047
 msgid "The string used to separate fields in CSV mode. Default is a comma."
 msgstr ""
+"Streng anvendt til at separere felter i CSV-tilstand. Standard er et komma."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1085
 msgid "CATEGORY ITEMS"
-msgstr ""
+msgstr "KATEGORI EMNER"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1154
 msgid ""
@@ -11994,7 +12013,7 @@ msgstr "Vurderinger"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:262
 msgid "Title Sort"
-msgstr ""
+msgstr "Titel sortering"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:117
 msgid "Processed"

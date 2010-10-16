@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-08 21:12+0000\n"
-"PO-Revision-Date: 2010-10-12 18:01+0000\n"
+"PO-Revision-Date: 2010-10-15 20:04+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-13 04:55+0000\n"
+"X-Launchpad-Export-Date: 2010-10-16 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -9161,6 +9161,8 @@ msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
 msgstr ""
+"Els noms de cerca no poden acabar en _index perquè aquests noms estan "
+"reservats per als índexs d'una columna de sèrie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:126
 msgid "No column heading was provided"
@@ -9794,6 +9796,15 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
+"<li><b>Gestió manual</b>: El calibre actualitza les metadades i afegeix "
+"col·leccions només quan s'envia un llibre. Amb aquesta opció el calibre no "
+"eliminarà mai una col·lecció.</li>\n"
+"<li><b>Només en enviar</b>: El calibre actualitza les metadades i "
+"afegeix/elimina les col·leccions d'un llibre només quan s'envia al "
+"dispositiu.</li>\n"
+"<li><b>Gestió automàtica</b>: El calibre conserva automàticament les "
+"metadades al dispositiu que estigui sincronitzat amb la biblioteca del "
+"calibre cada cop que es connecti.</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:77
 msgid ""
@@ -9801,11 +9812,15 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
+"Aquí podeu controlar com el calibre desa els vostres llibres quan premeu el "
+"botó 'Envia al dispositiu'. En dispositius individuals aquest paràmetre es "
+"pot substituir personalitzant els connectors d'interfície de dispositiu a "
+"Preferències->Avançat->Connectors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:320
 msgid "Failed to start content server"
-msgstr ""
+msgstr "No s'ha pogut iniciar el servidor de continguts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:99
 msgid "Error log:"
@@ -9817,39 +9832,43 @@ msgstr "Registre d'accés:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:121
 msgid "You need to restart the server for changes to take effect"
-msgstr ""
+msgstr "Heu de reiniciar el servidor per tal que els canvis s'apliquin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:124
 msgid "Server &port:"
-msgstr ""
+msgstr "&Port del servidor:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:127
 msgid ""
 "If you leave the password blank, anyone will be able to access your book "
 "collection using the web interface."
 msgstr ""
+"Si deixeu la contrasenya en blanc qualsevol pot accedir la vostra col·lecció "
+"de llibres amb la interfície web."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:128
 msgid ""
 "The maximum size (widthxheight) for displayed covers. Larger covers are "
 "resized. "
 msgstr ""
+"Mida màxima (amplada x alçada) per a les portades que es mostren. Les "
+"portades més grans es redimensionaran. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:129
 msgid "Max. &cover size:"
-msgstr ""
+msgstr "Mida &màxima de la portada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:131
 msgid "Max. &OPDS items per query:"
-msgstr ""
+msgstr "Número màxim d'elements &OPDS per consulta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:132
 msgid "Max. OPDS &ungrouped items:"
-msgstr ""
+msgstr "Número màxim d'elements OPDS sense agr&upar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:133
 msgid "Restriction (saved search) to apply:"
-msgstr ""
+msgstr "Restricció (cerca desada) que s'aplicarà:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:134
 msgid ""
@@ -9860,15 +9879,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:135
 msgid "&Start Server"
-msgstr ""
+msgstr "Inicia el &servidor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:136
 msgid "St&op Server"
-msgstr ""
+msgstr "Atura el servid&or"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:137
 msgid "&Test Server"
-msgstr ""
+msgstr "Prova el ser&vidor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:138
 msgid ""
@@ -9879,11 +9898,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:139
 msgid "Run server &automatically on startup"
-msgstr ""
+msgstr "Executa &automàticament el servidor a l'inici"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:140
 msgid "View &server logs"
-msgstr ""
+msgstr "Veure els registres del &servidor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:141
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:46
