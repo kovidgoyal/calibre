@@ -495,7 +495,7 @@ class BrowseServer(object):
             other_fmts = [x for x in fmts if x.lower() != fmt.lower()]
             if other_fmts:
                 ofmts = [u'<a href="/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
-                        .format(fmt, fname, id_, fmt.upper()) for fmt in
+                        .format(f, fname, id_, f.upper()) for f in
                         other_fmts]
                 ofmts = ', '.join(ofmts)
                 args['other_formats'] = u'<strong>%s: </strong>' % \
