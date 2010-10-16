@@ -202,7 +202,8 @@ function booklist(hide_sort) {
     }
     $("#book_details_dialog").dialog({
         autoOpen: false,
-        modal: true
+        modal: true,
+        show: 'slide'
     });
     first_page(); 
 }
@@ -211,9 +212,11 @@ function show_details(a_dom) {
     var book = $(a_dom).closest('div.summary');
     var id = book.attr('id').split('_')[1];
     var bd = $('#book_details_dialog');
-    bd.attr('title', 'test');
-    bd.html('test');
+    bd.html('<span class="loading"><img src="/static/loading.gif" alt="Loading" />Loading, please wait&hellip;</span>');
     bd.dialog('option', 'width', $('#container').width() - 50);
+    bd.dialog('option', 'height', $(window).height() - 100);
+
+    bd.dialog('option', 'title', book.find('.title').text());
     bd.dialog('open');
 }
 
