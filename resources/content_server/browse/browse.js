@@ -81,6 +81,12 @@ function toplevel() {
         var href = $(this).children("span").html();
         window.location = href;
     });
+
+
+    var last = $(".toplevel li").last();
+    var bottom = last.position().top + last.height();
+    $("#main").height(Math.max(680, bottom+150));
+
 }
 // }}}
 
