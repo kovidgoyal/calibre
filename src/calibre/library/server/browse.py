@@ -262,20 +262,25 @@ class BrowseServer(object):
 
     # Catalogs {{{
     def browse_icon(self, name='blank.png'):
-        try:
-            data = I(name, data=True)
-        except:
-            raise cherrypy.HTTPError(404, 'no icon named: %r'%name)
-        img = Image()
-        img.load(data)
-        width, height = img.size
-        scaled, width, height = fit_image(width, height, 48, 48)
-        if scaled:
-            img.size = (width, height)
         cherrypy.response.headers['Content-Type'] = 'image/png'
         cherrypy.response.headers['Last-Modified'] = self.last_modified(self.build_time)
 
-        return img.export('png')
+        if not hasattr(self, '__browse_icon_cache__'):
+            self.__browse_icon_cache__ = {}
+        if name not in self.__browse_icon_cache__:
+            try:
+                data = I(name, data=True)
+            except:
+                raise cherrypy.HTTPError(404, 'no icon named: %r'%name)
+            img = Image()
+            img.load(data)
+            width, height = img.size
+            scaled, width, height = fit_image(width, height, 48, 48)
+            if scaled:
+                img.size = (width, height)
+
+            self.__browse_icon_cache__[name] = img.export('png')
+        return self.__browse_icon_cache__[name]
 
     def browse_toplevel(self):
         categories = self.categories_cache()
