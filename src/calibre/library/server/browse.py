@@ -18,6 +18,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
+from calibre.library.field_metadata import category_icon_map
 
 def render_book_list(ids, suffix=''): # {{{
     pages = []
@@ -279,6 +280,16 @@ class BrowseServer(object):
                 continue
             if meta['is_custom'] and category not in displayed_custom_fields:
                 continue
+            # get the icon files
+            if category in category_icon_map:
+                icon = I(category_icon_map[category])
+            elif meta['is_custom']:
+                icon = I(category_icon_map[':custom'])
+            elif meta['kind'] == 'user':
+                icon = I(category_icon_map[':user'])
+            else:
+                icon = None # shouldn't get here
+
             cats.append((meta['name'], category))
         cats = ['<li title="{2} {0}">{0}<span>/browse/category/{1}</span></li>'\
                 .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')))
