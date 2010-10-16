@@ -17,6 +17,7 @@ from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs
 from calibre.library.comments import comments_to_html
+from calibre.library.server import custom_fields_to_display
 
 def render_book_list(ids, suffix=''): # {{{
     pages = []
@@ -266,6 +267,7 @@ class BrowseServer(object):
         def getter(x):
             return category_meta[x]['name'].lower()
 
+        displayed_custom_fields = custom_fields_to_display(self.db)
         for category in sorted(categories,
                             cmp=lambda x,y: cmp(getter(x), getter(y))):
             if len(categories[category]) == 0:
@@ -274,6 +276,8 @@ class BrowseServer(object):
                 continue
             meta = category_meta.get(category, None)
             if meta is None:
+                continue
+            if meta['is_custom'] and category not in displayed_custom_fields:
                 continue
             cats.append((meta['name'], category))
         cats = ['<li title="{2} {0}">{0}<span>/browse/category/{1}</span></li>'\
@@ -556,8 +560,11 @@ class BrowseServer(object):
                 ofmts = ', '.join(ofmts)
                 args['formats'] = ofmts
             fields, comments = [], []
+            displayed_custom_fields = custom_fields_to_display(self.db)
             for field, m in list(mi.get_all_standard_metadata(False).items()) + \
                     list(mi.get_all_user_metadata(False).items()):
+                if m['is_custom'] and field not in displayed_custom_fields:
+                    continue
                 if m['datatype'] == 'comments' or field == 'comments':
                     comments.append((m['name'], comments_to_html(mi.get(field,
                         ''))))
