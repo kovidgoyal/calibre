@@ -89,11 +89,14 @@ function render_error(msg) {
 }
 
 // Category feed {{{
+
+function category_clicked() {
+   var href = $(this).find("span.href").html();
+   window.location = href;
+}
+
 function category() {
-    $(".category .category-item").click(function() {
-        var href = $(this).find("span.href").html();
-        window.location = href;
-    });
+    $(".category .category-item").click(category_clicked);
 
     $(".category a.navlink").button();
     
@@ -111,10 +114,12 @@ function category() {
                 if (href) {
                     $.ajax({
                         url:href,
+                        data:{'sort':cookie(sort_cookie_name)},
                         success: function(data) {
                             this.children(".loaded").html(data);
                             this.children(".loaded").show();
                             this.children(".loading").hide();
+                            this.find('.category-item').click(category_clicked);
                         },
                         context: ui.newContent,
                         dataType: "json",
@@ -132,4 +137,99 @@ function category() {
 }
 // }}}
 
+// Booklist {{{
 
+function first_page() {
+    load_page($("#booklist #page0"));
+}
+
+function last_page() {
+    load_page($("#booklist .page").last());
+}
+
+function next_page() {
+    var elem = $("#booklist .page:visible").next('.page');
+    if (elem.length > 0) load_page(elem);
+    else first_page();
+}
+
+function previous_page() {
+    var elem = $("#booklist .page:visible").prev('.page');
+    if (elem.length > 0) load_page(elem);
+    else last_page();
+}
+
+function load_page(elem) {
+    if (elem.is(":visible")) return;
+    var ld = elem.find('.load_data');
+    var ids = ld.attr('title');
+    var href = ld.find(".url").attr('title');
+    elem.children(".loaded").hide();
+
+    $.ajax({
+        url: href,
+        context: elem,
+        dataType: "json",
+        type: 'POST',
+        timeout: 600000, //milliseconds (10 minutes)
+        data: {'ids': ids},
+        error: function(xhr, stat, err) {
+            this.children(".loaded").html(render_error(stat));
+            this.children(".loaded").show();
+            this.children(".loading").hide();
+        },
+        success: function(data) {
+            this.children(".loaded").html(data);
+            this.find(".left a.read").button();
+            this.children(".loading").hide();
+            this.parent().find('.navmiddle .start').html(this.find('.load_data .start').attr('title'));
+            this.parent().find('.navmiddle .end').html(this.find('.load_data .end').attr('title'));
+            this.children(".loaded").fadeIn(1000);
+        }
+    });
+    $("#booklist .page:visible").hide();
+    elem.children(".loaded").hide();
+    elem.children(".loading").show();
+    elem.show();
+}
+
+function booklist(hide_sort) {
+    if (hide_sort) $("#content > .sort_select").hide();
+    var test = $("#booklist #page0").html();
+    if (!test) {
+        $("#booklist").html(render_error("No books found"));
+        return;
+    }
+    $("#book_details_dialog").dialog({
+        autoOpen: false,
+        modal: true,
+        show: 'slide'
+    });
+    first_page(); 
+}
+
+function show_details(a_dom) {
+    var book = $(a_dom).closest('div.summary');
+    var bd = $('#book_details_dialog');
+    bd.html('<span class="loading"><img src="/static/loading.gif" alt="Loading" />Loading, please wait&hellip;</span>');
+    bd.dialog('option', 'width', $(window).width() - 100);
+    bd.dialog('option', 'height', $(window).height() - 100);
+    bd.dialog('option', 'title', book.find('.title').text());
+
+    $.ajax({
+        url: book.find('.details-href').attr('title'),
+        context: bd,
+        dataType: "json",
+        timeout: 600000, //milliseconds (10 minutes)
+        error: function(xhr, stat, err) {
+            this.html(render_error(stat));
+        },
+        success: function(data) {
+            this.html(data);
+        }
+    });
+
+    bd.dialog('open');
+}
+
+// }}}

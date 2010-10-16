@@ -25,7 +25,7 @@ from calibre.ebooks.metadata.covers import download_cover
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.date import qt_to_dt, local_tz, utcfromtimestamp, utc_tz
+from calibre.utils.date import qt_to_dt, local_tz, utcfromtimestamp
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.preferences.social import SocialMetadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
