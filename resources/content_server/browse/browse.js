@@ -55,7 +55,7 @@ function init_sort_combobox() {
        selectedList: 1,
        click: function(event, ui){
             $(this).multiselect("close");
-            cookie(sort_cookie_name, ui.value, {expires: 365});
+            cookie(sort_cookie_name, ui.value);
             window.location.reload();
        }
     });

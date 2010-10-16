@@ -221,7 +221,7 @@ class BrowseServer(object):
             sort_opts, added = [], set([])
             displayed_custom_fields = custom_fields_to_display(self.db)
             for x in fm.sortable_field_keys():
-                if x == 'ondevice':
+                if x in ('ondevice', 'formats', 'sort'):
                     continue
                 if fm[x]['is_custom'] and x not in displayed_custom_fields:
                     continue
