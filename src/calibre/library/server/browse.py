@@ -470,7 +470,11 @@ class BrowseServer(object):
             fmts = [x.lower() for x in fmts.split(',') if x]
             pf = prefs['output_format'].lower()
             fmt = pf if pf in fmts else fmts[0]
-            args = {'id':id_, 'mi':mi, 'read_string':_('Read'),}
+            args = {'id':id_, 'mi':mi,
+                    'read_string':xml(_('Read'), True),
+                    'details': xml(_('Details'), True),
+                    'details_tt': xml(_('Show book details'), True)
+                    }
             for key in mi.all_field_keys():
                 val = mi.format_field(key)[1]
                 if not val:

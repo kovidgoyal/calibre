@@ -200,8 +200,21 @@ function booklist(hide_sort) {
         $("#booklist").html(render_error("No books found"));
         return;
     }
-
+    $("#book_details_dialog").dialog({
+        autoOpen: false,
+        modal: true
+    });
     first_page(); 
+}
+
+function show_details(a_dom) {
+    var book = $(a_dom).closest('div.summary');
+    var id = book.attr('id').split('_')[1];
+    var bd = $('#book_details_dialog');
+    bd.attr('title', 'test');
+    bd.html('test');
+    bd.dialog('option', 'width', $('#container').width() - 50);
+    bd.dialog('open');
 }
 
 // }}}

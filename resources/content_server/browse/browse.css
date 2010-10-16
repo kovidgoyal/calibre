@@ -309,21 +309,27 @@ h2.library_name {
     display: block;
 }
 
+#booklist div.right .stars .series {
+    display: block;
+}
+
 #booklist .title {
     font-size: larger;
 }
 
-#booklist .formats a {
+#booklist a {
     text-decoration: none;
     color: blue;
 }
 
-#booklist .formats a:hover {
+#booklist a:hover {
     color: red;
 }
 
+
 #booklist .left .ui-button-text {
-    font-weight: bold;
+    font-size: medium;
+    color: black;
     padding-left: 0.25em;
     padding-right: 0.25em;
     padding-top: 0.25em;

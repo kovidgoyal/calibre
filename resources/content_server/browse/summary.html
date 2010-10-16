@@ -4,7 +4,11 @@
         <a href="{href}" class="read" title="{read_tooltip}">{read_string}</a>
     </div>
     <div class="right">
-        <div class="stars"><span class="rating_container">{stars}</span>{series}</div>
+        <div class="stars">
+            <span class="rating_container">{stars}</span>
+            <span class="series">{series}</span>
+            <a href="#" onclick="show_details(this); return false;" title="{details_tt}">{details}</a>
+        </div>
         <div class="title"><strong>{title}</strong></div>
         <div class="authors">{authors}</div>
         <div class="comments">{comments}</div>
