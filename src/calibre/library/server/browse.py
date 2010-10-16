@@ -17,6 +17,7 @@ from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs
 from calibre.library.comments import comments_to_html
+from calibre.library.server import custom_fields_to_display
 
 def render_book_list(ids, suffix=''): # {{{
     pages = []
@@ -495,7 +496,7 @@ class BrowseServer(object):
             other_fmts = [x for x in fmts if x.lower() != fmt.lower()]
             if other_fmts:
                 ofmts = [u'<a href="/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
-                        .format(fmt, fname, id_, fmt.upper()) for fmt in
+                        .format(f, fname, id_, f.upper()) for f in
                         other_fmts]
                 ofmts = ', '.join(ofmts)
                 args['other_formats'] = u'<strong>%s: </strong>' % \
@@ -545,8 +546,11 @@ class BrowseServer(object):
                 ofmts = ', '.join(ofmts)
                 args['formats'] = ofmts
             fields, comments = [], []
+            displayed_custom_fields = custom_fields_to_display(self.db)
             for field, m in list(mi.get_all_standard_metadata(False).items()) + \
                     list(mi.get_all_user_metadata(False).items()):
+                if m['is_custom'] and field not in displayed_custom_fields:
+                    continue
                 if m['datatype'] == 'comments' or field == 'comments':
                     comments.append((m['name'], comments_to_html(mi.get(field,
                         ''))))
