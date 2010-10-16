@@ -114,6 +114,7 @@ function category() {
                 if (href) {
                     $.ajax({
                         url:href,
+                        data:{'sort':cookie(sort_cookie_name)},
                         success: function(data) {
                             this.children(".loaded").html(data);
                             this.children(".loaded").show();

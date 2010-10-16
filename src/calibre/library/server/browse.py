@@ -150,11 +150,12 @@ class Endpoint(object): # {{{
     def __call__(eself, func):
 
         def do(self, *args, **kwargs):
-            sort_val = None
-            cookie = cherrypy.request.cookie
-            if cookie.has_key(eself.sort_cookie_name):
-                sort_val = cookie[eself.sort_cookie_name].value
-            kwargs[eself.sort_kwarg] = sort_val
+            if 'json' not in eself.mimetype:
+                sort_val = None
+                cookie = cherrypy.request.cookie
+                if cookie.has_key(eself.sort_cookie_name):
+                    sort_val = cookie[eself.sort_cookie_name].value
+                kwargs[eself.sort_kwarg] = sort_val
 
             ans = func(self, *args, **kwargs)
             cherrypy.response.headers['Content-Type'] = eself.mimetype
@@ -347,9 +348,9 @@ class BrowseServer(object):
                 script=script, main=main)
 
     @Endpoint(mimetype='application/json; charset=utf-8')
-    def browse_category_group(self, category=None, group=None,
-            category_sort=None):
-        sort = category_sort
+    def browse_category_group(self, category=None, group=None, sort=None):
+        if sort == 'null':
+            sort = None
         if sort not in ('rating', 'name', 'popularity'):
             sort = 'name'
         categories = self.categories_cache()
@@ -440,8 +441,10 @@ class BrowseServer(object):
                 title=_('Books in') + " " +category_name,
                 script='booklist();', main=html)
 
-    @Endpoint(mimetype='application/json; charset=utf-8', sort_type='list')
-    def browse_booklist_page(self, ids=None, list_sort=None):
+    @Endpoint(mimetype='application/json; charset=utf-8')
+    def browse_booklist_page(self, ids=None, sort=None):
+        if sort == 'null':
+            sort = None
         if ids is None:
             ids = json.dumps('[]')
         try:
