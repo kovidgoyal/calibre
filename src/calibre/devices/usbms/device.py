@@ -530,16 +530,8 @@ class Device(DeviceConfig, DevicePlugin):
         return drives
 
     def node_mountpoint(self, node):
-
-        def de_mangle(raw):
-            return raw.replace('\\040', ' ').replace('\\011', '\t').replace('\\012',
-                    '\n').replace('\\0134', '\\')
-
-        for line in open('/proc/mounts').readlines():
-            line = line.split()
-            if line[0] == node:
-                return de_mangle(line[1])
-        return None
+        from calibre.devices.udisks import node_mountpoint
+        return node_mountpoint(node)
 
     def find_largest_partition(self, path):
         node = path.split('/')[-1]
@@ -585,6 +577,13 @@ class Device(DeviceConfig, DevicePlugin):
                 label += ' (%d)'%extra
 
             def do_mount(node, label):
+                try:
+                    from calibre.devices.udisks import mount
+                    mount(node)
+                    return 0
+                except:
+                    pass
+
                 cmd = 'calibre-mount-helper'
                 if getattr(sys, 'frozen_path', False):
                     cmd = os.path.join(sys.frozen_path, cmd)
@@ -617,6 +616,7 @@ class Device(DeviceConfig, DevicePlugin):
         if not mp.endswith('/'): mp += '/'
         self._linux_mount_map[main] = mp
         self._main_prefix = mp
+        self._linux_main_device_node = main
         cards = [(carda, '_card_a_prefix', 'carda'),
                  (cardb, '_card_b_prefix', 'cardb')]
         for card, prefix, typ in cards:
@@ -732,6 +732,11 @@ class Device(DeviceConfig, DevicePlugin):
                     pass
 
     def eject_linux(self):
+        try:
+            from calibre.devices.udisks import eject
+            return eject(self._linux_main_device_node)
+        except:
+            pass
         drives = self.find_device_nodes()
         for drive in drives:
             if drive:
