@@ -213,7 +213,7 @@ function show_details(a_dom) {
     var id = book.attr('id').split('_')[1];
     var bd = $('#book_details_dialog');
     bd.html('<span class="loading"><img src="/static/loading.gif" alt="Loading" />Loading, please wait&hellip;</span>');
-    bd.dialog('option', 'width', $('#container').width() - 50);
+    bd.dialog('option', 'width', $(window).width() - 100);
     bd.dialog('option', 'height', $(window).height() - 100);
 
     bd.dialog('option', 'title', book.find('.title').text());

@@ -176,6 +176,10 @@ h2.library_name {
     overflow: hidden;
 }
 
+#search_box .ui-button {
+    padding: 0.25em;
+}
+
 /* }}} */
 
 /* Top level {{{ */
