@@ -200,46 +200,45 @@ class BrowseServer(object):
     # Templates {{{
     def browse_template(self, sort, category=True, initial_search=''):
 
-        def generate():
-            scn = 'calibre_browse_server_sort_'
+        if not hasattr(self, '__browse_template__') or \
+                self.opts.develop:
+            self.__browse_template__ = \
+                P('content_server/browse/browse.html', data=True).decode('utf-8')
 
-            if category:
-                sort_opts = [('rating', _('Average rating')), ('name',
-                    _('Name')), ('popularity', _('Popularity'))]
-                scn += 'category'
-            else:
-                scn += 'list'
-                fm = self.db.field_metadata
-                sort_opts, added = [], set([])
-                for x in fm.sortable_field_keys():
-                    n = fm[x]['name']
-                    if n not in added:
-                        added.add(n)
-                        sort_opts.append((x, n))
+        ans = self.__browse_template__
+        scn = 'calibre_browse_server_sort_'
 
-            ans = P('content_server/browse/browse.html',
-                    data=True).decode('utf-8')
-            ans = ans.replace('{sort_select_label}', xml(_('Sort by')+':'))
-            ans = ans.replace('{sort_cookie_name}', scn)
-            opts = ['<option %svalue="%s">%s</option>' % (
-                'selected="selected" ' if k==sort else '',
-                xml(k), xml(n), ) for k, n in
-                    sorted(sort_opts, key=operator.itemgetter(1)) if k and n]
-            ans = ans.replace('{sort_select_options}', ('\n'+' '*20).join(opts))
-            lp = self.db.library_path
-            if isbytestring(lp):
-                lp = force_unicode(lp, filesystem_encoding)
-            if isinstance(ans, unicode):
-                ans = ans.encode('utf-8')
-            ans = ans.replace('{library_name}', xml(os.path.basename(lp)))
-            ans = ans.replace('{library_path}', xml(lp, True))
-            ans = ans.replace('{initial_search}', initial_search)
-            return ans
+        if category:
+            sort_opts = [('rating', _('Average rating')), ('name',
+                _('Name')), ('popularity', _('Popularity'))]
+            scn += 'category'
+        else:
+            scn += 'list'
+            fm = self.db.field_metadata
+            sort_opts, added = [], set([])
+            for x in fm.sortable_field_keys():
+                n = fm[x]['name']
+                if n not in added:
+                    added.add(n)
+                    sort_opts.append((x, n))
 
-        if self.opts.develop:
-            return generate()
-        if not hasattr(self, '__browse_template__'):
-            self.__browse_template__ = generate()
+        ans = ans.replace('{sort_select_label}', xml(_('Sort by')+':'))
+        ans = ans.replace('{sort_cookie_name}', scn)
+        opts = ['<option %svalue="%s">%s</option>' % (
+            'selected="selected" ' if k==sort else '',
+            xml(k), xml(n), ) for k, n in
+                sorted(sort_opts, key=operator.itemgetter(1)) if k and n]
+        ans = ans.replace('{sort_select_options}', ('\n'+' '*20).join(opts))
+        lp = self.db.library_path
+        if isbytestring(lp):
+            lp = force_unicode(lp, filesystem_encoding)
+        if isinstance(ans, unicode):
+            ans = ans.encode('utf-8')
+        ans = ans.replace('{library_name}', xml(os.path.basename(lp)))
+        ans = ans.replace('{library_path}', xml(lp, True))
+        ans = ans.replace('{initial_search}', initial_search)
+        return ans
+
         return self.__browse_template__
 
     @property
