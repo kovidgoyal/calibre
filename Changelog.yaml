@@ -11,10 +11,10 @@
     - title: "Content server: New interface that allows browsing via categories, similar to the Tag Browser in the calibre interface."
       description: >
         "You can access the new interface by going to /browse. So if your calibre content server is available at http://192.168.1.2, use
-         http://192.168.1.2/browse. The new interface requires a fairly modern nrowser, so no Internet Explorer 6,7."
+         http://192.168.1.2/browse. The new interface requires a fairly modern browser, so no Internet Explorer 6,7."
       type: major
 
-    - title: "Support for the SNB format, used by the Bambook e-book reader"
+    - title: "Support for the SNB e-book format, used by the Bambook e-book reader"
       type: major
 
     - title: "Driver for the Wifi Kobo"
