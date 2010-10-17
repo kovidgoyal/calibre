@@ -282,9 +282,9 @@ def XPath(expr):
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
-def xml2str(root, pretty_print=False, strip_comments=False):
+def xml2str(root, pretty_print=False, strip_comments=False, with_tail=True):
     ans = etree.tostring(root, encoding='utf-8', xml_declaration=True,
-                          pretty_print=pretty_print)
+                          pretty_print=pretty_print, with_tail=with_tail)
 
     if strip_comments:
         ans = re.compile(r'<!--.*?-->', re.DOTALL).sub('', ans)
