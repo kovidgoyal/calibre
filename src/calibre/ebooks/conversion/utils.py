@@ -154,7 +154,7 @@ class PreProcessor(object):
         chapter_line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
         chapter_header_open = r"(?P<chap>"
         chapter_header_close = ")\s*"
-        chapter_line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)\s[^>]*>)?\s*</(?P=outer)>\s*"
+        chapter_line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>\s*"
         if blanks_between_paragraphs:
             blank_lines = "(\s*<p[^>]*>\s*</p>){0,2}\s*"
         else:
@@ -170,6 +170,7 @@ class PreProcessor(object):
         typical_chapters = r".?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}"
         numeric_chapters = r".?(\d+\.?|(CHAPTER\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}))\s*"
         uppercase_chapters = r"\s*.?([A-Z#]+(\s|-){0,3}){1,5}\s*"
+        numeric_titles = r".?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*"
 
         chapter_marker = lookahead+chapter_line_open+chapter_header_open+typical_chapters+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
         print chapter_marker
@@ -194,6 +195,14 @@ class PreProcessor(object):
             print chapter_marker
             chapdetect2 = re.compile(r'%s' % chapter_marker,  re.UNICODE)
             html = chapdetect2.sub(self.chapter_head, html)
+
+        if self.html_preprocess_sections < 10:
+            self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying numeric chapters with titles")
+            chapter_marker = lookahead+chapter_line_open+chapter_header_open+numeric_titles+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
+            print chapter_marker
+            chapdetect2 = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
+            html = chapdetect2.sub(self.chapter_head, html)
+
         ###### Unwrap lines ######
         #
         # Some OCR sourced files have line breaks in the html using a combination of span & p tags
