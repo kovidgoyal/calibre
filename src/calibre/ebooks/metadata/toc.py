@@ -2,7 +2,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, glob, re
+import os, glob, re, functools
 from urlparse import urlparse
 from urllib import unquote
 from uuid import uuid4
@@ -11,7 +11,7 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre.constants import __appname__, __version__
-from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 
 NCX_NS = "http://www.daisy.org/z3986/2005/ncx/"
@@ -26,14 +26,6 @@ E = ElementMaker(namespace=NCX_NS, nsmap=NSMAP)
 
 C = ElementMaker(namespace=CALIBRE_NS, nsmap=NSMAP)
 
-class NCXSoup(BeautifulStoneSoup):
-
-    NESTABLE_TAGS = {'navpoint':[]}
-
-    def __init__(self, raw):
-        BeautifulStoneSoup.__init__(self, raw,
-                                  convertEntities=BeautifulSoup.HTML_ENTITIES,
-                                  selfClosingTags=['meta', 'content'])
 
 class TOC(list):
 
@@ -166,40 +158,60 @@ class TOC(list):
 
     def read_ncx_toc(self, toc):
         self.base_path = os.path.dirname(toc)
-        raw  = xml_to_unicode(open(toc, 'rb').read(), assume_utf8=True)[0]
-        soup = NCXSoup(raw)
+        raw  = xml_to_unicode(open(toc, 'rb').read(), assume_utf8=True,
+                strip_encoding_pats=True)[0]
+        root = etree.fromstring(raw, parser=etree.XMLParser(recover=True,
+            no_network=True))
+        xpn = {'re': 'http://exslt.org/regular-expressions'}
+        XPath = functools.partial(etree.XPath, namespaces=xpn)
+
+        def get_attr(node, default=None, attr='playorder'):
+            for name, val in node.attrib.items():
+                if name and val and name.lower().endswith(attr):
+                    return val
+            return default
+
+        nl_path = XPath('./*[re:match(local-name(), "navlabel$", "i")]')
+        txt_path = XPath('./*[re:match(local-name(), "text$", "i")]')
+        content_path = XPath('./*[re:match(local-name(), "content$", "i")]')
+        np_path = XPath('./*[re:match(local-name(), "navpoint$", "i")]')
 
         def process_navpoint(np, dest):
-            play_order = np.get('playOrder', None)
-            if play_order is None:
-                play_order = int(np.get('playorder', 1))
+            try:
+                play_order = int(get_attr(np, 1))
+            except:
+                play_order = 1
             href = fragment = text = None
-            nl = np.find(re.compile('navlabel'))
-            if nl is not None:
+            nl = nl_path(np)
+            if nl:
+                nl = nl[0]
                 text = u''
-                for txt in nl.findAll(re.compile('text')):
-                    text += u''.join([unicode(s) for s in txt.findAll(text=True)])
-                content = np.find(re.compile('content'))
-                if content is None or not content.has_key('src') or not txt:
+                for txt in txt_path(nl):
+                    text += etree.tostring(txt, method='text',
+                            encoding=unicode, with_tail=False)
+                content = content_path(np)
+                if not content or not text:
+                    return
+                content = content[0]
+                src = get_attr(content, attr='src')
+                if src is None:
                     return
 
-                purl = urlparse(unquote(content['src']))
+                purl = urlparse(unquote(content.get('src')))
                 href, fragment = purl[2], purl[5]
             nd = dest.add_item(href, fragment, text)
             nd.play_order = play_order
 
-            for c in np:
-                if 'navpoint' in getattr(c, 'name', ''):
-                    process_navpoint(c, nd)
+            for c in np_path(np):
+                process_navpoint(c, nd)
 
-        nm = soup.find(re.compile('navmap'))
-        if nm is None:
+        nm = XPath('//*[re:match(local-name(), "navmap$", "i")]')(root)
+        if not nm:
             raise ValueError('NCX files must have a <navmap> element.')
+        nm = nm[0]
 
-        for elem in nm:
-            if 'navpoint' in getattr(elem, 'name', ''):
-                process_navpoint(elem, self)
-
+        for child in np_path(nm):
+            process_navpoint(child, self)
 
     def read_html_toc(self, toc):
         self.base_path = os.path.dirname(toc)

@@ -187,6 +187,9 @@ h2.library_name {
     list-style-type: none;
     margin: 0;
     padding: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
 
 .toplevel li {
@@ -194,15 +197,20 @@ h2.library_name {
     padding: 0.75em;
     cursor: pointer;
     font-size: larger;
+    float: left;
     border-radius: 15px;
     -moz-border-radius: 15px;
     -webkit-border-radius: 15px;
+    display: inline;
+    width: 250px;
+    height: 48px;
+    overflow: hidden;
 
 }
 
 .toplevel li img {
     vertical-align: middle;
-    margin-right: 2em;
+    margin-right: 1em;
 }
 
 .toplevel li:hover {
@@ -214,7 +222,10 @@ h2.library_name {
 
 }
 
-.toplevel li span { display: none }
+.toplevel li span.url { display: none }
+.toplevel li span.label {
+}
+
 
 /* }}} */
 
@@ -406,12 +417,12 @@ h2.library_name {
     margin-bottom: 2ex;
 }
 
-#book_details_dialog .details a {
+.details .right .formats a {
     color: blue;
     text-decoration: none;
 }
 
-#book_details_dialog .details a:hover {
+.details .right .formats a:hover {
     color: red;
 }
 

@@ -1,5 +1,35 @@
 
 // Cookies {{{
+/**
+ * Create a cookie with the given name and value and other optional parameters.
+ *
+ * @example $.cookie('the_cookie', 'the_value');
+ * @desc Set the value of a cookie.
+ * @example $.cookie('the_cookie', 'the_value', { expires: 7, path: '/', domain: 'jquery.com', secure: true });
+ * @desc Create a cookie with all available options.
+ * @example $.cookie('the_cookie', 'the_value');
+ * @desc Create a session cookie.
+ * @example $.cookie('the_cookie', null);
+ * @desc Delete a cookie by passing null as value. Keep in mind that you have to use the same path and domain
+ *       used when the cookie was set.
+ *
+ * @param String name The name of the cookie.
+ * @param String value The value of the cookie.
+ * @param Object options An object literal containing key/value pairs to provide optional cookie attributes.
+ * @option Number|Date expires Either an integer specifying the expiration date from now on in days or a Date object.
+ *                             If a negative value is specified (e.g. a date in the past), the cookie will be deleted.
+ *                             If set to null or omitted, the cookie will be a session cookie and will not be retained
+ *                             when the the browser exits.
+ * @option String path The value of the path atribute of the cookie (default: path of page that created the cookie).
+ * @option String domain The value of the domain attribute of the cookie (default: domain of page that created the cookie).
+ * @option Boolean secure If true, the secure attribute of the cookie will be set and the cookie transmission will
+ *                        require a secure protocol (like HTTPS).
+ * @type undefined
+ *
+ * @name $.cookie
+ * @cat Plugins/Cookie
+ * @author Klaus Hartl/klaus.hartl@stilbuero.de
+ */
 
 function cookie(name, value, options) {
     if (typeof value != 'undefined') { // name and value given, set cookie
@@ -55,7 +85,7 @@ function init_sort_combobox() {
        selectedList: 1,
        click: function(event, ui){
             $(this).multiselect("close");
-            cookie(sort_cookie_name, ui.value, {expires: 365});
+            cookie(sort_cookie_name, ui.value);
             window.location.reload();
        }
     });
@@ -74,13 +104,25 @@ function init() {
 }
 
 // Top-level feed {{{
+
+function toplevel_layout() {
+    var last = $(".toplevel li").last();
+    var title = $('.toplevel h3').first();
+    var bottom = last.position().top + last.height() - title.position().top;
+    $("#main").height(Math.max(200, bottom));
+}
+
 function toplevel() {
     $(".sort_select").hide();
 
     $(".toplevel li").click(function() {
-        var href = $(this).children("span").html();
+        var href = $(this).children("span.url").text();
         window.location = href;
     });
+
+    toplevel_layout();
+    $(window).resize(toplevel_layout);
+
 }
 // }}}
 
@@ -193,8 +235,10 @@ function load_page(elem) {
     elem.show();
 }
 
+function hidesort() {$("#content > .sort_select").hide();}
+
 function booklist(hide_sort) {
-    if (hide_sort) $("#content > .sort_select").hide();
+    if (hide_sort) hidesort();
     var test = $("#booklist #page0").html();
     if (!test) {
         $("#booklist").html(render_error("No books found"));
@@ -233,3 +277,13 @@ function show_details(a_dom) {
 }
 
 // }}}
+
+function book() {
+    hidesort();
+    $('.details .left img').load(function() {
+        var img = $('.details .left img');
+        var height = $('#main').height();
+        height = Math.max(height, img.height() + 100);
+        $('#main').height(height);
+    });
+}

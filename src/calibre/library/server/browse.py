@@ -6,13 +6,13 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import operator, os, json
-from urllib import quote
 from binascii import hexlify, unhexlify
 
 import cherrypy
 
 from calibre.constants import filesystem_encoding
-from calibre import isbytestring, force_unicode, prepare_string_for_xml as xml
+from calibre import isbytestring, force_unicode, fit_image, \
+        prepare_string_for_xml as xml
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs
@@ -133,9 +133,12 @@ def get_category_items(category, items, db, datatype): # {{{
         desc = ''
         if i.count > 0:
             desc += '[' + _('%d books')%i.count + ']'
-        href = '/browse/matches/%s/%s'%(category, id_)
+        q = i.category
+        if not q:
+            q = category
+        href = '/browse/matches/%s/%s'%(q, id_)
         return templ.format(xml(name), rating,
-                xml(desc), xml(quote(href)), rstring)
+                xml(desc), xml(href), rstring)
 
     items = list(map(item, items))
     return '\n'.join(['<div class="category-container">'] + items + ['</div>'])
@@ -194,6 +197,8 @@ class BrowseServer(object):
                 self.browse_search)
         connect('browse_details', base_href+'/details/{id}',
                 self.browse_details)
+        connect('browse_book', base_href+'/book/{id}',
+                self.browse_book)
         connect('browse_category_icon', base_href+'/icon/{name}',
                 self.browse_icon)
 
@@ -218,10 +223,10 @@ class BrowseServer(object):
             sort_opts, added = [], set([])
             displayed_custom_fields = custom_fields_to_display(self.db)
             for x in fm.sortable_field_keys():
-                if x == 'ondevice':
+                if x in ('ondevice', 'formats', 'sort'):
                     continue
                 if fm[x]['is_custom'] and x not in displayed_custom_fields:
-                        continue
+                    continue
                 if x == 'comments' or fm[x]['datatype'] == 'comments':
                     continue
                 n = fm[x]['name']
@@ -268,23 +273,31 @@ class BrowseServer(object):
 
     # Catalogs {{{
     def browse_icon(self, name='blank.png'):
-        try:
-            data = I(name, data=True)
-        except:
-            raise cherrypy.HTTPError(404, 'no icon named: %r'%name)
-        img = Image()
-        img.load(data)
-        img.size = (48, 48)
         cherrypy.response.headers['Content-Type'] = 'image/png'
         cherrypy.response.headers['Last-Modified'] = self.last_modified(self.build_time)
 
-        return img.export('png')
+        if not hasattr(self, '__browse_icon_cache__'):
+            self.__browse_icon_cache__ = {}
+        if name not in self.__browse_icon_cache__:
+            try:
+                data = I(name, data=True)
+            except:
+                raise cherrypy.HTTPError(404, 'no icon named: %r'%name)
+            img = Image()
+            img.load(data)
+            width, height = img.size
+            scaled, width, height = fit_image(width, height, 48, 48)
+            if scaled:
+                img.size = (width, height)
+
+            self.__browse_icon_cache__[name] = img.export('png')
+        return self.__browse_icon_cache__[name]
 
     def browse_toplevel(self):
         categories = self.categories_cache()
         category_meta = self.db.field_metadata
         cats = [
-                (_('Newest'), 'newest', 'blank.png'),
+                (_('Newest'), 'newest', 'forward.png'),
                 ]
 
         def getter(x):
@@ -292,7 +305,7 @@ class BrowseServer(object):
 
         displayed_custom_fields = custom_fields_to_display(self.db)
         for category in sorted(categories,
-                            cmp=lambda x,y: cmp(getter(x), getter(y))):
+                    cmp=lambda x,y: cmp(getter(x), getter(y))):
             if len(categories[category]) == 0:
                 continue
             if category == 'formats':
@@ -313,9 +326,10 @@ class BrowseServer(object):
                 icon = 'blank.png'
             cats.append((meta['name'], category, icon))
 
-        cats = [('<li title="{2} {0}"><img src="{src}" alt="{0}" /> {0}'
-                 '<span>/browse/category/{1}</span></li>')
-                .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
+        cats = [('<li title="{2} {0}"><img src="{src}" alt="{0}" />'
+                 '<span class="label">{0}</span>'
+                 '<span class="url">/browse/category/{1}</span></li>')
+                .format(xml(x, True), xml(y), xml(_('Browse books by')),
                     src='/browse/icon/'+z)
                 for x, y, z in cats]
 
@@ -452,7 +466,8 @@ class BrowseServer(object):
             sort = 'title'
         self.sort(items, 'title', True)
         if sort != 'title':
-            ascending = fm[sort]['datatype'] not in ('rating', 'datetime')
+            ascending = fm[sort]['datatype'] not in ('rating', 'datetime',
+                    'series')
             self.sort(items, sort, ascending)
         return sort
 
@@ -464,14 +479,17 @@ class BrowseServer(object):
 
         if category not in categories and category != 'newest':
             raise cherrypy.HTTPError(404, 'category not found')
+        fm = self.db.field_metadata
         try:
-            category_name = self.db.field_metadata[category]['name']
+            category_name = fm[category]['name']
+            dt = fm[category]['datatype']
         except:
             if category != 'newest':
                 raise
             category_name = _('Newest')
+            dt = None
 
-        hide_sort = 'false'
+        hide_sort = 'true' if dt == 'series' else 'false'
         if category == 'search':
             which = unhexlify(cid)
             try:
@@ -482,11 +500,16 @@ class BrowseServer(object):
             ids = list(self.db.data.iterallids())
             hide_sort = 'true'
         else:
-            ids = self.db.get_books_for_category(category, cid)
+            q = category
+            if q == 'news':
+                q = 'tags'
+            ids = self.db.get_books_for_category(q, cid)
 
         items = [self.db.data._data[x] for x in ids]
         if category == 'newest':
             list_sort = 'timestamp'
+        if dt == 'series':
+            list_sort = category
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
         html = render_book_list(ids, suffix=_('in') + ' ' + category_name)
@@ -568,23 +591,19 @@ class BrowseServer(object):
                 args['series'] = args['series']
             args['details'] = xml(_('Details'), True)
             args['details_tt'] = xml(_('Show book details'), True)
+            args['permalink'] = xml(_('Permalink'), True)
+            args['permalink_tt'] = xml(_('A permanent link to this book'), True)
 
             summs.append(self.browse_summary_template.format(**args))
 
 
         return json.dumps('\n'.join(summs), ensure_ascii=False)
 
-    @Endpoint(mimetype='application/json; charset=utf-8')
-    def browse_details(self, id=None):
-        try:
-            id_ = int(id)
-        except:
-            raise cherrypy.HTTPError(404, 'invalid id: %r'%id)
-
+    def browse_render_details(self, id_):
         try:
             mi = self.db.get_metadata(id_, index_is_id=True)
         except:
-            ans = _('This book has been deleted')
+            return _('This book has been deleted')
         else:
             args, fmt, fmts, fname = self.browse_get_book_args(mi, id_)
             args['formats'] = ''
@@ -625,12 +644,33 @@ class BrowseServer(object):
                          u'<div class="comment">%s</div></div>') % (xml(c[0]),
                              c[1]) for c in comments]
             comments = u'<div class="comments">%s</div>'%('\n\n'.join(comments))
-            ans = self.browse_details_template.format(id=id_,
+
+            return self.browse_details_template.format(id=id_,
                     title=xml(mi.title, True), fields=fields,
                     formats=args['formats'], comments=comments)
 
+    @Endpoint(mimetype='application/json; charset=utf-8')
+    def browse_details(self, id=None):
+        try:
+            id_ = int(id)
+        except:
+            raise cherrypy.HTTPError(404, 'invalid id: %r'%id)
+
+        ans = self.browse_render_details(id_)
+
         return json.dumps(ans, ensure_ascii=False)
 
+
+    @Endpoint()
+    def browse_book(self, id=None, category_sort=None):
+        try:
+            id_ = int(id)
+        except:
+            raise cherrypy.HTTPError(404, 'invalid id: %r'%id)
+
+        ans = self.browse_render_details(id_)
+        return self.browse_template('').format(
+                title='', script='book();', main=ans)
 
 
     # }}}
