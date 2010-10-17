@@ -166,6 +166,7 @@ class AddAction(InterfaceAction):
                         (_('Topaz books'), ['tpz','azw1']),
                         (_('Text books'), ['txt', 'rtf']),
                         (_('PDF Books'), ['pdf']),
+                        (_('SNB Books'), ['snb']),
                         (_('Comics'), ['cbz', 'cbr', 'cbc']),
                         (_('Archives'), ['zip', 'rar']),
                         ]
@@ -235,6 +236,10 @@ class AddAction(InterfaceAction):
         self.gui.refresh_ondevice()
 
     def add_books_from_device(self, view, paths=None):
+        backloading_err = self.gui.device_manager.device.BACKLOADING_ERROR_MESSAGE
+        if backloading_err is not None:
+            return error_dialog(self.gui, _('Add to library'), backloading_err,
+                    show=True)
         if paths is None:
             rows = view.selectionModel().selectedRows()
             if not rows or len(rows) == 0:

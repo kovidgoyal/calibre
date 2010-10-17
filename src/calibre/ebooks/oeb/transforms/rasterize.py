@@ -55,7 +55,7 @@ class SVGRasterizer(object):
         self.rasterize_cover()
 
     def rasterize_svg(self, elem, width=0, height=0, format='PNG'):
-        data = QByteArray(xml2str(elem))
+        data = QByteArray(xml2str(elem, with_tail=False))
         svg = QSvgRenderer(data)
         size = svg.defaultSize()
         view_box = elem.get('viewBox', elem.get('viewbox', None))

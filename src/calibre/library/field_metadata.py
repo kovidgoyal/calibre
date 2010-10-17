@@ -22,6 +22,20 @@ class TagsIcons(dict):
                 raise ValueError('Missing category icon [%s]'%a)
             self[a] = icon_dict[a]
 
+category_icon_map = {
+                    'authors'   : 'user_profile.png',
+                    'series'    : 'series.png',
+                    'formats'   : 'book.png',
+                    'publisher' : 'publisher.png',
+                    'rating'    : 'rating.png',
+                    'news'      : 'news.png',
+                    'tags'      : 'tags.png',
+                    ':custom'   : 'column.png',
+                    ':user'     : 'drawer.png',
+                    'search'    : 'search.png'
+            }
+
+
 class FieldMetadata(dict):
     '''
     key: the key to the dictionary is:
@@ -161,7 +175,7 @@ class FieldMetadata(dict):
                            'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Comments'),
                            'search_terms':['comments', 'comment'],
                            'is_custom':False, 'is_category':False}),
             ('cover',     {'table':None,

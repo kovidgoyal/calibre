@@ -11,6 +11,7 @@ This module implements a simple commandline SMTP client that supports:
 
 import sys, traceback, os
 from email import encoders
+from calibre import isbytestring
 
 def create_mail(from_, to, subject, text=None, attachment_data=None,
                  attachment_type=None, attachment_name=None):
@@ -26,7 +27,10 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
 
     if text is not None:
         from email.mime.text import MIMEText
-        msg = MIMEText(text)
+        if isbytestring(text):
+            msg = MIMEText(text)
+        else:
+            msg = MIMEText(text, 'plain', 'utf-8')
         outer.attach(msg)
 
     if attachment_data is not None:
