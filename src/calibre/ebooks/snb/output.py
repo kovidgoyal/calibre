@@ -30,8 +30,7 @@ class SNBOutput(OutputFormatPlugin):
         OptionRecommendation(name='snb_output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \
-            'The default is utf-8. Note: This option is not honored by all ' \
-            'formats.')),
+            'The default is utf-8.')),
         # OptionRecommendation(name='inline_toc',
         #     recommended_value=False, level=OptionRecommendation.LOW,
         #     help=_('Add Table of Contents to beginning of the book.')),
@@ -55,7 +54,7 @@ class SNBOutput(OutputFormatPlugin):
             rasterizer = SVGRasterizer()
             rasterizer(oeb_book, opts)
         except Unavailable:
-            self.log.warn('SVG rasterizer unavailable, SVG will not be converted')
+            log.warn('SVG rasterizer unavailable, SVG will not be converted')
 
         # Create temp dir
         with TemporaryDirectory('_snb_output') as tdir:
