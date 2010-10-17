@@ -39,7 +39,7 @@
      <item>
       <widget class="QTabWidget" name="central_widget">
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabWidgetPage1">
         <attribute name="title">
