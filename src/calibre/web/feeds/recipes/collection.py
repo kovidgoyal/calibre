@@ -45,12 +45,17 @@ def serialize_recipe(urn, recipe_class):
         return ans
 
     default_author = _('You') if urn.startswith('custom:') else _('Unknown')
+    ns = attr('needs_subscription', False)
+    if not ns:
+        ns = 'no'
+    if ns is True:
+        ns = 'yes'
     return E.recipe({
         'id'                 : str(urn),
         'title'              : attr('title', _('Unknown')),
         'author'             : attr('__author__', default_author),
         'language'           : attr('language', 'und'),
-        'needs_subscription' : 'yes' if attr('needs_subscription', False) else 'no',
+        'needs_subscription' : ns,
         'description'        : attr('description', '')
         })
 

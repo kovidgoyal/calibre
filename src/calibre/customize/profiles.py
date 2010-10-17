@@ -647,11 +647,25 @@ class NookOutput(OutputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
+class BambookOutput(OutputProfile):
+
+    name        = 'Sanda Bambook'
+    short_name  = 'bambook'
+    description = _('This profile is intended for the Sanda Bambook.')
+
+    # Screen size is a best guess
+    screen_size               = (800, 600)
+    comic_screen_size         = (700, 540)
+    dpi                       = 168.451
+    fbase                     = 12
+    fsizes                    = [10, 12, 14, 16]
+
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
         iPadOutput, KoboReaderOutput,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
-        IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,]
+        IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
+        BambookOutput, ]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))

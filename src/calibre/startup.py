@@ -120,7 +120,8 @@ if not _run_once:
                     object.__setattr__(self, 'name', name)
 
                 def __getattribute__(self, attr):
-                    if attr == 'name':
+                    if attr in ('name', '__enter__', '__str__', '__unicode__',
+                            '__repr__'):
                         return object.__getattribute__(self, attr)
                     fobject = object.__getattribute__(self, 'fobject')
                     return getattr(fobject, attr)
@@ -141,6 +142,10 @@ if not _run_once:
                 def __unicode__(self):
                     return repr(self).decode('utf-8')
 
+                def __enter__(self):
+                    fobject = object.__getattribute__(self, 'fobject')
+                    fobject.__enter__()
+                    return self
 
             m = mode[0]
             random = len(mode) > 1 and mode[1] == '+'

@@ -176,6 +176,10 @@ h2.library_name {
     overflow: hidden;
 }
 
+#search_box .ui-button {
+    padding: 0.25em;
+}
+
 /* }}} */
 
 /* Top level {{{ */
@@ -183,17 +187,30 @@ h2.library_name {
     list-style-type: none;
     margin: 0;
     padding: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
 
 .toplevel li {
     margin: 0.75em;
     padding: 0.75em;
-    text-align: center;
     cursor: pointer;
+    font-size: larger;
+    float: left;
     border-radius: 15px;
     -moz-border-radius: 15px;
     -webkit-border-radius: 15px;
+    display: inline;
+    width: 250px;
+    height: 48px;
+    overflow: hidden;
 
+}
+
+.toplevel li img {
+    vertical-align: middle;
+    margin-right: 1em;
 }
 
 .toplevel li:hover {
@@ -205,7 +222,10 @@ h2.library_name {
 
 }
 
-.toplevel li span { display: none }
+.toplevel li span.url { display: none }
+.toplevel li span.label {
+}
+
 
 /* }}} */
 
@@ -265,8 +285,155 @@ h2.library_name {
     display: none; 
 }
 
+#booklist .load_data { display: none }
+
 .loading img {
     vertical-align: middle;
+}
+
+#booklist .summary {
+    margin-bottom: 2ex;
+    border-bottom: solid 1px black;
+}
+
+#booklist div.left {
+    float: left;
+    height: 190px;
+    width: 100px;
+    vertical-align: middle;
+    text-align: center;
+    margin-left: 1em;
+    margin-right: 2em;
+}
+
+#booklist div.left img {
+    display: block;
+    margin-bottom: 1ex;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#booklist div.right {
+    height: 190px;
+    overflow: auto;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+#booklist div.right .stars {
+    float:right;
+    margin-right: 1em;
+}
+
+#booklist div.right .stars .rating_container {
+    display: block;
+}
+
+#booklist div.right .stars .series {
+    display: block;
+}
+
+#booklist .title {
+    font-size: larger;
+}
+
+#booklist a {
+    text-decoration: none;
+    color: blue;
+}
+
+#booklist a:hover {
+    color: red;
+}
+
+
+#booklist .left .ui-button-text {
+    font-size: medium;
+    color: black;
+    padding-left: 0.25em;
+    padding-right: 0.25em;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+}
+
+#booklist .listnav {
+    display: table;
+    width: 100%;
+}
+
+#booklist .listnav a {
+    color: blue;
+    text-decoration: none;
+}
+
+#booklist .listnav a:hover {
+    color: red;
+}
+
+#booklist .topnav {
+    border-bottom: solid black 1px;
+    margin-bottom: 1ex;
+}
+
+#booklist .navleft {
+    display: table-cell;
+    text-align: left;
+}
+
+#booklist .navleft a {
+    margin-right: 1em;
+}
+
+#booklist .navmiddle {
+    display: table-cell;
+    text-align: center;
+}
+
+#booklist .navright {
+    display: table-cell;
+    text-align: right;
+}
+
+#booklist .navright a {
+    margin-left: 1em;
+}
+
+/* }}} */
+
+/* Details {{{ */
+
+.details .left {
+    float: left;
+    max-width: 50%;
+    margin-right: 2em;
+    overflow: auto;
+}
+
+.details .right {
+    overflow: auto;
+}
+
+.details .formats {
+    margin-bottom: 2ex;
+}
+
+.details .right .formats a {
+    color: blue;
+    text-decoration: none;
+}
+
+.details .right .formats a:hover {
+    color: red;
+}
+
+.details .field {
+    margin-bottom: 0.5em;
+}
+
+.details .comment {
+    margin-left: 1em;
+    overflow: auto;
+    max-height: 50%;
 }
 
 /* }}} */

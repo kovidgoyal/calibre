@@ -22,11 +22,21 @@ class TemplateFormatter(string.Formatter):
         self.book = None
         self.kwargs = None
 
-    def _lookup(self, val, field_if_set, field_not_set):
-        if val:
-            return self.vformat('{'+field_if_set.strip()+'}', [], self.kwargs)
-        else:
-            return self.vformat('{'+field_not_set.strip()+'}', [], self.kwargs)
+    def _lookup(self, val, *args):
+        if len(args) == 2: # here for backwards compatibility
+            if val:
+                return self.vformat('{'+args[0].strip()+'}', [], self.kwargs)
+            else:
+                return self.vformat('{'+args[1].strip()+'}', [], self.kwargs)
+        if (len(args) % 2) != 1:
+            raise ValueError(_('lookup requires either 2 or an odd number of arguments'))
+        i = 0
+        while i < len(args):
+            if i + 1 >= len(args):
+                return self.vformat('{' + args[i].strip() + '}', [], self.kwargs)
+            if re.search(args[i], val):
+                return self.vformat('{'+args[i+1].strip() + '}', [], self.kwargs)
+            i += 2
 
     def _test(self, val, value_if_set, value_not_set):
         if val:
@@ -41,6 +51,8 @@ class TemplateFormatter(string.Formatter):
             return value_if_not
 
     def _switch(self, val, *args):
+        if (len(args) % 2) != 1:
+            raise ValueError(_('switch requires an odd number of arguments'))
         i = 0
         while i < len(args):
             if i + 1 >= len(args):
@@ -73,7 +85,7 @@ class TemplateFormatter(string.Formatter):
                     'capitalize'    : (0, lambda s,x: x.capitalize()),
                     'contains'      : (3, _contains),
                     'ifempty'       : (1, _ifempty),
-                    'lookup'        : (2, _lookup),
+                    'lookup'        : (-1, _lookup),
                     're'            : (2, _re),
                     'shorten'       : (3, _shorten),
                     'switch'        : (-1, _switch),
@@ -129,9 +141,9 @@ class TemplateFormatter(string.Formatter):
                         (func[0] > 0 and func[0] != len(args)):
                     raise ValueError('Incorrect number of arguments for function '+ fmt[0:p])
                 if func[0] == 0:
-                    val = func[1](self, val)
+                    val = func[1](self, val).strip()
                 else:
-                    val = func[1](self, val, *args)
+                    val = func[1](self, val, *args).strip()
         if val:
             val = string.Formatter.format_field(self, val, dispfmt)
         if not val:

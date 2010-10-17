@@ -38,13 +38,19 @@ class Push(Command):
     description = 'Push code to another host'
 
     def run(self, opts):
+        from threading import Thread
+        threads = []
         for host in (
             r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre',
             'kovid@ox:calibre'
             ):
             rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
             print '\n\nPushing to:', host, '\n'
+            threads.append(Thread(target=subprocess.check_call, args=(rcmd,)))
+            threads[-1].start()
             subprocess.check_call(rcmd)
+        for thread in threads:
+            thread.join()
 
 
 

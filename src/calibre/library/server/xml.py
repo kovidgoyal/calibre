@@ -49,6 +49,8 @@ class XMLServer(object):
 
         if not search:
             search = ''
+        if isbytestring(search):
+            search = search.decode('UTF-8')
 
         ids = self.db.search_getting_ids(search.strip(), self.search_restriction)
 

@@ -76,8 +76,8 @@
                 </select>
             </div>
             <div id="search_box">
-                <form name="search_form"  action="/browse/search" method="get">
-                    <input value="" type="text" title="Search"
+                <form name="search_form"  action="/browse/search" method="get" accept-charset="UTF-8">
+                    <input value="{initial_search}" type="text" title="Search" name="query"
                                         class="search_input" />&nbsp;
                     <input type="submit" value="Search" title="Search" alt="Search" />
                 </form>
@@ -94,5 +94,6 @@
             </div>
         </div>
     </div>
+    <div id="book_details_dialog"></div>
 </body>
 </html>
