@@ -12,6 +12,7 @@
       description: >
         "You can access the new interface by going to /browse. So if your calibre content server is available at http://192.168.1.2, use
          http://192.168.1.2/browse. The new interface requires a fairly modern nrowser, so no Internet Explorer 6,7."
+      type: major
 
     - title: "Support for the SNB format, used by the Bambook e-book reader"
       type: major
