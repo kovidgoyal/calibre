@@ -353,6 +353,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.pending_bookmark = bm
                 if spine_index < 0 or spine_index >= len(self.iterator.spine):
                     spine_index = 0
+                    self.pending_bookmark = None
                 self.load_path(self.iterator.spine[spine_index])
 
     def toc_clicked(self, index):
