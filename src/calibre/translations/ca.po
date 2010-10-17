@@ -8179,7 +8179,7 @@ msgstr "&URL de la font:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:280
 msgid "&Add feed"
-msgstr "%Afegeix una font"
+msgstr "&Afegeix una font"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:281
 msgid ""

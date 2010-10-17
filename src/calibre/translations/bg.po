@@ -242,7 +242,7 @@ msgstr "Извличане на корица от comic файлове"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:300
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:310
 msgid "Read metadata from %s files"
-msgstr "Четене на метаданните от % файлове"
+msgstr "Четене на метаданните от %s файлове"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:269
 msgid "Read metadata from ebooks in RAR archives"
