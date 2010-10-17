@@ -23,7 +23,7 @@ class TemplateFormatter(string.Formatter):
         self.kwargs = None
 
     def _lookup(self, val, *args):
-        if len(args) == 2:
+        if len(args) == 2: # here for backwards compatibility
             if val:
                 return self.vformat('{'+args[0].strip()+'}', [], self.kwargs)
             else:
