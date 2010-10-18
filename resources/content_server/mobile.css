@@ -53,6 +53,7 @@ div.navigation {
 }
 #listing td {
     padding: 0.25em;
+    vertical-align: middle;
 }
 
 #listing td.thumbnail {
@@ -73,6 +74,7 @@ div.navigation {
     overflow: hidden;
     text-align: center;
     text-decoration: none;
+    vertical-align: middle;
 }
 
 #logo {
