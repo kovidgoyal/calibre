@@ -109,7 +109,7 @@ function toplevel_layout() {
     var last = $(".toplevel li").last();
     var title = $('.toplevel h3').first();
     var bottom = last.position().top + last.height() - title.position().top;
-    $("#main").height(Math.max(200, bottom));
+    $("#main").height(Math.max(200, bottom+75));
 }
 
 function toplevel() {

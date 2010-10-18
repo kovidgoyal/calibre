@@ -365,6 +365,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         except:
             olddb = None
         db = LibraryDatabase2(newloc)
+        if self.content_server is not None:
+            self.content_server.set_database(db)
         self.library_path = newloc
         self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)
