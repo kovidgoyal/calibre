@@ -120,12 +120,15 @@ class SchedulerDialog(QDialog, Ui_Dialog):
 
         if self.account.isVisible():
             un, pw = map(unicode, (self.username.text(), self.password.text()))
+            un, pw = un.strip(), pw.strip()
             if not un and not pw and self.schedule.isChecked():
-                error_dialog(self, _('Need username and password'),
-                        _('You must provide a username and/or password to '
-                            'use this news source.'), show=True)
-                return False
-            self.recipe_model.set_account_info(urn, un.strip(), pw.strip())
+                if not getattr(self, 'subscription_optional', False):
+                    error_dialog(self, _('Need username and password'),
+                            _('You must provide a username and/or password to '
+                                'use this news source.'), show=True)
+                    return False
+            if un or pw:
+                self.recipe_model.set_account_info(urn, un, pw)
 
         if self.schedule.isChecked():
             schedule_type = 'interval' if self.interval_button.isChecked() else 'day/time'
@@ -157,7 +160,13 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         account_info = self.recipe_model.account_info_from_urn(urn)
         customize_info = self.recipe_model.get_customize_info(urn)
 
-        self.account.setVisible(recipe.get('needs_subscription', '') == 'yes')
+        ns = recipe.get('needs_subscription', '')
+        self.account.setVisible(ns in ('yes', 'optional'))
+        self.subscription_optional = ns == 'optional'
+        act = _('Account')
+        act2 = _('(optional)') if self.subscription_optional else \
+                _('(required)')
+        self.account.setTitle(act+' '+act2)
         un = pw = ''
         if account_info is not None:
             un, pw = account_info[:2]

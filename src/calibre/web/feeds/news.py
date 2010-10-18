@@ -110,8 +110,10 @@ class BasicNewsRecipe(Recipe):
 
     #: If True the GUI will ask the user for a username and password
     #: to use while downloading
-    #: @type: boolean
+    #: If set to "optional" the use of a username and password becomes optional
     needs_subscription     = False
+
+    #:
 
     #: If True the navigation bar is center aligned, otherwise it is left aligned
     center_navbar = True
@@ -609,7 +611,8 @@ class BasicNewsRecipe(Recipe):
         if self.needs_subscription and (\
                 self.username is None or self.password is None or \
                 (not self.username and not self.password)):
-            raise ValueError(_('The "%s" recipe needs a username and password.')%self.title)
+            if self.needs_subscription != 'optional':
+                raise ValueError(_('The "%s" recipe needs a username and password.')%self.title)
 
         self.browser = self.get_browser()
         self.image_map, self.image_counter = {}, 1

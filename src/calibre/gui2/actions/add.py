@@ -166,6 +166,7 @@ class AddAction(InterfaceAction):
                         (_('Topaz books'), ['tpz','azw1']),
                         (_('Text books'), ['txt', 'rtf']),
                         (_('PDF Books'), ['pdf']),
+                        (_('SNB Books'), ['snb']),
                         (_('Comics'), ['cbz', 'cbr', 'cbc']),
                         (_('Archives'), ['zip', 'rar']),
                         ]

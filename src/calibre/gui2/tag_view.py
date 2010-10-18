@@ -17,7 +17,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
-from calibre.library.field_metadata import TagsIcons
+from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -382,17 +382,11 @@ class TagsModel(QAbstractItemModel): # {{{
         # must do this here because 'QPixmap: Must construct a QApplication
         # before a QPaintDevice'. The ':' in front avoids polluting either the
         # user-defined categories (':' at end) or columns namespaces (no ':').
-        self.category_icon_map = TagsIcons({
-                    'authors'   : QIcon(I('user_profile.png')),
-                    'series'    : QIcon(I('series.png')),
-                    'formats'   : QIcon(I('book.png')),
-                    'publisher' : QIcon(I('publisher.png')),
-                    'rating'    : QIcon(I('rating.png')),
-                    'news'      : QIcon(I('news.png')),
-                    'tags'      : QIcon(I('tags.png')),
-                    ':custom'   : QIcon(I('column.png')),
-                    ':user'     : QIcon(I('drawer.png')),
-                    'search'    : QIcon(I('search.png'))})
+        iconmap = {}
+        for key in category_icon_map:
+            iconmap[key] = QIcon(I(category_icon_map[key]))
+        self.category_icon_map = TagsIcons(iconmap)
+
         self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
         self.drag_drop_finished = drag_drop_finished
 
