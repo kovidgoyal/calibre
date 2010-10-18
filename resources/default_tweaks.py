@@ -25,6 +25,9 @@ series_index_auto_increment = 'next'
 #  copy  : copy author to author_sort without modification
 #  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
 #  nocomma : "fn ln" -> "ln fn" (without the comma)
+# When this tweak is changed, the author_sort values stored with each author
+# must be recomputed by right-clicking on an author in the left-hand tags pane,
+# selecting 'manage authors', and pressing 'Recalculate all author sort values'.
 author_sort_copy_method = 'invert'
 
 

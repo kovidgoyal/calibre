@@ -543,6 +543,13 @@ class HTMLPreProcessor(object):
     def smarten_punctuation(self, html):
         from calibre.utils.smartypants import smartyPants
         from calibre.ebooks.chardet import substitute_entites
+        from uuid import uuid4
+        start = 'calibre-smartypants-'+str(uuid4())
+        stop = 'calibre-smartypants-'+str(uuid4())
+        html = html.replace('<!--', start)
+        html = html.replace('-->', stop)
         html = smartyPants(html)
+        html = html.replace(start, '<!--')
+        html = html.replace(stop, '-->')
         return substitute_entites(html)
 

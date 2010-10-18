@@ -293,6 +293,17 @@ class RTFMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata.rtf import get_metadata
         return get_metadata(stream)
 
+class SNBMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read SNB metadata'
+    file_types  = set(['snb'])
+    description = _('Read metadata from %s files') % 'SNB'
+    author      = 'Li Fanxi'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.snb import get_metadata
+        return get_metadata(stream)
+
 class TOPAZMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read Topaz metadata'
@@ -420,6 +431,7 @@ from calibre.ebooks.tcr.input import TCRInput
 from calibre.ebooks.txt.input import TXTInput
 from calibre.ebooks.lrf.input import LRFInput
 from calibre.ebooks.chm.input import CHMInput
+from calibre.ebooks.snb.input import SNBInput
 
 from calibre.ebooks.epub.output import EPUBOutput
 from calibre.ebooks.fb2.output import FB2Output
@@ -435,6 +447,7 @@ from calibre.ebooks.rtf.output import RTFOutput
 from calibre.ebooks.tcr.output import TCROutput
 from calibre.ebooks.txt.output import TXTOutput
 from calibre.ebooks.html.output import HTMLOutput
+from calibre.ebooks.snb.output import SNBOutput
 
 from calibre.customize.profiles import input_profiles, output_profiles
 
@@ -496,6 +509,7 @@ plugins += [
     TXTInput,
     LRFInput,
     CHMInput,
+    SNBInput,
 ]
 plugins += [
     EPUBOutput,
@@ -512,6 +526,7 @@ plugins += [
     TCROutput,
     TXTOutput,
     HTMLOutput,
+    SNBOutput,
 ]
 # Order here matters. The first matched device is the one used.
 plugins += [

@@ -42,6 +42,8 @@ def comments_to_html(comments):
     Deprecated HTML returns as HTML via BeautifulSoup()
 
     '''
+    if not comments:
+        return u'<p></p>'
     if not isinstance(comments, unicode):
         comments = comments.decode(preferred_encoding, 'replace')
 

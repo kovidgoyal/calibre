@@ -16,6 +16,7 @@ class EPUBInput(InputFormatPlugin):
     author      = 'Kovid Goyal'
     description = 'Convert EPUB files (.epub) to HTML'
     file_types  = set(['epub'])
+    output_encoding = None
 
     recommendations = set([('page_breaks_before', '/', OptionRecommendation.MED)])
 
