@@ -514,7 +514,7 @@ class FileDialog(QObject):
                 if f and os.path.exists(f):
                     self.selected_files.append(f)
         else:
-            opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.DirectoryOnly else QFileDialog.Option()
+            opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.Directory else QFileDialog.Option()
             f = unicode(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
             if os.path.exists(f):
                 self.selected_files.append(f)
@@ -534,7 +534,7 @@ class FileDialog(QObject):
 
 def choose_dir(window, name, title, default_dir='~'):
     fd = FileDialog(title=title, filters=[], add_all_files_filter=False,
-            parent=window, name=name, mode=QFileDialog.DirectoryOnly,
+            parent=window, name=name, mode=QFileDialog.Directory,
             default_dir=default_dir)
     dir = fd.get_files()
     if dir:
