@@ -729,10 +729,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                                 self.series.setText(book.series)
                                 if book.series_index is not None:
                                     self.series_index.setValue(book.series_index)
+                        # Needed because of Qt focus bug on OS X
+                        self.fetch_cover_button.setFocus(Qt.OtherFocusReason)
         else:
             error_dialog(self, _('Cannot fetch metadata'),
                          _('You must specify at least one of ISBN, Title, '
                            'Authors or Publisher'), show=True)
+            self.title.setFocus(Qt.OtherFocusReason)
 
     def enable_series_index(self, *args):
         self.series_index.setEnabled(True)

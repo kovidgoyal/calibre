@@ -376,7 +376,8 @@ default_smartypants_attr = "1"
 
 import re
 
-tags_to_skip_regex = re.compile(r"<(/)?(pre|code|kbd|script|math)[^>]*>", re.I)
+# style added by Kovid
+tags_to_skip_regex = re.compile(r"<(/)?(style|pre|code|kbd|script|math)[^>]*>", re.I)
 
 
 def verify_installation(request):
