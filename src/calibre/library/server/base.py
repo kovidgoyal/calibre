@@ -148,6 +148,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         cherrypy.engine.graceful()
 
     def set_search_restriction(self, restriction):
+        self.search_restriction_name = restriction
         if restriction:
             self.search_restriction = 'search:"%s"'%restriction
         else:
