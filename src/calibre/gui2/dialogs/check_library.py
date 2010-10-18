@@ -11,7 +11,7 @@ from PyQt4.Qt import QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, \
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
-from calibre.library.database2 import delete_file
+from calibre.library.database2 import delete_file, delete_tree
 
 class Item(QTreeWidgetItem):
     pass
@@ -147,7 +147,11 @@ class CheckLibraryDialog(QDialog):
         for it in items:
             if it.checkState(1):
                 try:
-                    delete_file(os.path.join(self.db.library_path ,unicode(it.text(1))))
+                    p = os.path.join(self.db.library_path ,unicode(it.text(1)))
+                    if os.path.isdir(p):
+                        delete_tree(p)
+                    else:
+                        delete_file(p)
                 except:
                     print 'failed to delete', os.path.join(self.db.library_path ,unicode(it.text(1)))
         self.run_the_check()
