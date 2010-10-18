@@ -24,6 +24,17 @@ class HTMLOutput(OutputFormatPlugin):
     author = 'Fabian Grassl'
     file_type = 'html'
 
+    options = set([
+        OptionRecommendation(name='template_css',
+            help=_('CSS file used for the output instead of the default file')),
+
+        OptionRecommendation(name='template_html_index',
+            help=_('Template used for generation of the html index file instead of the default file')),
+
+        OptionRecommendation(name='template_html',
+            help=_('Template used for the generation of the html contents of the book instead of the default file')),
+    ])
+
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
 
     def generate_toc(self, oeb_book, ref_url, output_dir):
@@ -56,6 +67,21 @@ class HTMLOutput(OutputFormatPlugin):
         return etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=False)
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        if opts.template_html_index is not None:
+            template_html_index_data = open(opts.template_html_index, 'r').read()
+        else:
+            template_html_index_data = P('templates/html_export_default_index.tmpl', data=True)
+
+        if opts.template_html is not None:
+            template_html_data = open(opts.template_html, 'r').read()
+        else:
+            template_html_data = P('templates/html_export_default.tmpl', data=True)
+
+        if opts.template_css is not None:
+            template_css_data = open(opts.template_css, 'r').read()
+        else:
+            template_css_data = P('templates/html_export_default.css', data=True)
+
         self.log  = log
         self.opts = opts
         output_file = output_path
@@ -66,12 +92,12 @@ class HTMLOutput(OutputFormatPlugin):
 
         css_path = output_dir+os.sep+'calibreHtmlOutBasicCss.css'
         with open(css_path, 'wb') as f:
-            f.write(P('templates/html_export_default.css', data=True))
+            f.write(template_css_data)
 
         with open(output_file, 'wb') as f:
             link_prefix=basename(output_dir)+'/'
             html_toc = self.generate_html_toc(oeb_book, output_file, output_dir)
-            templite = Templite(P('templates/html_export_default_index.tmpl', data=True))
+            templite = Templite(template_html_index_data)
             nextLink = oeb_book.spine[0].href
             nextLink = relpath(output_dir+os.sep+nextLink, dirname(output_file))
             cssLink = relpath(abspath(css_path), dirname(output_file))
@@ -125,7 +151,7 @@ class HTMLOutput(OutputFormatPlugin):
                 cssLink = relpath(abspath(css_path), dir)
 
                 # render template
-                templite = Templite(P('templates/html_export_default.tmpl', data=True))
+                templite = Templite(template_html_data)
                 toc = lambda: self.generate_html_toc(oeb_book, path, output_dir)
                 t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink, has_toc=bool(oeb_book.toc.count()), toc=toc, tocUrl=output_file, head_content=head_content, meta=meta, cssLink=cssLink)
 
