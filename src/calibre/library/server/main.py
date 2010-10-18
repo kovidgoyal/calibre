@@ -38,47 +38,15 @@ def option_parser():
                    ' in the GUI'))
     return parser
 
-def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
-    try:
-        pid = os.fork()
-        if pid > 0:
-            # exit first parent
-            sys.exit(0)
-    except OSError, e:
-        print >>sys.stderr, "fork #1 failed: %d (%s)" % (e.errno, e.strerror)
-        sys.exit(1)
-
-    # decouple from parent environment
-    os.chdir("/")
-    os.setsid()
-    os.umask(0)
-
-    # do second fork
-    try:
-        pid = os.fork()
-        if pid > 0:
-            # exit from second parent
-            sys.exit(0)
-    except OSError, e:
-        print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror)
-        sys.exit(1)
-
-    # Redirect standard file descriptors.
-    si = file(stdin, 'r')
-    so = file(stdout, 'a+')
-    se = file(stderr, 'a+', 0)
-    os.dup2(si.fileno(), sys.stdin.fileno())
-    os.dup2(so.fileno(), sys.stdout.fileno())
-    os.dup2(se.fileno(), sys.stderr.fileno())
-
-
 
 def main(args=sys.argv):
     from calibre.library.database2 import LibraryDatabase2
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if opts.daemonize and not iswindows:
-        daemonize()
+        from cherrypy.process.plugins import Daemonizer
+        d = Daemonizer(cherrypy.engine)
+        d.subscribe()
     if opts.pidfile is not None:
         with open(opts.pidfile, 'wb') as f:
             f.write(str(os.getpid()))
