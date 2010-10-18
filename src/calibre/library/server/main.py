@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys
+import sys
 from threading import Thread
 
 from calibre.library.server import server_config as config
@@ -48,8 +48,8 @@ def main(args=sys.argv):
         d = Daemonizer(cherrypy.engine)
         d.subscribe()
     if opts.pidfile is not None:
-        with open(opts.pidfile, 'wb') as f:
-            f.write(str(os.getpid()))
+        from cherrypy.process.plugins import PIDFile
+        PIDFile(cherrypy.engine, opts.pidfile).subscribe()
     cherrypy.log.screen = True
     from calibre.utils.config import prefs
     if opts.with_library is None:
