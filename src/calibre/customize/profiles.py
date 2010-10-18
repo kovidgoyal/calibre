@@ -649,6 +649,7 @@ class NookOutput(OutputProfile):
 
 class BambookOutput(OutputProfile):
 
+    author      = 'Li Fanxi'
     name        = 'Sanda Bambook'
     short_name  = 'bambook'
     description = _('This profile is intended for the Sanda Bambook.')
