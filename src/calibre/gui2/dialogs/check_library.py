@@ -12,6 +12,7 @@ from PyQt4.Qt import QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, \
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
 from calibre.library.database2 import delete_file, delete_tree
+from calibre import prints
 
 class Item(QTreeWidgetItem):
     pass
@@ -126,14 +127,12 @@ class CheckLibraryDialog(QDialog):
         self.text_results = '\n'.join(plaintext)
 
     def item_changed(self, item, column):
-        print 'item_changed'
         for it in self.all_items:
             if it.checkState(1):
                 self.delete.setEnabled(True)
                 return
 
     def delete_marked(self):
-        print 'delete marked'
         if not confirm('<p>'+_('The marked files and folders will be '
                '<b>permanently deleted</b>. Are you sure?')
                +'</p>', 'check_library_editor_delete', self):
@@ -153,7 +152,9 @@ class CheckLibraryDialog(QDialog):
                     else:
                         delete_file(p)
                 except:
-                    print 'failed to delete', os.path.join(self.db.library_path ,unicode(it.text(1)))
+                    prints('failed to delete',
+                            os.path.join(self.db.library_path,
+                                unicode(it.text(1))))
         self.run_the_check()
 
     def copy_to_clipboard(self):
