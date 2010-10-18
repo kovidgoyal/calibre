@@ -1,0 +1,86 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class RevistaElCultural(BasicNewsRecipe):
+
+    title       = 'Revista El Cultural'
+    __author__  = 'Jefferson Frantz'
+    description = 'Revista de cultura'
+    timefmt = ' [%d %b, %Y]'
+    language = 'es'
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    extra_css              = 'h1{ font-family: sans-serif; font-size: large; font-weight: bolder; text-align: justify } h2{ font-family: sans-serif; font-size: small; font-weight: 500; text-align: justify } h3{ font-family: sans-serif; font-size: small; font-weight: 500; text-align: justify } h4{ font-family: sans-serif; font-weight: lighter; font-size: medium; font-style: italic; text-align: justify } .rtsArticuloFirma{ font-family: sans-serif; font-size: small; text-align: justify } .column span-13 last{ font-family: sans-serif; font-size: medium; text-align: justify } .rtsImgArticulo{font-family: serif; font-size: small; color: #000000; text-align: justify}'
+
+
+    def preprocess_html(self, soup):
+            for item in soup.findAll(style=True):
+               del item['style']
+
+            return soup
+
+    keep_only_tags = [dict(name='div', attrs={'class':['column span-13 last']}),dict(name='div', attrs={'class':['rtsImgArticulo']})]
+
+    remove_tags        = [
+                             dict(name=['object','link','script','ul'])
+                            ,dict(name='div', attrs={'class':['rtsRating']})
+
+                         ]
+
+
+    #TO GET ARTICLES IN SECTION
+    def ec_parse_section(self, url, titleSection):
+            print 'Section: '+ titleSection
+            soup = self.index_to_soup(url)
+            div = soup.find(attrs={'id':'gallery'})
+            current_articles = []
+
+            for a in div.findAllNext('a', href=True):
+                    if a is None:
+                        continue
+                    title = self.tag_to_string(a)
+
+                    url = a.get('href', False)
+                    if not url or not title:
+                        continue
+
+                    if not url.startswith('/version_papel/'+titleSection+'/'):
+                        if len(current_articles) > 0 and not url.startswith('/secciones/'):
+                            break
+                        continue
+
+                    if url.startswith('/version_papel/'+titleSection+'/'):
+                         url = 'http://www.elcultural.es'+url
+
+                    self.log('\t\tFound article:', title[0:title.find("|")-1])
+                    self.log('\t\t\t', url)
+                    current_articles.append({'title': title[0:title.find("|")-1], 'url':url,
+                        'description':'', 'date':''})
+
+            return current_articles
+
+
+    # To GET SECTIONS
+    def parse_index(self):
+            feeds = []
+            for title, url in [
+                ('LETRAS',
+                 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
+                ('ARTE',
+                 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
+                ('CINE',
+                 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
+                ('CIENCIA',
+                 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
+##                ('OPINION',
+##                 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
+                ('ESCENARIOS',
+                 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
+             ]:
+               articles = self.ec_parse_section(url,title)
+               if articles:
+                   feeds.append((title, articles))
+
+
+            return feeds

@@ -17,18 +17,18 @@ from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 
 def ProcessFileName(fileName):
-    # Flat the path 
+    # Flat the path
     fileName = fileName.replace("/", "_").replace(os.sep, "_")
     # Handle bookmark for HTML file
     fileName = fileName.replace("#", "_")
     # Make it lower case
     fileName = fileName.lower()
     # Change all images to jpg
-    root, ext = os.path.splitext(fileName) 
+    root, ext = os.path.splitext(fileName)
     if ext in [ '.jpeg', '.jpg', '.gif', '.svg', '.png' ]:
         fileName = root + '.jpg'
     return fileName
-    
+
 
 BLOCK_TAGS = [
     'div',
@@ -56,7 +56,7 @@ CALIBRE_SNB_BM_TAG = "<$$calibre_snb_bm_tag$$>"
 CALIBRE_SNB_PRE_TAG = "<$$calibre_snb_pre_tag$$>"
 
 class SNBMLizer(object):
-    
+
     curSubItem = ""
 #    curText = [ ]
 
@@ -157,9 +157,9 @@ class SNBMLizer(object):
         text = re.sub('(?imu)^[ ]+', '', text)
         text = re.sub('(?imu)[ ]+$', '', text)
 
-        if self.opts.max_line_length:
-            max_length = self.opts.max_line_length
-            if self.opts.max_line_length < 25 and not self.opts.force_max_line_length:
+        if self.opts.snb_max_line_length:
+            max_length = self.opts.snb_max_line_length
+            if self.opts.max_line_length < 25:# and not self.opts.force_max_line_length:
                 max_length = 25
             short_lines = []
             lines = text.splitlines()
@@ -172,7 +172,7 @@ class SNBMLizer(object):
                         line = line[space + 1:]
                     else:
                         # Space was not found.
-                        if self.opts.force_max_line_length:
+                        if False and self.opts.force_max_line_length:
                             # Force breaking at max_lenght.
                             short_lines.append(line[:max_length])
                             line = line[max_length:]
@@ -242,12 +242,12 @@ class SNBMLizer(object):
             else:
                 text.append(li + elem.text)
             li = ''
-            
+
         for item in elem:
             en = u''
             if len(text) >= 2:
                 en = text[-1][-2:]
-            t, li = self.dump_text(subitems, item, stylizer, en, pre, li)
+            t = self.dump_text(subitems, item, stylizer, en, pre, li)[0]
             text += t
 
         if in_block:

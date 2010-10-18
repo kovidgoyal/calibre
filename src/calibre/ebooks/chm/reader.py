@@ -93,6 +93,7 @@ class CHMReader(CHMFile):
         return data
 
     def ExtractFiles(self, output_dir=os.getcwdu()):
+        html_files = set([])
         for path in self.Contents():
             lpath = os.path.join(output_dir, path)
             self._ensure_dir(lpath)
@@ -106,14 +107,27 @@ class CHMReader(CHMFile):
                 lpath = lpath.split(';')[0]
             try:
                 with open(lpath, 'wb') as f:
-                    if guess_mimetype(path)[0] == ('text/html'):
-                        data = self._reformat(data)
                     f.write(data)
+                try:
+                    if 'html' in guess_mimetype(path)[0]:
+                        html_files.add(lpath)
+                except:
+                    pass
             except:
                 if iswindows and len(lpath) > 250:
                     self.log.warn('%r filename too long, skipping'%path)
                     continue
                 raise
+        for lpath in html_files:
+            with open(lpath, 'r+b') as f:
+                data = f.read()
+                data = self._reformat(data, lpath)
+                if isinstance(data, unicode):
+                    data = data.encode('utf-8')
+                f.seek(0)
+                f.truncate()
+                f.write(data)
+
         self._extracted = True
         files = [x for x in os.listdir(output_dir) if
                 os.path.isfile(os.path.join(output_dir, x))]
@@ -125,7 +139,7 @@ class CHMReader(CHMFile):
         if self.hhc_path not in files and files:
             self.hhc_path = files[0]
 
-    def _reformat(self, data):
+    def _reformat(self, data, htmlpath):
         try:
             data = xml_to_unicode(data, strip_encoding_pats=True)[0]
             soup = BeautifulSoup(data)
@@ -169,15 +183,19 @@ class CHMReader(CHMFile):
                 br[0].extract()
 
         # some images seem to be broken in some chm's :/
-        for img in soup('img'):
-            try:
-                # some are supposedly "relative"... lies.
-                while img['src'].startswith('../'): img['src'] = img['src'][3:]
-                # some have ";<junk>" at the end.
-                img['src'] = img['src'].split(';')[0]
-            except KeyError:
-                # and some don't even have a src= ?!
-                pass
+        base = os.path.dirname(htmlpath)
+        for img in soup('img', src=True):
+            src = img['src']
+            ipath = os.path.join(base, *src.split('/'))
+            if os.path.exists(ipath):
+                continue
+            src = src.split(';')[0]
+            if not src: continue
+            ipath = os.path.join(base, *src.split('/'))
+            if not os.path.exists(ipath):
+                while src.startswith('../'):
+                    src = src[3:]
+            img['src'] = src
         try:
             # if there is only a single table with a single element
             # in the body, replace it by the contents of this single element

@@ -16,7 +16,7 @@ __builtin__.__dict__['_'] = lambda s: s
 # immediately translated to the environment language
 __builtin__.__dict__['__'] = lambda s: s
 
-from calibre.constants import iswindows, preferred_encoding, plugins
+from calibre.constants import iswindows, preferred_encoding, plugins, isosx
 
 _run_once = False
 winutil = winutilerror = None
@@ -35,9 +35,17 @@ if not _run_once:
 
     ################################################################################
     # Convert command line arguments to unicode
+    enc = preferred_encoding
+    if isosx:
+        # Newer versions of OS X seem to use UTF-8
+        try:
+            [x.decode('utf-8') for x in sys.argv[1:]]
+            enc = 'utf-8'
+        except:
+            pass
     for i in range(1, len(sys.argv)):
         if not isinstance(sys.argv[i], unicode):
-            sys.argv[i] = sys.argv[i].decode(preferred_encoding, 'replace')
+            sys.argv[i] = sys.argv[i].decode(enc, 'replace')
 
     ################################################################################
     # Setup resources
@@ -120,7 +128,8 @@ if not _run_once:
                     object.__setattr__(self, 'name', name)
 
                 def __getattribute__(self, attr):
-                    if attr == 'name':
+                    if attr in ('name', '__enter__', '__str__', '__unicode__',
+                            '__repr__'):
                         return object.__getattribute__(self, attr)
                     fobject = object.__getattribute__(self, 'fobject')
                     return getattr(fobject, attr)
@@ -141,6 +150,10 @@ if not _run_once:
                 def __unicode__(self):
                     return repr(self).decode('utf-8')
 
+                def __enter__(self):
+                    fobject = object.__getattribute__(self, 'fobject')
+                    fobject.__enter__()
+                    return self
 
             m = mode[0]
             random = len(mode) > 1 and mode[1] == '+'

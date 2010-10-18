@@ -6,7 +6,6 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2.convert.snb_output_ui import Ui_Form
 from calibre.gui2.convert import Widget
-from calibre.gui2.widgets import BasicComboModel
 
 newline_model = None
 

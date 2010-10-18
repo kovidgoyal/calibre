@@ -17,6 +17,7 @@ function selector(elem) {
         sel = selector_in_parent(obj) + sel;
         obj = obj.parent();
     }
+    if (sel.length > 2  && sel.charAt(1) == ">") sel = sel.substring(2);
     return sel;
 }
 
@@ -26,7 +27,8 @@ function calculate_bookmark(y, node) {
     var ratio = (y - elem.offset().top)/elem.height();
     if (ratio > 1) { ratio = 1; }
     if (ratio < 0) { ratio = 0; }
-    return sel + "|" + ratio;
+    sel = sel + "|" + ratio;
+    return sel;
 }
 
 function animated_scrolling_done() {
@@ -37,6 +39,10 @@ function scroll_to_bookmark(bookmark) {
     bm = bookmark.split("|");
     var ratio = 0.7 * parseFloat(bm[1]);
     $.scrollTo($(bm[0]), 1000,
-        {over:ratio, onAfter:function(){window.py_bridge.animated_scroll_done()}});
+        {
+            over:ratio,
+            onAfter:function(){window.py_bridge.animated_scroll_done()}
+        }
+    );
 }
 

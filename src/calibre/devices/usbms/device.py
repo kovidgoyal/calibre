@@ -94,6 +94,9 @@ class Device(DeviceConfig, DevicePlugin):
     EBOOK_DIR_CARD_B = ''
     DELETE_EXTS = []
 
+    # USB disk-based devices can see the book files on the device, so can
+    # copy these back to the library
+    BACKLOADING_ERROR_MESSAGE = None
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
@@ -527,16 +530,8 @@ class Device(DeviceConfig, DevicePlugin):
         return drives
 
     def node_mountpoint(self, node):
-
-        def de_mangle(raw):
-            return raw.replace('\\040', ' ').replace('\\011', '\t').replace('\\012',
-                    '\n').replace('\\0134', '\\')
-
-        for line in open('/proc/mounts').readlines():
-            line = line.split()
-            if line[0] == node:
-                return de_mangle(line[1])
-        return None
+        from calibre.devices.udisks import node_mountpoint
+        return node_mountpoint(node)
 
     def find_largest_partition(self, path):
         node = path.split('/')[-1]
@@ -582,6 +577,13 @@ class Device(DeviceConfig, DevicePlugin):
                 label += ' (%d)'%extra
 
             def do_mount(node, label):
+                try:
+                    from calibre.devices.udisks import mount
+                    mount(node)
+                    return 0
+                except:
+                    pass
+
                 cmd = 'calibre-mount-helper'
                 if getattr(sys, 'frozen_path', False):
                     cmd = os.path.join(sys.frozen_path, cmd)
@@ -614,6 +616,7 @@ class Device(DeviceConfig, DevicePlugin):
         if not mp.endswith('/'): mp += '/'
         self._linux_mount_map[main] = mp
         self._main_prefix = mp
+        self._linux_main_device_node = main
         cards = [(carda, '_card_a_prefix', 'carda'),
                  (cardb, '_card_b_prefix', 'cardb')]
         for card, prefix, typ in cards:
@@ -625,6 +628,50 @@ class Device(DeviceConfig, DevicePlugin):
                 if not mp.endswith('/'): mp += '/'
                 setattr(self, prefix, mp)
                 self._linux_mount_map[card] = mp
+
+        self.filter_read_only_mount_points()
+
+    def filter_read_only_mount_points(self):
+
+        def is_readonly(mp):
+            if mp is None:
+                return True
+            path = os.path.join(mp, 'calibre_readonly_test')
+            ro = True
+            try:
+                with open(path, 'wb'):
+                    ro = False
+            except:
+                pass
+            else:
+                try:
+                    os.remove(path)
+                except:
+                    pass
+            return ro
+
+        for mp in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
+            if is_readonly(getattr(self, mp, None)):
+                setattr(self, mp, None)
+
+        if self._main_prefix is None:
+            for p in ('_card_a_prefix', '_card_b_prefix'):
+                nmp = getattr(self, p, None)
+                if nmp is not None:
+                    self._main_prefix = nmp
+                    setattr(self, p, None)
+                    break
+
+        if self._main_prefix is None:
+            raise DeviceError(_('The main memory of %s is read only. '
+            'This usually happens because of file system errors.')
+                    %self.__class__.__name__)
+
+        if self._card_a_prefix is None and self._card_b_prefix is not None:
+            self._card_a_prefix = self._card_b_prefix
+            self._card_b_prefix = None
+
+
 
     def open(self):
         time.sleep(5)
@@ -685,6 +732,11 @@ class Device(DeviceConfig, DevicePlugin):
                     pass
 
     def eject_linux(self):
+        try:
+            from calibre.devices.udisks import eject
+            return eject(self._linux_main_device_node)
+        except:
+            pass
         drives = self.find_device_nodes()
         for drive in drives:
             if drive:

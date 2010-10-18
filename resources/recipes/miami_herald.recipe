@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 miamiherald.com
 '''
@@ -15,13 +15,11 @@ class TheMiamiHerald(BasicNewsRecipe):
     max_articles_per_feed = 100
     publisher             = u'The Miami Herald'
     category              = u'miami herald, weather, dolphins, news, miami news, local news, miamiherald, miami newspaper, miamiherald.com, miami, the miami herald, broward, miami-dade'
-    language = 'en'
-
+    language              = 'en'
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
     remove_javascript     = True
-
     extra_css = '''
                 h1{font-family:Arial,Helvetica,sans-serif; font-size:large; color:#1A272F; }
                 .subheadline{font-family:Arial,Helvetica,sans-serif; font-size:30%; color: #666666;}
@@ -33,50 +31,35 @@ class TheMiamiHerald(BasicNewsRecipe):
                 .imageCaption{font-family:Arial,Helvetica,sans-serif; font-size:30%; color:#666666; }
                 '''
 
-    keep_only_tags = [dict(name='div', attrs={'id':['storyBody','storyPhotoContentArea']}),
-                      ]
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+                
+    keep_only_tags = [dict(name='div', attrs={'id':'wide'}),]
 
-    remove_tags = [dict(name=['object','link','embed']),
-                   dict(name='div', attrs={'class':["imageBuyButton","shareLinksArea","storyTools","spill_navigation pagination","circPromoArea","storyTools_footer","storyYahooContentMatch"]}) ,
-                   dict(name='div', attrs={'id':["pluck","mlt","storyAssets"]}) ]
+    remove_tags = [dict(name=['object','link','embed','iframe','meta'])]
 
 
     feeds = [
-             (u'Breaking News'  , u'http://www.miamiherald.com/416/index.xml' )
-             ,(u'Miami-Dade' , u'http://www.miamiherald.com/460/index.xml' )
-             ,(u'Broward' , u'http://www.miamiherald.com/467/index.xml' )
-             ,(u'Florida Keys' , u'http://www.miamiherald.com/505/index.xml' )
-             ,(u'Florida' , u'http://www.miamiherald.com/569/index.xml' )
-             ,(u'Nation' , u'http://www.miamiherald.com/509/index.xml' )
-             ,(u'World' , u'http://www.miamiherald.com/578/index.xml' )
-             ,(u'Americas' , u'http://www.miamiherald.com/579/index.xml' )
-             ,(u'Cuba' , u'http://www.miamiherald.com/581/index.xml' )
-             ,(u'Haiti' , u'http://www.miamiherald.com/582/index.xml' )
-             ,(u'Politics' , u'http://www.miamiherald.com/515/index.xml' )
-             ,(u'Education' , u'http://www.miamiherald.com/295/index.xml' )
-             ,(u'Environment' , u'http://www.miamiherald.com/573/index.xml' )
+             (u'Breaking News'  , u'http://www.miamiherald.com/news/breaking-news/index.xml' )
+             ,(u'Miami-Dade' , u'http://www.miamiherald.com/news/miami-dade/index.xml' )
+             ,(u'Broward' , u'http://www.miamiherald.com/news/broward/index.xml' )
+             ,(u'Florida Keys' , u'http://www.miamiherald.com/news/florida-keys/index.xml' )
+             ,(u'Florida' , u'http://www.miamiherald.com/news/florida/index.xml' )
+             ,(u'Nation' , u'http://www.miamiherald.com/news/nation/index.xml' )
+             ,(u'World' , u'http://www.miamiherald.com/news/world/index.xml' )
+             ,(u'Americas' , u'http://www.miamiherald.com/news/americas/index.xml' )
+             ,(u'Cuba' , u'http://www.miamiherald.com/news/americas/cuba/index.xml' )
+             ,(u'Haiti' , u'http://www.miamiherald.com/news/americas/haiti/index.xml' )
+             ,(u'Politics' , u'http://www.miamiherald.com/news/politics/index.xml' )
+             ,(u'Education' , u'http://www.miamiherald.com/news/education/index.xml' )
+             ,(u'Environment' , u'http://www.miamiherald.com/news/environment/index.xml' )
             ]
 
-
-
-
-
-    def get_article_url(self, article):
-        ans = article.get('guid', None)
-        print ans
-        try:
-            self.log('Looking for full story link in', ans)
-            soup = self.index_to_soup(ans)
-            x = soup.find(text="Full Story")
-
-            if x is not None:
-                a = x.parent
-                if a and a.has_key('href'):
-                    ans = 'http://www.miamiherald.com'+a['href']
-                    self.log('Found full story link', ans)
-        except:
-            pass
-        return ans
-
-
-
+    def print_version(self, url):
+        art, sep, rest = url.rpartition('/')
+        art2, sep2, rest2 = art.rpartition('/')
+        return art2 + '/v-print/' + rest2 + '/' + rest

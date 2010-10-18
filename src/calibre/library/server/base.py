@@ -22,6 +22,7 @@ from calibre.library.server.mobile import MobileServer
 from calibre.library.server.xml import XMLServer
 from calibre.library.server.opds import OPDSServer
 from calibre.library.server.cache import Cache
+from calibre.library.server.browse import BrowseServer
 
 
 class DispatchController(object): # {{{
@@ -53,7 +54,8 @@ class DispatchController(object): # {{{
 
 # }}}
 
-class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache):
+class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
+        BrowseServer):
 
     server_name = __appname__ + '/' + __version__
 

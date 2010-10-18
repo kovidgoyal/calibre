@@ -30,6 +30,7 @@ class BooksView(QTableView): # {{{
     def __init__(self, parent, modelcls=BooksModel):
         QTableView.__init__(self, parent)
 
+        self.drag_allowed = True
         self.setDragEnabled(True)
         self.setDragDropOverwriteMode(False)
         self.setDragDropMode(self.DragDrop)
@@ -505,6 +506,8 @@ class BooksView(QTableView): # {{{
         return QTableView.mousePressEvent(self, event)
 
     def mouseMoveEvent(self, event):
+        if not self.drag_allowed:
+            return
         if self.drag_start_pos is None:
             return QTableView.mouseMoveEvent(self, event)
 
@@ -613,7 +616,7 @@ class BooksView(QTableView): # {{{
     def close(self):
         self._model.close()
 
-    def set_editable(self, editable):
+    def set_editable(self, editable, supports_backloading):
         self._model.set_editable(editable)
 
     def connect_to_search_box(self, sb, search_done):
@@ -699,6 +702,10 @@ class DeviceBooksView(BooksView): # {{{
     def dropEvent(self, *args):
         error_dialog(self, _('Not allowed'),
         _('Dropping onto a device is not supported. First add the book to the calibre library.')).exec_()
+
+    def set_editable(self, editable, supports_backloading):
+        self._model.set_editable(editable)
+        self.drag_allowed = supports_backloading
 
 # }}}
 

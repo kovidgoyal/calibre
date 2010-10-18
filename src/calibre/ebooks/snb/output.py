@@ -10,7 +10,6 @@ from lxml import etree
 from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.snb.snbfile import SNBFile
 from calibre.ebooks.snb.snbml import SNBMLizer, ProcessFileName
 
@@ -28,15 +27,14 @@ class SNBOutput(OutputFormatPlugin):
         #         'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
         #         'For Mac OS X use \'unix\'. \'system\' will default to the newline '
         #         'type used by this OS.') % sorted(TxtNewlines.NEWLINE_TYPES.keys())),
-        OptionRecommendation(name='output_encoding', recommended_value='utf-8',
+        OptionRecommendation(name='snb_output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \
-            'The default is utf-8. Note: This option is not honored by all ' \
-            'formats.')),
+            'The default is utf-8.')),
         # OptionRecommendation(name='inline_toc',
         #     recommended_value=False, level=OptionRecommendation.LOW,
         #     help=_('Add Table of Contents to beginning of the book.')),
-        OptionRecommendation(name='max_line_length',
+        OptionRecommendation(name='snb_max_line_length',
             recommended_value=0, level=OptionRecommendation.LOW,
             help=_('The maximum number of characters per line. This splits on '
             'the first space before the specified value. If no space is found '
@@ -51,10 +49,17 @@ class SNBOutput(OutputFormatPlugin):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         self.opts = opts
+        from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
+        try:
+            rasterizer = SVGRasterizer()
+            rasterizer(oeb_book, opts)
+        except Unavailable:
+            log.warn('SVG rasterizer unavailable, SVG will not be converted')
+
         # Create temp dir
         with TemporaryDirectory('_snb_output') as tdir:
             # Create stub directories
-            snbfDir = os.path.join(tdir, 'snbf') 
+            snbfDir = os.path.join(tdir, 'snbf')
             snbcDir = os.path.join(tdir, 'snbc')
             snbiDir = os.path.join(tdir, 'snbc/images')
             os.mkdir(snbfDir)
@@ -82,7 +87,6 @@ class SNBOutput(OutputFormatPlugin):
                 abstract = ''
 
             # Process Cover
-            from calibre.ebooks.oeb.base import urldefrag
             g, m, s = oeb_book.guide, oeb_book.manifest, oeb_book.spine
             href = None
             if 'titlepage' not in g:
@@ -107,7 +111,7 @@ class SNBOutput(OutputFormatPlugin):
             bookInfoFile = open(os.path.join(snbfDir, 'book.snbf'), 'wb')
             bookInfoFile.write(etree.tostring(bookInfoTree, pretty_print=True, encoding='utf-8'))
             bookInfoFile.close()
-            
+
             # Output TOC
             tocInfoTree = etree.Element("toc-snbf")
             tocHead = etree.SubElement(tocInfoTree, "head")
@@ -121,15 +125,15 @@ class SNBOutput(OutputFormatPlugin):
             else:
                 first = iter(oeb_book.spine).next()
                 if oeb_book.toc[0].href != first.href:
-                    # The pages before the fist item in toc will be stored as 
+                    # The pages before the fist item in toc will be stored as
                     # "Cover Pages".
-                    # oeb_book.toc does not support "insert", so we generate 
+                    # oeb_book.toc does not support "insert", so we generate
                     # the tocInfoTree directly instead of modifying the toc
                     ch = etree.SubElement(tocBody, "chapter")
                     ch.set("src", ProcessFileName(first.href) + ".snbc")
                     ch.text = _('Cover Pages')
                     outputFiles[first.href] = []
-                    outputFiles[first.href].append(("", _("Cover Pages"))) 
+                    outputFiles[first.href].append(("", _("Cover Pages")))
 
             for tocitem in oeb_book.toc:
                 if tocitem.href.find('#') != -1:
@@ -138,20 +142,20 @@ class SNBOutput(OutputFormatPlugin):
                         log.error('Error in TOC item: %s' % tocitem)
                     else:
                         if item[0] in outputFiles:
-                            outputFiles[item[0]].append((item[1], tocitem.title)) 
+                            outputFiles[item[0]].append((item[1], tocitem.title))
                         else:
-                            outputFiles[item[0]] = [] 
+                            outputFiles[item[0]] = []
                             if not "" in outputFiles[item[0]]:
-                                outputFiles[item[0]].append(("", tocitem.title + _(" (Preface)"))) 
+                                outputFiles[item[0]].append(("", tocitem.title + _(" (Preface)")))
                                 ch = etree.SubElement(tocBody, "chapter")
                                 ch.set("src", ProcessFileName(item[0]) + ".snbc")
                                 ch.text = tocitem.title + _(" (Preface)")
-                            outputFiles[item[0]].append((item[1], tocitem.title)) 
+                            outputFiles[item[0]].append((item[1], tocitem.title))
                 else:
                     if tocitem.href in outputFiles:
-                        outputFiles[tocitem.href].append(("", tocitem.title)) 
+                        outputFiles[tocitem.href].append(("", tocitem.title))
                     else:
-                        outputFiles[tocitem.href] = [] 
+                        outputFiles[tocitem.href] = []
                         outputFiles[tocitem.href].append(("", tocitem.title))
                 ch = etree.SubElement(tocBody, "chapter")
                 ch.set("src", ProcessFileName(tocitem.href) + ".snbc")
@@ -181,7 +185,7 @@ class SNBOutput(OutputFormatPlugin):
                             outputFile.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
                             outputFile.close()
                             mergeLast = False
-                            
+
                     log.debug('Converting %s to snbc...' % item.href)
                     snbwriter = SNBMLizer(log)
                     snbcTrees = None
@@ -227,14 +231,11 @@ class SNBOutput(OutputFormatPlugin):
         (x,y) = img.size
         if self.opts:
             SCREEN_Y, SCREEN_X = self.opts.output_profile.comic_screen_size
-            print SCREEN_Y, SCREEN_X
         else:
             SCREEN_X = 540
             SCREEN_Y = 700
         # Handle big image only
         if x > SCREEN_X or y > SCREEN_Y:
-            SCREEN_RATIO = float(SCREEN_Y) / SCREEN_X
-            imgRatio = float(y) / x
             xScale = float(x) / SCREEN_X
             yScale = float(y) / SCREEN_Y
             scale = max(xScale, yScale)
@@ -254,7 +255,7 @@ if __name__ == '__main__':
 
     opts = OptionValues()
     opts.output_profile = HanlinV3Output(None)
-    
+
     html_preprocessor = HTMLPreProcessor(None, None, opts)
     from calibre.utils.logging import default_log
     oeb = OEBBook(default_log, html_preprocessor)

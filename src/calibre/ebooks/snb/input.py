@@ -6,12 +6,11 @@ __docformat__ = 'restructuredtext en'
 
 import os, uuid
 
-from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.oeb.base import DirContainer
 from calibre.ebooks.snb.snbfile import SNBFile
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import ascii_filename
-from calibre import prepare_string_for_xml
 from lxml import etree
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
@@ -55,14 +54,14 @@ class SNBInput(InputFormatPlugin):
             cover = meta.find('.//head/cover')
             if cover != None and cover.text != None:
                 oeb.guide.add('cover', 'Cover', cover.text)
-        
+
         bookid = str(uuid.uuid4())
         oeb.metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
         for ident in oeb.metadata.identifier:
             if 'id' in ident.attrib:
                 oeb.uid = oeb.metadata.identifier[0]
                 break
-        
+
         with TemporaryDirectory('_chm2oeb', keep=True) as tdir:
             log.debug('Process TOC ...')
             toc = snbFile.GetFileStream('snbf/toc.snbf')
@@ -101,4 +100,4 @@ class SNBInput(InputFormatPlugin):
                     item.html_input_href = f
 
         return oeb
-        
+

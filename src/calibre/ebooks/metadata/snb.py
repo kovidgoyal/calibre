@@ -5,7 +5,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 
-import re, os
+import os
 from StringIO import StringIO
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.snb.snbfile import SNBFile
@@ -33,15 +33,15 @@ def get_metadata(stream, extract_cover=True):
             mi.publisher = meta.find('.//head/publisher').text
 
             if extract_cover:
-                cover = meta.find('.//head/cover') 
+                cover = meta.find('.//head/cover')
                 if cover != None and cover.text != None:
-                    root, ext = os.path.splitext(cover.text) 
+                    root, ext = os.path.splitext(cover.text)
                     if ext == '.jpeg':
                         ext = '.jpg'
                     mi.cover_data = (ext[-3:], snbFile.GetFileStream('snbc/images/' + cover.text))
 
-    except Exception, e:
-        print e
-        pass
+    except Exception:
+        import traceback
+        traceback.print_exc()
 
     return mi

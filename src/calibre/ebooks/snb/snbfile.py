@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 __docformat__ = 'restructuredtext en'
 
-import sys, struct, zlib, bz2, os, math
+import sys, struct, zlib, bz2, os
 from mimetypes import types_map
 
 class FileStream:
@@ -24,35 +24,35 @@ class SNBFile:
     REVA3 = 0x00A3A3A3
     REVZ1 = 0x00000000
     REVZ2 = 0x00000000
-    
+
     def __init__(self, inputFile = None):
         self.files = []
-        self.blocks = [] 
-    
+        self.blocks = []
+
         if inputFile != None:
             self.Open(inputFile)
-            
-    def Open(self, inputFile):    
+
+    def Open(self, inputFile):
         self.fileName = inputFile
-        
+
         snbFile = open(self.fileName, "rb")
         snbFile.seek(0)
         self.Parse(snbFile)
         snbFile.close()
-        
+
     def Parse(self, snbFile, metaOnly = False):
         # Read header
         vmbr = snbFile.read(44)
-        (self.magic, self.rev80, self.revA3, self.revZ1, 
-         self.fileCount, self.vfatSize, self.vfatCompressed, 
-         self.binStreamSize, self.plainStreamSizeUncompressed, 
+        (self.magic, self.rev80, self.revA3, self.revZ1,
+         self.fileCount, self.vfatSize, self.vfatCompressed,
+         self.binStreamSize, self.plainStreamSizeUncompressed,
          self.revZ2) = struct.unpack('>8siiiiiiiii', vmbr)
 
         # Read FAT
         self.vfat = zlib.decompress(snbFile.read(self.vfatCompressed))
         self.ParseFile(self.vfat, self.fileCount)
 
-        # Read tail 
+        # Read tail
         snbFile.seek(-16, os.SEEK_END)
         #plainStreamEnd = snbFile.tell()
         tailblock = snbFile.read(16)
@@ -68,7 +68,7 @@ class SNBFile:
         plainPos = 0
         uncompressedData = None
         for f in self.files:
-            if f.attr & 0x41000000 == 0x41000000: 
+            if f.attr & 0x41000000 == 0x41000000:
                 # Compressed Files
                 if uncompressedData == None:
                     uncompressedData = ""
@@ -102,7 +102,7 @@ class SNBFile:
             (f.attr, f.fileNameOffset, f.fileSize) = struct.unpack('>iii', vfat[i * 12 : (i+1)*12])
             f.fileName = fileNames[i]
             self.files.append(f)
-            
+
     def ParseTail(self, vtail, fileCount):
         self.binBlock = (self.binStreamSize + 0x8000 - 1) / 0x8000;
         self.plainBlock = (self.plainStreamSizeUncompressed + 0x8000 - 1) / 0x8000;
@@ -159,7 +159,7 @@ class SNBFile:
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
         f.fileName = fileName.replace(os.sep, '/')
         self.files.append(f)
-    
+
     def GetFileStream(self, fileName):
         for file in self.files:
             if file.fileName == fileName:
@@ -177,17 +177,17 @@ class SNBFile:
                 file.close()
                 fileNames.append((fname, types_map[ext]))
         return fileNames
-        
+
     def Output(self, outputFile):
 
-        # Sort the files in file buffer, 
+        # Sort the files in file buffer,
         # requried by the SNB file format
         self.files.sort(compareFileStream)
 
         outputFile = open(outputFile, 'wb')
         # File header part 1
         vmbrp1 = struct.pack('>8siiii', SNBFile.MAGIC, SNBFile.REV80, SNBFile.REVA3, SNBFile.REVZ1, len(self.files))
-        
+
         # Create VFAT & file stream
         vfat = ''
         fileNameTable = ''
@@ -196,8 +196,8 @@ class SNBFile:
         for f in self.files:
             vfat += struct.pack('>iii', f.attr, len(fileNameTable), f.fileSize);
             fileNameTable += (f.fileName + '\0')
-            
-            if f.attr & 0x41000000 == 0x41000000: 
+
+            if f.attr & 0x41000000 == 0x41000000:
                 # Plain Files
                 f.contentOffset = len(plainStream)
                 plainStream += f.fileBody
@@ -209,21 +209,21 @@ class SNBFile:
                 print f.attr, f.fileName
                 raise Exception("Unknown file type")
         vfatCompressed = zlib.compress(vfat+fileNameTable)
-        
+
         # File header part 2
         vmbrp2 = struct.pack('>iiiii', len(vfat+fileNameTable), len(vfatCompressed), len(binStream), len(plainStream), SNBFile.REVZ2)
         # Write header
         outputFile.write(vmbrp1 + vmbrp2)
-        # Write vfat 
+        # Write vfat
         outputFile.write(vfatCompressed)
-        
+
         # Generate block information
         binBlockOffset = 0x2C + len(vfatCompressed)
         plainBlockOffset = binBlockOffset + len(binStream)
-        
+
         binBlock = (len(binStream) + 0x8000 - 1) / 0x8000
-        plainBlock = (len(plainStream) + 0x8000 - 1) / 0x8000
-        
+        #plainBlock = (len(plainStream) + 0x8000 - 1) / 0x8000
+
         offset = 0
         tailBlock = ''
         for i in range(binBlock):
@@ -237,10 +237,10 @@ class SNBFile:
             else:
                 t = binBlock
             tailRec += struct.pack('>ii', f.contentOffset / 0x8000 + t, f.contentOffset % 0x8000);
-            
+
         # Write binary stream
         outputFile.write(binStream)
-        
+
         # Write plain stream
         pos = 0
         offset = 0
@@ -251,21 +251,21 @@ class SNBFile:
             outputFile.write(compressed)
             offset += len(compressed)
             pos += 0x8000
-        
+
         # Write tail block
         compressedTail = zlib.compress(tailBlock + tailRec)
         outputFile.write(compressedTail)
-       
+
         # Write tail pointer
         veom = struct.pack('>ii', len(compressedTail), plainBlockOffset + offset)
         outputFile.write(veom)
-        
+
         # Write file end mark
         outputFile.write(SNBFile.MAGIC);
-        
+
         # Close
         outputFile.close()
-        return 
+        return
 
     def Dump(self):
         if self.fileName:
@@ -287,13 +287,13 @@ class SNBFile:
             tempFile = open("/tmp/" + f.fileName, 'wb')
             tempFile.write(f.fileBody)
             tempFile.close()
-            
+
 def usage():
     print "This unit test is for INTERNAL usage only!"
     print "This unit test accept two parameters."
     print "python snbfile.py <INPUTFILE> <DESTFILE>"
     print "The input file will be extracted and write to dest file. "
-    print "Meta data of the file will be shown during this process." 
+    print "Meta data of the file will be shown during this process."
 
 def main():
     if len(sys.argv) != 3:
@@ -304,7 +304,7 @@ def main():
 
     print "Input file: ", inputFile
     print "Output file: ", outputFile
-    
+
     snbFile = SNBFile(inputFile)
     if snbFile.IsValid():
         snbFile.Dump()

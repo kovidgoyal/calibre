@@ -25,6 +25,7 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     resize and the input and output image formats are the same, no changes are
     made.
 
+    :param data: Image data as bytestring or Image object
     :param compression_quality: The quality of the image after compression.
         Number between 1 and 100. 1 means highest compression, 100 means no
         compression (lossless).
@@ -33,8 +34,11 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
 
     '''
     changed = False
-    img = Image()
-    img.load(data)
+    if isinstance(data, Image):
+        img = data
+    else:
+        img = Image()
+        img.load(data)
     orig_fmt = normalize_format_name(img.format)
     fmt = os.path.splitext(path)[1]
     fmt = normalize_format_name(fmt[1:])

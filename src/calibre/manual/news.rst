@@ -295,6 +295,9 @@ To learn more about writing advanced recipes using some of the facilities, avail
     `Built-in recipes <http://bazaar.launchpad.net/~kovid/calibre/trunk/files/head:/src/calibre/web/feeds/recipes/>`_
         The source code for the built-in recipes that come with |app|
 
+    `The calibre recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_
+        Lots of knowledgeable |app| recipe writers hang out here.
+
 
 API documentation
 --------------------
