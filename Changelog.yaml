@@ -4,6 +4,111 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.24
+  date: 2010-10-17
+
+  new features:
+    - title: "Content server: New interface that allows browsing via categories, similar to the Tag Browser in the calibre interface."
+      description: >
+        "You can access the new interface by going to /browse. So if your calibre content server is available at http://192.168.1.2, use
+         http://192.168.1.2/browse. The new interface requires a fairly modern browser, so no Internet Explorer 6,7."
+      type: major
+
+    - title: "Support for the SNB e-book format, used by the Bambook e-book reader"
+      type: major
+
+    - title: "Driver for the Wifi Kobo"
+
+    - title: "Edit metadata dialog: If metadata is downloaded successfully, set focus to download cover button"
+
+    - title: "News download system: Allow recipes with optional subscriptions"
+      tickets: [7199]
+
+    - title: "Templates: Improve the smarten function"
+
+    - title: "Linux device mounting: Use udisks, if it is available, to mount devices, so that I no longer have to hear bug reports from users using distro packages that have crippled calibre-mount-helper. You can turn off udisks by setting the environment variable CALIBRE_DISABLE_UDISKS=1"
+
+    - title: "Implement Drag'n'drop to tags in user categories"
+      tickets: [7172]
+
+    - title: "Ebook viewer: Add command line option to start in full screen mode"
+
+    - title: "Set completion mode on search boxes to popup completion"
+
+    - title: "Update version of jQuery used in content server and viewer. Required a little hackery in the viewer, hopefully nothing broke"
+
+  bug fixes:
+    - title: "Linux device drivers: Ignore read only partition exported by the device"
+
+    - title: "E-book viewer: Fix scrolling down with mouse wheel not always reaching bottom in windows"
+
+    - title: "Smarten punctuation: Fix bug in handling of comments and <style> tags"
+
+    - title: "EPUB Input: Handle EPUB files with components encoded in an encoding other than UTF-8 correctly, though why anyone would do that is a mystery."
+      tickets: [7196]
+
+    - title: "OS X commandline tools: Decode non-ascii command line arguments correctly"
+      tickets: [6964]
+
+    - title: "MOBI Output: Fix bug that broke conversion of <svg> elements in the input document when the <svg> element was followed by non-whitespace text."
+      tickets: [7083]
+
+    - title: "CHM Input: Fix handling of relative file paths in <img> tags."
+      tickets: [7159]
+
+    - title: "EPUB Output: Fix incorrect format for xml:lang when specifying a sub language"
+      tickets: [7198]
+
+    - title: "EPUB Input: Make parsing of toc.ncx more robust."
+      tickets: [7170]
+
+    - title: "Content server: Fix searching with non-ascii characters on windows"
+      tickets: [5249]
+
+    - title: "Fix average rating calculation for rating datatype in Tag Browser incorrect"
+
+    - title: "Comic Input: Fix image borders becoming yellow on some windows installs"
+
+    - title: "Email sending: Fix sending of email with non ascii chars"
+      tickets: [7137]
+
+    - title: "SONY driver: Fix collections created from series not in order with manual metadata management, if all books in the series are not sent at once"
+
+    - title: "Content server: Apply the search restriction when generating category lists as well"
+
+    - title: "RTF Input: Fix regression in conversion of WMF images on linux at least, maybe on other platforms as wel"
+
+    - title: "Fix isbndb.com metadata downloading sometimes yield a title of Unknown"
+      tickets: [7114]
+
+    - title: "Fix edit metadata dialog causing the hour:minute:seconds of the date column being lost, even when date is not changed"
+      tickets: [7125]
+
+  new recipes:
+    - title: "Revista El Cultural"
+      author: "Jefferson Frantz"
+      
+    - title: "Novaya Gazeta"
+      author: "muwa"
+
+    - title: "frazpc.pl"
+      author: "Tomasz Dlugosz"
+      
+    - title: "Orsai and Financial Times UK"
+      author: "Darko Miletic"
+
+    - title: "Malayasian Mirror and Rolling Stones"
+      author: "Tony Stegall"
+
+  improved recipes:
+    - Globe and Mail
+    - Business Standard
+    - Miami Herald
+    - El Mercurio
+    - volkskrant.nl
+    - GoComics.com
+    - The New Yorker
+
 - version: 0.7.23
   date: 2010-10-08
 
@@ -51,6 +156,7 @@
     - title: "CHM input: handle another class of broken CHM files"
       tickets: [7058]
 
+    - title: "Make calibre worker processes use the same temp directory as the calibre GUI"
 
   new recipes:
     - title: "Communications of the Association for Computing Machinery"

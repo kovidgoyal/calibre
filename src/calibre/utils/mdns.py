@@ -58,11 +58,12 @@ def publish(desc, type, port, properties=None, add_hostname=True):
     '''
     port = int(port)
     server = start_server()
+    try:
+        hostname = socket.gethostname().partition('.')[0]
+    except:
+        hostname = 'Unknown'
+
     if add_hostname:
-        try:
-            hostname = socket.gethostname().partition('.')[0]
-        except:
-            hostname = 'Unknown'
         desc += ' (on %s)'%hostname
     local_ip = get_external_ip()
     type = type+'.local.'

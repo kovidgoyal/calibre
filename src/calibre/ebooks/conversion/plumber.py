@@ -838,7 +838,8 @@ OptionRecommendation(name='timestamp',
                 self.opts_to_mi(self.user_metadata)
             if not hasattr(self.oeb, 'manifest'):
                 self.oeb = create_oebbook(self.log, self.oeb, self.opts,
-                        self.input_plugin)
+                        self.input_plugin,
+                        encoding=self.input_plugin.output_encoding)
             self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
             self.opts.is_image_collection = self.input_plugin.is_image_collection
             pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)

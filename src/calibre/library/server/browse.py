@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import operator, os, json
 from binascii import hexlify, unhexlify
+from urllib import quote
 
 import cherrypy
 
@@ -136,7 +137,7 @@ def get_category_items(category, items, db, datatype): # {{{
         q = i.category
         if not q:
             q = category
-        href = '/browse/matches/%s/%s'%(q, id_)
+        href = '/browse/matches/%s/%s'%(quote(q), quote(id_))
         return templ.format(xml(name), rating,
                 xml(desc), xml(href), rstring)
 
@@ -329,7 +330,7 @@ class BrowseServer(object):
         cats = [('<li title="{2} {0}"><img src="{src}" alt="{0}" />'
                  '<span class="label">{0}</span>'
                  '<span class="url">/browse/category/{1}</span></li>')
-                .format(xml(x, True), xml(y), xml(_('Browse books by')),
+                .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
                     src='/browse/icon/'+z)
                 for x, y, z in cats]
 

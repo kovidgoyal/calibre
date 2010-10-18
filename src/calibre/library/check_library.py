@@ -14,14 +14,14 @@ from calibre.ebooks import BOOK_EXTENSIONS
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 NORMALS = frozenset(['metadata.opf', 'cover.jpg'])
 
-CHECKS = [('invalid_titles',    _('Invalid titles')),
-          ('extra_titles',      _('Extra titles')),
-          ('invalid_authors',   _('Invalid authors')),
-          ('extra_authors',     _('Extra authors')),
-          ('missing_formats',   _('Missing book formats')),
-          ('extra_formats',     _('Extra book formats')),
-          ('extra_files',       _('Unknown files in books')),
-          ('failed_folders',    _('Folders raising exception'))
+CHECKS = [('invalid_titles',    _('Invalid titles'), True),
+          ('extra_titles',      _('Extra titles'), True),
+          ('invalid_authors',   _('Invalid authors'), True),
+          ('extra_authors',     _('Extra authors'), True),
+          ('missing_formats',   _('Missing book formats'), False),
+          ('extra_formats',     _('Extra book formats'), True),
+          ('extra_files',       _('Unknown files in books'), True),
+          ('failed_folders',    _('Folders raising exception'), False)
       ]
 
 
@@ -41,7 +41,6 @@ class CheckLibrary(object):
         self.all_lc_dbpaths = frozenset([f.lower() for f in self.all_dbpaths])
 
         self.db_id_regexp = re.compile(r'^.* \((\d+)\)$')
-        self.bad_ext_pat = re.compile(r'[^a-z0-9]+')
 
         self.dirs = []
         self.book_dirs = []
@@ -78,7 +77,7 @@ class CheckLibrary(object):
             auth_path = os.path.join(lib, auth_dir)
             # First check: author must be a directory
             if not os.path.isdir(auth_path):
-                self.invalid_authors.append((auth_dir, auth_dir, []))
+                self.invalid_authors.append((auth_dir, auth_dir))
                 continue
 
             self.potential_authors[auth_dir] = {}
@@ -93,7 +92,7 @@ class CheckLibrary(object):
                 m = self.db_id_regexp.search(title_dir)
                 # Second check: title must have an ID and must be a directory
                 if m is None or not os.path.isdir(title_path):
-                    self.invalid_titles.append((auth_dir, db_path, [title_dir]))
+                    self.invalid_titles.append((auth_dir, db_path))
                     continue
 
                 id = m.group(1)
@@ -101,12 +100,12 @@ class CheckLibrary(object):
                 if self.is_case_sensitive:
                     if int(id) not in self.all_ids or \
                             db_path not in self.all_dbpaths:
-                        self.extra_titles.append((title_dir, db_path, []))
+                        self.extra_titles.append((title_dir, db_path))
                         continue
                 else:
                     if int(id) not in self.all_ids or \
                             db_path.lower() not in self.all_lc_dbpaths:
-                        self.extra_titles.append((title_dir, db_path, []))
+                        self.extra_titles.append((title_dir, db_path))
                         continue
 
                 # Record the book to check its formats
@@ -115,7 +114,7 @@ class CheckLibrary(object):
 
             # Fourth check: author directories that contain no titles
             if not found_titles:
-                self.extra_authors.append((auth_dir, auth_dir, []))
+                self.extra_authors.append((auth_dir, auth_dir))
 
         for x in self.book_dirs:
             try:
@@ -132,9 +131,7 @@ class CheckLibrary(object):
         ext = ext[1:].lower()
         if ext in EBOOK_EXTENSIONS:
             return True
-        if self.bad_ext_pat.search(ext) is not None:
-            return False
-        return True
+        return False
 
     def process_book(self, lib, book_info):
         (db_path, title_dir, book_id) = book_info
@@ -148,18 +145,18 @@ class CheckLibrary(object):
         if self.is_case_sensitive:
             unknowns = frozenset(filenames-formats-NORMALS)
             # Check: any books that aren't formats or normally there?
-            if unknowns:
-                self.extra_files.append((title_dir, db_path, unknowns))
+            for u in unknowns:
+                self.extra_files.append((title_dir, os.path.join(db_path, u)))
 
             # Check: any book formats that should be there?
             missing = book_formats - formats
-            if missing:
-                self.missing_formats.append((title_dir, db_path, missing))
+            for m in  missing:
+                self.missing_formats.append((title_dir, os.path.join(db_path, m)))
 
             # Check: any book formats that shouldn't be there?
             extra = formats - book_formats - NORMALS
-            if extra:
-                self.extra_formats.append((title_dir, db_path, extra))
+            for e in extra:
+                self.extra_formats.append((title_dir, os.path.join(db_path, e)))
         else:
             def lc_map(fnames, fset):
                 m = {}
@@ -171,19 +168,16 @@ class CheckLibrary(object):
             formats_lc = frozenset([f.lower() for f in formats])
             unknowns = frozenset(filenames_lc-formats_lc-NORMALS)
             # Check: any books that aren't formats or normally there?
-            if unknowns:
-                self.extra_files.append((title_dir, db_path,
-                                         lc_map(filenames, unknowns)))
+            for f in lc_map(filenames, unknowns):
+                self.extra_files.append((title_dir, os.path.join(db_path, f)))
 
             book_formats_lc = frozenset([f.lower() for f in book_formats])
             # Check: any book formats that should be there?
             missing = book_formats_lc - formats_lc
-            if missing:
-                self.missing_formats.append((title_dir, db_path,
-                                             lc_map(book_formats, missing)))
+            for m in lc_map(book_formats, missing):
+                self.missing_formats.append((title_dir, os.path.join(db_path, m)))
 
             # Check: any book formats that shouldn't be there?
             extra = formats_lc - book_formats_lc - NORMALS
-            if extra:
-                self.extra_formats.append((title_dir, db_path,
-                                           lc_map(formats, extra)))
+            for e in lc_map(formats, extra):
+                self.extra_formats.append((title_dir, os.path.join(db_path, e)))
