@@ -11,7 +11,7 @@ from PyQt4.Qt import QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, \
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
-from calibre.library.database2 import delete_file
+from calibre.library.database2 import delete_file, delete_tree
 from calibre import prints
 
 class Item(QTreeWidgetItem):
@@ -44,14 +44,10 @@ class CheckLibraryDialog(QDialog):
         self.delete = QPushButton('Delete &marked')
         self.delete.setDefault(False)
         self.delete.clicked.connect(self.delete_marked)
-        self.cancel = QPushButton('&Cancel')
-        self.cancel.setDefault(False)
-        self.cancel.clicked.connect(self.reject)
         self.bbox = QDialogButtonBox(self)
-        self.bbox.addButton(self.copy, QDialogButtonBox.ActionRole)
         self.bbox.addButton(self.check, QDialogButtonBox.ActionRole)
         self.bbox.addButton(self.delete, QDialogButtonBox.ActionRole)
-        self.bbox.addButton(self.cancel, QDialogButtonBox.RejectRole)
+        self.bbox.addButton(self.copy, QDialogButtonBox.ActionRole)
         self.bbox.addButton(self.ok, QDialogButtonBox.AcceptRole)
 
         h = QHBoxLayout()
@@ -146,7 +142,11 @@ class CheckLibraryDialog(QDialog):
         for it in items:
             if it.checkState(1):
                 try:
-                    delete_file(os.path.join(self.db.library_path, unicode(it.text(1))))
+                    p = os.path.join(self.db.library_path ,unicode(it.text(1)))
+                    if os.path.isdir(p):
+                        delete_tree(p)
+                    else:
+                        delete_file(p)
                 except:
                     prints('failed to delete',
                             os.path.join(self.db.library_path,
