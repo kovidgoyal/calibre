@@ -97,8 +97,8 @@ class XMLCache(object):
         for source_id, path in paths.items():
             if source_id == 0:
                 if not os.path.exists(path):
-                    raise DeviceError('The SONY XML cache media.xml does not exist. Try'
-                        ' disconnecting and reconnecting your reader.')
+                    raise DeviceError(('The SONY XML cache %r does not exist. Try'
+                        ' disconnecting and reconnecting your reader.')%repr(path))
                 with open(path, 'rb') as f:
                     raw = f.read()
             else:
@@ -112,7 +112,7 @@ class XMLCache(object):
                         verbose=DEBUG)[0],
                         parser=parser)
             if self.roots[source_id] is None:
-                raise Exception(('The SONY database at %s is corrupted. Try '
+                raise Exception(('The SONY database at %r is corrupted. Try '
                         ' disconnecting and reconnecting your reader.')%path)
 
         self.ext_paths, self.ext_roots = {}, {}
