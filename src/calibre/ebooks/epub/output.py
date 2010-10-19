@@ -106,6 +106,7 @@ class EPUBOutput(OutputFormatPlugin):
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
 
 
+
     def workaround_webkit_quirks(self): # {{{
         from calibre.ebooks.oeb.base import XPath
         for x in self.oeb.spine:
@@ -183,6 +184,12 @@ class EPUBOutput(OutputFormatPlugin):
 
         with TemporaryDirectory('_epub_output') as tdir:
             from calibre.customize.ui import plugin_for_output_format
+            metadata_xml = None
+            extra_entries = []
+            if self.is_periodical:
+                from calibre.ebooks.epub.periodical import sony_metadata
+                metadata_xml, atom_xml = sony_metadata(oeb)
+                extra_entries = [('atom.xml', 'application/atom+xml', atom_xml)]
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb, tdir, input_plugin, opts, log)
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
@@ -194,10 +201,14 @@ class EPUBOutput(OutputFormatPlugin):
                 encryption = self.encrypt_fonts(encrypted_fonts, tdir, uuid)
 
             from calibre.ebooks.epub import initialize_container
-            epub = initialize_container(output_path, os.path.basename(opf))
+            epub = initialize_container(output_path, os.path.basename(opf),
+                    extra_entries=extra_entries)
             epub.add_dir(tdir)
             if encryption is not None:
                 epub.writestr('META-INF/encryption.xml', encryption)
+            if metadata_xml is not None:
+                epub.writestr('META-INF/metadata.xml',
+                        metadata_xml.encode('utf-8'))
             if opts.extract_to is not None:
                 if os.path.exists(opts.extract_to):
                     shutil.rmtree(opts.extract_to)
