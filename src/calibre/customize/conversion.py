@@ -294,3 +294,8 @@ class OutputFormatPlugin(Plugin):
         '''
         raise NotImplementedError
 
+    @property
+    def is_periodical(self):
+        return self.oeb.metadata.publication_type and \
+            unicode(self.oeb.metadata.publication_type[0]).startswith('periodical:')
+
