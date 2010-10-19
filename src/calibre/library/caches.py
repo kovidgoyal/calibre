@@ -816,6 +816,10 @@ class SortKeyGenerator(object):
                 if val is None:
                     val = ''
                 val = val.lower()
+
+            elif dt == 'bool':
+                val = {True: 1, False: 2, None: 3}.get(val, 3)
+
             yield val
 
     # }}}
