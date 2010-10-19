@@ -745,7 +745,7 @@ class Device(DeviceConfig, DevicePlugin):
                 eject(d)
             except Exception, e:
                 print 'Udisks eject call for:', d, 'failed:'
-                print '\t', str(e)
+                print '\t', e
 
         for drive in drives:
             cmd = 'calibre-mount-helper'
