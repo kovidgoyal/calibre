@@ -1102,10 +1102,9 @@ class BasicNewsRecipe(Recipe):
         if self.output_profile.periodical_date_in_title:
             title += strftime(self.timefmt)
         mi = MetaInformation(title, [__appname__])
-        mi.title_sort = self.short_title()
         mi.publisher = __appname__
         mi.author_sort = __appname__
-        mi.publication_type = 'periodical:'+self.publication_type
+        mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
         mi.timestamp = nowf()
         mi.comments = self.description
         if not isinstance(mi.comments, unicode):

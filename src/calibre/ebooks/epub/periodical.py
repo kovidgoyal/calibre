@@ -80,9 +80,12 @@ def sony_metadata(oeb):
     m = oeb.metadata
     title = short_title = unicode(m.title[0])
     publisher = __appname__ + ' ' + __version__
-    for k, n in m.title[0].attrib.items():
-        if k.endswith('file-as'):
-            short_title = n
+    try:
+        pt = unicode(oeb.metadata.publication_type[0])
+        short_title = u''.join(pt.split(':')[2:])
+    except:
+        pass
+
     try:
         date = unicode(m.date[0]).split('T')[0]
     except:
