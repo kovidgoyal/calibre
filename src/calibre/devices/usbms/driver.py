@@ -186,7 +186,8 @@ class USBMS(CLI, Device):
             self.put_file(infile, filepath, replace_file=True)
             try:
                 self.upload_cover(os.path.dirname(filepath),
-                                  os.path.splitext(os.path.basename(filepath))[0], mdata)
+                                  os.path.splitext(os.path.basename(filepath))[0],
+                                  mdata, filepath)
             except: # Failure to upload cover is not catastrophic
                 import traceback
                 traceback.print_exc()
@@ -197,14 +198,15 @@ class USBMS(CLI, Device):
         debug_print('USBMS: finished uploading %d books'%(len(files)))
         return zip(paths, cycle([on_card]))
 
-    def upload_cover(self, path, filename, metadata):
+    def upload_cover(self, path, filename, metadata, filepath):
         '''
         Upload book cover to the device. Default implementation does nothing.
 
-        :param path: the full path were the associated book is located.
-        :param filename: the name of the book file without the extension.
+        :param path: The full path to the directory where the associated book is located.
+        :param filename: The name of the book file without the extension.
         :param metadata: metadata belonging to the book. Use metadata.thumbnail
                          for cover
+        :param filepath: The full path to the ebook file
 
         '''
         pass
