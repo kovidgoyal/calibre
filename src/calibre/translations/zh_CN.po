@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-18 00:48+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-18 11:03+0000\n"
+"Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-18 04:54+0000\n"
+"X-Launchpad-Export-Date: 2010-10-19 04:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -571,7 +571,7 @@ msgstr "该配置文件适用 Amazon Kindle DX。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:654
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "该配置文件适用于盛大锦书(Bambook)。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Installed plugins"
@@ -856,7 +856,7 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:44
 msgid "Cannot get files from this device"
-msgstr ""
+msgstr "无法从该设备获取文件"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -1064,7 +1064,7 @@ msgstr "无法装载主存储器（错误代码：%d）"
 msgid ""
 "The main memory of %s is read only. This usually happens because of file "
 "system errors."
-msgstr ""
+msgstr "％s的主内存只读。可能是由于设备的文件系统出错引起。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:802
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:804
@@ -2944,7 +2944,7 @@ msgstr "设置页面方向. 默认为纵向页面. 可选项有 %s"
 msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "ull first page of the generated pdf."
-msgstr ""
+msgstr "保持封面图片的纵横比，不要通过拉伸封面图片来填充生成的pdf首页。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -2982,7 +2982,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:124
 msgid "Start Page"
-msgstr ""
+msgstr "起始页"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:136
@@ -2992,7 +2992,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:149
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:152
 msgid " (Preface)"
-msgstr ""
+msgstr " 引言"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
@@ -3253,7 +3253,7 @@ msgstr "PDF 书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:169
 msgid "SNB Books"
-msgstr ""
+msgstr "SNB 书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:170
 msgid "Comics"
@@ -3571,7 +3571,7 @@ msgstr "未找到书库"
 msgid ""
 "No existing calibre library was found at %s. It will be removed from the "
 "list of known libraries."
-msgstr ""
+msgstr "在%s中无法找到现有的caliber书库。它将被从已知书库列表中移除。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:101

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-18 00:31+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-18 13:04+0000\n"
+"Last-Translator: Manichean <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-18 04:52+0000\n"
+"X-Launchpad-Export-Date: 2010-10-19 04:54+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -603,7 +603,7 @@ msgstr "Dieses Profil ist geeignet für den Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:654
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Dieses Profil ist geeignet für den Sanda Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Installed plugins"
@@ -898,7 +898,7 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:44
 msgid "Cannot get files from this device"
-msgstr ""
+msgstr "Kann keine Dateien von diesem Gerät lesen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -1118,6 +1118,8 @@ msgid ""
 "The main memory of %s is read only. This usually happens because of file "
 "system errors."
 msgstr ""
+"Der Hauptspeicher von %s ist schreibgeschützt. Dies passiert üblicherweise "
+"aufgrund von Fehlern im Dateisystem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:802
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:804
@@ -3328,12 +3330,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:124
 msgid "Start Page"
-msgstr ""
+msgstr "Startseite"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:136
 msgid "Cover Pages"
-msgstr ""
+msgstr "Titelseiten"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:149
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:152
@@ -3631,7 +3633,7 @@ msgstr "PDF Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:169
 msgid "SNB Books"
-msgstr ""
+msgstr "SNB- Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:170
 msgid "Comics"
@@ -5807,7 +5809,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output.py:14
 msgid "SNB Output"
-msgstr ""
+msgstr "SNB- Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -7569,15 +7571,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:166
 msgid "Account"
-msgstr ""
+msgstr "Konto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:167
 msgid "(optional)"
-msgstr ""
+msgstr "(optional)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:168
 msgid "(required)"
-msgstr ""
+msgstr "(erforderlich)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:185
 msgid "Created by: "
@@ -12035,10 +12037,19 @@ msgid ""
 "    replaced.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog saved_searches [Optionen] list\n"
+"    %prog saved_searches add Name Suchausdruck\n"
+"    %prog saved_searches remove Name\n"
+"\n"
+"    Verwaltet die in der Datenbank abgelegten gespeicherten Suchen.\n"
+"    Bereits vorhandene Suchen werden überschrieben, wenn eine neue\n"
+"    Suche mit gleichem Namen hinzugefügt wird.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:841
 msgid "Error: You must specify an action (add|remove|list)"
-msgstr ""
+msgstr "Fehler: Sie müssen eine Aktion angeben (add|remove|list)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:849
 msgid "Name:"
@@ -12066,7 +12077,7 @@ msgstr "entfernt"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:871
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
-msgstr ""
+msgstr "Fehler: Aktion %s nicht erkannt, muss sein aus: (add|remove|list)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:879
 msgid ""
@@ -12075,6 +12086,10 @@ msgid ""
 "Perform some checks on the filesystem representing a library. Reports are "
 "{0}\n"
 msgstr ""
+"%prog check_library [Optionen]\n"
+"\n"
+"Führt einige Überprüfungen auf dem Dateisystem einer Bibliothek durch. "
+"Reports sind {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:886
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1036
@@ -12086,18 +12101,24 @@ msgid ""
 "Comma-separated list of reports.\n"
 "Default: all"
 msgstr ""
+"Komma- separierte Liste mit Reporten.\n"
+"Standard: alle"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:893
 msgid ""
 "Comma-separated list of extensions to ignore.\n"
 "Default: all"
 msgstr ""
+"Komma- separierte Liste der zu ignorierenden Erweiterungen.\n"
+"Standard: alle"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:897
 msgid ""
 "Comma-separated list of names to ignore.\n"
 "Default: all"
 msgstr ""
+"Komma- separierte Liste der zu ignorierenden Namen.\n"
+"Standard: alle"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:927
 msgid "Unknown report check"
@@ -12117,16 +12138,34 @@ msgid ""
 "what is found in the OPF files.\n"
 "    "
 msgstr ""
+"%prog restore_database [Optionen]\n"
+"\n"
+"Stellt diese Datenbank aus den in OPF- Dateien gespeicherten\n"
+"Metadaten in den Unterverzeichnissen wieder her. Nützlich, falls\n"
+"die Datei metadata.db defekt ist.\n"
+"\n"
+"ACHTUNG: Dieser Befehl regeneriert die Datenbank vollständig. Sie verlieren\n"
+"dadurch alle gespeicherten Suchen, benutzerdefinierte Kategorien, "
+"Schalttafeln,\n"
+"individuell pro Buch gespeicherte Konvertierungseinstellungen und benutzer-\n"
+"definierte Nachrichtenquellen. Die wiederhergestellten Metadaten sind nur "
+"so\n"
+"genau wie die in den OPF- Dateien gespeicherten Daten.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:975
 msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
+"Führt die Wiederherstellung tatsächlich durch. Der Befehl wird nicht "
+"ausgeführt, wenn diese Option nicht vorhanden ist."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:988
 msgid "You must provide the --really-do-it option to do a recovery"
 msgstr ""
+"Sie müssen die --really-do-it Option angeben, um eine Wiederherstellung "
+"durchzuführen."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1025
 msgid ""
@@ -12135,6 +12174,11 @@ msgid ""
 "Produce a report of the category information in the database. The\n"
 "information is the equivalent of what is shown in the tags pane.\n"
 msgstr ""
+"%prog list_categories [Optionen]\n"
+"\n"
+"Erstellt einen Report der Kategorie- Informationen in der Datenbank.\n"
+"Die Information entspricht dem, was im Etiketten- Browser angezeigt\n"
+"wird.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1033
 msgid ""
@@ -12147,16 +12191,22 @@ msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
+"Zeichen, mit dem Kategorie- Werte im CSV- Modus umschlossen werden. Standard "
+"sind Anführungszeichen (\")."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1041
 msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
+"Komma- separierte Liste von Kategorie- Suchnamen.\n"
+"Standard: alle"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1047
 msgid "The string used to separate fields in CSV mode. Default is a comma."
 msgstr ""
+"Zeichenfolge zur Aufteilung von Feldern im CSV- Modus. Standard ist ein "
+"Komma."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1085
 msgid "CATEGORY ITEMS"
