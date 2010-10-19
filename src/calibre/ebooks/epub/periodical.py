@@ -82,7 +82,7 @@ def sony_metadata(oeb):
     publisher = __appname__ + ' ' + __version__
     try:
         pt = unicode(oeb.metadata.publication_type[0])
-        short_title = u''.join(pt.split(':')[2:])
+        short_title = u':'.join(pt.split(':')[2:])
     except:
         pass
 
