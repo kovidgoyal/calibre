@@ -48,7 +48,7 @@ class Matches(QAbstractTableModel):
         return len(self.matches)
 
     def columnCount(self, *args):
-        return 6
+        return 8
 
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
@@ -61,6 +61,8 @@ class Matches(QAbstractTableModel):
             elif section == 3: text = _("Publisher")
             elif section == 4: text = _("ISBN")
             elif section == 5: text = _("Published")
+            elif section == 6: text = _("Cover?")
+            elif section == 7: text = _("Summary?")
 
             return QVariant(text)
         else:
@@ -87,6 +89,10 @@ class Matches(QAbstractTableModel):
             elif col == 5:
                 if hasattr(book.pubdate, 'timetuple'):
                     res = strftime('%b %Y', book.pubdate.timetuple())
+            elif col == 6 and book.has_cover:
+                res = 'OK'
+            elif col == 7 and book.comments:
+                res = 'OK'
             if not res:
                 return NONE
             return QVariant(res)
