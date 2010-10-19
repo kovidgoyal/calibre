@@ -43,7 +43,7 @@ class SafeFormat(TemplateFormatter):
             b = self.book.get_user_metadata(key, False)
             if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
                 v = ''
-            elif b and b['datatype'] == 'float' and b.get(key, 0.0) == 0.0:
+            elif b and b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0:
                 v = ''
             else:
                 ign, v = self.book.format_field(key.lower(), series_with_index=False)
