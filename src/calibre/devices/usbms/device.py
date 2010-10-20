@@ -523,7 +523,8 @@ class Device(DeviceConfig, DevicePlugin):
                     devnodes.append(node)
 
         devnodes += list(repeat(None, 3))
-        ans = tuple(['/dev/'+x if ok.get(x, False) else None for x in devnodes[:3]])
+        ans = ['/dev/'+x if ok.get(x, False) else None for x in devnodes[:3]]
+        ans.sort(key=lambda x: x[5:] if x else 'zzzzz')
         return self.linux_swap_drives(ans)
 
     def linux_swap_drives(self, drives):
@@ -732,24 +733,36 @@ class Device(DeviceConfig, DevicePlugin):
                     pass
 
     def eject_linux(self):
-        try:
-            from calibre.devices.udisks import eject
-            return eject(self._linux_main_device_node)
-        except:
-            pass
-        drives = self.find_device_nodes()
+        from calibre.devices.udisks import eject, umount
+        drives = [d for d in self.find_device_nodes() if d]
+        for d in drives:
+            try:
+                umount(d)
+            except:
+                pass
+        failures = False
+        for d in drives:
+            try:
+                eject(d)
+            except Exception, e:
+                print 'Udisks eject call for:', d, 'failed:'
+                print '\t', e
+                failures = True
+
+        if not failures:
+            return
+
         for drive in drives:
-            if drive:
-                cmd = 'calibre-mount-helper'
-                if getattr(sys, 'frozen_path', False):
-                    cmd = os.path.join(sys.frozen_path, cmd)
-                cmd = [cmd, 'eject']
-                mp = getattr(self, "_linux_mount_map", {}).get(drive,
-                        'dummy/')[:-1]
-                try:
-                    subprocess.Popen(cmd + [drive, mp]).wait()
-                except:
-                    pass
+            cmd = 'calibre-mount-helper'
+            if getattr(sys, 'frozen_path', False):
+                cmd = os.path.join(sys.frozen_path, cmd)
+            cmd = [cmd, 'eject']
+            mp = getattr(self, "_linux_mount_map", {}).get(drive,
+                    'dummy/')[:-1]
+            try:
+                subprocess.Popen(cmd + [drive, mp]).wait()
+            except:
+                pass
 
     def eject(self):
         if islinux:

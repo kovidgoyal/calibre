@@ -5,8 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import dbus
-import os
+import dbus, os
 
 def node_mountpoint(node):
 
@@ -56,15 +55,6 @@ class UDisks(object):
         parent = device_node_path
         while parent[-1] in '0123456789':
             parent = parent[:-1]
-        devices = [str(x) for x in self.main.EnumerateDeviceFiles()]
-        for d in devices:
-            if d.startswith(parent) and d != parent:
-                try:
-                    self.unmount(d)
-                except:
-                    import traceback
-                    print 'Failed to unmount:', d
-                    traceback.print_exc()
         d = self.device(parent)
         d.DriveEject([])
 
@@ -76,13 +66,19 @@ def eject(node_path):
     u = UDisks()
     u.eject(node_path)
 
+def umount(node_path):
+    u = UDisks()
+    u.unmount(node_path)
+
 if __name__ == '__main__':
     import sys
     dev = sys.argv[1]
     print 'Testing with node', dev
     u = UDisks()
     print 'Mounted at:', u.mount(dev)
-    print 'Ejecting'
+    print 'Unmounting'
+    u.unmount(dev)
+    print 'Ejecting:'
     u.eject(dev)
 
 

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import operator, os, json
 from binascii import hexlify, unhexlify
-from urllib import quote
+from urllib import quote, unquote
 
 import cherrypy
 
@@ -482,6 +482,8 @@ class BrowseServer(object):
 
     @Endpoint(sort_type='list')
     def browse_matches(self, category=None, cid=None, list_sort=None):
+        if list_sort:
+            list_sort = unquote(list_sort)
         if not cid:
             raise cherrypy.HTTPError(404, 'invalid category id: %r'%cid)
         categories = self.categories_cache()
