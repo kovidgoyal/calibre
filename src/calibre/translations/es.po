@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-18 14:16+0000\n"
-"Last-Translator: Salva <Unknown>\n"
+"PO-Revision-Date: 2010-10-19 16:18+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-19 04:56+0000\n"
+"X-Launchpad-Export-Date: 2010-10-20 04:53+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:480
@@ -616,7 +616,7 @@ msgstr "Este perfil está pensado para el JetBook de 5 pulgadas."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:654
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Este perfil está pensado para el Sandra Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Mapping for filetype plugins"
@@ -3317,12 +3317,12 @@ msgstr "Página de inicio"
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:136
 msgid "Cover Pages"
-msgstr ""
+msgstr "Portadas"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:149
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:152
 msgid " (Preface)"
-msgstr ""
+msgstr " (Prefacio)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
@@ -5780,7 +5780,7 @@ msgstr "Usar preferencias de conversión &guardadas para libros individuales"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output.py:14
 msgid "SNB Output"
-msgstr ""
+msgstr "Salida SNB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -7548,11 +7548,11 @@ msgstr "Cuenta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:167
 msgid "(optional)"
-msgstr ""
+msgstr "(opcional)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:168
 msgid "(required)"
-msgstr ""
+msgstr "(requerido)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:185
 msgid "Created by: "
@@ -10785,6 +10785,7 @@ msgstr ""
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
+"Si se activa, la ventana del visor tratará de iniciarse a pantalla completa."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:705
 msgid "Print javascript alert and console messages to the console"
@@ -12498,48 +12499,48 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:50
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:390
 msgid "Loading, please wait"
-msgstr ""
+msgstr "Cargando. Por favor, espere"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:79
 msgid "First"
-msgstr ""
+msgstr "Primero"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:79
 msgid "Last"
-msgstr ""
+msgstr "Ultimo"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:79
 msgid "Previous"
-msgstr ""
+msgstr "Anterior"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:80
 msgid "Next"
-msgstr ""
+msgstr "Siguiente"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:82
 msgid "Browsing %d books"
-msgstr ""
+msgstr "Explorando %d libros"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:98
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:217
 msgid "Average rating"
-msgstr ""
+msgstr "Valoración media"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:99
 msgid "%s: %.1f stars"
-msgstr ""
+msgstr "%s: %.1f estrellas"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:128
 msgid "%d stars"
-msgstr ""
+msgstr "%d estrellas"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:218
 msgid "Popularity"
-msgstr ""
+msgstr "Popularidad"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:237
 msgid "Sort by"
-msgstr ""
+msgstr "Ordenar por"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:300
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:489
@@ -12549,59 +12550,59 @@ msgstr "Más reciente"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:332
 msgid "Browse books by"
-msgstr ""
+msgstr "Explorar libros por"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:337
 msgid "Choose a category to browse by:"
-msgstr ""
+msgstr "Elija una categoría"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:409
 msgid "Browsing by"
-msgstr ""
+msgstr "Explorando por"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:410
 msgid "Up"
-msgstr ""
+msgstr "Arriba"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:515
 msgid "in"
-msgstr ""
+msgstr "en"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:518
 msgid "Books in"
-msgstr ""
+msgstr "Libros en"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:568
 msgid "Other formats"
-msgstr ""
+msgstr "Otros formatos"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:575
 msgid "Read %s in the %s format"
-msgstr ""
+msgstr "Leer %s en el formato %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:580
 msgid "Get"
-msgstr ""
+msgstr "Obtener"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:594
 msgid "Permalink"
-msgstr ""
+msgstr "Permalink"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:595
 msgid "A permanent link to this book"
-msgstr ""
+msgstr "Un enlace permanente a este libro"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:606
 msgid "This book has been deleted"
-msgstr ""
+msgstr "Este libro ha sido borrado"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:687
 msgid "in search"
-msgstr ""
+msgstr "en búsqueda"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:689
 msgid "Matching books"
-msgstr ""
+msgstr "Libros encontrados"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:28
 msgid ""
@@ -12747,11 +12748,11 @@ msgstr "Cómo y cuándo actualiza calibre los metadatos del dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:32
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr ""
+msgstr "lookup requiere 2 o un número impar de argumentos"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:55
 msgid "switch requires an odd number of arguments"
-msgstr ""
+msgstr "switch requiere un número impar de argumentos"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."

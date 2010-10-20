@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-18 18:09+0000\n"
+"PO-Revision-Date: 2010-10-20 04:22+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-19 04:53+0000\n"
+"X-Launchpad-Export-Date: 2010-10-20 04:53+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -9690,6 +9690,25 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
+"Hementxe alda ditzakezu calibrek erabiltzen dituen metadatuak; liburu bat "
+"disko batean gordetzerakoan edo liburu bat irakurgailura bidaltzerakoa "
+"sortzen diren metadatuak alda ditzakezu.\n"
+"\n"
+"Erabil ezazu elkarrizketa hau 'konexio-taula' bat definitzeko formatu "
+"baterako (edo formatu guztietarako) eta gailu baterako (edo gailu "
+"guztietarako). Horrek 'konexio-taula' horrek zehazten du zein txantiloi "
+"dagoen eremu bakoitzarekin konektaturik. Txantiloia erabiltzen da balioa "
+"kalkulatzeko eta balio hori konektatutako eremuari esleitzen zaio.\n"
+"\n"
+"Askotan txantiloiak zutabe konposatuen erreferentzia soil bat besterik ez du "
+"izango baina hau ez da beharrezkoa; calibren edonon erabil dezakezun edozein "
+"txantiloi sorburu kutxan ere erabil dezakezu.\n"
+"\n"
+"Konexio-taularen erabilpen bat serieen informazioa duen izenburua aldatzea "
+"izan daiteke. Beste erabilpen bat izan daiteke egileen multzoa aldatzea, "
+"mobi erabiltzaileek erabil dezaketen zerbait,  kindlek hain beharrezkoak "
+"dituen ';'  horiek  lortzeko. Hirugarren erabilpen posible bat: hizkuntza "
+"zehaztea."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"
@@ -10897,6 +10916,8 @@ msgstr ""
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
+"Hauxe hautatu  eginez gero, ikusiko den leihoa saiatuko da pantaila osoa "
+"zabaltzen hasi eta berehalakoan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:705
 msgid "Print javascript alert and console messages to the console"
@@ -12610,48 +12631,48 @@ msgstr "calibre liburutegian sartzeko pasahitza. Erabiltzaile izena: "
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:50
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:390
 msgid "Loading, please wait"
-msgstr ""
+msgstr "Kargatzen. Mesedez, zaude apur batean."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:79
 msgid "First"
-msgstr ""
+msgstr "Lehena"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:79
 msgid "Last"
-msgstr ""
+msgstr "Azkena"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:79
 msgid "Previous"
-msgstr ""
+msgstr "Aurrekoa"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:80
 msgid "Next"
-msgstr ""
+msgstr "Hurrengoa"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:82
 msgid "Browsing %d books"
-msgstr ""
+msgstr "Gainbegiratzen %d liburuak"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:98
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:217
 msgid "Average rating"
-msgstr ""
+msgstr "Batez besteko balorazioa"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:99
 msgid "%s: %.1f stars"
-msgstr ""
+msgstr "%s: %.1f izarrak"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:128
 msgid "%d stars"
-msgstr ""
+msgstr "%d izarrak"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:218
 msgid "Popularity"
-msgstr ""
+msgstr "Ospea"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:237
 msgid "Sort by"
-msgstr ""
+msgstr "Sailkatu honen arabera:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:300
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:489
@@ -12661,59 +12682,59 @@ msgstr "Berriena"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:332
 msgid "Browse books by"
-msgstr ""
+msgstr "Gainbegiratu liburuak honen arabera:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:337
 msgid "Choose a category to browse by:"
-msgstr ""
+msgstr "Aukeratu kategoria bat horren arabera gainbegiratzeko:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:409
 msgid "Browsing by"
-msgstr ""
+msgstr "Gainbegiratzen honen arabera:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:410
 msgid "Up"
-msgstr ""
+msgstr "Gora"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:515
 msgid "in"
-msgstr ""
+msgstr "barnean"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:518
 msgid "Books in"
-msgstr ""
+msgstr "Liburuan non:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:568
 msgid "Other formats"
-msgstr ""
+msgstr "Beste formatu batzuk"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:575
 msgid "Read %s in the %s format"
-msgstr ""
+msgstr "Irakur ezazu %s formatu honetan: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:580
 msgid "Get"
-msgstr ""
+msgstr "Eskuratu"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:594
 msgid "Permalink"
-msgstr ""
+msgstr "Esteka iraunkorra"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:595
 msgid "A permanent link to this book"
-msgstr ""
+msgstr "Behin betiko esteka liburu honetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:606
 msgid "This book has been deleted"
-msgstr ""
+msgstr "Liburu hau ezabatu egin da"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:687
 msgid "in search"
-msgstr ""
+msgstr "bilatzen"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:689
 msgid "Matching books"
-msgstr ""
+msgstr "Liburuak parekatzen"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:28
 msgid ""
@@ -12860,11 +12881,11 @@ msgstr "Nola eta noiz eguneratzen ditu calibrek metadatuak irakurgailuan."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:32
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr ""
+msgstr "bilatzeak bai 2 bai argumentu kopuru bakoitia eskatzen du"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:55
 msgid "switch requires an odd number of arguments"
-msgstr ""
+msgstr "aldizkatzeak argumentu kopuru bakoitia eskatzen du"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
