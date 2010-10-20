@@ -740,12 +740,17 @@ class Device(DeviceConfig, DevicePlugin):
                 umount(d)
             except:
                 pass
+        failures = False
         for d in drives:
             try:
                 eject(d)
             except Exception, e:
                 print 'Udisks eject call for:', d, 'failed:'
                 print '\t', e
+                failures = True
+
+        if not failures:
+            return
 
         for drive in drives:
             cmd = 'calibre-mount-helper'
