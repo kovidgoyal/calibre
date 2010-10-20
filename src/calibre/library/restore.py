@@ -170,8 +170,8 @@ class Restore(Thread):
                     label = cfm['label']
                     if label in m and args != m[label]:
                         if label not in self.conflicting_custom_cols:
-                            self.conflicting_custom_cols[label] = set([m[label]])
-                        self.conflicting_custom_cols[label].add(args)
+                            self.conflicting_custom_cols[label] = []
+                        self.conflicting_custom_cols[label].append(args)
                     m[cfm['label']] = args
 
         db = RestoreDatabase(self.library_path)
