@@ -21,8 +21,9 @@ class TheEconomicTimes(BasicNewsRecipe):
     language               = 'en_IN'
     publication_type       = 'newspaper'
     masthead_url           = 'http://economictimes.indiatimes.com/photo/2676871.cms'
-    extra_css              = """ body{font-family: Arial,Helvetica,sans-serif}
-                                .heading1{font-size: xx-large; font-weight: bold} """
+    extra_css              = """
+                                 body{font-family: Arial,Helvetica,sans-serif}
+                             """
 
     conversion_options = {
                           'comment'          : description
@@ -31,8 +32,9 @@ class TheEconomicTimes(BasicNewsRecipe):
                         , 'language'         : language
                         }
 
-    keep_only_tags = [dict(attrs={'class':['heading1','headingnext','Normal']})]
+    keep_only_tags = [dict(attrs={'class':'printdiv'})]
     remove_tags    = [dict(name=['object','link','embed','iframe','base','table','meta'])]
+    remove_attributes = ['name']
 
     feeds          = [(u'All articles', u'http://economictimes.indiatimes.com/rssfeedsdefault.cms')]
 
