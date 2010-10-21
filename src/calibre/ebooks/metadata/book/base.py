@@ -508,8 +508,6 @@ class Metadata(object):
                             self.format_series_index(res), res, cmeta)
                 else:
                     return (unicode(cmeta['name']+'_index'), '', '', cmeta)
-            else:
-                return (key, key, None, None)
 
         if key in self.custom_field_keys():
             res = self.get(key, None)
