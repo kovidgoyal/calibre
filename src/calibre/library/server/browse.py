@@ -168,6 +168,9 @@ class Endpoint(object): # {{{
                     sort_val = cookie[eself.sort_cookie_name].value
                 kwargs[eself.sort_kwarg] = sort_val
 
+            # Remove AJAX caching disabling jquery workaround arg
+            kwargs.pop('_', None)
+
             ans = func(self, *args, **kwargs)
             cherrypy.response.headers['Content-Type'] = eself.mimetype
             updated = self.db.last_modified()
