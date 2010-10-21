@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-18 11:03+0000\n"
+"PO-Revision-Date: 2010-10-20 07:09+0000\n"
 "Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-19 04:56+0000\n"
+"X-Launchpad-Export-Date: 2010-10-21 05:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -669,7 +669,7 @@ msgstr "检测到Apple设备，正在启动iTunes，请稍候……"
 msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
-msgstr ""
+msgstr "无法直接从iDevice复制书籍。请把书籍先从iTunes中拖到桌面，再把它们加入calibre的书库。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:260
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:263
@@ -1559,6 +1559,7 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
+"将引号、连字号和省略号转换为对应的印刷格式。详细信息请参阅http://daringfireball.net/projects/smartypants"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:384
 msgid "Use a regular expression to try and remove the header."
@@ -1605,6 +1606,9 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"保留输入文档中的“印刷连字”。所谓“印刷连字”是指对于ff, fi, "
+"fl之类的字母组合的一种特殊的展示方式。大部分阅读器在使用默认字体时无法支持“印刷连字”，所以常常无法正常显示。默认情况下，calibre会把“印刷连字”"
+"转换成对应的字母组合。本选项用于选择保留“印刷连字”。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:445
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -1723,6 +1727,9 @@ msgid ""
 "detect these and replace them with constructs that epubcheck likes. This may "
 "cause significant changes to your epub, complain to the epubcheck project."
 msgstr ""
+"绕过最新版本epubcheck中的问题。epubcheck会把很多不是错误的地方误报为错误，这时epub-"
+"fix会试图把这些报告错误之处检测出来并重新组织成epubcheck认为正确的结构。这个过程可能会导致epub文件中很多明显的变化，在epubcheck项"
+"目解决这些问题前，只能先抱怨一下。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:21
 msgid ""
@@ -1734,6 +1741,11 @@ msgid ""
 "By default, no fixing is done and messages are printed out for each error "
 "detected. Use the options to control which errors are automatically fixed."
 msgstr ""
+"%prog [options] file.epub\n"
+"\n"
+"修正EPUB文件中的常见问题以便解决一些设计糟糕的发布服务拒绝EPUB文件的问题。\n"
+"\n"
+"在默认情况下，只会更出所有发现的问题但不会进行修复。使用参数来控制是否要自动修复所有的错误。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
@@ -2987,7 +2999,7 @@ msgstr "起始页"
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:136
 msgid "Cover Pages"
-msgstr ""
+msgstr "封面"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:149
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:152
@@ -5904,6 +5916,8 @@ msgid ""
 "metadata and covers for them.<p>Any invalid ISBNs in the list will be "
 "ignored."
 msgstr ""
+"<p>在左边的文本框中输入一组ISBN号，每行一个。calibre将为他们自动创建相应的书籍项，并从网络下载书籍元数据和封面。<p>错误的ISBN号会被忽"
+"略。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:50
 msgid "&Paste from clipboard"

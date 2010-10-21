@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-18 20:59+0000\n"
+"PO-Revision-Date: 2010-10-20 21:41+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-19 04:53+0000\n"
+"X-Launchpad-Export-Date: 2010-10-21 04:59+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -170,11 +170,11 @@ msgstr "Tipus de fitxer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:208
 msgid "Metadata reader"
-msgstr "Lector de metainformació"
+msgstr "Lector de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:238
 msgid "Metadata writer"
-msgstr "Escriptor de metainformació"
+msgstr "Escriptor de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:268
 msgid "Catalog generator"
@@ -246,15 +246,15 @@ msgstr "Extreu la portada dels fitxers de còmic"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:311
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:321
 msgid "Read metadata from %s files"
-msgstr "Llegeix la metainformació dels fitxers %s"
+msgstr "Llegeix les metadades dels fitxers %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:269
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Llegeix la metainformació dels llibres electrònics en arxius RAR"
+msgstr "Llegeix les metadades dels llibres en arxius RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:332
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Llegeix la metainformació dels llibres electrònics en arxius ZIP"
+msgstr "Llegeix les metadades dels llibres en arxius ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:345
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:355
@@ -263,11 +263,11 @@ msgstr "Llegeix la metainformació dels llibres electrònics en arxius ZIP"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:398
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:408
 msgid "Set metadata in %s files"
-msgstr "Estableix la metainformació als fitxers %s"
+msgstr "Estableix les metadades als fitxers %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:376
 msgid "Set metadata from %s files"
-msgstr "Estableix metainformació des dels fitxers %s"
+msgstr "Estableix les metadades des dels fitxers %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:706
 msgid "Look and Feel"
@@ -361,7 +361,7 @@ msgstr "Importa/exporta"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
-"Controla com calibre llegeix les metadades dels arxius quan s'afegeixen "
+"Controla com el calibre llegeix les metadades dels arxius quan s'afegeixen "
 "llibres"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
@@ -378,7 +378,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid "Sending books to devices"
-msgstr "Enviant llibres als dispositius"
+msgstr "S'està enviant llibres als dispositius"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:815
 msgid "Control how calibre transfers files to your ebook reader"
@@ -386,7 +386,7 @@ msgstr "Controla com calibre envia arxius al teu lector d'ebooks"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:821
 msgid "Metadata plugboards"
-msgstr "Metadades dels taulers de connexions"
+msgstr "Metadades dels quadres de connexions"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:827
 msgid "Change metadata fields before saving/sending"
@@ -406,8 +406,8 @@ msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
-"Configura compartir llibres via correu electrònic. Es pot utilitzar per "
-"enviar notícies descarregades als teus dispositius"
+"Configura la compartició de llibres per correu electrònic. Es pot utilitzar "
+"per enviar notícies descarregades als vostres dispositius"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:844
 msgid "Sharing over the net"
@@ -694,9 +694,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
-"Llistat de directoris, separats per comes, on emmagatzemar els llibres al "
-"dispositiu. S'usarà el primer directori del llistat que ja existeixi al "
-"dispositiu"
+"Llista de carpetes del dispositiu separades per comes on s'enviaran els "
+"llibres. Es farà servir la primera que ja existeixi al dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:94
 msgid "Communicate with S60 phones."
@@ -728,7 +727,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:260
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:263
 msgid "Updating device metadata listing..."
-msgstr "Actualitzant la llista de metadades del dispositiu..."
+msgstr "S'està actualitzant el llistat de metadades del dispositiu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:339
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:378
@@ -874,8 +873,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used."
 msgstr ""
-"Llista separada per comes dels directoris als quals enviar llibres "
-"electrònics en el dispositiu. S'usarà el primer que existeixi."
+"Llista de carpetes del dispositiu separades per comes on s'enviaran els "
+"llibres. Es farà servir la primera que ja existeixi."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:22
 msgid "Communicate with the Hanvon N520 eBook reader."
@@ -1736,9 +1735,8 @@ msgid ""
 "Insert the book metadata at the start of the book. This is useful if your "
 "ebook reader does not support displaying/searching metadata directly."
 msgstr ""
-"Insereix les metadades del llibre a l'inici del llibre. És útil si el seu "
-"dispositiu lector de llibres electrònics no és compatible amb mostra/cerca "
-"les metadades de forma directa."
+"Insereix les metadades del llibre a l'inici del llibre. És útil si el vostre "
+"lector no permet mostrar/cercar les metadades de forma directa."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:359
 msgid ""
@@ -2288,7 +2286,7 @@ msgstr "Converteix LRS a LRS, és útil per a fer depuració."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:457
 msgid "Invalid LRF file. Could not set metadata."
-msgstr "Fitxer LRF no vàlid. No s'ha pogut assignar metadades."
+msgstr "Fitxer LRF no vàlid. No s'ha pogut assignar les metadades."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:582
 msgid ""
@@ -2566,11 +2564,11 @@ msgid ""
 "silently ignored.\n"
 msgstr ""
 "\n"
-"Llegir / escriure metadades de / a fitxers de llibre electrònic.\n"
+"Llegeix /desa metadades de/en fitxers de llibre electrònic.\n"
 "\n"
-"Formats suportats per llegir metadades: %s\n"
+"Formats compatibles per llegir metadades: %s\n"
 "\n"
-"Formats suportats per escriure metadades: %s\n"
+"Formats compatibles per desar metadades: %s\n"
 "\n"
 "Els diferents tipus de fitxer admeten diferents tipus de metadades. Si "
 "s'intenten establir metadades en un tipus de fitxer que no els suporta, les "
@@ -2622,8 +2620,7 @@ msgid ""
 "Specify the name of an OPF file. The metadata will be written to the OPF "
 "file."
 msgstr ""
-"Especifica el nom d'un fitxer OPF. La metainformació  serà escrita juntament "
-"al fitxer OPF."
+"Especifica el nom d'un fitxer OPF. Les metadades es desen al fitxer OPF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:83
 msgid ""
@@ -2710,11 +2707,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
-msgstr "Descarrega metainformació des de Douban.com"
+msgstr "Descarrega les metadades des de Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:51
 msgid "Metadata download"
-msgstr "Metadades baixades"
+msgstr "Metadades descarregades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:128
 msgid "ratings"
@@ -2734,23 +2731,23 @@ msgstr "Descarrega %s des de %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:156
 msgid "Downloads metadata from Google Books"
-msgstr "Descarrega metainformació des de Google Books."
+msgstr "Descarrega metadades des de Google Books."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:173
 msgid "Downloads metadata from isbndb.com"
-msgstr "Descarrega metainformació des de isbndb.com"
+msgstr "Descarrega les metadades des d'isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:201
 msgid ""
 "To use isbndb.com you must sign up for a %sfree account%s and enter your "
 "access key below."
 msgstr ""
-"Per a fes servir isbndb.com hauria de identificar-se a %sfree compte%s i "
-"desprès introduir-hi la seva clau d'accés a sota."
+"Registreu un %scompte gratuït%s i introduïu la vostra clau d'accés a "
+"continuació per fer servir isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:211
 msgid "Downloads social metadata from amazon.com"
-msgstr "Descarrega metainformació social des d'amazon.com"
+msgstr "Descarrega metadades socials des d'amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:230
 msgid "Downloads series/tags/rating information from librarything.com"
@@ -2774,9 +2771,9 @@ msgstr ""
 "\n"
 "%prog [opcions] clau\n"
 "\n"
-"Obté metainformació de llibres des de isndb.com. Pot especificar "
-"l'identificador ISBN del llibre o bé el seu títol i autor. Si vostè "
-"especifica el títol i l'autor, serà retornat més d'un llibre.\n"
+"Aconsegueix metadades de llibres des d'isndb.com. Podeu especificar "
+"l'identificador ISBN del llibre o bé el seu títol i autor. Si especifiqueu "
+"el títol i l'autor podeu obtenir més d'un llibre.\n"
 "\n"
 "La clau, és la clau del compte que vostè genera desprès de registrar-ne un "
 "compte gratuit a isbndb.com.\n"
@@ -2784,8 +2781,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:120
 msgid "The ISBN ID of the book you want metadata for."
-msgstr ""
-"L'identificador ISBN del llibre del qual vostè en vol la metainformació."
+msgstr "L'ISBN del llibre que voleu les metadades."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:122
 msgid "The author whose book to search for."
@@ -2815,7 +2811,7 @@ msgstr ""
 "%prog [opcions] ISBN\n"
 "\n"
 "Aconsegueix una imatge de portada o bé metadades socials per al llibre "
-"identificat amb ISBN des de LibrqaryThing.com\n"
+"identificat amb ISBN des de LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1303
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1397
@@ -3414,8 +3410,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:67
 msgid "Send file to storage card instead of main memory by default"
 msgstr ""
-"Envia l'arxiu a la targeta de memòria enlloc de a la memòria principal per "
-"defecte."
+"Per defecte envia el fitxer a la targeta de memòria en lloc de fer-ho a la "
+"memòria principal."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:69
 msgid "Confirm before deleting"
@@ -3493,7 +3489,7 @@ msgstr "Inhabilita els missatges des de la icona de la safata del sistema"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:101
 msgid "Default action to perform when send to device button is clicked"
 msgstr ""
-"Acció per defecte per a quan el faci clic al botó d'enviar al dispositiu"
+"Acció per defecte per a quan es faci clic al botó d'enviar al dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:121
 msgid "Maximum number of waiting worker processes"
@@ -3585,7 +3581,7 @@ msgstr "Afegeix un llibre buit (entrada de llibre sense format)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:45
 msgid "Add from ISBN"
-msgstr "Afegeix desde ISBN"
+msgstr "Afegeix a partir de l'ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:84
 msgid "How many empty books?"
@@ -3867,9 +3863,7 @@ msgstr "Estat de la còpia de seguretat de la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:192
 msgid "Start backing up metadata of all books"
-msgstr ""
-"S'està començant a fer la còpia de seguretat de les metadades de tots els "
-"llibres"
+msgstr "Fes una còpia de seguretat de les metadades de tots els llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:196
 msgid "Check library"
@@ -4255,7 +4249,7 @@ msgstr "No es poden descarregar les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:94
 msgid "social metadata"
-msgstr "Metadades socials"
+msgstr "metadades socials"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:96
 msgid "covers"
@@ -4273,7 +4267,7 @@ msgstr "S'està descarregant %s per a %d llibre(s)"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:121
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:159
 msgid "Cannot edit metadata"
-msgstr "No puc editar les meta-dades"
+msgstr "No es poden editar les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:191
@@ -4326,7 +4320,7 @@ msgstr "F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:18
 msgid "Fetch news"
-msgstr "Recull notí­cies (RSS)"
+msgstr "Notí­cies (RSS)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:53
 msgid "Fetching news from "
@@ -6153,11 +6147,11 @@ msgstr "Obtenir anotacions del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:340
 msgid "Send metadata to device"
-msgstr "Enviar metadades al dispositiu"
+msgstr "Envia les metadades al dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:345
 msgid "Send collections to device"
-msgstr "Enviar col·leccions al dispositiu"
+msgstr "Envia les col·leccions al dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:380
 msgid "Upload %d books to device"
@@ -6177,19 +6171,19 @@ msgstr "Veure llibre en el dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:456
 msgid "Set default send to device action"
-msgstr "Assignar acció d'enviar al dispositiu per defecte"
+msgstr "Configura l'acció d'enviar al dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:462
 msgid "Send to main memory"
-msgstr "Envia a la memòria interna"
+msgstr "Envia a la memòria principal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:464
 msgid "Send to storage card A"
-msgstr "Enviar a la targeta de memòria A"
+msgstr "Envia a la targeta de memòria A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:466
 msgid "Send to storage card B"
-msgstr "Enviar a la targeta de memòria B"
+msgstr "Envia a la targeta de memòria B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:471
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:480
@@ -6198,11 +6192,11 @@ msgstr "Memòria principal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:491
 msgid "Send and delete from library"
-msgstr "Enviar i esborrar de la biblioteca"
+msgstr "Envia i suprimeix de la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:492
 msgid "Send specific format"
-msgstr "Enviar format específic"
+msgstr "Envia un format específic"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:528
 msgid "Eject device"
@@ -6250,7 +6244,7 @@ msgstr "No hi ha cap dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:873
 msgid "Cannot send: No device is connected"
-msgstr "No s'ha pogut enviar: no hi ha cap dispositiu enviat"
+msgstr "No s'ha pogut enviar: no hi ha cap dispositiu connectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:876
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:880
@@ -6281,7 +6275,7 @@ msgstr "en el format %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:940
 msgid "Sending email to"
-msgstr "Enviant correu electrònic a"
+msgstr "S'està enviant correu electrònic a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:970
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:978
@@ -6715,7 +6709,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:90
 msgid "Fetch metadata"
-msgstr "Recull metadades"
+msgstr "Aconsegueix metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:91
 msgid ""
@@ -7718,7 +7712,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:228
 msgid "Delete downloaded news older than "
-msgstr "Suprimeix les notícies que s'hagin descarregat més antigues que "
+msgstr "Suprimeix les notícies més antigues que "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:36
 msgid "contains"
@@ -8175,7 +8169,7 @@ msgstr ""
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Crea una recepta de "
 "notícies bàsica, afegint canals RSS. <br />Per a la majoria dels canals, "
 "necessitareu fer servir el \"Mode avançat\" per personalitzar millor el "
-"porcés de descàrrega de dades.</p></body></html>"
+"procés de descàrrega de dades.</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:265
 msgid "Recipe &title:"
@@ -8227,9 +8221,8 @@ msgid ""
 "For help with writing advanced news recipes, please visit <a "
 "href=\"http://calibre-ebook.com/user_manual/news.html\">User Recipes</a>"
 msgstr ""
-"Per a més ajuda per escriure receptes avançades de notícies, si us plau "
-"visiteu <a href=\"http://calibre-ebook.com/user_manual/news.html\">Receptes "
-"d'usuari</a>"
+"Més ajuda per escriure receptes avançades de notícies a <a "
+"href=\"http://calibre-ebook.com/user_manual/news.html\">Receptes d'usuari</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:282
 msgid "Recipe source code (python)"
@@ -8366,7 +8359,7 @@ msgstr "versió"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:30
 msgid "created by Kovid Goyal"
-msgstr "creat per Kovid Goyal"
+msgstr "ha estat creat per Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:160
 msgid "Connected "
@@ -9319,7 +9312,7 @@ msgid ""
 msgstr ""
 "El calibre pot enviar-vos llibres (a vós o al vostre lector) per correu "
 "electrònic. S'enviaran automàticament correus amb les notícies que es "
-"descarreguin a totes les adreces que tinguin activat l'enviament automàtic,"
+"descarreguin a totes les adreces que tinguin activat l'enviament automàtic."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:67
 msgid "Add an email address to which to send books"
@@ -9354,9 +9347,6 @@ msgid ""
 "If checked, downloaded news will be automatically mailed <br>to this email "
 "address (provided it is in one of the listed formats)."
 msgstr ""
-"Si es selecciona, les notícies que es descarreguin s'enviaran automàticament "
-"<br>a aquesta adreça de correu electrònic (si està en un dels formats de la "
-"llista)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:104
 msgid "new email address"
@@ -9486,8 +9476,8 @@ msgid ""
 "Some of the changes you made require a restart. Please restart calibre as "
 "soon as possible."
 msgstr ""
-"Heu fet alguns canvis que fan que calgui reiniciar. Si us plau, reinicieu el "
-"calibre quan pugueu."
+"Heu fet alguns canvis que fan que calgui reiniciar. Reinicieu el calibre "
+"quan pugueu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:297
 msgid ""
@@ -9588,7 +9578,7 @@ msgstr ""
 "Aquí podeu canviar les metadades que el calibre fa servir per actualitzar un "
 "llibre quan el desa o l'envia a un dispositiu.\n"
 "\n"
-"Feu servir aquest quadre per definir un '﻿quadre de connexions' per a un "
+"Feu servir aquest quadre per definir un «quadre de connexions» per a un "
 "format (o per a tots els formats) i un dispositiu (o tots els dispositius). "
 "El ﻿quadre de connexions indica quina plantilla es connecta a cada camp. La "
 "plantilla es fa servir per calcular un valor i aquest valor s'assigna al "
@@ -9601,7 +9591,7 @@ msgstr ""
 "Un ús possible per a un ﻿quadre de connexions és alterar el títol perquè "
 "contingui la informació de la sèrie. Un altre pot ser canviar l'ordre "
 "d'autor, una cosa que els usuaris de mobi poden fer per forçar-lo a fer "
-"servir el ';' que necessita el Kindle. Un tercer ús seria especificar "
+"servir el «;» que necessita el Kindle. Un tercer ús seria especificar "
 "l'idioma."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
@@ -9960,7 +9950,7 @@ msgstr ""
 "<p>No oblideu deixar el calibre executant-se ja que el servidor només "
 "funciona si el calibre s'està executant.\n"
 "<p>L'Stanza hauria de veure automàticament la vostra col·lecció del calibre. "
-"Si no és així, proveu a afegir la URL http://elmeuservidor:8080 com a nou "
+"Si no és així, proveu a afegir l'URL http://elmeuservidor:8080 com a nou "
 "catàleg al lector Stanza al vostre iPhone. «elmeuservidor» és el nom "
 "complert del servidor o l'adreça IP de l'ordinador on s'executa el calibre."
 
@@ -10943,9 +10933,9 @@ msgid ""
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
 "address of the computer calibre is running on."
 msgstr ""
-"Heu d'afegir la URL http://elmeuservidor:8080 com a biblioteca del calibre "
-"al WordPlayer. «elmeuservidor» és el nom complert del servidor o l'adreça IP "
-"de l'ordinador on s'executa el calibre."
+"Heu d'afegir l'URL http://elmeuservidor:8080 com a biblioteca del calibre al "
+"WordPlayer. «elmeuservidor» és el nom complert del servidor o l'adreça IP de "
+"l'ordinador on s'executa el calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:461
 msgid "Moving library..."
@@ -12528,7 +12518,7 @@ msgstr "Següent"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:82
 msgid "Browsing %d books"
-msgstr ""
+msgstr "S'està explorant %d llibres"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:98
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:217
@@ -12559,7 +12549,7 @@ msgstr "Més recent"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:332
 msgid "Browse books by"
-msgstr ""
+msgstr "Explora llibres per"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:337
 msgid "Choose a category to browse by:"
@@ -12630,7 +12620,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:32
 msgid "Write process PID to the specified file"
-msgstr ""
+msgstr "Desa el PID del procés al fitxer que s'especifiqui"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:36
 msgid ""
@@ -12674,7 +12664,7 @@ msgstr "Llibres ordenats per "
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:32
 msgid "%sUsage%s: %s\n"
-msgstr ""
+msgstr "%sSintaxi%s: %s\n"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:76
 msgid "Created by "
@@ -12685,38 +12675,39 @@ msgid ""
 "Whenever you pass arguments to %prog that have spaces in them, enclose the "
 "arguments in quotation marks."
 msgstr ""
+"Si els arguments per al %prog contenen espais, poseu-los entre cometes."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:697
 msgid "Path to the database in which books are stored"
-msgstr ""
+msgstr "Camí a la base de dades que s'emmagatzemen els llibres"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:699
 msgid "Pattern to guess metadata from filenames"
-msgstr ""
+msgstr "Patró per endevinar metadades a partir dels noms de fitxer"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:701
 msgid "Access key for isbndb.com"
-msgstr ""
+msgstr "Clau d'accés per a isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:703
 msgid "Default timeout for network operations (seconds)"
-msgstr ""
+msgstr "Temps d'espera màxim per a les operacions de xarxa (segons)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:705
 msgid "Path to directory in which your library of books is stored"
-msgstr ""
+msgstr "Camí a la carpeta on s'emmagatzema la biblioteca de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:707
 msgid "The language in which to display the user interface"
-msgstr ""
+msgstr "Idioma per a la interfície de l'usuari"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:709
 msgid "The default output format for ebook conversions."
-msgstr ""
+msgstr "Format de sortida per defecte per a les conversions de llibre"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:713
 msgid "Ordered list of formats to prefer for input."
-msgstr ""
+msgstr "Llista per ordre de preferència dels formats d'entrada"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:715
 msgid "Read metadata from files"
@@ -12724,39 +12715,40 @@ msgstr "Llegeix metadades dels fitxers"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:717
 msgid "The priority of worker processes"
-msgstr ""
+msgstr "Prioritat per als processos en execució"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:719
 msgid "Swap author first and last names when reading metadata"
-msgstr ""
+msgstr "Intercanvia el no i els cognoms de l'autor en llegir les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:721
 msgid "Add new formats to existing book records"
-msgstr ""
+msgstr "Afegeix formats nous als llibres existents"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:723
 msgid "Tags to apply to books added to the library"
 msgstr ""
+"Etiquetes que s'aplicaran als llibres que s'afegeixin a la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:727
 msgid "List of named saved searches"
-msgstr ""
+msgstr "Llista de les cerques desades amb nom"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:728
 msgid "User-created tag browser categories"
-msgstr ""
+msgstr "Categories del navegador d'etiquetes creades per l'usuari"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:730
 msgid "How and when calibre updates metadata on the device."
-msgstr ""
+msgstr "Com i quan el calibre ha d'actualitzar les metadades del dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:32
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr ""
+msgstr "«lookup» necessita un 2 o un número senar d'arguments"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:55
 msgid "switch requires an odd number of arguments"
-msgstr ""
+msgstr "«switch» necessita un número senar d'arguments"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -12856,117 +12848,127 @@ msgstr "Alemany (AT)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "French (BE)"
-msgstr ""
+msgstr "Francès (BE)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "Dutch (NL)"
-msgstr ""
+msgstr "Holandès (NL)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "Dutch (BE)"
-msgstr ""
+msgstr "Holandès (BE)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
-msgstr ""
+msgstr "Trieu el tema (caldrà reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:188
 msgid "No interpreter"
-msgstr ""
+msgstr "No hi ha intèrpret"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:189
 msgid "No active interpreter found. Try restarting the console"
-msgstr ""
+msgstr "No s'ha trobat cap intèrpret actiu. Intenteu reiniciar la consola"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:203
 msgid "Interpreter died"
-msgstr ""
+msgstr "L'intèrpret ha fallar"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:204
 msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
 msgstr ""
+"L'intèrpret mentre executava una ordre. Feu clic a Mostra detalls per veure-"
+"la"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
-msgstr ""
+msgstr "Benvingut a"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:41
 msgid " console "
-msgstr ""
+msgstr " consola "
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:51
 msgid "Code is running"
-msgstr ""
+msgstr "S'està executant el codi"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:58
 msgid "Restart console"
-msgstr ""
+msgstr "Reinicia la consola"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
-msgstr ""
+msgstr "L'URL ha de tenir l'esquema sftp"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:57
 msgid "host must be of the form user@hostname"
-msgstr ""
+msgstr "l'amfitrió ha de ser de la forma usuari@nom_del_servidor"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:68
 msgid "Failed to negotiate SSH session: "
-msgstr ""
+msgstr "No s'ha pogut establir la sessió SSH: "
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:71
 msgid "Failed to authenticate with server: %s"
-msgstr ""
+msgstr "Ha fallat l'autentificació amb el servidor: %s"
 
 #: /home/kovid/work/calibre/src/calibre/utils/smtp.py:234
 msgid "Control email delivery"
-msgstr ""
+msgstr "Control l'enviament del correu electrònic"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:118
 msgid "Unknown section"
-msgstr ""
+msgstr "Secció desconeguda"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:140
 msgid "Unknown feed"
-msgstr ""
+msgstr "Canal desconegut"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:158
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:185
 msgid "Untitled article"
-msgstr ""
+msgstr "Article sense títol"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:22
 msgid "Download periodical content from the internet"
-msgstr ""
+msgstr "Descarrega continguts periòdics des d'internet"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:37
 msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
+"Útil per crear receptes. Força max_articles_per_feed a 2 i descarrega 2 "
+"canals com a màxim."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:40
 msgid "Username for sites that require a login to access content."
 msgstr ""
+"Nom d'usuari per als llocs que demanen un inici de sessió per accedir al "
+"contingut."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:43
 msgid "Password for sites that require a login to access content."
 msgstr ""
+"Contrasenya per als llocs que demanen un inici de sessió per accedir al "
+"contingut."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:47
 msgid ""
 "Do not download latest version of builtin recipes from the calibre server"
 msgstr ""
+"No descarreguis la darrera versió de les receptes integrades des del "
+"servidor del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:47
 msgid "Unknown News Source"
-msgstr ""
+msgstr "Font de notícies desconeguda"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:615
 msgid "The \"%s\" recipe needs a username and password."
-msgstr ""
+msgstr "La recepta «%s» necessita usuari i contrasenya"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:714
 msgid "Download finished"
@@ -12974,87 +12976,94 @@ msgstr "S'ha finalitzat la baixada"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:716
 msgid "Failed to download the following articles:"
-msgstr ""
+msgstr "No s'ha pogut descarregar aquests articles:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:722
 msgid "Failed to download parts of the following articles:"
-msgstr ""
+msgstr "No s'ha pogut descarregar part d'aquests articles:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:724
 msgid " from "
-msgstr ""
+msgstr " des de "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:726
 msgid "\tFailed links:"
-msgstr ""
+msgstr "\tEnllaços que han fallat:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:815
 msgid "Could not fetch article. Run with -vv to see the reason"
 msgstr ""
+"No s'ha pogut aconseguir l'article. Executeu el programa amb -vv per veure'n "
+"el motiu"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:836
 msgid "Fetching feeds..."
-msgstr ""
+msgstr "S'està aconseguint els canals..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:841
 msgid "Got feeds from index page"
-msgstr ""
+msgstr "S'ha aconseguit canals des de la pàgina principal"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:847
 msgid "Trying to download cover..."
-msgstr ""
+msgstr "S'està intentant descarregar la portada..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:849
 msgid "Generating masthead..."
-msgstr ""
+msgstr "S'està generant l'encapçalament..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:930
 msgid "Starting download [%d thread(s)]..."
-msgstr ""
+msgstr "S'està iniciant la descàrrega [%d fils]"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:946
 msgid "Feeds downloaded to %s"
-msgstr ""
+msgstr "S'ha descarregat els canals a %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:955
 msgid "Could not download cover: %s"
-msgstr ""
+msgstr "No s'ha pogut descarregar la portada: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:962
 msgid "Downloading cover from %s"
-msgstr ""
+msgstr "S'està descarregant la portada de %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1007
 msgid "Masthead image downloaded"
-msgstr ""
+msgstr "S'ha descarregat la imatge de capçalera"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1175
 msgid "Untitled Article"
-msgstr ""
+msgstr "Article sense títol"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1246
 msgid "Article downloaded: %s"
-msgstr ""
+msgstr "Article descarregat: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1257
 msgid "Article download failed: %s"
-msgstr ""
+msgstr "Ha fallat la descàrrega de l'article: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1274
 msgid "Fetching feed"
-msgstr ""
+msgstr "S'està obtenint el canal"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1421
 msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
 msgstr ""
+"No s'ha pogut entrar, comproveu el nom d'usuari i la contrasenya del servei "
+"de publicacions periòdiques del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1436
 msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
 msgstr ""
+"No teniu permís per descarregar aquest exemplar. Pot ser que us hagi caducat "
+"la subscripció o heu excedit el límit màxim de descàrregues permeses per "
+"avui."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 msgid "You"
@@ -13064,12 +13073,12 @@ msgstr "Tu"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:82
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:193
 msgid "Scheduled"
-msgstr ""
+msgstr "Planificat"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:84
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:194
 msgid "Custom"
-msgstr ""
+msgstr "Personalitzat"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
 msgid ""
@@ -13077,10 +13086,13 @@ msgid ""
 "\n"
 "Where URL is for example http://google.com"
 msgstr ""
+"%prog URL\n"
+"\n"
+"Amb una URL com http://google.com, per exemple"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:485
 msgid "Base directory into which URL is saved. Default is %default"
-msgstr "Carpeta on es desa la URL. Per defect %default"
+msgstr "Carpeta on es desa l'URL. Per defecte %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:488
 msgid ""

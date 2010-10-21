@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-18 00:49+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-20 15:25+0000\n"
+"Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-19 04:54+0000\n"
+"X-Launchpad-Export-Date: 2010-10-21 04:59+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -599,7 +599,7 @@ msgstr "Denne profil er beregnet til Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:654
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Denne profil er beregnet til Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Installed plugins"
@@ -707,6 +707,8 @@ msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
 msgstr ""
+"Kan ikke kopiere bøger direkte fra iDevice. Træk fra iTunes-bibliotek til "
+"skrivebord, tilføj herefter til calibres biblioteksvindue."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:260
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:263
@@ -895,7 +897,7 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:44
 msgid "Cannot get files from this device"
-msgstr ""
+msgstr "Kan ikke hente filer fra denne enhed"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -1112,6 +1114,8 @@ msgid ""
 "The main memory of %s is read only. This usually happens because of file "
 "system errors."
 msgstr ""
+"Arbejdshukommelsen i %s er ikke skrivebar. Denne tilstand sker typisk på "
+"grund af filsystem fejl."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:802
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:804
@@ -3256,17 +3260,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:124
 msgid "Start Page"
-msgstr ""
+msgstr "Startside"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:136
 msgid "Cover Pages"
-msgstr ""
+msgstr "Omslagssider"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:149
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:152
 msgid " (Preface)"
-msgstr ""
+msgstr " (forord)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
@@ -3544,7 +3548,7 @@ msgstr "PDF-bøger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:169
 msgid "SNB Books"
-msgstr ""
+msgstr "SNB-bøger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:170
 msgid "Comics"
@@ -5697,7 +5701,7 @@ msgstr "Anvend &saved konverteringsindstillinger for individuelle bøger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output.py:14
 msgid "SNB Output"
-msgstr ""
+msgstr "SNB-output"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -7430,15 +7434,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:166
 msgid "Account"
-msgstr ""
+msgstr "Konto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:167
 msgid "(optional)"
-msgstr ""
+msgstr "(valgfri)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:168
 msgid "(required)"
-msgstr ""
+msgstr "(påkrævet)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:185
 msgid "Created by: "
@@ -9420,6 +9424,22 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
+"Her kan du ændre metadataene calibre anvender til at opdatere en bog, når "
+"der gemmes til disk eller sendes til enhed.\n"
+"\n"
+"Anvend denne dialog til et 'plugboard' for et format (eller alle formater) "
+"og en enhed (eller alle enheder). Plugboardene angiver hvilken skabelon der "
+"er forbundet til hvilket felt. Skabelonen anvendes til at beregne en værdi - "
+"og denne værdi tildeles til det forbundne felt.\n"
+"\n"
+"Skabeloner vil ofte indeholde simple referencer til sammensatte søjler, men "
+"dette er ikke nødvendigt. Du kan anvende enhver skabelon i en kildeboks som "
+"du kan bruge andre steder i calibre.\n"
+"\n"
+"En mulig anvendelse at et plugboard er til at ændre titlen til at indeholde "
+"serieinformation. En anden ville være at ændre forfattersorteringen, noget "
+"som mobi-brugere måske kan gøre for at tvinge den til at anvende ';' som "
+"kindle behøver. En tredje kunne være at angive sproget."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"
@@ -10602,6 +10622,7 @@ msgstr ""
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
+"Hvis angivet, vil oversigtsvindue prøve at åbne i fuld skærm under start."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:705
 msgid "Print javascript alert and console messages to the console"
@@ -11929,6 +11950,20 @@ msgid ""
 "what is found in the OPF files.\n"
 "    "
 msgstr ""
+"%prog restore_database [options]\n"
+"\n"
+"Gendan denne database fra metadataene gemt i OPF-filerne i hver\n"
+"mappe af calibre-biblioteket. Dette er anvendeligt hvis din metadata.db fil\n"
+"er blevet forvansket.\n"
+"\n"
+"ADVARSEL: Denne kommando genopbygger fuldstændigt din database. Du vil "
+"miste\n"
+"alle gemte søgninger, brugerdefinerede kategorier, plugboards, gemte per-bog "
+"konverterings-\n"
+"indstillinger - og brugerdefinerede recipes. Gendannede metadata vil kun "
+"være baseret\n"
+"efter hvad der er fundet i OPF-filerne.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:975
 msgid ""
@@ -12270,48 +12305,48 @@ msgstr "Adgangskode til dit calibre bibliotek. Brugernavnet er "
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:50
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:390
 msgid "Loading, please wait"
-msgstr ""
+msgstr "Henter, vent venligst"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:79
 msgid "First"
-msgstr ""
+msgstr "Første"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:79
 msgid "Last"
-msgstr ""
+msgstr "Sidste"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:79
 msgid "Previous"
-msgstr ""
+msgstr "Forrige"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:80
 msgid "Next"
-msgstr ""
+msgstr "Næste"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:82
 msgid "Browsing %d books"
-msgstr ""
+msgstr "Gennemse %d bøger"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:98
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:217
 msgid "Average rating"
-msgstr ""
+msgstr "Middelvurdering"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:99
 msgid "%s: %.1f stars"
-msgstr ""
+msgstr "%s: %.1f stjerner"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:128
 msgid "%d stars"
-msgstr ""
+msgstr "%d stjerner"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:218
 msgid "Popularity"
-msgstr ""
+msgstr "Popularitet"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:237
 msgid "Sort by"
-msgstr ""
+msgstr "Sortér efter"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:300
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:489
@@ -12321,59 +12356,59 @@ msgstr "Nyeste"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:332
 msgid "Browse books by"
-msgstr ""
+msgstr "Gennemse bøger efter"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:337
 msgid "Choose a category to browse by:"
-msgstr ""
+msgstr "Vælg en kategori at gennemse efter:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:409
 msgid "Browsing by"
-msgstr ""
+msgstr "Gennemse efter"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:410
 msgid "Up"
-msgstr ""
+msgstr "Op"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:515
 msgid "in"
-msgstr ""
+msgstr "i"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:518
 msgid "Books in"
-msgstr ""
+msgstr "Bøger i"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:568
 msgid "Other formats"
-msgstr ""
+msgstr "Andre formater"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:575
 msgid "Read %s in the %s format"
-msgstr ""
+msgstr "Læser %s i %s formatet"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:580
 msgid "Get"
-msgstr ""
+msgstr "Hent"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:594
 msgid "Permalink"
-msgstr ""
+msgstr "Permanent-link"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:595
 msgid "A permanent link to this book"
-msgstr ""
+msgstr "Et permanent-link til denne bog"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:606
 msgid "This book has been deleted"
-msgstr ""
+msgstr "Denne bog er blevet slettet"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:687
 msgid "in search"
-msgstr ""
+msgstr "i søgning"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:689
 msgid "Matching books"
-msgstr ""
+msgstr "Matchende bøger"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:28
 msgid ""
@@ -12515,11 +12550,11 @@ msgstr "Hvordan og hvornår calibre opdaterer metadata på enheden."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:32
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr ""
+msgstr "opslag forudsætter enten 2 eller et ulige antal parametre"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:55
 msgid "switch requires an odd number of arguments"
-msgstr ""
+msgstr "switch forudsætter et ulige antal parametre"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
