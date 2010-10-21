@@ -748,10 +748,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return False
 
     def find_identical_books(self, mi):
-        fuzzy_title_patterns = [(re.compile(pat), repl) for pat, repl in
+        fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
                 [
                     (r'[\[\](){}<>\'";,:#]', ''),
-                    (r'^(the|a|an) ', ''),
+                    (tweaks.get('title_sort_articles', r'^(a|the|an)\s+'), ''),
                     (r'[-._]', ' '),
                     (r'\s+', ' ')
                 ]
