@@ -501,13 +501,15 @@ class Metadata(object):
         if key.startswith('#') and key.endswith('_index'):
             tkey = key[:-6] # strip the _index
             cmeta = self.get_user_metadata(tkey, make_copy=False)
-            if cmeta['datatype'] == 'series':
+            if cmeta and cmeta['datatype'] == 'series':
                 if self.get(tkey):
                     res = self.get_extra(tkey)
                     return (unicode(cmeta['name']+'_index'),
                             self.format_series_index(res), res, cmeta)
                 else:
                     return (unicode(cmeta['name']+'_index'), '', '', cmeta)
+            else:
+                return (key, key, None, None)
 
         if key in self.custom_field_keys():
             res = self.get(key, None)
