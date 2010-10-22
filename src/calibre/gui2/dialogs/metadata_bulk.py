@@ -51,6 +51,7 @@ class MyBlockingBusy(QDialog):
         self.start()
 
         self.args = args
+        self.series_start_value = None
         self.db = db
         self.ids = ids
         self.error = None
@@ -148,8 +149,10 @@ class MyBlockingBusy(QDialog):
 
             if do_series:
                 if do_series_restart:
-                    next = series_start_value
-                    series_start_value += 1
+                    if self.series_start_value is None:
+                        self.series_start_value = series_start_value
+                    next = self.series_start_value
+                    self.series_start_value += 1
                 else:
                     next = self.db.get_next_series_num_for(series)
                 self.db.set_series(id, series, notify=False, commit=False)
