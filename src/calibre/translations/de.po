@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-18 13:04+0000\n"
-"Last-Translator: Manichean <Unknown>\n"
+"PO-Revision-Date: 2010-10-21 17:12+0000\n"
+"Last-Translator: Martin Ueding <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-19 04:54+0000\n"
+"X-Launchpad-Export-Date: 2010-10-22 04:38+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -710,6 +710,8 @@ msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
 msgstr ""
+"Kann Bücher nicht direkt vom iDevice kopieren. Ziehen Sie sie aus der iTunes "
+"Bibliothek auf den Desktop, fügen Sie sie dann Calibres Bibliothek hinzu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:260
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:263
@@ -3340,7 +3342,7 @@ msgstr "Titelseiten"
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:149
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:152
 msgid " (Preface)"
-msgstr ""
+msgstr " Vorwort"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
@@ -5259,7 +5261,7 @@ msgstr "M&itwachsendes Inhaltsverzeichnis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:33
 msgid "Sectionize Chapters (Use with care!)"
-msgstr ""
+msgstr "Kapitel teilen (vorsichtig benutzen!)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -10000,11 +10002,11 @@ msgstr "Bibliothek wählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:202
 msgid "The main toolbar"
-msgstr ""
+msgstr "Die Haupt- Werkzeugsleiste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:203
 msgid "The main toolbar when a device is connected"
-msgstr ""
+msgstr "Die Haupt- Werkzeugsleiste bei verbundenem Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:204
 msgid "The context menu for the books in the calibre library"
@@ -10277,6 +10279,9 @@ msgstr "Übereinstimmung mit irgendeinem"
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
+"Findet, wenn mehrere Einträge im Etiketten- Browser ausgewählt sind, "
+"entweder Bücher, bei denen mindestens ein Eintrag paßt, oder aber Bücher, "
+"bei denen alle Einträge passen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:889
 msgid "Manage &user categories"
@@ -10815,6 +10820,8 @@ msgstr ""
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
+"Wenn ausgewählt, wird das Betrachter- Fenster nach Möglichkeit im "
+"Vollbildmodus geöffnet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:705
 msgid "Print javascript alert and console messages to the console"
@@ -11334,6 +11341,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Beim Katalogisieren der Bücher in der Datenbank auszugebene Felder. Sollte "
+"eine kommagetrennte Liste von Feldern sein.\n"
+"Verfügbare Felder: %s\n"
+"Standard: '%%default'\n"
+"Betrifft: BibTeX Ausgabeformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:222
 msgid ""
@@ -11342,6 +11354,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Ausgabefeld, nach dem sortiert wird.\n"
+"Verfügbare Felder: author_sort, id, rating, size, timestamp, title.\n"
+"Standard: '%default'\n"
+"Angewendet bei: BibTeX- Ausgabeformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:231
 msgid ""
@@ -11350,6 +11366,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Erstellt eine Zitation für BibTeX- Einträge.\n"
+"Boolescher Wert: Ja, Nein\n"
+"Standard: '%default'\n"
+"Angewendet bei: BibTeX- Ausgabeformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:240
 msgid ""
@@ -11359,6 +11379,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Die Maske für Zitations- Erstellung aus Datenbankfeldern.\n"
+" Sollte eine Maske mit {}-umschlossenen Feldern sein.\n"
+"Verfügbare Felder: %s.\n"
+"Standard: '%%default'\n"
+"Angewendet bei: BibTeX- Ausgabeformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:250
 msgid ""
@@ -11379,6 +11404,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Codeseiten- Flag der BibTeX- Datei.\n"
+"Verfügbare Typen: strict, replace, ignore, backslashreplace.\n"
+"Standard: '%default'\n"
+"Angewendet bei: BibTeX- Ausgabeformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:268
 msgid ""
