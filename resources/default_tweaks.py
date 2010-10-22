@@ -106,7 +106,8 @@ title_sort_articles=r'^(A|The|An)\s+'
 auto_connect_to_folder = ''
 
 
-# Specify renaming rules for sony collections. Collections on Sonys are named
+# Specify renaming rules for sony collections. This tweak is only applicable if
+# metadata management is set to automatic. Collections on Sonys are named
 # depending upon whether the field is standard or custom. A collection derived
 # from a standard field is named for the value in that field. For example, if
 # the standard 'series' column contains the name 'Darkover', then the series
