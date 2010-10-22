@@ -103,9 +103,7 @@ class CollectionsBookList(BookList):
         sorts = tweaks['sony_collection_sorting_rules']
         for attrs,sortattr in sorts:
             if attr in attrs or '*' in attrs:
-                print 'in category sort:', attr, sortattr
                 return sortattr
-        print 'in category sort:', attr, 'None'
         return None
 
     def compute_category_name(self, attr, category, field_meta):
