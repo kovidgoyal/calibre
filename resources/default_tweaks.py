@@ -137,6 +137,24 @@ auto_connect_to_folder = ''
 sony_collection_renaming_rules={}
 
 
+# Specify how sony collections are sorted. This tweak is only applicable if
+# metadata management is set to automatic. You can indicate which metadata is to
+# be used to sort on a collection-by-collection basis. The format of the tweak
+# is a list of metadata fields from which collections are made, followed by the
+# name of the metadata field containing the sort value.
+# Example: The following indicates that collections built from pubdate and tags
+# are to be sorted by the value in the custom column '#mydate', that collections
+# built from 'series' are to be sorted by 'series_index', and that all other
+# collections are to be sorted by title. If a collection metadata field is not
+# named, then if it is a series- based collection it is sorted by series order,
+# otherwise it is sorted by title order.
+# [(['pubdate', 'tags'],'#mydate'), (['series'],'series_index'), (['*'], 'title')]
+# Note that the bracketing and parentheses are required. The syntax is
+# [ ( [list of fields], sort field ) , ( [ list of fields ] , sort field ) ]
+# Default: empty (no rules), so no collection attributes are named.
+sony_collection_sorting_rules = []
+
+
 # Create search terms to apply a query across several built-in search terms.
 # Syntax: {'new term':['existing term 1', 'term 2', ...], 'new':['old'...] ...}
 # Example: create the term 'myseries' that when used as myseries:foo would

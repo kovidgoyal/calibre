@@ -99,6 +99,15 @@ class CollectionsBookList(BookList):
     def supports_collections(self):
         return True
 
+    def in_category_sort_rules(self, attr):
+        sorts = tweaks['sony_collection_sorting_rules']
+        for attrs,sortattr in sorts:
+            if attr in attrs or '*' in attrs:
+                print 'in category sort:', attr, sortattr
+                return sortattr
+        print 'in category sort:', attr, 'None'
+        return None
+
     def compute_category_name(self, attr, category, field_meta):
         renames = tweaks['sony_collection_renaming_rules']
         attr_name = renames.get(attr, None)
@@ -116,6 +125,7 @@ class CollectionsBookList(BookList):
         from calibre.devices.usbms.driver import debug_print
         debug_print('Starting get_collections:', prefs['manage_device_metadata'])
         debug_print('Renaming rules:', tweaks['sony_collection_renaming_rules'])
+        debug_print('Sorting rules:', tweaks['sony_collection_sorting_rules'])
 
         # Complexity: we can use renaming rules only when using automatic
         # management. Otherwise we don't always have the metadata to make the
@@ -171,6 +181,7 @@ class CollectionsBookList(BookList):
                 else:
                     val = [val]
 
+                sort_attr = self.in_category_sort_rules(attr)
                 for category in val:
                     is_series = False
                     if doing_dc:
@@ -199,22 +210,41 @@ class CollectionsBookList(BookList):
 
                     if cat_name not in collections:
                         collections[cat_name] = {}
-                    if is_series:
+                    if use_renaming_rules and sort_attr:
+                        sort_val = book.get(sort_attr, None)
+                        collections[cat_name][lpath] = \
+                                (book, sort_val, book.get('title_sort', 'zzzz'))
+                    elif is_series:
                         if doing_dc:
                             collections[cat_name][lpath] = \
-                                    (book, book.get('series_index', sys.maxint))
+                                (book, book.get('series_index', sys.maxint), '')
                         else:
                             collections[cat_name][lpath] = \
-                                    (book, book.get(attr+'_index', sys.maxint))
+                                (book, book.get(attr+'_index', sys.maxint), '')
                     else:
                         if lpath not in collections[cat_name]:
                             collections[cat_name][lpath] = \
-                                (book, book.get('title_sort', 'zzzz'))
+                                (book, book.get('title_sort', 'zzzz'), '')
         # Sort collections
         result = {}
+
+        def none_cmp(xx, yy):
+            x = xx[1]
+            y = yy[1]
+            if x is None and y is None:
+                return cmp(xx[2], yy[2])
+            if x is None:
+                return 1
+            if y is None:
+                return -1
+            c = cmp(x, y)
+            if c != 0:
+                return c
+            return cmp(xx[2], yy[2])
+
         for category, lpaths in collections.items():
             books = lpaths.values()
-            books.sort(cmp=lambda x,y:cmp(x[1], y[1]))
+            books.sort(cmp=none_cmp)
             result[category] = [x[0] for x in books]
         return result
 
