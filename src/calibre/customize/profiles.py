@@ -583,7 +583,8 @@ class KindleDXOutput(OutputProfile):
     # Screen size is a best guess
     screen_size               = (744, 1022)
     dpi                       = 150.0
-    comic_screen_size         = (741, 1022)
+    comic_screen_size = (771, 1116)
+    #comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
     mobi_ems_per_blockquote = 2.0

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import operator, os, json
 from binascii import hexlify, unhexlify
-from urllib import quote
+from urllib import quote, unquote
 
 import cherrypy
 
@@ -116,7 +116,10 @@ def render_rating(rating, container='span', prefix=None): # {{{
 
 # }}}
 
-def get_category_items(category, items, db, datatype): # {{{
+def get_category_items(category, items, restriction, datatype): # {{{
+
+    if category == 'search':
+        items = [x for x in items if x.name != restriction]
 
     def item(i):
         templ = (u'<div title="{4}" class="category-item">'
@@ -164,6 +167,9 @@ class Endpoint(object): # {{{
                 if cookie.has_key(eself.sort_cookie_name):
                     sort_val = cookie[eself.sort_cookie_name].value
                 kwargs[eself.sort_kwarg] = sort_val
+
+            # Remove AJAX caching disabling jquery workaround arg
+            kwargs.pop('_', None)
 
             ans = func(self, *args, **kwargs)
             cherrypy.response.headers['Content-Type'] = eself.mimetype
@@ -299,6 +305,7 @@ class BrowseServer(object):
         category_meta = self.db.field_metadata
         cats = [
                 (_('Newest'), 'newest', 'forward.png'),
+                (_('All books'), 'allbooks', 'book.png'),
                 ]
 
         def getter(x):
@@ -370,7 +377,8 @@ class BrowseServer(object):
 
         if len(items) <= self.opts.max_opds_ungrouped_items:
             script = 'false'
-            items = get_category_items(category, items, self.db, datatype)
+            items = get_category_items(category, items,
+                    self.search_restriction_name, datatype)
         else:
             getter = lambda x: unicode(getattr(x, 'sort', x.name))
             starts = set([])
@@ -440,7 +448,8 @@ class BrowseServer(object):
                 entries.append(x)
 
         sort = self.browse_sort_categories(entries, sort)
-        entries = get_category_items(category, entries, self.db, datatype)
+        entries = get_category_items(category, entries,
+                self.search_restriction_name, datatype)
         return json.dumps(entries, ensure_ascii=False)
 
 
@@ -451,6 +460,8 @@ class BrowseServer(object):
             ans = self.browse_toplevel()
         elif category == 'newest':
             raise cherrypy.InternalRedirect('/browse/matches/newest/dummy')
+        elif category == 'allbooks':
+            raise cherrypy.InternalRedirect('/browse/matches/allbooks/dummy')
         else:
             ans = self.browse_category(category, category_sort)
 
@@ -474,20 +485,26 @@ class BrowseServer(object):
 
     @Endpoint(sort_type='list')
     def browse_matches(self, category=None, cid=None, list_sort=None):
+        if list_sort:
+            list_sort = unquote(list_sort)
         if not cid:
             raise cherrypy.HTTPError(404, 'invalid category id: %r'%cid)
         categories = self.categories_cache()
 
-        if category not in categories and category != 'newest':
+        if category not in categories and \
+                category not in ('newest', 'allbooks'):
             raise cherrypy.HTTPError(404, 'category not found')
         fm = self.db.field_metadata
         try:
             category_name = fm[category]['name']
             dt = fm[category]['datatype']
         except:
-            if category != 'newest':
+            if category not in ('newest', 'allbooks'):
                 raise
-            category_name = _('Newest')
+            category_name = {
+                    'newest' : _('Newest'),
+                    'allbooks' : _('All books'),
+            }[category]
             dt = None
 
         hide_sort = 'true' if dt == 'series' else 'false'
@@ -498,8 +515,10 @@ class BrowseServer(object):
             except:
                 raise cherrypy.HTTPError(404, 'Search: %r not understood'%which)
         elif category == 'newest':
-            ids = list(self.db.data.iterallids())
+            ids = self.search_cache('')
             hide_sort = 'true'
+        elif category == 'allbooks':
+            ids = self.search_cache('')
         else:
             q = category
             if q == 'news':

@@ -16,6 +16,7 @@ from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic
+from calibre.utils.titlecase import titlecase
 
 class MyBlockingBusy(QDialog):
 
@@ -50,6 +51,7 @@ class MyBlockingBusy(QDialog):
         self.start()
 
         self.args = args
+        self.series_start_value = None
         self.db = db
         self.ids = ids
         self.error = None
@@ -115,7 +117,7 @@ class MyBlockingBusy(QDialog):
                     aum = [a.strip().replace('|', ',') for a in aum.split(',')]
                     new_title = authors_to_string(aum)
                     if do_title_case:
-                        new_title = new_title.title()
+                        new_title = titlecase(new_title)
                     self.db.set_title(id, new_title, notify=False)
                     title_set = True
                 if title:
@@ -123,7 +125,7 @@ class MyBlockingBusy(QDialog):
                     self.db.set_authors(id, new_authors, notify=False)
             if do_title_case and not title_set:
                 title = self.db.title(id, index_is_id=True)
-                self.db.set_title(id, title.title(), notify=False)
+                self.db.set_title(id, titlecase(title), notify=False)
             if au:
                 self.db.set_authors(id, string_to_authors(au), notify=False)
         elif self.current_phase == 2:
@@ -147,8 +149,10 @@ class MyBlockingBusy(QDialog):
 
             if do_series:
                 if do_series_restart:
-                    next = series_start_value
-                    series_start_value += 1
+                    if self.series_start_value is None:
+                        self.series_start_value = series_start_value
+                    next = self.series_start_value
+                    self.series_start_value += 1
                 else:
                     next = self.db.get_next_series_num_for(series)
                 self.db.set_series(id, series, notify=False, commit=False)
@@ -179,7 +183,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     s_r_functions = {       ''              : lambda x: x,
                             _('Lower Case') : lambda x: x.lower(),
                             _('Upper Case') : lambda x: x.upper(),
-                            _('Title Case') : lambda x: x.title(),
+                            _('Title Case') : lambda x: titlecase(x),
                     }
 
     s_r_match_modes = [     _('Character match'),

@@ -77,7 +77,7 @@ class ALEX(N516):
         name = os.path.splitext(os.path.basename(file_abspath))[0] + '.png'
         return os.path.join(base, 'covers', name)
 
-    def upload_cover(self, path, filename, metadata):
+    def upload_cover(self, path, filename, metadata, filepath):
         from calibre.ebooks import calibre_cover
         from calibre.utils.magick.draw import thumbnail
         coverdata = getattr(metadata, 'thumbnail', None)
@@ -129,7 +129,7 @@ class AZBOOKA(ALEX):
     def can_handle(self, device_info, debug=False):
         return not is_alex(device_info)
 
-    def upload_cover(self, path, filename, metadata):
+    def upload_cover(self, path, filename, metadata, filepath):
         pass
 
 class EB511(USBMS):

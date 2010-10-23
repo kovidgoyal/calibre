@@ -1104,7 +1104,7 @@ class BasicNewsRecipe(Recipe):
         mi = MetaInformation(title, [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
-        mi.publication_type = 'periodical:'+self.publication_type
+        mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
         mi.timestamp = nowf()
         mi.comments = self.description
         if not isinstance(mi.comments, unicode):

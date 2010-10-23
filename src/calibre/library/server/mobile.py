@@ -112,7 +112,6 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
                 CLASS('thumbnail'))
 
         data = TD()
-        last = None
         for fmt in book['formats'].split(','):
             a = ascii_filename(book['authors'])
             t = ascii_filename(book['title'])
@@ -124,8 +123,10 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
                 ),
                 CLASS('button'))
             s.tail = u''
-            last = s
             data.append(s)
+
+        div = DIV(CLASS('data-container'))
+        data.append(div)
 
         series = u'[%s - %s]'%(book['series'], book['series_index']) \
                 if book['series'] else ''
@@ -137,13 +138,13 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
             if val:
                 ctext += '%s=[%s] '%tuple(val.split(':#:'))
 
-        text = u'\u202f%s %s by %s - %s - %s %s %s' % (book['title'], series,
-                book['authors'], book['size'], book['timestamp'], tags, ctext)
-
-        if last is None:
-            data.text = text
-        else:
-            last.tail += text
+        first = SPAN(u'\u202f%s %s by %s' % (book['title'], series,
+            book['authors']), CLASS('first-line'))
+        div.append(first)
+        second = SPAN(u'%s - %s %s %s' % ( book['size'],
+            book['timestamp'],
+            tags, ctext), CLASS('second-line'))
+        div.append(second)
 
         bookt.append(TR(thumbnail, data))
     # }}}
@@ -229,7 +230,7 @@ class MobileServer(object):
                                              no_tag_count=True)
             book['title'] = record[FM['title']]
             for x in ('timestamp', 'pubdate'):
-                book[x] = strftime('%Y/%m/%d %H:%M:%S', record[FM[x]])
+                book[x] = strftime('%b, %Y', record[FM[x]])
             book['id'] = record[FM['id']]
             books.append(book)
             for key in CKEYS:

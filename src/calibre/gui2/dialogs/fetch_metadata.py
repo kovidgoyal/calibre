@@ -196,7 +196,8 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
             if self.model.rowCount() < 1:
                 info_dialog(self, _('No metadata found'),
                      _('No metadata found, try adjusting the title and author '
-                       'or the ISBN key.')).exec_()
+                       'and/or removing the ISBN.')).exec_()
+                self.reject()
                 return
 
             self.matches.setModel(self.model)

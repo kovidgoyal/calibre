@@ -1,4 +1,10 @@
 /* CSS for the mobile version of the content server webpage */
+
+
+.body {
+    font-family: sans-serif;
+}
+
 .navigation table.buttons {
 	width: 100%;
 }
@@ -79,5 +85,20 @@ div.navigation {
 }
 
 #spacer {
-	clear: both;
+    clear: both;
+}
+
+.data-container {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.first-line {
+    font-size: larger;
+    font-weight: bold;
+}
+
+.second-line {
+    margin-top: 0.75ex;
+    display: block;
 }
