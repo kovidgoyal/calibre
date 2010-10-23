@@ -653,17 +653,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dirtied(book_ids)
 
     def get_metadata_for_dump(self, idx, remove_from_dirtied=True):
+        path, mi = (None, None)
         try:
-            path = os.path.join(self.abspath(idx, index_is_id=True), 'metadata.opf')
-            mi = self.get_metadata(idx, index_is_id=True)
-            # Always set cover to cover.jpg. Even if cover doesn't exist,
-            # no harm done. This way no need to call dirtied when
-            # cover is set/removed
-            mi.cover = 'cover.jpg'
+            # While a book is being created, the path is empty. Don't bother to
+            # try to write the opf, because it will go to the wrong folder.
+            if self.path(idx, index_is_id=True):
+                path = os.path.join(self.abspath(idx, index_is_id=True), 'metadata.opf')
+                mi = self.get_metadata(idx, index_is_id=True)
+                # Always set cover to cover.jpg. Even if cover doesn't exist,
+                # no harm done. This way no need to call dirtied when
+                # cover is set/removed
+                mi.cover = 'cover.jpg'
         except:
             # This almost certainly means that the book has been deleted while
             # the backup operation sat in the queue.
-            path, mi = (None, None)
+            pass
 
         try:
             # clear the dirtied indicator. The user must put it back if
