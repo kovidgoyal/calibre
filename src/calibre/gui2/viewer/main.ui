@@ -108,7 +108,7 @@
     </size>
    </property>
    <attribute name="toolBarArea">
-    <enum>LeftToolBarArea</enum>
+    <enum>Qt::LeftToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
@@ -136,7 +136,7 @@
   </widget>
   <widget class="QToolBar" name="tool_bar2">
    <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
+    <enum>Qt::TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
