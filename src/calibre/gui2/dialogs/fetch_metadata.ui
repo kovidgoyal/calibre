@@ -110,6 +110,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="opt_overwrite_author_title_metadata">
+     <property name="text">
+      <string>Overwrite author and title with author and title of selected book</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="opt_get_social_metadata">
      <property name="text">
       <string>Download &amp;social metadata (tags/rating/etc.) for the selected book</string>
@@ -117,9 +124,9 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="opt_overwrite_author_title_metadata">
+    <widget class="QCheckBox" name="opt_overwrite_cover_image">
      <property name="text">
-      <string>Overwrite author and title with author and title of selected book</string>
+      <string>Overwrite cover image with downloaded cover if available for the selected book</string>
      </property>
     </widget>
    </item>
