@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-22 16:43+0000\n"
-"Last-Translator: Manichean <Unknown>\n"
+"PO-Revision-Date: 2010-10-25 20:08+0000\n"
+"Last-Translator: Marton Huebler <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-23 04:49+0000\n"
+"X-Launchpad-Export-Date: 2010-10-26 04:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -5437,7 +5437,7 @@ msgstr "&Ligaturen behalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:142
 msgid "Smarten &punctuation"
-msgstr ""
+msgstr "Satzzeichen o&ptimieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -5886,7 +5886,7 @@ msgstr "Ko&pfzeile entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:86
 msgid "Line &un-wrap factor during preprocess:"
-msgstr ""
+msgstr "Zeilen&umbruchfaktor während der Vorverarbeitung:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:87
 msgid "&Preprocess input file to possibly improve structure detection"
@@ -6549,7 +6549,7 @@ msgstr "Kein Ort ausgewählt"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:628
 msgid "Bad location"
-msgstr ""
+msgstr "Ungültiger Ort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:85
 msgid "%s is not an existing folder"
@@ -7066,10 +7066,13 @@ msgid ""
 "checked,\n"
 "title and author are swapped before the title case is set"
 msgstr ""
+"Erzwingt (englische) Titelschreibweise im Titel. Wenn dies gleichzeitig mit "
+"Titel und \n"
+"Autoren tauschen ausgewählt wird, wird die Vertauschung zuerst durchgeführt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:369
 msgid "Change title to title case"
-msgstr ""
+msgstr "Titel in Titelschreibweise setzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:370
 msgid ""
@@ -11416,6 +11419,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Eintragstyp für BibTeX- Katalog.\n"
+"Verfügbare Typen: Buch, gemischt, Verschiedenes.\n"
+"Standard: '%default'\n"
+"Angewendet bei: BibTeX- Ausgabeformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:536
 msgid ""
@@ -11484,6 +11491,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Serien- Sektion im Katalog erstellen.\n"
+"Standard: '%default'\n"
+"Angewendet bei: ePub-, MOBI- Ausgabeformaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:581
 msgid ""
@@ -11576,7 +11586,7 @@ msgstr "Unbekannte Dateien bei Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:24
 msgid "Folders raising exception"
-msgstr ""
+msgstr "Ordner mit auftretenden Fehlern"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:43
 msgid ""
@@ -12214,6 +12224,8 @@ msgid ""
 "Output only the number of items in a category instead of the counts per item "
 "within the category"
 msgstr ""
+"Nur Anzahl der Einträge in einer Kategorie ausgeben anstelle der Anzahl pro "
+"Eintrag in der Kategorie"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1038
 msgid ""
