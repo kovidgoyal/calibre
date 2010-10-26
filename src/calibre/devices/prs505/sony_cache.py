@@ -573,7 +573,10 @@ class XMLCache(object):
         ans = root.makeelement('{%s}text'%namespace, attrib=attrib,
                 nsmap=root.nsmap)
         ans.tail = '\n'
-        root[-1].tail = '\n' + '\t'
+        if len(root) > 0:
+            root[-1].tail = '\n\t'
+        else:
+            root.text = '\n\t'
         root.append(ans)
         if thumbnail and thumbnail[-1]:
             ans.text = '\n' + '\t\t'
