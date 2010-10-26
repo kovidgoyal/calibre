@@ -380,7 +380,7 @@ class ResultCache(SearchQueryParser): # {{{
             field_count = 3
         else:
             try:
-                qd = parse_date(query)
+                qd = parse_date(query, as_utc=False)
             except:
                 raise ParseException(query, len(query), 'Date conversion error', self)
             if '-' in query:
