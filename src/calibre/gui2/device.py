@@ -1102,12 +1102,35 @@ class DeviceMixin(object): # {{{
                 self.status_bar.show_message(_('Sending catalogs to device.'), 5000)
 
 
+    @dynamic_property
+    def news_to_be_synced(self):
+        doc = 'Set of ids to be sent to device'
+        def fget(self):
+            ans = []
+            try:
+                ans = self.library_view.model().db.prefs.get('news_to_be_synced',
+                        [])
+            except:
+                import traceback
+                traceback.print_exc()
+            return set(ans)
+
+        def fset(self, ids):
+            try:
+                self.library_view.model().db.prefs.set('news_to_be_synced',
+                        list(ids))
+            except:
+                import traceback
+                traceback.print_exc()
+
+        return property(fget=fget, fset=fset, doc=doc)
+
 
     def sync_news(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
             del_on_upload = config['delete_news_from_library_on_upload']
             settings = self.device_manager.device.settings()
-            ids = list(dynamic.get('news_to_be_synced', set([]))) if send_ids is None else send_ids
+            ids = list(self.news_to_be_synced) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
             files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
                                 ids, settings.format_map,
@@ -1139,7 +1162,7 @@ class DeviceMixin(object): # {{{
             for f in files:
                 f.deleted_after_upload = del_on_upload
             if not files:
-                dynamic.set('news_to_be_synced', set([]))
+                self.news_to_be_synced = set([])
                 return
             metadata = self.library_view.model().metadata_for(ids)
             names = []
@@ -1153,7 +1176,7 @@ class DeviceMixin(object): # {{{
                 if mi.cover and os.access(mi.cover, os.R_OK):
                     mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
                         'rb').read())
-            dynamic.set('news_to_be_synced', set([]))
+            self.news_to_be_synced = set([])
             if config['upload_news_to_device'] and files:
                 remove = ids if del_on_upload else []
                 space = { self.location_manager.free[0] : None,
