@@ -14,7 +14,7 @@ from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
 from calibre.utils.zipfile import ZipFile
-from calibre import extract, walk
+from calibre import extract, walk, isbytestring, filesystem_encoding
 from calibre.constants import __version__
 
 DEBUG_README=u'''
@@ -77,6 +77,10 @@ class Plumber(object):
         :param input: Path to input file.
         :param output: Path to output file/directory
         '''
+        if isbytestring(input):
+            input = input.decode(filesystem_encoding)
+        if isbytestring(output):
+            output = output.decode(filesystem_encoding)
         self.original_input_arg = input
         self.input = os.path.abspath(input)
         self.output = os.path.abspath(output)
