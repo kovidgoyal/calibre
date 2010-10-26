@@ -124,7 +124,7 @@ class ContentServer(object):
         if want_mobile:
             return self.mobile()
 
-        return self.static('index.html')
+        return self.browse_toplevel()
 
     def old(self, **kwargs):
         return self.static('index.html')

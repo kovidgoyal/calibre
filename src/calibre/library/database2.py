@@ -653,8 +653,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dirtied(book_ids)
 
     def get_metadata_for_dump(self, idx, remove_from_dirtied=True):
+        path, mi = (None, None)
         try:
-            path, mi = (None, None)
             # While a book is being created, the path is empty. Don't bother to
             # try to write the opf, because it will go to the wrong folder.
             if self.path(idx, index_is_id=True):
