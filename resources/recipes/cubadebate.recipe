@@ -1,9 +1,7 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
-newyorker.com
+cubadebate.cu
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -13,32 +11,44 @@ class CubaDebate(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Contra el Terorismo Mediatico'
     oldest_article        = 15
-    language = 'es'
-
+    language              = 'es'
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     publisher             = 'Cubadebate'
     category              = 'news, politics, Cuba'
     encoding              = 'utf-8'
-    extra_css             = ' #BlogTitle{font-size: x-large; font-weight: bold} '
+    masthead_url          = 'http://www.cubadebate.cu/wp-content/themes/cubadebate/images/logo.gif'
+    publication_type      = 'newsportal'
+    extra_css             = """ 
+                               #BlogTitle{font-size: xx-large; font-weight: bold} 
+                               body{font-family: Verdana, Arial, Tahoma, sans-serif}
+                            """
 
     conversion_options = {
                              'comments'    : description
                             ,'tags'        : category
-                            ,'language'    : 'es'
+                            ,'language'    : language
                             ,'publisher'   : publisher
-                            ,'pretty_print': True
                          }
 
     keep_only_tags = [dict(name='div', attrs={'id':'Outline'})]
     remove_tags_after = dict(name='div',attrs={'id':'BlogContent'})
-    remove_tags = [dict(name='link')]
+    remove_tags = [
+                     dict(name=['link','base','embed','object','meta','iframe'])
+                    ,dict(attrs={'id':'addthis_container'})
+                  ]
 
     feeds          = [(u'Articulos', u'http://www.cubadebate.cu/feed/')]
-
+    remove_attributes=['width','height','lang']
+    
     def print_version(self, url):
         return url + 'print/'
 
     def preprocess_html(self, soup):
-        return self.adeify_images(soup)
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'                
+        return soup
