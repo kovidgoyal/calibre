@@ -37,6 +37,7 @@ def get_social_metadata(title, authors, publisher, isbn):
     if isbn:
         br = browser()
         response_xml = br.open('http://status.calibre-ebook.com/aws/metadata/'+isbn).read()
+        print 1111111, response_xml
         root = etree.fromstring(response_xml)
         try:
             check_for_errors(root, isbn)
@@ -63,6 +64,8 @@ def get_social_metadata(title, authors, publisher, isbn):
             if num_of_reviews > 4 and rating > 0 and rating < 5:
                 mi.rating = rating
         except:
+            import traceback
+            traceback.print_exc()
             pass
         tags = [x.text for x in root.findall('.//%s/%s'%(AWS('Subjects'),
             AWS('Subject')))]
