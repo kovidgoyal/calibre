@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-22 21:55+0000\n"
+"PO-Revision-Date: 2010-10-26 21:51+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-23 04:49+0000\n"
+"X-Launchpad-Export-Date: 2010-10-27 04:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -209,7 +209,7 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
-"Joc de caràcters dels fitxer HTML d'entrada. Les opcions comuns inclouen: "
+"Joc de caràcters dels fitxers HTML d'entrada. Les opcions comunes inclouen: "
 "cp1252, latin1, iso-8859-1 i utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:60
@@ -218,8 +218,8 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Crea un arxiu PMLZ que conté el fitxer PML i totes les imatges dels "
-"directoris pmlname_ing o images. Aquest connector s'executa cada vegada que "
+"Crea un arxiu PMLZ que conté el fitxer PML i totes les imatges de les "
+"carpetes pmlname_ing o images. Aquest connector s'executa cada vegada que "
 "afegiu un fitxer PML a la biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:94
@@ -283,8 +283,8 @@ msgstr "Interfície"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:712
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
 msgstr ""
-"Ajusta l'aspecte i el comportament de la interfície de calibre per tal que "
-"s'adapti al teu gust"
+"Ajusta l'aspecte i el comportament de la interfície del calibre adaptar-lo "
+"al vostre gust"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:718
 msgid "Behavior"
@@ -292,7 +292,7 @@ msgstr "Comportament"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:724
 msgid "Change the way calibre behaves"
-msgstr "Canvia el comportament de calibre"
+msgstr "Canvia el comportament del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:181
@@ -301,7 +301,8 @@ msgstr "Afegeix les teves columnes"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Add/remove your own columns to the calibre book list"
-msgstr "Afegeix/elimina les teves columnes a la llista de llibres de calibre"
+msgstr ""
+"Afegeix/elimina les teves columnes a la llista de llibres del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Customize the toolbar"
@@ -373,8 +374,8 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
-"Controla com calibre exporta arxius de la seva base de dades al disc quan "
-"s'utilitza Desa al disc"
+"Controla com el calibre exporta fitxers de la seva base de dades al disc en "
+"utilitzar «Desa al disc»"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid "Sending books to devices"
@@ -382,7 +383,7 @@ msgstr "S'està enviant llibres als dispositius"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:815
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr "Controla com calibre envia arxius al teu lector d'ebooks"
+msgstr "Controla com el calibre envia fitxers al lector de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:821
 msgid "Metadata plugboards"
@@ -418,8 +419,8 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
-"Configura el Servidor de Continguts que et donarà accés a la teva llibreria "
-"des de qualsevol lloc i dispositiu, a través d'internet"
+"Configura el Servidor de Continguts donarà accés a la biblioteca des de "
+"qualsevol lloc i dispositiu, a través d'internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid "Plugins"
@@ -434,7 +435,7 @@ msgstr "Avançat"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr ""
-"Afegeix/eliminina/personalitza diversos bits de la funcionalitat de calibre"
+"Afegeix/suprimeix/personalitza diversos bits de la funcionalitat del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
 msgid "Tweaks"
@@ -443,7 +444,7 @@ msgstr "Ajustos"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:875
 msgid "Fine tune how calibre behaves in various contexts"
 msgstr ""
-"Configuració detallada del comportament de calibre en diversos contextos"
+"Configura en detall el comportament del calibre en diversos contextos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:880
 msgid "Miscellaneous"
@@ -499,8 +500,7 @@ msgstr ""
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
-"Aquest perfil és adient per al la línia PRS de SONY. Els models "
-"500/505/600/700, etc."
+"Aquest perfil és adient per a la línia PRS de SONY. Models 500/505/600/700..."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:70
 msgid "This profile is intended for the SONY PRS 300."
@@ -554,12 +554,12 @@ msgstr "Aquest perfil és adient per a l'Irex Illiad"
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:182
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:613
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr "Aquest perfil és adient per al IRex Digital Reader 1000."
+msgstr "Aquest perfil és adient per a l'IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:195
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:627
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr "Aquest perfil és adient per al IRex Digital Reader 800."
+msgstr "Aquest perfil és adient per a l'IRex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:207
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:641
@@ -576,7 +576,7 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"Aquest perfil intentat proporcionar valors predeterminats adients i és útil "
+"Aquest perfil intenta proporcionar valors predeterminats adients i és útil "
 "si voleu generar un document que es pugui llegir en un PC o en un conjunt "
 "ampli de dispositius diferents."
 
@@ -588,7 +588,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:440
 msgid "This profile is intended for the Kobo Reader."
-msgstr "Aquest perfil és adient per al lector Kobo Reader."
+msgstr "Aquest perfil és adient per al Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:453
 msgid "This profile is intended for the SONY PRS-300."
@@ -603,8 +603,8 @@ msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
-"Aquest perfil és adient per al la línia PRS de SONY. Els models 500/505/700, "
-"etc., en mode apaïsat. Sobretot és útil per als còmics."
+"Aquest perfil és adient per a la línia PRS de SONY. Models 500/505/700... en "
+"mode apaïsat. Sobretot és útil per als còmics."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:581
 msgid "This profile is intended for the Amazon Kindle DX."
@@ -612,7 +612,7 @@ msgstr "Aquest perfil és adient per a l'Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:654
 msgid "This profile is intended for the Sanda Bambook."
-msgstr "Aquest perfil està pensat per la Sanda Bambook."
+msgstr "Aquest perfil és adient per al Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Installed plugins"
@@ -847,7 +847,7 @@ msgstr "Comunicar amb el Sigmatek eBook reader."
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:32
 msgid "Use an arbitrary folder as a device."
-msgstr "Utilitzar un directori arbitrari per al dispositiu."
+msgstr "Fes servir una carpeta arbitrària com a dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:28
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:14
@@ -1013,9 +1013,8 @@ msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
-"No existeixen arxius \".kobo\" de llibres al dispositiu, per contra hi ha "
-"files a la base de dades sqlite. Ara mateix no es poden exportar ni "
-"visualitzar"
+"No existeixen fitxers «.kobo» de llibres al dispositiu, però hi ha files a "
+"la base de dades sqlite. De moment no es poden exportar ni visualitzar"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
@@ -1181,7 +1180,7 @@ msgstr "Llistat ordenat de formats que el dispositiu accepta"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:41
 msgid "Place files in sub directories if the device supports them"
-msgstr "Posa els fitxers a subdirectoris si el dispostiu ho permet"
+msgstr "Posa els fitxers a subcarpetes si el dispositiu ho permet"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:86
@@ -1305,8 +1304,8 @@ msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
 msgstr ""
-"No ordenis alfabèticament els arxius trobats al còmic. Empra l'ordre en el "
-"qual hi foren afegits al còmic."
+"No ordenis alfabèticament els fitxers que hi ha còmic. Utilitza l'ordre en "
+"què es van afegir al còmic."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
 msgid ""
@@ -1356,30 +1355,29 @@ msgid ""
 "\n"
 "For full documentation of the conversion system see\n"
 msgstr ""
-"arxiu_inicial arxiu_final [opcions]\n"
+"fitxer_inicial fitxer_final [opcions]\n"
 "\n"
-"Convertiu un llibre electrònic d'un format a un altre.\n"
+"Converteix un llibre d'un format a un altre.\n"
 "\n"
-"arxiu_inicial és l'entrada i arxiu_final és la sortida. Ambdós han de ser "
-"especificats com el primers dos arguments del comandament.\n"
+"fitxer_inicial és l'entrada i fitxer_final és la sortida. S'han "
+"d'especificar com als dos primers arguments de l'ordre.\n"
 "\n"
-"El format de llibre electrònic de sortida serà el mateix que l'extensió "
-"consignada a arxiu_final. arxiu_final també pot estar en el format especial "
-".EXT, on EXT es l'extensió de l'arxiu de sortida. En aquest cas, el nom de "
-"l'arxiu de sortida es deriva del nom de l'arxiu d'entrada. Adoneu-vos que "
-"els noms dels arxius no poden començar amb un guionet. Per acabar, si al "
-"arxiu_final no consigna cap extensió, aleshores és tractat com un directori "
-"i com un \"llibre obert\" (OEB), que consisteix en arxius HTML escrits al "
-"directori creat. Aquests arxius són els que normalment haurien passat al "
-"connector de sortida.\n"
+"El format de llibre de sortida serà el mateix que l'extensió consignada a "
+"fitxer_final. fitxer_final també pot estar en el format especial .EXT, on "
+"EXT es l'extensió del fitxer de sortida. En aquest cas, el nom del fitxer de "
+"sortida es deriva del nom del fitxer d'entrada. Els noms dels fitxers no "
+"poden començar amb un guionet. Per acabar, si al fitxer_final no consigna "
+"cap extensió, aleshores es tracta com una carpeta i com un \"llibre obert\" "
+"(OEB), que consisteix en fitxer HTML que es desen a la carpeta. Aquests "
+"fitxers són els que normalment haurien passat al connector de sortida.\n"
 "\n"
-"Després d'especificar l'arxiu d'entrada i el de sortida, podeu personalitzar "
-"la conversió especificant-ne diverses opcions. Les opcions disponibles "
-"depenen de dels formats seleccionats dels arxius d'entrada i sortida. Per "
-"obtenir ajuda sobre aquestes opcions, especifiqueu els arxiu d'entrada i de "
-"sortida i empreu l'opció -h.\n"
+"Després d'especificar el fitxer d'entrada i el de sortida, podeu "
+"personalitzar la conversió especificant-ne diverses opcions. Les opcions "
+"disponibles depenen dels formats seleccionats als fitxer d'entrada i "
+"sortida. Per obtenir ajuda sobre aquestes opcions, especifiqueu els fitxers "
+"d'entrada i de sortida i amb l'opció -h.\n"
 "\n"
-"Per consultar la documentació completa del sistema de conversió vegeu\n"
+"Si voleu tota la documentació del sistema de conversió vegeu\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
@@ -1411,9 +1409,8 @@ msgid ""
 "source file has a Table of Contents, it will be used in preference to the "
 "automatically generated one."
 msgstr ""
-"Control de generació automàtica de l'Índex de Continguts. Si el fitxer "
-"d'origen conté un Índex de Continguts, aquest serà emprat com a primera "
-"opció en la seva generació automàtica de forma predeterminada."
+"Controla la generació automàtica de l'índex. Si el fitxer d'origen conté un "
+"índex, s'utilitzarà preferentment aquest en lloc del generat automàticament."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:155
 msgid "Options to set metadata in the output"
@@ -1441,8 +1438,8 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
-"Desa la sortida de les diferents fases del canal de la conversió al "
-"directori indicat. Això és útil si no esteu segurs de a quina fase de la "
+"Desa la sortida de les diferents fases del canal de la conversió a la "
+"carpeta que s'indica. Això és útil si no esteu segurs de a quina fase de la "
 "conversió es produeix l'errada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:111
@@ -1560,9 +1557,9 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
-"Normalment, si el fitxer d'origen ja disposa d'un Índex de Continguts, "
-"aquest és utilitzat amb preferència a l'autogenerat. Amb aquesta opció "
-"sempre s'utilitza l'auto-generat."
+"Normalment, si el fitxer d'origen ja disposa d'un índex, aquest és utilitzat "
+"amb preferència a l'autogenerat. Amb aquesta opció sempre s'utilitza l'auto-"
+"generat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:213
 msgid "Don't add auto-detected chapters to the Table of Contents."
@@ -1610,8 +1607,8 @@ msgstr ""
 "\"llibre\", \"secció\" o \"part\" com a títols de capítol a l'igual que les "
 "etiquetes que indiquen class=\"capítol\". L'expressió emprada ha d'avaluar "
 "un llistat d'elements. Per a inhabilitar aquesta opció, empreu l'opció "
-"\"/\". Veieu el tutorial de XPath al Llibre d'Instruccions de calibre per a "
-"més informació sobre aquesta característica."
+"\"/\". Vegeu el tutorial de XPath al Manual de l'usuari del calibre per a "
+"més informació quant a aquesta característica."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:260
 msgid ""
@@ -1632,9 +1629,9 @@ msgid ""
 "the style rules from the source file, so it can be used to override those "
 "rules."
 msgstr ""
-"Qualsevol ruta cap a un full d'estil CSS o CSS en brut. Aquest CSS serà "
-"afegit a les pautes d'estil de l'arxiu d'origen, de forma que es pugui "
-"emprar per a modificar aquelles pautes."
+"Qualsevol ruta cap a un full d'estil CSS o CSS en brut. Aquest CSS s'afegirà "
+"a les pautes d'estil del fitxer d'origen, de forma que es pugui emprar per "
+"modificar aquelles pautes."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:279
 msgid ""
@@ -1678,12 +1675,12 @@ msgid ""
 "\"original\" (the default) does not change justification in the source file. "
 "Note that only some output formats support justification."
 msgstr ""
-"Modifica el valor d'alineament del text. El valor de \"esquerra\" converteix "
-"l'alineament de tot el text de l'arxiu d'origen en text alineat a l'esquerra "
-"(no justificat). Una valor de \"justificat\"converteix tot el text no "
-"justificat en text justificat. Un valor de \"original\" (predeterminat) no "
-"modifica l'alineament de l'arxiu d'origen. Tingueu en compte que només "
-"alguns format de sortida suporten canvis en l'alineament."
+"Modifica el valor d'alineació del text. El valor «esquerra» converteix "
+"l'alineació de tot el text de l'origen en text alineat a l'esquerra (no "
+"justificat). El valor «justificat» converteix tot el text no justificat en "
+"text justificat. El valor «original» (per defecte) no modifica l'alineació "
+"del fitxer d'origen. Només alguns format de sortida donen suporta  canvis "
+"d'alineació."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:316
 msgid ""
@@ -1692,7 +1689,7 @@ msgid ""
 "paragraphs (<p> or <div> tags)."
 msgstr ""
 "Elimina l'espaiament entre paràgrafs. També insereix un sagnat als paràgrafs "
-"d'1.5em. L'eliminació de l'espaiament no funcionarà si l'arxiu d'origen no "
+"d'1.5em. L'eliminació de l'espaiament no funcionarà si el fitxer d'origen no "
 "conté paràgrafs (amb les etiquetes <p> o <div>)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:323
@@ -1701,8 +1698,8 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
-"Quan calibre elimina l'espaiament entre paràgrafs, automàticament insereix "
-"un sagnat als paràgrafs, per tal de garantir que els paràgrafs es podran "
+"Quan el calibre suprimeix l'espaiaat entre paràgrafs, automàticament "
+"insereix un sagnat, per tal de garantir que els paràgrafs es podran "
 "distingir fàcilment. Aquesta opció controla l'amplada del sagnat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:330
@@ -1727,7 +1724,7 @@ msgid ""
 "the source file is a cover and you are specifying an external cover."
 msgstr ""
 "Elimina la primera imatge del llibre electrònic seleccionat. És útil si la "
-"primera imatge de l'arxiu d'origen és una portada i voleu especificar una "
+"primera imatge del fitxer d'origen és una portada i voleu especificar una "
 "altra portada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
@@ -1744,8 +1741,7 @@ msgid ""
 "source file. This may make things worse, so use with care."
 msgstr ""
 "Intenta detectar i corregir errades greus i altres problemes al fitxer "
-"d'origen. Això podria empitjorar les coses, de manera que empreu aquesta "
-"opció amb compte."
+"d'origen. Compte, podria empitjorar les coses."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:367
 msgid ""
@@ -1792,7 +1788,7 @@ msgid ""
 "override any metadata in the source file."
 msgstr ""
 "Llegeix les metadades de l'arxiu OPF indicat. Les metadades extretes "
-"d'aquest arxiu substituiran les metadades de l'arxiu d'origen."
+"d'aquest fitxer substituiran les metadades del fitxer d'origen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:418
 msgid ""
@@ -1820,12 +1816,12 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
-"Preservar les lligadures presents en el document d'entrada. Una lligadura es "
-"un render especial de parells de caràcters tipus ff, fi, fl etc. Molts "
-"lectors, a les seves fonts per defecte, no ten suport per a dites "
-"lligadures, pel qual és poc probable que les renderitze correctament. Per "
-"defecte, calibre canviarà la lligadura per el seu parell de caràcters "
-"normals corresponents. Aquesta opció serà conservada en el seu lloc."
+"Conserva les lligadures del document d'entrada. Una lligadura es una "
+"renderització especial de parells de caràcters tipus ff, fi, fl.... Molts "
+"lectors, a les seves fonts per defecte, no són compatibles amb les "
+"lligadures i és poc probable que les renderitzin correctament. Per defecte, "
+"el calibre canvia la lligadura pel seu parell de caràcters normals "
+"corresponents. Aquesta opció fa que les lligadures en conservin."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:445
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -1903,7 +1899,7 @@ msgstr "Col·locar la data de publicació."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:506
 msgid "Set the book timestamp (used by the date column in calibre)."
 msgstr ""
-"Col·locar la data i l'hora al llibre (utilitzat per la columna data al "
+"Estableix la marca horària al llibre (utilitzat per la columna data al "
 "calibre)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:606
@@ -1969,16 +1965,16 @@ msgid ""
 msgstr ""
 "%prog [opcions] fitxer.epub\n"
 "\n"
-"Arregla els problemes més comuns als fitxers EPUB que poden causar ésser "
-"rebutjats per un servei de publicació amb pobre disseny.\n"
+"Arregla els problemes més comuns als fitxers EPUB que poden fer que se'ls "
+"rebutgi en serveis de publicació mal dissenyats.\n"
 "\n"
-"De manera predeterminada, no arreglant és correcte i els missatges són "
-"impresos per cada error detectat. Faci servir les opcions per controlar "
-"quins errors han estat automàticament arreglats."
+"Per defecte, no s'arregla i els missatges s'imprimeixen per a cada error "
+"detectat. Feu servir les opcions per controlar quins errors s'arreglaran "
+"automàticament."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
-msgstr "Ha d'especificar un fitxer epub."
+msgstr "Heu d'especificar un fitxer epub."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
@@ -1994,7 +1990,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:32
 msgid "Delete unmanifested files instead of adding them to the manifest"
-msgstr "Elimina arxius no manifestats enlloc de afegir-los al manifest"
+msgstr "Suprimeix fitxers no manifestats en lloc d'afegir-los al manifest"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:56
 msgid ""
@@ -2024,10 +2020,10 @@ msgid ""
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
 "is the size required for Adobe Digital Editions."
 msgstr ""
-"Divideix tots els fitxers HTML majors d'aquesta mida (en KB). Això es "
-"necessari perquè la majoria de lectors EPUB no poden manegar els fitxers de "
-"gran mida. El valor predeterminat de %defaultKB es la mida requerida per "
-"Adobe Digital Editions."
+"Divideix tots els fitxers HTML més grans d'aquesta mida (en KB). Això és "
+"necessari perquè la majoria de lectors EPUB no poden gestionar fitxers "
+"grans. El valor per defecte de %defaultKB és la mida que l'Adobe Digital "
+"Editions requereix."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:80
 msgid ""
@@ -2104,8 +2100,8 @@ msgid ""
 "Traverse links in HTML files breadth first. Normally, they are traversed "
 "depth first."
 msgstr ""
-"Travessia d'enllaços en fitxers  HTML primerament per extensió. Normalment, "
-"són primerament travessats per profunditat."
+"Recorre els enllaços dels fitxers HTML primer per amplitud. Normalment es "
+"recorren primer per profunditat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:256
 msgid ""
@@ -2124,10 +2120,10 @@ msgid ""
 "can result in various nasty side effects in the rest of of the conversion "
 "pipeline."
 msgstr ""
-"Normalment aquest complement d'entrada recol.loca tots els arxius d'entrada "
-"en un arbre de carpetes estàndard. Utilitza aquesta opció només si sap el "
-"que està fent, ja que pot ocasionar diversos efectes desagradables a la "
-"resta del procés de conversió."
+"Normalment aquest complement d'entrada recol·loca tots els fitxers d'entrada "
+"en un arbre de carpetes estàndard. Aquesta opció només s'ha de fer servir si "
+"es té clar el que s'està fent, ja que pot ocasionar diversos efectes "
+"desagradables a la resta del procés de conversió."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:273
 msgid ""
@@ -2135,8 +2131,8 @@ msgid ""
 "conversion of a PDF file. Default is %default which disables this."
 msgstr ""
 "Longitud de línia mitjana per a la divisió de línies si l'HTML ve d'una "
-"conversió parcial prèvia d'un arxiu PDF. El valor per defecte és %default, "
-"que desactiva aquesta opció."
+"conversió parcial prèvia d'un fitxer PDF. El valor per defecte és %default, "
+"que ho desactiva."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2324,7 +2320,7 @@ msgstr "Categoria a la que pertany el llibre. Per exemple, Història"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:600
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "Ruta­ al fitxer d'imatge que s'utilitzarà com a miniatura"
+msgstr "Camí al fitxer d'imatge que s'utilitzarà com a miniatura"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:603
 msgid ""
@@ -2439,8 +2435,8 @@ msgid ""
 "Extract common e-book formats from archives (zip/rar) files. Also try to "
 "autodetect if they are actually cbz/cbr files."
 msgstr ""
-"Extreure els formats de llibre digital comuns de fitxers (zip / rar). També "
-"intenta detectar automàticament si es tracta de fitxers cbz/cbr."
+"Extreu els formats de llibre habituals d'arxius (zip /rar). També intenta "
+"detectar automàticament si són fitxers cbz/cbr."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:114
 msgid "TEMPLATE ERROR"
@@ -2634,7 +2630,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:88
 msgid "Set the BookID in LRF files"
-msgstr "Establiu el BookID en fitxers LRF"
+msgstr "Estableix el BookID en fitxers LRF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:153
 msgid "No file specified"
@@ -2843,11 +2839,12 @@ msgstr "Títol per qualsevol índex generat en línia."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:37
 msgid "Disable compression of the file contents."
-msgstr "Desactiva la compressió del contigut de l'arxiu"
+msgstr "Desactiva la compressió del contingut del fitxer"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
-msgstr "Etiquetar el llibre marcat per a ser arxivat com documents personals"
+msgstr ""
+"Marca el llibre amb etiquetes per arxivar-lo amb els documents personals"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:108
 msgid "All articles"
@@ -2979,9 +2976,9 @@ msgid ""
 "Normally calibre treats blank lines as paragraph markers. With this option "
 "it will assume that every line represents a paragraph instead."
 msgstr ""
-"Habitualment, calibre tracta les línies en blanc com a indicador de "
-"paràgraf. Aquesta opció assumeix que cada línia representa un paràgraf "
-"pròpiament."
+"Habitualment el calibre tracta les línies en blanc com a indicador de "
+"paràgraf. En canvi, aquesta opció assumeix que cada línia representa un "
+"paràgraf."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:27
@@ -2992,10 +2989,10 @@ msgid ""
 "spaces) represents a paragraph. Paragraphs end when the next line that "
 "starts with an indent is reached."
 msgstr ""
-"Habitualment, calibre tracta les línies en blanc com a indicador de "
-"paràgraf. Amb aquesta opció s'assumeix que cada línia començada amb sagnat "
-"(ja sigui una tabulació o més de dos espais) representa un paràgraf. El "
-"paràgraf acaba quan la següent línia comença amb un sagnat assolit."
+"Habitualment, el calibre tracta les línies en blanc com a indicador de "
+"paràgraf. Aquesta opció assumeix que cada línia començada amb sagnat (ja "
+"sigui una tabulació o més de dos espais) representa un paràgraf. El paràgraf "
+"acaba quan es troba la següent línia que comença amb un sagnat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
@@ -3054,9 +3051,9 @@ msgid ""
 msgstr ""
 "[options] arxiu.pdf\n"
 "\n"
-"Divideix un arxiu PDF.\n"
+"Talla un fitxer PDF.\n"
 "representa un salt de línia. Comença una nova línia en la posició equivalent "
-"de la traducció\n"
+"de la traducció.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:38
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:32
@@ -3068,7 +3065,7 @@ msgstr ""
 msgid ""
 "Path to output file. By default a file is created in the current directory."
 msgstr ""
-"Ruta de l'arxiu de sortida. Per defecte l'arxiu es crea en la carpeta actual."
+"Camí al fitxer de sortida. Per defecte el fitxer es crea a la carpeta actual."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
 msgid "Number of pixels to crop from the left most x (default is %s)"
@@ -3099,8 +3096,8 @@ msgid ""
 "A file generated by ghostscript which allows each page to be individually "
 "cropped `gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox file.pdf 2> bounding`"
 msgstr ""
-"Un arxiu generat per ghostscript que permet retallar cada pàgina per separat "
-"`gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox arxiu.pdf 2> bounding`"
+"Un fitxer generat per ghostscript que permet retallar cada pàgina per "
+"separat «gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox arxiu.pdf 2> bounding»"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 msgid "Crop Options:"
@@ -3122,7 +3119,7 @@ msgid ""
 "\n"
 "Decrypt a PDF.\n"
 msgstr ""
-"[opcions] arxiu.pdf password\n"
+"[opcions] fitxer.pdf password\n"
 "\n"
 "Desencripta un PDF.\n"
 
@@ -3136,7 +3133,7 @@ msgid ""
 "\n"
 "Encrypt a PDF.\n"
 msgstr ""
-"[opcions] arxiu.pdf password\n"
+"[opcions] fitxer.pdf password\n"
 "\n"
 "Encripta un PDF.\n"
 
@@ -3150,7 +3147,7 @@ msgid ""
 "\n"
 "Get info about a PDF.\n"
 msgstr ""
-"arxiu.pdf ...\n"
+"fitxer.pdf ...\n"
 "\n"
 "Obté informació sobre un PDF.\n"
 
@@ -3188,7 +3185,7 @@ msgid ""
 "\n"
 "Merges individual PDFs.\n"
 msgstr ""
-"[opcions] arxiu1.pdf arxiu2.pdf ...\n"
+"[opcions] fitxer1.pdf fitxer2.pdf ...\n"
 "\n"
 "S'utilitzaran les metadades del primer PDF indicat.\n"
 "\n"
@@ -3204,7 +3201,7 @@ msgid ""
 "\n"
 "Reverse a PDF.\n"
 msgstr ""
-"[opcions] arxiu.pdf\n"
+"[opcions] fitxer.pdf\n"
 "\n"
 "Inverteix un PDF.\n"
 
@@ -3218,7 +3215,7 @@ msgid ""
 "\n"
 "Rotate pages of a PDF clockwise.\n"
 msgstr ""
-"arxiu.pdf graus\n"
+"fitxer.pdf graus\n"
 "\n"
 "Rota les pàgines d'un PDF en sentit horari\n"
 
@@ -3269,8 +3266,8 @@ msgid ""
 "The size of the paper. This size will be overridden when an output profile "
 "is used. Default is letter. Choices are %s"
 msgstr ""
-"Tamany de paper. Aquest tamany serà sobreescrit quan s'utilitzi un perfil de "
-"sortida. Per defecte és letter. Les opcions són %s"
+"Mida del paper. Es sobreescriu quan es fa servir un perfil de sortida. Per "
+"defecte és Letter. Les opcions són %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
 msgid ""
@@ -3312,8 +3309,8 @@ msgid ""
 "first and then try it.\n"
 "%s"
 msgstr ""
-"Aquest arxiu RTF té una característica que calibre no suporta. Primer "
-"converteix-lo a HTML i després prova-ho.\n"
+"Aquest fitxer RTF té una característica que no és compatible amb el calibre. "
+"Convertiu-lo abans HTML i proveu-ho.\n"
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:32
@@ -3540,7 +3537,7 @@ msgstr "Copia al porta-retalls"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:466
 msgid "Choose Files"
-msgstr "Escull fitxers"
+msgstr "Tria fitxers"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:25
 msgid "Add books"
@@ -3549,7 +3546,7 @@ msgstr "Afegeix llibres"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:26
 msgid "Add books to the calibre library/device from files on your computer"
 msgstr ""
-"Afegeix llibres a la biblioteca o al dispositiu des d'arxius de l'ordinador"
+"Afegeix llibres a la biblioteca/dispositiu des de fitxers de l'ordinador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:27
 msgid "A"
@@ -3557,23 +3554,24 @@ msgstr "A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:33
 msgid "Add books from a single directory"
-msgstr "Afegeix llibres d'un directori"
+msgstr "Afegeix llibres des d'una carpeta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:35
 msgid ""
 "Add books from directories, including sub-directories (One book per "
 "directory, assumes every ebook file is the same book in a different format)"
 msgstr ""
-"Afegeix llibres de directoris, incloent els subdirectoris (un llibre per "
-"directori, s'assumeix que cada arxiu és el mateix llibre en diferent format)"
+"Afegeix llibres de carpetes, incloent les subcarpetes (un llibre per "
+"carpeta, assumint que cada fitxer de llibre és el mateix llibre en diferents "
+"formats)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:39
 msgid ""
 "Add books from directories, including sub directories (Multiple books per "
 "directory, assumes every ebook file is a different book)"
 msgstr ""
-"Afegeix llibres de directoris, incloent els subdirectoris (varis llibres per "
-"directori, s'assumeix que cada arxiu és llibre diferent)"
+"Afegeix llibres de carpetes, incloent les subcarpetes (diversos llibres per "
+"carpeta, assumint que cada fitxer de llibre és un llibre diferent)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:43
 msgid "Add Empty book. (Book entry with no formats)"
@@ -3786,7 +3784,7 @@ msgstr "Catàleg generat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:72
 msgid "Export Catalog Directory"
-msgstr "Directori d'exportació del catàleg"
+msgstr "Carpeta d'exportació del catàleg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:73
 msgid "Select destination for %s.%s"
@@ -4413,7 +4411,7 @@ msgstr "No puc desar al disc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:94
 msgid "Choose destination directory"
-msgstr "Tria el directori de destí"
+msgstr "Tria la carpeta de destí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:102
 msgid ""
@@ -5011,7 +5009,7 @@ msgstr "Opcions de CSV/XML"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:17
 msgid "E-book options"
-msgstr "Opcions de llibre electrònic"
+msgstr "Opcions dels llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:77
 msgid "'Don't include this book' tag:"
@@ -6258,11 +6256,11 @@ msgstr "No s'ha pogut enviar: el dispositiu no té targeta de memòria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:922
 msgid "E-book:"
-msgstr "Llibre electrònic:"
+msgstr "Llibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:925
 msgid "Attached, you will find the e-book"
-msgstr "Trobaràs, adjunt, el llibre electrònic"
+msgstr "Hi trobareu el llibre adjunt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:926
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:107
@@ -8724,8 +8722,7 @@ msgstr "Biblioteca del calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:86
 msgid "Choose a location for your calibre e-book library"
 msgstr ""
-"Trieu una localització per a la vostra biblioteca de llibres electrònics del "
-"calibre"
+"Trieu una localització per a la vostra biblioteca de llibres del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:95
 msgid "Failed to create library"
@@ -8739,8 +8736,7 @@ msgstr "No s'ha pogut crear la biblioteca a: %r."
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:184
 msgid "Choose a location for your new calibre e-book library"
 msgstr ""
-"Trieu una localització per a la vostra nova biblioteca de llibres "
-"electrònics del calibre"
+"Trieu una localització per a la vostra nova biblioteca de llibres del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:153
 msgid "Initializing user interface..."

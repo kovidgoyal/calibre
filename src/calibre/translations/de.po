@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-25 20:08+0000\n"
-"Last-Translator: Marton Huebler <Unknown>\n"
+"PO-Revision-Date: 2010-10-26 10:37+0000\n"
+"Last-Translator: Manichean <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-26 04:35+0000\n"
+"X-Launchpad-Export-Date: 2010-10-27 04:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -12329,7 +12329,7 @@ msgstr "Verarbeitet"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:182
 msgid "creating custom column "
-msgstr ""
+msgstr "Erstelle benutzerdefinierte Spalte "
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:32
 msgid "The title"
@@ -12538,7 +12538,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:50
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:390
 msgid "Loading, please wait"
-msgstr ""
+msgstr "Lade, bitte warten"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:79
 msgid "First"
@@ -12563,23 +12563,23 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:98
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:217
 msgid "Average rating"
-msgstr ""
+msgstr "Durchschnittliche Bewertung"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:99
 msgid "%s: %.1f stars"
-msgstr ""
+msgstr "%s: %.1f Sterne"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:128
 msgid "%d stars"
-msgstr ""
+msgstr "%d Sterne"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:218
 msgid "Popularity"
-msgstr ""
+msgstr "Beliebtheit"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:237
 msgid "Sort by"
-msgstr ""
+msgstr "Sortieren nach"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:300
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:489

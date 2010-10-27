@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-18 00:01+0000\n"
-"PO-Revision-Date: 2010-10-18 00:47+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-26 14:50+0000\n"
+"Last-Translator: Vitaliy Starostin <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-19 04:55+0000\n"
+"X-Launchpad-Export-Date: 2010-10-27 04:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -599,7 +599,7 @@ msgstr "Профиль для Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:654
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Этот профиль предназначен для Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Installed plugins"
@@ -889,7 +889,7 @@ msgstr "Джош Шембер"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:44
 msgid "Cannot get files from this device"
-msgstr ""
+msgstr "Не возможно получить файлы от этого устройства"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -1700,6 +1700,9 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
+"Преобразовать обычные кавычки, тире и троеточия к их типографическим "
+"эквивалентам. Более подробно, см. "
+"http://daringfireball.net/projects/smartypants"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:384
 msgid "Use a regular expression to try and remove the header."
@@ -2362,7 +2365,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:114
 msgid "TEMPLATE ERROR"
-msgstr ""
+msgstr "ОШИБКА ШАБЛОНА"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:533
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:59
@@ -2616,11 +2619,11 @@ msgstr "Ошибка сервера LibraryThing.com. Попробуйте по�
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:226
 msgid "Download covers from Douban.com"
-msgstr ""
+msgstr "Скачать обложки с Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:235
 msgid "Douban.com API timed out. Try again later."
-msgstr ""
+msgstr "Тайм-аут Douban.com API. Повторите позже."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
@@ -2843,7 +2846,7 @@ msgstr "%s формат книг не поддерживается"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:103
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:156
 msgid "Book %s of %s"
-msgstr ""
+msgstr "Книга %s из %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
@@ -3236,12 +3239,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:124
 msgid "Start Page"
-msgstr ""
+msgstr "Начальная страница"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:136
 msgid "Cover Pages"
-msgstr ""
+msgstr "Обложки"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:149
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:152
@@ -3435,6 +3438,7 @@ msgstr "Добавить книги"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:26
 msgid "Add books to the calibre library/device from files on your computer"
 msgstr ""
+"Добавить книги в библиотеку/устройство calibre из файлов на Вашем компьютере"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:27
 msgid "A"
@@ -3521,7 +3525,7 @@ msgstr "Книги PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:169
 msgid "SNB Books"
-msgstr ""
+msgstr "Книги SNB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:170
 msgid "Comics"
@@ -3583,7 +3587,7 @@ msgstr "Добавить книги к библиотеке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
-msgstr ""
+msgstr "Добавить книги в библиотеку calibre из подсоединённого устройства"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:536
@@ -3718,7 +3722,7 @@ msgstr "Выберите библиотеку calibre с которой буде
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:158
 msgid "Switch/create library..."
-msgstr ""
+msgstr "Переключить/создать библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
@@ -3728,49 +3732,50 @@ msgstr "Быстрый переход"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:78
 msgid "Rename library"
-msgstr ""
+msgstr "Переименовать библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
 msgid "Delete library"
-msgstr ""
+msgstr "Удалить библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "Library Maintenance"
-msgstr ""
+msgstr "Обслуживание библиотеки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:188
 msgid "Library metadata backup status"
-msgstr ""
+msgstr "Статус резервирования метаданных библиотеки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:192
 msgid "Start backing up metadata of all books"
-msgstr ""
+msgstr "Запустить резервирование метаданных всех книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:196
 msgid "Check library"
-msgstr ""
+msgstr "Проверить библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:200
 msgid "Check database integrity"
-msgstr ""
+msgstr "Проверить целостность базы данных"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:343
 msgid "Recover database"
-msgstr ""
+msgstr "Восстановить библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:269
 msgid "Rename"
-msgstr ""
+msgstr "Переименовать"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:270
 msgid "Choose a new name for the library <b>%s</b>. "
-msgstr ""
+msgstr "Выберите новое название для библиотеки <b> %s </b>. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:271
 msgid "Note that the actual library folder will be renamed."
 msgstr ""
+"Следует отметить, что фактическая папка библиотеки будет переименована."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:278
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:190
@@ -3779,17 +3784,19 @@ msgstr "Уже существует"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:279
 msgid "The folder %s already exists. Delete it first."
-msgstr ""
+msgstr "Папка %s уже существует. Удалите её сначала."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:285
 msgid "Rename failed"
-msgstr ""
+msgstr "Переименование не удалось"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:286
 msgid ""
 "Failed to rename the library at %s. The most common cause for this is if one "
 "of the files in the library is open in another program."
 msgstr ""
+"Не удалось переименовать библиотеку в %s. Обычно причина этого состоит в "
+"том, что один из файлов в библиотеке открыт в другой программе."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:296
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:53
@@ -3799,15 +3806,15 @@ msgstr "Вы уверены?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:297
 msgid "All files from %s will be <b>permanently deleted</b>. Are you sure?"
-msgstr ""
+msgstr "Все файлы из %s будут <b>удалены навсегда</b>. Вы уверены?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:316
 msgid "none"
-msgstr ""
+msgstr "нет"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:317
 msgid "Backup status"
-msgstr ""
+msgstr "Статус резервирования"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:318
 msgid "Book metadata files remaining to be written: %s"
@@ -3815,13 +3822,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "Backup metadata"
-msgstr ""
+msgstr "Резервировать метаданные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
 msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book per second."
 msgstr ""
+"Метаданные будут резервированы при запуске calibre, со скоростью примерно 1 "
+"книга в секунду."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:344
 msgid ""
@@ -3887,7 +3896,7 @@ msgstr "Копировать выделенные книги указанной 
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:114
 msgid "(delete after copy)"
-msgstr ""
+msgstr "(удалить после копирования)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Cannot copy"
@@ -4003,6 +4012,8 @@ msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
 msgstr ""
+"Выделенные книги и файлы буду <b>навсегда удалены</b> из библиотеки calibre. "
+"Вы уверены?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:185
 msgid ""
@@ -4060,7 +4071,7 @@ msgstr "Управлять коллекциями"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:14
 msgid "Manage the collections on this device"
-msgstr ""
+msgstr "Управлять коллекциями на этом устройстве"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:23
 msgid "E"
