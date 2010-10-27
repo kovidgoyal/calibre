@@ -105,7 +105,7 @@ def main():
             notifier.start()
 
         result = func(*args, **kwargs)
-        if result is not None:
+        if result is not None and os.path.exists(os.path.dirname(resultf)):
             cPickle.dump(result, open(resultf, 'wb'), -1)
 
         notifier.queue.put(None)

@@ -54,7 +54,7 @@ reflow_error = poppler_error if poppler_error else magick_error
 
 pdfreflow_libs = []
 if iswindows:
-    pdfreflow_libs = ['advapi32', 'User32', 'Gdi32']
+    pdfreflow_libs = ['advapi32', 'User32', 'Gdi32', 'zlib']
 
 extensions = [
 

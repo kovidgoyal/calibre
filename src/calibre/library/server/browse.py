@@ -509,7 +509,7 @@ class BrowseServer(object):
 
         hide_sort = 'true' if dt == 'series' else 'false'
         if category == 'search':
-            which = unhexlify(cid)
+            which = unhexlify(cid).decode('utf-8')
             try:
                 ids = self.search_cache('search:"%s"'%which)
             except:

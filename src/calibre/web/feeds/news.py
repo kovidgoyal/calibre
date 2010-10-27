@@ -842,6 +842,9 @@ class BasicNewsRecipe(Recipe):
         except NotImplementedError:
             feeds = self.parse_feeds()
 
+        if not feeds:
+            raise ValueError('No articles found, aborting')
+
         #feeds = FeedCollection(feeds)
 
         self.report_progress(0, _('Trying to download cover...'))
