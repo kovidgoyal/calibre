@@ -7,8 +7,7 @@ being closed.
 """
 import tempfile, os, atexit, binascii, cPickle
 
-from calibre import __version__, __appname__, isbytestring
-from calibre.constants import filesystem_encoding
+from calibre.constants import __version__, __appname__
 
 def cleanup(path):
     try:
@@ -43,8 +42,6 @@ def base_dir():
             _base_dir = tempfile.mkdtemp(prefix='%s_%s_tmp_'%(__appname__,
                 __version__))
             atexit.register(remove_dir, _base_dir)
-    if isbytestring(_base_dir):
-        _base_dir = _base_dir.decode(filesystem_encoding)
     return _base_dir
 
 class PersistentTemporaryFile(object):
