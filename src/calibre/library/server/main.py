@@ -25,7 +25,18 @@ def stop_threaded_server(server):
     server.thread = None
 
 def option_parser():
-    parser = config().option_parser('%prog '+ _('[options]\n\nStart the calibre content server.'))
+    parser = config().option_parser('%prog '+ _(
+'''[options]
+
+Start the calibre content server. The calibre content server
+exposes your calibre library over the internet. The default interface
+allows you to browse you calibre library by categories. You can also
+access an interface optimized for mobile browsers at /mobile and an
+OPDS based interface for use with reading applications at /opds.
+
+The OPDS interface is advertised via BonJour automatically.
+'''
+))
     parser.add_option('--with-library', default=None,
             help=_('Path to the library folder to serve with the content server'))
     parser.add_option('--pidfile', default=None,
