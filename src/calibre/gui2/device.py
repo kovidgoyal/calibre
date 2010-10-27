@@ -1370,8 +1370,9 @@ class DeviceMixin(object): # {{{
         # If it does not, then do it here.
         if not self.set_books_in_library(self.booklists(), reset=True):
             self.upload_booklists()
-        self.book_on_device(None, reset=True)
-        self.refresh_ondevice()
+        with self.library_view.preserve_selected_books:
+            self.book_on_device(None, reset=True)
+            self.refresh_ondevice()
 
         view = self.card_a_view if on_card == 'carda' else \
             self.card_b_view if on_card == 'cardb' else self.memory_view
