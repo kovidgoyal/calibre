@@ -9,6 +9,7 @@ import os
 
 from calibre.utils.magick import Image, DrawingWand, create_canvas
 from calibre.constants import __appname__, __version__
+from calibre.utils.config import tweaks
 from calibre import fit_image
 
 def normalize_format_name(fmt):
@@ -113,7 +114,9 @@ def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
 
 def create_text_wand(font_size, font_path=None):
     if font_path is None:
-        font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+        font_path = tweaks['generate_cover_title_font']
+        if font_path is None:
+            font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
     ans = DrawingWand()
     ans.font = font_path
     ans.font_size = font_size
@@ -203,8 +206,11 @@ def create_cover_page(top_lines, logo_path, width=590, height=750,
         bottom += line.bottom_margin
     bottom -= top_lines[-1].bottom_margin
 
+    foot_font = tweaks['generate_cover_foot_font']
+    if not foot_font:
+        foot_font = P('fonts/liberation/LiberationMono-Regular.ttf')
     vanity = create_text_arc(__appname__ + ' ' + __version__, 24,
-            font=P('fonts/liberation/LiberationMono-Regular.ttf'))
+            font=foot_font)
     lwidth, lheight = vanity.size
     left = int(max(0, (width - lwidth)/2.))
     top  = height - lheight - 10

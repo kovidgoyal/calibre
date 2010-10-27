@@ -36,15 +36,15 @@ class N770(USBMS):
 
 class N810(N770):
     name           = 'Nokia 810 Device Interface'
-    gui_name       = 'Nokia 810'
-    description    = _('Communicate with the Nokia 810 internet tablet.')
+    gui_name       = 'Nokia 810/900'
+    description    = _('Communicate with the Nokia 810/900 internet tablet.')
 
-    PRODUCT_ID = [0x96]
+    PRODUCT_ID = [0x96, 0x1c7]
     BCD        = [0x316]
 
-    WINDOWS_MAIN_MEM = 'N810'
+    WINDOWS_MAIN_MEM = ['N810', 'N900']
 
-    MAIN_MEMORY_VOLUME_LABEL = 'N810 Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'Nokia Tablet Main Memory'
 
 class E71X(USBMS):
 

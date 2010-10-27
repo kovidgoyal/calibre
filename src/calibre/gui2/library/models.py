@@ -374,6 +374,8 @@ class BooksModel(QAbstractTableModel): # {{{
         if isinstance(index, int):
             index = self.index(index, 0)
         data = self.current_changed(index, None, False)
+        if data is None:
+            return data
         row = index.row()
         data[_('Title')] = self.db.title(row)
         au = self.db.authors(row)
@@ -783,18 +785,22 @@ class BooksModel(QAbstractTableModel): # {{{
                     self.db.set_rating(id, val)
                 elif column == 'series':
                     val = val.strip()
-                    pat = re.compile(r'\[([.0-9]+)\]')
-                    match = pat.search(val)
-                    if match is not None:
-                        self.db.set_series_index(id, float(match.group(1)))
-                        val = pat.sub('', val).strip()
-                    elif val:
-                        if tweaks['series_index_auto_increment'] == 'next':
-                            ni = self.db.get_next_series_num_for(val)
-                            if ni != 1:
-                                self.db.set_series_index(id, ni)
-                    if val:
+                    if not val:
                         self.db.set_series(id, val)
+                        self.db.set_series_index(id, 1.0)
+                    else:
+                        pat = re.compile(r'\[([.0-9]+)\]')
+                        match = pat.search(val)
+                        if match is not None:
+                            self.db.set_series_index(id, float(match.group(1)))
+                            val = pat.sub('', val).strip()
+                        elif val:
+                            if tweaks['series_index_auto_increment'] == 'next':
+                                ni = self.db.get_next_series_num_for(val)
+                                if ni != 1:
+                                    self.db.set_series_index(id, ni)
+                        if val:
+                            self.db.set_series(id, val)
                 elif column == 'timestamp':
                     if val.isNull() or not val.isValid():
                         return False

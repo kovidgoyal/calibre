@@ -213,7 +213,7 @@ It contains correct fonts.conf etc.
 poppler
 -------------
 
-In Cmake: disable GTK, Qt, OPenjpeg, zlib, lcms, gtk_tests, qt_tests. Enable qt4, jpeg, png and zlib
+In Cmake: disable GTK, Qt, OPenjpeg, cpp, lcms, gtk_tests, qt_tests. Enable qt4, jpeg, png and zlib
 
 NOTE: poppler must be built as a static library, unless you build the qt4 bindings
 

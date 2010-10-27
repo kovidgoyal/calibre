@@ -109,7 +109,7 @@ function toplevel_layout() {
     var last = $(".toplevel li").last();
     var title = $('.toplevel h3').first();
     var bottom = last.position().top + last.height() - title.position().top;
-    $("#main").height(Math.max(200, bottom));
+    $("#main").height(Math.max(200, bottom+75));
 }
 
 function toplevel() {
@@ -156,6 +156,7 @@ function category() {
                 if (href) {
                     $.ajax({
                         url:href,
+                        cache: false,
                         data:{'sort':cookie(sort_cookie_name)},
                         success: function(data) {
                             this.children(".loaded").html(data);
@@ -212,6 +213,7 @@ function load_page(elem) {
         url: href,
         context: elem,
         dataType: "json",
+        cache : false,
         type: 'POST',
         timeout: 600000, //milliseconds (10 minutes)
         data: {'ids': ids},
@@ -263,6 +265,7 @@ function show_details(a_dom) {
     $.ajax({
         url: book.find('.details-href').attr('title'),
         context: bd,
+        cache: false,
         dataType: "json",
         timeout: 600000, //milliseconds (10 minutes)
         error: function(xhr, stat, err) {
