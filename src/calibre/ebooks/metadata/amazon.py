@@ -26,15 +26,7 @@ def find_asin(br, isbn):
     if revs:
         return revs[0]
 
-
-def get_social_metadata(title, authors, publisher, isbn):
-    mi = Metadata(title, authors)
-    if not isbn:
-        return mi
-    isbn = check_isbn(isbn)
-    if not isbn:
-        return mi
-    br = browser()
+def to_asin(br, isbn):
     if len(isbn) == 13:
         try:
             asin = find_asin(br, isbn)
@@ -44,15 +36,36 @@ def get_social_metadata(title, authors, publisher, isbn):
             asin = None
     else:
         asin = isbn
+    return asin
+
+def get_social_metadata(title, authors, publisher, isbn):
+    mi = Metadata(title, authors)
+    if not isbn:
+        return mi
+    isbn = check_isbn(isbn)
+    if not isbn:
+        return mi
+    br = browser()
+    asin = to_asin(br, isbn)
     if asin:
         if get_metadata(br, asin, mi):
             return mi
-    # TODO: Use xisbn to search over all isbns
+    from calibre.ebooks.metadata.xisbn import xisbn
+    for i in xisbn.get_associated_isbns(isbn):
+        asin = to_asin(br, i)
+        if get_metadata(br, asin, mi):
+            return mi
     return mi
 
 def get_metadata(br, asin, mi):
     q = 'http://amzn.com/'+asin
-    raw = br.open_novisit(q).read()
+    try:
+        raw = br.open_novisit(q).read()
+    except Exception, e:
+        if callable(getattr(e, 'getcode', None)) and \
+                e.getcode() == 404:
+            return False
+        raise
     if '<title>404 - ' in raw:
         return False
     raw = xml_to_unicode(raw, strip_encoding_pats=True,
@@ -86,11 +99,19 @@ def get_metadata(br, asin, mi):
         desc = re.sub(r'(?s)<!--.*?-->', '', desc)
         mi.comments = desc
 
+    return True
+
 
 def main(args=sys.argv):
+    # Test xisbn
+    print get_social_metadata('Learning Python', None, None, '8324616489')
+    print
+
+    # Test sophisticated comment formatting
     print get_social_metadata('Swan Thieves', None, None, '9780316065795')
     print
-    return 0
+
+    # Random tests
     print get_social_metadata('Star Trek: Destiny: Mere Mortals', None, None, '9781416551720')
     print
     print get_social_metadata('The Great Gatsby', None, None, '0743273567')
