@@ -37,7 +37,7 @@ That's all, you will now be able to access the |app| Content Server under the /c
 
 .. note:: If you are willing to devote an entire VirtualHost to the content server, then there is no need to use --url-prefix and RewriteRule, instead just use the ProxyPass directive.
 
-Using WSGI
+In process
 ------------
 
 The calibre content server can be run directly, in process, inside a host server like Apache using the WSGI framework.
