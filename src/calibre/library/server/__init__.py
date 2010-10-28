@@ -44,6 +44,10 @@ def server_config(defaults=None):
                 'by first letter when there are more than this number '
                 'of items. Default: %default. Set to a large number '
                 'to disable grouping.'))
+    c.add_opt('url_prefix', ['--url-prefix'], default='',
+              help=_('Prefix to prepend to all URLs. Useful for reverse'
+                  'proxying to this server from Apache/nginx/etc.'))
+
     return c
 
 def custom_fields_to_display(db):

@@ -28,16 +28,19 @@ from calibre.library.server.browse import BrowseServer
 
 class DispatchController(object): # {{{
 
-    def __init__(self):
+    def __init__(self, prefix):
         self.dispatcher = cherrypy.dispatch.RoutesDispatcher()
         self.funcs = []
         self.seen = set([])
+        self.prefix = prefix if prefix else ''
 
     def __call__(self, name, route, func, **kwargs):
         if name in self.seen:
             raise NameError('Route name: '+ repr(name) + ' already used')
         self.seen.add(name)
         kwargs['action'] = 'f_%d'%len(self.funcs)
+        if route != '/':
+            route = self.prefix + route
         self.dispatcher.connect(name, route, self, **kwargs)
         self.funcs.append(expose(func))
 
@@ -55,7 +58,7 @@ class DispatchController(object): # {{{
 
 # }}}
 
-class BonJour(SimplePlugin):
+class BonJour(SimplePlugin): # {{{
 
     def __init__(self, engine, port=8080):
         SimplePlugin.__init__(self, engine)
@@ -85,6 +88,7 @@ class BonJour(SimplePlugin):
 
 cherrypy.engine.bonjour = BonJour(cherrypy.engine)
 
+# }}}
 
 class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         BrowseServer):
@@ -177,7 +181,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
 
     def start(self):
         self.is_running = False
-        d = DispatchController()
+        d = DispatchController(self.opts.url_prefix)
         for x in self.__class__.__bases__:
             if hasattr(x, 'add_routes'):
                 x.add_routes(self, d)

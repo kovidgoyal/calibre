@@ -22,7 +22,7 @@ from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.field_metadata import category_icon_map
 
-def render_book_list(ids, suffix=''): # {{{
+def render_book_list(ids, prefix, suffix=''): # {{{
     pages = []
     num = len(ids)
     pos = 0
@@ -35,11 +35,11 @@ def render_book_list(ids, suffix=''): # {{{
     page_template = u'''\
             <div class="page" id="page{0}">
                 <div class="load_data" title="{1}">
-                    <span class="url" title="/browse/booklist_page"></span>
+                    <span class="url" title="{prefix}/browse/booklist_page"></span>
                     <span class="start" title="{start}"></span>
                     <span class="end" title="{end}"></span>
                 </div>
-                <div class="loading"><img src="/static/loading.gif" /> {2}</div>
+                <div class="loading"><img src="{prefix}/static/loading.gif" /> {2}</div>
                 <div class="loaded"></div>
             </div>
             '''
@@ -49,7 +49,7 @@ def render_book_list(ids, suffix=''): # {{{
         ld = xml(json.dumps(pg), True)
         rpages.append(page_template.format(i, ld,
             xml(_('Loading, please wait')) + '&hellip;',
-            start=pos+1, end=pos+len(pg)))
+            start=pos+1, end=pos+len(pg), prefix=prefix))
     rpages = u'\n\n'.join(rpages)
 
     templ = u'''\
@@ -91,7 +91,7 @@ def utf8(x): # {{{
     return x
 # }}}
 
-def render_rating(rating, container='span', prefix=None): # {{{
+def render_rating(rating, url_prefix, container='span', prefix=None): # {{{
     if rating < 0.1:
         return '', ''
     added = 0
@@ -108,15 +108,15 @@ def render_rating(rating, container='span', prefix=None): # {{{
         elif n >= 0.9:
             x = 'on'
         ans.append(
-            u'<img alt="{0}" title="{0}" src="/static/star-{1}.png" />'.format(
-                rstring, x))
+            u'<img alt="{0}" title="{0}" src="{2}/static/star-{1}.png" />'.format(
+                rstring, x, url_prefix))
         added += 1
     ans.append('</%s>'%container)
     return u''.join(ans), rstring
 
 # }}}
 
-def get_category_items(category, items, restriction, datatype): # {{{
+def get_category_items(category, items, restriction, datatype, prefix): # {{{
 
     if category == 'search':
         items = [x for x in items if x.name != restriction]
@@ -125,8 +125,8 @@ def get_category_items(category, items, restriction, datatype): # {{{
         templ = (u'<div title="{4}" class="category-item">'
                 '<div class="category-name">{0}</div><div>{1}</div>'
                 '<div>{2}'
-                '<span class="href">{3}</span></div></div>')
-        rating, rstring = render_rating(i.avg_rating)
+                '<span class="href">{5}{3}</span></div></div>')
+        rating, rstring = render_rating(i.avg_rating, prefix)
         name = xml(i.name)
         if datatype == 'rating':
             name = xml(_('%d stars')%int(i.avg_rating))
@@ -142,7 +142,7 @@ def get_category_items(category, items, restriction, datatype): # {{{
             q = category
         href = '/browse/matches/%s/%s'%(quote(q), quote(id_))
         return templ.format(xml(name), rating,
-                xml(desc), xml(href), rstring)
+                xml(desc), xml(href), rstring, prefix)
 
     items = list(map(item, items))
     return '\n'.join(['<div class="category-container">'] + items + ['</div>'])
@@ -243,6 +243,7 @@ class BrowseServer(object):
 
         ans = ans.replace('{sort_select_label}', xml(_('Sort by')+':'))
         ans = ans.replace('{sort_cookie_name}', scn)
+        ans = ans.replace('{prefix}', self.opts.url_prefix)
         opts = ['<option %svalue="%s">%s</option>' % (
             'selected="selected" ' if k==sort else '',
             xml(k), xml(n), ) for k, n in
@@ -258,15 +259,14 @@ class BrowseServer(object):
         ans = ans.replace('{initial_search}', initial_search)
         return ans
 
-        return self.__browse_template__
-
     @property
     def browse_summary_template(self):
         if not hasattr(self, '__browse_summary_template__') or \
                 self.opts.develop:
             self.__browse_summary_template__ = \
                 P('content_server/browse/summary.html', data=True).decode('utf-8')
-        return self.__browse_summary_template__
+        return self.__browse_summary_template__.replace('{prefix}',
+                self.opts.url_prefix)
 
     @property
     def browse_details_template(self):
@@ -274,7 +274,8 @@ class BrowseServer(object):
                 self.opts.develop:
             self.__browse_details_template__ = \
                 P('content_server/browse/details.html', data=True).decode('utf-8')
-        return self.__browse_details_template__
+        return self.__browse_details_template__.replace('{prefix}',
+                self.opts.url_prefix)
 
     # }}}
 
@@ -334,11 +335,11 @@ class BrowseServer(object):
                 icon = 'blank.png'
             cats.append((meta['name'], category, icon))
 
-        cats = [('<li title="{2} {0}"><img src="{src}" alt="{0}" />'
+        cats = [('<li title="{2} {0}"><img src="{3}{src}" alt="{0}" />'
                  '<span class="label">{0}</span>'
-                 '<span class="url">/browse/category/{1}</span></li>')
+                 '<span class="url">{3}/browse/category/{1}</span></li>')
                 .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
-                    src='/browse/icon/'+z)
+                    self.opts.url_prefix, src='/browse/icon/'+z)
                 for x, y, z in cats]
 
         main = '<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
@@ -378,7 +379,8 @@ class BrowseServer(object):
         if len(items) <= self.opts.max_opds_ungrouped_items:
             script = 'false'
             items = get_category_items(category, items,
-                    self.search_restriction_name, datatype)
+                    self.search_restriction_name, datatype,
+                    self.opts.url_prefix)
         else:
             getter = lambda x: unicode(getattr(x, 'sort', x.name))
             starts = set([])
@@ -393,12 +395,13 @@ class BrowseServer(object):
                     getter(y).upper().startswith(x)])
             items = [(u'<h3 title="{0}">{0} <span>[{2}]</span></h3><div>'
                       u'<div class="loaded" style="display:none"></div>'
-                      u'<div class="loading"><img alt="{1}" src="/static/loading.gif" /><em>{1}</em></div>'
-                      u'<span class="load_href">{3}</span></div>').format(
+                      u'<div class="loading"><img alt="{1}" src="{4}/static/loading.gif" /><em>{1}</em></div>'
+                      u'<span class="load_href">{4}{3}</span></div>').format(
                         xml(s, True),
                         xml(_('Loading, please wait'))+'&hellip;',
                         unicode(c),
-                        xml(u'/browse/category_group/%s/%s'%(category, s)))
+                        xml(u'/browse/category_group/%s/%s'%(category, s)),
+                        self.opts.url_prefix)
                     for s, c in category_groups.items()]
             items = '\n\n'.join(items)
             items = u'<div id="groups">\n{0}</div>'.format(items)
@@ -410,13 +413,13 @@ class BrowseServer(object):
         main = u'''
             <div class="category">
                 <h3>{0}</h3>
-                    <a class="navlink" href="/browse"
+                    <a class="navlink" href="{3}/browse"
                         title="{2}">{2}&nbsp;&uarr;</a>
                 {1}
             </div>
         '''.format(
                 xml(_('Browsing by')+': ' + category_name), items,
-                xml(_('Up'), True))
+                xml(_('Up'), True), self.opts.url_prefix)
 
         return self.browse_template(sort).format(title=category_name,
                 script=script, main=main)
@@ -449,7 +452,8 @@ class BrowseServer(object):
 
         sort = self.browse_sort_categories(entries, sort)
         entries = get_category_items(category, entries,
-                self.search_restriction_name, datatype)
+                self.search_restriction_name, datatype,
+                self.opts.url_prefix)
         return json.dumps(entries, ensure_ascii=False)
 
 
@@ -459,9 +463,11 @@ class BrowseServer(object):
         if category == None:
             ans = self.browse_toplevel()
         elif category == 'newest':
-            raise cherrypy.InternalRedirect('/browse/matches/newest/dummy')
+            raise cherrypy.InternalRedirect(self.opts.url_prefix +
+                    '/browse/matches/newest/dummy')
         elif category == 'allbooks':
-            raise cherrypy.InternalRedirect('/browse/matches/allbooks/dummy')
+            raise cherrypy.InternalRedirect(self.opts.url_prefix +
+                    '/browse/matches/allbooks/dummy')
         else:
             ans = self.browse_category(category, category_sort)
 
@@ -532,7 +538,8 @@ class BrowseServer(object):
             list_sort = category
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
-        html = render_book_list(ids, suffix=_('in') + ' ' + category_name)
+        html = render_book_list(ids, self.opts.url_prefix,
+                suffix=_('in') + ' ' + category_name)
 
         return self.browse_template(sort, category=False).format(
                 title=_('Books in') + " " +category_name,
@@ -580,17 +587,18 @@ class BrowseServer(object):
             if fmts and fmt:
                 other_fmts = [x for x in fmts if x.lower() != fmt.lower()]
                 if other_fmts:
-                    ofmts = [u'<a href="/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
-                            .format(f, fname, id_, f.upper()) for f in
+                    ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
+                            .format(f, fname, id_, f.upper(),
+                                self.opts.url_prefix) for f in
                             other_fmts]
                     ofmts = ', '.join(ofmts)
                     args['other_formats'] = u'<strong>%s: </strong>' % \
                             _('Other formats') + ofmts
 
-            args['details_href'] = '/browse/details/'+str(id_)
+            args['details_href'] = self.opts.url_prefix + '/browse/details/'+str(id_)
 
             if fmt:
-                href = '/get/%s/%s_%d.%s'%(
+                href = self.opts.url_prefix + '/get/%s/%s_%d.%s'%(
                         fmt, fname, id_, fmt)
                 rt = xml(_('Read %s in the %s format')%(args['title'],
                         fmt.upper()), True)
@@ -603,7 +611,8 @@ class BrowseServer(object):
             args['comments'] = comments_to_html(mi.comments)
             args['stars'] = ''
             if mi.rating:
-                args['stars'] = render_rating(mi.rating/2.0, prefix=_('Rating'))[0]
+                args['stars'] = render_rating(mi.rating/2.0,
+                        self.opts.url_prefix, prefix=_('Rating'))[0]
             if args['tags']:
                 args['tags'] = u'<strong>%s: </strong>'%xml(_('Tags')) + \
                     args['tags']
@@ -628,8 +637,9 @@ class BrowseServer(object):
             args, fmt, fmts, fname = self.browse_get_book_args(mi, id_)
             args['formats'] = ''
             if fmts:
-                ofmts = [u'<a href="/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
-                        .format(fmt, fname, id_, fmt.upper()) for fmt in
+                ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
+                        .format(fmt, fname, id_, fmt.upper(),
+                            self.opts.url_prefix) for fmt in
                         fmts]
                 ofmts = ', '.join(ofmts)
                 args['formats'] = ofmts
@@ -648,7 +658,8 @@ class BrowseServer(object):
                     continue
                 if m['datatype'] == 'rating':
                     r = u'<strong>%s: </strong>'%xml(m['name']) + \
-                            render_rating(mi.rating/2.0, prefix=m['name'])[0]
+                            render_rating(mi.rating/2.0, self.opts.url_prefix,
+                                    prefix=m['name'])[0]
                 else:
                     r = u'<strong>%s: </strong>'%xml(m['name']) + \
                                 args[field]
@@ -704,7 +715,8 @@ class BrowseServer(object):
         items = [self.db.data._data[x] for x in ids]
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
-        html = render_book_list(ids, suffix=_('in search')+': '+query)
+        html = render_book_list(ids, self.opts.url_prefix,
+                suffix=_('in search')+': '+query)
         return self.browse_template(sort, category=False, initial_search=query).format(
                 title=_('Matching books'),
                 script='booklist();', main=html)
