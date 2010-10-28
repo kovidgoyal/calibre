@@ -228,7 +228,7 @@ class SNBOutput(OutputFormatPlugin):
         img.load(imageData)
         (x,y) = img.size
         if self.opts:
-            SCREEN_Y, SCREEN_X = self.opts.output_profile.comic_screen_size
+            SCREEN_X, SCREEN_Y = self.opts.output_profile.comic_screen_size
         else:
             SCREEN_X = 540
             SCREEN_Y = 700

@@ -655,8 +655,8 @@ class BambookOutput(OutputProfile):
     description = _('This profile is intended for the Sanda Bambook.')
 
     # Screen size is a best guess
-    screen_size               = (800, 600)
-    comic_screen_size         = (700, 540)
+    screen_size               = (600, 800)
+    comic_screen_size         = (540, 700)
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [10, 12, 14, 16]
