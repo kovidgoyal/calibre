@@ -60,14 +60,15 @@ class DispatchController(object): # {{{
 
 class BonJour(SimplePlugin): # {{{
 
-    def __init__(self, engine, port=8080):
+    def __init__(self, engine, port=8080, prefix=''):
         SimplePlugin.__init__(self, engine)
         self.port = port
+        self.prefix = prefix
 
     def start(self):
         try:
             publish_zeroconf('Books in calibre', '_stanza._tcp',
-                            self.port, {'path':'/stanza'})
+                            self.port, {'path':self.prefix+'/stanza'})
         except:
             import traceback
             cherrypy.log.error('Failed to start BonJour:')
@@ -106,6 +107,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         self.default_cover = open(P('content_server/default_cover.jpg'), 'rb').read()
 
         cherrypy.engine.bonjour.port = opts.port
+        cherrypy.engine.bonjour.prefix = opts.url_prefix
 
         Cache.__init__(self)
 
