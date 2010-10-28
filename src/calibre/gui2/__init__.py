@@ -255,7 +255,7 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
     return d
 
 def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
-        buttons=QMessageBox.Yes|QMessageBox.No):
+        buttons=QMessageBox.Yes|QMessageBox.No, yes_button=QMessageBox.Yes):
     d = MessageBox(QMessageBox.Question, title, msg, buttons,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(I('dialog_question.png')))
@@ -263,7 +263,7 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
     if not show_copy_button:
         d.cb.setVisible(False)
 
-    return d.exec_() == QMessageBox.Yes
+    return d.exec_() == yes_button
 
 def info_dialog(parent, title, msg, det_msg='', show=False):
     d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.Ok,
