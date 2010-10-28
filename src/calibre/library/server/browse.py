@@ -460,13 +460,14 @@ class BrowseServer(object):
     @Endpoint()
     def browse_catalog(self, category=None, category_sort=None):
         'Entry point for top-level, categories and sub-categories'
+        prefix = '' if self.is_wsgi else self.opts.url_prefix
         if category == None:
             ans = self.browse_toplevel()
         elif category == 'newest':
-            raise cherrypy.InternalRedirect(self.opts.url_prefix +
+            raise cherrypy.InternalRedirect(prefix +
                     '/browse/matches/newest/dummy')
         elif category == 'allbooks':
-            raise cherrypy.InternalRedirect(self.opts.url_prefix +
+            raise cherrypy.InternalRedirect(prefix +
                     '/browse/matches/allbooks/dummy')
         else:
             ans = self.browse_category(category, category_sort)

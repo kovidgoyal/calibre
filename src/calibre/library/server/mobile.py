@@ -121,7 +121,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
                 A(
                     fmt.lower(),
                     href=prefix+'/get/%s/%s-%s_%d.%s' % (fmt, a, t,
-                        book['id'], fmt)
+                        book['id'], fmt.lower())
                 ),
                 CLASS('button'))
             s.tail = u''

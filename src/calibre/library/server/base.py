@@ -28,11 +28,13 @@ from calibre.library.server.browse import BrowseServer
 
 class DispatchController(object): # {{{
 
-    def __init__(self, prefix):
+    def __init__(self, prefix, wsgi=False):
         self.dispatcher = cherrypy.dispatch.RoutesDispatcher()
         self.funcs = []
         self.seen = set([])
         self.prefix = prefix if prefix else ''
+        if wsgi:
+            self.prefix = ''
 
     def __call__(self, name, route, func, **kwargs):
         if name in self.seen:
@@ -96,7 +98,9 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
 
     server_name = __appname__ + '/' + __version__
 
-    def __init__(self, db, opts, embedded=False, show_tracebacks=True):
+    def __init__(self, db, opts, embedded=False, show_tracebacks=True,
+            wsgi=False):
+        self.is_wsgi = bool(wsgi)
         self.opts = opts
         self.embedded = embedded
         self.state_callback = None
@@ -124,25 +128,36 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
                                 'server.socket_timeout'  : opts.timeout, #seconds
                                 'server.thread_pool'     : opts.thread_pool, # number of threads
                                })
-        if embedded:
+        if embedded or wsgi:
             cherrypy.config.update({'engine.SIGHUP'          : None,
                                     'engine.SIGTERM'         : None,})
-        self.config = {'global': {
-            'tools.gzip.on'        : True,
-            'tools.gzip.mime_types': ['text/html', 'text/plain', 'text/xml', 'text/javascript', 'text/css'],
-        }}
-        if opts.password:
-            self.config['/'] = {
-                      'tools.digest_auth.on'    : True,
-                      'tools.digest_auth.realm' : (_('Password to access your calibre library. Username is ') + opts.username.strip()).encode('ascii', 'replace'),
-                      'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
-                      }
-
-
+        self.config = {}
         self.is_running = False
         self.exception = None
-        self.setup_loggers()
-        cherrypy.engine.bonjour.subscribe()
+        if not wsgi:
+            self.setup_loggers()
+            cherrypy.engine.bonjour.subscribe()
+            self.config['global'] = {
+                'tools.gzip.on'        : True,
+                'tools.gzip.mime_types': ['text/html', 'text/plain',
+                    'text/xml', 'text/javascript', 'text/css'],
+            }
+            if opts.password:
+                self.config['/'] = {
+                        'tools.digest_auth.on'    : True,
+                        'tools.digest_auth.realm' : (
+                            _('Password to access your calibre library. Username is ')
+                            + opts.username.strip()),
+                        'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
+                }
+
+        self.__dispatcher__ = DispatchController(self.opts.url_prefix, wsgi)
+        for x in self.__class__.__bases__:
+            if hasattr(x, 'add_routes'):
+                x.add_routes(self, self.__dispatcher__)
+        root_conf = self.config.get('/', {})
+        root_conf['request.dispatch'] = self.__dispatcher__.dispatcher
+        self.config['/'] = root_conf
 
     def set_database(self, db):
         self.db = db
@@ -183,14 +198,6 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
 
     def start(self):
         self.is_running = False
-        d = DispatchController(self.opts.url_prefix)
-        for x in self.__class__.__bases__:
-            if hasattr(x, 'add_routes'):
-                x.add_routes(self, d)
-        root_conf = self.config.get('/', {})
-        root_conf['request.dispatch'] = d.dispatcher
-        self.config['/'] = root_conf
-
         cherrypy.tree.mount(root=None, config=self.config)
         try:
             try:
