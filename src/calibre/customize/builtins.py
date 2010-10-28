@@ -292,7 +292,7 @@ class RTFMetadataReader(MetadataReaderPlugin):
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.rtf import get_metadata
         return get_metadata(stream)
-        
+
 class SNBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read SNB metadata'
