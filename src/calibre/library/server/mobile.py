@@ -26,9 +26,9 @@ def CLASS(*args, **kwargs): # class is a reserved word in Python
     return kwargs
 
 
-def build_search_box(num, search, sort, order): # {{{
+def build_search_box(num, search, sort, order, prefix): # {{{
     div = DIV(id='search_box')
-    form = FORM('Show ', method='get', action='mobile')
+    form = FORM('Show ', method='get', action=prefix+'/mobile')
     form.set('accept-charset', 'UTF-8')
 
     div.append(form)
@@ -89,11 +89,12 @@ def build_navigation(start, num, total, url_base): # {{{
 
     # }}}
 
-def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
-    logo = DIV(IMG(src='/static/calibre.png', alt=__appname__), id='logo')
+def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
+        prefix):
+    logo = DIV(IMG(src=prefix+'/static/calibre.png', alt=__appname__), id='logo')
 
-    search_box = build_search_box(num, search, sort, order)
-    navigation = build_navigation(start, num, total, url_base)
+    search_box = build_search_box(num, search, sort, order, prefix)
+    navigation = build_navigation(start, num, total, prefix+url_base)
     bookt = TABLE(id='listing')
 
     body = BODY(
@@ -107,25 +108,27 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
     # Book list {{{
     for book in books:
         thumbnail = TD(
-                IMG(type='image/jpeg', border='0', src='/get/thumb/%s' %
+                IMG(type='image/jpeg', border='0',
+                    src=prefix+'/get/thumb/%s' %
                             book['id']),
                 CLASS('thumbnail'))
 
         data = TD()
-        last = None
         for fmt in book['formats'].split(','):
             a = ascii_filename(book['authors'])
             t = ascii_filename(book['title'])
             s = SPAN(
                 A(
                     fmt.lower(),
-                    href='/get/%s/%s-%s_%d.%s' % (fmt, a, t,
+                    href=prefix+'/get/%s/%s-%s_%d.%s' % (fmt, a, t,
                         book['id'], fmt)
                 ),
                 CLASS('button'))
             s.tail = u''
-            last = s
             data.append(s)
+
+        div = DIV(CLASS('data-container'))
+        data.append(div)
 
         series = u'[%s - %s]'%(book['series'], book['series_index']) \
                 if book['series'] else ''
@@ -137,13 +140,13 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
             if val:
                 ctext += '%s=[%s] '%tuple(val.split(':#:'))
 
-        text = u'\u202f%s %s by %s - %s - %s %s %s' % (book['title'], series,
-                book['authors'], book['size'], book['timestamp'], tags, ctext)
-
-        if last is None:
-            data.text = text
-        else:
-            last.tail += text
+        first = SPAN(u'\u202f%s %s by %s' % (book['title'], series,
+            book['authors']), CLASS('first-line'))
+        div.append(first)
+        second = SPAN(u'%s - %s %s %s' % ( book['size'],
+            book['timestamp'],
+            tags, ctext), CLASS('second-line'))
+        div.append(second)
 
         bookt.append(TR(thumbnail, data))
     # }}}
@@ -153,7 +156,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS):
             TITLE(__appname__ + ' Library'),
             LINK(rel='icon', href='http://calibre-ebook.com/favicon.ico',
                 type='image/x-icon'),
-            LINK(rel='stylesheet', type='text/css', href='/mobile/style.css')
+            LINK(rel='stylesheet', type='text/css', href=prefix+'/mobile/style.css')
         ), # End head
         body
     ) # End html
@@ -173,7 +176,9 @@ class MobileServer(object):
         cherrypy.response.headers['Content-Type'] = 'text/css; charset=utf-8'
         updated = utcfromtimestamp(os.stat(path).st_mtime)
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        return open(path, 'rb').read()
+        with open(path, 'rb') as f:
+            ans = f.read()
+        return ans.replace('{prefix}', self.opts.url_prefix)
 
     def mobile(self, start='1', num='25', sort='date', search='',
                 _=None, order='descending'):
@@ -229,7 +234,7 @@ class MobileServer(object):
                                              no_tag_count=True)
             book['title'] = record[FM['title']]
             for x in ('timestamp', 'pubdate'):
-                book[x] = strftime('%Y/%m/%d %H:%M:%S', record[FM[x]])
+                book[x] = strftime('%b, %Y', record[FM[x]])
             book['id'] = record[FM['id']]
             books.append(book)
             for key in CKEYS:
@@ -258,7 +263,8 @@ class MobileServer(object):
         url_base = "/mobile?search=" + search+";order="+order+";sort="+sort+";num="+str(num)
 
         return html.tostring(build_index(books, num, search, sort, order,
-                             start, len(ids), url_base, CKEYS),
+                             start, len(ids), url_base, CKEYS,
+                             self.opts.url_prefix),
                              encoding='utf-8', include_meta_content_type=True,
                              pretty_print=True)
 

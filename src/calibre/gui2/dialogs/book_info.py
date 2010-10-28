@@ -90,10 +90,15 @@ class BookInfo(QDialog, Ui_BookInfo):
             row = row.row()
         if row == self.current_row:
             return
+        info = self.view.model().get_book_info(row)
+        if info is None:
+            # Indicates books was deleted from library, or row numbers have
+            # changed
+            return
+
         self.previous_button.setEnabled(False if row == 0 else True)
         self.next_button.setEnabled(False if row == self.view.model().rowCount(QModelIndex())-1 else True)
         self.current_row = row
-        info = self.view.model().get_book_info(row)
         self.setWindowTitle(info[_('Title')])
         self.title.setText('<b>'+info.pop(_('Title')))
         comments = info.pop(_('Comments'), '')

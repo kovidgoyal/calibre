@@ -43,7 +43,7 @@ class SafeFormat(TemplateFormatter):
             b = self.book.get_user_metadata(key, False)
             if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
                 v = ''
-            elif b and b['datatype'] == 'float' and b.get(key, 0.0) == 0.0:
+            elif b and b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0:
                 v = ''
             else:
                 ign, v = self.book.format_field(key.lower(), series_with_index=False)
@@ -501,7 +501,7 @@ class Metadata(object):
         if key.startswith('#') and key.endswith('_index'):
             tkey = key[:-6] # strip the _index
             cmeta = self.get_user_metadata(tkey, make_copy=False)
-            if cmeta['datatype'] == 'series':
+            if cmeta and cmeta['datatype'] == 'series':
                 if self.get(tkey):
                     res = self.get_extra(tkey)
                     return (unicode(cmeta['name']+'_index'),

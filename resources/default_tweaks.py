@@ -106,7 +106,8 @@ title_sort_articles=r'^(A|The|An)\s+'
 auto_connect_to_folder = ''
 
 
-# Specify renaming rules for sony collections. Collections on Sonys are named
+# Specify renaming rules for sony collections. This tweak is only applicable if
+# metadata management is set to automatic. Collections on Sonys are named
 # depending upon whether the field is standard or custom. A collection derived
 # from a standard field is named for the value in that field. For example, if
 # the standard 'series' column contains the name 'Darkover', then the series
@@ -135,6 +136,24 @@ auto_connect_to_folder = ''
 # collection name to have '(Series)' appended. The renaming rule is:
 # sony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}
 sony_collection_renaming_rules={}
+
+
+# Specify how sony collections are sorted. This tweak is only applicable if
+# metadata management is set to automatic. You can indicate which metadata is to
+# be used to sort on a collection-by-collection basis. The format of the tweak
+# is a list of metadata fields from which collections are made, followed by the
+# name of the metadata field containing the sort value.
+# Example: The following indicates that collections built from pubdate and tags
+# are to be sorted by the value in the custom column '#mydate', that collections
+# built from 'series' are to be sorted by 'series_index', and that all other
+# collections are to be sorted by title. If a collection metadata field is not
+# named, then if it is a series- based collection it is sorted by series order,
+# otherwise it is sorted by title order.
+# [(['pubdate', 'tags'],'#mydate'), (['series'],'series_index'), (['*'], 'title')]
+# Note that the bracketing and parentheses are required. The syntax is
+# [ ( [list of fields], sort field ) , ( [ list of fields ] , sort field ) ]
+# Default: empty (no rules), so no collection attributes are named.
+sony_collection_sorting_rules = []
 
 
 # Create search terms to apply a query across several built-in search terms.
@@ -184,3 +203,11 @@ content_server_wont_display = ['']
 # level sorts, and if you are seeing a slowdown, reduce the value of this tweak.
 maximum_resort_levels = 5
 
+# Absolute path to a TTF font file to use as the font for the title and author
+# when generating a default cover. Useful if the default font (Liberation
+# Serif) does not contain glyphs for the language of the books in your library.
+generate_cover_title_font = None
+
+# Absolute path to a TTF font file to use as the font for the footer in the
+# default cover
+generate_cover_foot_font = None

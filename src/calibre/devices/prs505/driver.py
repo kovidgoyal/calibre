@@ -9,10 +9,10 @@ Device driver for the SONY devices
 import os, time, re
 
 from calibre.devices.usbms.driver import USBMS, debug_print
-from calibre.devices.prs505 import MEDIA_XML
-from calibre.devices.prs505 import CACHE_XML
+from calibre.devices.prs505 import MEDIA_XML, MEDIA_EXT, CACHE_XML, CACHE_EXT, \
+            MEDIA_THUMBNAIL, CACHE_THUMBNAIL
 from calibre.devices.prs505.sony_cache import XMLCache
-from calibre import __appname__
+from calibre import __appname__, prints
 from calibre.devices.usbms.books import CollectionsBookList
 
 class PRS505(USBMS):
@@ -66,6 +66,8 @@ class PRS505(USBMS):
     plugboard = None
     plugboard_func = None
 
+    THUMBNAIL_HEIGHT = 200
+
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
 
@@ -116,20 +118,21 @@ class PRS505(USBMS):
         return fname
 
     def initialize_XML_cache(self):
-        paths, prefixes = {}, {}
-        for prefix, path, source_id in [
-                ('main', MEDIA_XML, 0),
-                ('card_a', CACHE_XML, 1),
-                ('card_b', CACHE_XML, 2)
+        paths, prefixes, ext_paths = {}, {}, {}
+        for prefix, path, ext_path, source_id in [
+                ('main', MEDIA_XML, MEDIA_EXT, 0),
+                ('card_a', CACHE_XML, CACHE_EXT, 1),
+                ('card_b', CACHE_XML, CACHE_EXT, 2)
                 ]:
             prefix = getattr(self, '_%s_prefix'%prefix)
             if prefix is not None and os.path.exists(prefix):
                 paths[source_id] = os.path.join(prefix, *(path.split('/')))
+                ext_paths[source_id] = os.path.join(prefix, *(ext_path.split('/')))
                 prefixes[source_id] = prefix
                 d = os.path.dirname(paths[source_id])
                 if not os.path.exists(d):
                     os.makedirs(d)
-        return XMLCache(paths, prefixes, self.settings().use_author_sort)
+        return XMLCache(paths, ext_paths, prefixes, self.settings().use_author_sort)
 
     def books(self, oncard=None, end_session=True):
         debug_print('PRS505: starting fetching books for card', oncard)
@@ -174,3 +177,31 @@ class PRS505(USBMS):
     def set_plugboards(self, plugboards, pb_func):
         self.plugboards = plugboards
         self.plugboard_func = pb_func
+
+    def upload_cover(self, path, filename, metadata, filepath):
+        if metadata.thumbnail and metadata.thumbnail[-1]:
+            path = path.replace('/', os.sep)
+            is_main = path.startswith(self._main_prefix)
+            thumbnail_dir = MEDIA_THUMBNAIL if is_main else CACHE_THUMBNAIL
+            prefix = None
+            if is_main:
+                prefix = self._main_prefix
+            else:
+                if self._card_a_prefix and \
+                    path.startswith(self._card_a_prefix):
+                    prefix = self._card_a_prefix
+                elif self._card_b_prefix and \
+                        path.startswith(self._card_b_prefix):
+                    prefix = self._card_b_prefix
+            if prefix is None:
+                prints('WARNING: Failed to find prefix for:', filepath)
+                return
+            thumbnail_dir = os.path.join(prefix, *thumbnail_dir.split('/'))
+
+            relpath = os.path.relpath(filepath, prefix)
+            thumbnail_dir = os.path.join(thumbnail_dir, relpath)
+            if not os.path.exists(thumbnail_dir):
+                os.makedirs(thumbnail_dir)
+            with open(os.path.join(thumbnail_dir, 'main_thumbnail.jpg'), 'wb') as f:
+                f.write(metadata.thumbnail[-1])
+

@@ -435,3 +435,35 @@ And since I'm sure someone will ask: The reason adding/saving books are in separ
 
 Finally, the reason calibre keep workers alive and idle instead of launching on demand is to workaround the slow startup time of python processes.
 
+How do I run parts of |app| like news download and the content server on my own linux server?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First, you must install |app| onto your linux server. If your server is using a modern linux distro, you should have no problems installing |app| onto it.
+
+.. note:: 
+    If you bought into the notion that a real server must run a decade old version of Debian, then you will have to jump through a few hoops. First, compile a newer version of glibc (>= 2.10) on your server from source. Then get the |app| linux binary tarball from the |app| google code page for your server architecture. Extract it into :file:`/opt/calibre`. Put your previously compiled glibc into :file:`/opt/calibre` as :file:`libc.so.6`. You can now run the calibre binaries from :file:`/opt/calibre`.
+
+You can run the |app| server via the command::
+
+    /opt/calibre/calibre-server --with-library /path/to/the/library/you/want/to/share
+
+You can download news and convert it into an ebook with the command::
+
+   /opt/calibre/ebook-convert "Title of news source.recipe" outputfile.epub
+
+If you want to generate MOBI, use outputfile.mobi instead. 
+
+You can email downloaded news with the command::
+    
+    /opt/calibre/calibre-smtp
+
+I leave figuring out the exact command line as an exercise for the reader.
+
+Finally, you can add downloaded news to the |app| library with::
+
+   /opt/calibre/calibredb add --with-library /path/to/library outfile.epub
+
+Remember to read the command line documentation section of the |app| User Manual to learn more about these, and other commands.
+
+.. note:: Some parts of calibre require a X server. If you're lucky, nothing you do will fall into this category, if not, you will have to look into using xvfb.
+

@@ -10,6 +10,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 import cherrypy
+from cherrypy.process.plugins import SimplePlugin
 
 from calibre.constants import __appname__, __version__
 from calibre.utils.date import fromtimestamp
@@ -27,16 +28,19 @@ from calibre.library.server.browse import BrowseServer
 
 class DispatchController(object): # {{{
 
-    def __init__(self):
+    def __init__(self, prefix):
         self.dispatcher = cherrypy.dispatch.RoutesDispatcher()
         self.funcs = []
         self.seen = set([])
+        self.prefix = prefix if prefix else ''
 
     def __call__(self, name, route, func, **kwargs):
         if name in self.seen:
             raise NameError('Route name: '+ repr(name) + ' already used')
         self.seen.add(name)
         kwargs['action'] = 'f_%d'%len(self.funcs)
+        if route != '/':
+            route = self.prefix + route
         self.dispatcher.connect(name, route, self, **kwargs)
         self.funcs.append(expose(func))
 
@@ -54,16 +58,45 @@ class DispatchController(object): # {{{
 
 # }}}
 
+class BonJour(SimplePlugin): # {{{
+
+    def __init__(self, engine, port=8080, prefix=''):
+        SimplePlugin.__init__(self, engine)
+        self.port = port
+        self.prefix = prefix
+
+    def start(self):
+        try:
+            publish_zeroconf('Books in calibre', '_stanza._tcp',
+                            self.port, {'path':self.prefix+'/stanza'})
+        except:
+            import traceback
+            cherrypy.log.error('Failed to start BonJour:')
+            cherrypy.log.error(traceback.format_exc())
+
+    start.priority = 90
+
+    def stop(self):
+        try:
+            stop_zeroconf()
+        except:
+            import traceback
+            cherrypy.log.error('Failed to stop BonJour:')
+            cherrypy.log.error(traceback.format_exc())
+
+
+    stop.priority = 10
+
+cherrypy.engine.bonjour = BonJour(cherrypy.engine)
+
+# }}}
+
 class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         BrowseServer):
 
     server_name = __appname__ + '/' + __version__
 
     def __init__(self, db, opts, embedded=False, show_tracebacks=True):
-        self.db = db
-        for item in self.db:
-            item
-            break
         self.opts = opts
         self.embedded = embedded
         self.state_callback = None
@@ -71,7 +104,15 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
                         map(int, self.opts.max_cover.split('x'))
         path = P('content_server')
         self.build_time = fromtimestamp(os.stat(path).st_mtime)
-        self.default_cover =  open(P('content_server/default_cover.jpg'), 'rb').read()
+        self.default_cover = open(P('content_server/default_cover.jpg'), 'rb').read()
+
+        cherrypy.engine.bonjour.port = opts.port
+        cherrypy.engine.bonjour.prefix = opts.url_prefix
+
+        Cache.__init__(self)
+
+        self.set_database(db)
+
         cherrypy.config.update({
                                 'log.screen'             : opts.develop,
                                 'engine.autoreload_on'   : opts.develop,
@@ -97,18 +138,28 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
                       'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
                       }
 
-        sr = getattr(opts, 'restriction', None)
-        sr = db.prefs.get('cs_restriction', '') if sr is None else sr
-        self.set_search_restriction(sr)
 
         self.is_running = False
         self.exception = None
+        self.setup_loggers()
+        cherrypy.engine.bonjour.subscribe()
+
+    def set_database(self, db):
+        self.db = db
+        sr = getattr(self.opts, 'restriction', None)
+        sr = db.prefs.get('cs_restriction', '') if sr is None else sr
+        self.set_search_restriction(sr)
+
+    def graceful(self):
+        cherrypy.engine.graceful()
 
     def set_search_restriction(self, restriction):
+        self.search_restriction_name = restriction
         if restriction:
             self.search_restriction = 'search:"%s"'%restriction
         else:
             self.search_restriction = ''
+        self.reset_caches()
 
     def setup_loggers(self):
         access_file = log_access_file
@@ -132,7 +183,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
 
     def start(self):
         self.is_running = False
-        d = DispatchController()
+        d = DispatchController(self.opts.url_prefix)
         for x in self.__class__.__bases__:
             if hasattr(x, 'add_routes'):
                 x.add_routes(self, d)
@@ -140,7 +191,6 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         root_conf['request.dispatch'] = d.dispatcher
         self.config['/'] = root_conf
 
-        self.setup_loggers()
         cherrypy.tree.mount(root=None, config=self.config)
         try:
             try:
@@ -154,24 +204,14 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
                 cherrypy.engine.start()
 
             self.is_running = True
-            try:
-                publish_zeroconf('Books in calibre', '_stanza._tcp',
-                             self.opts.port, {'path':'/stanza'})
-            except:
-                import traceback
-                cherrypy.log.error('Failed to start BonJour:')
-                cherrypy.log.error(traceback.format_exc())
+            #if hasattr(cherrypy.engine, 'signal_handler'):
+            #    cherrypy.engine.signal_handler.subscribe()
+
             cherrypy.engine.block()
         except Exception, e:
             self.exception = e
         finally:
             self.is_running = False
-            try:
-                stop_zeroconf()
-            except:
-                import traceback
-                cherrypy.log.error('Failed to stop BonJour:')
-                cherrypy.log.error(traceback.format_exc())
             try:
                 if callable(self.state_callback):
                     self.state_callback(self.is_running)

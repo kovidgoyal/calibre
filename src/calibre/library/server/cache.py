@@ -10,7 +10,10 @@ from calibre.utils.ordered_dict import OrderedDict
 
 class Cache(object):
 
-    def add_routes(self, c):
+    def __init__(self):
+        self.reset_caches()
+
+    def reset_caches(self):
         self._category_cache = OrderedDict()
         self._search_cache = OrderedDict()
 

@@ -131,14 +131,13 @@ class SafeFormat(TemplateFormatter):
                     self.vformat(b['display']['composite_template'], [], kwargs)
                 return self.composite_values[key]
             if key in kwargs:
-                return kwargs[key].replace('/', '_').replace('\\', '_')
+                val = kwargs[key]
+                return val.replace('/', '_').replace('\\', '_')
             return ''
         except:
             if DEBUG:
                 traceback.print_exc()
             return key
-
-safe_formatter = SafeFormat()
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
@@ -173,17 +172,22 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     custom_metadata = mi.get_all_user_metadata(make_copy=False)
     for key in custom_metadata:
         if key in format_args:
+            cm = custom_metadata[key]
             ## TODO: NEWMETA: should ratings be divided by 2? The standard rating isn't...
-            if custom_metadata[key]['datatype'] == 'series':
+            if cm['datatype'] == 'series':
                 format_args[key] = tsfmt(format_args[key])
                 if key+'_index' in format_args:
                     format_args[key+'_index'] = fmt_sidx(format_args[key+'_index'])
-            elif custom_metadata[key]['datatype'] == 'datetime':
+            elif cm['datatype'] == 'datetime':
                 format_args[key] = strftime(timefmt, format_args[key].timetuple())
-            elif custom_metadata[key]['datatype'] == 'bool':
+            elif cm['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
-
-    components = safe_formatter.safe_format(template, format_args,
+            elif cm['datatype'] in ['int', 'float']:
+                if format_args[key] != 0:
+                    format_args[key] = unicode(format_args[key])
+                else:
+                    format_args[key] = ''
+    components = SafeFormat().safe_format(template, format_args,
                                             'G_C-EXCEPTION!', mi)
     components = [x.strip() for x in components.split('/') if x.strip()]
     components = [sanitize_func(x) for x in components if x]

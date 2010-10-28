@@ -103,7 +103,11 @@ class ContentServer(object):
         if self.opts.develop:
             lm = fromtimestamp(os.stat(path).st_mtime)
             cherrypy.response.headers['Last-Modified'] = self.last_modified(lm)
-        return open(path, 'rb').read()
+        with open(path, 'rb') as f:
+            ans = f.read()
+        if path.endswith('.css'):
+            ans = ans.replace('/static/', self.opts.url_prefix + '/static/')
+        return ans
 
     def index(self, **kwargs):
         'The / URL'
@@ -124,10 +128,11 @@ class ContentServer(object):
         if want_mobile:
             return self.mobile()
 
-        return self.static('index.html')
+        return self.browse_toplevel()
 
     def old(self, **kwargs):
-        return self.static('index.html')
+        return self.static('index.html').replace('{prefix}',
+                self.opts.url_prefix)
 
     # Actually get content from the database {{{
     def get_cover(self, id, thumbnail=False, thumb_width=60, thumb_height=80):

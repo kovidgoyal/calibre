@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys
+import sys
 from threading import Thread
 
 from calibre.library.server import server_config as config
@@ -25,7 +25,18 @@ def stop_threaded_server(server):
     server.thread = None
 
 def option_parser():
-    parser = config().option_parser('%prog '+ _('[options]\n\nStart the calibre content server.'))
+    parser = config().option_parser('%prog '+ _(
+'''[options]
+
+Start the calibre content server. The calibre content server
+exposes your calibre library over the internet. The default interface
+allows you to browse you calibre library by categories. You can also
+access an interface optimized for mobile browsers at /mobile and an
+OPDS based interface for use with reading applications at /opds.
+
+The OPDS interface is advertised via BonJour automatically.
+'''
+))
     parser.add_option('--with-library', default=None,
             help=_('Path to the library folder to serve with the content server'))
     parser.add_option('--pidfile', default=None,
@@ -38,50 +49,18 @@ def option_parser():
                    ' in the GUI'))
     return parser
 
-def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
-    try:
-        pid = os.fork()
-        if pid > 0:
-            # exit first parent
-            sys.exit(0)
-    except OSError, e:
-        print >>sys.stderr, "fork #1 failed: %d (%s)" % (e.errno, e.strerror)
-        sys.exit(1)
-
-    # decouple from parent environment
-    os.chdir("/")
-    os.setsid()
-    os.umask(0)
-
-    # do second fork
-    try:
-        pid = os.fork()
-        if pid > 0:
-            # exit from second parent
-            sys.exit(0)
-    except OSError, e:
-        print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror)
-        sys.exit(1)
-
-    # Redirect standard file descriptors.
-    si = file(stdin, 'r')
-    so = file(stdout, 'a+')
-    se = file(stderr, 'a+', 0)
-    os.dup2(si.fileno(), sys.stdin.fileno())
-    os.dup2(so.fileno(), sys.stdout.fileno())
-    os.dup2(se.fileno(), sys.stderr.fileno())
-
-
 
 def main(args=sys.argv):
     from calibre.library.database2 import LibraryDatabase2
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if opts.daemonize and not iswindows:
-        daemonize()
+        from cherrypy.process.plugins import Daemonizer
+        d = Daemonizer(cherrypy.engine)
+        d.subscribe()
     if opts.pidfile is not None:
-        with open(opts.pidfile, 'wb') as f:
-            f.write(str(os.getpid()))
+        from cherrypy.process.plugins import PIDFile
+        PIDFile(cherrypy.engine, opts.pidfile).subscribe()
     cherrypy.log.screen = True
     from calibre.utils.config import prefs
     if opts.with_library is None:

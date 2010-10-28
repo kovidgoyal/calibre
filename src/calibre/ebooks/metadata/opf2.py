@@ -382,11 +382,13 @@ class Guide(ResourceCollection): # {{{
 
 class MetadataField(object):
 
-    def __init__(self, name, is_dc=True, formatter=None, none_is=None):
+    def __init__(self, name, is_dc=True, formatter=None, none_is=None,
+            renderer=lambda x: unicode(x)):
         self.name      = name
         self.is_dc     = is_dc
         self.formatter = formatter
         self.none_is   = none_is
+        self.renderer  = renderer
 
     def __real_get__(self, obj, type=None):
         ans = obj.get_metadata_element(self.name)
@@ -418,7 +420,7 @@ class MetadataField(object):
             return
         if elem is None:
             elem = obj.create_metadata_element(self.name, is_dc=self.is_dc)
-        obj.set_text(elem, unicode(val))
+        obj.set_text(elem, self.renderer(val))
 
 
 def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8)):
@@ -489,10 +491,11 @@ class OPF(object): # {{{
     series          = MetadataField('series', is_dc=False)
     series_index    = MetadataField('series_index', is_dc=False, formatter=float, none_is=1)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
-    pubdate         = MetadataField('date', formatter=parse_date)
+    pubdate         = MetadataField('date', formatter=parse_date,
+                                    renderer=isoformat)
     publication_type = MetadataField('publication_type', is_dc=False)
     timestamp       = MetadataField('timestamp', is_dc=False,
-                                    formatter=parse_date)
+                                    formatter=parse_date, renderer=isoformat)
 
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
@@ -826,11 +829,10 @@ class OPF(object): # {{{
 
         def fset(self, val):
             matches = self.isbn_path(self.metadata)
-            if val is None:
-                if matches:
-                    for x in matches:
-                        x.getparent().remove(x)
-                    return
+            if not val:
+                for x in matches:
+                    x.getparent().remove(x)
+                return
             if not matches:
                 attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'ISBN'}
                 matches = [self.create_metadata_element('identifier',
@@ -987,11 +989,14 @@ class OPF(object): # {{{
     def smart_update(self, mi, replace_metadata=False):
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'language', 'tags', 'category', 'comments',
+                     'isbn', 'tags', 'category', 'comments',
                      'pubdate'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
+        lang = getattr(mi, 'language', None)
+        if lang and lang != 'und':
+            self.language = lang
         temp = self.to_book_metadata()
         temp.smart_update(mi, replace_metadata=replace_metadata)
         self._user_metadata_ = temp.get_all_user_metadata(True)

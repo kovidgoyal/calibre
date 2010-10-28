@@ -71,9 +71,17 @@ class Restore(Thread):
 
         if self.conflicting_custom_cols:
             ans += '\n\n'
-            ans += 'The following custom columns were not fully restored:\n'
+            ans += 'The following custom columns have conflicting definitions ' \
+                    'and were not fully restored:\n'
             for x in self.conflicting_custom_cols:
                 ans += '\t#'+x+'\n'
+                ans += '\tused:\t%s, %s, %s, %s\n'%(self.custom_columns[x][1],
+                                                    self.custom_columns[x][2],
+                                                    self.custom_columns[x][3],
+                                                    self.custom_columns[x][5])
+                for coldef in self.conflicting_custom_cols[x]:
+                    ans += '\tother:\t%s, %s, %s, %s\n'%(coldef[1], coldef[2],
+                                                         coldef[3], coldef[5])
 
         if self.mismatched_dirs:
             ans += '\n\n'
@@ -152,7 +160,7 @@ class Restore(Thread):
 
     def create_cc_metadata(self):
         self.books.sort(key=itemgetter('timestamp'))
-        m = {}
+        self.custom_columns = {}
         fields = ('label', 'name', 'datatype', 'is_multiple', 'is_editable',
                     'display')
         for b in self.books:
@@ -168,16 +176,17 @@ class Restore(Thread):
                 if len(args) == len(fields):
                     # TODO: Do series type columns need special handling?
                     label = cfm['label']
-                    if label in m and args != m[label]:
+                    if label in self.custom_columns and args != self.custom_columns[label]:
                         if label not in self.conflicting_custom_cols:
-                            self.conflicting_custom_cols[label] = set([m[label]])
-                        self.conflicting_custom_cols[label].add(args)
-                    m[cfm['label']] = args
+                            self.conflicting_custom_cols[label] = []
+                        if self.custom_columns[label] not in self.conflicting_custom_cols[label]:
+                            self.conflicting_custom_cols[label].append(self.custom_columns[label])
+                    self.custom_columns[label] = args
 
         db = RestoreDatabase(self.library_path)
-        self.progress_callback(None, len(m))
-        if len(m):
-            for i,args in enumerate(m.values()):
+        self.progress_callback(None, len(self.custom_columns))
+        if len(self.custom_columns):
+            for i,args in enumerate(self.custom_columns.values()):
                 db.create_custom_column(*args)
                 self.progress_callback(_('creating custom column ')+args[0], i+1)
         db.conn.close()

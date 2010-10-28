@@ -102,7 +102,7 @@ class PDNOVEL(USBMS):
     DELETE_EXTS = ['.jpg', '.jpeg', '.png']
 
 
-    def upload_cover(self, path, filename, metadata):
+    def upload_cover(self, path, filename, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
