@@ -489,7 +489,7 @@ class DeviceMenu(QMenu): # {{{
             for actions, desc in (
                     (basic_actions, ''),
                     (delete_actions, _('Send and delete from library')),
-                    (specific_actions, _('Send specific format'))
+                    (specific_actions, _('Send specific format to'))
                     ):
                 mdest = menu
                 if actions is not basic_actions:
