@@ -88,7 +88,10 @@ class SNBMLizer(object):
         trees = { }
         for subitem, subtitle in self.subitems:
             snbcTree = etree.Element("snbc")
-            etree.SubElement(etree.SubElement(snbcTree, "head"), "title").text = subtitle
+            snbcHead = etree.SubElement(snbcTree, "head")
+            etree.SubElement(snbcHead, "title").text = subtitle
+            if self.opts and self.opts.snb_hide_chapter_name:
+                etree.SubElement(snbcHead, "hidetitle").text = u"true"
             etree.SubElement(snbcTree, "body")
             trees[subitem] = snbcTree
         output.append(u'%s%s\n\n' % (CALIBRE_SNB_BM_TAG, ""))
@@ -96,27 +99,37 @@ class SNBMLizer(object):
         output = self.cleanup_text(u''.join(output))
 
         subitem = ''
+        bodyTree = trees[subitem].find(".//body")
         for line in output.splitlines():
             if not line.find(CALIBRE_SNB_PRE_TAG) == 0:
                 line = line.strip(u' \t\n\r\u3000')
             else:
-                etree.SubElement(trees[subitem].find(".//body"), "text").text = \
+                etree.SubElement(bodyTree, "text").text = \
                     etree.CDATA(line[len(CALIBRE_SNB_PRE_TAG):])
                 continue
             if len(line) != 0:
                 if line.find(CALIBRE_SNB_IMG_TAG) == 0:
                     prefix = ProcessFileName(os.path.dirname(self.item.href))
                     if prefix != '':
-                        etree.SubElement(trees[subitem].find(".//body"), "img").text = \
+                        etree.SubElement(bodyTree, "img").text = \
                             prefix + '_' + line[len(CALIBRE_SNB_IMG_TAG):]
                     else:
-                        etree.SubElement(trees[subitem].find(".//body"), "img").text = \
+                        etree.SubElement(bodyTree, "img").text = \
                             line[len(CALIBRE_SNB_IMG_TAG):]
                 elif line.find(CALIBRE_SNB_BM_TAG) == 0:
                     subitem = line[len(CALIBRE_SNB_BM_TAG):]
+                    bodyTree = trees[subitem].find(".//body")
                 else:
-                    etree.SubElement(trees[subitem].find(".//body"), "text").text = \
-                        etree.CDATA(unicode(u'\u3000\u3000' + line))
+                    if self.opts and self.opts.snb_indent_first_line:
+                        prefix = u'\u3000\u3000'
+                    else:
+                        prefix = u''
+                    etree.SubElement(bodyTree, "text").text = \
+                        etree.CDATA(unicode(prefix + line))
+                if self.opts and self.opts.snb_insert_empty_line:
+                    etree.SubElement(bodyTree, "text").text = \
+                        etree.CDATA(u'')
+
         return trees
 
     def remove_newlines(self, text):

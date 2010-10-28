@@ -399,6 +399,7 @@ class FileIconProvider(QFileIconProvider):
              'fb2'     : 'fb2',
              'rtf'     : 'rtf',
              'odt'     : 'odt',
+             'snb'     : 'snb',
              }
 
     def __init__(self):
