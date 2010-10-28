@@ -11,6 +11,8 @@ Here, we will show you how to integrate the |app| content server into another se
   :depth: 2
   :local:
 
+.. note:: This only applies to calibre releases >= 0.7.25
+
 Using a reverse proxy
 -----------------------
 
@@ -39,6 +41,8 @@ Using WSGI
 ------------
 
 The calibre content server can be run directly, in process, inside a host server like Apache using the WSGI framework.
+
+.. note:: For this to work, all the dependencies needed by calibre must be installed on your system. On linux, this can be achieved fairly easily by installing the distribution provided calibre package (provided it is up to date).
 
 First, we have to create a WSGI *adapter* for the calibre content server. Here is a template you can use for the purpose. Replace the paths as directed in the comments
 
