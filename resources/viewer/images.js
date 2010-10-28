@@ -20,20 +20,4 @@ function setup_image_scaling_handlers() {
    });
 }
 
-function extract_svged_images() {
-    $("svg").each(function() {
-        var children = $(this).children("img");
-        if (children.length == 1) {
-            var img = $(children[0]);
-            var href = img.attr('xlink:href');
-            if (href != undefined) {
-                $(this).replaceWith('<div style="text-align:center; margin: 0; padding: 0"><img style="height: 98%" alt="SVG Image" src="' + href +'"></img></div>');
-            }
-        }
-    });
-}
-
-$(document).ready(function() {
-   //extract_svged_images();
-});
 
