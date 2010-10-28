@@ -1029,7 +1029,7 @@ class DeviceMixin(object): # {{{
             to_s = [account]
             subjects = [_('News:')+' '+mi.title]
             texts    = [_('Attached is the')+' '+mi.title]
-            attachment_names = [mi.title+os.path.splitext(attachment)[1]]
+            attachment_names = [ascii_filename(mi.title)+os.path.splitext(attachment)[1]]
             attachments = [attachment]
             jobnames = ['%s:%s'%(id, mi.title)]
             remove = [id] if config['delete_news_from_library_on_upload']\
