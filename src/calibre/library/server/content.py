@@ -131,7 +131,8 @@ class ContentServer(object):
         return self.browse_toplevel()
 
     def old(self, **kwargs):
-        return self.static('index.html')
+        return self.static('index.html').replace('{prefix}',
+                self.opts.url_prefix)
 
     # Actually get content from the database {{{
     def get_cover(self, id, thumbnail=False, thumb_width=60, thumb_height=80):

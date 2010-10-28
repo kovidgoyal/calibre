@@ -40,7 +40,7 @@ function create_table_headers() {
 
 
 function format_url(format, id, title) {
-    return 'get/'+format.toLowerCase() + '/'+encodeURIComponent(title) + '_' + id+'.'+format.toLowerCase();
+    return url_prefix + '/get/'+format.toLowerCase() + '/'+encodeURIComponent(title) + '_' + id+'.'+format.toLowerCase();
 }
 
 function render_book(book) {
@@ -101,7 +101,7 @@ function render_book(book) {
         }
     }
     title += '</span>'
-    title += '<img style="display:none" alt="" src="get/cover/{0}" /></span>'.format(id);
+    title += '<img style="display:none" alt="" src="{1}/get/cover/{0}" /></span>'.format(id, url_prefix);
     title += '<div class="comments">{0}</div>'.format(comments)
     // Render authors cell
     var _authors = new Array();
