@@ -1,0 +1,24 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Tagesschau(BasicNewsRecipe):
+     title          = 'Tagesschau'
+     description    = 'Nachrichten der ARD'
+     publisher      = 'ARD'
+     language       = 'de_DE'
+
+     __author__     = 'Florian Andreas Pfaff'
+     oldest_article = 7
+     max_articles_per_feed = 100
+     no_stylesheets = True
+
+     feeds          = [('Tagesschau', 'http://www.tagesschau.de/xml/rss2')]
+
+     remove_tags    = [
+                       dict(name='div', attrs={'class':['linksZumThema schmal','teaserBox','boxMoreLinks','directLinks','teaserBox boxtext','fPlayer','zitatBox breit flashaudio']}),
+                       dict(name='div',
+ attrs={'id':['socialBookmarks','seitenanfang']}),
+                       dict(name='ul',
+ attrs={'class':['directLinks','directLinks weltatlas']}),
+                       dict(name='strong', attrs={'class':['boxTitle inv','inv']})
+                      ]
+     keep_only_tags = [dict(name='div', attrs={'id':'centerCol'})]
