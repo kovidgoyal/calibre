@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-28 00:31+0000\n"
-"PO-Revision-Date: 2010-10-28 02:09+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-29 01:45+0000\n"
+"Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-28 05:04+0000\n"
+"X-Launchpad-Export-Date: 2010-10-29 05:26+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -5335,7 +5335,7 @@ msgstr "为指定书籍使用已存转换设定(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output.py:14
 msgid "SNB Output"
-msgstr ""
+msgstr "SNB 输出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -5408,7 +5408,7 @@ msgstr "移除头注(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:86
 msgid "Line &un-wrap factor during preprocess:"
-msgstr ""
+msgstr "预处理过程中合并换行因子："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:87
 msgid "&Preprocess input file to possibly improve structure detection"
@@ -5978,11 +5978,11 @@ msgstr "检查书库"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:35
 msgid "&Run the check"
-msgstr ""
+msgstr "进行检查(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:38
 msgid "Copy &to clipboard"
-msgstr ""
+msgstr "复到到剪贴板(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:54
 msgid "Names to ignore:"
@@ -6006,7 +6006,7 @@ msgstr "名称"
 msgid ""
 "The marked files and folders will be <b>permanently deleted</b>. Are you "
 "sure?"
-msgstr ""
+msgstr "被标记的文件和文件夹将被<b>永久删除</b>。你确定吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:45
 msgid "Choose Format"
@@ -6214,7 +6214,7 @@ msgstr "未找到元数据"
 msgid ""
 "No metadata found, try adjusting the title and author and/or removing the "
 "ISBN."
-msgstr ""
+msgstr "没有找到相关的元信息，请尝试调整标题和作者字段的值，并/或清除ISBN值。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:90
 msgid "Fetch metadata"
@@ -8233,7 +8233,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:224
 msgid "Failed to get"
-msgstr ""
+msgstr "无法获取"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:225
 msgid "%s %s for: %s"
@@ -8242,11 +8242,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:284
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:162
 msgid "Done"
-msgstr ""
+msgstr "完成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:285
 msgid "Successfully downloaded metadata for %d out of %d books"
-msgstr ""
+msgstr "成功下载%d本书的元数据(共%d本)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:287
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:612
@@ -8257,7 +8257,7 @@ msgstr ""
 msgid ""
 "Restore settings to default values. You have to click Apply to actually save "
 "the default settings."
-msgstr ""
+msgstr "恢复到默认值。你需要点“应用”按钮才可以把这些默认值保存下来。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:49
 msgid ""
@@ -8268,7 +8268,7 @@ msgstr "在此处您可以控制 Calibre 如何从您添加的文件读取元数
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:50
 msgid "Read metadata from &file contents rather than file name"
-msgstr ""
+msgstr "从文件内容而不是文件名读取元数据(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:51
 msgid ""
@@ -8418,17 +8418,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:84
 msgid "Remove a user-defined column"
-msgstr ""
+msgstr "删除用户自定义列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:86
 msgid "Add a user-defined column"
-msgstr ""
+msgstr "添加用户自定义列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:88
 msgid "Edit settings of a user-defined column"
-msgstr ""
+msgstr "编辑用户自定义列设置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:91

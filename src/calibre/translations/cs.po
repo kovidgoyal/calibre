@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-28 00:31+0000\n"
-"PO-Revision-Date: 2010-10-28 02:34+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-28 23:44+0000\n"
+"Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-28 05:01+0000\n"
+"X-Launchpad-Export-Date: 2010-10-29 05:22+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3218,11 +3218,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:487
 msgid "Copied"
-msgstr ""
+msgstr "Kopírováno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:217
 msgid "Copy"
-msgstr ""
+msgstr "Kopírovat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:217
 msgid "Copy to Clipboard"
@@ -3230,7 +3230,7 @@ msgstr "&Kopírovat do schránky"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:466
 msgid "Choose Files"
-msgstr ""
+msgstr "Zvol soubory"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:25
 msgid "Add books"
@@ -3275,7 +3275,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:84
 msgid "How many empty books?"
-msgstr ""
+msgstr "Kolik prázdných knih?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:85
 msgid "How many empty books should be added?"
@@ -3337,7 +3337,7 @@ msgstr "Archívy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:175
 msgid "Supported books"
-msgstr ""
+msgstr "Podporované knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:211
 msgid "Merged some books"
@@ -3360,7 +3360,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:246
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:265
 msgid "Add to library"
-msgstr ""
+msgstr "Přidat do knihovny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:246
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:56
@@ -3377,11 +3377,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:265
 msgid "No book files found"
-msgstr ""
+msgstr "Žádné knihy nenalezeny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
-msgstr ""
+msgstr "Přidej knihy do knihovny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
@@ -3528,7 +3528,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:78
 msgid "Rename library"
-msgstr ""
+msgstr "Přejmenuj knihovnu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
@@ -3562,7 +3562,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:269
 msgid "Rename"
-msgstr ""
+msgstr "Přejmenuj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:270
 msgid "Choose a new name for the library <b>%s</b>. "
@@ -3633,7 +3633,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:358
 msgid "No library found"
-msgstr ""
+msgstr "Nenalezena knihovna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:359
 msgid ""
@@ -3677,7 +3677,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:83
 msgid "Copy to library"
-msgstr ""
+msgstr "Kopíruj do knihovny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:84
 msgid "Copy selected books to the specified library"
@@ -3689,7 +3689,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:123
 msgid "Cannot copy"
-msgstr ""
+msgstr "Nelze kopírovat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:128
 msgid "No library"
@@ -3702,7 +3702,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:136
 msgid "Copying"
-msgstr ""
+msgstr "Kopíruji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:147
 msgid "Could not copy books: "
@@ -6960,7 +6960,7 @@ msgstr "Zobrazit he&slo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:59
 msgid "Aborting..."
-msgstr ""
+msgstr "Ruším..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:54
 msgid ""
@@ -7005,19 +7005,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:166
 msgid "Account"
-msgstr ""
+msgstr "Účet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:167
 msgid "(optional)"
-msgstr ""
+msgstr "(volitelné)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:168
 msgid "(required)"
-msgstr ""
+msgstr "(vyžadováno)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:185
 msgid "Created by: "
-msgstr ""
+msgstr "Vytvořeno: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:192
 msgid "Last downloaded: never"
@@ -7029,7 +7029,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:209
 msgid "Last downloaded"
-msgstr ""
+msgstr "Naposledy staženo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:233
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:197
@@ -7046,7 +7046,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:341
 msgid "No internet connection"
-msgstr ""
+msgstr "Není internetové připojení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:342
 msgid "Cannot download news as no internet connection is active"
@@ -7084,31 +7084,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:205
 msgid "Monday"
-msgstr ""
+msgstr "Pondělí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
 msgid "Tuesday"
-msgstr ""
+msgstr "Úterý"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "Wednesday"
-msgstr ""
+msgstr "Středa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:208
 msgid "Thursday"
-msgstr ""
+msgstr "Čtvrtek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:209
 msgid "Friday"
-msgstr ""
+msgstr "Pátek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
 msgid "Saturday"
-msgstr ""
+msgstr "Sobota"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
 msgid "Sunday"
-msgstr ""
+msgstr "Neděle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:212
 msgid "at"
@@ -7681,7 +7681,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:121
 msgid "File &name:"
-msgstr ""
+msgstr "Název &souboru:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:123
 msgid "Title:"
@@ -7742,7 +7742,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:105
 msgid "Shift+Alt+B"
-msgstr ""
+msgstr "Shift+Alt+B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:119
 msgid "Tag Browser"
@@ -7750,12 +7750,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:121
 msgid "Shift+Alt+T"
-msgstr ""
+msgstr "Shift+Alt+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:141
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:29
 msgid "version"
-msgstr ""
+msgstr "verze"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:30
@@ -7768,7 +7768,7 @@ msgstr "Připojeno "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:172
 msgid "Update found"
-msgstr ""
+msgstr "Nalezena nová verze"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:217
@@ -7853,15 +7853,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:63
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:209
 msgid "Library"
-msgstr ""
+msgstr "Knihovna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:64
 msgid "Show books in calibre library"
-msgstr ""
+msgstr "Ukaž knihy z Calibre knihovny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:65
 msgid "Device"
-msgstr ""
+msgstr "Zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:66
 msgid "Show books in the main memory of the device"
@@ -7870,7 +7870,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:67
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:848
 msgid "Card A"
-msgstr ""
+msgstr "Karta A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:68
 msgid "Show books in storage card A"
@@ -7887,7 +7887,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:128
 msgid "available"
-msgstr ""
+msgstr "dostupné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:158
 msgid ""
@@ -7926,11 +7926,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:285
 msgid "N"
-msgstr ""
+msgstr "N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:285
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:66
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:240
@@ -7964,7 +7964,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:933
 msgid "Size"
-msgstr ""
+msgstr "Velikost"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1223
 msgid "Marked for deletion"
@@ -7976,7 +7976,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:140
 msgid "Hide column %s"
-msgstr ""
+msgstr "Skryj sloupce %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:145
 msgid "Sort on %s"
@@ -7984,11 +7984,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:146
 msgid "Ascending"
-msgstr ""
+msgstr "Vzestupně"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:149
 msgid "Descending"
-msgstr ""
+msgstr "Sestupně"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:161
 msgid "Change text alignment for %s"
@@ -8098,7 +8098,7 @@ msgstr "Nastavení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:30
 msgid "Use the library located at the specified path."
-msgstr ""
+msgstr "Použij knihovnu umístěnou na zvoleném místě."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:32
 msgid "Start minimized to system tray."
@@ -8110,12 +8110,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:36
 msgid "Do not check for updates"
-msgstr ""
+msgstr "Nezjišťuj nové verze"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:636
 msgid "Calibre Library"
-msgstr ""
+msgstr "Calibre knihovna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:86
 msgid "Choose a location for your calibre e-book library"
@@ -8123,7 +8123,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:95
 msgid "Failed to create library"
-msgstr ""
+msgstr "Nepodařilo se vytvořit knihovnu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:96
 msgid "Failed to create calibre library at: %r."
@@ -8136,15 +8136,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:153
 msgid "Initializing user interface..."
-msgstr ""
+msgstr "Inicializuji uživatelské rozhraní..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:178
 msgid "Repairing failed"
-msgstr ""
+msgstr "Oprava selhala"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:179
 msgid "The database repair failed. Starting with a new empty library."
-msgstr ""
+msgstr "Oprava databáze se nezdařila. Startuji s novou prázdnou knihovnou."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:226

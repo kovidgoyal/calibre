@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-28 00:31+0000\n"
-"PO-Revision-Date: 2010-10-28 02:41+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-28 11:22+0000\n"
+"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-28 05:03+0000\n"
+"X-Launchpad-Export-Date: 2010-10-29 05:25+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:488
@@ -606,6 +606,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:424
 msgid "Intended for generic tablet devices, does no resizing of images"
 msgstr ""
+"Orientado para dispositivos de tableta genéricos, sin redimensión de imágenes"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:448
 msgid "This profile is intended for the Kobo Reader."
@@ -1044,7 +1045,7 @@ msgstr "Comunicarse son la tableta de internet Nokia 770."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr ""
+msgstr "Comunicarse con la tableta de internet Nokia 810/900."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
@@ -6456,11 +6457,11 @@ msgstr "Verificar Librería"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:35
 msgid "&Run the check"
-msgstr ""
+msgstr "Ejecuta&r la comprobación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:38
 msgid "Copy &to clipboard"
-msgstr ""
+msgstr "Copiar al por&tapapeles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:54
 msgid "Names to ignore:"
@@ -6485,6 +6486,8 @@ msgid ""
 "The marked files and folders will be <b>permanently deleted</b>. Are you "
 "sure?"
 msgstr ""
+"Los archivos y carpetas marcadas se <b>eliminarán permanentemente</b>. ¿Está "
+"seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:45
 msgid "Choose Format"
@@ -6702,6 +6705,8 @@ msgid ""
 "No metadata found, try adjusting the title and author and/or removing the "
 "ISBN."
 msgstr ""
+"No se han encontrado metadatos, intente ajustar el título y autor y/o "
+"eliminar el ISBN."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:90
 msgid "Fetch metadata"
@@ -12563,7 +12568,7 @@ msgstr "Más reciente"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:308
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:506
 msgid "All books"
-msgstr ""
+msgstr "Todos los libros"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:340
 msgid "Browse books by"
@@ -12633,6 +12638,17 @@ msgid ""
 "\n"
 "The OPDS interface is advertised via BonJour automatically.\n"
 msgstr ""
+"[opciones]\n"
+"\n"
+"Inicia el servidor de contenidos de calibre. El servidor de contenidos de "
+"calibre\n"
+"expone su biblioteca de calibre por internet. La interfaz por defecto\n"
+"le permite navegar por su biblioteca por categorías. También puede\n"
+"acceder a una interfaz optimizada para navegadores móviles en /mobile y\n"
+"una interfaz basada en OPDS para que la use con aplicaciones de lectura en "
+"/opds.\n"
+"\n"
+"La interfaz OPDS se publicita a través de BonJour automáticamente.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:41
 msgid "Path to the library folder to serve with the content server"

@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-28 00:31+0000\n"
-"PO-Revision-Date: 2010-10-28 03:01+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-10-28 13:56+0000\n"
+"Last-Translator: Vitaliy Starostin <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-28 05:03+0000\n"
+"X-Launchpad-Export-Date: 2010-10-29 05:24+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -184,7 +184,7 @@ msgstr "Генератор каталога"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:369
 msgid "User Interface Action"
-msgstr ""
+msgstr "Действие Пользовательского Интерфейса"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:386
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:17
@@ -426,7 +426,7 @@ msgstr "Расширенный"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
+msgstr "Добавить/удалить/изменить различные части функциональности calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
 msgid "Tweaks"
@@ -434,7 +434,7 @@ msgstr "Расширенные настройки"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:875
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr ""
+msgstr "Тонкая настройка поведения calibre при различных контекстах"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:880
 msgid "Miscellaneous"
@@ -442,7 +442,7 @@ msgstr "Разное"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:886
 msgid "Miscellaneous advanced configuration"
-msgstr ""
+msgstr "Различная продвинутая конфигурация"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -1020,7 +1020,7 @@ msgstr "Соединиться с Nokia 770 internet tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr ""
+msgstr "Связать с интернет планшетом Nokia 810/900"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
@@ -1113,6 +1113,8 @@ msgid ""
 "The main memory of %s is read only. This usually happens because of file "
 "system errors."
 msgstr ""
+"Главная память %s только для чтения. Это обычно случается из-за ошибок "
+"файловой системы."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:815
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:817
@@ -1155,7 +1157,7 @@ msgstr "Получить метаданные из файлов на устро�
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:45
 msgid "Use author sort instead of author"
-msgstr ""
+msgstr "Используйте вид автора вместо автора"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:47
 msgid "Template to control how books are saved"
@@ -1916,17 +1918,19 @@ msgstr "Вы должны указывать файл epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
-msgstr ""
+msgstr "Исправить файлы без манифеста"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:21
 msgid ""
 "Fix unmanifested files. epub-fix can either add them to the manifest or "
 "delete them as specified by the delete unmanifested option."
 msgstr ""
+"Исправить файлы без манифеста. epub-fix также может добавить их к манифесту "
+"или удалить их, если указано, что следует удалять файлы без манифестов."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:32
 msgid "Delete unmanifested files instead of adding them to the manifest"
-msgstr ""
+msgstr "Удалять файлы без манифеста вместо добавления их к манифесту."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:56
 msgid ""
@@ -3254,7 +3258,7 @@ msgstr "Обложки"
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:149
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:152
 msgid " (Preface)"
-msgstr ""
+msgstr " (Предисловие)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
@@ -4864,6 +4868,13 @@ msgid ""
 "   wil be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"Некоторые разъяснения об этом шаблоне:\n"
+" - Доступные поля - 'author_sort', 'authors', 'id',\n"
+"    'isbn', 'pubdate', 'publisher', 'series_index', 'series',\n"
+"   'tags', 'timestamp', 'title', 'uuid'\n"
+" - Для списочных типов т.е. авторов и меток, будет выбран\n"
+"   только первый.\n"
+" - Для времени будет использована только дата. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -4914,7 +4925,7 @@ msgstr "Сортировать числа как текст"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
 msgid "Include 'Series' Section"
-msgstr ""
+msgstr "Включая секцию 'Серии'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -4941,7 +4952,7 @@ msgstr "Параметры для определенного формата вы
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:15
 msgid "Comic Input"
-msgstr ""
+msgstr "Комический Ввод"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:13
@@ -5072,7 +5083,7 @@ msgstr "Без &обложки по умолчанию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:56
 msgid "No &SVG cover"
-msgstr ""
+msgstr "Нет обложки &SVG"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:57
 msgid "Preserve cover &aspect ratio"
@@ -5188,7 +5199,7 @@ msgstr "Изменить внешний вид документа"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:31
 msgid "Original"
-msgstr ""
+msgstr "Оригинал"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:32
 msgid "Left align"
@@ -5267,7 +5278,7 @@ msgstr "Сохранять лигатуры"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:147
 msgid "Smarten &punctuation"
-msgstr ""
+msgstr "Прихорошить &пунктуацию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -5307,7 +5318,7 @@ msgstr "&Формат верхнего колонтитула"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:132
 msgid "&Embed fonts"
-msgstr ""
+msgstr "&Включать шрифты"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:133
 msgid "&Serif font family:"
@@ -5332,6 +5343,8 @@ msgid ""
 "Set the metadata. The output file will contain as much of this metadata as "
 "possible."
 msgstr ""
+"Записать метаданные. Выходной файл будет содержать максимум метаданных, "
+"насколько это возможно."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:109
@@ -5452,7 +5465,7 @@ msgstr "Книга "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:20
 msgid "MOBI Output"
-msgstr ""
+msgstr "Вывод MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:43
 msgid "Default"
@@ -5578,7 +5591,7 @@ msgstr "Сохранять соотношение сторон для облож
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
-msgstr ""
+msgstr "Вывод PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:83
 msgid "No formats available"
@@ -11876,7 +11889,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:709
 msgid "Matching books"
-msgstr ""
+msgstr "Соответствие книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:28
 msgid ""
@@ -11893,11 +11906,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:41
 msgid "Path to the library folder to serve with the content server"
-msgstr ""
+msgstr "Путь к папке библиотеки, для обслуживания сервером"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:43
 msgid "Write process PID to the specified file"
-msgstr ""
+msgstr "Записать PID процесса в указанный файл"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:47
 msgid ""
@@ -11907,11 +11920,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:112
 msgid "%d book"
-msgstr ""
+msgstr "%d книга"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:131
 msgid "%d items"
-msgstr ""
+msgstr "%d пункт"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:149
 msgid "RATING: %s<br />"
@@ -12003,7 +12016,7 @@ msgstr "Добавить новые форматы к существующим �
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:723
 msgid "Tags to apply to books added to the library"
-msgstr ""
+msgstr "Метки, добавляемые к книгам в библиотеке"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:727
 msgid "List of named saved searches"
@@ -12019,11 +12032,11 @@ msgstr "Как и когда calibre обновляет метаданные н�
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:33
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr ""
+msgstr "поиск требует 2 или нечетное число аргументов"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:56
 msgid "switch requires an odd number of arguments"
-msgstr ""
+msgstr "для переключателя нужно нечетное число аргументов"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -12123,7 +12136,7 @@ msgstr "Немецкий язык (AT)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "French (BE)"
-msgstr ""
+msgstr "Французский (BE)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "Dutch (NL)"
@@ -12135,41 +12148,44 @@ msgstr "Нидерландский язык (BE)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
-msgstr ""
+msgstr "Выберите тему (требуется перезапуск)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:188
 msgid "No interpreter"
-msgstr ""
+msgstr "Нет интерпретатора"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:189
 msgid "No active interpreter found. Try restarting the console"
 msgstr ""
+"Не найдено активного интерпретатора. Попробуйте перезапустить консоль."
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:203
 msgid "Interpreter died"
-msgstr ""
+msgstr "Интерпретатор умер"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:204
 msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
 msgstr ""
+"Интерпретатор умер, пока выполнял команду. Для просмотра команды, нажмите "
+"Просмотр деталей"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
-msgstr ""
+msgstr "Добро пожаловать в"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:41
 msgid " console "
-msgstr ""
+msgstr " консоль "
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:51
 msgid "Code is running"
-msgstr ""
+msgstr "Код запущен"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:58
 msgid "Restart console"
-msgstr ""
+msgstr "Перезагрузить консоль"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
