@@ -40,14 +40,18 @@ class FB2Input(InputFormatPlugin):
                 accelerators):
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.meta import get_metadata
-        from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS
+        from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS, RECOVER_PARSER
         NAMESPACES = {'f':FB2NS, 'l':XLINK_NS}
         log.debug('Parsing XML...')
-        raw = stream.read()
+        raw = stream.read().replace('\0', '')
         try:
-            doc = etree.fromstring(raw.replace('\0', ''))
+            doc = etree.fromstring(raw)
         except etree.XMLSyntaxError:
-            doc = etree.fromstring(raw.replace('& ', '&amp;'))
+            try:
+                doc = etree.fromstring(raw, parser=RECOVER_PARSER)
+            except:
+                doc = etree.fromstring(raw.replace('& ', '&amp;'),
+                        parser=RECOVER_PARSER)
         stylesheets = doc.xpath('//*[local-name() = "stylesheet" and @type="text/css"]')
         css = ''
         for s in stylesheets:

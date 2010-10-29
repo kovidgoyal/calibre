@@ -178,13 +178,13 @@
                     </xsl:if>
                     <xsl:if test="$section_toc_id != 'None'">
                         <xsl:element name="a">
-                            <xsl:attribute name="name">TOC_<xsl:value-of select="$section_toc_id"/></xsl:attribute>
+                            <xsl:attribute name="id">TOC_<xsl:value-of select="$section_toc_id"/></xsl:attribute>
                         </xsl:element>
                     </xsl:if>
 					<a name="TOC_{generate-id()}"></a>
 					<xsl:if test="@id">
 						<xsl:element name="a">
-							<xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
+							<xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
 						</xsl:element>
 					</xsl:if>
 					<xsl:apply-templates/>
@@ -194,7 +194,7 @@
 				<xsl:element name="h6">
 					<xsl:if test="@id">
 						<xsl:element name="a">
-							<xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
+							<xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
 						</xsl:element>
 					</xsl:if>
 					<xsl:apply-templates/>

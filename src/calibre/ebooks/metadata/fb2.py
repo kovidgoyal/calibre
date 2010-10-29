@@ -22,7 +22,8 @@ def get_metadata(stream):
                 'xlink':XLINK_NS})
     tostring = lambda x : etree.tostring(x, method='text',
             encoding=unicode).strip()
-    root = etree.fromstring(stream.read())
+    parser = etree.XMLParser(recover=True, no_network=True)
+    root = etree.fromstring(stream.read(), parser=parser)
     authors, author_sort = [], None
     for au in XPath('//fb2:author')(root):
         fname = lname = author = None
