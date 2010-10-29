@@ -40,7 +40,7 @@ class FB2Input(InputFormatPlugin):
                 accelerators):
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.meta import get_metadata
-        from calibre.ebooks.oeb.base import XLINK_NS
+        from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS
         NAMESPACES = {'f':FB2NS, 'l':XLINK_NS}
         log.debug('Parsing XML...')
         raw = stream.read()
@@ -48,6 +48,23 @@ class FB2Input(InputFormatPlugin):
             doc = etree.fromstring(raw.replace('\0', ''))
         except etree.XMLSyntaxError:
             doc = etree.fromstring(raw.replace('& ', '&amp;'))
+        stylesheets = doc.xpath('//*[local-name() = "stylesheet" and @type="text/css"]')
+        css = ''
+        for s in stylesheets:
+            css += etree.tostring(s, encoding=unicode, method='text',
+                    with_tail=False) + '\n\n'
+        if css:
+            import cssutils, logging
+            parser = cssutils.CSSParser(fetcher=None,
+                    log=logging.getLogger('calibre.css'))
+
+            XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
+            text = XHTML_CSS_NAMESPACE + css
+            log.debug('Parsing stylesheet...')
+            stylesheet = parser.parseString(text)
+            stylesheet.namespaces['h'] = XHTML_NS
+            css = unicode(stylesheet.cssText).replace('h|style', 'h|span')
+            css = re.sub(r'name\s*=\s*', 'class=', css)
         self.extract_embedded_content(doc)
         log.debug('Converting XML to HTML...')
         ss = open(P('templates/fb2.xsl'), 'rb').read()
@@ -63,7 +80,9 @@ class FB2Input(InputFormatPlugin):
         for img in result.xpath('//img[@src]'):
             src = img.get('src')
             img.set('src', self.binary_map.get(src, src))
-        open('index.xhtml', 'wb').write(transform.tostring(result))
+        index = transform.tostring(result)
+        open('index.xhtml', 'wb').write(index)
+        open('inline-styles.css', 'wb').write(css)
         stream.seek(0)
         mi = get_metadata(stream, 'fb2')
         if not mi.title:

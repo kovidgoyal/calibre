@@ -30,23 +30,40 @@
 				<title>
 					<xsl:value-of select="fb:description/fb:title-info/fb:book-title"/>
 				</title>
-				<style type="text/x-oeb1-css">
-					A { color : #0002CC }
-					A:HOVER { color : #BF0000 }
-					BODY { background-color : #FEFEFE; color : #000000; font-family : Verdana, Geneva, Arial, Helvetica, sans-serif; text-align : justify }
-					H1{ font-size : 160%; font-style : normal; font-weight : bold; text-align : left; border : 1px solid Black;  background-color : #E7E7E7; margin-left : 0px;  page-break-before : always; }
-					H2{ font-size : 130%; font-style : normal; font-weight : bold; text-align : left; background-color : #EEEEEE;  border : 1px solid Gray;  page-break-before : always; }
-					H3{ font-size : 110%; font-style : normal; font-weight : bold; text-align : left;  background-color : #F1F1F1;  border : 1px solid Silver;}
-					H4{ font-size : 100%; font-style : normal; font-weight : bold; text-align : left; border : 1px solid Gray;  background-color : #F4F4F4;}
-					H5{ font-size : 100%; font-style : italic; font-weight : bold; text-align : left; border : 1px solid Gray;  background-color : #F4F4F4;}
-					H6{ font-size : 100%; font-style : italic; font-weight : normal; text-align : left; border : 1px solid Gray;  background-color : #F4F4F4;}
-					SMALL{ font-size : 80% }
-					BLOCKQUOTE{ margin-left :4em; margin-top:1em; margin-right:0.2em;}
-					HR{ color : Black }
-                    DIV{font-family : "Times New Roman", Times, serif; text-align : justify}
-					UL{margin-left: 0}
-					.epigraph{width:50%; margin-left : 35%;}
+				<style type="text/css">
+                    a { color : #0002CC }
+
+					a:hover { color : #BF0000 }
+                    
+                    body { background-color : #FEFEFE; color : #000000; font-family : Verdana, Geneva, Arial, Helvetica, sans-serif; text-align : justify }
+                    
+                    h1{ font-size : 160%; font-style : normal; font-weight : bold; text-align : left; border : 1px solid Black;  background-color : #E7E7E7; margin-left : 0px;  page-break-before : always; }
+                    
+                    h2{ font-size : 130%; font-style : normal; font-weight : bold; text-align : left; background-color : #EEEEEE;  border : 1px solid Gray;  page-break-before : always; }
+                    
+                    h3{ font-size : 110%; font-style : normal; font-weight : bold; text-align : left;  background-color : #F1F1F1;  border : 1px solid Silver;}
+                    
+                    h4{ font-size : 100%; font-style : normal; font-weight : bold; text-align : left; border : 1px solid Gray;  background-color : #F4F4F4;}
+                    
+                    h5{ font-size : 100%; font-style : italic; font-weight : bold; text-align : left; border : 1px solid Gray;  background-color : #F4F4F4;}
+                    
+                    h6{ font-size : 100%; font-style : italic; font-weight : normal; text-align : left; border : 1px solid Gray;  background-color : #F4F4F4;}
+                    
+                    small { font-size : 80% }
+                    
+                    blockquote { margin-left :4em; margin-top:1em; margin-right:0.2em;}
+                    
+                    hr { color : Black }
+                    
+                    div {font-family : "Times New Roman", Times, serif; text-align : justify}
+                    
+                    ul {margin-left: 0}
+                    
+                    .epigraph{width:50%; margin-left : 35%;}
+                    
+                    div.paragraph { text-align: justify; text-indent: 2em; }
 				</style>
+                <link rel="stylesheet" type="text/css" href="inline-styles.css" />
 			</head>
 			<body>
 				<xsl:for-each select="fb:description/fb:title-info/fb:annotation">
@@ -136,12 +153,13 @@
             </xsl:choose>
         </xsl:variable>
         <xsl:if test="$section_has_title = 'None'">
-            <a name="TOC_{generate-id()}" />
-            <xsl:if test="@id">
-                <xsl:element name="a">
-                    <xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
-                </xsl:element>
-            </xsl:if>
+            <div id="TOC_{generate-id()}">
+                <xsl:if test="@id">
+                    <xsl:element name="a">
+                        <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
+                    </xsl:element>
+                </xsl:if>
+            </div>
         </xsl:if>
         <xsl:apply-templates>
             <xsl:with-param name="section_toc_id" select="$section_has_title" />
@@ -207,11 +225,18 @@
 	</xsl:template>
 	<!-- p -->
 	<xsl:template match="fb:p">
-		<div align="justify"><xsl:if test="@id">
+        <xsl:element name="div">
+            <xsl:attribute name="class">paragraph</xsl:attribute>
+		    <xsl:if test="@id">
 				<xsl:element name="a">
 					<xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
 				</xsl:element>
-			</xsl:if>	&#160;&#160;&#160;<xsl:apply-templates/></div>
+            </xsl:if>
+            <xsl:if test="@style">
+                <xsl:attribute name="style"><xsl:value-of select="@style"/></xsl:attribute>
+            </xsl:if>
+            <xsl:apply-templates/>
+        </xsl:element>
 	</xsl:template>
 	<!-- strong -->
 	<xsl:template match="fb:strong">
