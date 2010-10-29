@@ -24,8 +24,30 @@ def stop_threaded_server(server):
     server.exit()
     server.thread = None
 
+def create_wsgi_app(path_to_library=None, prefix=''):
+    'WSGI entry point'
+    from calibre.library import db
+    cherrypy.config.update({'environment': 'embedded'})
+    db = db(path_to_library)
+    parser = option_parser()
+    opts, args = parser.parse_args(['calibre-server'])
+    opts.url_prefix = prefix
+    server = LibraryServer(db, opts, wsgi=True, show_tracebacks=True)
+    return cherrypy.Application(server, script_name=None, config=server.config)
+
 def option_parser():
-    parser = config().option_parser('%prog '+ _('[options]\n\nStart the calibre content server.'))
+    parser = config().option_parser('%prog '+ _(
+'''[options]
+
+Start the calibre content server. The calibre content server
+exposes your calibre library over the internet. The default interface
+allows you to browse you calibre library by categories. You can also
+access an interface optimized for mobile browsers at /mobile and an
+OPDS based interface for use with reading applications at /opds.
+
+The OPDS interface is advertised via BonJour automatically.
+'''
+))
     parser.add_option('--with-library', default=None,
             help=_('Path to the library folder to serve with the content server'))
     parser.add_option('--pidfile', default=None,

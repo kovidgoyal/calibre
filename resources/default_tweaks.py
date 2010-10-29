@@ -203,3 +203,11 @@ content_server_wont_display = ['']
 # level sorts, and if you are seeing a slowdown, reduce the value of this tweak.
 maximum_resort_levels = 5
 
+# Absolute path to a TTF font file to use as the font for the title and author
+# when generating a default cover. Useful if the default font (Liberation
+# Serif) does not contain glyphs for the language of the books in your library.
+generate_cover_title_font = None
+
+# Absolute path to a TTF font file to use as the font for the footer in the
+# default cover
+generate_cover_foot_font = None

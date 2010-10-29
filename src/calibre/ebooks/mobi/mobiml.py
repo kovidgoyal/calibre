@@ -27,6 +27,8 @@ TABLE_TAGS = set(['table', 'tr', 'td', 'th', 'caption'])
 SPECIAL_TAGS = set(['hr', 'br'])
 CONTENT_TAGS = set(['img', 'hr', 'br'])
 
+NOT_VTAGS = HEADER_TAGS | NESTABLE_TAGS | TABLE_TAGS | SPECIAL_TAGS | \
+    CONTENT_TAGS
 PAGE_BREAKS = set(['always', 'left', 'right'])
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
@@ -57,8 +59,6 @@ class FormatState(object):
         self.indent = 0.
         self.fsize = 3
         self.ids = set()
-        self.valign = 'baseline'
-        self.nest = False
         self.italic = False
         self.bold = False
         self.strikethrough = False
@@ -76,7 +76,6 @@ class FormatState(object):
                and self.italic == other.italic \
                and self.bold == other.bold \
                and self.href == other.href \
-               and self.valign == other.valign \
                and self.preserve == other.preserve \
                and self.family == other.family \
                and self.bgcolor == other.bgcolor \
@@ -224,7 +223,6 @@ class MobiMLizer(object):
             return
         if not pstate or istate != pstate:
             inline = para
-            valign = istate.valign
             fsize = istate.fsize
             href = istate.href
             if not href:
@@ -234,19 +232,8 @@ class MobiMLizer(object):
             else:
                 inline = etree.SubElement(inline, XHTML('a'), href=href)
                 bstate.anchor = inline
-            if valign == 'super':
-                parent = inline
-                if istate.nest and bstate.inline is not None:
-                    parent = bstate.inline
-                    istate.nest = False
-                inline = etree.SubElement(parent, XHTML('sup'))
-            elif valign == 'sub':
-                parent = inline
-                if istate.nest and bstate.inline is not None:
-                    parent = bstate.inline
-                    istate.nest = False
-                inline = etree.SubElement(parent, XHTML('sub'))
-            elif fsize != 3:
+
+            if fsize != 3:
                 inline = etree.SubElement(inline, XHTML('font'),
                                           size=str(fsize))
             if istate.family == 'monospace':
@@ -279,7 +266,8 @@ class MobiMLizer(object):
             else:
                 inline.append(item)
 
-    def mobimlize_elem(self, elem, stylizer, bstate, istates):
+    def mobimlize_elem(self, elem, stylizer, bstate, istates,
+            ignore_valign=False):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
             return
@@ -351,15 +339,6 @@ class MobiMLizer(object):
             istate.family = 'sans-serif'
         else:
             istate.family = 'serif'
-        valign = style['vertical-align']
-        if valign in ('super', 'text-top') or asfloat(valign) > 0:
-            istate.nest = istate.valign in ('sub', 'super')
-            istate.valign = 'super'
-        elif valign == 'sub'  or asfloat(valign) < 0:
-            istate.nest = istate.valign in ('sub', 'super')
-            istate.valign = 'sub'
-        else:
-            istate.valign = 'baseline'
         if 'id' in elem.attrib:
             istate.ids.add(elem.attrib['id'])
         if 'name' in elem.attrib:
@@ -407,6 +386,30 @@ class MobiMLizer(object):
                 text = None
             else:
                 text = COLLAPSE.sub(' ', elem.text)
+        valign = style['vertical-align']
+        not_baseline = valign in ('super', 'sub', 'text-top',
+                'text-bottom')
+        vtag = 'sup' if valign in ('super', 'text-top') else 'sub'
+        if not_baseline and not ignore_valign and tag not in NOT_VTAGS and not isblock:
+            nroot = etree.Element(XHTML('html'), nsmap=MOBI_NSMAP)
+            vbstate = BlockState(etree.SubElement(nroot, XHTML('body')))
+            vbstate.para = etree.SubElement(vbstate.body, XHTML('p'))
+            self.mobimlize_elem(elem, stylizer, vbstate, istates,
+                    ignore_valign=True)
+            if len(istates) > 0:
+                istates.pop()
+            if len(istates) == 0:
+                istates.append(FormatState())
+            at_start = bstate.para is None
+            if at_start:
+                self.mobimlize_content('span', '', bstate, istates)
+            parent = bstate.para if bstate.inline is None else bstate.inline
+            if parent is not None:
+                vtag = etree.SubElement(parent, XHTML(vtag))
+                for child in vbstate.para:
+                    vtag.append(child)
+                return
+
         if text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS:
             self.mobimlize_content(tag, text, bstate, istates)
         for child in elem:
@@ -421,6 +424,8 @@ class MobiMLizer(object):
                     tail = COLLAPSE.sub(' ', child.tail)
             if tail:
                 self.mobimlize_content(tag, tail, bstate, istates)
+
+
         if bstate.content and style['page-break-after'] in PAGE_BREAKS:
             bstate.pbreak = True
         if isblock:

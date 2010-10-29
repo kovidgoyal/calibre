@@ -2043,12 +2043,16 @@ class MobiWriter(object):
             else :
                 self._oeb.logger.info("chapterCount: %d" % self._chapterCount)
 
-        if True:
-            rec_count = len(self._ctoc_records)
-            self._oeb.logger.info("  CNCX utilization: %d %s %.0f%% full" % \
-                (rec_count + 1, 'records, last record' if rec_count else 'record,', len(self._ctoc.getvalue())/655) )
+        # Apparently the CTOC must end with a null byte
+        self._ctoc.write('\0')
 
-        return align_block(self._ctoc.getvalue())
+        ctoc = self._ctoc.getvalue()
+        rec_count = len(self._ctoc_records)
+        self._oeb.logger.info("  CNCX utilization: %d %s %.0f%% full" % \
+            (rec_count + 1, 'records, last record' if rec_count else 'record,',
+                len(ctoc)/655) )
+
+        return align_block(ctoc)
 
     def _write_periodical_node(self, indxt, indices, index, offset, length, count, firstSection, lastSection) :
         pos = 0xc0 + indxt.tell()

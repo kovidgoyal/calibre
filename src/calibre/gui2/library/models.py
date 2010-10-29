@@ -374,6 +374,8 @@ class BooksModel(QAbstractTableModel): # {{{
         if isinstance(index, int):
             index = self.index(index, 0)
         data = self.current_changed(index, None, False)
+        if data is None:
+            return data
         row = index.row()
         data[_('Title')] = self.db.title(row)
         au = self.db.authors(row)

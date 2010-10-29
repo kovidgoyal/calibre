@@ -16,7 +16,7 @@ from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, QAction, \
                         QTimer, QRect
 
 from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
-
+from calibre.constants import isosx
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.utils.fonts import fontconfig
@@ -303,7 +303,8 @@ class FontFamilyModel(QAbstractListModel):
             return NONE
         if role == Qt.DisplayRole:
             return QVariant(family)
-        if role == Qt.FontRole:
+        if not isosx and role == Qt.FontRole:
+            # Causes a Qt crash with some fonts on OS X
             return QVariant(QFont(family))
         return NONE
 

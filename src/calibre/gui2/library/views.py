@@ -22,6 +22,26 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
 
+class PreserveSelection(object): # {{{
+
+    '''
+    Save the set of selected books at enter time. If at exit time there are no
+    selected books, restore the previous selection.
+    '''
+
+    def __init__(self, view):
+        self.view = view
+        self.selected_ids = []
+
+    def __enter__(self):
+        self.selected_ids = self.view.get_selected_ids()
+
+    def __exit__(self, *args):
+        current = self.view.get_selected_ids()
+        if not current:
+            self.view.select_rows(self.selected_ids, using_ids=True)
+# }}}
+
 class BooksView(QTableView): # {{{
 
     files_dropped = pyqtSignal(object)
@@ -58,6 +78,7 @@ class BooksView(QTableView): # {{{
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
+        self.preserve_selected_books = PreserveSelection(self)
 
         # {{{ Column Header setup
         self.can_add_columns = True
@@ -612,6 +633,16 @@ class BooksView(QTableView): # {{{
         for row in rows:
             sel.select(m.index(row, 0), m.index(row, max_col))
         sm.select(sel, sm.ClearAndSelect)
+
+    def get_selected_ids(self):
+        ans = []
+        m = self.model()
+        for idx in self.selectedIndexes():
+            r = idx.row()
+            i = m.id(r)
+            if i not in ans:
+                ans.append(i)
+        return ans
 
     def close(self):
         self._model.close()
