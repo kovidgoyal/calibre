@@ -9,11 +9,11 @@ add/remove formats
 import os, re, time, traceback, textwrap
 
 from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QThread, QDate, \
-    QPixmap, QListWidgetItem, QDialog, pyqtSignal
+    QPixmap, QListWidgetItem, QDialog, pyqtSignal, QMessageBox
 
 from calibre.gui2 import error_dialog, file_icon_provider, dynamic, \
                            choose_files, choose_images, ResizableDialog, \
-                           warning_dialog
+                           warning_dialog, question_dialog
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -608,9 +608,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def edit_tags(self):
         if self.tags.text() != self.original_tags:
-            error_dialog(self, _('Cannot use tag editor'),
-                _('The tags editor cannot be used if you have modified the tags')).exec_()
-            return
+            if question_dialog(self, _('Tags changed'),
+                    _('You have changed the tags. In order to use the tags'
+                       ' editor, you must either discard or apply these '
+                       'changes'), show_copy_button=False,
+                    buttons=QMessageBox.Apply|QMessageBox.Discard,
+                    yes_button=QMessageBox.Apply):
+                self.apply_tags(commit=True, notify=True)
+                self.original_tags = unicode(self.tags.text())
+            else:
+                self.tags.setText(self.original_tags)
         d = TagEditor(self, self.db, self.row)
         d.exec_()
         if d.result() == QDialog.Accepted:
@@ -766,6 +773,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     self.series.setCurrentIndex(i)
                     break
 
+    def apply_tags(self, commit=False, notify=False):
+        self.db.set_tags(self.id, [x.strip() for x in
+            unicode(self.tags.text()).split(',')],
+                notify=notify, commit=commit)
 
     def accept(self):
         cf = getattr(self, 'cover_fetcher', None)
@@ -789,11 +800,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                              notify=False, commit=False)
             self.db.set_rating(self.id, 2*self.rating.value(), notify=False,
                                commit=False)
+            self.apply_tags()
             self.db.set_publisher(self.id,
                     unicode(self.publisher.currentText()).strip(),
                                   notify=False, commit=False)
-            self.db.set_tags(self.id, [x.strip() for x in
-                unicode(self.tags.text()).split(',')], notify=False, commit=False)
             self.db.set_series(self.id,
                     unicode(self.series.currentText()).strip(), notify=False,
                     commit=False)

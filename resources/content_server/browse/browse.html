@@ -8,24 +8,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=100" />
     <link rel="icon" type="image/x-icon" href="http://calibre-ebook.com/favicon.ico" />
 
-    <link rel="stylesheet" type="text/css" href="/static/browse/browse.css" />
-    <link type="text/css" href="/static/jquery_ui/css/humanity-custom/jquery-ui-1.8.5.custom.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="/static/jquery.multiselect.css" />
+    <link rel="stylesheet" type="text/css" href="{prefix}/static/browse/browse.css" />
+    <link type="text/css" href="{prefix}/static/jquery_ui/css/humanity-custom/jquery-ui-1.8.5.custom.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{prefix}/static/jquery.multiselect.css" />
 
-    <script type="text/javascript" src="/static/jquery.js"></script>
-    <script type="text/javascript" src="/static/jquery.corner.js"></script>
+    <script type="text/javascript" src="{prefix}/static/jquery.js"></script>
+    <script type="text/javascript" src="{prefix}/static/jquery.corner.js"></script>
 
     <script type="text/javascript"
-        src="/static/jquery_ui/js/jquery-ui-1.8.5.custom.min.js"></script>
+        src="{prefix}/static/jquery_ui/js/jquery-ui-1.8.5.custom.min.js"></script>
     <script type="text/javascript"
-        src="/static/jquery.multiselect.min.js"></script>
+        src="{prefix}/static/jquery.multiselect.min.js"></script>
 
 
-    <script type="text/javascript" src="/static/browse/browse.js"></script>
+        <script type="text/javascript" src="{prefix}/static/browse/browse.js"></script>
 
     <script type="text/javascript">
         var sort_cookie_name = "{sort_cookie_name}";
         var sort_select_label = "{sort_select_label}";
+        var url_prefix = "{prefix}";
         $(document).ready(function() {{
                 init();
                 {script}
@@ -39,16 +40,16 @@
         <div id="header">
             <div class="area">
               <div class="bubble">
-                  <p><a href="/browse" title="Return to top level"
+                  <p><a href="{prefix}/browse" title="Return to top level"
                       >&rarr;&nbsp;home&nbsp;&larr;</a></p>
               </div>
             </div>
             <div id="nav-container">&nbsp;
             <ul id="primary-nav">
-                <li><a id="nav-mobile" href="/mobile" title="A version of this website suited for mobile browsers">Mobile</a></li>
+                <li><a id="nav-mobile" href="{prefix}/mobile" title="A version of this website suited for mobile browsers">Mobile</a></li>
 
-                <li><a id="nav-demo" href="/old" title="The old version of this webiste">Old</a></li>
-                <li><a id="nav-download" href="/opds" title="An OPDS feed based version of this website, used in special purpose applications">Feed</a></li>
+                <li><a id="nav-demo" href="{prefix}/old" title="The old version of this webiste">Old</a></li>
+                <li><a id="nav-download" href="{prefix}/opds" title="An OPDS feed based version of this website, used in special purpose applications">Feed</a></li>
             </ul>
             </div>
 
@@ -58,7 +59,7 @@
                     <input type="hidden" name="cmd" value="_s-xclick"></input>
                     <input type="hidden" name="hosted_button_id" value="3028915"></input>
                     <input type="image"
-                        src="/static/button-donate.png"
+                    src="{prefix}/static/button-donate.png"
                         name="submit"></input>
                     <img alt="" src="https://www.paypal.com/en_US/i/scr/pixel.gif"
                         width="1" height="1"></img>
@@ -76,7 +77,7 @@
                 </select>
             </div>
             <div id="search_box">
-                <form name="search_form"  action="/browse/search" method="get" accept-charset="UTF-8">
+                <form name="search_form"  action="{prefix}/browse/search" method="get" accept-charset="UTF-8">
                     <input value="{initial_search}" type="text" title="Search" name="query"
                                         class="search_input" />&nbsp;
                     <input type="submit" value="Search" title="Search" alt="Search" />

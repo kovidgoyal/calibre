@@ -45,7 +45,7 @@ class FB2Input(InputFormatPlugin):
         log.debug('Parsing XML...')
         raw = stream.read()
         try:
-            doc = etree.fromstring(raw)
+            doc = etree.fromstring(raw.replace('\0', ''))
         except etree.XMLSyntaxError:
             doc = etree.fromstring(raw.replace('& ', '&amp;'))
         self.extract_embedded_content(doc)

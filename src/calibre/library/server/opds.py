@@ -132,7 +132,7 @@ def CATALOG_GROUP_ENTRY(item, category, base_href, version, updated):
             link
             )
 
-def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS):
+def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
     FM = db.FIELD_MAP
     title = item[FM['title']]
     if not title:
@@ -185,16 +185,16 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS):
         for fmt in formats.split(','):
             fmt = fmt.lower()
             mt = guess_type('a.'+fmt)[0]
-            href = '/get/%s/%s'%(fmt, item[FM['id']])
+            href = prefix + '/get/%s/%s'%(fmt, item[FM['id']])
             if mt:
                 link = E.link(type=mt, href=href)
                 if version > 0:
                     link.set('rel', "http://opds-spec.org/acquisition")
                 ans.append(link)
-    ans.append(E.link(type='image/jpeg', href='/get/cover/%s'%item[FM['id']],
+    ans.append(E.link(type='image/jpeg', href=prefix+'/get/cover/%s'%item[FM['id']],
         rel="x-stanza-cover-image" if version == 0 else
         "http://opds-spec.org/cover"))
-    ans.append(E.link(type='image/jpeg', href='/get/thumb/%s'%item[FM['id']],
+    ans.append(E.link(type='image/jpeg', href=prefix+'/get/thumb/%s'%item[FM['id']],
         rel="x-stanza-cover-image-thumbnail" if version == 0 else
         "http://opds-spec.org/thumbnail"))
 
@@ -275,7 +275,7 @@ class NavFeed(Feed):
 class AcquisitionFeed(NavFeed):
 
     def __init__(self, updated, id_, items, offsets, page_url, up_url, version,
-            db):
+            db, prefix):
         NavFeed.__init__(self, id_, updated, version, offsets, page_url, up_url)
         CFM = db.field_metadata
         CKEYS = [key for key in sorted(custom_fields_to_display(db),
@@ -283,7 +283,7 @@ class AcquisitionFeed(NavFeed):
                                      CFM[y]['name'].lower()))]
         for item in items:
             self.root.append(ACQUISITION_ENTRY(item, version, db, updated,
-                                               CFM, CKEYS))
+                                               CFM, CKEYS, prefix))
 
 class CategoryFeed(NavFeed):
 
@@ -360,7 +360,8 @@ class OPDSServer(object):
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'application/atom+xml;profile=opds-catalog'
         return str(AcquisitionFeed(updated, id_, items, offsets,
-                                   page_url, up_url, version, self.db))
+                                   page_url, up_url, version, self.db,
+                                   self.opts.url_prefix))
 
     def opds_search(self, query=None, version=0, offset=0):
         try:

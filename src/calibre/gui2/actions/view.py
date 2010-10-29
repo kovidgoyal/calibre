@@ -111,7 +111,7 @@ class ViewAction(InterfaceAction):
                 'books at once can be slow and have a negative effect on the '
                 'responsiveness of your computer. Once started the process '
                 'cannot be stopped until complete. Do you wish to continue?'
-                ) % num)
+                ) % num, show_copy_button=False)
 
     def view_folder(self, *args):
         rows = self.gui.current_view().selectionModel().selectedRows()

@@ -16,4 +16,5 @@ Here you will find tutorials to get you started using |app|'s more advanced feat
    template_lang
    regexp
    portable
+   server
 
