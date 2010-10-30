@@ -413,7 +413,7 @@ Using this button to create author sort will change author sort from red to gree
                      <bool>true</bool>
                     </property>
                     <property name="acceptRichText">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
