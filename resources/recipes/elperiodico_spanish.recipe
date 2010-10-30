@@ -2,17 +2,17 @@
 # -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '30 October 2010, Jordi Balcells based on an earlier recipe by Darko Miletic <darko.miletic at gmail.com>'
 '''
-elperiodico.com
+elperiodico.cat
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
-class ElPeriodico_esp(BasicNewsRecipe):
+class ElPeriodico_cat(BasicNewsRecipe):
     title                 = 'El Periodico de Catalunya'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Jordi Balcells/Darko Miletic'
     description           = 'Noticias desde Catalunya'
     publisher             = 'elperiodico.com'
     category              = 'news, politics, Spain, Catalunya'
@@ -33,15 +33,25 @@ class ElPeriodico_esp(BasicNewsRecipe):
 
     html2epub_options  = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
-    feeds              = [(u"Toda la edición", u'http://www.elperiodico.com/rss.asp?id=46')]
+    feeds              = [(u'Portada', u'http://www.elperiodico.com/es/rss/rss_portada.xml'),
+                        (u'Internacional', u'http://elperiodico.com/es/rss/internacional/rss.xml'),
+                        (u'Sociedad', u'http://elperiodico.com/es/rss/sociedad/rss.xml'),
+                        (u'Ciencia y Tecnolog\xeda', u'http://elperiodico.com/es/rss/ciencia-y-tecnologia/rss.xml'),
+                        (u'Deportes', u'http://elperiodico.com/es/rss/deportes/rss.xml'),
+                        (u'Gente', u'http://elperiodico.com/es/rss/gente/rss.xml'),
+                        (u'Opini\xf3n', u'http://elperiodico.com/es/rss/opinion/rss.xml'),
+                        (u'Pol\xedtica', u'http://elperiodico.com/es/rss/politica/rss.xml'),
+                        (u'Barcelona', u'http://elperiodico.com/es/rss/barcelona/rss.xml'),
+                        (u'Econom\xeda', u'http://elperiodico.com/es/rss/economia/rss.xml'),
+                        (u'Cultura y espect\xe1culos', u'http://elperiodico.com/es/rss/cultura-y-espectaculos/rss.xml'),
+                        (u'Tele', u'http://elperiodico.com/es/rss/cultura-y-espectaculos/rss.xml')]
 
 
-    keep_only_tags = [dict(name='div', attrs={'id':'noticia'})]
+    keep_only_tags = [dict(name='div', attrs={'class':'titularnoticia'}),
+                      dict(name='div', attrs={'class':'noticia_completa'})]
 
-    remove_tags        = [
-                              dict(name=['object','link','script'])
-                             ,dict(name='ul',attrs={'class':'herramientasDeNoticia'})
-                             ,dict(name='div', attrs={'id':'inferiores'})
+    remove_tags        = [dict(name='div', attrs={'class':['opcionb','opcionb last','columna_noticia']}),
+                          dict(name='span', attrs={'class':'opcionesnoticia'})
                          ]
 
     def print_version(self, url):
