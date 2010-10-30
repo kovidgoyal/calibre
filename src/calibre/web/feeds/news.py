@@ -957,6 +957,8 @@ class BasicNewsRecipe(Recipe):
             self.log.error(_('Could not download cover: %s')%str(err))
             self.log.debug(traceback.format_exc())
         else:
+            if not cu:
+                return
             cdata = None
             if os.access(cu, os.R_OK):
                 cdata = open(cu, 'rb').read()
@@ -987,6 +989,7 @@ class BasicNewsRecipe(Recipe):
             self.cover_path = cpath
 
     def download_cover(self):
+        self.cover_path = None
         try:
             self._download_cover()
         except:
