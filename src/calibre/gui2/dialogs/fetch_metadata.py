@@ -137,6 +137,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.fetch_metadata()
         self.opt_get_social_metadata.setChecked(config['get_social_metadata'])
         self.opt_overwrite_author_title_metadata.setChecked(config['overwrite_author_title_metadata'])
+        self.opt_overwrite_cover_image.setChecked(config['overwrite_cover_image'])
 
 
     def show_summary(self, current, *args):
@@ -219,6 +220,13 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
             _hung_fetchers.add(self.fetcher)
         if hasattr(self, '_hangcheck') and self._hangcheck.isActive():
             self._hangcheck.stop()
+        #option configure
+        if self.opt_get_social_metadata.isChecked() != config['get_social_metadata']:
+           config.set('get_social_metadata', self.opt_get_social_metadata.isChecked())
+        if self.opt_overwrite_author_title_metadata.isChecked() != config['overwrite_author_title_metadata']:
+           config.set('overwrite_author_title_metadata', self.opt_overwrite_author_title_metadata.isChecked())
+        if self.opt_overwrite_cover_image.isChecked() != config['overwrite_cover_image']:
+           config.set('overwrite_cover_image', self.opt_overwrite_cover_image.isChecked())
 
     def __enter__(self, *args):
         return self

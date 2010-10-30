@@ -123,6 +123,8 @@ def _config():
             help=_('Download social metadata (tags/rating/etc.)'))
     c.add_opt('overwrite_author_title_metadata', default=True,
             help=_('Overwrite author and title with new metadata'))
+    c.add_opt('overwrite_cover_image', default=False,
+            help=_('Overwrite cover with new new cover if existing'))
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
     c.add_opt('tag_browser_hidden_categories', default=set(),
