@@ -4,6 +4,33 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.26
+  date: 2010-10-30
+
+  new features:
+    - title: "Check library: Allow wildcards in ignore names field"
+
+  bug fixes:
+    - title: "Fix regression in 0.7.25 that broke reading metadata from filenames."
+
+    - title: "Fix regression in 0.7.25 that caused original files to be mistakenly removed when adding books recursively"
+
+    - title: "Fix long series/publisher causing edit metadata in bulk dialog to become very large"
+      tickets: [7332]
+
+    - title: "Only add SONY periodical code to downloaded news if output profile is set to one of the SONY reader profiles. This is needed because the ever delightful Stanza crashes and burns when an EPUB has the periodical code"
+
+  improved recipes:
+    - El Periodico
+    - New Zealand Herald
+
+  new recipes:
+    - title: "Taggeschau.de"
+      author: "Florian Andreas Pfaff"
+      
+    - title: "Gamespot Reviews"
+      author: "Marc Tonsing"
+
 - version: 0.7.25
   date: 2010-10-29
 
