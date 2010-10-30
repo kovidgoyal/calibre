@@ -282,15 +282,22 @@ class HTMLInput(InputFormatPlugin):
         basedir = os.getcwd()
         self.opts = opts
 
+        fname = None
         if hasattr(stream, 'name'):
             basedir = os.path.dirname(stream.name)
+            fname = os.path.basename(stream.name)
 
         if file_ext != 'opf':
             if opts.dont_package:
                 raise ValueError('The --dont-package option is not supported for an HTML input file')
             from calibre.ebooks.metadata.html import get_metadata
-            oeb = self.create_oebbook(stream.name, basedir, opts, log,
-                    get_metadata(stream))
+            mi = get_metadata(stream)
+            if fname:
+                from calibre.ebooks.metadata.meta import metadata_from_filename
+                fmi = metadata_from_filename(fname)
+                fmi.smart_update(mi)
+                mi = fmi
+            oeb = self.create_oebbook(stream.name, basedir, opts, log, mi)
             return oeb
 
         from calibre.ebooks.conversion.plumber import create_oebbook

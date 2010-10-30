@@ -12,7 +12,7 @@ import os, time, sys, shutil
 
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
-from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre import prints
 from calibre.constants import filesystem_encoding
 
@@ -39,6 +39,10 @@ def serialize_metadata_for(formats, tdir, id_):
             f.write(cdata)
 
 def read_metadata_(task, tdir, notification=lambda x,y:x):
+    with TemporaryDirectory() as mdir:
+        do_read_metadata(task, tdir, mdir, notification)
+
+def do_read_metadata(task, tdir, mdir, notification):
     from calibre.customize.ui import run_plugins_on_import
     for x in task:
         try:
@@ -48,17 +52,28 @@ def read_metadata_(task, tdir, notification=lambda x,y:x):
         try:
             if isinstance(formats, basestring): formats = [formats]
             import_map = {}
-            fmts = []
+            fmts, metadata_fmts = [], []
             for format in formats:
+                mfmt = format
+                name, ext = os.path.splitext(os.path.basename(format))
                 nfp = run_plugins_on_import(format)
-                if not nfp or not os.access(nfp, os.R_OK):
-                    nfp = format
-                nfp = os.path.abspath(nfp)
+                if not nfp or nfp == format or not os.access(nfp, os.R_OK):
+                    nfp = None
+                else:
+                    # Ensure that the filename is preserved so that
+                    # reading metadata from filename is not broken
+                    nfp = os.path.abspath(nfp)
+                    nfext = os.path.splitext(nfp)[1]
+                    mfmt = os.path.join(mdir, name + nfext)
+                    shutil.copyfile(nfp, mfmt)
+                metadata_fmts.append(mfmt)
                 fmts.append(nfp)
 
-            serialize_metadata_for(fmts, tdir, id_)
+            serialize_metadata_for(metadata_fmts, tdir, id_)
 
             for format, nfp in zip(formats, fmts):
+                if not nfp:
+                    continue
                 if isinstance(nfp, unicode):
                     nfp.encode(filesystem_encoding)
                 x = lambda j : os.path.abspath(os.path.normpath(os.path.normcase(j)))
@@ -68,7 +83,6 @@ def read_metadata_(task, tdir, notification=lambda x,y:x):
                     dest = os.path.join(tdir, '%s.%s'%(id_, nfmt))
                     shutil.copyfile(nfp, dest)
                     import_map[fmt] = dest
-                    os.remove(nfp)
             if import_map:
                 with open(os.path.join(tdir, str(id_)+'.import'), 'wb') as f:
                     for fmt, nfp in import_map.items():
