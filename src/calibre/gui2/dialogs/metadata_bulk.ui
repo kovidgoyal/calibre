@@ -678,6 +678,19 @@ nothing should be put between the original text and the inserted text</string>
              <item row="8" column="2">
               <widget class="QLineEdit" name="test_result"/>
              </item>
+             <item row="25" column="0" colspan="2">
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>5</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
            </widget>
           </widget>

@@ -259,6 +259,9 @@ class OutputProfile(Plugin):
     #: Number of ems that the left margin of a blockquote is rendered as
     mobi_ems_per_blockquote = 1.0
 
+    #: Special periodical formatting needed in EPUB
+    epub_periodical_format = None
+
     @classmethod
     def tags_to_string(cls, tags):
         return escape(', '.join(tags))
@@ -439,6 +442,9 @@ class SonyReaderOutput(OutputProfile):
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
     unsupported_unicode_chars = [u'\u201f', u'\u201b']
 
+    epub_periodical_format = 'sony'
+    #periodical_date_in_title = False
+
 
 class KoboReaderOutput(OutputProfile):
 
@@ -560,6 +566,8 @@ class CybookOpusOutput(SonyReaderOutput):
     dpi                       = 200
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+
+    epub_periodical_format = None
 
 class KindleOutput(OutputProfile):
 

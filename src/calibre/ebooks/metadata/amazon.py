@@ -92,10 +92,14 @@ def get_metadata(br, asin, mi):
                 ' @class="emptyClear" or @href]'):
             c.getparent().remove(c)
         desc = html.tostring(desc, method='html', encoding=unicode).strip()
-        desc = re.sub(r' class=[^>]+>', '>', desc)
+        # remove all attributes from tags
+        desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
+        # Collapse whitespace
         desc = re.sub('\n+', '\n', desc)
         desc = re.sub(' +', ' ', desc)
+        # Remove the notice about text referring to out of print editions
         desc = re.sub(r'(?s)<em>--This text ref.*?</em>', '', desc)
+        # Remove comments
         desc = re.sub(r'(?s)<!--.*?-->', '', desc)
         mi.comments = desc
 

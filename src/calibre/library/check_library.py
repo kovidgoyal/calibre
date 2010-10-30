@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, traceback
+import re, os, traceback, fnmatch
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
@@ -66,13 +66,19 @@ class CheckLibrary(object):
         return self.failed_folders or self.mismatched_dirs or \
                 self.conflicting_custom_cols or self.failed_restores
 
+    def ignore_name(self, filename):
+        for filespec in self.ignore_names:
+            if fnmatch.fnmatch(filename, filespec):
+                return True
+        return False;
+
     def scan_library(self, name_ignores, extension_ignores):
         self.ignore_names = frozenset(name_ignores)
         self.ignore_ext = frozenset(['.'+ e for e in extension_ignores])
 
         lib = self.src_library_path
         for auth_dir in os.listdir(lib):
-            if auth_dir in self.ignore_names or auth_dir == 'metadata.db':
+            if self.ignore_name(auth_dir) or auth_dir == 'metadata.db':
                 continue
             auth_path = os.path.join(lib, auth_dir)
             # First check: author must be a directory
@@ -85,7 +91,7 @@ class CheckLibrary(object):
             # Look for titles in the author directories
             found_titles = False
             for title_dir in os.listdir(auth_path):
-                if title_dir in self.ignore_names:
+                if self.ignore_name(title_dir):
                     continue
                 title_path = os.path.join(auth_path, title_dir)
                 db_path = os.path.join(auth_dir, title_dir)
