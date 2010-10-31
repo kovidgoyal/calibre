@@ -70,10 +70,10 @@ class ContentServer(object):
             id = id.rpartition('_')[-1].partition('.')[0]
             match = re.search(r'\d+', id)
             if not match:
-                raise cherrypy.HTTPError(400, 'id:%s not an integer'%id)
+                raise cherrypy.HTTPError(404, 'id:%s not an integer'%id)
             id = int(match.group())
         if not self.db.has_id(id):
-            raise cherrypy.HTTPError(400, 'id:%d does not exist in database'%id)
+            raise cherrypy.HTTPError(404, 'id:%d does not exist in database'%id)
         if what == 'thumb' or what.startswith('thumb_'):
             try:
                 width, height = map(int, what.split('_')[1:])

@@ -566,7 +566,8 @@ class BrowseServer(object):
             if not val:
                 val = ''
             args[key] = xml(val, True)
-        fname = ascii_filename(args['title']) + ' - ' + ascii_filename(args['authors'])
+        fname = quote(ascii_filename(args['title']) + ' - ' +
+                ascii_filename(args['authors']))
         return args, fmt, fmts, fname
 
     @Endpoint(mimetype='application/json; charset=utf-8')
