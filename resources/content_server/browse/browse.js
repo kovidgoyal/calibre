@@ -116,7 +116,7 @@ function toplevel() {
     $(".sort_select").hide();
 
     $(".toplevel li").click(function() {
-        var href = $(this).children("span.url").text();
+        var href = $(this).children("a").attr('href');
         window.location = href;
     });
 

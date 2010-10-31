@@ -208,6 +208,8 @@ h2.library_name {
 
 }
 
+.toplevel li a { text-decoration: none; }
+
 .toplevel li img {
     vertical-align: middle;
     margin-right: 1em;

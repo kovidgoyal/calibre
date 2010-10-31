@@ -24,6 +24,10 @@ class Server(Command):
         self.rebuild_monocole()
         p = subprocess.Popen(['calibre-server', '--develop'],
                 stderr=subprocess.STDOUT, stdout=log)
+        time.sleep(0.2)
+        if p.poll() is not None:
+            print 'Starting server failed'
+            raise SystemExit(1)
         return p
 
     def run(self, opts):
@@ -38,9 +42,11 @@ class Server(Command):
             try:
                 raw_input('Press Enter to kill/restart server. Ctrl+C to quit: ')
             except:
+                if p.poll() is None:
+                    p.kill()
                 break
             else:
-                while p.returncode is None:
+                while p.poll() is None:
                     p.terminate()
                     time.sleep(0.1)
                     p.kill()
