@@ -484,17 +484,22 @@ class DeviceMenu(QMenu): # {{{
                     _('Storage Card B')),
         ]
 
+        later_menus = []
 
         for menu in (self, self.set_default_menu):
             for actions, desc in (
                     (basic_actions, ''),
+                    (specific_actions, _('Send specific format to')),
                     (delete_actions, _('Send and delete from library')),
-                    (specific_actions, _('Send specific format to'))
                     ):
                 mdest = menu
                 if actions is not basic_actions:
-                    mdest = menu.addMenu(desc)
+                    mdest = QMenu(desc)
                     self._memory.append(mdest)
+                    later_menus.append(mdest)
+                    if menu is self.set_default_menu:
+                        menu.addMenu(mdest)
+                        menu.addSeparator()
 
                 for dest, delete, specific, icon, text in actions:
                     action = DeviceAction(dest, delete, specific, icon, text, self)
@@ -507,7 +512,7 @@ class DeviceMenu(QMenu): # {{{
                         action.a_s.connect(self.action_triggered)
                         self.actions.append(action)
                     mdest.addAction(action)
-                if actions is not specific_actions:
+                if actions is basic_actions:
                     menu.addSeparator()
 
         da = config['default_send_to_device_action']
@@ -525,14 +530,21 @@ class DeviceMenu(QMenu): # {{{
         self.group.triggered.connect(self.change_default_action)
         self.addSeparator()
 
+        self.addMenu(later_menus[0])
+        self.addSeparator()
+
         mitem = self.addAction(QIcon(I('eject.png')), _('Eject device'))
         mitem.setEnabled(False)
         mitem.triggered.connect(lambda x : self.disconnect_mounted_device.emit())
         self.disconnect_mounted_device_action = mitem
-
         self.addSeparator()
+
         self.addMenu(self.set_default_menu)
         self.addSeparator()
+
+        self.addMenu(later_menus[1])
+        self.addSeparator()
+
         annot = self.addAction(_('Fetch annotations (experimental)'))
         annot.setEnabled(False)
         annot.triggered.connect(lambda x :
