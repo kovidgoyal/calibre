@@ -14,6 +14,7 @@ from calibre import browser
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.library.comments import sanitize_comments_html
 
 def find_asin(br, isbn):
     q = 'http://www.amazon.com/s?field-keywords='+isbn
@@ -95,25 +96,26 @@ def get_metadata(br, asin, mi):
         # remove all attributes from tags
         desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
         # Collapse whitespace
-        desc = re.sub('\n+', '\n', desc)
-        desc = re.sub(' +', ' ', desc)
+        #desc = re.sub('\n+', '\n', desc)
+        #desc = re.sub(' +', ' ', desc)
         # Remove the notice about text referring to out of print editions
         desc = re.sub(r'(?s)<em>--This text ref.*?</em>', '', desc)
         # Remove comments
         desc = re.sub(r'(?s)<!--.*?-->', '', desc)
-        mi.comments = desc
+        mi.comments = sanitize_comments_html(desc)
 
     return True
 
 
 def main(args=sys.argv):
     # Test xisbn
-    print get_social_metadata('Learning Python', None, None, '8324616489')
-    print
+    #print get_social_metadata('Learning Python', None, None, '8324616489')
+    #print
 
     # Test sophisticated comment formatting
-    print get_social_metadata('Swan Thieves', None, None, '9780316065795')
+    print get_social_metadata('Swan Thieves', None, None, '9781416580829')
     print
+    return
 
     # Random tests
     print get_social_metadata('Star Trek: Destiny: Mere Mortals', None, None, '9781416551720')
