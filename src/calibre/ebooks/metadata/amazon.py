@@ -114,7 +114,7 @@ def main(args=sys.argv):
     #print
 
     # Test sophisticated comment formatting
-    print get_social_metadata('Swan Thieves', None, None, '9781416580829')
+    print get_social_metadata('Angels & Demons', None, None, '9781416580829')
     print
     return
 
