@@ -123,9 +123,10 @@ def get_category_items(category, items, restriction, datatype, prefix): # {{{
 
     def item(i):
         templ = (u'<div title="{4}" class="category-item">'
-                '<div class="category-name">{0}</div><div>{1}</div>'
-                '<div>{2}'
-                '<span class="href">{5}{3}</span></div></div>')
+                '<div class="category-name">'
+                '<a href="{5}{3}" title="{4}">{0}</a></div>'
+                '<div>{1}</div>'
+                '<div>{2}</div></div>')
         rating, rstring = render_rating(i.avg_rating, prefix)
         name = xml(i.name)
         if datatype == 'rating':
@@ -142,7 +143,7 @@ def get_category_items(category, items, restriction, datatype, prefix): # {{{
             q = category
         href = '/browse/matches/%s/%s'%(quote(q), quote(id_))
         return templ.format(xml(name), rating,
-                xml(desc), xml(href), rstring, prefix)
+                xml(desc), xml(href, True), rstring, prefix)
 
     items = list(map(item, items))
     return '\n'.join(['<div class="category-container">'] + items + ['</div>'])
@@ -394,14 +395,15 @@ class BrowseServer(object):
             for x in sorted(starts):
                 category_groups[x] = len([y for y in items if
                     getter(y).upper().startswith(x)])
-            items = [(u'<h3 title="{0}">{0} <span>[{2}]</span></h3><div>'
+            items = [(u'<h3 title="{0}"><a class="load_href" title="{0}"'
+                      u' href="{4}{3}"><strong>{0}</strong> [{2}]</a></h3><div>'
                       u'<div class="loaded" style="display:none"></div>'
                       u'<div class="loading"><img alt="{1}" src="{4}/static/loading.gif" /><em>{1}</em></div>'
-                      u'<span class="load_href">{4}{3}</span></div>').format(
+                      u'</div>').format(
                         xml(s, True),
                         xml(_('Loading, please wait'))+'&hellip;',
                         unicode(c),
-                        xml(u'/browse/category_group/%s/%s'%(category, s)),
+                        xml(u'/browse/category_group/%s/%s'%(category, s), True),
                         self.opts.url_prefix)
                     for s, c in category_groups.items()]
             items = '\n\n'.join(items)

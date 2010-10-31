@@ -263,9 +263,16 @@ h2.library_name {
 
 }
 
-.category div.category-item span.href { display: none }
+.category div.category-item a { text-decoration: none; color: inherit; }
 
-#groups span.load_href { display: none }
+#groups a.load_href { 
+    text-decoration: none;
+    color: inherit;
+    font-size: medium;
+    font-weight: normal;
+    padding: 0;
+    padding-left: 0.5em;
+}
 
 #groups h3 {
     font-weight: bold;

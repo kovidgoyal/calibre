@@ -18,7 +18,7 @@ class Server(Command):
     def rebuild_monocole(self):
         subprocess.check_call(['sprocketize', '-C', self.MONOCLE_PATH,
             '-I', 'src', 'src/monocle.js'],
-            stdout=open('resources/content_server/monocle.js', 'wb'))
+            stdout=open('resources/content_server/read/monocle.js', 'wb'))
 
     def launch_server(self, log):
         self.rebuild_monocole()
