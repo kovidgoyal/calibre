@@ -9,6 +9,7 @@ Fetch metadata using Amazon AWS
 import sys, re
 
 from lxml import html
+from lxml.html import soupparser
 
 from calibre import browser
 from calibre.ebooks.metadata import check_isbn
@@ -71,7 +72,7 @@ def get_metadata(br, asin, mi):
         return False
     raw = xml_to_unicode(raw, strip_encoding_pats=True,
             resolve_entities=True)[0]
-    root = html.fromstring(raw)
+    root = soupparser.fromstring(raw)
     ratings = root.xpath('//form[@id="handleBuy"]/descendant::*[@class="asinReviewsSummary"]')
     if ratings:
         pat = re.compile(r'([0-9.]+) out of (\d+) stars')
