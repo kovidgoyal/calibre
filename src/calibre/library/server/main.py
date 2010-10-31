@@ -24,6 +24,17 @@ def stop_threaded_server(server):
     server.exit()
     server.thread = None
 
+def create_wsgi_app(path_to_library=None, prefix=''):
+    'WSGI entry point'
+    from calibre.library import db
+    cherrypy.config.update({'environment': 'embedded'})
+    db = db(path_to_library)
+    parser = option_parser()
+    opts, args = parser.parse_args(['calibre-server'])
+    opts.url_prefix = prefix
+    server = LibraryServer(db, opts, wsgi=True, show_tracebacks=True)
+    return cherrypy.Application(server, script_name=None, config=server.config)
+
 def option_parser():
     parser = config().option_parser('%prog '+ _(
 '''[options]
@@ -47,6 +58,9 @@ The OPDS interface is advertised via BonJour automatically.
             help=_('Specifies a restriction to be used for this invocation. '
                    'This option overrides any per-library settings specified'
                    ' in the GUI'))
+    parser.add_option('--auto-reload', default=False, action='store_true',
+            help=_('Auto reload server when source code changes. May not'
+                ' work in all environments.'))
     return parser
 
 

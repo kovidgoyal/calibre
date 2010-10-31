@@ -31,17 +31,17 @@ class SNBOutput(OutputFormatPlugin):
             'the line will be broken at the space after and will exceed the '
             'specified value. Also, there is a minimum of 25 characters. '
             'Use 0 to disable line splitting.')),
-        OptionRecommendation(name='insert_empty_line',
+        OptionRecommendation(name='snb_insert_empty_line',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Speicfy whether or not to insert an empty line between '
+            help=_('Specify whether or not to insert an empty line between '
             'two paragraphs.')),
-        OptionRecommendation(name='indent_first_line',
+        OptionRecommendation(name='snb_indent_first_line',
             recommended_value=True, level=OptionRecommendation.LOW,
-            help=_('Speicfy whether or not to insert two space characters '
+            help=_('Specify whether or not to insert two space characters '
             'to indent the first line of each paragraph.')),
-        OptionRecommendation(name='hide_chapter_name',
+        OptionRecommendation(name='snb_hide_chapter_name',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Speicfy whether or not to hide the chapter title for each '
+            help=_('Specify whether or not to hide the chapter title for each '
             'chapter. Useful for image-only output (eg. comics).')),
      ])
 

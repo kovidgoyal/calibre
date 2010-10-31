@@ -18,7 +18,8 @@ class PluginWidget(Widget, Ui_Form):
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
-                        ['insert_empty_line', 'indent_first_line', 'hide_chapter_name',])
+                        ['snb_insert_empty_line', 'snb_indent_first_line',
+                            'snb_hide_chapter_name',])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
 

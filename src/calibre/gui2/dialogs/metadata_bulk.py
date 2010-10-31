@@ -571,6 +571,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.initalize_authors()
         self.initialize_series()
         self.initialize_publisher()
+        for x in ('authors', 'publisher', 'series'):
+            x = getattr(self, x)
+            x.setSizeAdjustPolicy(x.AdjustToMinimumContentsLengthWithIcon)
+            x.setMinimumContentsLength(25)
 
     def initalize_authors(self):
         all_authors = self.db.all_authors()

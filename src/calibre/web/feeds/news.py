@@ -583,7 +583,7 @@ class BasicNewsRecipe(Recipe):
             self.title = unicode(self.title, 'utf-8', 'replace')
 
         self.debug = options.verbose > 1
-        self.output_dir = os.getcwd()
+        self.output_dir = os.path.abspath(os.getcwdu())
         self.verbose = options.verbose
         self.test = options.test
         self.username = options.username
@@ -594,7 +594,6 @@ class BasicNewsRecipe(Recipe):
         if self.touchscreen:
             self.template_css += self.output_profile.touchscreen_news_css
 
-        self.output_dir = os.path.abspath(self.output_dir)
         if options.test:
             self.max_articles_per_feed = 2
             self.simultaneous_downloads = min(4, self.simultaneous_downloads)
@@ -958,6 +957,8 @@ class BasicNewsRecipe(Recipe):
             self.log.error(_('Could not download cover: %s')%str(err))
             self.log.debug(traceback.format_exc())
         else:
+            if not cu:
+                return
             cdata = None
             if os.access(cu, os.R_OK):
                 cdata = open(cu, 'rb').read()
@@ -988,6 +989,7 @@ class BasicNewsRecipe(Recipe):
             self.cover_path = cpath
 
     def download_cover(self):
+        self.cover_path = None
         try:
             self._download_cover()
         except:

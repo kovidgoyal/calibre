@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, os
 import __builtin__
+from urllib import quote
 
 import cherrypy
 from lxml import html
@@ -115,13 +116,13 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
 
         data = TD()
         for fmt in book['formats'].split(','):
-            a = ascii_filename(book['authors'])
-            t = ascii_filename(book['title'])
+            a = quote(ascii_filename(book['authors']))
+            t = quote(ascii_filename(book['title']))
             s = SPAN(
                 A(
                     fmt.lower(),
                     href=prefix+'/get/%s/%s-%s_%d.%s' % (fmt, a, t,
-                        book['id'], fmt)
+                        book['id'], fmt.lower())
                 ),
                 CLASS('button'))
             s.tail = u''

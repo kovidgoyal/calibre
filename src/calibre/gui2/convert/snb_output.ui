@@ -28,21 +28,21 @@
     </spacer>
    </item>
    <item row="3" column="0">
-    <widget class="QCheckBox" name="opt_hide_chapter_name">
+    <widget class="QCheckBox" name="opt_snb_hide_chapter_name">
      <property name="text">
       <string>Hide chapter name</string>
      </property>
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QCheckBox" name="opt_indent_first_line">
+    <widget class="QCheckBox" name="opt_snb_indent_first_line">
      <property name="text">
       <string>Insert space before the first line for each paragraph</string>
      </property>
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QCheckBox" name="opt_insert_empty_line">
+    <widget class="QCheckBox" name="opt_snb_insert_empty_line">
      <property name="text">
       <string>Insert empty line between paragraphs</string>
      </property>
