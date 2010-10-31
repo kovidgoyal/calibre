@@ -475,7 +475,7 @@ from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
         SOVOS, PICO
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
-        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO
+        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
@@ -586,6 +586,7 @@ plugins += [
     AVANT,
     MENTOR,
     SWEEX,
+    Q600,
     KOGAN,
     PDNOVEL,
     SPECTRA,

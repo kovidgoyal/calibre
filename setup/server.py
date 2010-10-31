@@ -85,8 +85,13 @@ class Server(Command):
         print
         self.watch()
 
+        first = True
         while True:
             self.launch_server()
+            if first:
+                pass
+            first = False
+
             try:
                 raw_input(self.prompt)
             except:
