@@ -253,8 +253,6 @@ class BrowseServer(object):
         lp = self.db.library_path
         if isbytestring(lp):
             lp = force_unicode(lp, filesystem_encoding)
-        if isinstance(ans, unicode):
-            ans = ans.encode('utf-8')
         ans = ans.replace('{library_name}', xml(os.path.basename(lp)))
         ans = ans.replace('{library_path}', xml(lp, True))
         ans = ans.replace('{initial_search}', initial_search)
