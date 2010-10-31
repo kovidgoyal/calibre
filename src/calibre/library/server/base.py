@@ -118,16 +118,17 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         self.set_database(db)
 
         cherrypy.config.update({
-                                'log.screen'             : opts.develop,
-                                'engine.autoreload_on'   : opts.develop,
-                                'tools.log_headers.on'   : opts.develop,
-                                'checker.on'             : opts.develop,
-                                'request.show_tracebacks': show_tracebacks,
-                                'server.socket_host'     : listen_on,
-                                'server.socket_port'     : opts.port,
-                                'server.socket_timeout'  : opts.timeout, #seconds
-                                'server.thread_pool'     : opts.thread_pool, # number of threads
-                               })
+            'log.screen'             : opts.develop,
+            'engine.autoreload_on'   : getattr(opts,
+                                        'auto_reload', False),
+            'tools.log_headers.on'   : opts.develop,
+            'checker.on'             : opts.develop,
+            'request.show_tracebacks': show_tracebacks,
+            'server.socket_host'     : listen_on,
+            'server.socket_port'     : opts.port,
+            'server.socket_timeout'  : opts.timeout, #seconds
+            'server.thread_pool'     : opts.thread_pool, # number of threads
+        })
         if embedded or wsgi:
             cherrypy.config.update({'engine.SIGHUP'          : None,
                                     'engine.SIGTERM'         : None,})

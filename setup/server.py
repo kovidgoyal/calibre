@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import subprocess, tempfile, os, time, sys
+from threading import RLock
 
 from setup import Command
 
@@ -27,10 +28,11 @@ else:
         def process_default(self, event):
             name = getattr(event,
                     'name', None)
-            if name and os.path.splitext(name)[1].startswith('.py'):
+            if name and os.path.splitext(name)[1] == '.py':
                 print
                 print name, 'changed'
                 self.command.kill_server()
+                time.sleep(0.1)
                 self.command.launch_server()
                 print self.command.prompt,
                 sys.stdout.flush()
@@ -49,20 +51,23 @@ class Server(Command):
 
     def launch_server(self):
         print 'Starting server...\n'
-        self.rebuild_monocole()
-        p = subprocess.Popen(['calibre-server', '--develop'],
-                stderr=subprocess.STDOUT, stdout=self.server_log)
-        time.sleep(0.2)
-        if p.poll() is not None:
-            print 'Starting server failed'
-            raise SystemExit(1)
-        return p
+        with self.lock:
+            self.rebuild_monocole()
+            p = subprocess.Popen(['calibre-server', '--develop'],
+                    stderr=subprocess.STDOUT, stdout=self.server_log)
+            time.sleep(0.2)
+            if p.poll() is not None:
+                print 'Starting server failed'
+                raise SystemExit(1)
+            return p
 
     def kill_server(self):
-        while self.server_proc.poll() is None:
-            self.server_proc.terminate()
-            time.sleep(0.1)
-            self.server_proc.kill()
+        print 'Killing server...\n'
+        with self.lock:
+            if self.server_proc.poll() is None:
+                self.server_proc.terminate()
+            while self.server_proc.poll() is None:
+                time.sleep(0.1)
 
     def watch(self):
         if wm is not None:
@@ -71,6 +76,7 @@ class Server(Command):
             self.wdd = wm.add_watch(os.path.abspath('src'), mask, rec=True)
 
     def run(self, opts):
+        self.lock = RLock()
         tdir = tempfile.gettempdir()
         logf = os.path.join(tdir, 'calibre-server.log')
         self.server_log = open(logf, 'ab')
@@ -85,8 +91,7 @@ class Server(Command):
             try:
                 raw_input(self.prompt)
             except:
-                if self.server_proc.poll() is None:
-                    self.server_proc.kill()
+                self.kill_server()
                 break
             else:
                 self.kill_server()
