@@ -10,6 +10,7 @@ from calibre import prints
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import default_log
 from calibre.utils.titlecase import titlecase
+from calibre.utils.html2text import html2text
 from calibre.customize import Plugin
 from calibre.ebooks.metadata.covers import check_for_cover
 
@@ -79,6 +80,8 @@ class MetadataSource(Plugin): # {{{
                         mi.comments = None
                     if not c.get('tags', True):
                         mi.tags = []
+                    if c.get('textconvert', True) and mi.comments is not None:
+                        mi.comments = html2text(mi.comments)
 
         except Exception, e:
             self.exception = e
@@ -132,11 +135,17 @@ class MetadataSource(Plugin): # {{{
             setattr(w, '_'+x, cb)
             cb.setChecked(c.get(x, True))
             w._layout.addWidget(cb)
+        #textconvert for comments
+        cb = QCheckBox(_('Convert comments from %s to text')%(self.name))
+        setattr(w, '_textconvert', cb)
+        cb.setChecked(c.get('textconvert', False))
+        w._layout.addWidget(cb)
+        
         return w
 
     def save_settings(self, w):
         dl_settings = {}
-        for x in ('rating', 'tags', 'comments'):
+        for x in ('rating', 'tags', 'comments', 'textconvert'):
             dl_settings[x] = getattr(w, '_'+x).isChecked()
         c = self.config_store()
         c.set(self.name, dl_settings)
