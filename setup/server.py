@@ -32,7 +32,6 @@ else:
                 print
                 print name, 'changed'
                 self.command.kill_server()
-                time.sleep(0.1)
                 self.command.launch_server()
                 print self.command.prompt,
                 sys.stdout.flush()
@@ -53,7 +52,7 @@ class Server(Command):
         print 'Starting server...\n'
         with self.lock:
             self.rebuild_monocole()
-            p = subprocess.Popen(['calibre-server', '--develop'],
+            self.server_proc = p = subprocess.Popen(['calibre-server', '--develop'],
                     stderr=subprocess.STDOUT, stdout=self.server_log)
             time.sleep(0.2)
             if p.poll() is not None:
@@ -63,11 +62,12 @@ class Server(Command):
 
     def kill_server(self):
         print 'Killing server...\n'
-        with self.lock:
-            if self.server_proc.poll() is None:
-                self.server_proc.terminate()
-            while self.server_proc.poll() is None:
-                time.sleep(0.1)
+        if self.server_proc is not None:
+            with self.lock:
+                if self.server_proc.poll() is None:
+                    self.server_proc.terminate()
+                while self.server_proc.poll() is None:
+                    time.sleep(0.1)
 
     def watch(self):
         if wm is not None:
@@ -83,14 +83,14 @@ class Server(Command):
         self.prompt = 'Press Enter to kill/restart server. Ctrl+C to quit: '
         print 'Server log available at:', logf
         print
-        self.server_proc = None
         self.watch()
 
         while True:
-            self.server_proc = self.launch_server()
+            self.launch_server()
             try:
                 raw_input(self.prompt)
             except:
+                print
                 self.kill_server()
                 break
             else:
