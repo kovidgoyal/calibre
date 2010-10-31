@@ -36,6 +36,7 @@ FileTypePlugin
 
 .. _pluginsMetadataPlugin:
 
+
 Metadata plugins
 -------------------
 
@@ -50,7 +51,6 @@ Metadata plugins
    :members:
    :member-order: bysource
 
-.. _pluginsMetadataSource:
 
 Catalog plugins
 ----------------
@@ -60,6 +60,7 @@ Catalog plugins
    :members:
    :member-order: bysource
 
+.. _pluginsMetadataSource:
 
 Metadata download plugins
 --------------------------

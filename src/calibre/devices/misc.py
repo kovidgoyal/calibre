@@ -117,6 +117,12 @@ class PDNOVEL_KOBO(PDNOVEL):
 
     EBOOK_DIR_MAIN = 'eBooks/Kobo'
 
+    def upload_cover(self, path, filename, metadata, filepath):
+        coverdata = getattr(metadata, 'thumbnail', None)
+        if coverdata and coverdata[2]:
+            with open(os.path.join(path, '.thumbnail', filename+'.jpg'), 'wb') as coverfile:
+                coverfile.write(coverdata[2])
+
 
 class VELOCITYMICRO(USBMS):
     name = 'VelocityMicro device interface'

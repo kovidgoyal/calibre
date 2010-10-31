@@ -41,6 +41,15 @@ class NEWSMY(TECLAST_K3):
     WINDOWS_MAIN_MEM = 'NEWSMY'
     WINDOWS_CARD_A_MEM = 'USBDISK____SD'
 
+class PICO(NEWSMY):
+    name = 'Pico device interface'
+    gui_name = 'Pico'
+    description    = _('Communicate with the Pico reader.')
+
+    WINDOWS_MAIN_MEM = 'USBDISK__USER'
+    EBOOK_DIR_MAIN = 'Books'
+    FORMATS = ['EPUB', 'FB2', 'TXT', 'LRC', 'PDB', 'PDF', 'HTML', 'WTXT']
+
 class IPAPYRUS(TECLAST_K3):
 
     name = 'iPapyrus device interface'

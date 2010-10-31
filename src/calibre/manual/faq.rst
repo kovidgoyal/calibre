@@ -463,5 +463,7 @@ Finally, you can add downloaded news to the |app| library with::
 
    /opt/calibre/calibredb add --with-library /path/to/library outfile.epub
 
-Remember to read the command line documentatation section of the |app| User Manual to learn more about these, and other commands.
+Remember to read the command line documentation section of the |app| User Manual to learn more about these, and other commands.
+
+.. note:: Some parts of calibre require a X server. If you're lucky, nothing you do will fall into this category, if not, you will have to look into using xvfb.
 

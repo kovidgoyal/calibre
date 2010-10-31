@@ -1,0 +1,53 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Louis Gesbert <meta at antislash dot info>'
+'''
+Rue89
+'''
+
+__author__ = '2010, Louis Gesbert <meta at antislash dot info>'
+
+import re
+from calibre.ebooks.BeautifulSoup import Tag
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Rue89(BasicNewsRecipe):
+    title = 'Rue89'
+    __author__ = 'Louis Gesbert'
+    description = 'Popular free french news website'
+    title = u'Rue89'
+    language = 'fr'
+    oldest_article = 7
+    max_articles_per_feed = 50
+
+    feeds = [(u'La Une', u'http://www.rue89.com/homepage/feed')]
+
+    no_stylesheets = True
+
+    preprocess_regexps = [
+        (re.compile(r'<(/?)h2>', re.IGNORECASE|re.DOTALL),
+         lambda match : '<'+match.group(1)+'h3>'),
+        (re.compile(r'<div class="print-title">([^>]+)</div>', re.IGNORECASE|re.DOTALL),
+         lambda match : '<h2>'+match.group(1)+'</h2>'),
+        (re.compile(r'<img[^>]+src="[^"]*/numeros/(\d+)[^0-9.">]*.gif"[^>]*/>', re.IGNORECASE|re.DOTALL),
+         lambda match : '<span style="font-family: Sans-serif; color: red; font-size:24pt; padding=2pt;">'+match.group(1)+'</span>'),
+        (re.compile(r'\''), lambda match: '&rsquo;'),
+        ]
+
+    def preprocess_html(self,soup):
+        body = Tag(soup, 'body')
+        title = soup.find('h1', {'class':'title'})
+        content = soup.find('div', {'class':'content'})
+        soup.body.replaceWith(body)
+        body.insert(0, title)
+        body.insert(1, content)
+        return soup
+
+    remove_tags = [ #dict(name='div', attrs={'class':'print-source_url'}),
+                    #dict(name='div', attrs={'class':'print-links'}),
+                    #dict(name='img', attrs={'class':'print-logo'}),
+                    dict(name='div', attrs={'class':'content_top'}),
+                    dict(name='div', attrs={'id':'sidebar-left'}), ]
+
+# -- print-version has poor quality on this website, better do the conversion ourselves
+#    def print_version(self, url):
+#        return re.sub('^.*-([0-9]+)$', 'http://www.rue89.com/print/\\1',url)

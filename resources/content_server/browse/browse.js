@@ -257,7 +257,7 @@ function booklist(hide_sort) {
 function show_details(a_dom) {
     var book = $(a_dom).closest('div.summary');
     var bd = $('#book_details_dialog');
-    bd.html('<span class="loading"><img src="/static/loading.gif" alt="Loading" />Loading, please wait&hellip;</span>');
+    bd.html('<span class="loading"><img src="'+url_prefix+'/static/loading.gif" alt="Loading" />Loading, please wait&hellip;</span>');
     bd.dialog('option', 'width', $(window).width() - 100);
     bd.dialog('option', 'height', $(window).height() - 100);
     bd.dialog('option', 'title', book.find('.title').text());
