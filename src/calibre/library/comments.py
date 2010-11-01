@@ -58,7 +58,13 @@ def comments_to_html(comments):
         return '\n'.join(parts)
 
     if sanitize_pat.search(comments) is not None:
-        return sanitize_comments_html(comments)
+        try:
+            return sanitize_comments_html(comments)
+        except:
+            import traceback
+            traceback.print_exc()
+            return u'<p></p>'
+
 
     # Explode lost CRs to \n\n
     comments = lost_cr_exception_pat.sub(lambda m: m.group().replace('.',
