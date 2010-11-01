@@ -72,7 +72,10 @@ def get_metadata(br, asin, mi):
         return False
     raw = xml_to_unicode(raw, strip_encoding_pats=True,
             resolve_entities=True)[0]
-    root = soupparser.fromstring(raw)
+    try:
+        root = soupparser.fromstring(raw)
+    except:
+        return False
     ratings = root.xpath('//form[@id="handleBuy"]/descendant::*[@class="asinReviewsSummary"]')
     if ratings:
         pat = re.compile(r'([0-9.]+) out of (\d+) stars')
