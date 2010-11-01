@@ -116,7 +116,7 @@ function toplevel() {
     $(".sort_select").hide();
 
     $(".toplevel li").click(function() {
-        var href = $(this).children("span.url").text();
+        var href = $(this).children("a").attr('href');
         window.location = href;
     });
 
@@ -133,7 +133,7 @@ function render_error(msg) {
 // Category feed {{{
 
 function category_clicked() {
-   var href = $(this).find("span.href").html();
+   var href = $(this).find("a").attr('href');
    window.location = href;
 }
 
@@ -151,7 +151,7 @@ function category() {
 
         change: function(event, ui) {
             if (ui.newContent) {
-                var href = ui.newContent.children("span.load_href").html();
+                var href = ui.newContent.prev().children("a.load_href").attr('href');
                 ui.newContent.children(".loading").show();
                 if (href) {
                     $.ajax({

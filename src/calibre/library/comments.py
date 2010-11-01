@@ -11,11 +11,15 @@ from calibre.constants import preferred_encoding
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, \
         CData, Comment, Declaration, ProcessingInstruction
 from calibre import prepare_string_for_xml
+from calibre.utils.html2text import html2text
+from calibre.ebooks.markdown import markdown
 
 # Hackish - ignoring sentences ending or beginning in numbers to avoid
 # confusion with decimal points.
 lost_cr_pat = re.compile('([a-z])([\.\?!])([A-Z])')
 lost_cr_exception_pat = re.compile(r'(Ph\.D)|(D\.Phil)|((Dr|Mr|Mrs|Ms)\.[A-Z])')
+sanitize_pat = re.compile(r'<script|<table|<tr|<td|<th|<style|<iframe',
+        re.IGNORECASE)
 
 def comments_to_html(comments):
     '''
@@ -52,6 +56,9 @@ def comments_to_html(comments):
         parts = [u'<p class="description">%s</p>'%x.replace(u'\n', u'<br />')
                 for x in comments.split('\n\n')]
         return '\n'.join(parts)
+
+    if sanitize_pat.search(comments) is not None:
+        return sanitize_comments_html(comments)
 
     # Explode lost CRs to \n\n
     comments = lost_cr_exception_pat.sub(lambda m: m.group().replace('.',
@@ -114,6 +121,11 @@ def comments_to_html(comments):
         t.replaceWith(prepare_string_for_xml(unicode(t)))
 
     return result.renderContents(encoding=None)
+
+def sanitize_comments_html(html):
+    text = html2text(html)
+    md = markdown.Markdown(safe_mode=True)
+    return md.convert(text)
 
 def test():
     for pat, val in [
