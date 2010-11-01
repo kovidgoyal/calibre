@@ -105,7 +105,9 @@ else:
         os.makedirs(config_dir, mode=CONFIG_DIR_MODE)
     except:
         pass
-    if not os.access(config_dir, os.W_OK) or not os.access(config_dir, os.X_OK):
+    if not os.path.exists(config_dir) or \
+            not os.access(config_dir, os.W_OK) or not \
+            os.access(config_dir, os.X_OK):
         print 'No write acces to', config_dir, 'using a temporary dir instead'
         import tempfile, atexit
         config_dir = tempfile.mkdtemp(prefix='calibre-config-')
