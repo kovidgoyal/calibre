@@ -49,13 +49,12 @@ def get_social_metadata(title, authors, publisher, isbn):
         return mi
     br = browser()
     asin = to_asin(br, isbn)
-    if asin:
-        if get_metadata(br, asin, mi):
-            return mi
+    if asin and get_metadata(br, asin, mi):
+        return mi
     from calibre.ebooks.metadata.xisbn import xisbn
     for i in xisbn.get_associated_isbns(isbn):
         asin = to_asin(br, i)
-        if get_metadata(br, asin, mi):
+        if asin and get_metadata(br, asin, mi):
             return mi
     return mi
 
