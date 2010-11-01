@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-30 19:24+0000\n"
-"PO-Revision-Date: 2010-10-30 14:13+0000\n"
-"Last-Translator: Marek Sušický <Unknown>\n"
+"PO-Revision-Date: 2010-10-31 22:14+0000\n"
+"Last-Translator: Aleš Bajtalon <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-31 04:55+0000\n"
+"X-Launchpad-Export-Date: 2010-11-01 05:07+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -746,6 +746,8 @@ msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Některé obálky nelze převést.\n"
+"Klikněte na 'Zobrazit podrobnosti' pro zobrazení seznamu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2546
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:444
@@ -771,7 +773,7 @@ msgstr "Katalog"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2853
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Komunikovat s iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -11892,7 +11894,7 @@ msgstr "Stahování dokončeno"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:715
 msgid "Failed to download the following articles:"
-msgstr ""
+msgstr "Nepodařilo se stáhnout následující články:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:721
 msgid "Failed to download parts of the following articles:"
@@ -11904,7 +11906,7 @@ msgstr " od "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:725
 msgid "\tFailed links:"
-msgstr ""
+msgstr "\tChybné odkazy:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:814
 msgid "Could not fetch article. Run with -vv to see the reason"
@@ -11920,7 +11922,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:849
 msgid "Trying to download cover..."
-msgstr ""
+msgstr "Pokouším se stáhnout obálku..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:851
 msgid "Generating masthead..."
@@ -11975,6 +11977,8 @@ msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
 msgstr ""
+"Nemáte oprávnění ke stažení tohoto vydání. Buď vypršelo předplatné, nebo "
+"jste pro dnešek vyčerpali maximální počet stažení."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 msgid "You"

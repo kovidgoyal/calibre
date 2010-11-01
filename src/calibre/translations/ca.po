@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-30 19:24+0000\n"
-"PO-Revision-Date: 2010-10-30 15:36+0000\n"
+"PO-Revision-Date: 2010-10-31 12:54+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-31 04:55+0000\n"
+"X-Launchpad-Export-Date: 2010-11-01 05:07+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -718,8 +718,7 @@ msgstr "Comunicar-se amb iTunes/iBooks."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:98
 msgid "Apple device detected, launching iTunes, please wait ..."
 msgstr ""
-"S'ha detectat un dispositiu Apple detectat, s'està engegant l'iTunes, "
-"espereu ..."
+"S'ha detectat un dispositiu Apple, s'està engegant l'iTunes, espereu ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:100
 msgid ""
@@ -764,9 +763,9 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
-"Alguns llibres no s'han trobat a la base de dades de l'iTunes.\n"
-"Elimina'ls utilitzant l'aplicació de l'iBooks.\n"
-"Clic a 'Veure Detalls' per a més informació."
+"No s'ha trobat alguns llibres a la base de dades de l'iTunes.\n"
+"Suprimiu-los amb l'aplicació de l'iBooks.\n"
+"Feu clic a «Veure detalls» per a la llista."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:911
 msgid ""
@@ -774,7 +773,7 @@ msgid ""
 "Click 'Show Details' for a list."
 msgstr ""
 "No s'ha pogut convertir algunes portades.\n"
-"Feu clic a «Veure Detalls» per a la llista."
+"Feu clic a «Veure detalls» per a la llista."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2546
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:444
@@ -995,21 +994,21 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:143
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:166
 msgid "Getting list of books on device..."
-msgstr "S'està obtenint el llistat de llibres disponibles al dispositiu..."
+msgstr "S'està aconseguint la llista de llibres del dispositiu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:300
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:307
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:281
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:286
 msgid "Removing books from device metadata listing..."
-msgstr "S'estan suprimint llibres del llistat de metadades del dispositiu..."
+msgstr "S'està suprimint llibres del llistat de metadades del dispositiu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:312
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:347
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:219
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:250
 msgid "Adding books to device metadata listing..."
-msgstr "S'estan afegint llibres al llistat de metadades del dispositiu..."
+msgstr "S'està afegint llibres al llistat de metadades del dispositiu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:424
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:258
@@ -1021,8 +1020,8 @@ msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
-"No existeixen fitxers «.kobo» de llibres al dispositiu, però hi ha files a "
-"la base de dades sqlite. De moment no es poden exportar ni visualitzar"
+"No hi ha fitxers de llibre «.kobo» al dispositiu, són files a la base de "
+"dades sqlite. De moment no es poden exportar ni visualitzar"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
@@ -1091,8 +1090,8 @@ msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
 msgstr ""
-"Llistat on apareixen, separats per coma, els camps de metadades per "
-"traslladar a les col·leccions del dispositiu. Les possibilitats inclouen: "
+"Llista dels camps de metadades separats per comes que es convertiran el "
+"col·leccions al dispositiu. Possibilitats: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1184,11 +1183,11 @@ msgstr "Configura el dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:37
 msgid "settings for device drivers"
-msgstr "paràmetres dels controladors de dispostius"
+msgstr "paràmetres dels controladors de dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:39
 msgid "Ordered list of formats the device will accept"
-msgstr "Llistat ordenat de formats que el dispositiu accepta"
+msgstr "Llista ordenada de formats acceptats pel dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:41
 msgid "Place files in sub directories if the device supports them"
@@ -1325,9 +1324,9 @@ msgid ""
 "experiment to see which format gives you optimal size and look on your "
 "device."
 msgstr ""
-"El format de les imatges serà convertit per al llibre electrònic creat. "
-"Podeu experimentar quin format us proporciona la millor relació mida-aspecte "
-"al vostre dispositiu."
+"Format que es converteixen les imatges al llibre creat. Podeu experimentar "
+"quin format us proporciona la millor relació mida-aspecte al vostre "
+"dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
 msgid "Apply no processing to the image"
@@ -2043,9 +2042,9 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
-"Normalment, si el fitxer d'entrada no té portada i no n'especifiqueu cap, es "
-"genera una portada per defecte amb el títol, autors, etc. Aquesta opció "
-"inhabilita la generació d'aquesta portada."
+"Si el fitxer d'entrada no té portada i no n'especifiqueu cap, es genera una "
+"portada per defecte amb títol, autors... Aquesta opció inhabilita la "
+"generació d'aquesta portada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
@@ -2694,8 +2693,8 @@ msgid ""
 "Could not fetch cover as server is experiencing high load. Please try again "
 "later."
 msgstr ""
-"No s'ha pogut aconseguir la portada, el servidor està experimentant una "
-"càrrega molt alta. Torneu a intentar-ho més tard."
+"No s'ha pogut aconseguir la portada, el servidor està molt carregat. "
+"Intenteu-ho més tard."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:140
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:80
@@ -2777,12 +2776,12 @@ msgstr ""
 "\n"
 "%prog [opcions] clau\n"
 "\n"
-"Aconsegueix metadades de llibres des d'isndb.com. Podeu especificar "
-"l'identificador ISBN del llibre o bé el seu títol i autor. Si especifiqueu "
-"el títol i l'autor podeu obtenir més d'un llibre.\n"
+"Aconsegueix metadades de llibres des d'isndb.com. Es pot especificar "
+"l'identificador ISBN del llibre o el seu títol i autor. Si s'especifica el "
+"títol i l'autor potser s'obtindrà més d'un llibre.\n"
 "\n"
-"La clau, és la clau del compte que vostè genera desprès de registrar-ne un "
-"compte gratuit a isbndb.com.\n"
+"La clau és la clau del compte que es genera desprès de registrar un compte "
+"gratuit a isbndb.com.\n"
 "\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:120
@@ -2827,7 +2826,7 @@ msgstr "Portada"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
 msgstr ""
-"Modifica les imatges per a trobar les limitacions de mida del dispositiu "
+"Modifica les imatges adaptar-se a les limitacions de mida del dispositiu "
 "Palm."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
@@ -2958,7 +2957,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
-msgstr "Opcions de generació OPF, NCX, etcètera."
+msgstr "Opcions de generació OPF, NCX..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:35
 msgid "OPF version to generate. Default is %default."
@@ -3502,7 +3501,7 @@ msgstr "Carrega les notícies descarregades al dispositiu"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:95
 msgid "Delete books from library after uploading to device"
 msgstr ""
-"Elimina els llibres de la biblioteca després de carregar-los al dispositiu"
+"Suprimeix els llibres de la biblioteca després de carregar-los al dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:97
 msgid ""
@@ -3525,7 +3524,7 @@ msgstr "Nombre màxim de processos en espera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr "Descarrega metadades socials (etiquetes/valoració/etc)"
+msgstr "Descarrega metadades socials (etiquetes, valoració...)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:125
 msgid "Overwrite author and title with new metadata"
@@ -3537,7 +3536,7 @@ msgstr "Limita el màxim de tasques simultànies al nombre de CPUs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:129
 msgid "tag browser categories not to display"
-msgstr "categories del navegador d'etiquetes que no s'han de mostrar"
+msgstr "categories de l'explorador d'etiquetes que no s'han de mostrar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:131
 msgid "The layout of the user interface"
@@ -3623,7 +3622,7 @@ msgstr "Quants llibres buits haurien d'afegir-se?"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:202
 msgid "Uploading books to device."
-msgstr "Pujant llibres a l'aparell."
+msgstr "S'està carregant llibres al dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:170
@@ -3725,7 +3724,7 @@ msgstr "Afegeix llibres a la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
-msgstr "Afegeix llibres a la biblioteca des d'un dispositiu connectat"
+msgstr "Afegeix llibres a la biblioteca des del dispositiu connectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:536
@@ -3757,7 +3756,7 @@ msgstr "Cap llibre seleccionat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:65
 msgid "No books selected to fetch annotations from"
-msgstr "No hi ha cap llibre seleccionat del que obtenir les anotacions"
+msgstr "No s'ha seleccionat cap llibre per recollir les anotacions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:90
 msgid "Merging user annotations into database"
@@ -4106,7 +4105,7 @@ msgstr "Suprimeix les portades dels llibres seleccionats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:35
 msgid "Remove matching books from device"
-msgstr "Elimina els llibres que concordin del dispositiu"
+msgstr "Suprimeix els llibres del dispositiu que coincideixin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:53
 msgid "Cannot delete"
@@ -4155,7 +4154,7 @@ msgstr "Cap dels llibres seleccionats són al dispositiu"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:140
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:200
 msgid "Deleting books from device."
-msgstr "S'estan eliminant llibres del dispositiu."
+msgstr "S'està suprimint llibres del dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:173
 msgid ""
@@ -4170,7 +4169,7 @@ msgid ""
 "The selected books will be <b>permanently deleted</b> from your device. Are "
 "you sure?"
 msgstr ""
-"Els llibres que seleccionats s'eliminaran <b>permanentment</b> del "
+"Els llibres que seleccionats se suprimiran <b>permanentment</b> del "
 "dispositiu. N'esteu segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:26
@@ -4353,11 +4352,11 @@ msgstr "Notí­cies (RSS)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:52
 msgid "Fetching news from "
-msgstr "S'està aconseguint notícies de "
+msgstr "S'està recollint notícies de "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:66
 msgid " fetched."
-msgstr " s'han obtingut"
+msgstr " s'ha recollit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
@@ -4469,7 +4468,7 @@ msgstr "No s'ha pogut desar alguns llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:146
 msgid "Click the show details button to see which ones."
-msgstr "Feu clic al botó \"Mostra detalls\" per veure quins són."
+msgstr "Feu clic a «Veure detalls» per saber quins són."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:623
@@ -4870,7 +4869,7 @@ msgstr "Cap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:312
 msgid "Click to open Book Details window"
-msgstr "Feu clic per obrir el quadre de \"Detalls del llibre\""
+msgstr "Feu clic per obrir el quadre de «Detalls del llibre»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -6109,7 +6108,7 @@ msgstr "Explorar per portades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:149
 msgid "Cover browser could not be loaded"
-msgstr "No s'ha pogut carregar l'explorador de portades"
+msgstr "No s'ha pogut carregar el navegador de portades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:84
@@ -6178,15 +6177,15 @@ msgstr "El dispositiu ja no està connectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:307
 msgid "Get device information"
-msgstr "Obtenir informació del dispositiu"
+msgstr "Aconsegueix informació del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:318
 msgid "Get list of books on device"
-msgstr "Obtenir llista de llibres en el dispositiu"
+msgstr "Aconsegueix la llista de llibres del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:328
 msgid "Get annotations from device"
-msgstr "Obtenir anotacions del dispositiu"
+msgstr "Aconsegueix anotacions del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:340
 msgid "Send metadata to device"
@@ -6198,19 +6197,19 @@ msgstr "Envia les col·leccions al dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:380
 msgid "Upload %d books to device"
-msgstr "Pujar %d llibres al dispositiu"
+msgstr "Carrega %d llibres al dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:395
 msgid "Delete books from device"
-msgstr "Esborrar llibres del dispositiu"
+msgstr "Suprimeix llibres del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:412
 msgid "Download books from device"
-msgstr "Descarregar llibres del dispositiu"
+msgstr "Descarrega llibres del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:422
 msgid "View book on device"
-msgstr "Veure llibre en el dispositiu"
+msgstr "Visualitza un llibre del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:456
 msgid "Set default send to device action"
@@ -6243,7 +6242,7 @@ msgstr "Envia un format concret a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:528
 msgid "Eject device"
-msgstr "Desconnectar dispositiu"
+msgstr "Expulsa el dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:646
 msgid "Error communicating with device"
@@ -6251,19 +6250,19 @@ msgstr "Error en la comunicació amb el dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:667
 msgid "Select folder to open as device"
-msgstr "Seleccionar carpeta per obrir com a dispositiu"
+msgstr "Selecciona la carpeta que s'obrirà com a dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:714
 msgid "Error talking to device"
-msgstr "Error comunicant amb el dispositiu"
+msgstr "Hi ha hagut un error en comunicar-se amb el dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:715
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
 msgstr ""
-"Hi ha hagut un error de comunicació amb el dispositiu. Lleveu-lo i torneu-lo "
-"a connectar i/o torneu a iniciar el programa"
+"Hi ha hagut un error de comunicació amb el dispositiu. Traieu-lo i torneu-lo "
+"a connectar i/o torneu a iniciar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:758
 msgid "Device: "
@@ -6279,7 +6278,7 @@ msgstr "seleccionat per enviar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:863
 msgid "Choose format to send to device"
-msgstr "Escull format per enviar al dispositiu"
+msgstr "Tria el format que s'enviarà al dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:872
 msgid "No device"
@@ -6371,8 +6370,8 @@ msgstr "S'ha enviat notícies a"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1276
 msgid "Auto convert the following books before uploading to the device?"
 msgstr ""
-"Abans de pujar-los al dispositiu s'ha de convertir automàticament els "
-"següents llibres?"
+"S'ha de convertir automàticament aquests llibres abans de carregar-los al "
+"dispositiu?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1102
 msgid "Sending catalogs to device."
@@ -6391,18 +6390,18 @@ msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
 msgstr ""
-"No s'ha pogut pujar els llibres següents al dispositiu, ja que no s'ha "
-"trobat un format adequat. Convertiu primer el(s) llibre(s) a un format "
-"compatible amb el vostre dispositiu."
+"No s'ha pogut carregar aquests llibres al dispositiu, ja que no s'ha trobat "
+"un format adequat. Convertiu primer el(s) llibre(s) a un format compatible "
+"amb el vostre dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1348
 msgid "No space on device"
-msgstr "Sense espai al dispositiu"
+msgstr "No hi ha espai al dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1349
 msgid ""
 "<p>Cannot upload books to device there is no more free space available "
-msgstr "<p>No puc desar llibres al dispositiu perquè no hi ha espai restant "
+msgstr "<p>No es pot desar llibres al dispositiu perquè no hi ha prou espai "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:324
@@ -6519,6 +6518,8 @@ msgstr "Noms que s'ignoraran:"
 msgid ""
 "Enter comma-separated standard file name wildcards, such as synctoy*.dat"
 msgstr ""
+"Introduïu comodins estàndard de noms de fitxer separats per comes, com "
+"synctoy*.dat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:62
 msgid "Extensions to ignore"
@@ -6529,6 +6530,8 @@ msgid ""
 "Enter comma-separated extensions without a leading dot. Used only in book "
 "folders"
 msgstr ""
+"Introduïu extensions separades per comes sense punt al començament. Només "
+"per a carpetes de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:119
 msgid "Path from library"
@@ -6660,8 +6663,8 @@ msgid ""
 "All checked books will be <b>permanently deleted</b> from your device. "
 "Please verify the list."
 msgstr ""
-"Tots els llibres que s'ha seleccionat <b>s'esborraran permanentment</b> del "
-"vostre dispositiu. Comproveu la llista."
+"Tots els llibres seleccionats se suprimiran <b>permanentment</b> del vostre "
+"dispositiu. Comproveu la llista."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 msgid "Location"
@@ -6752,7 +6755,7 @@ msgstr "Avís"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:187
 msgid "Could not fetch metadata from:"
-msgstr "No s'ha pogut aconseguir les metadades de:"
+msgstr "No s'ha pogut recollir les metadades de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:191
 msgid "No metadata found"
@@ -6768,7 +6771,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:90
 msgid "Fetch metadata"
-msgstr "Aconsegueix metadades"
+msgstr "Recull metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:91
 msgid ""
@@ -6828,7 +6831,7 @@ msgstr "Mostra &detalls de la tasca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:52
 msgid "Stop &all non device jobs"
-msgstr "Atura &totes les tasques que no són de dispositius"
+msgstr "Atura &totes les tasques que no són de dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:26
 msgid "Title/Author"
@@ -7385,8 +7388,8 @@ msgstr ""
 msgid ""
 "For the error message from each cover source, click Show details below."
 msgstr ""
-"Per veure els missatges d'error de cada origen de portades feu clic a "
-"'Mostra'n els detalls' més avall."
+"Per als missatges d'error de cada font de portada feu clic a «Veure detalls» "
+"més avall."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:676
 msgid "Bad cover"
@@ -7406,7 +7409,7 @@ msgstr "Hi ha hagut errors descarregant les metadades socials"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:742
 msgid "Cannot fetch metadata"
-msgstr "No s'ha pogut aconseguir les metadades"
+msgstr "No s'ha pogut recollir les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:743
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
@@ -7486,7 +7489,7 @@ msgstr "&Comentaris"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:405
 msgid "&Fetch metadata from server"
-msgstr "Aconsegueix les &metadades del servidor"
+msgstr "Recull les &metadades del servidor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:406
 msgid "Available Formats"
@@ -8399,7 +8402,7 @@ msgstr "Expressió regular (?P<isbn>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:100
 msgid "Cover Browser"
-msgstr "Navegador de portades"
+msgstr "el navegador de portades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:105
 msgid "Shift+Alt+B"
@@ -8407,7 +8410,7 @@ msgstr "Majús+Alt+B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:119
 msgid "Tag Browser"
-msgstr "Navegador d'etiquetes"
+msgstr "l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:121
 msgid "Shift+Alt+T"
@@ -8685,8 +8688,8 @@ msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
 msgstr ""
-"No hi ha suport per a la còpia directa a un dispositiu . Afegiu primer el "
-"llibre a la biblioteca del calibre."
+"No es pot fer una còpia directa a un dispositiu . Afegiu primer el llibre a "
+"la biblioteca del calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:52
 msgid "Configure Viewer"
@@ -8995,8 +8998,8 @@ msgstr ""
 "al llibre existent en lloc de crear una nova entrada. Si el llibre ja té el "
 "format, s'ignora sense donar cap avís.\n"
 "\n"
-"Per fer coincidir títols s'ignoren els articles inicials (\"el\", \"un\"), "
-"la puntuació, majúscula o minúscula...  Amb els autors la coincidència és "
+"Per fer coincidir títols s'ignoren els articles inicials (el, un), la "
+"puntuació, majúscula o minúscula...  Amb els autors la coincidència és "
 "exacta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:55
@@ -9045,7 +9048,7 @@ msgstr "S'ha reinicialitzat tot els diàlegs de confirmació"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:137
 msgid "&Overwrite author and title by default when fetching metadata"
 msgstr ""
-"Per defecte, s&obreescriu el títol i l'autor quan s'obtinguin metadades"
+"Per defecte, s&obreescriu el títol i l'autor quan es recullin les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:138
 msgid "Download &social metadata (tags/ratings/etc.) by default"
@@ -9462,7 +9465,7 @@ msgstr "Trieu &l'idioma (caldrà reiniciar):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:109
 msgid "Show &average ratings in the tags browser"
-msgstr "Mostra l&a mitjana de les valoracions al navegador d'etiquetes"
+msgstr "Mostra l&a mitjana de les valoracions a l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:110
 msgid "Disable all animations. Useful if you have a slow/old computer."
@@ -9492,7 +9495,7 @@ msgstr "Fes servir números &romans per a les sèries"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:116
 msgid "Show cover &browser in a separate window (needs restart)"
 msgstr ""
-"Mostra l'explorador de &portades en una finestra separada (caldrà reiniciar)"
+"Mostra el navegador de &portades en una finestra separada (caldrà reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:117
 msgid "Search as you type"
@@ -10298,7 +10301,7 @@ msgstr "Ordena segons la valoració mitjana"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:874
 msgid "Set the sort order for entries in the Tag Browser"
-msgstr "Establiu d'ordre de les entrades al navegador d'etiquetes"
+msgstr "Establiu d'ordre de les entrades a l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:880
 msgid "Match all"
@@ -10312,7 +10315,7 @@ msgstr "Qualsevol coincidència"
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
-"Quan es seleccionin múltiples entrades al navegador d'etiquetes fes que "
+"Quan es seleccionin múltiples entrades a l'explorador d'etiquetes fes que "
 "coincideixi una qualsevol o totes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:889
@@ -10321,7 +10324,7 @@ msgstr "Administra les categories d'&usuari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:892
 msgid "Add your own categories to the Tag Browser"
-msgstr "Afegiu les vostres categories al navegador d'etiquetes"
+msgstr "Afegiu les vostres categories a l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:183
@@ -10352,7 +10355,7 @@ msgstr "S'està posant a la cua "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:246
 msgid "Fetch news from "
-msgstr "Aconsegueix notícies de "
+msgstr "Recull notícies de "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:316
 msgid "Convert existing"
@@ -12563,7 +12566,7 @@ msgid ""
 "from Apache/nginx/etc."
 msgstr ""
 "Prefix per posar abans de totes les URL. Útil per fer servir un servidor "
-"intermediari de retorn a aquest servidor des d'Apache/nginx..."
+"intermediari de retorn a aquest servidor des d'Apache, nginx..."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/base.py:149
 msgid "Password to access your calibre library. Username is "
@@ -12828,7 +12831,7 @@ msgstr "Llista de les cerques desades amb nom"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:728
 msgid "User-created tag browser categories"
-msgstr "Categories del navegador d'etiquetes creades per l'usuari"
+msgstr "Categories de l'explorador d'etiquetes creades per l'usuari"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:730
 msgid "How and when calibre updates metadata on the device."
@@ -12971,8 +12974,8 @@ msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
 msgstr ""
-"L'intèrpret mentre executava una ordre. Feu clic a Mostra detalls per veure-"
-"la"
+"L'intèrpret falla en executar una ordre. Feu clic a «Veure detalls» per "
+"veure-la"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
@@ -13090,7 +13093,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:835
 msgid "Fetching feeds..."
-msgstr "S'està aconseguint els canals..."
+msgstr "S'està obtenint els canals..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:840
 msgid "Got feeds from index page"
