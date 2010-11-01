@@ -16,6 +16,8 @@ from calibre.ebooks.metadata.covers import check_for_cover
 
 metadata_config = None
 
+html_check = re.compile("([\<])([^\>]{1,})*([\>])", re.I)
+
 class MetadataSource(Plugin): # {{{
     '''
     Represents a source to query for metadata. Subclasses must implement
@@ -78,10 +80,11 @@ class MetadataSource(Plugin): # {{{
                         mi.rating = None
                     if not c.get('comments', True):
                         mi.comments = None
+                    if c.get('textconvert', True) and mi.comments is not None \
+                        and html_check.search(mi.comments) is not None:
+                        mi.comments = html2text(mi.comments)
                     if not c.get('tags', True):
                         mi.tags = []
-                    if c.get('textconvert', True) and mi.comments is not None:
-                        mi.comments = html2text(mi.comments)
 
         except Exception, e:
             self.exception = e
