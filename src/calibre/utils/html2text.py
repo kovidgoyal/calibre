@@ -9,7 +9,7 @@ __contributors__ = ["Martin 'Joey' Schulze", "Ricardo Reyes", "Kevin Jay North"]
 #   Support decoded entities with unifiable.
 
 if not hasattr(__builtins__, 'True'): True, False = 1, 0
-import re, sys, urllib, htmlentitydefs, codecs, StringIO, types
+import re, sys, urllib, htmlentitydefs, codecs
 import sgmllib
 import urlparse
 sgmllib.charref = re.compile('&#([xX]?[0-9a-fA-F]+)[^0-9a-fA-F]')
@@ -18,17 +18,17 @@ try: from textwrap import wrap
 except: pass
 
 # Use Unicode characters instead of their ascii psuedo-replacements
-UNICODE_SNOB = 0
+UNICODE_SNOB = 1
 
 # Put the links after each paragraph instead of at the end.
 LINKS_EACH_PARAGRAPH = 0
 
 # Wrap long lines at position. 0 for no wrapping. (Requires Python 2.3.)
-BODY_WIDTH = 78
+BODY_WIDTH = 0
 
 # Don't show internal links (href="#local-anchor") -- corresponding link targets
 # won't be visible in the plain text file anyway.
-SKIP_INTERNAL_LINKS = False
+SKIP_INTERNAL_LINKS = True
 
 ### Entity Nonsense ###
 
@@ -433,8 +433,9 @@ if __name__ == "__main__":
             j = urllib.urlopen(baseurl)
             try:
                 from feedparser import _getCharacterEncoding as enc
+                enc
             except ImportError:
-                   enc = lambda x, y: ('utf-8', 1)
+                enc = lambda x, y: ('utf-8', 1)
             text = j.read()
             encoding = enc(j.headers, text)[0]
             if encoding == 'us-ascii': encoding = 'utf-8'
