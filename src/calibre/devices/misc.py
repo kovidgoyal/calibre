@@ -72,6 +72,15 @@ class SWEEX(USBMS):
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
 
+class Q600(SWEEX):
+
+    name = 'Digma Q600 Device interface'
+    gui_name = 'Q600'
+    description    = _('Communicate with the Digma Q600')
+
+    BCD = [0x325]
+    FORMATS     = ['epub', 'fb2', 'mobi', 'prc', 'html', 'rtf', 'chm', 'pdf', 'txt']
+
 class KOGAN(SWEEX):
 
     name           = 'Kogan Device Interface'

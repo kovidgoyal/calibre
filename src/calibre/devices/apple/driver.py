@@ -19,7 +19,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
 from calibre.utils.config import config_dir, prefs
-from calibre.utils.date import isoformat, now, parse_date
+from calibre.utils.date import now, parse_date
 from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
 
@@ -2521,11 +2521,11 @@ class ITUNES(DriverBase):
                         metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
                                                    old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
                     else:
-                        metadata.timestamp = isoformat(now())
+                        metadata.timestamp = now()
                         if DEBUG:
                             self.log.info("   add timestamp: %s" % metadata.timestamp)
                 else:
-                    metadata.timestamp = isoformat(now())
+                    metadata.timestamp = now()
                     if DEBUG:
                         self.log.warning("   missing <metadata> block in OPF file")
                         self.log.info("   add timestamp: %s" % metadata.timestamp)

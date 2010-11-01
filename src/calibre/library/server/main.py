@@ -58,6 +58,9 @@ The OPDS interface is advertised via BonJour automatically.
             help=_('Specifies a restriction to be used for this invocation. '
                    'This option overrides any per-library settings specified'
                    ' in the GUI'))
+    parser.add_option('--auto-reload', default=False, action='store_true',
+            help=_('Auto reload server when source code changes. May not'
+                ' work in all environments.'))
     return parser
 
 
