@@ -112,13 +112,12 @@ def get_metadata(br, asin, mi):
 
 def main(args=sys.argv):
     # Test xisbn
-    #print get_social_metadata('Learning Python', None, None, '8324616489')
-    #print
+    print get_social_metadata('Learning Python', None, None, '8324616489')
+    print
 
     # Test sophisticated comment formatting
     print get_social_metadata('Angels & Demons', None, None, '9781416580829')
     print
-    return
 
     # Random tests
     print get_social_metadata('Star Trek: Destiny: Mere Mortals', None, None, '9781416551720')
