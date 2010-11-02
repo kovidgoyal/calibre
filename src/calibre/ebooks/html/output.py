@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'
 
-import os, re
+import os, re, tempfile, zipfile, shutil
 
 from os.path import dirname, abspath, relpath, exists, basename
 
@@ -22,7 +22,7 @@ class HTMLOutput(OutputFormatPlugin):
 
     name = 'HTML Output'
     author = 'Fabian Grassl'
-    file_type = 'html'
+    file_type = 'zip'
 
     options = set([
         OptionRecommendation(name='template_css',
@@ -67,6 +67,8 @@ class HTMLOutput(OutputFormatPlugin):
         return etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=False)
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+
+        # read template files
         if opts.template_html_index is not None:
             template_html_index_data = open(opts.template_html_index, 'r').read()
         else:
@@ -84,9 +86,12 @@ class HTMLOutput(OutputFormatPlugin):
 
         self.log  = log
         self.opts = opts
-        output_file = output_path
-        output_dir = re.sub(r'\.html', '', output_path)+'_files'
-        meta=EasyMeta(oeb_book.metadata)
+        meta = EasyMeta(oeb_book.metadata)
+
+        tempdir = os.path.realpath(tempfile.mkdtemp());
+        output_file = os.path.join(tempdir, os.path.basename(re.sub(r'\.zip', '', output_path)+'.html'))
+        output_dir = re.sub(r'\.html', '', output_file)+'_files'
+
         if not exists(output_dir):
             os.makedirs(output_dir)
 
@@ -101,7 +106,8 @@ class HTMLOutput(OutputFormatPlugin):
             nextLink = oeb_book.spine[0].href
             nextLink = relpath(output_dir+os.sep+nextLink, dirname(output_file))
             cssLink = relpath(abspath(css_path), dirname(output_file))
-            t = templite.render(has_toc=bool(oeb_book.toc.count()), toc=html_toc, meta=meta, nextLink=nextLink, tocUrl=output_file, cssLink=cssLink)
+            tocUrl = relpath(output_file, dirname(output_file))
+            t = templite.render(has_toc=bool(oeb_book.toc.count()), toc=html_toc, meta=meta, nextLink=nextLink, tocUrl=tocUrl, cssLink=cssLink)
             f.write(t)
 
         with CurrentDir(output_dir):
@@ -149,13 +155,31 @@ class HTMLOutput(OutputFormatPlugin):
                     prevLink = None
 
                 cssLink = relpath(abspath(css_path), dir)
+                tocUrl = relpath(output_file, dir)
 
                 # render template
                 templite = Templite(template_html_data)
                 toc = lambda: self.generate_html_toc(oeb_book, path, output_dir)
-                t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink, has_toc=bool(oeb_book.toc.count()), toc=toc, tocUrl=output_file, head_content=head_content, meta=meta, cssLink=cssLink)
+                t = templite.render(ebookContent=ebook_content, prevLink=prevLink, nextLink=nextLink, has_toc=bool(oeb_book.toc.count()), toc=toc, tocUrl=tocUrl, head_content=head_content, meta=meta, cssLink=cssLink)
 
                 # write html to file
                 with open(path, 'wb') as f:
                     f.write(t)
                 item.unload_data_from_memory(memory=path)
+
+        zfile = zipfile.ZipFile(output_path, "w")
+        zfile.write(output_file, os.path.basename(output_file), zipfile.ZIP_DEFLATED)
+        self.add_folder_to_zipfile(zfile, output_dir)
+        zfile.close()
+
+        # cleanup temp dir
+        shutil.rmtree(tempdir)
+
+
+    def add_folder_to_zipfile(self, zfile, folder):
+      for root, dirs, files in os.walk(folder):
+        for f in files:
+          abs_path = os.path.join(root, f)
+          zip_path = os.path.relpath(abs_path, os.path.dirname(folder))
+          zfile.write(abs_path, zip_path, zipfile.ZIP_DEFLATED)
+
