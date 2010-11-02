@@ -6,22 +6,25 @@ Fetch Die Zeit.
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class ZeitDe(BasicNewsRecipe):
 
-    title = 'ZEIT Online'
-    description = 'ZEIT Online'
+    title = 'Zeit Online'
+    description = 'Zeit Online'
     language = 'de'
-    lang = 'de_DE'
 
-    __author__ = 'Martin Pitt, Sujata Raman and Ingo Paschke'
-    use_embedded_content   = False
+    __author__ = 'Martin Pitt, Sujata Raman, Ingo Paschke and Marc Toensing'
+
     max_articles_per_feed = 40
-    remove_empty_feeds = True
-    no_stylesheets = True
-    no_javascript = True
-    encoding = 'utf-8'
+
+    remove_tags = [
+	                    dict(name='iframe'),
+	                    dict(name='div', attrs={'class':["response","pagination block","pagenav","inline link", "copyright"] }),
+	                    dict(name='p', attrs={'class':["ressortbacklink", "copyright"] }),
+	                    dict(name='div', attrs={'id':["place_5","place_4","comments"]})
+	                  ]
+
+    keep_only_tags = [dict(id=['main'])]
 
     feeds =  [
                ('Seite 1', 'http://newsfeed.zeit.de/index_xml'),
@@ -40,43 +43,15 @@ class ZeitDe(BasicNewsRecipe):
                ('Sport', 'http://newsfeed.zeit.de/sport/index'),
              ]
 
-    extra_css = '''
-                .supertitle{color:#990000; font-family:Arial,Helvetica,sans-serif;font-size:xx-small;}
-                .excerpt{font-family:Georgia,Palatino,Palatino Linotype,FreeSerif,serif;font-size:small;}
-                .title{font-family:Arial,Helvetica,sans-serif;font-size:large;clear:right;}
-                .caption{color:#666666; font-family:Arial,Helvetica,sans-serif;font-size:xx-small;}
-                .copyright{color:#666666; font-family:Arial,Helvetica,sans-serif;font-size:xx-small;}
-                .article{font-family:Georgia,Palatino,Palatino Linotype,FreeSerif,serif;font-size:x-small}
-                .quote{font-family:Georgia,Palatino,Palatino Linotype,FreeSerif,serif;font-size:x-small}
-                .quote .cite{font-family:Georgia,Palatino,Palatino Linotype,FreeSerif,serif;font-size:xx-small}
-                .headline iconportrait_inline{font-family:Arial,Helvetica,sans-serif;font-size:x-small}
-                .inline{float:left;margin-top:0;margin-right:15px;position:relative;width:180px; }
-                img.inline{float:none}
-                .intertitle{font-family:Georgia,Palatino,Palatino Linotype,FreeSerif,serif;font-size:x-small;font-weight:700}
-                .ebinfobox{font-family:Georgia,Palatino,Palatino Linotype,FreeSerif,serif;font-size:xx-small;list-style-type:none;float:right;margin-top:0;border-left-style:solid;border-left-width:1px;padding-left:10px;}
-                .infobox {border-style: solid; border-width: 1px;padding:8px;}
-                .infobox dt {font-weight:700;}
-                '''
+    extra_css = '.reaktion,.taglist,.comments,.reponse,.responsetitle,.responsebody,.reponse,.inline,.date{display:none;}li.date{display:block}'
+
     #filter_regexps = [r'ad.de.doubleclick.net/']
-
-    keep_only_tags = [
-                        dict(name='div', attrs={'class':["article"]}) ,
-                        dict(name='ul', attrs={'class':["tools"]}) ,
-                         ]
-    remove_tags = [
-                    dict(name='link'), dict(name='iframe'),dict(name='style'),dict(name='meta'),
-                    dict(name='div', attrs={'class':["pagination block","pagenav","inline link", "copyright"] }),
-                    dict(name='p', attrs={'class':["ressortbacklink", "copyright"] }),
-                    dict(name='div', attrs={'id':["place_5","place_4","comments"]})
-                  ]
-
-    remove_attributes = ['style', 'font']
 
     def get_article_url(self, article):
         ans = article.get('link',None)
-        ans += "?page=all"
+        ans += "?page=all&print=true"
 
-        if 'video' in ans or 'quiz' in ans :
+        if 'video' in ans or 'quiz' in ans or 'blog' in ans :
               ans = None
         return ans
 
@@ -86,25 +61,3 @@ class ZeitDe(BasicNewsRecipe):
             return inhalt.find('div', attrs={'class':'singlearchive clearfix'}).img['src'].replace('icon_','')
         except:
             return 'http://images.zeit.de/bilder/titelseiten_zeit/1946/001_001.jpg'
-
-    def preprocess_html(self, soup):
-        soup.html['xml:lang'] = self.lang
-        soup.html['lang']     = self.lang
-        mtag = '<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '">'
-        soup.head.insert(0,mtag)
-        title = soup.find('h2', attrs={'class':'title'})
-        if title is None:
-            print "no title"
-            return soup
-        info = Tag(soup,'ul',[('class','ebinfobox')])
-        tools = soup.find('ul', attrs={'class':'tools'})
-        #author = tools.find('li','author first')
-        for tag in ['author first', 'date', 'date first', 'author', 'source']:
-            line = tools.find('li', tag)
-            if line:
-                info.insert(0,line)
-        title.parent.insert(0,info)
-        tools.extract()
-        return soup
-
-
