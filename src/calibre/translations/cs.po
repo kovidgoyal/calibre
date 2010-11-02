@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-30 19:24+0000\n"
-"PO-Revision-Date: 2010-10-31 22:14+0000\n"
+"PO-Revision-Date: 2010-11-01 22:13+0000\n"
 "Last-Translator: Aleš Bajtalon <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-01 05:07+0000\n"
+"X-Launchpad-Export-Date: 2010-11-02 04:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1922,6 +1922,10 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"Nepoužívat formát SVG pro přebal knihy. Tuto možnost použijte, pokud vaše "
+"EPUB soubory budou používány v zařízení, které nepodporuje formát SVG, jako "
+"je iPhone nebo JetBook Lite. Bez této volby budou tato zařízení zobrazovat "
+"přebal jako prázdnou stránku."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -2407,6 +2411,17 @@ msgid ""
 "some metadata on a file type that does not support it, the metadata will be\n"
 "silently ignored.\n"
 msgstr ""
+"\n"
+"Čtení/Zápis metadat z/do ebook souborů.\n"
+"\n"
+"Podporované formáty pro čtení metadat: %s\n"
+"\n"
+"Podporované formáty pro zápis metadat: %s\n"
+"\n"
+"Různé typy souborů podporují různé druhy metadat. Pokud se pokusíte "
+"nastavit\n"
+"některá metadata u typů souborů, které je nepodporují, budou metadata\n"
+"ignorována bez upozornění.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:40
 msgid ""
@@ -2456,6 +2471,9 @@ msgid ""
 "ebook. Metadata specified on the command line will override metadata read "
 "from the OPF file"
 msgstr ""
+"Načíst metadata z vybraného OPF souboru a použít je k nastavení metadat v "
+"ebooku. Metadata uvedená v příkazové řádce budou přepsána metadaty načtenými "
+"z OPF souboru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:88
 msgid "Set the BookID in LRF files"
@@ -2735,7 +2753,7 @@ msgstr "Knihy ve formátu %s nejsou podporovány."
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:103
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:156
 msgid "Book %s of %s"
-msgstr ""
+msgstr "Kniha %s z %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
@@ -2759,7 +2777,7 @@ msgstr "Volby generátoru OPF/NCX/..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:35
 msgid "OPF version to generate. Default is %default."
-msgstr ""
+msgstr "OPF verze pro generování. Výchozí je %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:37
 msgid ""
@@ -3086,7 +3104,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:147
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:150
 msgid " (Preface)"
-msgstr ""
+msgstr " (Předmluva)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
@@ -3231,7 +3249,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:131
 msgid "The layout of the user interface"
-msgstr ""
+msgstr "Rozvržení uživatelského rozhraní"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:133
 msgid "Show the average rating per item indication in the tag browser"
@@ -3376,7 +3394,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:221
 msgid "Failed to read metadata"
-msgstr ""
+msgstr "Chyba při čtení metadat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:222
 msgid "Failed to read metadata from the following"
@@ -3471,20 +3489,20 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:34
 msgid "Create catalog of books in your calibre library"
-msgstr ""
+msgstr "Vytvořit katalog knih ve vaši calibre knihovně"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:31
 msgid "No books selected to generate catalog for"
-msgstr ""
+msgstr "Nejsou vybrány žádné knihy ke generování katalogu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:53
 msgid "Generating %s catalog..."
-msgstr ""
+msgstr "Generování %s katalogu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:230
 msgid "No books found"
-msgstr ""
+msgstr "Nenalezeny žádné knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:59
 msgid ""
@@ -3494,7 +3512,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:69
 msgid "Catalog generated."
-msgstr ""
+msgstr "Katalog vygenerován."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:72
 msgid "Export Catalog Directory"
@@ -3549,7 +3567,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
 msgid "Quick switch"
-msgstr ""
+msgstr "Rychlý přepínač"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:78
@@ -3559,11 +3577,11 @@ msgstr "Přejmenuj knihovnu"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
 msgid "Delete library"
-msgstr ""
+msgstr "Odstranit knihovnu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:187
 msgid "Library Maintenance"
-msgstr ""
+msgstr "Údržba knihovny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:188
 msgid "Library metadata backup status"
@@ -3575,16 +3593,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:196
 msgid "Check library"
-msgstr ""
+msgstr "Kontrola knihovny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:200
 msgid "Check database integrity"
-msgstr ""
+msgstr "Kontrola integrity databáze"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:343
 msgid "Recover database"
-msgstr ""
+msgstr "Obnova databáze"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:269
 msgid "Rename"
@@ -3605,11 +3623,11 @@ msgstr "Už existuje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:279
 msgid "The folder %s already exists. Delete it first."
-msgstr ""
+msgstr "Složka %s již existuje. Nejdříve ji smažte."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:285
 msgid "Rename failed"
-msgstr ""
+msgstr "Chyba přejmenování"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:286
 msgid ""
@@ -3633,7 +3651,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:317
 msgid "Backup status"
-msgstr ""
+msgstr "Stav zálohování"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:318
 msgid "Book metadata files remaining to be written: %s"
@@ -3641,7 +3659,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "Backup metadata"
-msgstr ""
+msgstr "Záloha metadat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
 msgid ""
@@ -3768,51 +3786,51 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:32
 msgid "Remove covers from selected books"
-msgstr ""
+msgstr "Odstranit obálku u vybraných knih"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:35
 msgid "Remove matching books from device"
-msgstr ""
+msgstr "Odstranit odpovídající knihy ze zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:53
 msgid "Cannot delete"
-msgstr ""
+msgstr "Nelze smazat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:66
 msgid "Choose formats to be deleted"
-msgstr ""
+msgstr "Vyberte formáty, které nechcete smazat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:84
 msgid "Choose formats <b>not</b> to be deleted"
-msgstr ""
+msgstr "Vyberte formáty, které <b>chcete</b> smazat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:104
 msgid "Cannot delete books"
-msgstr ""
+msgstr "Není možné smazat knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:105
 msgid "No device is connected"
-msgstr ""
+msgstr "Není připojeno žádné zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:115
 msgid "Main memory"
-msgstr ""
+msgstr "Hlavní paměť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:473
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:482
 msgid "Storage Card A"
-msgstr ""
+msgstr "Paměťová karta A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:475
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:484
 msgid "Storage Card B"
-msgstr ""
+msgstr "Paměťová karta B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:122
 msgid "No books to delete"
-msgstr ""
+msgstr "Žádné knihy ke smazání"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:123
 msgid "None of the selected books are on the device"
@@ -3837,11 +3855,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:26
 msgid "Connect to folder"
-msgstr ""
+msgstr "Připojit ke složce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
 msgid "Connect to iTunes"
-msgstr ""
+msgstr "Připojit k iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:48
@@ -4479,7 +4497,7 @@ msgstr "Kolekce"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:58
 msgid "Click to open"
-msgstr ""
+msgstr "Klikněte pro otevření"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:319
@@ -5356,7 +5374,7 @@ msgstr "RB Výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:83
 msgid "No formats available"
-msgstr ""
+msgstr "Nejsou dostupné žádné formáty"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:84
 msgid "Cannot build regex using the GUI builder without a book."
@@ -5412,7 +5430,7 @@ msgstr "SNB Výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:40
 msgid "Hide chapter name"
-msgstr ""
+msgstr "Skrýt název kapitoly"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:41
 msgid "Insert space before the first line for each paragraph"
@@ -5688,7 +5706,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:239
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:243
 msgid "Undefined"
-msgstr ""
+msgstr "Nedefinováno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:122
 msgid "star(s)"
@@ -5696,7 +5714,7 @@ msgstr "hvězd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:123
 msgid "Unrated"
-msgstr ""
+msgstr "Nehodnoceno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:156
 msgid "Set '%s' to today"
@@ -5807,7 +5825,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:528
 msgid "Eject device"
-msgstr ""
+msgstr "Odpojit zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:646
 msgid "Error communicating with device"

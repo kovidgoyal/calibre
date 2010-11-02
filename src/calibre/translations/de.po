@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-30 19:24+0000\n"
-"PO-Revision-Date: 2010-10-31 23:29+0000\n"
+"PO-Revision-Date: 2010-11-01 10:05+0000\n"
 "Last-Translator: Dennispager <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-01 05:08+0000\n"
+"X-Launchpad-Export-Date: 2010-11-02 04:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -3360,6 +3360,8 @@ msgid ""
 "Specify whether or not to hide the chapter title for each chapter. Useful "
 "for image-only output (eg. comics)."
 msgstr ""
+"Gibt an, ob der Kapitelname für jedes Kapitel versteckt werden soll. "
+"Nützlich für Ausgabe ausschließlich mit Bildern (z.B. Comics)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:122
 msgid "Start Page"
@@ -12230,7 +12232,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:927
 msgid "Unknown report check"
-msgstr ""
+msgstr "Unbekannte Berichtüberprüfung"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:960
 msgid ""
@@ -12608,6 +12610,8 @@ msgid ""
 "Prefix to prepend to all URLs. Useful for reverseproxying to this server "
 "from Apache/nginx/etc."
 msgstr ""
+"Vor alle URLs angehängter Prefix. Nützlich für reverse proxy- Anwendung des "
+"Servers von Apache/ngingx/etc. aus."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/base.py:149
 msgid "Password to access your calibre library. Username is "
@@ -13020,6 +13024,8 @@ msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
 msgstr ""
+"Der Interpreter ist bei der Ausführung eines Befehls abgestürzt. Um den "
+"Befehl zu sehen, klicken Sie auf Details anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
