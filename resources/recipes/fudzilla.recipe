@@ -25,15 +25,15 @@ class Fudzilla(BasicNewsRecipe):
     remove_tags_before = dict(name='div', attrs={'class':['padding']})
 
     remove_tags = [dict(name='td', attrs={'class':['left','right']}),
-                   dict(name='div', attrs={'id':['toolbar','buttons']}), 
-                   dict(name='div', attrs={'class':['artbannersxtd','back_button']}), 
-                   dict(name='span', attrs={'class':['pathway']}), 
-                   dict(name='th', attrs={'class':['pagenav_next','pagenav_prev']}), 
-                   dict(name='table', attrs={'class':['headlines']}), 
+                   dict(name='div', attrs={'id':['toolbar','buttons']}),
+                   dict(name='div', attrs={'class':['artbannersxtd','back_button']}),
+                   dict(name='span', attrs={'class':['pathway']}),
+                   dict(name='th', attrs={'class':['pagenav_next','pagenav_prev']}),
+                   dict(name='table', attrs={'class':['headlines']}),
                    ]
 
     feeds = [
-             (u'Posts', u'http://www.fudzilla.com/index.php?option=com_rss&feed=RSS2.0&no_html=1')
+            (u'Posts', u'http://www.fudzilla.com/?format=feed')
              ]
 
     preprocess_regexps = [
