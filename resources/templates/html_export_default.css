@@ -1,0 +1,60 @@
+body{
+  margin:0px;
+  padding: 0.5em;
+  background-color:#F6F3E9;
+  font-size:12px;
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+.calibreMeta{
+  background-color:#39322B;
+  color:white;
+  padding:10px;
+}
+
+.calibreMeta a, .calibreEbNav a, .calibreEbNavTop a, .calibreToc a{
+  color:white;
+}
+
+.calibreMeta h1{
+  margin:0px;
+  font-size:18px;
+  background-color:#39322B;
+}
+
+.calibreEbookContent{
+  padding:20px;
+}
+
+.calibreEbNav, .calibreEbNavTop{
+  clear:both;
+  background-color:#39322B;
+  color:white;
+  padding:10px;
+  text-align:center;
+}
+
+.calibreEbNavTop{
+  margin-bottom:20px;
+}
+
+.calibreEbNav a, .calibreEbNavTop a{
+  padding:0px 5px;
+}
+
+.calibreTocIndex{
+  line-height:18px;
+}
+
+.calibreToc{
+  float:left;
+  margin:20px;
+  width:300px;
+  background-color:#39322B;
+  color:white;
+  padding:10px;
+}
+.calibreEbookContent{
+  width:600px;
+  float:left;
+}
