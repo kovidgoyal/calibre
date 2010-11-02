@@ -275,7 +275,15 @@ class MobiMLizer(object):
         # <mbp:frame-set/> does not exist lalalala
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
-            return
+            id_ = elem.get('id', None)
+            if id_:
+                # Keep anchors so people can use display:none
+                # to generate hidden TOCs
+                elem.clear()
+                elem.text = None
+                elem.set('id', id_)
+            else:
+                return
         tag = barename(elem.tag)
         istate = copy.copy(istates[-1])
         istate.rendered = False
