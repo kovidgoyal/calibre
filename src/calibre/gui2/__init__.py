@@ -255,7 +255,7 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
     return d
 
 def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
-        buttons=QMessageBox.Yes|QMessageBox.No):
+        buttons=QMessageBox.Yes|QMessageBox.No, yes_button=QMessageBox.Yes):
     d = MessageBox(QMessageBox.Question, title, msg, buttons,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(I('dialog_question.png')))
@@ -263,7 +263,7 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
     if not show_copy_button:
         d.cb.setVisible(False)
 
-    return d.exec_() == QMessageBox.Yes
+    return d.exec_() == yes_button
 
 def info_dialog(parent, title, msg, det_msg='', show=False):
     d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.Ok,
@@ -399,6 +399,7 @@ class FileIconProvider(QFileIconProvider):
              'fb2'     : 'fb2',
              'rtf'     : 'rtf',
              'odt'     : 'odt',
+             'snb'     : 'snb',
              }
 
     def __init__(self):
@@ -514,7 +515,7 @@ class FileDialog(QObject):
                 if f and os.path.exists(f):
                     self.selected_files.append(f)
         else:
-            opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.DirectoryOnly else QFileDialog.Option()
+            opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.Directory else QFileDialog.Option()
             f = unicode(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
             if os.path.exists(f):
                 self.selected_files.append(f)
@@ -534,7 +535,7 @@ class FileDialog(QObject):
 
 def choose_dir(window, name, title, default_dir='~'):
     fd = FileDialog(title=title, filters=[], add_all_files_filter=False,
-            parent=window, name=name, mode=QFileDialog.DirectoryOnly,
+            parent=window, name=name, mode=QFileDialog.Directory,
             default_dir=default_dir)
     dir = fd.get_files()
     if dir:

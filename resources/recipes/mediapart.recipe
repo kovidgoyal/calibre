@@ -1,53 +1,79 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>'
+__copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010, Louis Gesbert <meta at antislash dot info>'
 '''
 Mediapart
 '''
 
-import re, string
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Mediapart(BasicNewsRecipe):
     title          = 'Mediapart'
-    __author__ = 'Mathieu Godlewski <mathieu at godlewski.fr>'
+    __author__ = 'Mathieu Godlewski'
     description = 'Global news in french from online newspapers'
     oldest_article = 7
     language = 'fr'
+    needs_subscription = True
 
     max_articles_per_feed = 50
     no_stylesheets = True
 
-    html2lrf_options = ['--base-font-size', '10']
+    cover_url = 'http://www.mediapart.fr/sites/all/themes/mediapart/mediapart/images/annonce.jpg'
 
     feeds =  [
         ('Les articles', 'http://www.mediapart.fr/articles/feed'),
     ]
 
-    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE|re.DOTALL), i[1]) for i in
-        [
-            (r'<div class="print-title">([^>]+)</div>', lambda match : '<h2>'+match.group(1)+'</h2>'),
-            (r'<p>Mediapart\.fr</p>', lambda match : ''),
-            (r'<p[^>]*>[\s]*</p>', lambda match : ''),
-            (r'<p><a href="[^\.]+\.pdf">[^>]*</a></p>', lambda match : ''),
+# -- print-version has poor quality on this website, better do the conversion ourselves
+#
+#     preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE|re.DOTALL), i[1]) for i in
+#         [
+#             (r'<div class="print-title">([^>]+)</div>', lambda match : '<h2>'+match.group(1)+'</h2>'),
+#             (r'<span class=\'auteur_staff\'>[^>]+<a title=\'[^\']*\'[^>]*>([^<]*)</a>[^<]*</span>',
+#              lambda match : '<i>'+match.group(1)+'</i>'),
+#             (r'\'', lambda match: '&rsquo;'),
+#         ]
+#      ]
+#
+#     remove_tags    = [ dict(name='div', attrs={'class':'print-source_url'}),
+#                        dict(name='div', attrs={'class':'print-links'}),
+#                        dict(name='img', attrs={'src':'entete_article.png'}),
+#                        dict(name='br') ]
+#
+#     def print_version(self, url):
+#         raw = self.browser.open(url).read()
+#         soup = BeautifulSoup(raw.decode('utf8', 'replace'))
+#         div = soup.find('div', {'id':re.compile('node-\d+')})
+#         if div is None:
+#             return None
+#         article_id = string.replace(div['id'], 'node-', '')
+#         if article_id is None:
+#             return None
+#         return 'http://www.mediapart.fr/print/'+article_id
+
+# -- Non-print version [dict(name='div', attrs={'class':'advert'})]
+
+    keep_only_tags = [
+        dict(name='h1', attrs={'class':'title'}),
+        dict(name='div', attrs={'class':'page_papier_detail'}),
         ]
-    ]
 
-    remove_tags    = [ dict(name='div', attrs={'class':'print-source_url'}),
-                                  dict(name='div', attrs={'class':'print-links'}),
-                                  dict(name='img', attrs={'src':'entete_article.png'}),
-    ]
+    def preprocess_html(self,soup):
+        for title in soup.findAll('div', {'class':'titre'}):
+            tag = Tag(soup, 'h3')
+            title.replaceWith(tag)
+            tag.insert(0,title)
+        return soup
 
+# -- Handle login
 
-    def print_version(self, url):
-        raw = self.browser.open(url).read()
-        soup = BeautifulSoup(raw.decode('utf8', 'replace'))
-        div = soup.find('div', {'class':'node node-type-article'})
-        if div is None:
-            return None
-        article_id = string.replace(div['id'], 'node-', '')
-        if article_id is None:
-            return None
-        return 'http://www.mediapart.fr/print/'+article_id
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.mediapart.fr/')
+            br.select_form(nr=1)
+            br['name'] = self.username
+            br['pass'] = self.password
+            br.submit()
+        return br
+

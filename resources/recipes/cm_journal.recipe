@@ -1,0 +1,44 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class CMJornal_pt(BasicNewsRecipe):
+    title                 = 'Correio da Manha - Portugal'
+    __author__            = 'jmst'
+    description           = 'As noticias de Portugal e do Mundo'
+    publisher             = 'Cofina Media'
+    category              = ''
+    oldest_article        = 1
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    use_embedded_content  = False
+    language              = 'pt'
+    extra_css             = ' .publish{font-style: italic; line-height: 1.2em; border-bottom: 1px dotted; padding: 5px 0} .entity{line-height: 1.2em} .overview{line-height:1.2em} '
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    keep_only_tags = [
+                        dict(name=['h2','h1'])
+                      , dict(name='div', attrs={'class': ['news']})
+                     ]
+
+    remove_tags = [
+                    dict(name=['object','embed','iframe'])
+                   ,dict(name='a',attrs={'href':['#']})
+                  ]
+
+    feeds = [
+              (u'Actualidade' , u'http://www.cmjornal.xl.pt/rss/rss.aspx?channelID=00000009-0000-0000-0000-000000000009' )
+             ,(u'Portugal'    , u'http://www.cmjornal.xl.pt/rss/rss.aspx?channelID=00000010-0000-0000-0000-000000000010'    )
+             ,(u'Economia' , u'http://www.cmjornal.xl.pt/rss/rss.aspx?channelID=00000011-0000-0000-0000-000000000011' )
+             ,(u'Mundo' , u'http://www.cmjornal.xl.pt/rss/rss.aspx?channelID=00000091-0000-0000-0000-000000000091' )
+             ,(u'Desporto' , u'http://www.cmjornal.xl.pt/rss/rss.aspx?channelID=00000012-0000-0000-0000-000000000012'  )
+             ,(u'TV & Media', u'http://www.cmjornal.xl.pt/rss/rss.aspx?channelID=00000092-0000-0000-0000-000000000092')
+            ]
+
+    def print_version(self, url):
+        return url.replace('noticia.aspx', 'Imprimir.aspx')
+

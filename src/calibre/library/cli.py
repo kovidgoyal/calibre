@@ -943,11 +943,11 @@ def command_check_library(args, dbpath):
             return
         if opts.csv:
             for i in list:
-                print check[1] + ',' + i[0] + ',' + i[1] + ',' + '|'.join(i[2])
+                print check[1] + ',' + i[0] + ',' + i[1]
         else:
             print check[1]
             for i in list:
-                print '    %-30.30s - %-30.30s - %s'%(i[0], i[1], ', '.join(i[2]))
+                print '    %-40.40s - %-40.40s'%(i[0], i[1])
 
     db = LibraryDatabase2(dbpath)
     checker = CheckLibrary(dbpath, db)

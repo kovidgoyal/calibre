@@ -716,6 +716,9 @@ View an ebook.
 
 
 def main(args=sys.argv):
+    # Ensure viewer can continue to function if GUI is closed
+    os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
+
     parser = option_parser()
     opts, args = parser.parse_args(args)
     pid = os.fork() if False and (islinux or isfreebsd) else -1

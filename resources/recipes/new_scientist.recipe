@@ -8,11 +8,11 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class NewScientist(BasicNewsRecipe):
-    title                 = 'New Scientist - Online News'
+    title                 = 'New Scientist - Online News w. subscription'
     __author__            = 'Darko Miletic'
     description           = 'Science news and science articles from New Scientist.'
     language              = 'en'
-    publisher             = 'New Scientist'
+    publisher             = 'Reed Business Information Ltd.'
     category              = 'science news, science articles, science jobs, drugs, cancer, depression, computer software'
     oldest_article        = 7
     max_articles_per_feed = 100
@@ -21,7 +21,12 @@ class NewScientist(BasicNewsRecipe):
     cover_url             = 'http://www.newscientist.com/currentcover.jpg'
     masthead_url          = 'http://www.newscientist.com/img/misc/ns_logo.jpg'
     encoding              = 'utf-8'
-    extra_css             = ' body{font-family: Arial,sans-serif} img{margin-bottom: 0.8em} '
+    needs_subscription    = 'optional'
+    extra_css             = """
+                                 body{font-family: Arial,sans-serif}
+                                 img{margin-bottom: 0.8em}
+                                 .quotebx{font-size: x-large; font-weight: bold; margin-right: 2em; margin-left: 2em}
+                            """
 
     conversion_options = {
                           'comment'          : description
@@ -33,15 +38,27 @@ class NewScientist(BasicNewsRecipe):
 
     keep_only_tags = [dict(name='div', attrs={'id':['pgtop','maincol','blgmaincol','nsblgposts','hldgalcols']})]
 
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        br.open('http://www.newscientist.com/')
+        if self.username is not None and self.password is not None:
+            br.open('https://www.newscientist.com/user/login?redirectURL=')
+            br.select_form(nr=2)
+            br['loginId' ] = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
     remove_tags = [
                      dict(name='div'  , attrs={'class':['hldBd','adline','pnl','infotext' ]})
                     ,dict(name='div'  , attrs={'id'   :['compnl','artIssueInfo','artTools','comments','blgsocial','sharebtns']})
                     ,dict(name='p'    , attrs={'class':['marker','infotext'               ]})
                     ,dict(name='meta' , attrs={'name' :'description'                       })
-                    ,dict(name='a'    , attrs={'rel'  :'tag'                                })
+                    ,dict(name='a'    , attrs={'rel'  :'tag'                               })
+                    ,dict(name=['link','base','meta','iframe','object','embed'])
                   ]
     remove_tags_after = dict(attrs={'class':['nbpcopy','comments']})
-    remove_attributes = ['height','width']
+    remove_attributes = ['height','width','lang']
 
     feeds          = [
                         (u'Latest Headlines'        , u'http://feeds.newscientist.com/science-news'              )
@@ -62,6 +79,8 @@ class NewScientist(BasicNewsRecipe):
         return url + '?full=true&print=true'
 
     def preprocess_html(self, soup):
+        for item in soup.findAll(['quote','quotetext']):
+            item.name='p'
         for tg in soup.findAll('a'):
             if tg.string == 'Home':
                 tg.parent.extract()

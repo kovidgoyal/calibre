@@ -35,7 +35,6 @@ class ViewAction(InterfaceAction):
         self.qaction.setMenu(self.view_menu)
         ac.triggered.connect(self.view_specific_format, type=Qt.QueuedConnection)
 
-
     def location_selected(self, loc):
         enabled = loc == 'library'
         for action in list(self.view_menu.actions())[1:]:
@@ -111,7 +110,7 @@ class ViewAction(InterfaceAction):
                 'books at once can be slow and have a negative effect on the '
                 'responsiveness of your computer. Once started the process '
                 'cannot be stopped until complete. Do you wish to continue?'
-                ) % num)
+                ) % num, show_copy_button=False)
 
     def view_folder(self, *args):
         rows = self.gui.current_view().selectionModel().selectedRows()
@@ -133,6 +132,9 @@ class ViewAction(InterfaceAction):
     def view_book(self, triggered):
         rows = self.gui.current_view().selectionModel().selectedRows()
         self._view_books(rows)
+
+    def view_triggered(self, index):
+        self._view_books([index])
 
     def view_specific_book(self, index):
         self._view_books([index])

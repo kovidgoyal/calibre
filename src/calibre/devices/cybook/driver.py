@@ -42,7 +42,7 @@ class CYBOOK(USBMS):
     DELETE_EXTS = ['.mbp', '.dat', '.bin', '_6090.t2b', '.thn']
     SUPPORTS_SUB_DIRS = True
 
-    def upload_cover(self, path, filename, metadata):
+    def upload_cover(self, path, filename, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             coverdata = coverdata[2]

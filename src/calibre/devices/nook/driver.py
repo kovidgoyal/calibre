@@ -45,7 +45,7 @@ class NOOK(USBMS):
     DELETE_EXTS = ['.jpg']
     SUPPORTS_SUB_DIRS = True
 
-    def upload_cover(self, path, filename, metadata):
+    def upload_cover(self, path, filename, metadata, filepath):
         try:
             from PIL import Image, ImageDraw
             Image, ImageDraw

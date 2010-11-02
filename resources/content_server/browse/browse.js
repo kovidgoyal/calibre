@@ -109,14 +109,14 @@ function toplevel_layout() {
     var last = $(".toplevel li").last();
     var title = $('.toplevel h3').first();
     var bottom = last.position().top + last.height() - title.position().top;
-    $("#main").height(Math.max(200, bottom));
+    $("#main").height(Math.max(200, bottom+75));
 }
 
 function toplevel() {
     $(".sort_select").hide();
 
     $(".toplevel li").click(function() {
-        var href = $(this).children("span.url").text();
+        var href = $(this).children("a").attr('href');
         window.location = href;
     });
 
@@ -133,7 +133,7 @@ function render_error(msg) {
 // Category feed {{{
 
 function category_clicked() {
-   var href = $(this).find("span.href").html();
+   var href = $(this).find("a").attr('href');
    window.location = href;
 }
 
@@ -151,11 +151,12 @@ function category() {
 
         change: function(event, ui) {
             if (ui.newContent) {
-                var href = ui.newContent.children("span.load_href").html();
+                var href = ui.newContent.prev().children("a.load_href").attr('href');
                 ui.newContent.children(".loading").show();
                 if (href) {
                     $.ajax({
                         url:href,
+                        cache: false,
                         data:{'sort':cookie(sort_cookie_name)},
                         success: function(data) {
                             this.children(".loaded").html(data);
@@ -212,6 +213,7 @@ function load_page(elem) {
         url: href,
         context: elem,
         dataType: "json",
+        cache : false,
         type: 'POST',
         timeout: 600000, //milliseconds (10 minutes)
         data: {'ids': ids},
@@ -255,7 +257,7 @@ function booklist(hide_sort) {
 function show_details(a_dom) {
     var book = $(a_dom).closest('div.summary');
     var bd = $('#book_details_dialog');
-    bd.html('<span class="loading"><img src="/static/loading.gif" alt="Loading" />Loading, please wait&hellip;</span>');
+    bd.html('<span class="loading"><img src="'+url_prefix+'/static/loading.gif" alt="Loading" />Loading, please wait&hellip;</span>');
     bd.dialog('option', 'width', $(window).width() - 100);
     bd.dialog('option', 'height', $(window).height() - 100);
     bd.dialog('option', 'title', book.find('.title').text());
@@ -263,6 +265,7 @@ function show_details(a_dom) {
     $.ajax({
         url: book.find('.details-href').attr('title'),
         context: bd,
+        cache: false,
         dataType: "json",
         timeout: 600000, //milliseconds (10 minutes)
         error: function(xhr, stat, err) {

@@ -108,6 +108,27 @@ class EPUBInput(InputFormatPlugin):
             open('calibre_raster_cover.jpg', 'wb').write(
                 renderer)
 
+    def find_opf(self):
+        def attr(n, attr):
+            for k, v in n.attrib.items():
+                if k.endswith(attr):
+                    return v
+        try:
+            with open('META-INF/container.xml') as f:
+                root = etree.fromstring(f.read())
+                for r in root.xpath('//*[local-name()="rootfile"]'):
+                    if attr(r, 'media-type') != "application/oebps-package+xml":
+                        continue
+                    path = attr(r, 'full-path')
+                    if not path:
+                        continue
+                    path = os.path.join(os.getcwdu(), *path.split('/'))
+                    if os.path.exists(path):
+                        return path
+        except:
+            import traceback
+            traceback.print_exc()
+
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.utils.zipfile import ZipFile
         from calibre import walk
@@ -116,12 +137,13 @@ class EPUBInput(InputFormatPlugin):
         zf = ZipFile(stream)
         zf.extractall(os.getcwd())
         encfile = os.path.abspath(os.path.join('META-INF', 'encryption.xml'))
-        opf = None
-        for f in walk(u'.'):
-            if f.lower().endswith('.opf') and '__MACOSX' not in f and \
-                    not os.path.basename(f).startswith('.'):
-                opf = os.path.abspath(f)
-                break
+        opf = self.find_opf()
+        if opf is None:
+            for f in walk(u'.'):
+                if f.lower().endswith('.opf') and '__MACOSX' not in f and \
+                        not os.path.basename(f).startswith('.'):
+                    opf = os.path.abspath(f)
+                    break
         path = getattr(stream, 'name', 'stream')
 
         if opf is None:

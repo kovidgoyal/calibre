@@ -28,7 +28,9 @@ If there are no windows binaries already compiled for the version of python you 
 
 Run the following command to install python dependencies::
 
-    easy_install --always-unzip -U ipython mechanize BeautifulSoup pyreadline python-dateutil dnspython
+    easy_install --always-unzip -U ipython mechanize pyreadline python-dateutil dnspython
+
+Install BeautifulSoup 3.0.x manually into site-packages (3.1.x parses broken HTML very poorly)
 
 Qt
 --------
@@ -213,7 +215,7 @@ It contains correct fonts.conf etc.
 poppler
 -------------
 
-In Cmake: disable GTK, Qt, OPenjpeg, zlib, lcms, gtk_tests, qt_tests. Enable qt4, jpeg, png and zlib
+In Cmake: disable GTK, Qt, OPenjpeg, cpp, lcms, gtk_tests, qt_tests. Enable qt4, jpeg, png and zlib
 
 NOTE: poppler must be built as a static library, unless you build the qt4 bindings
 

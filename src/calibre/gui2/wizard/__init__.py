@@ -219,6 +219,13 @@ class EZReaderPP(HanlinV5):
     manufacturer = 'Astak'
     id = 'ezreader_pp'
 
+class Bambook(Device):
+
+    name = 'Sanda Bambook'
+    output_format = 'SNB'
+    manufacturer = 'Sanda'
+    id = 'bambook'
+    output_profile = 'bambook'
 # }}}
 
 def get_devices():

@@ -4,6 +4,164 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.26
+  date: 2010-10-30
+
+  new features:
+    - title: "Check library: Allow wildcards in ignore names field"
+
+  bug fixes:
+    - title: "Fix regression in 0.7.25 that broke reading metadata from filenames."
+
+    - title: "Fix regression in 0.7.25 that caused original files to be mistakenly removed when adding books recursively"
+
+    - title: "Fix long series/publisher causing edit metadata in bulk dialog to become very large"
+      tickets: [7332]
+
+    - title: "Only add SONY periodical code to downloaded news if output profile is set to one of the SONY reader profiles. This is needed because the ever delightful Stanza crashes and burns when an EPUB has the periodical code"
+
+  improved recipes:
+    - El Periodico
+    - New Zealand Herald
+
+  new recipes:
+    - title: "Taggeschau.de"
+      author: "Florian Andreas Pfaff"
+      
+    - title: "Gamespot Reviews"
+      author: "Marc Tonsing"
+
+- version: 0.7.25
+  date: 2010-10-29
+
+  new features:
+    - title: "Add support for the SONY periodical format."
+      description: "This means that news downloaded by calibre and sent to a newer SONY device (350/650/900) should appear in the Periodicals section and have the special periodicals navigation user interface"
+      type: major
+
+    - title: "Content server: Make the new browsing interface the default. The old interface can be accessed at /old"
+
+    - title: "Content server: Allow running of content server as a WSGI application within another server. Add tutorial for this to the User Manual."
+
+    - title: "Support for the Pico Life reader, Kobo Wifi and HTC Aria"
+
+    - title: "Content server: Add a new --url-prefix command line option to ease the use of the server with a reverse proxy"
+
+    - title: "New social metadata plugin for Amazon that does not rely on AWS. Since Amazon broke AWS, it is recommended you upgrade to this version if you use metadata from Amazon"
+
+    - title: "Add a tweak to specify the fonts used when geenrating the default cover"
+
+    - title: "Add an output profile for generic Tablet devices"
+      tickets: [7289]
+
+    - title: "SONY driver: Allow sorting of collections by arbitrary field via a new tweak."
+
+    - title: "Content server: Make /mobile a little prettier"
+
+    - title: "Add button to 'Library Check' to automatically delete spurious files and folders"
+
+  bug fixes:
+    - title: "FB2 Input: Lots of love. Handle stylesheets and style attributes. Make parsinf malformed FB2 files more robust."
+      tickets: [7219, 7230]
+
+    - title: "Fix auto send of news to device with multiple calibre libraries. The fix means that if you have any pending news to be sent, it will be ignored after the update. Future news downloads will once again be automatically sent to the device."
+
+    - title: "MOBI Output: Conversion of super/sub scripts now handles nested tags."
+      tickets: [7264]
+
+    - title: "Conversion pipeline: Fix parsing of XML encoding declarations."
+      tickets: [7328]
+
+    - title: "Pandigital (Kobo): Upload thumbnails to correct location"
+      tickets: [7165]
+
+    - title: "Fix auto emailed news with non asci characters in title not being deliverd to Kindle"
+      tickets: [7322]
+
+    - title: "Read metadata only after on import plugins have run when adding books to GUI"
+      tickets: [7245]
+
+    - title: "Various fixes for bugs caused by non ascii temporary paths on windows with non UTF-8 filesystem encodings"
+      tickets: [7288]
+
+    - title: "Various fixes/enhancements to SNB Output"
+
+    - title: "Allow Tag editor in edit metadata dialog to be used even if tags have been changed"
+      tickets: [7298]
+
+    - title: "Fix crash on some OS X machines when Preferences->Conversion->Output is clicked"
+
+    - title: "MOBI indexing: Fix last entry missing sometimes"
+      tickets: [6595]
+
+    - title: "Fix regression causing books to be deselected after sending to device"
+      tickets: [7271]
+
+    - title: "Conversion pipeline: Fix rescaling of GIF images not working"
+      tickets: [7306]
+
+    - title: "Update PDF metadata/conversion libraries in windows build"
+
+    - title: "Fix timezone bug when searching on date fields"
+      tickets: [7300]
+
+    - title: "Fix regression that caused the viewr to crash if the main application is closed"
+      tickets: [7276]
+
+    - title: "Fix bug causing a spurious metadata.opf file to be written at the root of the calibre library when adding books"
+
+    - title: "Use the same title casing algorithm in all places"
+
+    - title: "Fix bulk edit of dual state boolean custom columns"
+
+    - title: "Increase image size for comics in Kindle DX profile for better conversion of comics to PDF"
+
+    - title: "Fix restore db to not dies when conflicting custom columns are encountered and report conflicting columns errors. Fix exceptions when referencing invalid _index fields."
+
+    - title: "Fix auto merge books not respecting article sort tweak"
+      tickets: [7147]
+
+    - title: "Linux device drivers: Fix udisks based ejecting for devices with multiple nodes"
+
+    - title: "Linux device mounting: Mount the drive with the lowest kernel name as main memory"
+
+    - title: "Fix use of numeric fields in templates"
+
+    - title: "EPUB Input: Handle EPUB files with multiple OPF files."
+      tickets: [7229]
+
+    - title: "Setting EPUB metadata: Fix date format. Fix language being overwritten by und when unspecified. Fix empty ISBN identifier being created"
+
+    - title: "Fix cannot delete a Series listing from List view also dismiss fetch metadata dialog when no metadata found automatically"
+      tickets: [7221, 7220]
+
+    - title: "Content server: Handle switch library in GUI gracefully"
+
+    - title: "calibre-server: Use cherrypy implementation of --pidfile and --daemonize"
+
+  new recipes:
+    - title: "Ming Pao"
+      author: "Eddie Lau"
+      
+    - title: "lenta.ru"
+      author: "Nikolai Kotchetkov"
+
+    - title: "frazpc.pl"
+      author: "Tomasz Dlugosz"
+      
+    - title: "Perfil and The Economic Collapse Blog"
+      author: "Darko Miletic"
+
+    - title: "STNN"
+      author: "Larry Chan"
+
+  improved recipes:
+    - CubaDebate
+    - El Pais
+    - Fox News
+    - New Scientist
+    - The Economic Times of India
+
 - version: 0.7.24
   date: 2010-10-17
 

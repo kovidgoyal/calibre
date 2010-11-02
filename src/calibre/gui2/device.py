@@ -484,17 +484,22 @@ class DeviceMenu(QMenu): # {{{
                     _('Storage Card B')),
         ]
 
+        later_menus = []
 
         for menu in (self, self.set_default_menu):
             for actions, desc in (
                     (basic_actions, ''),
+                    (specific_actions, _('Send specific format to')),
                     (delete_actions, _('Send and delete from library')),
-                    (specific_actions, _('Send specific format'))
                     ):
                 mdest = menu
                 if actions is not basic_actions:
-                    mdest = menu.addMenu(desc)
+                    mdest = QMenu(desc)
                     self._memory.append(mdest)
+                    later_menus.append(mdest)
+                    if menu is self.set_default_menu:
+                        menu.addMenu(mdest)
+                        menu.addSeparator()
 
                 for dest, delete, specific, icon, text in actions:
                     action = DeviceAction(dest, delete, specific, icon, text, self)
@@ -507,7 +512,7 @@ class DeviceMenu(QMenu): # {{{
                         action.a_s.connect(self.action_triggered)
                         self.actions.append(action)
                     mdest.addAction(action)
-                if actions is not specific_actions:
+                if actions is basic_actions:
                     menu.addSeparator()
 
         da = config['default_send_to_device_action']
@@ -525,14 +530,21 @@ class DeviceMenu(QMenu): # {{{
         self.group.triggered.connect(self.change_default_action)
         self.addSeparator()
 
+        self.addMenu(later_menus[0])
+        self.addSeparator()
+
         mitem = self.addAction(QIcon(I('eject.png')), _('Eject device'))
         mitem.setEnabled(False)
         mitem.triggered.connect(lambda x : self.disconnect_mounted_device.emit())
         self.disconnect_mounted_device_action = mitem
-
         self.addSeparator()
+
         self.addMenu(self.set_default_menu)
         self.addSeparator()
+
+        self.addMenu(later_menus[1])
+        self.addSeparator()
+
         annot = self.addAction(_('Fetch annotations (experimental)'))
         annot.setEnabled(False)
         annot.triggered.connect(lambda x :
@@ -1029,7 +1041,7 @@ class DeviceMixin(object): # {{{
             to_s = [account]
             subjects = [_('News:')+' '+mi.title]
             texts    = [_('Attached is the')+' '+mi.title]
-            attachment_names = [mi.title+os.path.splitext(attachment)[1]]
+            attachment_names = [ascii_filename(mi.title)+os.path.splitext(attachment)[1]]
             attachments = [attachment]
             jobnames = ['%s:%s'%(id, mi.title)]
             remove = [id] if config['delete_news_from_library_on_upload']\
@@ -1102,12 +1114,35 @@ class DeviceMixin(object): # {{{
                 self.status_bar.show_message(_('Sending catalogs to device.'), 5000)
 
 
+    @dynamic_property
+    def news_to_be_synced(self):
+        doc = 'Set of ids to be sent to device'
+        def fget(self):
+            ans = []
+            try:
+                ans = self.library_view.model().db.prefs.get('news_to_be_synced',
+                        [])
+            except:
+                import traceback
+                traceback.print_exc()
+            return set(ans)
+
+        def fset(self, ids):
+            try:
+                self.library_view.model().db.prefs.set('news_to_be_synced',
+                        list(ids))
+            except:
+                import traceback
+                traceback.print_exc()
+
+        return property(fget=fget, fset=fset, doc=doc)
+
 
     def sync_news(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
             del_on_upload = config['delete_news_from_library_on_upload']
             settings = self.device_manager.device.settings()
-            ids = list(dynamic.get('news_to_be_synced', set([]))) if send_ids is None else send_ids
+            ids = list(self.news_to_be_synced) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
             files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
                                 ids, settings.format_map,
@@ -1139,7 +1174,7 @@ class DeviceMixin(object): # {{{
             for f in files:
                 f.deleted_after_upload = del_on_upload
             if not files:
-                dynamic.set('news_to_be_synced', set([]))
+                self.news_to_be_synced = set([])
                 return
             metadata = self.library_view.model().metadata_for(ids)
             names = []
@@ -1153,7 +1188,7 @@ class DeviceMixin(object): # {{{
                 if mi.cover and os.access(mi.cover, os.R_OK):
                     mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
                         'rb').read())
-            dynamic.set('news_to_be_synced', set([]))
+            self.news_to_be_synced = set([])
             if config['upload_news_to_device'] and files:
                 remove = ids if del_on_upload else []
                 space = { self.location_manager.free[0] : None,
@@ -1347,8 +1382,9 @@ class DeviceMixin(object): # {{{
         # If it does not, then do it here.
         if not self.set_books_in_library(self.booklists(), reset=True):
             self.upload_booklists()
-        self.book_on_device(None, reset=True)
-        self.refresh_ondevice()
+        with self.library_view.preserve_selected_books:
+            self.book_on_device(None, reset=True)
+            self.refresh_ondevice()
 
         view = self.card_a_view if on_card == 'carda' else \
             self.card_b_view if on_card == 'cardb' else self.memory_view

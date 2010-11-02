@@ -4,6 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import sys
 from itertools import izip
 from xml.sax.saxutils import escape
 
@@ -258,6 +259,9 @@ class OutputProfile(Plugin):
     #: Number of ems that the left margin of a blockquote is rendered as
     mobi_ems_per_blockquote = 1.0
 
+    #: Special periodical formatting needed in EPUB
+    epub_periodical_format = None
+
     @classmethod
     def tags_to_string(cls, tags):
         return escape(', '.join(tags))
@@ -417,6 +421,13 @@ class iPadOutput(OutputProfile):
         '''
         # }}}
 
+class TabletOutput(iPadOutput):
+    name = 'Tablet'
+    short_name = 'tablet'
+    description = _('Intended for generic tablet devices, does no resizing of images')
+
+    screen_size = (sys.maxint, sys.maxint)
+    comic_screen_size = (sys.maxint, sys.maxint)
 
 class SonyReaderOutput(OutputProfile):
 
@@ -430,6 +441,9 @@ class SonyReaderOutput(OutputProfile):
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
     unsupported_unicode_chars = [u'\u201f', u'\u201b']
+
+    epub_periodical_format = 'sony'
+    #periodical_date_in_title = False
 
 
 class KoboReaderOutput(OutputProfile):
@@ -553,6 +567,8 @@ class CybookOpusOutput(SonyReaderOutput):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
+    epub_periodical_format = None
+
 class KindleOutput(OutputProfile):
 
     name        = 'Kindle'
@@ -583,7 +599,8 @@ class KindleDXOutput(OutputProfile):
     # Screen size is a best guess
     screen_size               = (744, 1022)
     dpi                       = 150.0
-    comic_screen_size         = (741, 1022)
+    comic_screen_size = (771, 1116)
+    #comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
     mobi_ems_per_blockquote = 2.0
@@ -649,13 +666,14 @@ class NookOutput(OutputProfile):
 
 class BambookOutput(OutputProfile):
 
+    author      = 'Li Fanxi'
     name        = 'Sanda Bambook'
     short_name  = 'bambook'
     description = _('This profile is intended for the Sanda Bambook.')
 
     # Screen size is a best guess
-    screen_size               = (800, 600)
-    comic_screen_size         = (700, 540)
+    screen_size               = (600, 800)
+    comic_screen_size         = (540, 700)
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [10, 12, 14, 16]
@@ -663,7 +681,7 @@ class BambookOutput(OutputProfile):
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
-        iPadOutput, KoboReaderOutput,
+        iPadOutput, KoboReaderOutput, TabletOutput,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
         BambookOutput, ]

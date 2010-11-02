@@ -33,6 +33,10 @@ class HTMLOutput(OutputFormatPlugin):
 
         OptionRecommendation(name='template_html',
             help=_('Template used for the generation of the html contents of the book instead of the default file')),
+
+        OptionRecommendation(name='extracted', recommended_value=False,
+            help=_('Extract the contents of the generated ZIP file to the directory of the generated ZIP file')
+        ),
     ])
 
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
@@ -168,9 +172,13 @@ class HTMLOutput(OutputFormatPlugin):
                 item.unload_data_from_memory(memory=path)
 
         zfile = zipfile.ZipFile(output_path, "w")
-        zfile.write(output_file, os.path.basename(output_file), zipfile.ZIP_DEFLATED)
+        zfile.write(output_file, basename(output_file), zipfile.ZIP_DEFLATED)
         self.add_folder_to_zipfile(zfile, output_dir)
         zfile.close()
+
+        if (self.opts.extracted):
+            shutil.copy(output_file, dirname(output_path))
+            shutil.copytree(output_dir, os.path.join(dirname(output_path), basename(output_dir)))
 
         # cleanup temp dir
         shutil.rmtree(tempdir)
