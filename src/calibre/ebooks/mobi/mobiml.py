@@ -406,6 +406,12 @@ class MobiMLizer(object):
             parent = bstate.para if bstate.inline is None else bstate.inline
             if parent is not None:
                 vtag = etree.SubElement(parent, XHTML(vtag))
+                # Add anchors
+                for child in vbstate.body:
+                    if child is not vbstate.para:
+                        vtag.append(child)
+                    else:
+                        break
                 for child in vbstate.para:
                     vtag.append(child)
                 return
