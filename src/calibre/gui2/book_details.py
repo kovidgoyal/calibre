@@ -8,8 +8,8 @@ __docformat__ = 'restructuredtext en'
 import os, collections
 
 from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, \
-    QVBoxLayout, QPropertyAnimation, QEasingCurve, \
-    QSizePolicy, QPainter, QRect, pyqtProperty
+    QPropertyAnimation, QEasingCurve, \
+    QSizePolicy, QPainter, QRect, pyqtProperty, QLayout
 from PyQt4.QtWebKit import QWebView
 
 from calibre import fit_image, prepare_string_for_xml
@@ -68,10 +68,7 @@ class CoverView(QWidget): # {{{
 
     def __init__(self, vertical, parent=None):
         QWidget.__init__(self, parent)
-        self.setMaximumSize(QSize(120, 120))
-        self.setMinimumSize(QSize(120 if vertical else 20, 120 if vertical else
-            20))
-        self._current_pixmap_size = self.maximumSize()
+        self._current_pixmap_size = QSize(120, 120)
         self.vertical = vertical
 
         self.animation = QPropertyAnimation(self, 'current_pixmap_size', self)
@@ -82,7 +79,7 @@ class CoverView(QWidget): # {{{
 
         self.setSizePolicy(
                 QSizePolicy.Expanding if vertical else QSizePolicy.Minimum,
-                QSizePolicy.Minimum if vertical else QSizePolicy.Expanding)
+                QSizePolicy.Expanding)
 
         self.default_pixmap = QPixmap(I('book.png'))
         self.pixmap = self.default_pixmap
@@ -110,20 +107,6 @@ class CoverView(QWidget): # {{{
                     self.rect().height()-1
         self.current_pixmap_size = QSize(self.pwidth, self.pheight)
         self.animation.setEndValue(self.current_pixmap_size)
-
-    def sizeHint(self):
-        return self.maximumSize()
-
-    def relayout(self, parent_size):
-        if self.vertical:
-            mh = min(int(parent_size.height()/2.),int(4/3. * parent_size.width())+1)
-            self.setMaximumSize(parent_size.width(), mh)
-        else:
-            self.setMaximumSize(1+int(3/4. * parent_size.height()),
-                    parent_size.height())
-        self.resize(self.maximumSize())
-        self.animation.stop()
-        self.do_layout()
 
     def show_data(self, data):
         self.animation.stop()
@@ -186,7 +169,6 @@ class BookInfo(QWebView):
     def turnoff_scrollbar(self, *args):
         self.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
-
     def show_data(self, data):
         self.setHtml('')
         rows = render_rows(data)
@@ -207,12 +189,100 @@ class BookInfo(QWebView):
                     'style="padding-right:2em">%s</td><td valign="top">%s</td></tr></table>'
                     % (left_pane, right_pane))
 
+    def mouseDoubleClickEvent(self, ev):
+        ev.ignore()
+
+# }}}
+
+
+class DetailsLayout(QLayout): # {{{
+
+    def __init__(self, vertical, parent):
+        QLayout.__init__(self, parent)
+        self.vertical = vertical
+        self._children = []
+
+        self.min_size = QSize(190, 200) if vertical else QSize(120, 120)
+        self.setContentsMargins(0, 0, 0, 0)
+
+    def minimumSize(self):
+        return QSize(self.min_size)
+
+    def addItem(self, child):
+        if len(self._children) > 2:
+            raise ValueError('This layout can only manage two children')
+        self._children.append(child)
+
+    def itemAt(self, i):
+        try:
+            return self._children[i]
+        except:
+            pass
+        return None
+
+    def takeAt(self, i):
+        try:
+            self._children.pop(i)
+        except:
+            pass
+        return None
+
+    def count(self):
+        return len(self._children)
+
+    def sizeHint(self):
+        return QSize(self.min_size)
+
+    def setGeometry(self, r):
+        QLayout.setGeometry(self, r)
+        self.do_layout(r)
+
+    def cover_height(self, r):
+        mh = min(int(r.height()/2.), int(4/3. * r.width())+1)
+        try:
+            ph = self._children[0].widget().pixmap.height()
+        except:
+            ph = 0
+        if ph > 0:
+            mh = min(mh, ph)
+        return mh
+
+    def cover_width(self, r):
+        mw = 1 + int(3/4. * r.height())
+        try:
+            pw = self._children[0].widget().pixmap.width()
+        except:
+            pw = 0
+        if pw > 0:
+            mw = min(mw, pw)
+        return mw
+
+
+    def do_layout(self, rect):
+        if len(self._children) != 2:
+            return
+        left, top, right, bottom = self.getContentsMargins()
+        r = rect.adjusted(+left, +top, -right, -bottom)
+        x = r.x()
+        y = r.y()
+        cover, details = self._children
+        if self.vertical:
+            ch = self.cover_height(r)
+            cover.setGeometry(QRect(x, y, r.width(), ch))
+            cover.widget().do_layout()
+            y += ch + 5
+            details.setGeometry(QRect(x, y, r.width(), r.height()-ch-5))
+        else:
+            cw = self.cover_width(r)
+            cover.setGeometry(QRect(x, y, cw, r.height()))
+            cover.widget().do_layout()
+            x += cw + 5
+            details.setGeometry(QRect(x, y, r.width() - cw - 5, r.height()))
 
 # }}}
 
 class BookDetails(QWidget): # {{{
 
-    resized = pyqtSignal(object)
     show_book_info = pyqtSignal()
     open_containing_folder = pyqtSignal(int)
     view_specific_format = pyqtSignal(int, object)
@@ -253,21 +323,14 @@ class BookDetails(QWidget): # {{{
     def __init__(self, vertical, parent=None):
         QWidget.__init__(self, parent)
         self.setAcceptDrops(True)
-        self._layout = QVBoxLayout()
-        if not vertical:
-            self._layout.setDirection(self._layout.LeftToRight)
+        self._layout = DetailsLayout(vertical, self)
         self.setLayout(self._layout)
 
         self.cover_view = CoverView(vertical, self)
-        self.resized.connect(self.cover_view.relayout, type=Qt.QueuedConnection)
         self._layout.addWidget(self.cover_view)
         self.book_info = BookInfo(vertical, self)
         self._layout.addWidget(self.book_info)
         self.book_info.link_clicked.connect(self._link_clicked)
-        if vertical:
-            self.setMinimumSize(QSize(190, 200))
-        else:
-            self.setMinimumSize(120, 120)
         self.setCursor(Qt.PointingHandCursor)
 
     def _link_clicked(self, link):
@@ -281,18 +344,15 @@ class BookDetails(QWidget): # {{{
             open_local_file(val)
 
 
-    def mouseReleaseEvent(self, ev):
+    def mouseDoubleClickEvent(self, ev):
         ev.accept()
         self.show_book_info.emit()
-
-    def resizeEvent(self, ev):
-        sz = self.size()
-        self.resized.emit(sz)
 
     def show_data(self, data):
         self.book_info.show_data(data)
         self.cover_view.show_data(data)
-        self.setToolTip('<p>'+_('Click to open Book Details window') +
+        self._layout.do_layout(self.rect())
+        self.setToolTip('<p>'+_('Double-click to open Book Details window') +
                 '<br><br>' + _('Path') + ': ' + data.get(_('Path'), ''))
 
     def reset_info(self):
