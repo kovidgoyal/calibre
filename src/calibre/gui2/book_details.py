@@ -7,9 +7,10 @@ __docformat__ = 'restructuredtext en'
 
 import os, collections
 
-from PyQt4.Qt import QLabel, QPixmap, QSize, QWidget, Qt, pyqtSignal, \
+from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, \
     QVBoxLayout, QScrollArea, QPropertyAnimation, QEasingCurve, \
     QSizePolicy, QPainter, QRect, pyqtProperty
+from PyQt4.QtWebKit import QWebView
 
 from calibre import fit_image, prepare_string_for_xml
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
@@ -165,31 +166,26 @@ class CoverView(QWidget): # {{{
     # }}}
 
 # Book Info {{{
-class Label(QLabel):
+class InfoBook(QWebView):
 
-    mr = pyqtSignal(object)
     link_clicked = pyqtSignal(object)
 
-    def __init__(self):
-        QLabel.__init__(self)
-        self.setTextFormat(Qt.RichText)
-        self.setText('')
-        self.setWordWrap(True)
-        self.setAlignment(Qt.AlignTop)
-        self.linkActivated.connect(self.link_activated)
+    def __init__(self, parent):
+        QWebView.__init__(self, parent)
+        self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
+        self.linkClicked.connect(self.link_activated)
         self._link_clicked = False
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        #self.loadFinished.connect(self.turnoff_scrollbar)
 
     def link_activated(self, link):
         self._link_clicked = True
-        link = unicode(link)
+        link = unicode(link.toString())
         self.link_clicked.emit(link)
 
-    def mouseReleaseEvent(self, ev):
-        QLabel.mouseReleaseEvent(self, ev)
-        if not self._link_clicked:
-            self.mr.emit(ev)
-        self._link_clicked = False
+    def turnoff_scrollbar(self, *args):
+        self.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
+
 
 class BookInfo(QScrollArea):
 
@@ -197,14 +193,13 @@ class BookInfo(QScrollArea):
         QScrollArea.__init__(self, parent)
         self.vertical = vertical
         self.setWidgetResizable(True)
-        self.label = Label()
+        self.label = InfoView(self)
         self.setWidget(self.label)
         self.link_clicked = self.label.link_clicked
-        self.mr = self.label.mr
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def show_data(self, data):
-        self.label.setText('')
+        self.label.setHtml('')
         rows = render_rows(data)
         rows = u'\n'.join([u'<tr><td valign="top"><b>%s:</b></td><td valign="top">%s</td></tr>'%(k,t) for
             k, t in rows])
@@ -215,11 +210,11 @@ class BookInfo(QScrollArea):
         if self.vertical:
             if comments:
                 rows += u'<tr><td colspan="2">%s</td></tr>'%comments
-            self.label.setText(u'<table>%s</table>'%rows)
+            self.label.setHtml(u'<table>%s</table>'%rows)
         else:
             left_pane = u'<table>%s</table>'%rows
             right_pane = u'<div>%s</div>'%comments
-            self.label.setText(u'<table><tr><td valign="top" '
+            self.label.setHtml(u'<table><tr><td valign="top" '
                     'style="padding-right:2em">%s</td><td valign="top">%s</td></tr></table>'
                     % (left_pane, right_pane))
 
@@ -281,7 +276,6 @@ class BookDetails(QWidget): # {{{
         self.book_info = BookInfo(vertical, self)
         self._layout.addWidget(self.book_info)
         self.book_info.link_clicked.connect(self._link_clicked)
-        self.book_info.mr.connect(self.mouseReleaseEvent)
         if vertical:
             self.setMinimumSize(QSize(190, 200))
         else:
