@@ -87,7 +87,7 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     '''
     if dir is None:
         dir = base_dir()
-    tdir = tempfile.mkdtemp(suffix, __appname__+"_"+ __version__+"_" +prefix, dir)
+    tdir = os.path.realpath(tempfile.mkdtemp(suffix, __appname__+"_"+ __version__+"_" +prefix, dir))
     atexit.register(remove_dir, tdir)
     return tdir
 
@@ -134,7 +134,3 @@ class TemporaryFile(object):
 
     def __exit__(self, *args):
         cleanup(self._name)
-
-
-
-

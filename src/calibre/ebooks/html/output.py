@@ -5,7 +5,9 @@ __docformat__ = 'restructuredtext en'
 
 import os, re, shutil
 
-from os.path import dirname, abspath, relpath, exists
+from calibre.utils import zipfile
+
+from os.path import dirname, abspath, relpath, exists, basename
 
 from lxml import etree
 from templite import Templite
@@ -70,7 +72,7 @@ class HTMLOutput(OutputFormatPlugin):
     def generate_html_toc(self, oeb_book, ref_url, output_dir):
         root = self.generate_toc(oeb_book, ref_url, output_dir)
         return etree.tostring(root, pretty_print=True, encoding='utf-8',
-                xml_declaration=True)
+                xml_declaration=False)
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
 
@@ -100,7 +102,7 @@ class HTMLOutput(OutputFormatPlugin):
 
         tempdir = PersistentTemporaryDirectory()
         output_file = os.path.join(tempdir,
-                os.path.basename(re.sub(r'\.zip', '', output_path)+'.html'))
+                basename(re.sub(r'\.zip', '', output_path)+'.html'))
         output_dir = re.sub(r'\.html', '', output_file)+'_files'
 
         if not exists(output_dir):
@@ -184,7 +186,8 @@ class HTMLOutput(OutputFormatPlugin):
                 item.unload_data_from_memory(memory=path)
 
         zfile = ZipFile(output_path, "w")
-        zfile.add_dir(output_dir)
+        zfile.add_dir(output_dir, basename(output_dir))
+        zfile.write(output_file, basename(output_file), zipfile.ZIP_DEFLATED)
 
         if opts.extract_to:
             if os.path.exists(opts.extract_to):
@@ -197,5 +200,3 @@ class HTMLOutput(OutputFormatPlugin):
 
         # cleanup temp dir
         shutil.rmtree(tempdir)
-
-
