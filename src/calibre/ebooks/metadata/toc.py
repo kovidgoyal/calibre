@@ -182,6 +182,7 @@ class TOC(list):
             except:
                 play_order = 1
             href = fragment = text = None
+            nd = dest
             nl = nl_path(np)
             if nl:
                 nl = nl[0]
@@ -190,17 +191,14 @@ class TOC(list):
                     text += etree.tostring(txt, method='text',
                             encoding=unicode, with_tail=False)
                 content = content_path(np)
-                if not content or not text:
-                    return
-                content = content[0]
-                src = get_attr(content, attr='src')
-                if src is None:
-                    return
-
-                purl = urlparse(unquote(content.get('src')))
-                href, fragment = purl[2], purl[5]
-            nd = dest.add_item(href, fragment, text)
-            nd.play_order = play_order
+                if content and text:
+                    content = content[0]
+                    src = get_attr(content, attr='src')
+                    if src:
+                        purl = urlparse(unquote(content.get('src')))
+                        href, fragment = purl[2], purl[5]
+                        nd = dest.add_item(href, fragment, text)
+                        nd.play_order = play_order
 
             for c in np_path(np):
                 process_navpoint(c, nd)
