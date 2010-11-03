@@ -121,7 +121,8 @@ class HTMLOutput(OutputFormatPlugin):
             tocUrl = relpath(output_file, dirname(output_file))
             t = templite.render(has_toc=bool(oeb_book.toc.count()),
                     toc=html_toc, meta=meta, nextLink=nextLink,
-                    tocUrl=tocUrl, cssLink=cssLink)
+                    tocUrl=tocUrl, cssLink=cssLink,
+                    firstContentPageLink=nextLink)
             f.write(t)
 
         with CurrentDir(output_dir):
@@ -170,6 +171,7 @@ class HTMLOutput(OutputFormatPlugin):
 
                 cssLink = relpath(abspath(css_path), dir)
                 tocUrl = relpath(output_file, dir)
+                firstContentPageLink = oeb_book.spine[0].href
 
                 # render template
                 templite = Templite(template_html_data)
@@ -178,7 +180,8 @@ class HTMLOutput(OutputFormatPlugin):
                         prevLink=prevLink, nextLink=nextLink,
                         has_toc=bool(oeb_book.toc.count()), toc=toc,
                         tocUrl=tocUrl, head_content=head_content,
-                        meta=meta, cssLink=cssLink)
+                        meta=meta, cssLink=cssLink,
+                        firstContentPageLink=firstContentPageLink)
 
                 # write html to file
                 with open(path, 'wb') as f:
