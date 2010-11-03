@@ -358,10 +358,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def toc_clicked(self, index):
         item = self.toc_model.itemFromIndex(index)
-        url = QUrl.fromLocalFile(item.abspath)
-        if item.fragment:
-            url.setFragment(item.fragment)
-        self.link_clicked(url)
+        if item.abspath is not None:
+            url = QUrl.fromLocalFile(item.abspath)
+            if item.fragment:
+                url.setFragment(item.fragment)
+            self.link_clicked(url)
 
     def selection_changed(self, selected_text):
         self.selected_text = selected_text.strip()
