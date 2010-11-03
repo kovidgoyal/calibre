@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-10-30 19:24+0000\n"
-"PO-Revision-Date: 2010-11-01 10:05+0000\n"
-"Last-Translator: Dennispager <Unknown>\n"
+"PO-Revision-Date: 2010-11-02 13:53+0000\n"
+"Last-Translator: Manichean <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-02 04:48+0000\n"
+"X-Launchpad-Export-Date: 2010-11-03 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -12888,11 +12888,11 @@ msgstr "Wie und wann Calibre Metadaten auf dem Gerät aktualisiert."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:33
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr ""
+msgstr "lookup benötigt entweder 2 oder eine ungerade Anzahl an Argumenten"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:56
 msgid "switch requires an odd number of arguments"
-msgstr ""
+msgstr "switch benötigt eine ungerade Anzahl an Argumenten"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."

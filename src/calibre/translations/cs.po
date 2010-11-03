@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-30 19:24+0000\n"
-"PO-Revision-Date: 2010-11-01 22:13+0000\n"
-"Last-Translator: Aleš Bajtalon <Unknown>\n"
+"PO-Revision-Date: 2010-11-02 18:56+0000\n"
+"Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-02 04:48+0000\n"
+"X-Launchpad-Export-Date: 2010-11-03 04:57+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -427,7 +427,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:871
 msgid "Tweaks"
-msgstr ""
+msgstr "Vylepšení"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:877
 msgid "Fine tune how calibre behaves in various contexts"
@@ -3112,6 +3112,8 @@ msgid ""
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
+"Nastavte úrověň komprese od 1 do 10. 1 je nejrychlejší a nejmenší komprese, "
+"10 je nejvyšší komprese, ale nejpomalejší."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:34
 msgid ""
@@ -3127,7 +3129,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:40
 msgid "Do not insert a Table of Contents into the output text."
-msgstr ""
+msgstr "Nevkládat obsah do výsledného textu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
@@ -3141,6 +3143,8 @@ msgid ""
 "Specify the character encoding of the output document. The default is utf-8. "
 "Note: This option is not honored by all formats."
 msgstr ""
+"Určete kódování výstupního dokumentu. Normální je utf-8. Poznámka: Tato "
+"volba není používána všemi formáty."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:45
 msgid ""
@@ -3226,6 +3230,7 @@ msgstr "Zakázat oznamování v systemové oblasti"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:101
 msgid "Default action to perform when send to device button is clicked"
 msgstr ""
+"Výchozí akce, která se provede po stisku tlačítka odeslat do přístroje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:121
 msgid "Maximum number of waiting worker processes"
@@ -3233,15 +3238,15 @@ msgstr "Maximální počet procesů ve frontě"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr ""
+msgstr "Stáhnout sociální metadata (tagy/hodnocení/atd.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:125
 msgid "Overwrite author and title with new metadata"
-msgstr ""
+msgstr "Přepsat autora a název novými metadaty"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
 msgid "Limit max simultaneous jobs to number of CPUs"
-msgstr ""
+msgstr "Omezit maximální počet jobů na počet CPU"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:129
 msgid "tag browser categories not to display"
@@ -3257,7 +3262,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:135
 msgid "Disable UI animations"
-msgstr ""
+msgstr "Zakázat UI animace"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:494
@@ -3283,6 +3288,7 @@ msgstr "Přidat knihy"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:26
 msgid "Add books to the calibre library/device from files on your computer"
 msgstr ""
+"Přidat knihy do calibre knihovny/zařízení ze souborů na Vašem počítači"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:27
 msgid "A"
@@ -3315,7 +3321,7 @@ msgstr "Přidat prázdnou knihu. (Položka knihy bez žádných formátů)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:45
 msgid "Add from ISBN"
-msgstr ""
+msgstr "Přidat z ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:84
 msgid "How many empty books?"
@@ -3323,7 +3329,7 @@ msgstr "Kolik prázdných knih?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:85
 msgid "How many empty books should be added?"
-msgstr ""
+msgstr "Kolik prázdných knih má být přidáno?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:202
@@ -3369,7 +3375,7 @@ msgstr "PDF knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:169
 msgid "SNB Books"
-msgstr ""
+msgstr "SNB knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:170
 msgid "Comics"
@@ -3418,6 +3424,7 @@ msgstr "Není označena žádná kniha"
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
 msgstr ""
+"Následující knihy jsou virtuální a nemohou být přidány do calibre knihovny:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:265
 msgid "No book files found"
@@ -3429,7 +3436,7 @@ msgstr "Přidej knihy do knihovny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
-msgstr ""
+msgstr "Přidat knihy do Vaší calibre knihovny z připojeného zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:536
@@ -3439,7 +3446,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:236
 msgid "Use library only"
-msgstr ""
+msgstr "Používat pouze knihovnu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:237
