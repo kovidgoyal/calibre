@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, collections
 
 from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, \
-    QVBoxLayout, QScrollArea, QPropertyAnimation, QEasingCurve, \
+    QVBoxLayout, QPropertyAnimation, QEasingCurve, \
     QSizePolicy, QPainter, QRect, pyqtProperty
 from PyQt4.QtWebKit import QWebView
 
@@ -80,8 +80,9 @@ class CoverView(QWidget): # {{{
         self.animation.setStartValue(QSize(0, 0))
         self.animation.valueChanged.connect(self.value_changed)
 
-        self.setSizePolicy(QSizePolicy.Expanding if vertical else
-                QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.setSizePolicy(
+                QSizePolicy.Expanding if vertical else QSizePolicy.Minimum,
+                QSizePolicy.Minimum if vertical else QSizePolicy.Expanding)
 
         self.default_pixmap = QPixmap(I('book.png'))
         self.pixmap = self.default_pixmap
@@ -110,19 +111,19 @@ class CoverView(QWidget): # {{{
         self.current_pixmap_size = QSize(self.pwidth, self.pheight)
         self.animation.setEndValue(self.current_pixmap_size)
 
+    def sizeHint(self):
+        return self.maximumSize()
+
     def relayout(self, parent_size):
         if self.vertical:
-            self.setMaximumSize(parent_size.width(),
-                min(int(parent_size.height()/2.),int(4/3. * parent_size.width())+1))
+            mh = min(int(parent_size.height()/2.),int(4/3. * parent_size.width())+1)
+            self.setMaximumSize(parent_size.width(), mh)
         else:
             self.setMaximumSize(1+int(3/4. * parent_size.height()),
                     parent_size.height())
         self.resize(self.maximumSize())
         self.animation.stop()
         self.do_layout()
-
-    def sizeHint(self):
-        return self.maximumSize()
 
     def show_data(self, data):
         self.animation.stop()
@@ -166,17 +167,16 @@ class CoverView(QWidget): # {{{
     # }}}
 
 # Book Info {{{
-class InfoBook(QWebView):
+class BookInfo(QWebView):
 
     link_clicked = pyqtSignal(object)
 
-    def __init__(self, parent):
+    def __init__(self, vertical, parent=None):
         QWebView.__init__(self, parent)
+        self.vertical = vertical
         self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
         self.linkClicked.connect(self.link_activated)
         self._link_clicked = False
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        #self.loadFinished.connect(self.turnoff_scrollbar)
 
     def link_activated(self, link):
         self._link_clicked = True
@@ -187,19 +187,8 @@ class InfoBook(QWebView):
         self.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
 
-class BookInfo(QScrollArea):
-
-    def __init__(self, vertical, parent=None):
-        QScrollArea.__init__(self, parent)
-        self.vertical = vertical
-        self.setWidgetResizable(True)
-        self.label = InfoView(self)
-        self.setWidget(self.label)
-        self.link_clicked = self.label.link_clicked
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
     def show_data(self, data):
-        self.label.setHtml('')
+        self.setHtml('')
         rows = render_rows(data)
         rows = u'\n'.join([u'<tr><td valign="top"><b>%s:</b></td><td valign="top">%s</td></tr>'%(k,t) for
             k, t in rows])
@@ -210,11 +199,11 @@ class BookInfo(QScrollArea):
         if self.vertical:
             if comments:
                 rows += u'<tr><td colspan="2">%s</td></tr>'%comments
-            self.label.setHtml(u'<table>%s</table>'%rows)
+            self.setHtml(u'<table>%s</table>'%rows)
         else:
             left_pane = u'<table>%s</table>'%rows
             right_pane = u'<div>%s</div>'%comments
-            self.label.setHtml(u'<table><tr><td valign="top" '
+            self.setHtml(u'<table><tr><td valign="top" '
                     'style="padding-right:2em">%s</td><td valign="top">%s</td></tr></table>'
                     % (left_pane, right_pane))
 
@@ -270,7 +259,6 @@ class BookDetails(QWidget): # {{{
         self.setLayout(self._layout)
 
         self.cover_view = CoverView(vertical, self)
-        self.cover_view.relayout(self.size())
         self.resized.connect(self.cover_view.relayout, type=Qt.QueuedConnection)
         self._layout.addWidget(self.cover_view)
         self.book_info = BookInfo(vertical, self)
@@ -298,11 +286,12 @@ class BookDetails(QWidget): # {{{
         self.show_book_info.emit()
 
     def resizeEvent(self, ev):
-        self.resized.emit(self.size())
+        sz = self.size()
+        self.resized.emit(sz)
 
     def show_data(self, data):
-        self.cover_view.show_data(data)
         self.book_info.show_data(data)
+        self.cover_view.show_data(data)
         self.setToolTip('<p>'+_('Click to open Book Details window') +
                 '<br><br>' + _('Path') + ': ' + data.get(_('Path'), ''))
 
