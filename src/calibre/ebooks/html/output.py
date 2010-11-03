@@ -39,7 +39,7 @@ class HTMLOutput(OutputFormatPlugin):
             help=_('Template used for the generation of the html contents of the book instead of the default file')),
 
         OptionRecommendation(name='extract_to',
-            help=_('Extract the contents of the generated ZIP file to the directory of the generated ZIP file')
+            help=_('Extract the contents of the generated ZIP file to the specified directory')
         ),
     ])
 
@@ -193,9 +193,8 @@ class HTMLOutput(OutputFormatPlugin):
         zfile.write(output_file, basename(output_file), zipfile.ZIP_DEFLATED)
 
         if opts.extract_to:
-            if os.path.exists(opts.extract_to):
-                shutil.rmtree(opts.extract_to)
-            os.makedirs(opts.extract_to)
+            if not os.path.exists(opts.extract_to):
+              os.makedirs(opts.extract_to)
             zfile.extractall(opts.extract_to)
             self.log('Zip file extracted to', opts.extract_to)
 
