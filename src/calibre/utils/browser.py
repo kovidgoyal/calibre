@@ -93,4 +93,6 @@ if __name__ == '__main__':
     assert orig._ua_handlers.keys() == clone._ua_handlers.keys()
     assert orig._ua_handlers['_cookies'].cookiejar is \
             clone._ua_handlers['_cookies'].cookiejar
+    assert orig.addheaders == clone.addheaders
+
 
