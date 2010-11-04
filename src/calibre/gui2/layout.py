@@ -151,6 +151,7 @@ class SearchBar(QWidget): # {{{
         QWidget.__init__(self, parent)
         self._layout = l = QHBoxLayout()
         self.setLayout(self._layout)
+        self._layout.setContentsMargins(0,5,0,0)
 
         x = ComboBoxWithHelp(self)
         x.setMaximumSize(QSize(150, 16777215))
