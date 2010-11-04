@@ -82,9 +82,6 @@ class BasicNewsRecipe(Recipe):
     #: Automatically reduced to 1 if :attr:`BasicNewsRecipe.delay` > 0
     simultaneous_downloads = 5
 
-    #: If False the remote server is contacted by only one thread at a time
-    multithreaded_fetch = False
-
     #: Timeout for fetching files from server in seconds
     timeout                = 120.0
 
@@ -401,6 +398,23 @@ class BasicNewsRecipe(Recipe):
 
         '''
         return browser(*args, **kwargs)
+
+    def clone_browser(self, br):
+        '''
+        Clone the browser br. Cloned browsers are used for multi-threaded
+        downloads, since mechanize is not thread safe. The default cloning
+        routines should capture most browser customization, but if you do
+        something exotic in your recipe, you should override this method in
+        your recipe and clone manually.
+
+        Cloned browser instances use the same, thread-safe CookieJar by
+        default, unless you have customized cookie handling.
+        '''
+        if callable(getattr(br, 'clone_browser', None)):
+            return br.clone_browser()
+
+        # Uh-oh recipe using something exotic, call get_browser
+        return self.get_browser()
 
     def get_article_url(self, article):
         '''
@@ -798,17 +812,22 @@ class BasicNewsRecipe(Recipe):
                               extra_css=css).render(doctype='xhtml')
 
 
-    def _fetch_article(self, url, dir, f, a, num_of_feeds):
-        self.web2disk_options.browser = self.get_browser() if self.multithreaded_fetch else self.browser
+    def _fetch_article(self, url, dir_, f, a, num_of_feeds):
+        br = self.browser
+        if self.get_browser.im_func is BasicNewsRecipe.get_browser.im_func:
+            # We are using the default get_browser, which means no need to
+            # clone
+            br = BasicNewsRecipe.get_browser(self)
+        else:
+            br = self.clone_browser(self.browser)
+        self.web2disk_options.browser = br
         fetcher = RecursiveFetcher(self.web2disk_options, self.log,
                 self.image_map, self.css_map,
                 (url, f, a, num_of_feeds))
-        fetcher.base_dir = dir
-        fetcher.current_dir = dir
+        fetcher.base_dir = dir_
+        fetcher.current_dir = dir_
         fetcher.show_progress = False
         fetcher.image_url_processor = self.image_url_processor
-        if self.multithreaded_fetch:
-            fetcher.browser_lock = fetcher.DUMMY_LOCK
         res, path, failures = fetcher.start_fetch(url), fetcher.downloaded_paths, fetcher.failed_links
         if not res or not os.path.exists(res):
             raise Exception(_('Could not fetch article. Run with -vv to see the reason'))
@@ -1387,7 +1406,7 @@ class CustomIndexRecipe(BasicNewsRecipe):
     def download(self):
         index = os.path.abspath(self.custom_index())
         url = 'file:'+index if iswindows else 'file://'+index
-        self.web2disk_options.browser = self.browser
+        self.web2disk_options.browser = self.clone_browser(self.browser)
         fetcher = RecursiveFetcher(self.web2disk_options, self.log)
         fetcher.base_dir = self.output_dir
         fetcher.current_dir = self.output_dir
