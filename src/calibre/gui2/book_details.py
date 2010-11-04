@@ -5,10 +5,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, collections
+import os, collections, sys
+from Queue import Queue
 
 from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, \
-    QPropertyAnimation, QEasingCurve, \
+    QPropertyAnimation, QEasingCurve, QThread, \
     QSizePolicy, QPainter, QRect, pyqtProperty, QLayout
 from PyQt4.QtWebKit import QWebView
 
@@ -150,6 +151,33 @@ class CoverView(QWidget): # {{{
     # }}}
 
 # Book Info {{{
+
+class RenderComments(QThread):
+
+    rdone = pyqtSignal(object, object)
+
+    def __init__(self, parent):
+        QThread.__init__(self, parent)
+        self.queue = Queue()
+        self.start()
+
+    def run(self):
+        while True:
+            try:
+                rows, comments = self.queue.get()
+            except:
+                break
+            import time
+            time.sleep(0.001)
+            oint = sys.getcheckinterval()
+            sys.setcheckinterval(5)
+            try:
+                self.rdone.emit(rows, comments_to_html(comments))
+            except:
+                pass
+            sys.setcheckinterval(oint)
+
+
 class BookInfo(QWebView):
 
     link_clicked = pyqtSignal(object)
@@ -157,6 +185,8 @@ class BookInfo(QWebView):
     def __init__(self, vertical, parent=None):
         QWebView.__init__(self, parent)
         self.vertical = vertical
+        self.renderer = RenderComments(self)
+        self.renderer.rdone.connect(self._show_data, type=Qt.QueuedConnection)
         self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
         self.linkClicked.connect(self.link_activated)
         self._link_clicked = False
@@ -170,14 +200,16 @@ class BookInfo(QWebView):
         self.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
     def show_data(self, data):
-        self.setHtml('')
         rows = render_rows(data)
         rows = u'\n'.join([u'<tr><td valign="top"><b>%s:</b></td><td valign="top">%s</td></tr>'%(k,t) for
             k, t in rows])
-        comments = ''
-        if data.get(_('Comments'), '') not in ('', u'None'):
-            comments = data[_('Comments')]
-            comments = comments_to_html(comments)
+        comments = data.get(_('Comments'), '')
+        if comments and comments != u'None':
+            self.renderer.queue.put((rows, comments))
+        self._show_data(rows, '')
+
+
+    def _show_data(self, rows, comments):
         if self.vertical:
             if comments:
                 rows += u'<tr><td colspan="2">%s</td></tr>'%comments
