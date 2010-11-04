@@ -154,6 +154,7 @@ class HTMLOutput(OutputFormatPlugin):
                 body = root.xpath('//h:body', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
                 ebook_content = etree.tostring(body, pretty_print=True, encoding='utf-8')
                 ebook_content = re.sub(r'\<\/?body.*\>', '', ebook_content)
+                ebook_content = re.sub(r'<(div|a|span)([^>]*)/>', r'<\1\2></\1>', ebook_content)
 
                 # generate link to next page
                 if item.spine_position+1 < len(oeb_book.spine):
