@@ -5,7 +5,9 @@ __docformat__ = 'restructuredtext en'
 
 import os, re, shutil
 
-from os.path import dirname, abspath, relpath, exists
+from calibre.utils import zipfile
+
+from os.path import dirname, abspath, relpath, exists, basename
 
 from lxml import etree
 from templite import Templite
@@ -37,7 +39,9 @@ class HTMLOutput(OutputFormatPlugin):
             help=_('Template used for the generation of the html contents of the book instead of the default file')),
 
         OptionRecommendation(name='extract_to',
-            help=_('Extract the contents of the generated ZIP file to the directory of the generated ZIP file')
+            help=_('Extract the contents of the generated ZIP file to the '
+                'specified directory. WARNING: The contents of the directory '
+                'will be deleted.')
         ),
     ])
 
@@ -70,7 +74,7 @@ class HTMLOutput(OutputFormatPlugin):
     def generate_html_toc(self, oeb_book, ref_url, output_dir):
         root = self.generate_toc(oeb_book, ref_url, output_dir)
         return etree.tostring(root, pretty_print=True, encoding='utf-8',
-                xml_declaration=True)
+                xml_declaration=False)
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
 
@@ -100,7 +104,7 @@ class HTMLOutput(OutputFormatPlugin):
 
         tempdir = PersistentTemporaryDirectory()
         output_file = os.path.join(tempdir,
-                os.path.basename(re.sub(r'\.zip', '', output_path)+'.html'))
+                basename(re.sub(r'\.zip', '', output_path)+'.html'))
         output_dir = re.sub(r'\.html', '', output_file)+'_files'
 
         if not exists(output_dir):
@@ -119,7 +123,8 @@ class HTMLOutput(OutputFormatPlugin):
             tocUrl = relpath(output_file, dirname(output_file))
             t = templite.render(has_toc=bool(oeb_book.toc.count()),
                     toc=html_toc, meta=meta, nextLink=nextLink,
-                    tocUrl=tocUrl, cssLink=cssLink)
+                    tocUrl=tocUrl, cssLink=cssLink,
+                    firstContentPageLink=nextLink)
             f.write(t)
 
         with CurrentDir(output_dir):
@@ -151,6 +156,7 @@ class HTMLOutput(OutputFormatPlugin):
                 body = root.xpath('//h:body', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
                 ebook_content = etree.tostring(body, pretty_print=True, encoding='utf-8')
                 ebook_content = re.sub(r'\<\/?body.*\>', '', ebook_content)
+                ebook_content = re.sub(r'<(div|a|span)([^>]*)/>', r'<\1\2></\1>', ebook_content)
 
                 # generate link to next page
                 if item.spine_position+1 < len(oeb_book.spine):
@@ -168,6 +174,7 @@ class HTMLOutput(OutputFormatPlugin):
 
                 cssLink = relpath(abspath(css_path), dir)
                 tocUrl = relpath(output_file, dir)
+                firstContentPageLink = oeb_book.spine[0].href
 
                 # render template
                 templite = Templite(template_html_data)
@@ -176,7 +183,8 @@ class HTMLOutput(OutputFormatPlugin):
                         prevLink=prevLink, nextLink=nextLink,
                         has_toc=bool(oeb_book.toc.count()), toc=toc,
                         tocUrl=tocUrl, head_content=head_content,
-                        meta=meta, cssLink=cssLink)
+                        meta=meta, cssLink=cssLink,
+                        firstContentPageLink=firstContentPageLink)
 
                 # write html to file
                 with open(path, 'wb') as f:
@@ -184,7 +192,8 @@ class HTMLOutput(OutputFormatPlugin):
                 item.unload_data_from_memory(memory=path)
 
         zfile = ZipFile(output_path, "w")
-        zfile.add_dir(output_dir)
+        zfile.add_dir(output_dir, basename(output_dir))
+        zfile.write(output_file, basename(output_file), zipfile.ZIP_DEFLATED)
 
         if opts.extract_to:
             if os.path.exists(opts.extract_to):
@@ -197,5 +206,3 @@ class HTMLOutput(OutputFormatPlugin):
 
         # cleanup temp dir
         shutil.rmtree(tempdir)
-
-
