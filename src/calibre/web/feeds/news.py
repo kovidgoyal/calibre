@@ -824,6 +824,7 @@ class BasicNewsRecipe(Recipe):
         fetcher = RecursiveFetcher(self.web2disk_options, self.log,
                 self.image_map, self.css_map,
                 (url, f, a, num_of_feeds))
+        fetcher.browser = br
         fetcher.base_dir = dir_
         fetcher.current_dir = dir_
         fetcher.show_progress = False
