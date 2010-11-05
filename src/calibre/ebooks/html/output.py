@@ -151,6 +151,7 @@ class HTMLOutput(OutputFormatPlugin):
                 head_content = etree.tostring(head, pretty_print=True, encoding='utf-8')
                 head_content = re.sub(r'\<\/?head.*\>', '', head_content)
                 head_content = re.sub(re.compile(r'\<style.*\/style\>', re.M|re.S), '', head_content)
+                head_content = re.sub(r'<(title)([^>]*)/>', r'<\1\2></\1>', head_content)
 
                 # get & clean HTML <BODY>-data
                 body = root.xpath('//h:body', namespaces={'h': 'http://www.w3.org/1999/xhtml'})[0]
