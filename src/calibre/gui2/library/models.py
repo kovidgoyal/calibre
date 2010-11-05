@@ -233,17 +233,10 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def delete_books_by_id(self, ids):
         for id in ids:
-            try:
-                row = self.db.row(id)
-            except:
-                row = -1
-            if row > -1:
-                self.beginRemoveRows(QModelIndex(), row, row)
             self.db.delete_book(id)
-            if row > -1:
-                self.endRemoveRows()
         self.count_changed()
         self.clear_caches()
+        self.reset()
 
     def books_added(self, num):
         if num > 0:
