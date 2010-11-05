@@ -183,7 +183,7 @@ class SearchBox2(QComboBox):
             return ''
         return text
 
-    def do_search(self):
+    def do_search(self, *args):
         text = unicode(self.currentText()).strip()
         if not text or text == self.help_text:
             return self.clear()
@@ -372,7 +372,7 @@ class SearchBoxMixin(object):
         self.search.setMaximumWidth(self.width()-150)
         self.action_focus_search = QAction(self)
         shortcuts = QKeySequence.keyBindings(QKeySequence.Find)
-        shortcuts = list(shortcuts) + [QKeySequence('/')]
+        shortcuts = list(shortcuts) + [QKeySequence('/'), QKeySequence('Alt+S')]
         self.action_focus_search.setShortcuts(shortcuts)
         self.action_focus_search.triggered.connect(lambda x:
                 self.search.setFocus(Qt.OtherFocusReason))
