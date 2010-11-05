@@ -148,6 +148,10 @@ class SearchBox2(QComboBox):
         self.line_edit.setStyleSheet('QLineEdit { color: black; background-color: %s; }' % col)
 
     def key_pressed(self, event):
+        k = event.key()
+        if k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down,
+                Qt.Key_Home, Qt.Key_End, Qt.Key_PageUp, Qt.Key_PageDown):
+            return
         self.normalize_state()
         if self._in_a_search:
             self.emit(SIGNAL('changed()'))
