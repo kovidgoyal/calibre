@@ -715,13 +715,13 @@ def build_forms(srcdir, info=None):
             dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
             dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
             dat = pat.sub(sub, dat)
+            dat = dat.replace('from QtWebKit.QWebView import QWebView',
+                    'from PyQt4 import QtWebKit\nfrom PyQt4.QtWebKit import QWebView')
 
             if form.endswith('viewer%smain.ui'%os.sep):
                 info('\t\tPromoting WebView')
                 dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
                 dat = dat.replace('self.view = QWebView(', 'self.view = DocumentView(')
-                dat = dat.replace('from QtWebKit.QWebView import QWebView',
-                        'from PyQt4 import QtWebKit\nfrom PyQt4.QtWebKit import QWebView')
                 dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
 
             open(compiled_form, 'wb').write(dat)
