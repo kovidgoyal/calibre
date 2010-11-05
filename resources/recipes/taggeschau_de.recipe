@@ -4,7 +4,7 @@ class Tagesschau(BasicNewsRecipe):
      title          = 'Tagesschau'
      description    = 'Nachrichten der ARD'
      publisher      = 'ARD'
-     language       = 'de_DE'
+     language       = 'de'
 
      __author__     = 'Florian Andreas Pfaff'
      oldest_article = 7
