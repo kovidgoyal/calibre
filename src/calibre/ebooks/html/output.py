@@ -102,7 +102,7 @@ class HTMLOutput(OutputFormatPlugin):
         self.opts = opts
         meta = EasyMeta(oeb_book.metadata)
 
-        tempdir = PersistentTemporaryDirectory()
+        tempdir = os.path.realpath(PersistentTemporaryDirectory())
         output_file = os.path.join(tempdir,
                 basename(re.sub(r'\.zip', '', output_path)+'.html'))
         output_dir = re.sub(r'\.html', '', output_file)+'_files'
