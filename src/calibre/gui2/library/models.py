@@ -328,7 +328,7 @@ class BooksModel(QAbstractTableModel): # {{{
             sidx = self.db.series_index(idx)
             sidx = fmt_sidx(sidx, use_roman = self.use_roman_numbers)
             data[_('Series')] = \
-                _('Book <font face="serif">%s</font> of %s.')%\
+                _('Book %s of %s.')%\
                     (sidx, prepare_string_for_xml(series))
         mi = self.db.get_metadata(idx)
         for key in mi.custom_field_keys():

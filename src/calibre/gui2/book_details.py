@@ -9,8 +9,8 @@ import os, collections, sys
 from Queue import Queue
 
 from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, \
-    QPropertyAnimation, QEasingCurve, QThread, \
-    QSizePolicy, QPainter, QRect, pyqtProperty, QLayout
+    QPropertyAnimation, QEasingCurve, QThread, QApplication, QFontInfo, \
+    QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette
 from PyQt4.QtWebKit import QWebView
 
 from calibre import fit_image, prepare_string_for_xml
@@ -210,22 +210,36 @@ class BookInfo(QWebView):
 
 
     def _show_data(self, rows, comments):
+        f = QFontInfo(QApplication.font(self.parent())).pixelSize()
+        p = unicode(QApplication.palette().color(QPalette.Normal,
+            QPalette.Base).name())
+        templ = u'''\
+        <html>
+            <head>
+            <style type="text/css">
+                body, td {background-color: %s; font-size: %dpx}
+            </style>
+            </head>
+            <body>
+            %%s
+            </body>
+        <html>
+        '''%(p, f)
         if self.vertical:
             if comments:
                 rows += u'<tr><td colspan="2">%s</td></tr>'%comments
-            self.setHtml(u'<table>%s</table>'%rows)
+            self.setHtml(templ%(u'<table>%s</table>'%rows))
         else:
             left_pane = u'<table>%s</table>'%rows
             right_pane = u'<div>%s</div>'%comments
-            self.setHtml(u'<table><tr><td valign="top" '
+            self.setHtml(templ%(u'<table><tr><td valign="top" '
                     'style="padding-right:2em">%s</td><td valign="top">%s</td></tr></table>'
-                    % (left_pane, right_pane))
+                    % (left_pane, right_pane)))
 
     def mouseDoubleClickEvent(self, ev):
         ev.ignore()
 
 # }}}
-
 
 class DetailsLayout(QLayout): # {{{
 
