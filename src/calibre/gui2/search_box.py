@@ -163,8 +163,11 @@ class SearchBox2(QComboBox):
 
     def mouse_released(self, event):
         self.normalize_state()
-        if self.as_you_type:
-            self.timer.start(1500)
+        # Dont trigger a search since it make
+        # re-positioning the cursor using the mouse
+        # impossible
+        #if self.as_you_type:
+        #    self.timer.start(1500)
 
     def timer_event(self):
         self.do_search()
