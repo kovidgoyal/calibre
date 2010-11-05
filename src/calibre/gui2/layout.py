@@ -177,7 +177,7 @@ class SearchBar(QWidget): # {{{
         x.setToolTip(_("<p>Search the list of books by title, author, publisher, tags, comments, etc.<br><br>Words separated by spaces are ANDed"))
         l.addWidget(x)
 
-        self.search_button = QPushButton(_('S&earch'))
+        self.search_button = QPushButton(_('&Go!'))
         l.addWidget(self.search_button)
         self.search_button.setSizePolicy(QSizePolicy.Minimum,
                 QSizePolicy.Minimum)
