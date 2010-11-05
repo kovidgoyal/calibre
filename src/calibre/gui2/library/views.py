@@ -389,7 +389,8 @@ class BooksView(QTableView): # {{{
         self.save_state()
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
-        self.authors_delegate.set_auto_complete_function(db.all_authors)
+        self.authors_delegate.set_auto_complete_function(
+                lambda: [(x, y.replace('|', ',')) for (x, y) in db.all_authors()])
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
 
