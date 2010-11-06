@@ -1,0 +1,23 @@
+class AdvancedUserRecipe1289003166(BasicNewsRecipe):
+    title          = u'The H'
+    __author__     = 'Hiroshi Miura'
+    oldest_article = 3
+    description    = 'In association with Heise Online'
+    publisher      = 'Heise Media UK Ltd.'
+    category       = 'news, technology, security'
+    max_articles_per_feed = 100
+    language       = 'en'
+    encoding       = 'utf-8'
+    conversion_options = {
+                      'comment'  : description
+                     ,'tags'     : category
+                     ,'publisher': publisher
+                     ,'language' : language
+                     }
+    feeds          = [
+                      (u'The H News Feed', u'http://www.h-online.com/news/atom.xml')
+                     ]
+
+    def print_version(self, url):
+        return url + '?view=print'
+

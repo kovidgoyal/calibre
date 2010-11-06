@@ -1,0 +1,30 @@
+import re;
+
+class AdvancedUserRecipe1287588358(BasicNewsRecipe):
+    title          = u'CNET Japan'
+    oldest_article = 3
+    max_articles_per_feed = 30
+
+    feeds          = [(u'cnet rss', u'http://feeds.japan.cnet.com/cnet/rss')]
+    language       = 'ja'
+    encoding       = 'Shift_JIS'
+    remove_javascript = True
+
+    preprocess_regexps = [
+       (re.compile(ur'<!--\u25B2contents_left END\u25B2-->.*</body>', re.DOTALL|re.IGNORECASE|re.UNICODE),
+        lambda match: '</body>'),
+       (re.compile(r'<!--AD_ELU_HEADER-->.*</body>', re.DOTALL|re.IGNORECASE),
+        lambda match: '</body>'),
+       (re.compile(ur'<!-- \u25B2\u95A2\u9023\u30BF\u30B0\u25B2 -->.*<!-- \u25B2ZDNet\u25B2 -->', re.UNICODE),
+        lambda match: '<!-- removed -->'),
+        ]
+
+    remove_tags_before = dict(name="h2")
+    remove_tags = [
+                   {'class':"social_bkm_share"},
+                   {'class':"social_bkm_print"},
+                   {'class':"block20 clearfix"},
+                   dict(name="div",attrs={'id':'bookreview'}),
+                    ]
+    remove_tags_after = {'class':"block20"}
+
