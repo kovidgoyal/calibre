@@ -218,6 +218,7 @@ class BookInfo(QWebView):
             <head>
             <style type="text/css">
                 body, td {background-color: %s; font-size: %dpx}
+                a { text-decoration: none; color: blue }
             </style>
             </head>
             <body>

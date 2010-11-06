@@ -386,6 +386,15 @@ class MobiMLizer(object):
             for attr in ('rowspan', 'colspan','width','border','scope'):
                 if attr in elem.attrib:
                     istate.attrib[attr] = elem.attrib[attr]
+        if tag == 'q':
+            t = elem.text
+            if not t:
+                t = ''
+            elem.text = u'\u201c' + t
+            t = elem.tail
+            if not t:
+                t = ''
+            elem.tail = u'\u201d' + t
         text = None
         if elem.text:
             if istate.preserve:
