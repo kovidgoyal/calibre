@@ -101,11 +101,12 @@ class SNBMLizer(object):
         subitem = ''
         bodyTree = trees[subitem].find(".//body")
         for line in output.splitlines():
-            if not line.find(CALIBRE_SNB_PRE_TAG) == 0:
+            pos = line.find(CALIBRE_SNB_PRE_TAG)
+            if pos == -1:
                 line = line.strip(u' \t\n\r\u3000')
             else:
                 etree.SubElement(bodyTree, "text").text = \
-                    etree.CDATA(line[len(CALIBRE_SNB_PRE_TAG):])
+                    etree.CDATA(line[pos+len(CALIBRE_SNB_PRE_TAG):])
                 continue
             if len(line) != 0:
                 if line.find(CALIBRE_SNB_IMG_TAG) == 0:

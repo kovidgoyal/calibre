@@ -275,7 +275,15 @@ class MobiMLizer(object):
         # <mbp:frame-set/> does not exist lalalala
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
-            return
+            id_ = elem.get('id', None)
+            if id_:
+                # Keep anchors so people can use display:none
+                # to generate hidden TOCs
+                elem.clear()
+                elem.text = None
+                elem.set('id', id_)
+            else:
+                return
         tag = barename(elem.tag)
         istate = copy.copy(istates[-1])
         istate.rendered = False
@@ -378,6 +386,15 @@ class MobiMLizer(object):
             for attr in ('rowspan', 'colspan','width','border','scope'):
                 if attr in elem.attrib:
                     istate.attrib[attr] = elem.attrib[attr]
+        if tag == 'q':
+            t = elem.text
+            if not t:
+                t = ''
+            elem.text = u'\u201c' + t
+            t = elem.tail
+            if not t:
+                t = ''
+            elem.tail = u'\u201d' + t
         text = None
         if elem.text:
             if istate.preserve:
@@ -406,6 +423,12 @@ class MobiMLizer(object):
             parent = bstate.para if bstate.inline is None else bstate.inline
             if parent is not None:
                 vtag = etree.SubElement(parent, XHTML(vtag))
+                # Add anchors
+                for child in vbstate.body:
+                    if child is not vbstate.para:
+                        vtag.append(child)
+                    else:
+                        break
                 for child in vbstate.para:
                     vtag.append(child)
                 return

@@ -11,7 +11,7 @@ import subprocess, tempfile, os, time
 from setup import Command, installer_name
 from setup.build_environment import HOST, PROJECT
 
-BASE_RSYNC = 'rsync -avz --delete'.split()
+BASE_RSYNC = ['rsync', '-avz', '--delete']
 EXCLUDES = []
 for x in [
     'src/calibre/plugins', 'src/calibre/manual', 'src/calibre/trac',
@@ -42,7 +42,8 @@ class Push(Command):
         threads = []
         for host in (
             r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre',
-            'kovid@ox:calibre'
+            'kovid@ox:calibre',
+            r'kovid@win7:/cygdrive/c/Users/kovid/calibre',
             ):
             rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
             print '\n\nPushing to:', host, '\n'

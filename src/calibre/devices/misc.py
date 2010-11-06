@@ -124,12 +124,15 @@ class PDNOVEL_KOBO(PDNOVEL):
 
     BCD         = [0x222]
 
-    EBOOK_DIR_MAIN = 'eBooks/Kobo'
+    EBOOK_DIR_MAIN = 'eBooks'
 
     def upload_cover(self, path, filename, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
-            with open(os.path.join(path, '.thumbnail', filename+'.jpg'), 'wb') as coverfile:
+            dirpath = os.path.join(path, '.thumbnail')
+            if not os.path.exists(dirpath):
+                os.makedirs(dirpath)
+            with open(os.path.join(dirpath, filename+'.jpg'), 'wb') as coverfile:
                 coverfile.write(coverdata[2])
 
 

@@ -108,7 +108,7 @@ class BookInfo(QDialog, Ui_BookInfo):
             lines = comments.splitlines()
             lines = [x if x.strip() else '<br><br>' for x in lines]
             comments = '\n'.join(lines)
-        self.comments.setText('<div>%s</div>' % comments)
+        self.comments.setHtml('<div>%s</div>' % comments)
         cdata = info.pop('cover', '')
         self.cover_pixmap = QPixmap.fromImage(cdata)
         self.resize_cover()

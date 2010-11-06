@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
+<link rel="schema.DCTERMS" href="http://purl.org/dc/terms/" />
+
+<title>${print ', '.join(meta.creators()),}$ - ${print meta.titles().next(); meta.titles().close()}$</title>
+
+${for item in meta:}$
+  <meta ${print 'name="DC.'+item['name']+'"',}$ ${print 'content="'+item['value']+'"',}$ />
+${:endfor}$
+
+<link href="${cssLink}$" type="text/css" rel="stylesheet" />
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  ${pos1=1}$
+  ${for title in meta.titles():}$
+    ${if pos1:}$
+    <h1>
+      <a href="${tocUrl}$">${print title}$</a>
+    </h1>
+    ${:else:}$
+    <div class="calibreMetaSubtitle">${print title}$</div>
+    ${:endif}$
+    ${pos1=0}$
+  ${:endfor}$
+  </div>
+  <div class="calibreMetaAuthor">
+    ${print ', '.join(meta.creators()),}$
+  </div>
+</div>
+
+<div class="calibreMain">
+  <div class="calibreEbookContent">
+
+    ${if has_toc:}$
+      <div class="calibreTocIndex">
+        <h2>${print _('Table of contents'),}$</h2>
+        ${toc}$
+      </div>
+    ${:else:}$
+        <h2>${print _('No table of contents present'),}$</h2>
+        <div><strong><a href="${nextLink}$">${print _('begin to read'),}$</a></strong></div>
+    ${:endif}$
+
+  </div>
+
+  <div class="calibreEbNav">
+    ${if nextLink:}$
+      <a href="${nextLink}$" class="calibreANext">${print _('next page'),}$</a>
+    ${:endif}$
+  </div>
+</div>
+
+</body>
+</html>

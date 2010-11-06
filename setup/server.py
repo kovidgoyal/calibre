@@ -89,7 +89,7 @@ class Server(Command):
             t = telnetlib.Telnet('localhost', 4242)
             t.read_until("repl>")
             t.write('BrowserReload();')
-            print t.read_until("repl>")
+            t.read_until("repl>")
             t.close()
         except:
             print 'Failed to reload browser'

@@ -4,6 +4,95 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.27
+  date: 2010-11-05
+
+  new features:
+    - title: "The book list behavior has changed"
+      type: major
+      description: >
+        "Now double clicking on an entry in the book list will open it in the viewer. To edit metadata single click a previously selected entry instead. This is consistent with
+        the usage in most operating systems, so should be most intuitive for new users. Also typing any key no longer starts an edit, instead press F2 (Enter on OS X) to start editing
+        the current cell. Also you now have to double click instead of single clicking the book details panel to open the detailed info dialog for the book."
+
+    - title: "Added a new HTML output format plugin, which converts the input document to a ZIP file. The zip file contains HTML pages suitable for display in a website"
+
+    - title: "Support for iRiver Cover Story and Digma Q600"
+
+    - title: "Add a search button (labelled Go!) to explicitly run a search with the text currently in the quick search box"
+
+    - title: "Add author to the calibre geenrated book jacket"
+      tickets: [7402]
+
+    - title: "Add the title of the destination book to the merge dialog warning message"
+
+    - title: "calibre-server: Make auto reload control separate from --devlop with a new command line option --auto-reload"
+
+  bug fixes:
+    - title: "Fix book details panel not being updated after a delete-merge"
+      tickets: [7426]
+
+    - title: "Fix clicking in the search box launches a search if you have search as you type enabled"
+      tickets: [7425]
+
+    - title: "Use a browser widget to display book details for more robustness and better performance when vieweing large HTML comments"
+
+    - title: "Fix cover browser not updated after copy to library and delete"
+      tickets: [7416]
+
+    - title: "Fix regression that broke sending non calibre EPUB files to the iPad. Also handle failure to set cover in iTunes gracefully"
+      tickets: [7356]
+
+    - title: "News download: Workaround lack of thread safety in python mechanize, causing corrupted network packets (degrading network performance) on Ubuntu Maverick 64bit kernels"
+
+    - title: "Convert comments to HTML for book details panel in separate thread to make scrolling through the book list faster when large comments are present"
+
+    - title: "calibre-server: Fix regression that broke --daemonize"
+
+    - title: "EPUB Input: Handle ncx files that have <navpoint> elements with no content correctly."
+      tickets: [7396]
+
+    - title: "SNBOutput: Fixed a bug in handling pre tag"
+
+    - title: "MOBI Output: Don't ignore hidden anchors."
+      tickets: [7384]
+
+    - title: "Fix switching libraries and generating a catalog could generate a catalog for the wrong library"
+
+    - title: "MOBI Output: Fix regression that broke conversion of anchors inside superscripts/subscripts."
+      tickets: [7368]
+
+    - title: "Content server: Fix various minor bugs"
+      tickets: [7379, 6768, 7354]
+
+    - title: "Amazon metadata download plugin: Make it more robust and add option to auto convert HTML to text"
+
+    - title: "Re-arrange send to device menu to make it harder to accidentally trigger the send and delete actions"
+      
+
+  improved recipes:
+    - Danas
+    - Fudzilla
+    - Zeit Online
+    - New York Times
+    - Mediapart
+
+  new recipes:
+    - title: "Ynet and Calcalist"
+      author: "marbs"
+      
+    - title: "El Faro de Vigo"
+      author: "Jefferson Frantz"
+
+    - title: "Clic_RBS"
+      author: "avoredo"
+
+    - title: "Correio da Manha"
+      author: "jmst"
+
+    - title: "Rue89"
+      author: "Louis Gesbert"
+
 - version: 0.7.26
   date: 2010-10-30
 
