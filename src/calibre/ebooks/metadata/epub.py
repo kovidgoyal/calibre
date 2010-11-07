@@ -109,7 +109,10 @@ class OCFZipReader(OCFReader):
             raise EPubException("not a ZIP .epub OCF container")
         self.root = root
         if self.root is None:
-            self.root = os.getcwdu()
+            try:
+                self.root = os.getcwdu()
+            except:
+                pass
             if hasattr(stream, 'name'):
                 self.root = os.path.abspath(os.path.dirname(stream.name))
         super(OCFZipReader, self).__init__()
