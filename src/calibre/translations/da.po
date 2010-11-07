@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-11-05 22:23+0000\n"
-"PO-Revision-Date: 2010-11-06 00:14+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-11-06 15:45+0000\n"
+"PO-Revision-Date: 2010-11-06 09:44+0000\n"
+"Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-06 04:48+0000\n"
+"X-Launchpad-Export-Date: 2010-11-07 04:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1009,7 +1009,7 @@ msgstr "Kommunikér med Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Digma Q600"
-msgstr ""
+msgstr "Kommunikér med Digma Q600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:88
 msgid "Communicate with the Kogan"
@@ -2090,25 +2090,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:33
 msgid "CSS file used for the output instead of the default file"
-msgstr ""
+msgstr "CSS-fil anvendtes til output istedet for standardfilen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:36
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
 msgstr ""
+"Skabelon anvendt til at generering af html index-fil istedet for "
+"standardfilen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:39
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
+"Skabelon anvendt til at generering af html indhold af bogen istedet for "
+"standardfilen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:42
 msgid ""
 "Extract the contents of the generated ZIP file to the specified directory. "
 "WARNING: The contents of the directory will be deleted."
 msgstr ""
+"Udpak indholdet af den genererede ZIP-fil til den angivne mappe. ADVARSEL: "
+"Mappeindholdet vil forinden blive slettet."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2479,7 +2485,7 @@ msgstr "Kommentarer"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:313
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1127
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:160
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:620
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:623
 msgid "Tags"
 msgstr "Mærker"
 
@@ -2699,7 +2705,7 @@ msgstr "Download %s fra %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:149
 msgid "Convert comments downloaded from %s to plain text"
-msgstr ""
+msgstr "Konvertér kommentarer hentet fra %s til ASCII-tekst"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:175
 msgid "Downloads metadata from Google Books"
@@ -2911,7 +2917,7 @@ msgstr "HTML indholdsfortegnelse genereringsmuligheder."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:71
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:618
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:621
 msgid "Rating"
 msgstr "Vurdering"
 
@@ -4255,6 +4261,10 @@ msgid ""
 "second and subsequently selected books will not be deleted or "
 "changed.<br><br>Please confirm you want to proceed."
 msgstr ""
+"Bogformater og metadata fra de valgte bøger vil blive tilføjet til <b>første "
+"valgte bog</b> (%s). ISBN vil <i>ikke</i> blive iflettet.<br><br> Den anden "
+"og følgende valgte bøger vil ikke blive slettet eller "
+"ændret.<br><br>Venligst bekræft at du ønsker at fortsætte."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:209
 msgid ""
@@ -4266,6 +4276,13 @@ msgid ""
 "books will be permanently <b>deleted</b> from your computer.<br><br>  Are "
 "you <b>sure</b> you want to proceed?"
 msgstr ""
+"Bogformater og metadata fra de valgte bøger vil blive tilføjet til <b>første "
+"valgte bog</b> (%s). ISBN vil <i>ikke</i> blive iflettet.<br><br>Efter "
+"ifletning, vil den anden og følgende valgte bøger blive <b>slettet</b>. "
+"<br><br>Alle bogformater af den første valgte bog vil blive beholdt be og "
+"ethver dubleret format i den anden og følgende valgte bøger vil blive "
+"permanent <b>slettet</b> fra din computer.<br><br>  Er du <b>sikker</b> på "
+"at du ønsker at fortsætte?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:222
 msgid ""
@@ -4404,7 +4421,7 @@ msgid "Click the show details button to see which ones."
 msgstr "Klik vis-detalje knappen for at se hvilke."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:625
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:628
 msgid "Show book details"
 msgstr "Vis bogdetaljer"
 
@@ -4750,7 +4767,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:402
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:403
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:119
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:121
@@ -4797,9 +4814,9 @@ msgstr "Klik for at åbne"
 msgid "None"
 msgstr "Ingen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:401
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:402
 msgid "Double-click to open Book Details window"
-msgstr ""
+msgstr "Dobbeltklik for at åbne Book Details vinduet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -8472,11 +8489,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:180
 msgid "&Go!"
-msgstr ""
+msgstr "&Søg!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:186
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr ""
+msgstr "Lav hurtigsøgning (du kan også trykke på retur-tasten)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:192
 msgid "Reset Quick Search"
@@ -8514,7 +8531,7 @@ msgstr "Størrelse (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:331
 msgid "Book %s of %s."
-msgstr ""
+msgstr "Bog %s af %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:693
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1236
@@ -8850,7 +8867,7 @@ msgid "Successfully downloaded metadata for %d out of %d books"
 msgstr "Metadata hentning lykkedes for %d ud af %d bøger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:287
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:624
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:627
 msgid "Details"
 msgstr "Detaljer"
 
@@ -9999,6 +10016,7 @@ msgstr "&Aktuelle tweaks"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:270
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:574
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:250
 msgid "Search"
 msgstr "Søg"
 
@@ -12409,7 +12427,7 @@ msgid "Password to access your calibre library. Username is "
 msgstr "Adgangskode til dit calibre bibliotek. Brugernavnet er "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:51
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:402
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:405
 msgid "Loading, please wait"
 msgstr "Henter, vent venligst"
 
@@ -12454,70 +12472,78 @@ msgstr "Popularitet"
 msgid "Sort by"
 msgstr "Sortér efter"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:307
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:513
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
+msgid "library"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:249
+msgid "home"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:310
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:516
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:569
 msgid "Newest"
 msgstr "Nyeste"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:308
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:514
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:311
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:517
 msgid "All books"
 msgstr "Alle bøger"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:341
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:344
 msgid "Browse books by"
 msgstr "Gennemse bøger efter"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:346
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:349
 msgid "Choose a category to browse by:"
 msgstr "Vælg en kategori at gennemse efter:"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:422
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:425
 msgid "Browsing by"
 msgstr "Gennemse efter"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:423
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:426
 msgid "Up"
 msgstr "Op"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:544
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:547
 msgid "in"
 msgstr "i"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:547
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:550
 msgid "Books in"
 msgstr "Bøger i"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:599
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:602
 msgid "Other formats"
 msgstr "Andre formater"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:606
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:609
 msgid "Read %s in the %s format"
 msgstr "Læser %s i %s formatet"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:611
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:614
 msgid "Get"
 msgstr "Hent"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:626
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:629
 msgid "Permalink"
 msgstr "Permanent-link"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:627
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:630
 msgid "A permanent link to this book"
 msgstr "Et permanent-link til denne bog"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:638
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:641
 msgid "This book has been deleted"
 msgstr "Denne bog er blevet slettet"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:722
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:725
 msgid "in search"
 msgstr "i søgning"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:724
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:727
 msgid "Matching books"
 msgstr "Matchende bøger"
 
@@ -12565,6 +12591,8 @@ msgid ""
 "Auto reload server when source code changes. May not work in all "
 "environments."
 msgstr ""
+"Genstart automatisk serveren, når kildekoden ændres. Virker muligvis ikke i "
+"alle miljøer."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:112
 msgid "%d book"

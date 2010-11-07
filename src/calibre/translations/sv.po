@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-11-05 22:23+0000\n"
+"POT-Creation-Date: 2010-11-06 15:45+0000\n"
 "PO-Revision-Date: 2010-11-06 02:10+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-06 04:50+0000\n"
+"X-Launchpad-Export-Date: 2010-11-07 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -2487,7 +2487,7 @@ msgstr "Kommentarer"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:313
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1127
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:160
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:620
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:623
 msgid "Tags"
 msgstr "Etiketter"
 
@@ -2916,7 +2916,7 @@ msgstr "Alternativ för innehållsförteckning från HTML."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:71
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:618
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:621
 msgid "Rating"
 msgstr "Betyg"
 
@@ -4414,7 +4414,7 @@ msgid "Click the show details button to see which ones."
 msgstr "Klicka på knappen \"Visa detaljer\" för att se vilka."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:625
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:628
 msgid "Show book details"
 msgstr "Visa bokdetaljer"
 
@@ -4762,7 +4762,7 @@ msgstr "Flera böcker per &mapp, antar varje ebokfil är en annorlunda bok"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:402
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:403
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:119
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:121
@@ -4809,7 +4809,7 @@ msgstr "Klicka för att öppna"
 msgid "None"
 msgstr "Inget"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:401
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:402
 msgid "Double-click to open Book Details window"
 msgstr ""
 
@@ -8849,7 +8849,7 @@ msgid "Successfully downloaded metadata for %d out of %d books"
 msgstr "Laddat ner metadata för %d av %d böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:287
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:624
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:627
 msgid "Details"
 msgstr "Detaljinformation"
 
@@ -9997,6 +9997,7 @@ msgstr "&Aktuella justeringar"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:270
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:574
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:250
 msgid "Search"
 msgstr "Sök"
 
@@ -12407,7 +12408,7 @@ msgid "Password to access your calibre library. Username is "
 msgstr "Lösenord för att komma åt ditt Calibre-bibliotek. Användarnamnet är "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:51
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:402
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:405
 msgid "Loading, please wait"
 msgstr "Laddar, var god vänta"
 
@@ -12452,70 +12453,78 @@ msgstr "Popularitet"
 msgid "Sort by"
 msgstr "Sortera efter"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:307
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:513
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
+msgid "library"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:249
+msgid "home"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:310
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:516
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:569
 msgid "Newest"
 msgstr "Nyaste"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:308
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:514
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:311
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:517
 msgid "All books"
 msgstr "Alla böcker"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:341
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:344
 msgid "Browse books by"
 msgstr "Bläddra böcker av"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:346
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:349
 msgid "Choose a category to browse by:"
 msgstr "Välj en kategori för att bläddra genom:"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:422
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:425
 msgid "Browsing by"
 msgstr "Bläddrar genom"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:423
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:426
 msgid "Up"
 msgstr "Upp"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:544
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:547
 msgid "in"
 msgstr "i"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:547
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:550
 msgid "Books in"
 msgstr "Böcker på"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:599
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:602
 msgid "Other formats"
 msgstr "Andra format"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:606
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:609
 msgid "Read %s in the %s format"
 msgstr "Läs %s i %s-format"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:611
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:614
 msgid "Get"
 msgstr "Hämta"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:626
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:629
 msgid "Permalink"
 msgstr "Permalink"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:627
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:630
 msgid "A permanent link to this book"
 msgstr "En permanent länk till den här boken"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:638
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:641
 msgid "This book has been deleted"
 msgstr "Denna bok har tagits bort"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:722
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:725
 msgid "in search"
 msgstr "söker"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:724
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:727
 msgid "Matching books"
 msgstr "Matchande böcker"
 

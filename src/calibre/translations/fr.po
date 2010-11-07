@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-05 22:23+0000\n"
-"PO-Revision-Date: 2010-11-06 01:22+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-11-06 15:45+0000\n"
+"PO-Revision-Date: 2010-11-06 05:14+0000\n"
+"Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-06 04:49+0000\n"
+"X-Launchpad-Export-Date: 2010-11-07 04:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1019,7 +1019,7 @@ msgstr "Communiquer avec le Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Digma Q600"
-msgstr ""
+msgstr "Communiquer avec le Digma Q600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:88
 msgid "Communicate with the Kogan"
@@ -2152,25 +2152,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:33
 msgid "CSS file used for the output instead of the default file"
-msgstr ""
+msgstr "Fichier CSS utilisé pour la sortie au lieu du fichier par défaut"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:36
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
 msgstr ""
+"Modèle utilisé pour la génération du fichier d'index html au lieu du fichier "
+"par défaut"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:39
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
+"Modèle utilisé pour la génération du contenu html du livre au lieu du "
+"fichier par défaut"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:42
 msgid ""
 "Extract the contents of the generated ZIP file to the specified directory. "
 "WARNING: The contents of the directory will be deleted."
 msgstr ""
+"Extraire le contenu du fichier généré ZIP vers le répertoire spécifié. "
+"AVERTISSEMENT: Le contenu du répertoire sera supprimé."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2547,7 +2553,7 @@ msgstr "Commentaires"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:313
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1127
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:160
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:620
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:623
 msgid "Tags"
 msgstr "Etiquettes"
 
@@ -2775,7 +2781,7 @@ msgstr "Téléchargement de %s sur %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:149
 msgid "Convert comments downloaded from %s to plain text"
-msgstr ""
+msgstr "Convertir les commentaires téléchargés de %s en texte intégral"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:175
 msgid "Downloads metadata from Google Books"
@@ -2990,7 +2996,7 @@ msgstr "Options pour la génération des tables de matières HTML."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:71
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:618
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:621
 msgid "Rating"
 msgstr "Note"
 
@@ -3390,18 +3396,23 @@ msgstr ""
 msgid ""
 "Specify whether or not to insert an empty line between two paragraphs."
 msgstr ""
+"Spécifier s'il faut ou non insérer une ligne vide entre deux paragraphes."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:40
 msgid ""
 "Specify whether or not to insert two space characters to indent the first "
 "line of each paragraph."
 msgstr ""
+"Spécifier s'il faut ou non insérer deux caractères espace pour indenter la "
+"première ligne de chaque paragraphe."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:44
 msgid ""
 "Specify whether or not to hide the chapter title for each chapter. Useful "
 "for image-only output (eg. comics)."
 msgstr ""
+"Spécifier s'il faut ou non cacher le titre de chapitre pour chaque chapitre. "
+"Utile pour les sorties ne contenant que des images. (eg. bandes dessinées)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:122
 msgid "Start Page"
@@ -4367,6 +4378,10 @@ msgid ""
 "second and subsequently selected books will not be deleted or "
 "changed.<br><br>Please confirm you want to proceed."
 msgstr ""
+"Les formats et les métadonnées des livres sélectionnés seront ajoutés au "
+"<b>premier livre sélectionné</b> (%s). L'ISBN <i>ne sera pas</i> "
+"fusionné.<br><br> Le second livre sélectionné et les suivants ne seront ni "
+"supprimés ni modifiés.<br><br>Veuillez confirmer que vous voulez continuer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:209
 msgid ""
@@ -4378,6 +4393,13 @@ msgid ""
 "books will be permanently <b>deleted</b> from your computer.<br><br>  Are "
 "you <b>sure</b> you want to proceed?"
 msgstr ""
+"Les formats et les métadonnées des livres sélectionnés seront fusionnés dans "
+"le <b>premier livre sélectionné</b> (%s). L'ISBN <i>ne sera pas</i> "
+"fusionné.<br><br>Après la fusion, le second livre sélectionné et les "
+"suivants seront <b>supprimés</b>.<br><br>Tous les formats du premier livre "
+"sélectionné seront conservés et tous les formats dupliqués dans le second "
+"livre sélectionné et les suivants seront définitivement <b>supprimés</b> de "
+"votre ordinateur.<br><br> Êtes-vous <b>sûr</b> de vouloir continuer?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:222
 msgid ""
@@ -4518,7 +4540,7 @@ msgid "Click the show details button to see which ones."
 msgstr "Cliquer le bouton afficher les détails pour voir lesquels."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:625
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:628
 msgid "Show book details"
 msgstr "Afficher les détails du livre"
 
@@ -4870,7 +4892,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:402
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:403
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:119
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:121
@@ -4917,9 +4939,9 @@ msgstr "Cliquer pour ouvrir"
 msgid "None"
 msgstr "Aucun"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:401
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:402
 msgid "Double-click to open Book Details window"
-msgstr ""
+msgstr "Double-cliquer pour ouvrir la fenêtre de détails du livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -8664,7 +8686,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:186
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr ""
+msgstr "Lancer une recherche rapide (vous pouvez aussi appuyer sur Enter)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:192
 msgid "Reset Quick Search"
@@ -8703,7 +8725,7 @@ msgstr "Taille (Mo)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:331
 msgid "Book %s of %s."
-msgstr ""
+msgstr "Livre %s sur %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:693
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1236
@@ -9047,7 +9069,7 @@ msgid "Successfully downloaded metadata for %d out of %d books"
 msgstr "Métadonnées télécargées avec succès pour %d livres sur %d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:287
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:624
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:627
 msgid "Details"
 msgstr "Détails"
 
@@ -10237,6 +10259,7 @@ msgstr "Réglages a&ctuels"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:270
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:574
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:250
 msgid "Search"
 msgstr "Trouver"
 
@@ -12702,7 +12725,7 @@ msgstr ""
 "est "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:51
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:402
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:405
 msgid "Loading, please wait"
 msgstr "Chargement, veuillez patientez..."
 
@@ -12747,70 +12770,78 @@ msgstr "Popularité"
 msgid "Sort by"
 msgstr "Classement par"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:307
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:513
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
+msgid "library"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:249
+msgid "home"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:310
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:516
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:569
 msgid "Newest"
 msgstr "Le plus récent"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:308
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:514
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:311
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:517
 msgid "All books"
 msgstr "Tous les livres"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:341
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:344
 msgid "Browse books by"
 msgstr "Naviguer dans les livres par:"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:346
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:349
 msgid "Choose a category to browse by:"
 msgstr "Choisissez une catégorie pour naviguer par :"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:422
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:425
 msgid "Browsing by"
 msgstr "Navigation par"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:423
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:426
 msgid "Up"
 msgstr "Haut"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:544
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:547
 msgid "in"
 msgstr "dans"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:547
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:550
 msgid "Books in"
 msgstr "Livres en"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:599
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:602
 msgid "Other formats"
 msgstr "Autres formats"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:606
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:609
 msgid "Read %s in the %s format"
 msgstr "Lire %s dans le format %s"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:611
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:614
 msgid "Get"
 msgstr "Obtenir"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:626
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:629
 msgid "Permalink"
 msgstr "Lien permanent"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:627
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:630
 msgid "A permanent link to this book"
 msgstr "Un lien permanent vers ce livre"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:638
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:641
 msgid "This book has been deleted"
 msgstr "Ce livre a été supprimé"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:722
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:725
 msgid "in search"
 msgstr "dans la recherche"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:724
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:727
 msgid "Matching books"
 msgstr "Livres correspondants"
 
