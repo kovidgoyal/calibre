@@ -211,3 +211,9 @@ generate_cover_title_font = None
 # Absolute path to a TTF font file to use as the font for the footer in the
 # default cover
 generate_cover_foot_font = None
+
+
+# Behavior of doubleclick on the books list. Choices:
+# open_viewer, do_nothing, edit_cell. Default: open_viewer.
+# Example: doubleclick_on_library_view = 'do_nothing'
+doubleclick_on_library_view = 'open_viewer'
