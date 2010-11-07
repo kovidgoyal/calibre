@@ -59,6 +59,9 @@ class Danas(BasicNewsRecipe):
                           ,(re.compile(u'\u201d'), lambda match: '&rdquo;') # right double quotation mark
                           ,(re.compile(u'\u201e'), lambda match: '&ldquo;') # double low-9 quotation mark                          
                           ,(re.compile(u'\u201f'), lambda match: '&rdquo;') # double high-reversed-9 quotation mark
+                          ,(re.compile(u'\u00f4'), lambda match: '&ldquo;') # latin small letter o with circumflex
+                          ,(re.compile(u'\u00f6'), lambda match: '&rdquo;') # latin small letter o with dieaeresis
+                          ,(re.compile(u'\u00e1'), lambda match: '&nbsp;' ) # latin small letter a with acute
                          ]
 
     keep_only_tags     = [dict(name='div', attrs={'id':'left'})]

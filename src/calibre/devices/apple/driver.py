@@ -1221,12 +1221,19 @@ class ITUNES(DriverBase):
                     return thumb
 
                 if isosx:
+                    # The following commands generate an error, but the artwork does in fact
+                    # get sent to the device.  Seems like a bug in Apple's automation interface?
+                    # Could also be a problem with the integrity of the cover data?
                     if lb_added:
-                        lb_added.artworks[1].data_.set(cover_data)
+                        try:
+                            lb_added.artworks[1].data_.set(cover_data)
+                        except:
+                            if DEBUG:
+                                self.log.warning("  iTunes automation interface reported an error"
+                                                 " when adding artwork to '%s' in the iTunes Library" % metadata.title)
+                            pass
 
                     if db_added:
-                        # The following command generates an error, but the artwork does in fact
-                        # get sent to the device.  Seems like a bug in Apple's automation interface
                         try:
                             db_added.artworks[1].data_.set(cover_data)
                         except:

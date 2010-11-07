@@ -51,6 +51,10 @@ class BooksView(QTableView): # {{{
         QTableView.__init__(self, parent)
 
         self.setEditTriggers(self.SelectedClicked|self.EditKeyPressed)
+        if tweaks['doubleclick_on_library_view'] == 'edit_cell':
+            self.setEditTriggers(self.DoubleClicked|self.editTriggers())
+        elif tweaks['doubleclick_on_library_view'] == 'open_viewer':
+            self.doubleClicked.connect(parent.iactions['View'].view_triggered)
 
         self.drag_allowed = True
         self.setDragEnabled(True)
@@ -99,8 +103,6 @@ class BooksView(QTableView): # {{{
         self.selected_ids = []
         self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
         self._model.sorting_done.connect(self.sorting_done)
-
-        self.doubleClicked.connect(parent.iactions['View'].view_triggered)
 
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
@@ -389,7 +391,8 @@ class BooksView(QTableView): # {{{
         self.save_state()
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
-        self.authors_delegate.set_auto_complete_function(db.all_authors)
+        self.authors_delegate.set_auto_complete_function(
+                lambda: [(x, y.replace('|', ',')) for (x, y) in db.all_authors()])
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
 

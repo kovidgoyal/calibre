@@ -133,7 +133,11 @@ class DetectStructure(object):
 
 
     def elem_to_link(self, item, elem, counter):
-        text = xml2text(elem)
+        text = xml2text(elem).strip()
+        if not text:
+            text = elem.get('title', '')
+        if not text:
+            text = elem.get('alt', '')
         text = text[:100].strip()
         id = elem.get('id', 'calibre_toc_%d'%counter)
         elem.set('id', id)

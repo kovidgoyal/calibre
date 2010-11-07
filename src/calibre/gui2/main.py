@@ -345,6 +345,7 @@ def main(args=sys.argv):
         # On windows only singleinstance can be trusted
         otherinstance = True if iswindows else False
     if not otherinstance:
+        sys.setcheckinterval(50) # Make GUI more responsive
         return run_gui(opts, args, actions, listener, app)
 
     communicate(args)

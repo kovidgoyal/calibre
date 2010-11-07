@@ -60,7 +60,6 @@ class NYTimes(BasicNewsRecipe):
 
 
     timefmt = ''
-    needs_subscription = True
     masthead_url = 'http://graphics8.nytimes.com/images/misc/nytlogo379x64.gif'
     cover_margins = (18,18,'grey99')
 

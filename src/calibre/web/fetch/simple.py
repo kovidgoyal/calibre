@@ -86,11 +86,6 @@ class response(str):
         obj.newurl = None
         return obj
 
-class DummyLock(object):
-
-    def __enter__(self, *args): return self
-    def __exit__(self, *args): pass
-
 def default_is_link_wanted(url, tag):
     raise NotImplementedError()
 
@@ -104,7 +99,6 @@ class RecursiveFetcher(object):
     #                       )
     CSS_IMPORT_PATTERN = re.compile(r'\@import\s+url\((.*?)\)', re.IGNORECASE)
     default_timeout = socket.getdefaulttimeout() # Needed here as it is used in __del__
-    DUMMY_LOCK = DummyLock()
 
     def __init__(self, options, log, image_map={}, css_map={}, job_info=None):
         self.base_dir = os.path.abspath(os.path.expanduser(options.dir))

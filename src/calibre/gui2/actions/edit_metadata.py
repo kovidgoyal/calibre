@@ -234,6 +234,7 @@ class EditMetadataAction(InterfaceAction):
             ci = self.gui.library_view.model().index(dest_row, 0)
             if ci.isValid():
                 self.gui.library_view.setCurrentIndex(ci)
+                self.gui.library_view.model().current_changed(ci, ci)
 
     def add_formats(self, dest_id, src_books, replace=False):
         for src_book in src_books:

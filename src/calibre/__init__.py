@@ -21,8 +21,6 @@ from calibre.constants import iswindows, isosx, islinux, isfreebsd, isfrozen, \
                               filesystem_encoding, plugins, config_dir
 from calibre.startup import winutil, winutilerror
 
-import mechanize
-
 uuid.uuid4() # Imported before PyQt4 to workaround PyQt4 util-linux conflict on gentoo
 
 if False:
@@ -269,7 +267,8 @@ def browser(honor_time=True, max_time=2, mobile_browser=False):
     :param honor_time: If True honors pause time in refresh requests
     :param max_time: Maximum time in seconds to wait during a refresh request
     '''
-    opener = mechanize.Browser()
+    from calibre.utils.browser import Browser
+    opener = Browser()
     opener.set_handle_refresh(True, max_time=max_time, honor_time=honor_time)
     opener.set_handle_robots(False)
     opener.addheaders = [('User-agent', ' Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016' if mobile_browser else \
