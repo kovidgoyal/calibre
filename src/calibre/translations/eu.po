@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-11-06 15:45+0000\n"
-"PO-Revision-Date: 2010-11-06 21:45+0000\n"
+"PO-Revision-Date: 2010-11-07 06:40+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-07 04:44+0000\n"
+"X-Launchpad-Export-Date: 2010-11-08 05:09+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -392,12 +392,12 @@ msgstr "Aldatu metadatu eremuak gorde/igorri baino lehenago"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:837
 msgid "Sharing books by email"
-msgstr "Elkarbanatzen liburuak e-postaren bidez"
+msgstr "Liburuak e-posta bidez partekatzea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:839
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:851
 msgid "Sharing"
-msgstr "Elkarbanatzen"
+msgstr "Partekatzea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid ""
@@ -4448,6 +4448,13 @@ msgid ""
 "books will be permanently <b>deleted</b> from your computer.<br><br>  Are "
 "you <b>sure</b> you want to proceed?"
 msgstr ""
+"Hautatutako liburuen liburu-formatuak eta beren metadatuak <b>hautatutako "
+"lehen liburuan</b> (%s) agertuko dira. ISBNa <i>ez</i> da "
+"agertuko.<br><br>Bigarren eta ondorengo hautatutako liburuak agertu eta gero "
+"<b>ezabatu egingo</b> da. <br><br>Hautatutako lehen liburuaren liburu-"
+"formatu guztiak gorde egingo dira eta bigarren eta hurrengo liburuetan "
+"errepikatzen diren liburu-formatu guztiak betiko <b>ezabatuko</b> dira zure "
+"ordenagailutik.<br><br>  <b>Ziur</b> zaude? Benetan aurrera egin nahi duzu?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:222
 msgid ""
@@ -12936,6 +12943,8 @@ msgid ""
 "Auto reload server when source code changes. May not work in all "
 "environments."
 msgstr ""
+"Kargatu, modu automatikoan, berriro zerbitzaria sorburu kodea aldatzerakoan. "
+"Agian ez da ingurune guztietan behar bezala egingo."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:112
 msgid "%d book"

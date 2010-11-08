@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-06 15:45+0000\n"
-"PO-Revision-Date: 2010-11-06 23:45+0000\n"
-"Last-Translator: Martin Baumgartner <Unknown>\n"
+"PO-Revision-Date: 2010-11-07 11:50+0000\n"
+"Last-Translator: Manichean <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-07 04:45+0000\n"
+"X-Launchpad-Export-Date: 2010-11-08 05:10+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1014,7 +1014,7 @@ msgstr "Kommunikation mit dem Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Digma Q600"
-msgstr ""
+msgstr "Kommunikation mit dem Digma Q600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:88
 msgid "Communicate with the Kogan"
@@ -2140,19 +2140,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:33
 msgid "CSS file used for the output instead of the default file"
-msgstr ""
+msgstr "Zur Ausgabe statt der Standarddatei verwendete CSS- Datei"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:36
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
 msgstr ""
+"Für die Erstellung der HTML- Indexdatei anstelle der Standarddatei benutzte "
+"Vorlage"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:39
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
+"FÜr die Erstellung der HTML- Dateien des Buchinhalts anstelle der "
+"Standarddatei benutzte Vorlage"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:42
 msgid ""
@@ -4351,6 +4355,11 @@ msgid ""
 "second and subsequently selected books will not be deleted or "
 "changed.<br><br>Please confirm you want to proceed."
 msgstr ""
+"Buchformate und Metadaten der ausgewählten Bücher werden dem <b>zuerst "
+"ausgewählten Buch</b> hinzugefügt (%s). ISBN wird <b>nicht</b> "
+"hinzugefügt.<br><br> Das zweite und weitere ausgewählte Bücher werden nicht "
+"gelöscht oder verändert.<br><br>Bestätigen Sie bitte, dass Sie fortfahren "
+"möchten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:209
 msgid ""
@@ -4362,6 +4371,14 @@ msgid ""
 "books will be permanently <b>deleted</b> from your computer.<br><br>  Are "
 "you <b>sure</b> you want to proceed?"
 msgstr ""
+"Buchformate und Metadaten der ausgewählten Bücher werden dem <b>zuerst "
+"ausgewählten Buch</b> hinzugefügt (%s). Die ISBN wird <b>nicht</b> "
+"hinzugefügt.<br><br>Nach dem Zusammenführen wird das zweite und weitere "
+"ausgewählte Bücher <b>gelöscht</b>.<br><br>Alle Buchformate des zuerst "
+"ausgewählten Buches werden beibehalten, doppelt vorhandene Formate im "
+"zweiten und weiteren ausgewählten Büchern werden von ihrem Computer "
+"<b>permanent gelöscht</b>.<br><br>Sind Sie <b>sicher</b>, dass Sie "
+"fortfahren möchten?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:222
 msgid ""
@@ -4902,7 +4919,7 @@ msgstr "Keine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:402
 msgid "Double-click to open Book Details window"
-msgstr ""
+msgstr "Doppelklick, um das Buchdetail- Fenster zu öffnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -8631,11 +8648,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:180
 msgid "&Go!"
-msgstr ""
+msgstr "&Los!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:186
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr ""
+msgstr "Schnellsuche durchführen (Sie können auch die Eingabetaste drücken)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:192
 msgid "Reset Quick Search"
@@ -8673,7 +8690,7 @@ msgstr "Größe (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:331
 msgid "Book %s of %s."
-msgstr ""
+msgstr "Buch %s von %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:693
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1236
@@ -12693,11 +12710,11 @@ msgstr "Sortieren nach"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
 msgid "library"
-msgstr ""
+msgstr "Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:249
 msgid "home"
-msgstr ""
+msgstr "Startseite"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:310
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:516
@@ -12812,6 +12829,8 @@ msgid ""
 "Auto reload server when source code changes. May not work in all "
 "environments."
 msgstr ""
+"Server automatisch bei Quellcode- Änderungen neu laden. Funktioniert unter "
+"Umständen nicht in allen Umgebungen."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:112
 msgid "%d book"

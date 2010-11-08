@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-06 15:45+0000\n"
-"PO-Revision-Date: 2010-11-06 01:51+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-11-07 13:49+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-07 04:46+0000\n"
+"X-Launchpad-Export-Date: 2010-11-08 05:10+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:494
@@ -383,7 +383,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 msgid "Saving books to disk"
-msgstr "Guarda de libros al disco"
+msgstr "Guardar libros en disco"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:808
 msgid ""
@@ -395,7 +395,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:814
 msgid "Sending books to devices"
-msgstr "Envío de libros a dispositivos"
+msgstr "Enviar libros a dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:820
 msgid "Control how calibre transfers files to your ebook reader"
@@ -412,24 +412,24 @@ msgstr "Cambiar los cambpos de metadatos antes de guardar/enviar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:837
 msgid "Sharing books by email"
-msgstr "Compartición de libros por correo"
+msgstr "Compartir de libros por correo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:839
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:851
 msgid "Sharing"
-msgstr "Compartición"
+msgstr "Compartir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
-"Configura la compartición de libros por correo electrónico. Puede usarse "
+"Configurar la compartición de libros por correo electrónico. Puede usarse "
 "para enviar automáticamente las noticias descargadas a sus dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid "Sharing over the net"
-msgstr "Compartición por red"
+msgstr "Compartir por red"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:855
 msgid ""
@@ -1024,7 +1024,7 @@ msgstr "Comunicarse con el Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Digma Q600"
-msgstr ""
+msgstr "Comunicar con el Digma Q600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:88
 msgid "Communicate with the Kogan"
@@ -2133,25 +2133,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:33
 msgid "CSS file used for the output instead of the default file"
-msgstr ""
+msgstr "Fichero CSS usado en la salida en lugar del predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:36
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
 msgstr ""
+"Plantilla empleada para generar el fichero de índice html en lugar del "
+"fichero predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:39
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
+"Plantilla empleada para generar el cuerpo del libro en html en lugar del "
+"fichero predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:42
 msgid ""
 "Extract the contents of the generated ZIP file to the specified directory. "
 "WARNING: The contents of the directory will be deleted."
 msgstr ""
+"Extraer el contenido del fichero ZIP generado en el directorio especificado. "
+"ADVERTENCIA: Todo el contenido del directorio se borrará."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2745,7 +2751,7 @@ msgstr "Descargar %s desde %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:149
 msgid "Convert comments downloaded from %s to plain text"
-msgstr ""
+msgstr "Convertir los comentarios descargados de %s en texto simple"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:175
 msgid "Downloads metadata from Google Books"
@@ -4215,7 +4221,7 @@ msgstr " y elimínalo desde la librería"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:81
 msgid "Setup email based sharing of books"
-msgstr "Configurar compartición de libros por correo electrónico"
+msgstr "Configurar la compartición de libros por correo electrónico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:98
 msgid "D"
@@ -4327,6 +4333,10 @@ msgid ""
 "second and subsequently selected books will not be deleted or "
 "changed.<br><br>Please confirm you want to proceed."
 msgstr ""
+"Los formatos de libro y metadatos de los libros seleccionados se añadirán al "
+"<b>primer libro seleccionado</b> (%s). El ISBN <i>no</i> se unirá.<br><br>El "
+"segundo libro seleccionado y los siguientes no se borrarán ni se "
+"modificarán.<br>Confirme que desea continuar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:209
 msgid ""
@@ -4338,6 +4348,13 @@ msgid ""
 "books will be permanently <b>deleted</b> from your computer.<br><br>  Are "
 "you <b>sure</b> you want to proceed?"
 msgstr ""
+"Los formatos de libro y metadatos de los libros seleccionados se añadirán al "
+"<b>primer libro seleccionado</b> (%s). El ISBN <i>no</i> se "
+"unirá.<br><br>Después de unir los libros, el segundo libro seleccionado y "
+"los siguientes se <b>borrarán</b>.<br><br>Se mantendrán todos los formatos "
+"del primer libro seleccionado y cualquier formato duplicado en el segundo o "
+"los siguientes se <b>borrará</b> permanentemente de su "
+"ordenador.<br><br>¿Está <b>seguro</b> de que quiere continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:222
 msgid ""
@@ -4873,7 +4890,7 @@ msgstr "Ninguno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:402
 msgid "Double-click to open Book Details window"
-msgstr ""
+msgstr "Pulse dos veces para abrir la ventana de Detalles del libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -8593,11 +8610,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:180
 msgid "&Go!"
-msgstr ""
+msgstr "¡&Ya!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:186
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr ""
+msgstr "Realizar una Búsqueda rápida (también puede pulsar la tecla Intro)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:192
 msgid "Reset Quick Search"
@@ -8635,7 +8652,7 @@ msgstr "Tamaño (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:331
 msgid "Book %s of %s."
-msgstr ""
+msgstr "Libro %s de %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:693
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1236
@@ -10058,7 +10075,7 @@ msgstr "Separador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:52
 msgid "Choose library"
-msgstr "Escoja la biblioteca"
+msgstr "Escoger la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:202
 msgid "The main toolbar"
@@ -12651,11 +12668,11 @@ msgstr "Ordenar por"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
 msgid "library"
-msgstr ""
+msgstr "biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:249
 msgid "home"
-msgstr ""
+msgstr "inicio"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:310
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:516
@@ -12771,6 +12788,8 @@ msgid ""
 "Auto reload server when source code changes. May not work in all "
 "environments."
 msgstr ""
+"Reiniciar el servidor automáticamente cuando cambia el código fuente. Puede "
+"no funcionar en todos los entornos."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:112
 msgid "%d book"
