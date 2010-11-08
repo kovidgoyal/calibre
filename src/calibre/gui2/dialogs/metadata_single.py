@@ -845,7 +845,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if cf is not None and hasattr(cf, 'terminate'):
             cf.terminate()
             cf.wait()
-
+        self.save_state()
         QDialog.reject(self, *args)
 
     def read_state(self):
