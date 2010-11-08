@@ -43,7 +43,7 @@ class MMCRTV(BasicNewsRecipe):
             (u'Svet', u'http://www.rtvslo.si/feeds/02.xml'),
             (u'Evropska unija', u'http://www.rtvslo.si/feeds/16.xml'),
             (u'Gospodarstvo', u'http://www.rtvslo.si/feeds/04.xml'),
-            (u'Črna kronika', u'http://www.rtvslo.si/feeds/08.xml'),
+            (u'\u010crna kronika', u'http://www.rtvslo.si/feeds/08.xml'),
             (u'Okolje', u'http://www.rtvslo.si/feeds/12.xml'),
             (u'Znanost in tehnologija', u'http://www.rtvslo.si/feeds/09.xml'),
             (u'Zabava', u'http://www.rtvslo.si/feeds/06.xml'),
