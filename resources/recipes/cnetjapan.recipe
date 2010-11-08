@@ -1,6 +1,6 @@
 import re;
 
-class AdvancedUserRecipe1287588358(BasicNewsRecipe):
+class CNetJapan(BasicNewsRecipe):
     title          = u'CNET Japan'
     oldest_article = 3
     max_articles_per_feed = 30

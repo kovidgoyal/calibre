@@ -1,0 +1,16 @@
+class MainichiDailyNews(BasicNewsRecipe):
+    title          = u'Mainichi News'
+    __author__     = 'Hiroshi Miura'
+    oldest_article = 2
+    max_articles_per_feed = 100
+    description    = 'Japanese traditional newspaper Mainichi Daily News'
+    publisher      = 'Mainichi Daily News'
+    category       = 'news, japan'
+    language       = 'ja'
+
+    feeds          = [(u'mainichi IT', u'http://mainichi.pheedo.jp/f/mainichijp_electronics')]
+
+    remove_tags_before = {'class':"NewsTitle"}
+    remove_tags = [{'class':"RelatedArticle"}]
+    remove_tags_after = {'class':"ArticleLower"}
+
