@@ -444,6 +444,9 @@ xml_entity_to_unicode = partial(entity_to_unicode, result_exceptions = {
 def replace_entities(raw):
     return _ent_pat.sub(entity_to_unicode, raw)
 
+def xml_replace_entities(raw):
+    return _ent_pat.sub(xml_entity_to_unicode, raw)
+
 def prepare_string_for_xml(raw, attribute=False):
     raw = _ent_pat.sub(entity_to_unicode, raw)
     raw = raw.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
