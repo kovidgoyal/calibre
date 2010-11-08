@@ -1,15 +1,19 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import re
+
+import re, copy
+
 from PyQt4.QtGui import QDialog, QDialogButtonBox
-from PyQt4 import QtCore
 
 from calibre.gui2.dialogs.search_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
+from calibre.gui2 import gprefs
+
+box_values = {}
 
 class SearchDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, parent, db, box_values, current_tab):
+    def __init__(self, parent, db):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.mc = ''
@@ -18,25 +22,37 @@ class SearchDialog(QDialog, Ui_Dialog):
                                               y if y[0] != '#' else y[1:]))
         self.general_combo.addItems(searchables)
 
-        if (box_values):
-            for k,v in box_values.items():
+        self.box_last_values = copy.deepcopy(box_values)
+        if self.box_last_values:
+            for k,v in self.box_last_values.items():
                 if k == 'general_index':
                     continue
                 getattr(self, k).setText(v)
             self.general_combo.setCurrentIndex(
-                    self.general_combo.findText(box_values['general_index']))
-        self.box_last_values = box_values
+                    self.general_combo.findText(self.box_last_values['general_index']))
 
         self.buttonBox.accepted.connect(self.advanced_search_button_pushed)
-        self.tab_2_button_box.accepted.connect(self.box_search_accepted)
-        self.tab_2_button_box.rejected.connect(self.box_search_rejected)
+        self.tab_2_button_box.accepted.connect(self.accept)
+        self.tab_2_button_box.rejected.connect(self.reject)
         self.clear_button.clicked.connect(self.clear_button_pushed)
         self.adv_search_used = False
-        self.box_search_used = False
 
+        current_tab = gprefs.get('advanced search dialog current tab', 0)
         self.tabWidget.setCurrentIndex(current_tab)
         self.tabWidget.currentChanged[int].connect(self.tab_changed)
         self.tab_changed(current_tab)
+
+    def save_state(self):
+        gprefs['advanced search dialog current tab'] = \
+            self.tabWidget.currentIndex()
+
+    def accept(self):
+        self.save_state()
+        return QDialog.accept(self)
+
+    def reject(self):
+        self.save_state()
+        return QDialog.reject(self)
 
     def tab_changed(self, idx):
         if idx == 1:
@@ -46,16 +62,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def advanced_search_button_pushed(self):
         self.adv_search_used = True
-        self.current_tab = 0
-        QDialog.accept(self)
-
-    def box_search_accepted(self):
-        self.box_search_used = True
-        self.current_tab = 1
-        QDialog.accept(self)
-
-    def box_search_rejected(self):
-        QDialog.reject(self)
+        self.accept()
 
     def clear_button_pushed(self):
         self.title_box.setText('')
@@ -139,6 +146,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.box_last_values['general_box'] = general
         general_index = unicode(self.general_combo.currentText())
         self.box_last_values['general_index'] = general_index
+        global box_values
+        box_values = copy.deepcopy(self.box_last_values)
         if general:
             ans.append(unicode(self.general_combo.currentText()) + ':"' + general + '"')
         if ans:

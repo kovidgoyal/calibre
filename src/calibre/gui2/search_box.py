@@ -381,8 +381,6 @@ class SearchBoxMixin(object):
             unicode(self.search.toolTip())))
         self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
         self.clear_button.setStatusTip(self.clear_button.toolTip())
-        self.search_last_values = None
-        self.search_current_tab = 0
 
     def search_box_cleared(self):
         self.tags_view.clear()
@@ -394,12 +392,9 @@ class SearchBoxMixin(object):
         self.tags_view.clear()
 
     def do_advanced_search(self, *args):
-        d = SearchDialog(self, self.library_view.model().db,
-                         self.search_last_values, self.search_current_tab)
+        d = SearchDialog(self, self.library_view.model().db)
         if d.exec_() == QDialog.Accepted:
             self.search.set_search_string(d.search_string())
-            self.search_last_values = d.box_last_values
-            self.search_current_tab = d.current_tab
 
 class SavedSearchBoxMixin(object):
 
