@@ -167,6 +167,7 @@ class SearchBar(QWidget): # {{{
         x.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         parent.advanced_search_button = x = QToolButton(self)
+        parent.advanced_search_button.setShortcut(_("Shift+Ctrl+F"))
         x.setIcon(QIcon(I('search.png')))
         l.addWidget(x)
         x.setToolTip(_("Advanced search"))

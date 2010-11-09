@@ -472,8 +472,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             if path != self.current_page:
                 self.pending_anchor = frag
                 self.load_path(path)
-            elif frag:
-                self.view.scroll_to(frag)
+            else:
+                if frag:
+                    self.view.scroll_to(frag)
+                else:
+                    # Scroll to top
+                    self.view.scroll_to('#')
         else:
             open_url(url)
 

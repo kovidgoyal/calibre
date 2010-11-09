@@ -400,7 +400,7 @@ Future conversion of these books will use the default settings.</string>
        </widget>
        <widget class="QWidget" name="tabWidgetPage3">
         <attribute name="title">
-         <string>&amp;Search and replace (experimental)</string>
+         <string>&amp;Search and replace</string>
         </attribute>
         <layout class="QGridLayout" name="vargrid">
          <property name="sizeConstraint">

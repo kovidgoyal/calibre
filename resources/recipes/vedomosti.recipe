@@ -1,0 +1,195 @@
+#!/usr/bin/env  python
+
+u'''
+Ведомости
+'''
+
+from calibre.web.feeds.feedparser import parse
+from calibre.ebooks.BeautifulSoup import Tag
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class VedomostiRecipe(BasicNewsRecipe):
+    title = u'Ведомости'
+    __author__ = 'Nikolai Kotchetkov'
+    publisher = 'vedomosti.ru'
+    category = 'press, Russia'
+    description = u'Ежедневная деловая газета'
+    oldest_article = 3
+    max_articles_per_feed = 100
+
+    masthead_url = u'http://motorro.com/imgdir/logos/ved_logo_black2_cropped.gif'
+    cover_url = u'http://motorro.com/imgdir/logos/ved_logo_black2_cropped.gif'
+
+    #Add feed names if you want them to be sorted (feeds of this list appear first)
+    sortOrder = [u'_default', u'Первая полоса', u'Власть и деньги']
+
+    encoding = 'cp1251'
+    language = 'ru'
+    no_stylesheets = True
+    remove_javascript = True
+    recursions = 0
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+
+    keep_only_tags = [dict(name='td', attrs={'class' : ['second_content']})]
+
+    remove_tags_after = [dict(name='div', attrs={'class' : 'article_text'})]
+
+    remove_tags = [dict(name='div', attrs={'class' : ['sep', 'choice', 'articleRightTbl']})]
+
+    feeds = [u'http://www.vedomosti.ru/newspaper/out/rss.xml']
+
+    #base URL for relative links
+    base_url = u'http://www.vedomosti.ru'
+
+    extra_css = 'h1 {font-size: 1.5em; margin: 0em 0em 0em 0em; text-align: center;}'\
+                'h2 {font-size: 1.0em; margin: 0em 0em 0em 0em;}'\
+                'h3 {font-size: 0.8em; margin: 0em 0em 0em 0em;}'\
+                '.article_date {font-size: 0.5em; color: gray; font-family: monospace; text-align:right;}'\
+                '.article_authors {font-size: 0.5em; color: gray; font-family: monospace; text-align:right;}'\
+                '.article_img {width:100%; text-align: center; padding: 3px 3px 3px 3px;}'\
+                '.article_img_desc {width:100%; text-align: center; font-size: 0.5em; color: gray; font-family: monospace;}'\
+                '.article_desc {font-size: 1em; font-style:italic;}'
+
+    def parse_index(self):
+        try:
+            feedData = parse(self.feeds[0])
+            if not feedData:
+                raise NotImplementedError
+            self.log("parse_index: Feed loaded successfully.")
+            if feedData.feed.has_key('title'):
+                self.title = feedData.feed.title
+                self.log("parse_index: Title updated to: ", self.title)
+            if feedData.feed.has_key('description'):
+                self.description = feedData.feed.description
+                self.log("parse_index: Description updated to: ", self.description)
+
+            def get_virtual_feed_articles(feed):
+                if feeds.has_key(feed):
+                    return feeds[feed][1]
+                self.log("Adding new feed: ", feed)
+                articles = []
+                feeds[feed] = (feed, articles)
+                return articles
+
+            feeds = {}
+
+            #Iterate feed items and distribute articles using tags
+            for item in feedData.entries:
+                link = item.get('link', '');
+                title = item.get('title', '');
+                if '' == link or '' == title:
+                    continue
+                article = {'title':title, 'url':link, 'description':item.get('description', ''), 'date':item.get('date', ''), 'content':''};
+                if not item.has_key('tags'):
+                    get_virtual_feed_articles('_default').append(article)
+                    continue
+                for tag in item.tags:
+                    addedToDefault = False
+                    term = tag.get('term', '')
+                    if '' == term:
+                        if (not addedToDefault):
+                            get_virtual_feed_articles('_default').append(article)
+                        continue
+                    get_virtual_feed_articles(term).append(article)
+
+            #Get feed list
+            #Select sorted feeds first of all
+            result = []
+            for feedName in self.sortOrder:
+                if (not feeds.has_key(feedName)): continue
+                result.append(feeds[feedName])
+                del feeds[feedName]
+            result = result + feeds.values()
+
+            return result
+
+        except Exception, err:
+            self.log(err)
+            raise NotImplementedError
+
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)
+
+    def postprocess_html(self, soup, first_fetch):
+        #self.log('Original: ', soup.prettify())
+
+        #Find article
+        contents = soup.find('div', {'class':['article_text']})
+        if not contents:
+            self.log('postprocess_html: article div not found!')
+            return soup
+        contents.extract()
+
+        #Find title
+        title = soup.find('h1')
+        if title:
+            contents.insert(0, title)
+
+        #Find article image
+        newstop = soup.find('div', {'class':['newstop']})
+        if newstop:
+            img = newstop.find('img')
+            if img:
+                imgDiv = Tag(soup, 'div')
+                imgDiv['class'] = 'article_img'
+
+                if img.has_key('width'):
+                    del(img['width'])
+                if img.has_key('height'):
+                    del(img['height'])
+
+                #find description
+                element = img.parent.nextSibling
+
+                img.extract()
+                imgDiv.insert(0, img)
+
+                while element:
+                    if not isinstance(element, Tag):
+                        continue
+                    nextElement = element.nextSibling
+                    if 'p' == element.name:
+                        element.extract()
+                        element['class'] = 'article_img_desc'
+                        imgDiv.insert(len(imgDiv.contents), element)
+                    element = nextElement
+
+                contents.insert(1, imgDiv)
+
+        #find article abstract
+        abstract = soup.find('p', {'class':['subhead']})
+        if abstract:
+            abstract['class'] = 'article_desc'
+            contents.insert(2, abstract)
+
+        #Find article authors
+        authorsDiv = soup.find('div', {'class':['autors']})
+        if authorsDiv:
+            authorsP = authorsDiv.find('p')
+            if authorsP:
+                authorsP['class'] = 'article_authors'
+                contents.insert(len(contents.contents), authorsP)
+
+        #Fix urls that use relative path
+        urls = contents.findAll('a');
+        if urls:
+            for url in urls:
+                if not url.has_key('href'):
+                    continue
+                if '/' == url['href'][0]:
+                    url['href'] = self.base_url + url['href']
+
+        body = soup.find('td', {'class':['second_content']})
+        if body:
+            body.replaceWith(contents)
+
+        self.log('Result: ', soup.prettify())
+        return soup
+

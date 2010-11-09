@@ -245,6 +245,9 @@ class BrowseServer(object):
         ans = ans.replace('{sort_select_label}', xml(_('Sort by')+':'))
         ans = ans.replace('{sort_cookie_name}', scn)
         ans = ans.replace('{prefix}', self.opts.url_prefix)
+        ans = ans.replace('{library}', _('library'))
+        ans = ans.replace('{home}', _('home'))
+        ans = ans.replace('{Search}', _('Search'))
         opts = ['<option %svalue="%s">%s</option>' % (
             'selected="selected" ' if k==sort else '',
             xml(k), xml(n), ) for k, n in
