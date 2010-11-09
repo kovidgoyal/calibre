@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-06 15:45+0000\n"
-"PO-Revision-Date: 2010-11-06 01:18+0000\n"
+"PO-Revision-Date: 2010-11-08 20:18+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-07 04:44+0000\n"
+"X-Launchpad-Export-Date: 2010-11-09 04:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -693,7 +693,7 @@ msgstr "Inhabilita el connector anomenat"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr "Estableix comunicació amb telèfons Android"
+msgstr "Comunica't amb telèfons Android"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:53
 msgid ""
@@ -705,7 +705,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:95
 msgid "Communicate with S60 phones."
-msgstr "Estableix comunicació amb els telèfons S60."
+msgstr "Comunica't amb telèfons S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:90
 msgid "Apple device"
@@ -713,7 +713,7 @@ msgstr "Dispositiu Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:92
 msgid "Communicate with iTunes/iBooks."
-msgstr "Comunicar-se amb iTunes/iBooks."
+msgstr "Comunica't amb iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:98
 msgid "Apple device detected, launching iTunes, please wait ..."
@@ -803,12 +803,11 @@ msgstr "Comunica't amb iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics Binatone Readme."
+msgstr "Comunica't amb un lector Binatone Readme."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr "Estableix comunicació amb el telèfon Blackberry."
+msgstr "Comunica't amb un telèfon Blackberry."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
@@ -818,21 +817,19 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics Cybook Gen 3 / "
-"Opus."
+msgstr "Comunica't amb un lector Cybook Gen 3 / Opus."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
-msgstr "Estableix comunicació amb el lector de llibres electrònics EB600"
+msgstr "Comunica't amb un lector EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr "Comunica't amb l'Astak Mentor EB600"
+msgstr "Comunica't amb un Astak Mentor EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
-msgstr "Comunica't amb el lector PocketBook 301"
+msgstr "Comunica't amb un lector PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -840,16 +837,15 @@ msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics Entourage Edge."
+msgstr "Comunica't amb un lector Entourage Edge."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr "Estableix comunicació amb el lector de llibres electrònics ESlick."
+msgstr "Comunica't amb un lector ESlick."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr "Comunicar amb el Sigmatek eBook reader."
+msgstr "Comunica't amb un lector Sigmatek."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:32
@@ -863,17 +859,15 @@ msgstr "Interfície del dispostiu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics Hanlin V3."
+msgstr "Comunica't amb un lector Hanlin V3."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:96
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics Hanlin V5."
+msgstr "Comunica't amb un lector Hanlin V5."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:115
 msgid "Communicate with the BOOX eBook reader."
-msgstr "Estableix comunicació amb el lector de llibres electrònics BOOX."
+msgstr "Comunica't amb un lector BOOX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:132
 msgid ""
@@ -885,17 +879,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:22
 msgid "Communicate with the Hanvon N520 eBook reader."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics Hanvon N520."
+msgstr "Comunica't amb un lector Hanvon N520."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:47
 msgid "Communicate with The Book reader."
-msgstr "Comunicar-se amb el lector de llibres electrònics."
+msgstr "Comunica't amb un lector electrònics."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:59
 msgid "Communicate with the SpringDesign Alex eBook reader."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics SpringDesign Alex."
+msgstr "Comunica't amb un lector SpringDesign Alex."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:102
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:113
@@ -908,17 +900,15 @@ msgstr "S'estan suprimint  els llibres del dispositiu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:119
 msgid "Communicate with the Azbooka"
-msgstr "Comunicar-se amb Azbooka"
+msgstr "Comunica't amb un Azbooka"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:138
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics Elonex EB 511."
+msgstr "Comunica't amb un lector Elonex EB 511."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics IRex Iliad"
+msgstr "Comunica't amb un lector IRex Iliad"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
@@ -932,48 +922,43 @@ msgstr "No es poden aconseguir els fitxers d'aquest dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics IRex Digital "
-"Reader 1000."
+msgstr "Comunica't amb un lector IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics IRex Digital "
-"Reader 800."
+msgstr "Comunica't amb un lector IRex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:15
 msgid "Communicate with the Iriver Story reader."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics IRiver Story."
+msgstr "Comunica't amb un lector IRiver Story."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:20
 msgid "Communicate with the JetBook eBook reader."
-msgstr "Estableix comunicació amb el lector de llibres electrònics JetBook."
+msgstr "Comunica't amb un lector JetBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:88
 msgid "Communicate with the MiBuk Wolder reader."
-msgstr "Comunicació amb lector MiBuk Wolder"
+msgstr "Comunica't amb un lector MiBuk Wolder"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:116
 msgid "Communicate with the JetBook Mini reader."
-msgstr "Comunica amb el lector JetBook Mini."
+msgstr "Comunica't amb un lector JetBook Mini."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:43
 msgid "Communicate with the Kindle eBook reader."
-msgstr "Estableix comunicació amb el lector de llibres electrònics Kindle"
+msgstr "Comunica't amb un lector Kindle"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:170
 msgid "Communicate with the Kindle 2/3 eBook reader."
-msgstr "Comunicació amb lector Kindle 2/3"
+msgstr "Comunica't amb un lector Kindle 2/3"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:211
 msgid "Communicate with the Kindle DX eBook reader."
-msgstr "Estableix comunicació amb el lector de llibres electrònics Kindle DX"
+msgstr "Comunica't amb un lector Kindle DX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:23
 msgid "Communicate with the Kobo Reader"
-msgstr "Comunica amb el lector Kobo Reader"
+msgstr "Comunica't amb un lector Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:49
 msgid ""
@@ -1025,40 +1010,40 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
-msgstr "Comunica amb el Palm Pre"
+msgstr "Comunica't amb un Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:37
 msgid "Communicate with the Booq Avant"
-msgstr "Comunicar-se amb Booq Avant"
+msgstr "Comunica't amb un Booq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:58
 msgid "Communicate with the Sweex MM300"
-msgstr "Comunicar-se amb el Sweex MM300"
+msgstr "Comunica't amb un Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Digma Q600"
-msgstr ""
+msgstr "Comunica't amb un Digma Q600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:88
 msgid "Communicate with the Kogan"
-msgstr "Comunicació amb el Kogan"
+msgstr "Comunica't amb un Kogan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:96
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:123
 msgid "Communicate with the Pandigital Novel"
-msgstr "Comunicar-se amb el Pandigital Novel"
+msgstr "Comunica't amb un Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:142
 msgid "Communicate with the VelocityMicro"
-msgstr "Comunica't fent servir el VelocityMicro"
+msgstr "Comunica't amb un VelocityMicro"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:160
 msgid "Communicate with the GM2000"
-msgstr "Comunicació amb el GM2000"
+msgstr "Comunica't amb un GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr "Estableix comunicació amb la tauleta d'Internet Nokia 770."
+msgstr "Comunica't amb una tauleta d'Internet Nokia 770."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
@@ -1066,7 +1051,7 @@ msgstr "Comunica't amb un Nokia 810/900"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr "Comunicar-se amb el Nokia E52"
+msgstr "Comunica't amb un Nokia E52"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -1074,20 +1059,19 @@ msgstr "El Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
-msgstr "Estableix comunicació amb el lector de llibres electrònics Nook"
+msgstr "Comunica't amb un lector Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr "Estableix comunicació amb el lector de llibres electrònics Nuut2"
+msgstr "Comunica't amb un lector Nuut2"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics Sony PRS-500."
+msgstr "Comunica't amb un lector Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with all the Sony eBook readers."
-msgstr "Comunicar-se amb tots els lectors de llibres electrònics de Sony."
+msgstr "Comunica't amb tots els lectors Sony."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:61
 msgid ""
@@ -1104,28 +1088,27 @@ msgstr "Sense nom"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
-msgstr ""
-"Estableix comunicació amb el lector de llibres electrònics Samsung SNE."
+msgstr "Comunica't amb un lector Samsung SNE."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3/K5 reader."
-msgstr "Comunicació amb lector Teclast K3/K5"
+msgstr "Comunica't amb un lector Teclast K3/K5"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:36
 msgid "Communicate with the Newsmy reader."
-msgstr "Comunicar-se amb el lector Newsmy."
+msgstr "Comunica't amb un lector Newsmy."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Pico reader."
-msgstr "Comunica't amb el lector Pico"
+msgstr "Comunica't amb un lector Pico"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the iPapyrus reader."
-msgstr "Comunicar-se amb el lector iPapyrus."
+msgstr "Comunica't amb un lector iPapyrus."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:68
 msgid "Communicate with the Sovos reader."
-msgstr "Comunicar-se amb el lector Sovos."
+msgstr "Comunica't amb un lector Sovos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:258
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1217,7 +1200,7 @@ msgstr "Personalització addicional"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:41
 msgid "Communicate with an eBook reader."
-msgstr "Estableix comunicació amb el lector de llibres electrònics."
+msgstr "Comunica't amb un lector de llibres electrònics."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:57
 msgid "Get device information..."
@@ -2152,24 +2135,31 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:33
 msgid "CSS file used for the output instead of the default file"
 msgstr ""
+"Fitxer CSS que es farà servir per a la sortida en lloc del fitxer per defecte"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:36
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
 msgstr ""
+"Plantilla que es fa servir per generar l'índex html en lloc del fitxer per "
+"defecte"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:39
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
+"Plantilla que es fa servir per generar els continguts html del llibre en "
+"lloc del fitxer per defecte"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:42
 msgid ""
 "Extract the contents of the generated ZIP file to the specified directory. "
 "WARNING: The contents of the directory will be deleted."
 msgstr ""
+"Extreu el contingut de l'arxiu ZIP a la carpeta que s'especifica. AVÍS: Se "
+"suprimirà el contingut de la carpeta."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2761,7 +2751,7 @@ msgstr "Descarrega %s des de %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:149
 msgid "Convert comments downloaded from %s to plain text"
-msgstr ""
+msgstr "Converteix a text pla els comentaris descarregats de %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:175
 msgid "Downloads metadata from Google Books"
@@ -4342,6 +4332,10 @@ msgid ""
 "second and subsequently selected books will not be deleted or "
 "changed.<br><br>Please confirm you want to proceed."
 msgstr ""
+"S'afegirà els formats i metadades dels llibres seleccionats al <b>primer "
+"llibre seleccionat</b> (%s). <i>No</i> es fusionarà l'ISBN.<br><br> No se "
+"suprimira ni canviarà el segon ni els següents llibres seleccionats.<br> "
+"Confirmeu si voleu continuar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:209
 msgid ""
@@ -4353,6 +4347,13 @@ msgid ""
 "books will be permanently <b>deleted</b> from your computer.<br><br>  Are "
 "you <b>sure</b> you want to proceed?"
 msgstr ""
+"Es fusionarà els formats i metadades dels llibres seleccionats al <b>primer "
+"llibre seleccionat</b> (%s). <i>No</i> es fusionarà l'ISBN.<br><br> Després "
+"de la fusió es <b>suprimirà</b> el segon i els següents llibres "
+"seleccionats.<br><br> Es conservarà tots els formats del primer llibre "
+"seleccionat i qualsevol format duplicat del segon i els següents llibres "
+"seleccionats se <b>suprimiran</b> de forma permanent de l'ordinador.<br><br> "
+"<b>Segur</b> que voleu continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:222
 msgid ""
@@ -4889,7 +4890,7 @@ msgstr "Cap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:402
 msgid "Double-click to open Book Details window"
-msgstr ""
+msgstr "Feu doble clic per obrir la finestra de detalls del llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -8595,11 +8596,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:180
 msgid "&Go!"
-msgstr ""
+msgstr "Enda&vant!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:186
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr ""
+msgstr "Fes una cerca ràpida (també podeu prémer la tecla de retorn)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:192
 msgid "Reset Quick Search"
@@ -8637,7 +8638,7 @@ msgstr "Grandària (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:331
 msgid "Book %s of %s."
-msgstr ""
+msgstr "Llibre %s de %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:693
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1236
@@ -12649,11 +12650,11 @@ msgstr "Ordena per"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
 msgid "library"
-msgstr ""
+msgstr "biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:249
 msgid "home"
-msgstr ""
+msgstr "inici"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:310
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:516
@@ -12766,6 +12767,8 @@ msgid ""
 "Auto reload server when source code changes. May not work in all "
 "environments."
 msgstr ""
+"Torna a carregar automàticament el servidor quan canviï el codi font. Potser "
+"que no funcioni en tots els entorns."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:112
 msgid "%d book"

@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-11-06 15:45+0000\n"
-"PO-Revision-Date: 2010-11-06 09:49+0000\n"
+"PO-Revision-Date: 2010-11-08 14:15+0000\n"
 "Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-07 04:46+0000\n"
+"X-Launchpad-Export-Date: 2010-11-09 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
-msgstr "Не ради баш ништа"
+msgstr "Ne radi baš ništa"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:87
@@ -156,31 +156,31 @@ msgstr "Не ради баш ништа"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:55
 msgid "Unknown"
-msgstr "Непознато"
+msgstr "Nepoznato"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
-msgstr "Основа"
+msgstr "Osnova"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:172
 msgid "File type"
-msgstr "Врста датотеке"
+msgstr "Vrsta fajla"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:208
 msgid "Metadata reader"
-msgstr "Читач метаподатака"
+msgstr "Čitač metapodataka"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:238
 msgid "Metadata writer"
-msgstr "Писач метаподатака"
+msgstr "Pisač metapodataka"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:268
 msgid "Catalog generator"
-msgstr "Генератор каталога"
+msgstr "Generator kataloga"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:369
 msgid "User Interface Action"
-msgstr "Радња корисничког сучеља"
+msgstr "Akcije korisničkog interfejsa"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:386
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:17
@@ -190,7 +190,7 @@ msgstr "Радња корисничког сучеља"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:273
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "Поставке"
+msgstr "Podešavanja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:17
 msgid ""
@@ -198,17 +198,17 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Прати све везе у HTML датотеци и направи ZIP архиву која садржи све повезане "
-"датотеке. Овај додатак се покреће сваки пут када додате HTML датотеку у "
-"библиотеку."
+"Prati sve veze u HTML fajlu i napravi ZIP arhivu koja sadrži sve povezane "
+"fajlove. Ovaj dodatak se pokreće svaki put kada dodate HTML fajl u "
+"biblioteku."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:53
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
-"Кодни распоред за улазне HTML датотеке. Најчешће коришћени кодни распореди "
-"су: Windows-1252 (CP1252), Latin-1, ISO-8859 и UTF-8."
+"Kodni raspored za ulazne HTML fajlove. Najčešće korišćeni kodni rasporedi "
+"su: Windows-1252 (CP1252), Latin-1, ISO-8859 i UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:60
 msgid ""
@@ -216,13 +216,13 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Направи PMLZ архиву која садржи PML датотеку и све слике у директоријумима "
-"plmname_img и images. Овај додатак се покреће сваки пут када додате PML "
-"датотеку у библиотеку."
+"Napravi PMLZ arhivu koja sadrži PML fajl i sve slike u direktorijumima "
+"plmname_img i images. Ovaj dodatak se pokreće svaki put kada dodate PML fajl "
+"u biblioteku."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:94
 msgid "Extract cover from comic files"
-msgstr "Извади насловну страну стрипа"
+msgstr "Uzmi omot iz fajla sa stripom"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:121
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:132
@@ -244,15 +244,15 @@ msgstr "Извади насловну страну стрипа"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:311
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:321
 msgid "Read metadata from %s files"
-msgstr "Читај метаподатке из %s датотека"
+msgstr "Čitaj metapodatke iz %s fajlova"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:269
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Читај метаподатке из е-књига у RAR архивама"
+msgstr "Čitaj metapodatke iz e-knjiga u RAR arhivama"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:332
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Читај метподатке из е-књига у ZIP архивама"
+msgstr "Čitaj metapodatke iz e-knjiga u ZIP arhivama"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:345
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:355
@@ -261,22 +261,22 @@ msgstr "Читај метподатке из е-књига у ZIP архивам
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:398
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:408
 msgid "Set metadata in %s files"
-msgstr "Постави метаподатке у %s датотека"
+msgstr "Upiši metapodatke u %s fajlova"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:376
 msgid "Set metadata from %s files"
-msgstr "Постави метаподатке из %s датотека"
+msgstr "Učitaj metapodatke iz %s fajlova"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:711
 msgid "Look and Feel"
-msgstr "Изглед и понашање"
+msgstr "Izgled i ponašanje"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:713
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:725
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:736
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:747
 msgid "Interface"
-msgstr "Сучеље"
+msgstr "Interfejs"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:717
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
@@ -446,7 +446,7 @@ msgstr "Razna napredna podešavanja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr "Улаз за претварање"
+msgstr "Ulaz za konverziju"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:134
 msgid ""
@@ -455,109 +455,109 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
-"Изаберите кодни распоред улазног документа. Ако је омогућено, ова опција ће "
-"заменити све кодне распореде означене у самом документу. Ово је посебно "
-"корисно за документе који у себи не садрже ниједан кодни распоред или у "
-"којима су назнаке кодног распореда неисправне."
+"Izaberite kodni raspored ulaznog dokumenta. Ako je omogućena, ova opcija će "
+"zameniti sve kodne rasporede označene u samom dokumentu. Ovo je posebno "
+"korisno za dokumente koji u sebi ne sadrže nijedan kodni raspored, ili u "
+"kojima su naznake kodnog rasporeda neispravne."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:246
 msgid "Conversion Output"
-msgstr "Резултат претварања"
+msgstr "Rezultat konverzije"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:260
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"Ако је изабрано, додатак ће покушати да направи што читљивији излаз за "
-"корисника. Ово не мора да има утицај на све изабране додатке."
+"Ako je izabrano, dodatak će pokušati da napravi što čitljiviji izlaz za "
+"korisnika. Ovo ne mora da ima uticaj na sve izabrane dodatke."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:47
 msgid "Input profile"
-msgstr "Улазни профил"
+msgstr "Ulazni profil"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:51
 msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
-"Овај профил покушава да обезбеди разумне подразумеване вредности, а користан "
-"је ако не знате ништа о улазном документу."
+"Ovaj profil pokušava da obezbedi razumne podrazumevane vrednosti, a koristan "
+"je ako ne znate ništa o ulaznom dokumentu."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:59
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:436
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
-"Овај профил је намењен за SONY PRS читаче као што су 500/505/600/700 и други."
+"Ovaj profil je namenjen za SONY PRS čitače, kao što su 500/505/600/700 itd."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:71
 msgid "This profile is intended for the SONY PRS 300."
-msgstr "Овај профил је намењен за SONY PRS 300 читаче."
+msgstr "Ovaj profil je namenjen za SONY PRS 300 čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:80
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:476
 msgid "This profile is intended for the SONY PRS-900."
-msgstr "Овај профил је намењен за SONY PRS-900 читаче."
+msgstr "Ovaj profil je namenjen za SONY PRS-900 čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:88
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:506
 msgid "This profile is intended for the Microsoft Reader."
-msgstr "Овај профил је намењен за Microsoft Reader."
+msgstr "Ovaj profil je namenjen za Microsoft Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:99
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:517
 msgid "This profile is intended for the Mobipocket books."
-msgstr "Овај профил је намењен за Mobipocket е-књиге."
+msgstr "Ovaj profil je namenjen za Mobipocket knjige."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:112
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:530
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr "Овај профил је намењен за Hanlin V3 читаче и клонове."
+msgstr "Ovaj profil je namenjen za Hanlin V3 čitače i klonove."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:124
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:542
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr "Овај профил је намењен за Hanlin V5 читаче и клонове."
+msgstr "Ovaj profil je namenjen za Hanlin V5 čitače i klonove."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:134
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:550
 msgid "This profile is intended for the Cybook G3."
-msgstr "Овај профил је намењен за Cybook G3 читаче."
+msgstr "Ovaj profil je namenjen za Cybook G3 čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:147
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:563
 msgid "This profile is intended for the Cybook Opus."
-msgstr "Овај профил је намењен за Cybook Opus читаче."
+msgstr "Ovaj profil je namenjen za Cybook Opus čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:159
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:576
 msgid "This profile is intended for the Amazon Kindle."
-msgstr "Овај профил је намењен за Amazon Kindle читаче."
+msgstr "Ovaj profil je namenjen za Amazon Kindle čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:171
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:617
 msgid "This profile is intended for the Irex Illiad."
-msgstr "Овај профил је намењен за Irex Illiad читаче."
+msgstr "Ovaj profil je namenjen za Irex Illiad čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:183
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:630
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr "Овај профил је намењен за IRex Digital Reader 1000 читаче."
+msgstr "Ovaj profil je namenjen za IRex Digital Reader 1000 čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:196
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:644
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr "Овај профил је намењен за IRex Digital Reader 800 читаче."
+msgstr "Ovaj profil je namenjen za IRex Digital Reader 800 čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:208
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:658
 msgid "This profile is intended for the B&N Nook."
-msgstr "Овај профил је намењен за B&N Nook читаче."
+msgstr "Ovaj profil je namenjen za B&N Nook čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:230
 msgid "Output profile"
-msgstr "Излазни профил"
+msgstr "Izlazni profil"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:234
 msgid ""
@@ -565,14 +565,14 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"Овај профил покушава да обезбеди разумне подразумеване вредности и користан "
-"је ако желите да израдите документ који може да се чита како на рачунару, "
-"тако и на осталим уређајима."
+"Ovaj profil pokušava da obezbedi razumne podrazumevane vrednosti, a koristan "
+"je ako želite da proizvedete dokument koji može da se čita kako na računaru, "
+"tako i na raznim drugim uređajima."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:273
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr "Намењено је за iPad и сличне уређаје с резолуцијом од 768x1024"
+msgstr "Namenjeno za iPad i slične uređaje s rezolucijom 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:427
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -580,28 +580,27 @@ msgstr "Namenjeno generičkim tablet uređajima, ne menja veličinu slika"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:454
 msgid "This profile is intended for the Kobo Reader."
-msgstr "Овај профил је намењен за Kobo читаче"
+msgstr "Ovaj profil je namenjen za Kobo čitače"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:467
 msgid "This profile is intended for the SONY PRS-300."
-msgstr "Овај профил је намењен за SONY PRS-300 читаче."
+msgstr "Ovaj profil je namenjen za SONY PRS-300 čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:485
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr "Овај профил је намењен за петоинчне JetBook читаче."
+msgstr "Ovaj profil je namenjen za 5-inčne JetBook čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:494
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
-"Овај профил је намењен SONY PRS линији читача, конкретно за моделе "
-"500/505/700 и др., у хоризонталном положају. Углавном је користан за "
-"стрипове."
+"Ovaj profil je namenjen SONY PRS liniji čitača, za modele 500/505/700 itd, u "
+"horizontalnom položaju. Uglavnom je koristan za stripove."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:597
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr "Овај профил је намењен за Amazon Kindle DX читаче."
+msgstr "Ovaj profil je namenjen za Amazon Kindle DX čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Sanda Bambook."
@@ -609,31 +608,31 @@ msgstr "Ovaj profil je namenjen Sanda Bambook čitaču."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Installed plugins"
-msgstr "Инсталирани додаци"
+msgstr "Instalirani dodaci"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Mapping for filetype plugins"
-msgstr "Мапирање додатака за различите типове датотека"
+msgstr "Mapiranje dodataka za različite vrste datoteka"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:36
 msgid "Local plugin customization"
-msgstr "Подешавања локалних додатака"
+msgstr "Podešavanja lokalnih podataka"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:37
 msgid "Disabled plugins"
-msgstr "Онемогућени додаци"
+msgstr "Isključeni dodaci"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:38
 msgid "Enabled plugins"
-msgstr "Омогућени додаци"
+msgstr "Uključeni dodaci"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:93
 msgid "No valid plugin found in "
-msgstr "Исправан додатак није пронађен у "
+msgstr "Ispravan dodatak nije pronađen u "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:508
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "Покретање %s додатка није успело. Извештај о грешци је:"
+msgstr "Pokretanje dodatka %s nije uspelo. Poruka o grešci je:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:541
 msgid ""
@@ -642,55 +641,54 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
-"    %prog опције\n"
+"    %prog opcije\n"
 "\n"
-"    Подеси Calibre учитавањем спољних додатака.\n"
+"    Podesi calibre učitavanjem spoljnih dodataka.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:547
 msgid "Add a plugin by specifying the path to the zip file containing it."
-msgstr ""
-"Инсталирајте додатак навођењем путање ка ZIP датотеци која га садржи."
+msgstr "Instalirajte dodatak navođenjem putanje ka ZIP fajlu koji ga sadrži."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:549
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
-msgstr "Уклоните додатак по имену. Нема утицаја на уграђене додатке."
+msgstr "Uklonite dodatak po imenu. Ovo nema uticaja na ugrađene dodatke."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:551
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr ""
-"Подесите додатак. Наведите назив додатка и наредбу за подешавање растављене "
-"зарезом."
+"Podesite dodatak. Navedite ime dodatka i naredbu za podešavanje rastavljene "
+"zarezom."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:553
 msgid "List all installed plugins"
-msgstr "Прикажи све инсталиране додатке"
+msgstr "Prikaži sve instalirane dodatke"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:555
 msgid "Enable the named plugin"
-msgstr "Омогући наведени додатак"
+msgstr "Uključi navedeni dodatak"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:557
 msgid "Disable the named plugin"
-msgstr "Онемогући наведени додатак"
+msgstr "Isključi navedeni dodatak"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr "Успостави везу с Android телефонима."
+msgstr "Uspastavi vezu sa Android telefonima."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:53
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
-"Зарезима раздвојен списак директоријума у које ће се слати књиге на уређај. "
-"Користиће се први постојећи."
+"Zarezima razdvojen spisak direktorijuma na uređaju u koje će se slati "
+"knjige. Koristiće se prvi postojeći."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:95
 msgid "Communicate with S60 phones."
-msgstr "Успостави везу са S60 телефонима."
+msgstr "Uspostavi vezu sa S60 telefonima."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:90
 msgid "Apple device"
@@ -698,12 +696,11 @@ msgstr "Apple uređaj"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:92
 msgid "Communicate with iTunes/iBooks."
-msgstr "Успостави везу са iTunes/iBooks."
+msgstr "Uspastavi vezu sa iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:98
 msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr ""
-"Пронађен је Apple уређај. Покретање програма iTunes. Молимо, сачекајте..."
+msgstr "Pronađen je Apple uređaj. Pokrećem iTunes. Molim sačekajte..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:100
 msgid ""
@@ -716,7 +713,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:260
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:263
 msgid "Updating device metadata listing..."
-msgstr "Ажурирање списка метаподатака на уређају..."
+msgstr "Ažuriranje spiska metapodataka na uređaju..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:339
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:378
@@ -725,21 +722,21 @@ msgstr "Ажурирање списка метаподатака на уређа
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2956
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2996
 msgid "%d of %d"
-msgstr "%d од %d"
+msgstr "%d od %d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:385
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:992
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3002
 msgid "finished"
-msgstr "завршено"
+msgstr "završeno"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:560
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr "Користи серије као категорију у iTunes/iBooks."
+msgstr "Koristi seriju kao kategoriju u iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:562
 msgid "Cache covers from iTunes/iBooks"
-msgstr "Ускладишти омоте с iTunes/iBooks."
+msgstr "Zapamti omote iz iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:574
 msgid ""
@@ -747,17 +744,17 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
-"Неке књиге нису пронађене у iTunes бази података.\n"
-"Избришите их користећи iBooks програм.\n"
-"Кликните на „Прикажи детаље“ за списак."
+"Neke knjige nisu pronađene u iTunes bazi podataka.\n"
+"Izbrišite ih koristeći iBooks program.\n"
+"Kliknite na 'Prikaži detalje' za spisak."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:911
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
-"Неки омоти нису прошли кроз процес претварања.\n"
-"Кликните на „Прикажи детаље“ за списак."
+"Neki omoti nisu mogli da budu konvertovani.\n"
+"Kliknite na 'Prikaži detalje' za spisak."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2553
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:444
@@ -771,7 +768,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2021
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:149
 msgid "News"
-msgstr "Вести"
+msgstr "Vesti"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2554
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
@@ -783,95 +780,95 @@ msgstr "Katalog"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2860
 msgid "Communicate with iTunes."
-msgstr "Успостави везу с iTunes-ом."
+msgstr "Uspostavi vezu sa iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr "Успостави везу с Binatone Readme читачем."
+msgstr "Uspostavi vezu s Binatone Readme čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr "Успостави везу с Blackberry телефоном."
+msgstr "Uspostavi vezu s Blackberry telefonom."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:90
 msgid "Kovid Goyal"
-msgstr "Ковид Гојл"
+msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr "Успостави везу с Cybook Gen 3/Opus читачем."
+msgstr "Uspostavi vezu s Cybook Gen 3/Opus čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
-msgstr "Успостави везу с EB600 читачем."
+msgstr "Uspostavi vezu sa EB600 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr "Успостави везу с Astak Mentor EB600 читачем."
+msgstr "Uspostavi vezu sa Astak Mentor EB600 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
-msgstr "Успостави везу с PocketBook 301 читачем."
+msgstr "Uspstavi vezu s PocketBook 301 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr "enTourage eDGe"
+msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr "Успостави везу с enTourage eDGe читачем."
+msgstr "Uspostavi vezu sa Entourage Edge čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr "Успостави везу с ESlick читачем."
+msgstr "Uspostavi vezu sa ESlick čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr "Успостави везу са Sigmatek читачем."
+msgstr "Uspostavi vezu sa Sigmatek čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:32
 msgid "Use an arbitrary folder as a device."
-msgstr "Користи произвољну фасциклу као уређај."
+msgstr "Koristi proizvoljni direktorijum kao uređaj."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:28
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:14
 msgid "Device Interface"
-msgstr "Сучеље уређаја"
+msgstr "Interfejs uređaja"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr "Успостави везу с Hanlin V3 читачем."
+msgstr "Uspostavi vezu s Hanlin V3 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:96
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr "Успостави везу с Hanlin V5 читачем."
+msgstr "Uspostavi vezu s Hanlin V5 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:115
 msgid "Communicate with the BOOX eBook reader."
-msgstr "Успостави везу с BOOX читачем."
+msgstr "Uspostavi vezu s BOOX čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:132
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used."
 msgstr ""
-"Зарезима раздвојен списак директоријума у које ће се слати књиге на уређај. "
-"Користиће се први постојећи."
+"Zarezima razdvojen spisak direktorijuma na uređaju u koje će se slati "
+"knjige. Koristiće se prvi postojeći."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:22
 msgid "Communicate with the Hanvon N520 eBook reader."
-msgstr "Успостави везу с Hanvon N520 читачем."
+msgstr "Uspostavi vezu s Hanvon N520 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:47
 msgid "Communicate with The Book reader."
-msgstr "Успостави везу с The Book читачем."
+msgstr "Uspostavi vezu s The Book čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:59
 msgid "Communicate with the SpringDesign Alex eBook reader."
-msgstr "Успостави везу са SpringDesign Alex читачем."
+msgstr "Uspostavi vezu sa SpringDesign Alex čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:102
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:113
@@ -880,25 +877,25 @@ msgstr "Успостави везу са SpringDesign Alex читачем."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:256
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:274
 msgid "Removing books from device..."
-msgstr "Уклањање књига с уређаја..."
+msgstr "Uklanjam knjige sa uređaja..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:119
 msgid "Communicate with the Azbooka"
-msgstr "Успостави везу с Azbooka читачем."
+msgstr "Uspostavi vezu sa Azbooka čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:138
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr "Успостави везу с Elonex EB 511 читачем."
+msgstr "Uspostavi vezu sa Elonex EB 511 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
-msgstr "Успостави везу с IRex Iliad читачем."
+msgstr "Uspostavi vezu sa IRex Iliad čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:42
 msgid "John Schember"
-msgstr "Џон Шембер"
+msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:44
 msgid "Cannot get files from this device"
@@ -906,43 +903,43 @@ msgstr "Ne mogu da preuzmem fajlove sa uređaja"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
-msgstr "Успостави везу с IRex Digital Reader 1000 читачем."
+msgstr "Uspostavi vezu sa IRex Digital Reader 1000 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
-msgstr "Успостави везу с IRex Digital Reader 800 читачем."
+msgstr "Uspostavi vezu sa IRex Digital Reader 800 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:15
 msgid "Communicate with the Iriver Story reader."
-msgstr "Успостави везу с Iriver Story читачем."
+msgstr "Uspostavi vezu sa Iriver Story čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:20
 msgid "Communicate with the JetBook eBook reader."
-msgstr "Успостави везу с JetBook читачем."
+msgstr "Uspostavi vezu s JetBook čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:88
 msgid "Communicate with the MiBuk Wolder reader."
-msgstr "Успостави везу с MiBuk Wolder читачем."
+msgstr "Uspostavi vezu s MiBuk Wolder čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:116
 msgid "Communicate with the JetBook Mini reader."
-msgstr "Uspostavi komunikaciju s JetBook Mini čitačem"
+msgstr "Uspostavi vezu s JetBook Mini čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:43
 msgid "Communicate with the Kindle eBook reader."
-msgstr "Успостави везу с Kindle читачем."
+msgstr "Uspostavi vezu s Kindle čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:170
 msgid "Communicate with the Kindle 2/3 eBook reader."
-msgstr "Uspostavi komunikaciju s Kindle 2/3 čitačem"
+msgstr "Uspostavi vezu s Kindle 2/3 čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:211
 msgid "Communicate with the Kindle DX eBook reader."
-msgstr "Успостави везу с Kindle DX читачем."
+msgstr "Uspostavi vezu s Kindle DX čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:23
 msgid "Communicate with the Kobo Reader"
-msgstr "Успостави везу с Kobo читачем."
+msgstr "Uspostavi vezu s Kobo čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:49
 msgid ""
@@ -963,63 +960,63 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:143
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:166
 msgid "Getting list of books on device..."
-msgstr "Преузимање списка књига с уређаја..."
+msgstr "Preuzimam spisak knjiga sa uređaja..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:300
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:307
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:281
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:286
 msgid "Removing books from device metadata listing..."
-msgstr "Уклањање књига са списка метаподатака на уређају..."
+msgstr "Uklanjam knjiga sa spiska metapodataka na uređaju..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:312
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:347
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:219
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:250
 msgid "Adding books to device metadata listing..."
-msgstr "Додавање књига у списак метаподатака на уређају..."
+msgstr "Dodajem knjige na spisak metapodataka na uređaju..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:424
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:258
 msgid "Not Implemented"
-msgstr "Није уграђено"
+msgstr "Nije dovršeno"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:425
 msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
-"KOBO датотеке не постоје на уређају као књиге, већ су низови у sqlite бази "
-"података. Тренутно се не могу извозити или прегледати."
+"\".kobo\" datoteke ne postoje na uređaju kao knjige već redovi u sqlite bazi "
+"podataka. Trenutno se ne mogu ni izvoziti ni pregledati."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
-msgstr "Успостави везу с Palm Pre уређајем."
+msgstr "Uspostavi vezu s Palm Pre telefonom."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:37
 msgid "Communicate with the Booq Avant"
-msgstr "Успостави везу с Booq Avant читачем."
+msgstr "Uspostavi vezu s Booq Avant čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:58
 msgid "Communicate with the Sweex MM300"
-msgstr "Успостави везу са Sweex MM300 уређајем."
+msgstr "Uspostavi vezu sa Sweex MM300 uređajem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Digma Q600"
-msgstr "Uspostavi komunikaciju s Digma Q600 čitačem"
+msgstr "Uspostavi vezu s Digma Q600 čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:88
 msgid "Communicate with the Kogan"
-msgstr "Успостави везу с Kogan читачем."
+msgstr "Uspostavi vezu s Kogan čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:96
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:123
 msgid "Communicate with the Pandigital Novel"
-msgstr "Успостави везу с Pandigital Novel читачем."
+msgstr "Uspostavi vezu s Pandigital Novel čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:142
 msgid "Communicate with the VelocityMicro"
-msgstr "Uspostavi komunikaciju s VelocityMicro čitačem"
+msgstr "Uspostavi vezu s VelocityMicro čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:160
 msgid "Communicate with the GM2000"
@@ -1027,15 +1024,15 @@ msgstr "Uspostavi komunikaciju s GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr "Успостави везу с Nokia 770 уређајем."
+msgstr "Uspostavi vezu s Nokia 770 uređajem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr "Uspostavi komunikaciju s Nokia 810/900 uređajem."
+msgstr "Uspostavi vezu s Nokia 810/900 uređajem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr "Успостави везу с Nokia E52 уређајем."
+msgstr "Uspostavi vezu s Nokia E52 telefonom."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -1043,85 +1040,84 @@ msgstr "Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
-msgstr "Успостави везу с Nook читачем."
+msgstr "Uspostavi vezu s Nook čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr "Успостави везу с Nuut2 читачем."
+msgstr "Uspostavi vezu s Nuut2 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
-msgstr "Успостави везу са Sony PRS-500 читачем."
+msgstr "Uspostavi vezu sa Sony PRS-500 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with all the Sony eBook readers."
-msgstr "Успостави везу са свим Sony читачима."
+msgstr "Uspostavi vezu sa svim Sony čitačima."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:61
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
 msgstr ""
-"Зарезима раздвојен списак поља за метаподатке који ће бити претворени у "
-"збирке на уређају. Могућности укључују: "
+"Zarezima razdvojen spisak polja za metapodatke koji će biti pretvoreni u "
+"kolekcije na uređaju. Mogućnosti uključuju: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
 msgid "Unnamed"
-msgstr "Неименовано"
+msgstr "Neimenovano"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
-msgstr "Успостави везу са Samsung SNE читачем."
+msgstr "Uspostavi vezu sa Samsung SNE čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3/K5 reader."
-msgstr "Успостави везу с Teclast K3/K5 читачем."
+msgstr "Uspostavi vezu s Teclast K3/K5 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:36
 msgid "Communicate with the Newsmy reader."
-msgstr "Успостави везу с Newsmy читачем."
+msgstr "Uspostavi vezu s Newsmy čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Pico reader."
-msgstr "Uspostavi komunikaciju s Pico čitačem"
+msgstr "Uspostavi vezu s Pico čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the iPapyrus reader."
-msgstr "Успостави везу с iPapyrus читачем."
+msgstr "Uspostavi vezu sa iPapyrus čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:68
 msgid "Communicate with the Sovos reader."
-msgstr "Uspostavi komunikaciju sa Sovos čitačem."
+msgstr "Uspostavi vezu sa Sovos čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:258
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr ""
-"%s диск јединица није пронађена. Пробајте да поново покренете рачунар."
+msgstr "Ne mogu da pronađem disk %s. Pokušajte da ponovo pokrenete računar."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:438
 msgid "Unable to detect the %s mount point. Try rebooting."
-msgstr "%s уређај није пронађен. Пробате да поново покренете рачунар."
+msgstr "Uređaj %s nije pronađen. Pokušajte da ponovo pokrenete računar."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:503
 msgid "Unable to detect the %s disk drive."
-msgstr "%s диск јединица није пронађена."
+msgstr "Ne mogu da pronađem disk %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:596
 msgid "Could not find mount helper: %s."
-msgstr "Помоћник за повезивање није пронађен: %s."
+msgstr "Ne mogu da pronađem program za povezivanje: %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:608
 msgid ""
 "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 "deprecated version of SYSFS."
 msgstr ""
-"%s диск јединица није пронађена. Ваше језгро вероватно извози застарело "
-"издање SYSFS-а."
+"Ne mogu da pronađem disk %s. Vaš operativni sistem verovatno izvozi "
+"zastarelu verziju SYSFS-a."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:616
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr "Повезивање са основном меморијом није успело (број грешке: %d)."
+msgstr "Nisam uspeo da povežem osnovnu memoriju (broj greške: %d)."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:667
 msgid ""
@@ -1134,79 +1130,80 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:815
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:817
 msgid "The reader has no storage card in this slot."
-msgstr "Читач нема меморијску картицу у овом лежишту."
+msgstr "Čitač nema memorijsku karticu u ovom ležištu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:819
 msgid "Selected slot: %s is not supported."
-msgstr "Изабрано лежиште: %s није подржано."
+msgstr "Izabrano ležište: %s nije podržano."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:848
 msgid "There is insufficient free space in main memory"
-msgstr "Нема довољно простора у основној меморији."
+msgstr "Nema dovoljno prostora u osnovnoj memoriji."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:850
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:852
 msgid "There is insufficient free space on the storage card"
-msgstr "Нема довољно простора на меморијској картици."
+msgstr "Nema dovoljno prostora na memorijskoj kartici."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:12
 msgid "Configure Device"
-msgstr "Подеси уређај"
+msgstr "Podesi uređaj"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:37
 msgid "settings for device drivers"
-msgstr "поставке управљачког програма за уређај"
+msgstr "podešavanja upravljačkog programa za uređaj"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:39
 msgid "Ordered list of formats the device will accept"
-msgstr "Уређени списак формата које уређај подржава"
+msgstr "Uređeni spisak formata koje uređaj podržava"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:41
 msgid "Place files in sub directories if the device supports them"
-msgstr "Постави датотеке у потфасцикле ако их уређај подржава"
+msgstr "Smesti fajlove u poddirektorijume ako ih uređaj podržava"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:86
 msgid "Read metadata from files on device"
-msgstr "Прочитај метаподатке из датотека на уређају"
+msgstr "Proćitaj metapodatke iz fajlova na uređaju"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:45
 msgid "Use author sort instead of author"
-msgstr "Користи поље за сврставање по аутору уместо по имену аутора"
+msgstr ""
+"Koristi polje za sortiranje po autoru umesto sortiranja po imenu autora"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:47
 msgid "Template to control how books are saved"
-msgstr "Шаблон који управља како ће књиге бити снимљене"
+msgstr "Šablon koji određuje kako će knjige biti snimljene"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:89
 msgid "Extra customization"
-msgstr "Додатне поставке"
+msgstr "Dodatna podešavanja"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:41
 msgid "Communicate with an eBook reader."
-msgstr "Успостави везу с читачем е-књига."
+msgstr "uspostavi vezu s čitačem e-knjiga."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:57
 msgid "Get device information..."
-msgstr "Преузми податке о уређају..."
+msgstr "Preuzmi podatke o uređaju..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:195
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:197
 msgid "Transferring books to device..."
-msgstr "Слање књига на уређај..."
+msgstr "Šaljem knjige na uređaj..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:316
 msgid "Sending metadata to device..."
-msgstr "Слање метаподатака на уређај..."
+msgstr "Šaljem metapodatke na uređaj..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:182
 msgid "Rendered %s"
-msgstr "%s је обрађено."
+msgstr "Obrađeno %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:185
 msgid "Failed %s"
-msgstr "%s није успело."
+msgstr "Nije uspelo %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:239
 msgid ""
@@ -1214,7 +1211,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Обрађивање стрипа није успело: \n"
+"Nisam uspeo da obradim strip: \n"
 "\n"
 "%s"
 
@@ -1224,53 +1221,53 @@ msgid ""
 "of less than 256 may result in blurred text on your device if you are "
 "creating your comics in EPUB format."
 msgstr ""
-"Број боја за претварање у црно-белу слику. Подразумевана вредност: %default. "
-"Вредности мање од 256 могу да доведу до замагљеног текста на уређају ако "
-"правите стрип у EPUB формату."
+"Broj boja za pretvaranje u crno-belu sliku. Podrazumeva se: %default. "
+"Vrednosti manje od 256 mogu dovesti do zamućenog teksta na uređaju ako "
+"pravite strip u EPUB formatu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:262
 msgid ""
 "Disable normalize (improve contrast) color range for pictures. Default: False"
 msgstr ""
-"Онемогући нормализацију (побољшање контраста) опсега боја за слике. "
-"Подразумевана вредност: искључено."
+"Onemogući normalizaciju (poboljšanje kontrasta) opsega boja za slike. "
+"Podrazumeva se: isključeno"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:265
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
 msgstr ""
-"Сачувај оригиналне размере слике. Подразумева се да ће слика попунити екран."
+"Sačuvaj originalne razmere slike. Podrazumeva se da će slika popuniti ekran."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:267
 msgid "Disable sharpening."
-msgstr "Онемогући изоштравање."
+msgstr "onemoguć izoštravanje."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:269
 msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
 msgstr ""
-"Онемогући опсецање страна стрипа. За неке стрипове опсецање може да уклони и "
-"садржину, а не само оквире."
+"Onemogući opsecanje strana stripa. Za neke stripove opsecanje može da ukloni "
+"i sadržaj, a ne samo okvire."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:272
 msgid "Don't split landscape images into two portrait images"
-msgstr "Не раздвајај водоравне слике на две усправне."
+msgstr "Ne razdvajaj vodoravne slike na dve uspravne."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:274
 msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
 msgstr ""
-"Задржи размере и величину слике користећи висину екрана као ширину за "
-"водоравни положај."
+"Zadrži razmere i veličinu slike koristeći visinu ekrana kao širinu za "
+"vodoravni položaj."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:277
 msgid ""
 "Used for right-to-left publications like manga. Causes landscape pages to be "
 "split into portrait pages from right to left."
 msgstr ""
-"Koristi se za izdanja štampana s desna na levo kao na primer manga. "
-"Horizontalne strane će biti podeljene na vertikalne s desna na levo."
+"Koristi se za izdanja štampana s desna na levo, kao na primer manga. "
+"Vodoravne strane će biti podeljene na uspravne s desna na levo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:281
 msgid ""
@@ -2289,28 +2286,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set the book title"
-msgstr "Постави наслов књиге"
+msgstr "Postavi naslov knjige"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
-msgstr "Разврстај по наслову"
+msgstr "Postavi ključ za sortiranje po naslovu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set the author"
-msgstr "Постави име аутора"
+msgstr "Postavi ime autora"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
-msgstr "Разврстај по имену аутора"
+msgstr "Postavi ključ za sortiranje po autoru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:597
 msgid "The category this book belongs to. E.g.: History"
-msgstr "Категорија којој ова књига припада. Историја, на пример."
+msgstr "Kategorija kojoj pripada ova knjiga. Na primer: istorija."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:600
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr ""
-"Путања до слике која ће се користити као умањени приказ за ове датотеке"
+msgstr "Putanja do slike koja će biti postavljena kao ikona za ove fajlove"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:603
 msgid ""
@@ -2319,36 +2315,36 @@ msgstr "Putanja do txt fajla koji sadrži komentar za smeštanje u lrf fajl."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
 msgid "Extract thumbnail from LRF file"
-msgstr "Извади умањени приказ слике из LRF датотеке"
+msgstr "Izvadi ikonu iz LRF fajla"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
 msgid "Set the publisher"
-msgstr "Постави име издавача"
+msgstr "Postavi ime izdavača"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
 msgid "Set the book classification"
-msgstr "Постави класификацију за књигу"
+msgstr "Postavi klasifikaciju za knjigu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:610
 msgid "Set the book creator"
-msgstr "Постави творца књиге"
+msgstr "Postavi kreatora knjige"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
 msgid "Set the book producer"
-msgstr "Постави произвођача књиге"
+msgstr "Postavi producenta knjige"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:613
 msgid ""
 "Extract cover from LRF file. Note that the LRF format has no defined cover, "
 "so we use some heuristics to guess the cover."
 msgstr ""
-"Извади насловну страну из LRF датотеке. Упамтите да LRF формат нема посебно "
-"означену насловну страну, те користимо нека истраживачка правила да бисмо "
-"„погодили“ шта је насловна страна."
+"Izvadi naslovnu stranu iz LRF datoteke. Primetite da LRF format nema posebno "
+"definisanu naslovnu stranu, pa koristimo neka heuristička pravila da bismo "
+"'pogodili' šta je naslovna strana."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:615
 msgid "Set book ID"
-msgstr "Постави идентификатор за књигу"
+msgstr "Postavi identifikator za knjigu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:90
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -2679,11 +2675,11 @@ msgstr "Greška na serveru LibraryThing.com. Pokušajte kasnije."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:226
 msgid "Download covers from Douban.com"
-msgstr "Преузми омоте са Douban.com"
+msgstr "Preuzmi omote s Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:235
 msgid "Douban.com API timed out. Try again later."
-msgstr "Douban.com API је истекао. Покушајте поново касније."
+msgstr "Douban.com API poziv je predugo trajao. Pokušajte ponovo kasnije."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
@@ -10939,7 +10935,8 @@ msgstr "Izaberite putanju za knjige"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:636
 msgid ""
 "You must choose an empty folder for the calibre library. %s is not empty."
-msgstr "Морате изабрати празну фасциклу за библиотеку. %s није празна."
+msgstr ""
+"Morate izabrati prazan direktorijum za calibre biblioteku. %s nije prazan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:710
 msgid "welcome wizard"
@@ -12493,11 +12490,11 @@ msgstr "Sortiraj po"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
 msgid "library"
-msgstr ""
+msgstr "biblioteka"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:249
 msgid "home"
-msgstr ""
+msgstr "početna"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:310
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:516
@@ -13924,24 +13921,6 @@ msgstr "Ne preuzimaj CSS stilove."
 
 #~ msgid "Applying changes to %d books. This may take a while."
 #~ msgstr "Vršim izmene na %d knjiga. To može potrajati."
-
-#~ msgid "Communicate with the Kindle 2 eBook reader."
-#~ msgstr "Успостави везу с Kindle 2 читачем."
-
-#~ msgid "Communicate with the Nokia 810 internet tablet."
-#~ msgstr "Успостави везу с Nokia 810 уређајем."
-
-#~ msgid "Output directory. Defaults to current directory"
-#~ msgstr "Излазни директоријум. Текући директоријум је подразумевани."
-
-#~ msgid "%prog [options] mybook.chm"
-#~ msgstr "%prog [опције] мојакњига.chm"
-
-#~ msgid "Set font delta"
-#~ msgstr "Постави разлику величине за фонт"
-
-#~ msgid "Path to a txt file containing a comment."
-#~ msgstr "Путања до текстуалне датотеке која садржи коментар."
 
 #~ msgid "Toolbars/Context menus"
 #~ msgstr "Traka sa alatima/kontekstni meniji"
