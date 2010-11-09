@@ -221,7 +221,10 @@ class MetadataHeader(BookHeader):
         else:
             end = self.section_offset(number + 1)
         self.stream.seek(start)
-        return self.stream.read(end - start)
+        try:
+            return self.stream.read(end - start)
+        except OverflowError:
+            return self.stream.read(os.stat(self.stream.name).st_size - start)
 
 
 class MobiReader(object):
