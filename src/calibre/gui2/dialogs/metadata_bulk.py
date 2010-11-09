@@ -240,13 +240,13 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.writable_fields = ['']
         fm = self.db.field_metadata
         for f in fm:
-            if (f in ['author_sort'] or (
-                fm[f]['datatype'] in ['text', 'series'])
-                    and fm[f].get('search_terms', None)
-                    and f not in ['formats', 'ondevice']):
+            if (f in ['author_sort'] or
+                    (fm[f]['datatype'] in ['text', 'series']
+                     and fm[f].get('search_terms', None)
+                     and f not in ['formats', 'ondevice', 'sort'])):
                 self.all_fields.append(f)
                 self.writable_fields.append(f)
-            if fm[f]['datatype'] == 'composite':
+            if f in ['sort'] or fm[f]['datatype'] == 'composite':
                 self.all_fields.append(f)
         self.all_fields.sort()
         self.writable_fields.sort()
@@ -274,7 +274,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.main_heading = _(
                  '<b>You can destroy your library using this feature.</b> '
                  'Changes are permanent. There is no undo function. '
-                 ' This feature is experimental, and there may be bugs. '
                  'You are strongly encouraged to back up your library '
                  'before proceeding.<p>'
                  'Search and replace in text fields using character matching '
@@ -338,7 +337,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def s_r_get_field(self, mi, field):
         if field:
             fm = self.db.metadata_for_field(field)
-            val = mi.get(field, None)
+            if field == 'sort':
+                val = mi.get('title_sort', None)
+            else:
+                val = mi.get(field, None)
             if val is None:
                 val = []
             elif not fm['is_multiple']:
