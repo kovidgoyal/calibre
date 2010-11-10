@@ -1,0 +1,69 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+rollingstone.com
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class RollingStone(BasicNewsRecipe):
+    title                 = 'Rolling Stone Magazine - free content'
+    __author__            = 'Darko Miletic'
+    description           = 'Rolling Stone Magazine features music, album and artist news, movie reviews, political, economic and pop culture commentary, videos, photos, and more.'
+    publisher             = 'Werner Media inc.'
+    category              = 'news, music, USA, world'
+    oldest_article        = 15
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'en'
+    remove_empty_feeds    = True
+    publication_type      = 'magazine'
+    masthead_url          = 'http://www.rollingstone.com/templates/rolling-stone-templates/theme/rstheme/images/rsLogo.png'
+    extra_css             = """
+                               body{font-family: Georgia,Times,serif }
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    preprocess_regexps = [
+                          (re.compile(r'xml:lang="en">.*?<head>', re.DOTALL|re.IGNORECASE),lambda match: 'xml:lang="en">\n<head>\n')
+                         ,(re.compile(r'</title>.*?</head>'     , re.DOTALL|re.IGNORECASE),lambda match: '</title>\n</head>\n'     )
+                         ]
+
+    keep_only_tags=[
+                     dict(attrs={'class':['headerImgHolder','headerContent']})
+                    ,dict(name='div',attrs={'id':['teaser','storyTextContainer']})
+                    ,dict(name='div',attrs={'class':'blogDetailModule clearfix'})
+                   ]
+
+    remove_tags = [
+                      dict(name=['meta','iframe','object','embed'])
+                     ,dict(attrs={'id':'mpStoryHeader'})
+                     ,dict(attrs={'class':'relatedTopics'})
+                  ]
+    remove_attributes=['lang','onclick','width','height','name']
+    remove_tags_before=dict(attrs={'class':'bloggerInfo'})
+    remove_tags_after=dict(attrs={'class':'relatedTopics'})
+
+
+    feeds = [
+              (u'All News'      , u'http://www.rollingstone.com/siteServices/rss/allNews'      )
+             ,(u'All Blogs'     , u'http://www.rollingstone.com/siteServices/rss/allBlogs'     )
+             ,(u'Movie Reviews' , u'http://www.rollingstone.com/siteServices/rss/movieReviews' )
+             ,(u'Album Reviews' , u'http://www.rollingstone.com/siteServices/rss/albumReviews' )
+             ,(u'Song Reviews'  , u'http://www.rollingstone.com/siteServices/rss/songReviews'  )
+            ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

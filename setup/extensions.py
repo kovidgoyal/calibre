@@ -350,8 +350,10 @@ class Build(Command):
             ''')%(ext.name, ' '.join(ext.headers), ' '.join(ext.sources), archs)
             pro = pro.replace('\\', '\\\\')
             open(ext.name+'.pro', 'wb').write(pro)
-            subprocess.check_call([QMAKE, '-o', 'Makefile', '-spec',
-                'win32-msvc2008', ext.name+'.pro'])
+            qmc = [QMAKE, '-o', 'Makefile']
+            if iswindows:
+                qmc += ['-spec', 'win32-msvc2008']
+            subprocess.check_call(qmc + [ext.name+'.pro'])
             subprocess.check_call([make, '-f', 'Makefile'])
             objects = glob.glob(obj_pat)
         return list(map(self.a, objects))
