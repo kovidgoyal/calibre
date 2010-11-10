@@ -9,13 +9,30 @@ __docformat__ = 'restructuredtext en'
 from lxml import html
 from lxml.html import soupparser
 
-from PyQt4.Qt import QApplication, QFontInfo, QPalette
+from PyQt4.Qt import QApplication, QFontInfo, QPalette, QSize, QWidget, \
+    QToolBar, QVBoxLayout, QAction, QIcon
 from PyQt4.QtWebKit import QWebView
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities
 
 class EditorWidget(QWebView):
+
+    def __init__(self, parent=None):
+        QWebView.__init__(self, parent)
+
+        for name, icon, text, checkable in [
+                ('bold', 'format-text-bold', _('Bold'), True),
+                ('italic', 'format-text-italic', _('Italic'), True),
+                ('underline', 'format-text-underline', _('Underline'), True),
+                ('strikethrough', 'format-text-underline', _('Underline'), True),
+            ]:
+            ac = QAction(QIcon(I(icon+'.png')), text, self)
+            ac.setCheckable(checkable)
+            setattr(self, 'action_'+name, ac)
+
+    def sizeHint(self):
+        return QSize(150, 150)
 
     @dynamic_property
     def html(self):
@@ -63,9 +80,31 @@ class EditorWidget(QWebView):
 
         return property(fget=fget, fset=fset)
 
+
+class Editor(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.toolbar = QToolBar(self)
+        self.editor = EditorWidget(self)
+        self._layout = QVBoxLayout(self)
+        self.setLayout(self._layout)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.addWidget(self.toolbar)
+        self._layout.addWidget(self.editor)
+
+    @dynamic_property
+    def html(self):
+        def fset(self, v):
+            self.editor.html = v
+        return property(fget=lambda self:self.editor.html, fset=fset)
+
+
+
 if __name__ == '__main__':
     app = QApplication([])
-    w = EditorWidget()
+    w = Editor()
+    w.resize(800, 600)
     w.show()
 # testing {{{
 
@@ -101,4 +140,4 @@ if __name__ == '__main__':
     #print w.html.encode('utf-8')
 
 # }}}
-    print w.html
+    #print w.html
