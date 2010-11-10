@@ -1,0 +1,51 @@
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class EuropeanVoice(BasicNewsRecipe):
+    title          = u'European Voice'
+    __author__     = 'malfi'
+    oldest_article = 14
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    cover_url = 'http://www.europeanvoice.com/Css/images/logo.gif'
+    language = 'en'
+    keep_only_tags    = [dict(name='div', attrs={'id':'articleLeftColumn'})]
+    remove_tags    = [dict(name='div', attrs={'id':'BreadCrump'})]
+    feeds          = [
+                        (u'Whole site ',u'http://www.europeanvoice.com/Rss/2.xml'),
+                          (u'News and analysis',u'http://www.europeanvoice.com/Rss/6.xml'),
+                          (u'Comment',u'http://www.europeanvoice.com/Rss/7.xml'),
+                          (u'Special reports',u'http://www.europeanvoice.com/Rss/5.xml'),
+                          (u'People',u'http://www.europeanvoice.com/Rss/8.xml'),
+                          (u'Career',u'http://www.europeanvoice.com/Rss/11.xml'),
+                          (u'Policies',u'http://www.europeanvoice.com/Rss/4.xml'),
+                          (u'EVents',u'http://www.europeanvoice.com/Rss/10.xml'),
+                          (u'Policies - Economics',u'http://www.europeanvoice.com/Rss/31.xml'),
+                          (u'Policies - Business',u'http://www.europeanvoice.com/Rss/19.xml'),
+                          (u'Policies - Trade',u'http://www.europeanvoice.com/Rss/25.xml'),
+                          (u'Policies - Information society',u'http://www.europeanvoice.com/Rss/20.xml'),
+                          (u'Policies - Energy',u'http://www.europeanvoice.com/Rss/15.xml'),
+                          (u'Policies - Transport',u'http://www.europeanvoice.com/Rss/18.xml'),
+                          (u'Policies - Climate change',u'http://www.europeanvoice.com/Rss/16.xml'),
+                          (u'Policies - Environment',u'http://www.europeanvoice.com/Rss/17.xml'),
+                          (u'Policies - Farming & food',u'http://www.europeanvoice.com/Rss/23.xml'),
+                          (u'Policies - Health & society',u'http://www.europeanvoice.com/Rss/24.xml'),
+                          (u'Policies - Justice',u'http://www.europeanvoice.com/Rss/29.xml'),
+                          (u'Policies - Foreign affairs',u'http://www.europeanvoice.com/Rss/27.xml')
+                     ]
+    extra_css = '''
+        h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+        h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+        p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+        body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+        '''
+
+    def print_version(self, url):
+          return url + '?bPrint=1'
+
+    def preprocess_html(self, soup):
+           denied = soup.findAll(True,text='Subscribers')
+           if denied:
+                raise Exception('Article skipped, because content can only be seen with subscription')
+           return soup
+
