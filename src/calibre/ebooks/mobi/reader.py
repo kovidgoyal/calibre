@@ -401,6 +401,8 @@ class MobiReader(object):
             elem.getparent().remove(elem)
         fname = self.name.encode('ascii', 'replace')
         fname = re.sub(r'[\x08\x15\0]+', '', fname)
+        if not fname:
+            fname = 'dummy'
         htmlfile = os.path.join(output_dir,
             ascii_filename(fname) + '.html')
         try:
