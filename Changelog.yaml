@@ -44,6 +44,7 @@
       tickets: [7356]
 
     - title: "News download: Workaround lack of thread safety in python mechanize, causing corrupted network packets (degrading network performance) on Ubuntu Maverick 64bit kernels"
+      tickets: [7321]
 
     - title: "Convert comments to HTML for book details panel in separate thread to make scrolling through the book list faster when large comments are present"
 

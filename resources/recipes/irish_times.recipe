@@ -33,13 +33,14 @@ class IrishTimes(BasicNewsRecipe):
                       ('Letters', 'http://www.irishtimes.com/feeds/rss/newspaper/letters.rss'),
                     ]
 
-
     def print_version(self, url):
-        if url.count('rss.feedsportal.com'):
-            u = url.replace('0Bhtml/story01.htm','_pf0Bhtml/story01.htm')
-        else:
-            u = url.replace('.html','_pf.html')
-        return u
+         if url.count('rss.feedsportal.com'):
+             u = 'http://www.irishtimes.com' + \
+ (((url[69:].replace('0C','/')).replace('0A','0'))).replace('0Bhtml/story01..htm','_pf.html')
+         else:
+             u = url.replace('.html','_pf.html')
+         return u
+
 
     def get_article_url(self, article):
         return article.link
