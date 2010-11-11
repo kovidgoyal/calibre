@@ -625,7 +625,11 @@ class ResultCache(SearchQueryParser): # {{{
     # }}}
 
     def remove(self, id):
-        self._data[id] = None
+        try:
+            self._data[id] = None
+        except IndexError:
+            # id is out of bounds, no point setting it to None anyway
+            pass
         try:
             self._map.remove(id)
         except ValueError:

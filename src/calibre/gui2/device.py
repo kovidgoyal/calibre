@@ -1014,7 +1014,13 @@ class DeviceMixin(object): # {{{
             self.status_bar.show_message(_('Sent by email:') + ', '.join(good),
                     5000)
             if remove:
-                self.library_view.model().delete_books_by_id(remove)
+                try:
+                    self.library_view.model().delete_books_by_id(remove)
+                except:
+                    # Probably the user deleted the files, in any case, failing
+                    # to delete the book is not catastrophic
+                    traceback.print_exc()
+
 
     def cover_to_thumbnail(self, data):
         ht = self.device_manager.device.THUMBNAIL_HEIGHT \
