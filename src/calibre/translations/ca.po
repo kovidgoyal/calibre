@@ -7477,7 +7477,7 @@ msgstr "Pu&blicació:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:402
 msgid "dd MMM yyyy"
-msgstr "dd MMM aaaa"
+msgstr "dd MMM yyyy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:403
 msgid "&Date:"
