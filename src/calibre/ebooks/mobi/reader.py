@@ -569,6 +569,10 @@ class MobiReader(object):
                 for attr in self.IMAGE_ATTRS:
                     recindex = attrib.pop(attr, None) or recindex
                 if recindex is not None:
+                    try:
+                        recindex = '%05d'%int(recindex)
+                    except:
+                        pass
                     attrib['src'] = 'images/%s.jpg' % recindex
                 for attr in ('width', 'height'):
                     if attr in attrib:
