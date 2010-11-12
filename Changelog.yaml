@@ -4,6 +4,100 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.28
+  date: 2010-11-12
+
+  new features:
+    - title: "Update the version of the grahical toolkit (Qt 4.7.1) used in the calibre binary builds on windows and linux. This should result in a significant speed up for the calibre ebook viewer"
+
+    - title: "Driver for Nook Color, Eken M001"
+
+    - title: "Add a tweak to turn off double clicking to open viewer"
+
+    - title: "Catalog generation: Add indication when a book has no formats"
+      tickets: [7376]
+
+    - title: "Advanced search dialog: Add a tab to allow searching particular metadata fields easily"
+
+    - title: "Conversion pipeline: When using the Level x Table of Contents expressions, if a tag is empty but has a non-empty title attribute, use that instead of ignoring the tag"
+
+  bug fixes:
+    - title: "Comic metadata reader: Sort filenames aplhabetically when choosing an image for the cover"
+      tickets: [7488]
+
+    - title: "Bulk convert dialog: Hide useless restore defaults button."
+      tickets: [7471]
+
+    - title: "Conversion pipeline: Handle input documents that encode null bytes as HTML entities correctly"
+      tickets: [7355]
+
+    - title: "Fix some SONY readers not being detected on windows"
+      tickets: [7413]
+
+    - title: "MOBI Input: Fix images missing when converting MOBI news downloads created with Mobipocket reader"
+      tickets: [7455]
+
+    - title: "ODT Input: Handle hyperlinks to headings that have truncated destination specifiers correctly"
+      tickets: [7506]
+
+    - title: "Sony driver: Ignore invalid strings when updating XML database"
+
+    - title: "Content Server: Add day to displayed date in /mobile book listing"
+
+    - title: "MOBI Input: Do not generate filenames with only extensions if the MOBI file has no internal name"
+      tickets: [7481]
+
+    - title: "MOBI Input: Handle files that has the record sizes set incorrectly to a long integer"
+      tickets: [7472]
+
+    - title: "Fix not enough vertical space for text in the preferences dialog category listing"
+
+    - title: "Remove 'sort' from Search and replace destination fields and add it to source fields. S&R is no longer marked experimental"
+
+    - title: "Edit metadata dialog: Save dialog geometry on reject as well as on accept"
+
+    - title: "E-book viewer: Fix clicking entries in TOC that point to the currently loaded flow not scrolling view to the top of the document"
+
+    - title: "Fix bug in regex used to extract charset from <meta> tags"
+
+    - title: "MOBI Output: Add support for the <q> tag"
+
+  improved recipes:
+    - Zeit Online
+    - Gamespot Review
+    - Ploitika
+    - Pagina12
+    - Irish Times
+    - elektrolese
+
+  new recipes:
+    - title: "Handelsblatt and European Voice"
+      author: "malfi"
+      
+    - title: "Polityka and Newsweek"
+      author: "Mateusz Kielar"
+
+    - title: "MarcTV"
+      author: "Marc Toensings"
+
+    - title: "Rolling Stone"
+      author: "Darko Miletic"
+
+    - title: "Vedomosti"
+      author: "Nikolai Kotchetkov"
+
+    - title: "Hola.com"
+      author: "bmsleight"
+
+    - title: "Dnevnik, Siol.net, MMC-RTV and Avto-magazon"
+      author: "BlonG"
+
+    - title: "SC Print Magazine"
+      author: "Tony Maro"
+
+    - title: "Diario Sport"
+      author: "Jefferson Frantz"
+
 - version: 0.7.27
   date: 2010-11-05
 

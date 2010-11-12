@@ -80,3 +80,14 @@ class NOOK(USBMS):
 
     def sanitize_path_components(self, components):
         return [x.replace('#', '_') for x in components]
+
+class NOOK_COLOR(NOOK):
+    gui_name       = _('Nook Color')
+    description    = _('Communicate with the Nook Color eBook reader.')
+
+    PRODUCT_ID  = [0x002]
+    BCD         = [0x216]
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_DISK'
+
+    EBOOK_DIR_MAIN = 'My Files/Books'
+
