@@ -827,6 +827,9 @@ class EPUB_MOBI(CatalogPlugin):
             '[<source>] : Source of content (e.g., Amazon, Project Gutenberg).  Do not create genre
 
         - Program flow
+            gui2.actions.catalog:generate_catalog()
+            gui2.tools:generate_catalog() or library.cli:command_catalog()
+            called from gui2.convert.gui_conversion:gui_catalog()
             catalog = Catalog(notification=Reporter())
             catalog.createDirectoryStructure()
             catalog.copyResources()
@@ -878,6 +881,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.__htmlFileList = []
             self.__markerTags = self.getMarkerTags()
             self.__ncxSoup = None
+            self.__output_profile = None
             self.__playOrder = 1
             self.__plugin = plugin
             self.__progressInt = 0.0
@@ -891,6 +895,12 @@ class EPUB_MOBI(CatalogPlugin):
             self.__totalSteps = 11.0
             self.__useSeriesPrefixInTitlesSection = False
             self.__verbose = opts.verbose
+
+            from calibre.customize.ui import output_profiles
+            for profile in output_profiles():
+                if profile.short_name == self.opts.output_profile:
+                    self.__output_profile = profile
+                    break
 
             # Tweak build steps based on optional sections:  1 call for HTML, 1 for NCX
             if self.opts.generate_titles:
@@ -1163,10 +1173,14 @@ class EPUB_MOBI(CatalogPlugin):
                 return property(fget=fget, fset=fset)
 
             @dynamic_property
+            def MISSING_SYMBOL(self):
+                def fget(self):
+                    return self.__output_profile.missing_char
+                return property(fget=fget)
+            @dynamic_property
             def NOT_READ_SYMBOL(self):
                 def fget(self):
-                    return '<span style="color:white">&#x2713;</span>' if self.generateForKindle else \
-                           '<span style="color:white">%s</span>' % self.opts.read_tag
+                    return '<span style="color:white">%s</span>' % self.__output_profile.read_char
                 return property(fget=fget)
             @dynamic_property
             def READING_SYMBOL(self):
@@ -1177,18 +1191,17 @@ class EPUB_MOBI(CatalogPlugin):
             @dynamic_property
             def READ_SYMBOL(self):
                 def fget(self):
-                    return '<span style="color:black">&#x2713;</span>' if self.generateForKindle else \
-                           '<span style="color:black">%s</span>' % self.opts.read_tag
+                    return self.__output_profile.read_char
                 return property(fget=fget)
             @dynamic_property
             def FULL_RATING_SYMBOL(self):
                 def fget(self):
-                    return "&#9733;" if self.generateForKindle else "*"
+                    return self.__output_profile.ratings_char
                 return property(fget=fget)
             @dynamic_property
             def EMPTY_RATING_SYMBOL(self):
                 def fget(self):
-                    return "&#9734;" if self.generateForKindle else ' '
+                    return self.__output_profile.empty_ratings_char
                 return property(fget=fget)
             @dynamic_property
             def READ_PROGRESS_SYMBOL(self):
@@ -1621,13 +1634,16 @@ class EPUB_MOBI(CatalogPlugin):
                                                 self.generateAuthorAnchor(title['author']))
                 aTag.insert(0, title['author'])
 
-                # Prefix author with read/reading/none symbol
-                if title['read']:
-                    authorTag.insert(0, NavigableString(self.READ_SYMBOL + "by "))
-                elif self.opts.connected_kindle and title['id'] in self.bookmarked_books:
-                    authorTag.insert(0, NavigableString(self.READING_SYMBOL + " by "))
+                # Prefix author with read|reading|none symbol or missing symbol
+                if 'formats' in title and title['formats']:
+                    if title['read']:
+                        authorTag.insert(0, NavigableString(self.READ_SYMBOL + " by "))
+                    elif self.opts.connected_kindle and title['id'] in self.bookmarked_books:
+                        authorTag.insert(0, NavigableString(self.READING_SYMBOL + " by "))
+                    else:
+                        authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + " by "))
                 else:
-                    authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + "by "))
+                    authorTag.insert(0, NavigableString(self.MISSING_SYMBOL + " by "))
                 authorTag.insert(1, aTag)
 
                 '''
@@ -1661,7 +1677,7 @@ class EPUB_MOBI(CatalogPlugin):
                     fontTag['style'] = 'color:white;font-size:large'
                     if self.opts.fmt == 'epub':
                         fontTag['style'] += ';opacity: 0.0'
-                    fontTag.insert(0, NavigableString("by "))
+                    fontTag.insert(0, NavigableString(" by "))
                     tagsTag.insert(ttc, fontTag)
                     ttc += 1
 
@@ -1814,21 +1830,27 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                #  book with read/reading/unread symbol
-                if book['read']:
-                    # check mark
-                    pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
-                    pBookTag['class'] = "read_book"
-                    ptc += 1
-                elif book['id'] in self.bookmarked_books:
-                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
-                    pBookTag['class'] = "read_book"
-                    ptc += 1
+                #  book with read|reading|unread symbol or missing symbol
+                if 'formats' in book and book['formats']:
+                    if book['read']:
+                        # check mark
+                        pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                        pBookTag['class'] = "read_book"
+                        ptc += 1
+                    elif book['id'] in self.bookmarked_books:
+                        pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
+                        pBookTag['class'] = "read_book"
+                        ptc += 1
+                    else:
+                        # hidden check mark
+                        pBookTag['class'] = "unread_book"
+                        pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                        ptc += 1
                 else:
-                    # hidden check mark
-                    pBookTag['class'] = "unread_book"
-                    pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
-                    ptc += 1
+                        # missing formats
+                        pBookTag['class'] = "missing_book"
+                        pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
+                        ptc += 1
 
                 # Link to book
                 aTag = Tag(soup, "a")
@@ -1983,20 +2005,26 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                #  book with read/reading/unread symbol
-                if book['read']:
-                    # check mark
-                    pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
-                    pBookTag['class'] = "read_book"
-                    ptc += 1
-                elif book['id'] in self.bookmarked_books:
-                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
-                    pBookTag['class'] = "read_book"
-                    ptc += 1
+                #  book with read|reading|unread symbol or missing symbol
+                if 'formats' in book and book['formats']:
+                    if book['read']:
+                        # check mark
+                        pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                        pBookTag['class'] = "read_book"
+                        ptc += 1
+                    elif book['id'] in self.bookmarked_books:
+                        pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
+                        pBookTag['class'] = "read_book"
+                        ptc += 1
+                    else:
+                        # hidden check mark
+                        pBookTag['class'] = "unread_book"
+                        pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                        ptc += 1
                 else:
-                    # hidden check mark
-                    pBookTag['class'] = "unread_book"
-                    pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                    # missing book
+                    pBookTag['class'] = "missing_book"
+                    pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                     ptc += 1
 
                 aTag = Tag(soup, "a")
@@ -2111,20 +2139,26 @@ class EPUB_MOBI(CatalogPlugin):
                         pBookTag = Tag(soup, "p")
                         ptc = 0
 
-                        #  book with read/reading/unread symbol
-                        if new_entry['read']:
-                            # check mark
-                            pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
-                            pBookTag['class'] = "read_book"
-                            ptc += 1
-                        elif new_entry['id'] in self.bookmarked_books:
-                            pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
-                            pBookTag['class'] = "read_book"
-                            ptc += 1
+                        #  book with read|reading|unread symbol or missing symbol
+                        if 'formats' in new_entry and new_entry['formats']:
+                            if new_entry['read']:
+                                # check mark
+                                pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                                pBookTag['class'] = "read_book"
+                                ptc += 1
+                            elif new_entry['id'] in self.bookmarked_books:
+                                pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
+                                pBookTag['class'] = "read_book"
+                                ptc += 1
+                            else:
+                                # hidden check mark
+                                pBookTag['class'] = "unread_book"
+                                pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                                ptc += 1
                         else:
-                            # hidden check mark
-                            pBookTag['class'] = "unread_book"
-                            pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                            # missing book
+                            pBookTag['class'] = "missing_book"
+                            pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                             ptc += 1
 
                         aTag = Tag(soup, "a")
@@ -2157,20 +2191,26 @@ class EPUB_MOBI(CatalogPlugin):
                         pBookTag = Tag(soup, "p")
                         ptc = 0
 
-                        #  book with read/reading/unread symbol
-                        if new_entry['read']:
-                            # check mark
-                            pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
-                            pBookTag['class'] = "read_book"
-                            ptc += 1
-                        elif new_entry['id'] in self.bookmarked_books:
-                            pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
-                            pBookTag['class'] = "read_book"
-                            ptc += 1
+                        #  book with read|reading|unread symbol or missing symbol
+                        if 'formats' in new_entry and new_entry['formats']:
+                            if new_entry['read']:
+                                # check mark
+                                pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                                pBookTag['class'] = "read_book"
+                                ptc += 1
+                            elif new_entry['id'] in self.bookmarked_books:
+                                pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
+                                pBookTag['class'] = "read_book"
+                                ptc += 1
+                            else:
+                                # hidden check mark
+                                pBookTag['class'] = "unread_book"
+                                pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                                ptc += 1
                         else:
-                            # hidden check mark
-                            pBookTag['class'] = "unread_book"
-                            pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                            # missing book
+                            pBookTag['class'] = "missing_book"
+                            pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                             ptc += 1
 
                         aTag = Tag(soup, "a")
@@ -2606,19 +2646,26 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     book['read'] = False
 
-                if book['read']:
-                    # check mark
-                    pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
-                    pBookTag['class'] = "read_book"
-                    ptc += 1
-                elif book['id'] in self.bookmarked_books:
-                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
-                    pBookTag['class'] = "read_book"
-                    ptc += 1
+                #  book with read|reading|unread symbol or missing symbol
+                if 'formats' in book and book['formats']:
+                    if book['read']:
+                        # check mark
+                        pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                        pBookTag['class'] = "read_book"
+                        ptc += 1
+                    elif book['id'] in self.bookmarked_books:
+                        pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
+                        pBookTag['class'] = "read_book"
+                        ptc += 1
+                    else:
+                        # hidden check mark
+                        pBookTag['class'] = "unread_book"
+                        pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                        ptc += 1
                 else:
-                    # hidden check mark
-                    pBookTag['class'] = "unread_book"
-                    pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                    # missing book
+                    pBookTag['class'] = "missing_book"
+                    pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                     ptc += 1
 
                 aTag = Tag(soup, "a")
@@ -2697,6 +2744,8 @@ class EPUB_MOBI(CatalogPlugin):
                         this_book['title'] = book['title']
                         this_book['author_sort'] = book['author_sort'].capitalize()
                         this_book['read'] = book['read']
+                        if 'formats' in book:
+                            this_book['formats'] = book['formats']
                         this_book['id'] = book['id']
                         this_book['series'] = book['series']
                         normalized_tag = self.genre_tags_dict[friendly_tag]
@@ -4098,20 +4147,26 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                #  book with read/reading/unread symbol
-                if book['read']:
-                    # check mark
-                    pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
-                    pBookTag['class'] = "read_book"
-                    ptc += 1
-                elif book['id'] in self.bookmarked_books:
-                    pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
-                    pBookTag['class'] = "read_book"
-                    ptc += 1
+                #  book with read|reading|unread symbol or missing symbol
+                if 'formats' in book and book['formats']:
+                    if book['read']:
+                        # check mark
+                        pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
+                        pBookTag['class'] = "read_book"
+                        ptc += 1
+                    elif book['id'] in self.bookmarked_books:
+                        pBookTag.insert(ptc,NavigableString(self.READING_SYMBOL))
+                        pBookTag['class'] = "read_book"
+                        ptc += 1
+                    else:
+                        # hidden check mark
+                        pBookTag['class'] = "unread_book"
+                        pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                        ptc += 1
                 else:
-                    # hidden check mark
-                    pBookTag['class'] = "unread_book"
-                    pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
+                    # missing book
+                    pBookTag['class'] = "missing_book"
+                    pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                     ptc += 1
 
                 # Add the book title
@@ -4570,7 +4625,8 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.connected_device['name'] and 'kindle' in opts.connected_device['name'].lower():
             opts.connected_kindle = True
-            if opts.connected_device['serial'] and opts.connected_device['serial'][:4] in ['B004','B005']:
+            if opts.connected_device['serial'] and \
+               opts.connected_device['serial'][:4] in ['B004','B005']:
                 op = "kindle_dx"
             else:
                 op = "kindle"
@@ -4633,7 +4689,8 @@ class EPUB_MOBI(CatalogPlugin):
         build_log.append(" opts:")
         for key in keys:
             if key in ['catalog_title','authorClip','connected_kindle','descriptionClip',
-                       'exclude_genre','exclude_tags','note_tag','numbers_as_text','read_tag',
+                       'exclude_genre','exclude_tags','note_tag','numbers_as_text',
+                       'output_profile','read_tag',
                        'search_text','sort_by','sort_descriptions_by_author','sync']:
                 build_log.append("  %s: %s" % (key, opts_dict[key]))
 
