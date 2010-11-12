@@ -616,7 +616,7 @@ class KindleDXOutput(OutputProfile):
     supports_mobi_indexing = True
     periodical_date_in_title = False
     ratings_char = u'\u2605'
-    read_char = u'\2713'
+    read_char = u'\u2713'
     mobi_ems_per_blockquote = 2.0
 
     @classmethod
