@@ -16,6 +16,7 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.config import config_dir
 from calibre.utils.date import isoformat, now as nowf
 from calibre.utils.logging import default_log as log
 
@@ -862,6 +863,8 @@ class EPUB_MOBI(CatalogPlugin):
             self.__booksByDateRead = None
             self.__booksByTitle = None
             self.__booksByTitle_noSeriesPrefix = None
+            self.__cache_dir = os.path.join(config_dir, 'caches', 'catalog')
+            self.__archive_path = os.path.join(self.__cache_dir, "thumbs.zip")
             self.__catalogPath = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
             self.__contentDir = os.path.join(self.catalogPath, "content")
             self.__currentStep = 0.0
@@ -901,6 +904,22 @@ class EPUB_MOBI(CatalogPlugin):
                 if profile.short_name == self.opts.output_profile:
                     self.__output_profile = profile
                     break
+
+            if False:
+                # Confirm/create thumbs archive
+                if not os.path.exists(self.cache_dir):
+                    if DEBUG:
+                        self.log.info(" creating thumb cache '%s'" % self.__cache_dir)
+                    os.makedirs(self.__cache_dir)
+
+                if not os.path.exists(self.__archive_path):
+                    self.log.info(" creating thumbnail archive")
+                    zfw = ZipFile(self.archive_path, mode='w')
+                    zfw.writestr("Catalog Thumbs Archive",'')
+                    zfw.close()
+                else:
+                    if DEBUG:
+                        self.log.info(" existing thumb cache at '%s'" % self.archive_path)
 
             # Tweak build steps based on optional sections:  1 call for HTML, 1 for NCX
             if self.opts.generate_titles:
@@ -1723,14 +1742,18 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     pubdateTag.insert(0,NavigableString('<br/>'))
 
-                # Insert the rating
+                # Insert the rating, remove if unrated
                 # Render different ratings chars for epub/mobi
                 stars = int(title['rating']) / 2
-                star_string = self.FULL_RATING_SYMBOL * stars
-                empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
-
                 ratingTag = body.find(attrs={'class':'rating'})
-                ratingTag.insert(0,NavigableString('%s%s <br/>' % (star_string,empty_stars)))
+                if stars:
+                    star_string = self.FULL_RATING_SYMBOL * stars
+                    empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
+                    ratingTag.insert(0,NavigableString('%s%s <br/>' % (star_string,empty_stars)))
+                else:
+                    ratingLabel = body.find('td',text="Rating").replaceWith("Unrated")
+                    ratingTag.insert(0,NavigableString('<br/>'))
+
 
                 # Insert user notes or remove Notes label.  Notes > 1 line will push formatting down
                 if 'notes' in title:
