@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-10 14:27+0000\n"
-"PO-Revision-Date: 2010-11-10 15:58+0000\n"
-"Last-Translator: enriquz <Unknown>\n"
+"PO-Revision-Date: 2010-11-11 10:09+0000\n"
+"Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-11 04:41+0000\n"
+"X-Launchpad-Export-Date: 2010-11-12 04:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1019,7 +1019,7 @@ msgstr "Comunica con il Sweex MM300."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Digma Q600"
-msgstr ""
+msgstr "Comunica con il Digma Q600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:88
 msgid "Communicate with the Kogan"
@@ -2133,25 +2133,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:33
 msgid "CSS file used for the output instead of the default file"
-msgstr ""
+msgstr "File CSS usato per l'output invece del file predefinito"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:36
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
 msgstr ""
+"Template usato per generare il file html dell'indice invece del file "
+"predefinito."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:39
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
+"Template usato per generare il file html con i contenuti del libro invece "
+"del file predefinito."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:42
 msgid ""
 "Extract the contents of the generated ZIP file to the specified directory. "
 "WARNING: The contents of the directory will be deleted."
 msgstr ""
+"Estrae il contenuto del file ZIP generato nella cartella indicata. "
+"ATTENZIONE: I contenuti della cartella saranno cancellati."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2747,7 +2753,7 @@ msgstr "Scarica %s da %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:149
 msgid "Convert comments downloaded from %s to plain text"
-msgstr ""
+msgstr "Converti i commenti scaricati da %s in testo semplice."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:175
 msgid "Downloads metadata from Google Books"
@@ -4001,6 +4007,10 @@ msgid ""
 "GUI. You can recover your database using the 'calibredb restore_database' "
 "command line function."
 msgstr ""
+"Questo comando ricostruisce il database di calibre utilizzando le "
+"informazioni presenti nei file OPF.<p>Questa funzione non è attualmente "
+"disponibile nella GUI. È possibile recuperare il database utilizzando la "
+"funzione da linea di comando 'calibredb restore_database'."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:358
 msgid "No library found"
