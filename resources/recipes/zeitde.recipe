@@ -43,7 +43,7 @@ class ZeitDe(BasicNewsRecipe):
                ('Sport', 'http://newsfeed.zeit.de/sport/index'),
              ]
 
-    extra_css = '.reaktion,.taglist,.comments,.reponse,.responsetitle,.responsebody,.reponse,.inline,.date{display:none;}li.date{display:block}'
+    extra_css = '.excerpt{font-size:1em}.reaktion,.taglist,.comments,.reponse,.responsetitle,.responsebody,.reponse,.inline,.date{display:none;}li.date{display:block}'
 
     #filter_regexps = [r'ad.de.doubleclick.net/']
 
@@ -54,6 +54,16 @@ class ZeitDe(BasicNewsRecipe):
         if 'video' in ans or 'quiz' in ans or 'blog' in ans :
               ans = None
         return ans
+
+    def preprocess_html(self, soup):
+        for tag in soup.findAll(name=['ul','li']):
+            tag.name = 'div'
+        
+        soup.html['xml:lang'] = self.lang
+        soup.html['lang']     = self.lang
+        mtag = '<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '">'
+        soup.head.insert(0,mtag)
+        return soup
 
     def get_cover_url(self):
         try:
