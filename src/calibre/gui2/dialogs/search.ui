@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>731</width>
-    <height>384</height>
+    <height>411</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,6 +19,35 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>What kind of match to use:</string>
+     </property>
+     <property name="buddy">
+      <cstring>matchkind</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="matchkind">
+     <item>
+      <property name="text">
+       <string>Contains: the word or phrase matches anywhere in the metadata field</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Equals: the word or phrase must match the entire metadata field</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Regular expression: the expression must match anywhere in the metadata field</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>0</number>
@@ -27,8 +56,8 @@
       <attribute name="title">
        <string>A&amp;dvanced Search</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Find entries that have...</string>
@@ -88,7 +117,7 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>But dont show entries that have...</string>
@@ -120,35 +149,6 @@
              </size>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <widget class="QLabel" name="label_5">
-               <property name="text">
-                <string>What kind of match to use:</string>
-               </property>
-               <property name="buddy">
-                <cstring>matchkind</cstring>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="matchkind">
-               <item>
-                <property name="text">
-                 <string>Contains: the word or phrase matches anywhere in the metadata</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Equals: the word or phrase must match an entire metadata field</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Regular expression: the expression must match anywhere in the metadata</string>
-                </property>
-               </item>
-              </widget>
-             </item>
              <item>
               <widget class="QLabel" name="label_51">
                <property name="sizePolicy">
@@ -187,7 +187,7 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="2" column="0">
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -200,7 +200,7 @@
          </property>
         </spacer>
        </item>
-       <item>
+       <item row="3" column="0">
         <widget class="QDialogButtonBox" name="buttonBox">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -333,6 +333,19 @@
      </widget>
     </widget>
    </item>
+   <item row="1" column="1">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
   </layout>
  </widget>
  <tabstops>
@@ -340,7 +353,6 @@
   <tabstop>phrase</tabstop>
   <tabstop>any</tabstop>
   <tabstop>none</tabstop>
-  <tabstop>matchkind</tabstop>
   <tabstop>buttonBox</tabstop>
   <tabstop>title_box</tabstop>
   <tabstop>authors_box</tabstop>
@@ -350,7 +362,6 @@
   <tabstop>general_box</tabstop>
   <tabstop>clear_button</tabstop>
   <tabstop>tab_2_button_box</tabstop>
-  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/images.qrc"/>
