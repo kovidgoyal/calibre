@@ -31,7 +31,7 @@
     - title: "Conversion pipeline: Handle input documents that encode null bytes as HTML entities correctly"
       tickets: [7355]
 
-    - title: "Fix some SONY readersw not being detected on windows"
+    - title: "Fix some SONY readers not being detected on windows"
       tickets: [7413]
 
     - title: "MOBI Input: Fix images missing when converting MOBI news downloads created with Mobipocket reader"
