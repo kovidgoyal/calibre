@@ -55,7 +55,6 @@ class BooksView(QTableView): # {{{
             self.setEditTriggers(self.DoubleClicked|self.editTriggers())
         elif tweaks['doubleclick_on_library_view'] == 'open_viewer':
             self.setEditTriggers(self.SelectedClicked|self.editTriggers())
-        if tweaks['doubleclick_on_library_view'] != 'do_nothing':
             self.doubleClicked.connect(parent.iactions['View'].view_triggered)
 
         self.drag_allowed = True
