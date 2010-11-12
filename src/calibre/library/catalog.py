@@ -1175,7 +1175,6 @@ class EPUB_MOBI(CatalogPlugin):
             @dynamic_property
             def MISSING_SYMBOL(self):
                 def fget(self):
-                    #return '<span style="color:black">%s</span>' % self.__output_profile.missing_char
                     return self.__output_profile.missing_char
                 return property(fget=fget)
             @dynamic_property
@@ -1192,7 +1191,6 @@ class EPUB_MOBI(CatalogPlugin):
             @dynamic_property
             def READ_SYMBOL(self):
                 def fget(self):
-                    #return '<span style="color:black">%s</span>' % self.__output_profile.read_char
                     return self.__output_profile.read_char
                 return property(fget=fget)
             @dynamic_property
