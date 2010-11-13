@@ -81,6 +81,14 @@ p.unread_book {
 	text-indent: -2em;
 }
 
+p.missing_book {
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:2em;
+	text-indent:-2em;
+	}
+
 p.date_read {
 	text-align: left;
 	margin-top: 0px;

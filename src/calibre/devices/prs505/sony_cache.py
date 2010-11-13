@@ -619,6 +619,13 @@ class XMLCache(object):
             x.replace(u'\0', '')
             return x
 
+        def record_set(k, v):
+            try:
+                record.set(k, clean(v))
+            except:
+                # v is not suitable for XML, ignore
+                pass
+
         if not getattr(book, '_new_book', False): # book is not new
                 if record.get('tz', None) is not None:
                     use_tz_var = True
@@ -641,20 +648,20 @@ class XMLCache(object):
             record.set('date', clean(date))
         record.set('size', clean(str(os.stat(path).st_size)))
         title = book.title if book.title else _('Unknown')
-        record.set('title', clean(title))
+        record_set('title', title)
         ts = book.title_sort
         if not ts:
             ts = title_sort(title)
-        record.set('titleSorter', clean(ts))
+        record_set('titleSorter', ts)
         if self.use_author_sort:
             if book.author_sort:
                 aus = book.author_sort
             else:
                 debug_print('Author_sort is None for book', book.lpath)
                 aus = authors_to_sort_string(book.authors)
-            record.set('author', clean(aus))
+            record_set('author', aus)
         else:
-            record.set('author', clean(authors_to_string(book.authors)))
+            record_set('author', authors_to_string(book.authors))
         ext = os.path.splitext(path)[1]
         if ext:
             ext = ext[1:].lower()

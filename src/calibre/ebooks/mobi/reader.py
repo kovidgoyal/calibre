@@ -221,7 +221,10 @@ class MetadataHeader(BookHeader):
         else:
             end = self.section_offset(number + 1)
         self.stream.seek(start)
-        return self.stream.read(end - start)
+        try:
+            return self.stream.read(end - start)
+        except OverflowError:
+            return self.stream.read(os.stat(self.stream.name).st_size - start)
 
 
 class MobiReader(object):
@@ -398,6 +401,8 @@ class MobiReader(object):
             elem.getparent().remove(elem)
         fname = self.name.encode('ascii', 'replace')
         fname = re.sub(r'[\x08\x15\0]+', '', fname)
+        if not fname:
+            fname = 'dummy'
         htmlfile = os.path.join(output_dir,
             ascii_filename(fname) + '.html')
         try:
@@ -564,6 +569,10 @@ class MobiReader(object):
                 for attr in self.IMAGE_ATTRS:
                     recindex = attrib.pop(attr, None) or recindex
                 if recindex is not None:
+                    try:
+                        recindex = '%05d'%int(recindex)
+                    except:
+                        pass
                     attrib['src'] = 'images/%s.jpg' % recindex
                 for attr in ('width', 'height'):
                     if attr in attrib:

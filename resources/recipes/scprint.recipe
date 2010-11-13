@@ -1,4 +1,4 @@
-from calibre.web.feeds.recipes import BasicNewsRecipe, LoginFailed
+from calibre.web.feeds.news import BasicNewsRecipe, LoginFailed
 
 class SCPrintMagazine(BasicNewsRecipe):
     title          = u'SC Print Magazine'

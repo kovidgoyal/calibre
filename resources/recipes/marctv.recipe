@@ -1,0 +1,35 @@
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
+'''
+Fetch MarcTV.
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MarcTVde(BasicNewsRecipe):
+
+    title = 'Marc Toensings Visionen'
+
+    description = 'Marc Toensings Visionen'
+
+    language = 'de'
+
+    __author__ = 'Marc Toensing'
+
+    max_articles_per_feed = 40
+
+    oldest_article = 665
+
+    use_embedded_content = False
+
+    remove_tags = []
+
+    keep_only_tags = dict(name='div', attrs={'class':["content"]})
+
+    feeds          = [(u'Spiele', u'http://feeds.feedburner.com/marctv/spiele'), (u'Leben', u'http://feeds.feedburner.com/marctv/leben'), (u'Medien', u'http://feeds.feedburner.com/marctv/medien')]
+
+    extra_css = '.#wrapper .entry p img{width:620px; height: 270px;}'
+
+    def get_cover_url(self):
+            return 'http://marctv.de/marctv.png'

@@ -37,8 +37,7 @@ Qt
 
 Extract Qt sourcecode to C:\Qt\4.x.x. Run configure and make::
 
-    configure -opensource -qt-zlib -qt-gif -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc -no-qt3support -webkit -xmlpatterns -no-phonon
-    nmake
+    configure -opensource -release -qt-zlib -qt-gif -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license && nmake
 
 SIP
 -----

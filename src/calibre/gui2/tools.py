@@ -299,7 +299,7 @@ def generate_catalog(parent, dbspec, ids, device_manager):
         ]
     out.close()
 
-    # This returns to gui2.ui:generate_catalog()
+    # This returns to gui2.actions.catalog:generate_catalog()
     # Which then calls gui2.convert.gui_conversion:gui_catalog() with the args inline
     return 'gui_catalog', args, _('Generate catalog'), out.name, d.catalog_sync, \
             d.catalog_title

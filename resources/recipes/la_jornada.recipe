@@ -54,10 +54,7 @@ class LaJornada_mx(BasicNewsRecipe):
     preprocess_regexps = [
                           (re.compile(  r'<div class="inicial">(.*)</div><p class="s-s">'
                                        ,re.DOTALL|re.IGNORECASE)
-                                       ,lambda match: '<p class="inicial">' + match.group(1) + '</p><p class="s-s">'),
-                          (re.compile(  r'<q>(.*?)</q>'
-                                       ,re.DOTALL|re.IGNORECASE)
-                                       ,lambda match: '"' + match.group(1) + '"')
+                                       ,lambda match: '<p class="inicial">' + match.group(1) + '</p><p class="s-s">')
                          ]
                         
     keep_only_tags = [

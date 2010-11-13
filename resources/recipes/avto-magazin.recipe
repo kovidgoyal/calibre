@@ -1,0 +1,46 @@
+__license__ = 'GPL v3'
+__copyright__ = '2010, BlonG'
+'''
+avto-magazin.si
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+class Dnevnik(BasicNewsRecipe):
+  title = u'Avto Magazin'
+  __author__ = u'BlonG'
+  description = u'Za avtomobilisti\xc4\x8dne frike, poznavalce in nedeljske \xc5\xa1oferje.'
+  oldest_article = 7
+  max_articles_per_feed = 20
+  labguage = 'sl'
+  no_stylesheets = True
+  use_embedded_content = False
+
+  conversion_options = {'linearize_tables' : True}
+
+
+  cover_url = 'https://sites.google.com/site/javno2010/home/avto_magazin_cover.jpg'
+
+  extra_css = '''
+	h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+	h2{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+	p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+	body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+	'''
+
+  keep_only_tags = [
+	dict(name='div', attrs={'id':'_iprom_inStream'}),
+#	dict(name='div', attrs={'class':'entry-content'}),
+	]
+
+  remove_tags = [
+	dict(name='div', attrs={'id':'voteConfirmation'}),
+	dict(name='div', attrs={'id':'InsideVote'}),
+	dict(name='div', attrs={'class':'Zone234'}),
+	dict(name='div', attrs={'class':'Comments'}),
+	dict(name='div', attrs={'class':'sorodneNovice'}),
+	dict(name='div', attrs={'id':'footer'}),
+	]
+
+
+  feeds = [
+	(u'Novice', u'http://www.avto-magazin.si/rss/')
+	]

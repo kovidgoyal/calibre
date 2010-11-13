@@ -47,6 +47,8 @@ class BulkConfig(Config):
                 self.show_pane)
         self.connect(self.groups, SIGNAL('entered(QModelIndex)'),
                 self.show_group_help)
+        rb = self.buttonBox.button(self.buttonBox.RestoreDefaults)
+        rb.setVisible(False)
         self.groups.setMouseTracking(True)
 
 
