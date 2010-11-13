@@ -610,7 +610,11 @@ class XMLCache(object):
         # is not new, compare its Sony DB date against localtime and gmtime.
         # Count the matches. When we must set a date, use the one with the most
         # matches. Use localtime if the case of a tie, and hope it is right.
-        timestamp = os.path.getmtime(path)
+        try:
+            timestamp = os.path.getmtime(path)
+        except:
+            debug_print('Failed to get timestamp for:', path)
+            timestamp = time.time()
         rec_date = record.get('date', None)
 
         def clean(x):
@@ -627,12 +631,12 @@ class XMLCache(object):
                 pass
 
         if not getattr(book, '_new_book', False): # book is not new
-                if record.get('tz', None) is not None:
-                    use_tz_var = True
-                if strftime(timestamp, zone=time.gmtime) == rec_date:
-                    gtz_count += 1
-                elif strftime(timestamp, zone=time.localtime) == rec_date:
-                    ltz_count += 1
+            if record.get('tz', None) is not None:
+                use_tz_var = True
+            if strftime(timestamp, zone=time.gmtime) == rec_date:
+                gtz_count += 1
+            elif strftime(timestamp, zone=time.localtime) == rec_date:
+                ltz_count += 1
         else: # book is new. Set the time using the current votes
             if use_tz_var:
                 tz = time.localtime
@@ -646,7 +650,10 @@ class XMLCache(object):
                 debug_print("Use GMT TZ for new book", book.lpath)
             date = strftime(timestamp, zone=tz)
             record.set('date', clean(date))
-        record.set('size', clean(str(os.stat(path).st_size)))
+        try:
+            record.set('size', clean(str(os.stat(path).st_size)))
+        except:
+            record.set('size', '0')
         title = book.title if book.title else _('Unknown')
         record_set('title', title)
         ts = book.title_sort
