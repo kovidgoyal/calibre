@@ -165,8 +165,8 @@ class ResultList(list):
         hval = dict((self.COLOR_VALUES[self.recolor.search(image.get('src', default='NA.gif')).group("ncolor")], 
                     float(image.get('height', default=0))) \
                         for image in entrytable.getiterator('img'))
-        #ratings as x/20, not sure
-        return 5*sum(k*v for (k, v) in hval.iteritems())/sum(hval.itervalues())
+        #ratings as x/5
+        return 1.25*sum(k*v for (k, v) in hval.iteritems())/sum(hval.itervalues())
 
     def get_description(self, entry):
         description = self.output_entry(entry.find('./p'),htmlrm="")
