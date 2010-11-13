@@ -481,7 +481,7 @@ from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
-    LibraryThing
+    LibraryThing, Fictionwise
 from calibre.ebooks.metadata.douban import DoubanBooks
 from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
         LibraryThingCovers, DoubanCovers
@@ -490,7 +490,7 @@ from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        LibraryThing, Fictionwise, DoubanBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
         Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers]
 plugins += [
     ComicInput,

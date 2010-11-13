@@ -267,6 +267,24 @@ class LibraryThing(MetadataSource): # {{{
 
     # }}}
 
+class Fictionwise(MetadataSource): # {{{
+
+    author = 'Sengian'
+    name = 'Fictionwise'
+    description = _('Downloads metadata from Fictionwise')
+
+    has_html_comments = True
+
+    def fetch(self):
+        from calibre.ebooks.metadata.fictionwise import search
+        try:
+            self.results = search(self.title, self.book_author, self.publisher,
+                self.isbn, max_results=10, verbose=self.verbose)
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
+    # }}}
 
 def result_index(source, result):
     if not result.isbn:
