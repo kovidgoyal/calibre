@@ -81,7 +81,7 @@ p.unread_book {
 	text-indent:-2em;
 	}
 
-p.missing_book {
+p.wishlist_item {
 	text-align:left;
 	margin-top:0px;
 	margin-bottom:0px;
@@ -111,4 +111,15 @@ hr.annotations_divider {
 	margin-left:1em;
 	margin-top:0em;
 	margin-bottom:0em;
+	}
+
+td.publisher, td.date {
+	font-weight:bold;
+	text-align:center;
+	}
+td.rating {
+	text-align: center;
+	}
+td.thumbnail img {
+	-webkit-box-shadow: 6px 6px 6px #888;
 	}
