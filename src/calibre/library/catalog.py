@@ -3,14 +3,13 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker <griker at hotmail.com>'
 
-import base64, codecs, cStringIO, datetime, htmlentitydefs, os, re, shutil, time, zlib
-
+import codecs, datetime, htmlentitydefs, os, re, shutil, time, zlib
+from contextlib import closing
 from collections import namedtuple
 from copy import deepcopy
-from PIL import Image as PILImage
 from xml.sax.saxutils import escape
 
-from calibre import fit_image, prints, prepare_string_for_xml, strftime
+from calibre import prints, prepare_string_for_xml, strftime
 from calibre.constants import preferred_encoding
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
@@ -20,6 +19,7 @@ from calibre.utils.config import config_dir
 from calibre.utils.date import isoformat, now as nowf
 from calibre.utils.logging import default_log as log
 from calibre.utils.zipfile import ZipFile, ZipInfo
+from calibre.utils.magick.draw import thumbnail
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'ondevice', 'pubdate', 'publisher', 'rating',
@@ -1658,7 +1658,7 @@ class EPUB_MOBI(CatalogPlugin):
                 aTag.insert(0, title['author'])
 
                 # Prefix author with read|reading|none symbol or missing symbol
-                if self.opts.wishlist_tag in title['tags']:
+                if self.opts.wishlist_tag in title.get('tags', []):
                     authorTag.insert(0, NavigableString(self.MISSING_SYMBOL + " by "))
                 else:
                     if title['read']:
@@ -2044,7 +2044,7 @@ class EPUB_MOBI(CatalogPlugin):
                 ptc = 0
 
                 #  book with read|reading|unread symbol or wishlist item
-                if self.opts.wishlist_tag in book['tags']:
+                if self.opts.wishlist_tag in book.get('tags', []):
                     pBookTag['class'] = "wishlist_item"
                     pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                     ptc += 1
@@ -4469,70 +4469,41 @@ class EPUB_MOBI(CatalogPlugin):
             Thumbs are cached with the full cover's crc.  If the crc doesn't
             match, the cover has been changed since the thumb was cached and needs
             to be replaced.
-            2010-11-13 switched to PIL library for faster thumb generation
-
             '''
 
-            if True:
-                # Generate crc for current cover
-                #self.opts.log.info(" generateThumbnail():")
-                data = open(title['cover'], 'rb')
-                stream = cStringIO.StringIO()
-                stream.write(data.read())
-                cover_crc = hex(zlib.crc32(stream.getvalue()))
-                stream.close()
+            # Generate crc for current cover
+            #self.opts.log.info(" generateThumbnail():")
+            data = open(title['cover'], 'rb').read()
+            cover_crc = hex(zlib.crc32(data))
 
-                # Test cache for uuid
+            # Test cache for uuid
+            with closing(ZipFile(self.__archive_path, mode='r')) as zfr:
                 try:
-                    zfr = ZipFile(self.__archive_path, mode='r')
                     t_info = zfr.getinfo(title['uuid'])
+                except:
+                    pass
+                else:
                     if t_info.comment == cover_crc:
                         # uuid found in cache with matching crc
                         thumb_data = zfr.read(title['uuid'])
                         zfr.extract(title['uuid'],image_dir)
-                        zfr.close()
                         os.rename(os.path.join(image_dir,title['uuid']),
-                                  os.path.join(image_dir,thumb_file))
+                                    os.path.join(image_dir,thumb_file))
                         return
-                    else:
-                        # uuid found in cache, but crc mismatch
-                        zfr.close()
 
-                except:
-                    # uuid not found in cache
-                    zfr.close()
 
-                # Create a new thumb
-                im = PILImage.open(title['cover'])
-                scaled, width, height = fit_image(im.size[0],im.size[1],
-                                                  self.thumbWidth, self.thumbHeight)
-                im = im.resize((int(width),int(height)), PILImage.ANTIALIAS)
+            # Save thumb for catalog
+            thumb_data = thumbnail(data,
+                    width=self.thumbWidth, height=self.thumbHeight)[-1]
+            with open(os.path.join(image_dir, thumb_file), 'wb') as f:
+                f.write(thumb_data)
 
-                # Save thumb for catalog
-                im.convert('RGB').save(os.path.join(image_dir, thumb_file),'JPEG')
-
-                # Save thumb to archive
-                thumb_stream = cStringIO.StringIO()
-                im.convert('RGB').save(thumb_stream,'JPEG')
-                thumb_data = thumb_stream.getvalue()
-                thumb_stream.close()
-                t_info = ZipInfo(title['uuid'],time.localtime()[0:6])
-                t_info.comment = cover_crc
-                zfw = ZipFile(self.__archive_path, mode='a')
-                zfw.writestr(t_info, thumb_data)
-                zfw.close()
-
-            else:
-                # non-caching code using ImageMagick
-                from calibre.utils.magick import Image
-                try:
-                    img = Image()
-                    img.open(title['cover'])
-                    # img, width, height
-                    img.thumbnail(self.thumbWidth, self.thumbHeight)
-                    img.save(os.path.join(image_dir, thumb_file))
-                except:
-                    self.opts.log.error("generateThumbnail(): Error with %s" % title['title'])
+            # Save thumb to archive
+            t_info = ZipInfo(title['uuid'],time.localtime()[0:6])
+            t_info.comment = cover_crc
+            zfw = ZipFile(self.__archive_path, mode='a')
+            zfw.writestr(t_info, thumb_data)
+            zfw.close()
 
         def getFriendlyGenreTag(self, genre):
             # Find the first instance of friendly_tag matching genre
