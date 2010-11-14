@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-11-12 23:11+0000\n"
-"PO-Revision-Date: 2010-11-12 22:54+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-11-13 20:32+0000\n"
+"Last-Translator: Aleš Bajtalon <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-13 04:52+0000\n"
+"X-Launchpad-Export-Date: 2010-11-14 05:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -990,7 +990,7 @@ msgstr "Spojit se s Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Digma Q600"
-msgstr ""
+msgstr "Komunikovat se čtečkou Digma Q600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:88
 msgid "Communicate with the Kogan"
@@ -1031,11 +1031,11 @@ msgstr "Komunikuje se čtečkou Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Nook Color"
-msgstr ""
+msgstr "Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
 msgid "Communicate with the Nook Color eBook reader."
-msgstr ""
+msgstr "Komunikovat se čtečkou knih Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -5661,7 +5661,7 @@ msgstr "TXT Výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:51
 msgid "&Line ending style:"
-msgstr ""
+msgstr "Styl konce řádku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:53
 msgid "&Maximum line length:"
@@ -5793,7 +5793,7 @@ msgstr "Nehodnoceno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:156
 msgid "Set '%s' to today"
-msgstr ""
+msgstr "Nastavit '%s' na dnes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:266
 msgid " index:"
@@ -5892,7 +5892,7 @@ msgstr "Hlavní paměť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:492
 msgid "Send specific format to"
-msgstr ""
+msgstr "Poslat specifický formát"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:493
 msgid "Send and delete from library"
@@ -5908,7 +5908,7 @@ msgstr "Cyba komunikace se zařízením"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:679
 msgid "Select folder to open as device"
-msgstr ""
+msgstr "Označit složku a otevřít jako zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:726
 msgid "Error talking to device"
@@ -5971,7 +5971,7 @@ msgstr "od"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:939
 msgid "in the %s format."
-msgstr ""
+msgstr "v %s formátu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:952
 msgid "Sending email to"
@@ -5994,6 +5994,7 @@ msgstr "Automaticky konvertovat knihy před emailovým odesláním?"
 msgid ""
 "Could not email the following books as no suitable formats were found:"
 msgstr ""
+"Nemohu emailovat následující knihy, nebyl nalezen žádný vhodný formát:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1009
 msgid "Failed to email books"
@@ -11772,7 +11773,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:152
 msgid "TAGS: %s<br />"
-msgstr ""
+msgstr "TAGY: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:157
 msgid "SERIES: %s [%s]<br />"
@@ -12068,10 +12069,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:40
 msgid "Username for sites that require a login to access content."
 msgstr ""
+"Uživatelské jméno pro stránky, které vyžadují přihlášení pro přístup k "
+"obsahu."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:43
 msgid "Password for sites that require a login to access content."
-msgstr ""
+msgstr "Heslo pro stránky, které vyžadují přihlášení pro přístup k obsahu."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:47
 msgid ""
@@ -12124,7 +12127,7 @@ msgstr "Pokouším se stáhnout obálku..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:871
 msgid "Generating masthead..."
-msgstr ""
+msgstr "Generování tiráže..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:952
 msgid "Starting download [%d thread(s)]..."

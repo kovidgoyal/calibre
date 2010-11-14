@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-12 23:11+0000\n"
-"PO-Revision-Date: 2010-11-12 22:36+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-11-13 11:33+0000\n"
+"Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-13 04:52+0000\n"
+"X-Launchpad-Export-Date: 2010-11-14 05:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1060,7 +1060,7 @@ msgstr "Communiquer avec le lecteur d'ebook Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Nook Color"
-msgstr ""
+msgstr "Nook Couleur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
 msgid "Communicate with the Nook Color eBook reader."
@@ -5175,11 +5175,11 @@ msgstr "Gabarit d'étiquette pour catalog.ui"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:25
 msgid "Bold"
-msgstr ""
+msgstr "Gras"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:26
 msgid "Italic"
-msgstr ""
+msgstr "Italique"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:28
@@ -7367,7 +7367,7 @@ msgstr "Votre test :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:401
 msgid "&Search and replace"
-msgstr ""
+msgstr "Rechercher et remplacer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:91
 msgid "Last modified: %s"
@@ -7970,40 +7970,41 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:210
 msgid "A&dvanced Search"
-msgstr ""
+msgstr "Recherche avancée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:212
 msgid "Enter the title."
-msgstr ""
+msgstr "Entrer le titre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:213
 msgid "&Author:"
-msgstr ""
+msgstr "&Auteur:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:215
 msgid "Ta&gs:"
-msgstr ""
+msgstr "Étiquettes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:216
 msgid "Enter an author's name. Only one author can be used."
-msgstr ""
+msgstr "Entrer un nom d'auteur. Un seul auteur peut être utilisé."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:217
 msgid ""
 "Enter a series name, without an index. Only one series name can be used."
 msgstr ""
+"Entrer un nom de séries, sans index. Un seul nom de séries peut être utilisé."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:218
 msgid "Enter tags separated by spaces"
-msgstr ""
+msgstr "Entrer des étiquettes séparées par des espaces"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:219
 msgid "&Clear"
-msgstr ""
+msgstr "Effacer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:220
 msgid "Search only in specific fields:"
-msgstr ""
+msgstr "Chercher seulement dans les champs spécifiques:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:221
 msgid "Titl&e/Author/Series ..."

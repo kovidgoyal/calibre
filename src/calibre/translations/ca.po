@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-12 23:11+0000\n"
-"PO-Revision-Date: 2010-11-12 20:28+0000\n"
+"PO-Revision-Date: 2010-11-13 12:22+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-13 04:52+0000\n"
+"X-Launchpad-Export-Date: 2010-11-14 05:03+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1063,11 +1063,11 @@ msgstr "Comunica't amb un lector Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Nook Color"
-msgstr ""
+msgstr "Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
 msgid "Communicate with the Nook Color eBook reader."
-msgstr ""
+msgstr "Comunica't amb un lector Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -6782,7 +6782,7 @@ msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:162
 msgid "Finding metadata..."
-msgstr "S'esta cercant les metadades..."
+msgstr "S'està cercant les metadades..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:176
 msgid "Could not find metadata"
@@ -7852,15 +7852,20 @@ msgstr "Tipus de coincidència que s'ha de fer servir:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
 msgstr ""
+"Conté: la paraula o frase coincideix amb qualsevol lloc del camp de les "
+"metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
 msgid "Equals: the word or phrase must match the entire metadata field"
 msgstr ""
+"Equival: la paraula o frase ha de coincidir amb tot el camp de les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
 msgid ""
 "Regular expression: the expression must match anywhere in the metadata field"
 msgstr ""
+"Expressió regular: l'expressió ha de coincidir amb qualsevol lloc del camp "
+"de les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
 msgid "Find entries that have..."

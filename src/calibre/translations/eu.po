@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-11-12 23:11+0000\n"
-"PO-Revision-Date: 2010-11-12 22:57+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-11-14 04:08+0000\n"
+"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-13 04:51+0000\n"
+"X-Launchpad-Export-Date: 2010-11-14 05:03+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1069,11 +1069,11 @@ msgstr "Komunikatu Nook eBook irakurgailuarekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Nook Color"
-msgstr ""
+msgstr "Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
 msgid "Communicate with the Nook Color eBook reader."
-msgstr ""
+msgstr "Jar zaitez Nook Color eBook reader horrekin harremanetan."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -7981,15 +7981,18 @@ msgstr "Zein motatako bat etortze erabili:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
 msgstr ""
+"Badauka:  hitza edo esaldia metadatu eremuko edozein tokitan bat dator"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
 msgid "Equals: the word or phrase must match the entire metadata field"
-msgstr ""
+msgstr "Berdinak: hitza edo esaldia metadatu eremu osoan bat etorri behar du"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
 msgid ""
 "Regular expression: the expression must match anywhere in the metadata field"
 msgstr ""
+"Adierazpen erregularra: adierazpenak metadatu eremuko edozein tokitan bat "
+"etorri behar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
 msgid "Find entries that have..."
