@@ -1666,7 +1666,8 @@ class EPUB_MOBI(CatalogPlugin):
                     elif self.opts.connected_kindle and title['id'] in self.bookmarked_books:
                         authorTag.insert(0, NavigableString(self.READING_SYMBOL + " by "))
                     else:
-                        authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + " by "))
+                        #authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + " by "))
+                        authorTag.insert(0, NavigableString("by "))
                 authorTag.insert(1, aTag)
 
                 '''
@@ -1695,6 +1696,7 @@ class EPUB_MOBI(CatalogPlugin):
                     tagsTag = body.find(attrs={'class':'tags'})
                     ttc = 0
 
+                    '''
                     # Insert a spacer to match the author indent
                     fontTag = Tag(soup,"font")
                     fontTag['style'] = 'color:white;font-size:large'
@@ -1703,6 +1705,7 @@ class EPUB_MOBI(CatalogPlugin):
                     fontTag.insert(0, NavigableString(" by "))
                     tagsTag.insert(ttc, fontTag)
                     ttc += 1
+                    '''
 
                     for tag in title['tags']:
                         aTag = Tag(soup,'a')
@@ -1711,10 +1714,18 @@ class EPUB_MOBI(CatalogPlugin):
                         aTag.insert(0,escape(NavigableString(tag)))
                         emTag = Tag(soup, "em")
                         emTag.insert(0, aTag)
-                        if ttc < len(title['tags']):
+                        if ttc < len(title['tags'])-1:
                             emTag.insert(1, NavigableString(' &middot; '))
                         tagsTag.insert(ttc, emTag)
                         ttc += 1
+
+                # Insert formats
+                if 'formats' in title:
+                    formatsTag = body.find(attrs={'class':'formats'})
+                    formats = []
+                    for format in sorted(title['formats']):
+                        formats.append(format.rpartition('.')[2].upper())
+                    formatsTag.insert(0, NavigableString(' &middot; '.join(formats)))
 
                 # Insert the cover <img> if available
                 imgTag = Tag(soup,"img")
@@ -4238,6 +4249,7 @@ class EPUB_MOBI(CatalogPlugin):
             <p class="author"></p>
             <!--p class="series"></p-->
             <p class="tags">&nbsp;</p>
+            <p class="formats">&nbsp;</p>
             <table width="100%" border="0">
               <tr>
                 <td class="thumbnail" rowspan="7"></td>
