@@ -3,11 +3,10 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker <griker at hotmail.com>'
 
-import datetime, htmlentitydefs, os, re, shutil, codecs
-
+import codecs, datetime, htmlentitydefs, os, re, shutil, time, zlib
+from contextlib import closing
 from collections import namedtuple
 from copy import deepcopy
-
 from xml.sax.saxutils import escape
 
 from calibre import prints, prepare_string_for_xml, strftime
@@ -16,8 +15,11 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.config import config_dir
 from calibre.utils.date import isoformat, now as nowf
 from calibre.utils.logging import default_log as log
+from calibre.utils.zipfile import ZipFile, ZipInfo
+from calibre.utils.magick.draw import thumbnail
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'ondevice', 'pubdate', 'publisher', 'rating',
@@ -608,6 +610,12 @@ class EPUB_MOBI(CatalogPlugin):
                           action = None,
                           help=_("Tag indicating book has been read.\n" "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
+                   Option('--wishlist-tag',
+                          default='Wishlist',
+                          dest='wishlist_tag',
+                          action = None,
+                          help=_("Tag indicating book to be displayed as wishlist item.\n" "Default: '%default'\n"
+                          "Applies to: ePub, MOBI output formats")),
                           ]
 
     class NumberToText(object):
@@ -862,6 +870,8 @@ class EPUB_MOBI(CatalogPlugin):
             self.__booksByDateRead = None
             self.__booksByTitle = None
             self.__booksByTitle_noSeriesPrefix = None
+            self.__cache_dir = os.path.join(config_dir, 'caches', 'catalog')
+            self.__archive_path = os.path.join(self.__cache_dir, "thumbs.zip")
             self.__catalogPath = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
             self.__contentDir = os.path.join(self.catalogPath, "content")
             self.__currentStep = 0.0
@@ -901,6 +911,18 @@ class EPUB_MOBI(CatalogPlugin):
                 if profile.short_name == self.opts.output_profile:
                     self.__output_profile = profile
                     break
+
+            # Confirm/create thumbs archive
+            if not os.path.exists(self.__cache_dir):
+                self.opts.log.info(" creating new thumb cache '%s'" % self.__cache_dir)
+                os.makedirs(self.__cache_dir)
+            if not os.path.exists(self.__archive_path):
+                self.opts.log.info(" creating thumbnail archive")
+                zfw = ZipFile(self.__archive_path, mode='w')
+                zfw.writestr("Catalog Thumbs Archive",'')
+                zfw.close()
+            else:
+                self.opts.log.info(" existing thumb cache at '%s'" % self.__archive_path)
 
             # Tweak build steps based on optional sections:  1 call for HTML, 1 for NCX
             if self.opts.generate_titles:
@@ -1322,6 +1344,7 @@ class EPUB_MOBI(CatalogPlugin):
                 this_title = {}
 
                 this_title['id'] = record['id']
+                this_title['uuid'] = record['uuid']
 
                 this_title['title'] = self.convertHTMLEntities(record['title'])
                 if record['series']:
@@ -1635,15 +1658,15 @@ class EPUB_MOBI(CatalogPlugin):
                 aTag.insert(0, title['author'])
 
                 # Prefix author with read|reading|none symbol or missing symbol
-                if 'formats' in title and title['formats']:
+                if self.opts.wishlist_tag in title.get('tags', []):
+                    authorTag.insert(0, NavigableString(self.MISSING_SYMBOL + " by "))
+                else:
                     if title['read']:
                         authorTag.insert(0, NavigableString(self.READ_SYMBOL + " by "))
                     elif self.opts.connected_kindle and title['id'] in self.bookmarked_books:
                         authorTag.insert(0, NavigableString(self.READING_SYMBOL + " by "))
                     else:
                         authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + " by "))
-                else:
-                    authorTag.insert(0, NavigableString(self.MISSING_SYMBOL + " by "))
                 authorTag.insert(1, aTag)
 
                 '''
@@ -1723,24 +1746,29 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     pubdateTag.insert(0,NavigableString('<br/>'))
 
-                # Insert the rating
+                # Insert the rating, remove if unrated
                 # Render different ratings chars for epub/mobi
                 stars = int(title['rating']) / 2
-                star_string = self.FULL_RATING_SYMBOL * stars
-                empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
-
                 ratingTag = body.find(attrs={'class':'rating'})
-                ratingTag.insert(0,NavigableString('%s%s <br/>' % (star_string,empty_stars)))
+                if stars:
+                    star_string = self.FULL_RATING_SYMBOL * stars
+                    empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
+                    ratingTag.insert(0,NavigableString('%s%s <br/>' % (star_string,empty_stars)))
+                else:
+                    #ratingLabel = body.find('td',text="Rating").replaceWith("Unrated")
+                    ratingTag.insert(0,NavigableString('<br/>'))
+
 
                 # Insert user notes or remove Notes label.  Notes > 1 line will push formatting down
                 if 'notes' in title:
                     notesTag = body.find(attrs={'class':'notes'})
                     notesTag.insert(0,NavigableString(title['notes'] + '<br/>'))
                 else:
-                    notes_labelTag = body.find(attrs={'class':'notes_label'})
-                    empty_labelTag = Tag(soup, "td")
-                    empty_labelTag.insert(0,NavigableString('<br/>'))
-                    notes_labelTag.replaceWith(empty_labelTag)
+                    pass
+#                     notes_labelTag = body.find(attrs={'class':'notes_label'})
+#                     empty_labelTag = Tag(soup, "td")
+#                     empty_labelTag.insert(0,NavigableString('<br/>'))
+#                     notes_labelTag.replaceWith(empty_labelTag)
 
                 # Insert the blurb
                 if 'description' in title and title['description'] > '':
@@ -1830,8 +1858,12 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                #  book with read|reading|unread symbol or missing symbol
-                if 'formats' in book and book['formats']:
+                #  book with read|reading|unread symbol or wishlist item
+                if self.opts.wishlist_tag in book['tags']:
+                        pBookTag['class'] = "wishlist_item"
+                        pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
+                        ptc += 1
+                else:
                     if book['read']:
                         # check mark
                         pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
@@ -1845,11 +1877,6 @@ class EPUB_MOBI(CatalogPlugin):
                         # hidden check mark
                         pBookTag['class'] = "unread_book"
                         pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
-                        ptc += 1
-                else:
-                        # missing formats
-                        pBookTag['class'] = "missing_book"
-                        pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                         ptc += 1
 
                 # Link to book
@@ -2005,8 +2032,12 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                #  book with read|reading|unread symbol or missing symbol
-                if 'formats' in book and book['formats']:
+                #  book with read|reading|unread symbol or wishlist item
+                if self.opts.wishlist_tag in book.get('tags', []):
+                    pBookTag['class'] = "wishlist_item"
+                    pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
+                    ptc += 1
+                else:
                     if book['read']:
                         # check mark
                         pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
@@ -2021,11 +2052,6 @@ class EPUB_MOBI(CatalogPlugin):
                         pBookTag['class'] = "unread_book"
                         pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
                         ptc += 1
-                else:
-                    # missing book
-                    pBookTag['class'] = "missing_book"
-                    pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
-                    ptc += 1
 
                 aTag = Tag(soup, "a")
                 aTag['href'] = "book_%d.html" % (int(float(book['id'])))
@@ -2139,8 +2165,12 @@ class EPUB_MOBI(CatalogPlugin):
                         pBookTag = Tag(soup, "p")
                         ptc = 0
 
-                        #  book with read|reading|unread symbol or missing symbol
-                        if 'formats' in new_entry and new_entry['formats']:
+                        #  book with read|reading|unread symbol or wishlist item
+                        if self.opts.wishlist_tag in new_entry['tags']:
+                            pBookTag['class'] = "wishlist_item"
+                            pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
+                            ptc += 1
+                        else:
                             if new_entry['read']:
                                 # check mark
                                 pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
@@ -2155,11 +2185,6 @@ class EPUB_MOBI(CatalogPlugin):
                                 pBookTag['class'] = "unread_book"
                                 pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
                                 ptc += 1
-                        else:
-                            # missing book
-                            pBookTag['class'] = "missing_book"
-                            pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
-                            ptc += 1
 
                         aTag = Tag(soup, "a")
                         aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
@@ -2191,8 +2216,12 @@ class EPUB_MOBI(CatalogPlugin):
                         pBookTag = Tag(soup, "p")
                         ptc = 0
 
-                        #  book with read|reading|unread symbol or missing symbol
-                        if 'formats' in new_entry and new_entry['formats']:
+                        #  book with read|reading|unread symbol or wishlist item
+                        if self.opts.wishlist_tag in new_entry['tags']:
+                            pBookTag['class'] = "wishlist_item"
+                            pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
+                            ptc += 1
+                        else:
                             if new_entry['read']:
                                 # check mark
                                 pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
@@ -2207,11 +2236,6 @@ class EPUB_MOBI(CatalogPlugin):
                                 pBookTag['class'] = "unread_book"
                                 pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
                                 ptc += 1
-                        else:
-                            # missing book
-                            pBookTag['class'] = "missing_book"
-                            pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
-                            ptc += 1
 
                         aTag = Tag(soup, "a")
                         aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
@@ -2646,8 +2670,12 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     book['read'] = False
 
-                #  book with read|reading|unread symbol or missing symbol
-                if 'formats' in book and book['formats']:
+                #  book with read|reading|unread symbol or wishlist item
+                if self.opts.wishlist_tag in book['tags']:
+                    pBookTag['class'] = "wishlist_item"
+                    pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
+                    ptc += 1
+                else:
                     if book['read']:
                         # check mark
                         pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
@@ -2662,11 +2690,6 @@ class EPUB_MOBI(CatalogPlugin):
                         pBookTag['class'] = "unread_book"
                         pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
                         ptc += 1
-                else:
-                    # missing book
-                    pBookTag['class'] = "missing_book"
-                    pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
-                    ptc += 1
 
                 aTag = Tag(soup, "a")
                 aTag['href'] = "book_%d.html" % (int(float(book['id'])))
@@ -2744,8 +2767,7 @@ class EPUB_MOBI(CatalogPlugin):
                         this_book['title'] = book['title']
                         this_book['author_sort'] = book['author_sort'].capitalize()
                         this_book['read'] = book['read']
-                        if 'formats' in book:
-                            this_book['formats'] = book['formats']
+                        this_book['tags'] = book['tags']
                         this_book['id'] = book['id']
                         this_book['series'] = book['series']
                         normalized_tag = self.genre_tags_dict[friendly_tag]
@@ -4147,8 +4169,15 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                #  book with read|reading|unread symbol or missing symbol
-                if 'formats' in book and book['formats']:
+                # book with read|reading|unread symbol or wishlist item
+                # If this is the wishlist_tag genre, don't show missing symbols
+                # normalized_wishlist_tag = self.genre_tags_dict[self.opts.wishlist_tag]
+                if self.opts.wishlist_tag in book['tags'] and \
+                   self.genre_tags_dict[self.opts.wishlist_tag] != genre:
+                    pBookTag['class'] = "wishlist_item"
+                    pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
+                    ptc += 1
+                else:
                     if book['read']:
                         # check mark
                         pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
@@ -4163,11 +4192,6 @@ class EPUB_MOBI(CatalogPlugin):
                         pBookTag['class'] = "unread_book"
                         pBookTag.insert(ptc,NavigableString(self.NOT_READ_SYMBOL))
                         ptc += 1
-                else:
-                    # missing book
-                    pBookTag['class'] = "missing_book"
-                    pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
-                    ptc += 1
 
                 # Add the book title
                 aTag = Tag(soup, "a")
@@ -4217,31 +4241,31 @@ class EPUB_MOBI(CatalogPlugin):
             <table width="100%" border="0">
               <tr>
                 <td class="thumbnail" rowspan="7"></td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-              </tr>
-              <tr>
-                <td>&nbsp;</td>
+                <!--td>&nbsp;</td-->
                 <td>&nbsp;</td>
               </tr>
               <tr>
-                <td>Publisher</td>
+                <!--td>&nbsp;</td-->
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                <!--td>Publisher</td-->
                 <td class="publisher"></td>
               </tr>
               <tr>
-                <td>Published</td>
+                <!--td>Published</td-->
                 <td class="date"></td>
               </tr>
               <tr>
-                <td>Rating</td>
+                <!--td>Rating</td-->
                 <td class="rating"></td>
               </tr>
               <tr>
-                <td class="notes_label">Notes</td>
+                <!--td class="notes_label">Notes</td-->
                 <td class="notes"></td>
               </tr>
               <tr>
-                <td>&nbsp;</td>
+                <!--td>&nbsp;</td-->
                 <td>&nbsp;</td>
               </tr>
             </table>
@@ -4429,15 +4453,45 @@ class EPUB_MOBI(CatalogPlugin):
             return ' '.join(translated)
 
         def generateThumbnail(self, title, image_dir, thumb_file):
-            from calibre.utils.magick import Image
-            try:
-                img = Image()
-                img.open(title['cover'])
-                # img, width, height
-                img.thumbnail(self.thumbWidth, self.thumbHeight)
-                img.save(os.path.join(image_dir, thumb_file))
-            except:
-                self.opts.log.error("generateThumbnail(): Error with %s" % title['title'])
+            '''
+            Thumbs are cached with the full cover's crc.  If the crc doesn't
+            match, the cover has been changed since the thumb was cached and needs
+            to be replaced.
+            '''
+
+            # Generate crc for current cover
+            #self.opts.log.info(" generateThumbnail():")
+            data = open(title['cover'], 'rb').read()
+            cover_crc = hex(zlib.crc32(data))
+
+            # Test cache for uuid
+            with closing(ZipFile(self.__archive_path, mode='r')) as zfr:
+                try:
+                    t_info = zfr.getinfo(title['uuid'])
+                except:
+                    pass
+                else:
+                    if t_info.comment == cover_crc:
+                        # uuid found in cache with matching crc
+                        thumb_data = zfr.read(title['uuid'])
+                        zfr.extract(title['uuid'],image_dir)
+                        os.rename(os.path.join(image_dir,title['uuid']),
+                                    os.path.join(image_dir,thumb_file))
+                        return
+
+
+            # Save thumb for catalog
+            thumb_data = thumbnail(data,
+                    width=self.thumbWidth, height=self.thumbHeight)[-1]
+            with open(os.path.join(image_dir, thumb_file), 'wb') as f:
+                f.write(thumb_data)
+
+            # Save thumb to archive
+            t_info = ZipInfo(title['uuid'],time.localtime()[0:6])
+            t_info.comment = cover_crc
+            zfw = ZipFile(self.__archive_path, mode='a')
+            zfw.writestr(t_info, thumb_data)
+            zfw.close()
 
         def getFriendlyGenreTag(self, genre):
             # Find the first instance of friendly_tag matching genre
@@ -4691,7 +4745,8 @@ class EPUB_MOBI(CatalogPlugin):
             if key in ['catalog_title','authorClip','connected_kindle','descriptionClip',
                        'exclude_genre','exclude_tags','note_tag','numbers_as_text',
                        'output_profile','read_tag',
-                       'search_text','sort_by','sort_descriptions_by_author','sync']:
+                       'search_text','sort_by','sort_descriptions_by_author','sync',
+                        'wishlist_tag']:
                 build_log.append("  %s: %s" % (key, opts_dict[key]))
 
         if opts.verbose:
