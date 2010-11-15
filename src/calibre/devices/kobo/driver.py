@@ -503,7 +503,11 @@ class KOBO(USBMS):
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
 
                         ContentID = self.contentid_from_path(book.path, ContentType)
-                        datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+
+                        t = (ContentID,)
+                        cursor.execute('select DateLastRead from Content where BookID is Null and ContentID = ?', t)
+                        result = cursor.fetchone()
+                        datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00' 
 
                         t = (datelastread,ContentID,)
 
