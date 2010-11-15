@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 __license__   = 'GPL v3'
 
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
+__copyright__ = '2010, Szing'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -10,49 +10,52 @@ globeandmail.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class GlobeAndMail(BasicNewsRecipe):
-    title = u'Globe and Mail'
-    language = 'en_CA'
-
-    __author__ = 'Kovid Goyal'
+class AdvancedUserRecipe1287083651(BasicNewsRecipe):
+    title          = u'Globe & Mail'
+    __license__   = 'GPL v3'
+    __author__ = 'Szing'
     oldest_article = 2
-    max_articles_per_feed = 10
     no_stylesheets = True
-    extra_css = '''
-    h3 {font-size: 22pt; font-weight:bold; margin:0px; padding:0px 0px 8pt 0px;}
-    h4 {margin-top: 0px;}
-    #byline { font-family: monospace; font-weight:bold; }
-    #placeline {font-weight:bold;}
-    #credit {margin-top:0px;}
-    .tag {font-size: 22pt;}'''
-    description = 'Canada\'s national newspaper'
-    keep_only_tags = [dict(name='article')]
-    remove_tags = [dict(name='aside'),
-                   dict(name='footer'),
-                   dict(name='div', attrs={'class':(lambda x: isinstance(x, (str,unicode)) and 'articlecommentcountholder' in x.split(' '))}),
-                   dict(name='ul', attrs={'class':(lambda x: isinstance(x, (str,unicode)) and 'articletoolbar' in x.split(' '))}),
-                  ]
-    feeds = [
-            (u'Latest headlines', u'http://www.theglobeandmail.com/?service=rss'),
-            (u'Top stories', u'http://www.theglobeandmail.com/?service=rss&feed=topstories'),
-            (u'National', u'http://www.theglobeandmail.com/news/national/?service=rss'),
-            (u'Politics', u'http://www.theglobeandmail.com/news/politics/?service=rss'),
-            (u'World', u'http://www.theglobeandmail.com/news/world/?service=rss'),
-            (u'Business', u'http://www.theglobeandmail.com/report-on-business/?service=rss'),
-            (u'Opinions', u'http://www.theglobeandmail.com/news/opinions/?service=rss'),
-            (u'Columnists', u'http://www.theglobeandmail.com/news/opinions/columnists/?service=rss'),
-            (u'Globe Investor', u'http://www.theglobeandmail.com/globe-investor/?service=rss'),
-            (u'Sports', u'http://www.theglobeandmail.com/sports/?service=rss'),
-            (u'Technology', u'http://www.theglobeandmail.com/news/technology/?service=rss'),
-            (u'Arts', u'http://www.theglobeandmail.com/news/arts/?service=rss'),
-            (u'Life', u'http://www.theglobeandmail.com/life/?service=rss'),
-            (u'Blogs', u'http://www.theglobeandmail.com/blogs/?service=rss'),
-            (u'Real Estate', u'http://www.theglobeandmail.com/real-estate/?service=rss'),
-            (u'Auto', u'http://www.theglobeandmail.com/auto/?service=rss')
-            ]
+    max_articles_per_feed = 100
+    encoding               = 'utf8'
+    publisher              = 'Globe & Mail'
+    language               = 'en_CA'
+    extra_css = 'p.meta {font-size:75%}\n .redtext {color: red;}\n .byline {font-size: 70%}'
 
-    def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self, article)
-        if '/video/' not in url:
-            return url
+    feeds          = [
+      (u'Top National Stories', u'http://www.theglobeandmail.com/news/national/?service=rss'),
+      (u'Business', u'http://www.theglobeandmail.com/report-on-business/?service=rss'),
+      (u'Commentary', u'http://www.theglobeandmail.com/report-on-business/commentary/?service=rss'),
+      (u'Blogs', u'http://www.theglobeandmail.com/blogs/?service=rss'),
+      (u'Facts & Arguments', u'http://www.theglobeandmail.com/life/facts-and-arguments/?service=rss'),
+      (u'Technology', u'http://www.theglobeandmail.com/news/technology/?service=rss'),
+      (u'Investing', u'http://www.theglobeandmail.com/globe-investor/?service=rss'),
+      (u'Top Polical Stories', u'http://www.theglobeandmail.com/news/politics/?service=rss'),
+      (u'Arts', u'http://www.theglobeandmail.com/news/arts/?service=rss'),
+      (u'Life', u'http://www.theglobeandmail.com/life/?service=rss'),
+      (u'Real Estate', u'http://www.theglobeandmail.com/real-estate/?service=rss'),
+      (u'Auto', u'http://www.theglobeandmail.com/sports/?service=rss'),
+      (u'Sports', u'http://www.theglobeandmail.com/auto/?service=rss')
+    ]
+
+    keep_only_tags = [
+      dict(name='h1'),
+      dict(name='h2', attrs={'id':'articletitle'}),
+      dict(name='p', attrs={'class':['leadText', 'meta', 'leadImage', 'redtext byline', 'bodyText']}),
+      dict(name='div', attrs={'class':['news','articlemeta','articlecopy']}),
+      dict(name='id', attrs={'class':'article'}),
+      dict(name='table', attrs={'class':'todays-market'}),
+      dict(name='header', attrs={'id':'leadheader'})
+    ]
+
+    remove_tags = [
+      dict(name='div', attrs={'id':['tabInside', 'ShareArticles', 'topStories']})
+    ]
+
+    #this has to be here or the text in the article appears twice.
+    remove_tags_after = [dict(id='article')]
+
+    #Use the mobile version rather than the web version
+    def print_version(self, url):
+        return url + '&service=mobile'
 
