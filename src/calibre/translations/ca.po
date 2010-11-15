@@ -11,18 +11,18 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-12 23:11+0000\n"
-"PO-Revision-Date: 2010-11-13 12:22+0000\n"
+"PO-Revision-Date: 2010-11-14 13:15+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-14 05:03+0000\n"
+"X-Launchpad-Export-Date: 2010-11-15 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
-msgstr "No fa absolutament res"
+msgstr "No fa res"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:87
@@ -175,7 +175,7 @@ msgstr "Lector de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:238
 msgid "Metadata writer"
-msgstr "Escriptor de metadades"
+msgstr "Editor de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:268
 msgid "Catalog generator"
@@ -201,9 +201,9 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Segueix tots els enllaços locals en un fitxer HTML i crea un arxiu ZIP que "
-"contingui els fitxers enllaçats. Aquest connector s'executa cada vegada que "
-"s'afegeix un fitxer HTML a la biblioteca."
+"Segueix tots els enllaços locals d'un fitxer HTML i crea un arxiu ZIP amb "
+"tots els fitxers enllaçats. S'executa cada cop que s'afegeix un fitxer HTML "
+"a la biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:51
 msgid ""
@@ -220,8 +220,8 @@ msgid ""
 "file to the library."
 msgstr ""
 "Crea un arxiu PMLZ que conté el fitxer PML i totes les imatges de les "
-"carpetes pmlname_ing o images. Aquest connector s'executa cada vegada que "
-"afegiu un fitxer PML a la biblioteca."
+"carpetes pmlname_img o imatges. S'executa cada cop que s'afegeix un fitxer "
+"PML a la biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:92
 msgid "Extract cover from comic files"
@@ -298,12 +298,11 @@ msgstr "Canvia el comportament del calibre"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:209
 msgid "Add your own columns"
-msgstr "Afegeix les teves columnes"
+msgstr "Columnes"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:741
 msgid "Add/remove your own columns to the calibre book list"
-msgstr ""
-"Afegeix/elimina les teves columnes a la llista de llibres del calibre"
+msgstr "Configura les columnes de la llista de llibres del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:746
 msgid "Customize the toolbar"
@@ -314,8 +313,8 @@ msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
-"Personalitza les barres d'eines i els menús de context, canviant quines "
-"accions estan disponibles"
+"Personalitza les barres d'eines i els menús de context, canviant les accions "
+"que estaran disponibles"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:758
 msgid "Input Options"
@@ -380,7 +379,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:815
 msgid "Sending books to devices"
-msgstr "S'està enviant llibres als dispositius"
+msgstr "Enviant llibres als dispositius"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:821
 msgid "Control how calibre transfers files to your ebook reader"
@@ -420,12 +419,12 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
-"Configura el Servidor de Continguts donarà accés a la biblioteca des de "
-"qualsevol lloc i dispositiu, a través d'internet"
+"Configura el Servidor de Continguts que dona accés a la biblioteca a través "
+"d'internet des de qualsevol lloc i dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
 msgid "Plugins"
-msgstr "Plugins"
+msgstr "Connectors"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:865
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:877
@@ -436,7 +435,7 @@ msgstr "Avançat"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr ""
-"Afegeix/suprimeix/personalitza diversos bits de la funcionalitat del calibre"
+"Afegeix/suprimeix/personalitza diverses parts de les funcions del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:875
 msgid "Tweaks"
@@ -457,7 +456,7 @@ msgstr "Configuració avançada"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr "Entrada per a la conversió"
+msgstr "Entrada de la conversió"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:134
 msgid ""
@@ -481,7 +480,7 @@ msgid ""
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
 "Si ho indiqueu, el connector de sortida intentarà generar una sortida que "
-"sigui el més llegible possible. Potser no tingui cap efecte en alguns "
+"sigui el més llegible possible. Pot ser que no tingui cap efecte en alguns "
 "connectors de sortida."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:47
@@ -966,7 +965,7 @@ msgid ""
 "Create a tag called \"Im_Reading\" "
 msgstr ""
 "El Kobo de moment només dóna suport a una col·lecció: la llista "
-"\"Im_Reading\". Creeu una etiqueta amb el nom \"Im_Reading\" "
+"«Im_Reading». Creeu una etiqueta amb el nom «Im_Reading» "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:68
@@ -1373,7 +1372,7 @@ msgstr ""
 "EXT es l'extensió del fitxer de sortida. En aquest cas, el nom del fitxer de "
 "sortida es deriva del nom del fitxer d'entrada. Els noms dels fitxers no "
 "poden començar amb un guionet. Per acabar, si al fitxer_final no consigna "
-"cap extensió, aleshores es tracta com una carpeta i com un \"llibre obert\" "
+"cap extensió, aleshores es tracta com una carpeta i com un «llibre obert» "
 "(OEB), que consisteix en fitxer HTML que es desen a la carpeta. Aquests "
 "fitxers són els que normalment haurien passat al connector de sortida.\n"
 "\n"
@@ -1533,9 +1532,9 @@ msgid ""
 "of Contents at level one. If this is specified, it takes precedence over "
 "other forms of auto-detection."
 msgstr ""
-"L'expressió XPath que defineix totes les etiquetes que s'haurien d'afegir al "
-"nivell 1 de l'Índex de Continguts. Si es configura així, s'hi aplica abans "
-"que altres formes d'autodetecció."
+"Expressió XPath amb totes les etiquetes que s'han d'afegir al nivell 1 de "
+"l'índex. Si es configura així, s'aplica abans que altres formes de detecció "
+"automàtica."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:193
 msgid ""
@@ -1543,9 +1542,8 @@ msgid ""
 "of Contents at level two. Each entry is added under the previous level one "
 "entry."
 msgstr ""
-"L'expressió XPath que defineix totes les etiquetes que s'haurien d'afegir al "
-"nivell 2 de l'Índex de Continguts. Cada entrada s'hi afegeix sota l'entrada "
-"prèvia de nivell 1."
+"Expressió XPath amb totes les etiquetes que s'han d'afegir al nivell 2 de "
+"l'índex. Cada entrada s'afegeix a sota de l'entrada de nivell 1 prèvia."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:201
 msgid ""
@@ -1553,9 +1551,8 @@ msgid ""
 "of Contents at level three. Each entry is added under the previous level two "
 "entry."
 msgstr ""
-"L'expressió XPath que defineix totes les etiquetes que s'haurien d'afegir al "
-"nivell 3 de l'Índex de Continguts. Cada entrada s'hi afegeix sota l'entrada "
-"prèvia de nivell 2."
+"Expressió XPath amb totes les etiquetes que s'han d'afegir al nivell 3 de "
+"l'índex. Cada entrada s'afegeix a sota de l'entrada de nivell 2 prèvia."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:209
 msgid ""
@@ -1563,14 +1560,13 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
-"Normalment, si el fitxer d'origen ja disposa d'un índex, aquest és utilitzat "
-"amb preferència a l'autogenerat. Amb aquesta opció sempre s'utilitza l'auto-"
-"generat."
+"Normalment s'utilitza preferentment l'índex del fitxer d'origen, si "
+"existeix, al generat automàticament. Amb aquesta opció sempre s'utilitza el "
+"generat automàticament."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:217
 msgid "Don't add auto-detected chapters to the Table of Contents."
-msgstr ""
-"No afegeixis els capítols detectats automàticament a l'índex de continguts"
+msgstr "No afegeixis els capítols detectats automàticament a l'índex."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:224
 msgid ""
@@ -1595,9 +1591,9 @@ msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
 msgstr ""
-"Elimina les entrades de l'Índex de Continguts quan els seus títols "
-"coincideixin amb l'expressió indicada. Les entrades coincidents i els seus "
-"subapartats seran eliminades."
+"Suprimeix les entrades de l'índex quan els seus títols coincideixin amb "
+"l'expressió indicada. Se suprimiran les entrades coincidents i els seus "
+"subapartats."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:250
 msgid ""
@@ -1609,12 +1605,12 @@ msgid ""
 "User Manual for further help on using this feature."
 msgstr ""
 "Una expressió XPath per a detectar els títol dels capítols. Per defecte es "
-"consideren les etiquetes <h1> o <h2> que contenen les paraules \"capítol\", "
-"\"llibre\", \"secció\" o \"part\" com a títols de capítol a l'igual que les "
-"etiquetes que indiquen class=\"capítol\". L'expressió emprada ha d'avaluar "
-"un llistat d'elements. Per a inhabilitar aquesta opció, empreu l'opció "
-"\"/\". Vegeu el tutorial de XPath al Manual de l'usuari del calibre per a "
-"més informació quant a aquesta característica."
+"consideren les etiquetes <h1> o <h2> que contenen les paraules «capítol», "
+"«llibre», «secció» o «part» com a títols de capítol a l'igual que les "
+"etiquetes que indiquen class=«capítol». L'expressió emprada ha d'avaluar un "
+"llistat d'elements. Per a inhabilitar aquesta opció, empreu l'opció «/». "
+"Vegeu el tutorial de XPath al Manual de l'usuari del calibre per a més "
+"informació quant a aquesta característica."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:264
 msgid ""
@@ -1623,11 +1619,11 @@ msgid ""
 "chapters. A value of \"none\" will disable chapter marking and a value of "
 "\"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
-"Especifica com marcar els capítols detectats. Un valor de \"salt de pàgina\" "
-"inserirà salts de pàgina abans dels capítols. Un valor de \"pauta\" inserirà "
-" una línia abans dels capítols. Un valor de \"cap\" inhabilitarà les marques "
-"dels capítols i un valor de \"ambdós\" inserirà un salt de pàgina i una "
-"línia per a marcar els capítols."
+"Especifica com s'ha de marcar els capítols detectats. El valor «pagebreak» "
+"insereix un salt de pàgina abans dels capítols. El valor «rule» insereix  "
+"una línia abans dels capítols. El valor «none» inhabilita les marques dels "
+"capítols i el valor «both» insereix un salt de pàgina i una línia per marcar "
+"els capítols."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:274
 msgid ""
@@ -1649,29 +1645,29 @@ msgstr ""
 msgid ""
 "Set the top margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Defineix el marge superior en punts (pts). El valor predeterminat és "
-"%default. Nota: 72 pts equival a 1 polzada (2,54 cm)"
+"Estableix el marge superior en punts (pts). Per defecte és %default. Nota: "
+"72 pts són 1 polzada (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:294
 msgid ""
 "Set the bottom margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Defineix el marge inferior en punts (pts). El valor prederminat són "
-"%default. Nota: 72 pts equivalen a 1 polzada (2,54 cm)"
+"Estableix el marge inferior en punts (pts). Per defecte és %default. Nota: "
+"72 pts són 1 polzada (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:299
 msgid ""
 "Set the left margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Estableix el marge esquerre en punts (pts). El valor predeterminat són "
-"%default. Nota: 72 pt equivalent a 1 polzada (2,54 cm)"
+"Estableix el marge esquerre en punts (pts). Per defecte és %default. Nota: "
+"72 pt són 1 polzada (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:304
 msgid ""
 "Set the right margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Estableix el marge dret en punts (pts). El valor predeterminat són %default. "
-"Nota: 72 pt equivalen a 1 polzada (2,54 cm)"
+"Estableix el marge dret en punts (pts). Per defecte és %default. Nota: 72 pt "
+"són 1 polzada (2,54 cm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:310
 msgid ""
@@ -1805,13 +1801,12 @@ msgid ""
 "by Chinese and Japanese for instance) the representation used by the largest "
 "number of people will be used (Chinese in the previous example)."
 msgstr ""
-"Converteix els caràcters unicode a una representació ASCII. Aneu en compte "
-"amb aquesta opció, perquè això substituirà els caràcters unicode amb ASCII. "
-"Per exemple, reemplaçarà \"%s\" per \"Mikhail Gorbachiov\". Tingueu també en "
-"compte que en el cas que hi hagi moltes representacions per a un caràcter "
-"(per exemple, caràcters compartits pel Xinès i el Japonès) la representació "
-"emprada per la població més nombrosa serà seleccionada (el Xinès a l'exemple "
-"anterior)."
+"Converteix els caràcters unicode a una representació ASCII. Compte amb "
+"aquesta opció, perquè substituirà els caràcters unicode per ASCII. Per "
+"exemple, reemplaçarà «%s» per «Mikhail Gorbachiov». Tingueu també en compte "
+"que si hi ha moltes representacions per a un caràcter (per exemple, "
+"caràcters compartits pel xinès i el japonès) es selecciona la representació "
+"que utilitza la població més nombrosa (el xinès a l'exemple anterior)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:437
 msgid ""
@@ -1832,13 +1827,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:449
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
 msgid "Set the title."
-msgstr "Establiu el títol"
+msgstr "Estableix el títol"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:453
 msgid "Set the authors. Multiple authors should be separated by ampersands."
 msgstr ""
-"Establiu els autors. Si hi ha diversos autors, haurieu de separar-los amb el "
-"caràcter \"&\"."
+"Estableix els autors. Si hi ha diversos autors, s'han de separar amb una "
+"\"&\"."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:458
 msgid "The version of the title to be used for sorting. "
@@ -1855,52 +1850,53 @@ msgstr "Estableix la portada des del fitxer o URL indicats"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:470
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
 msgid "Set the ebook description."
-msgstr "Establiu la descripció del llibre electrònic."
+msgstr "Estableix la descripció del llibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:474
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:56
 msgid "Set the ebook publisher."
-msgstr "Establiu l'editorial del llibre electrònic."
+msgstr "Estableix l'editorial del llibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:478
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:60
 msgid "Set the series this ebook belongs to."
-msgstr "Establiu la sèria a la que pertany el llibre electrònic."
+msgstr "Estableix la sèrie que pertany el llibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:482
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:62
 msgid "Set the index of the book in this series."
-msgstr "Col·locar l'index del llibre a aquesta serie."
+msgstr "Estableix l'index del llibre a la sèrie."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:486
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:64
 msgid "Set the rating. Should be a number between 1 and 5."
-msgstr "Establiu la valoració. Ha de ser un nombre entre 1 i 5."
+msgstr "Estableix la valoració. Ha de ser un nombre entre 1 i 5."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:490
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:66
 msgid "Set the ISBN of the book."
-msgstr "Establiu el codi ISBN del llibre."
+msgstr "Estableix l'ISBN del llibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:494
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:68
 msgid "Set the tags for the book. Should be a comma separated list."
 msgstr ""
-"Col·locar les etiquetes al llibre. Ha de ser una llista separada per comes."
+"Estableix les etiquetes per al llibre. Ha de ser una llista separada per "
+"comes."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:498
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:70
 msgid "Set the book producer."
-msgstr "Establiu el productor del llibre."
+msgstr "Estableix el productor del llibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:502
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:72
 msgid "Set the language."
-msgstr "Establiu la llengua."
+msgstr "Estableix la llengua."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:506
 msgid "Set the publication date."
-msgstr "Col·locar la data de publicació."
+msgstr "Estableix la data de publicació."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:510
 msgid "Set the book timestamp (used by the date column in calibre)."
@@ -1984,7 +1980,7 @@ msgstr "Heu d'especificar un fitxer epub."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
-msgstr "Repara fitxers no manifestats"
+msgstr "Corregeix fitxers sense declarar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:21
 msgid ""
@@ -1992,11 +1988,11 @@ msgid ""
 "delete them as specified by the delete unmanifested option."
 msgstr ""
 "Corregeix fitxers sense declarar. epub-fix pot afegir-los al manifest o "
-"esborrar-los tal com s'indiqui a l'opció \"esborra fitxers sense declarar\""
+"suprimir-los tal com s'indiqui a l'opció «suprimeix fitxers sense declarar»"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:32
 msgid "Delete unmanifested files instead of adding them to the manifest"
-msgstr "Suprimeix fitxers no manifestats en lloc d'afegir-los al manifest"
+msgstr "Suprimeix fitxers sense declarar en lloc d'afegir-los al manifest"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:56
 msgid ""
@@ -2077,11 +2073,11 @@ msgstr "Inici"
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
 msgid "Table of Contents:"
-msgstr "Índex general:"
+msgstr "Índex:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:32
 msgid "Do not insert a Table of Contents at the beginning of the book."
-msgstr "No insereixis un índex general al començament del llibre."
+msgstr "No insereixis un índex al començament del llibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:32
@@ -2089,7 +2085,7 @@ msgstr "No insereixis un índex general al començament del llibre."
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:35
 msgid "Add Table of Contents to beginning of the book."
-msgstr "Afegeix l'índex general al començament del llibre."
+msgstr "Afegeix un índex al començament del llibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:24
 msgid ""
@@ -2335,7 +2331,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set the book title"
-msgstr "Indiqueu el nom del llibre"
+msgstr "Estableix el nom del llibre"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
@@ -2343,7 +2339,7 @@ msgstr "Indiqueu la clau d'ordenació per tí­tol"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set the author"
-msgstr "Indiqueu l'autor"
+msgstr "Estableix l'autor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
@@ -2368,19 +2364,19 @@ msgstr "Extreu la miniatura del fitxer LRF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
 msgid "Set the publisher"
-msgstr "Establiu l'editorial"
+msgstr "Estableix l'editorial"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
 msgid "Set the book classification"
-msgstr "Establiu la classificació del llibre"
+msgstr "Estableix la classificació del llibre"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:610
 msgid "Set the book creator"
-msgstr "Establiu el creador del llibre"
+msgstr "Estableix el creador del llibre"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
 msgid "Set the book producer"
-msgstr "Establiu el productor del llibre"
+msgstr "Estableix el productor del llibre"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:613
 msgid ""
@@ -2402,7 +2398,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:94
 msgid "Set the space between words in pts. Default is %default"
-msgstr "Fixa l'espai entre paraules en punts. Per defecte: %default"
+msgstr "Estableix l'espai entre paraules en punts. Per defecte: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:97
 msgid "Add a header to all the pages with title and author."
@@ -2607,8 +2603,8 @@ msgid ""
 "Set the authors. Multiple authors should be separated by the & character. "
 "Author names should be in the order Firstname Lastname."
 msgstr ""
-"Establir els autors. Si hi ha diversos autors s'han de separar per «&». Els "
-"noms dels autors han d'estar en el format Nom Cognom."
+"Estableix els autors. Si hi ha diversos autors, s'han de separar amb una "
+"\"&\". Els noms dels autors han d'estar en el format Nom Cognom."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:44
 msgid ""
@@ -2632,11 +2628,11 @@ msgstr "Estableix el fitxer indicat com a portada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:58
 msgid "Set the book category."
-msgstr "Establiu la categoria del llibre."
+msgstr "Estableix la categoria del llibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Set the published date."
-msgstr "Establir la data de publicació."
+msgstr "Estableix la data de publicació."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
@@ -2865,13 +2861,12 @@ msgid ""
 "Don't add Table of Contents to end of book. Useful if the book has its own "
 "table of contents."
 msgstr ""
-"No afegeixis índex al final del llibre. Útil si el llibre té el seu propi "
-"índex."
+"No afegeixis un índex al final del llibre. Útil si el llibre ja té un índex."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:56
 msgid "Title for any generated in-line table of contents."
-msgstr "Títol per qualsevol índex generat en línia."
+msgstr "Títol per a tots els índexs generats automàticament."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:37
 msgid "Disable compression of the file contents."
@@ -2994,8 +2989,8 @@ msgstr "Versió OPF per generar. Per defecte és %default."
 msgid ""
 "Generate an Adobe \"page-map\" file if pagination information is available."
 msgstr ""
-"Genera un fitxer Adobe \"page-map\" si la informació de paginació és "
-"disponible."
+"Genera un fitxer Adobe «page-map» si es disposa de la informació de "
+"paginació."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:128
 msgid "Footnotes"
@@ -3427,12 +3422,12 @@ msgid ""
 "Run the text input through the markdown pre-processor. To learn more about "
 "markdown see"
 msgstr ""
-"Executar la funció de text a través del pre-processador markdown. Per a més "
-"informació quant al markdown vegeu"
+"Executa la funció de text a través del pre-processador Markdown. Per a més "
+"informació quant al Markdown vegeu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:40
 msgid "Do not insert a Table of Contents into the output text."
-msgstr "No insereixis una taula de contingut al text de sortida."
+msgstr "No insereixis un índex al text de sortida."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
@@ -3440,10 +3435,10 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
-"Tipus de salt de línia a utilitzar. Les opcions són %s. Per defecte és "
-"'system'. Utilitza 'old_mac' per compatibilitat amb Mac OS 9 i anteriors. "
-"Per Mac OS X utilitza 'unix'. 'system' és el tipus per defecte utilitza per "
-"aquest SO."
+"Tipus de salt de línia que es farà servir. Les opcions són %s. Per defecte "
+"és «system». Utilitzeu «old_mac» si voleu compatibilitat amb el Mac OS 9 i "
+"anteriors. Per al Mac OS X utilitzeu «unix». «system» prendrà el salt de "
+"línia per defecte del vostre sistema operatiu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:30
 msgid ""
@@ -4009,11 +4004,10 @@ msgid ""
 "GUI. You can recover your database using the 'calibredb restore_database' "
 "command line function."
 msgstr ""
-"Aquesta ordre reconstrueix la vostra base de dades del calibre amb la "
-"informació que ha desat el calibre als fitxers OPF.<p>Aquesta funció no està "
-"disponible actualment a la interfície gràfica. Podeu recuperar la vostra "
-"base de dades amb la funció de la línia de comandaments 'calibredb "
-"restore_database'"
+"Aquesta ordre reconstrueix la base de dades del calibre amb la informació "
+"que ha desat el calibre als fitxers OPF.<p>Aquesta funció no està disponible "
+"actualment a la interfície gràfica. Podeu recuperar la base de dades amb la "
+"funció de la línia de comandaments «calibredb restore_database»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:358
 msgid "No library found"
@@ -5056,9 +5050,9 @@ msgid ""
 " -For time field, only the date will be used. "
 msgstr ""
 "Algunes explicacions sobre aquesta plantilla:\n"
-" -Els camps disponibles són 'author_sort', 'authors', 'id',\n"
-"    'isbn', 'pubdate', 'publisher', 'series_index', 'series',\n"
-"   'tags', 'timestamp', 'title', 'uuid'\n"
+" -Els camps disponibles són «author_sort», «authors», «id»,\n"
+"    «isbn», «pubdate», «publisher», «series_index», «series»,\n"
+"   «tags», «timestamp», «title», «uuid»\n"
 " -Per a tipus de llista, com autors i etiquetes, només es\n"
 "   seleccionarà el primer element.\n"
 " -Per als camps de temps només es farà servir la data. "
@@ -5073,11 +5067,11 @@ msgstr "Opcions dels llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:77
 msgid "'Don't include this book' tag:"
-msgstr "Etiqueta 'no incloguis aquest llibre':"
+msgstr "Etiqueta «no incloguis aquest llibre»:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:78
 msgid "'Mark this book as read' tag:"
-msgstr "Etiqueta 'marca aquest llibre com a llegit':"
+msgstr "Etiqueta «marca aquest llibre com a llegit»:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:79
 msgid "Additional note tag prefix:"
@@ -5105,11 +5099,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:84
 msgid "Include 'Titles' Section"
-msgstr "Inclou la secció 'Títols'"
+msgstr "Inclou la secció «Títols»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:85
 msgid "Include 'Recently Added' Section"
-msgstr "Inclou la secció 'Afegits recentment'"
+msgstr "Inclou la secció «Afegits recentment»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:86
 msgid "Sort numbers as text"
@@ -5117,7 +5111,7 @@ msgstr "Ordena els números com a text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
 msgid "Include 'Series' Section"
-msgstr "Inclou la secció 'Sèries'"
+msgstr "Inclou la secció «Sèrie»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -5308,7 +5302,7 @@ msgstr "Entrada FB2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:34
 msgid "Do not insert a &Table of Contents at the beginning of the book."
-msgstr "No &insereixis un Índex al començament del llibre"
+msgstr "No &insereixis un índex al començament del llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:14
 msgid "FB2 Output"
@@ -5606,7 +5600,7 @@ msgstr "Fes servir la portada del fitxer &original"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:174
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:415
 msgid "Change &cover image:"
-msgstr "¬Canvia la imatge de la &portada:"
+msgstr "Canvia la imatge de la &portada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:175
 msgid "Browse for an image to use as the cover of this book."
@@ -5939,7 +5933,7 @@ msgstr "&Marca de capítol:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:82
 msgid "Remove first &image"
-msgstr "Suprimeix la primera &imatges"
+msgstr "Suprimeix la primera &imatge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:83
 msgid "Insert &metadata as page at start of book"
@@ -6011,7 +6005,7 @@ msgstr "Entrada TXT"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:54
 msgid "Process using markdown"
-msgstr "Processar com a markdown"
+msgstr "Processa com a Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:55
 msgid ""
@@ -6020,14 +6014,12 @@ msgid ""
 "href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
 msgstr ""
 "<p>Markdown és un llenguatge de marcació senzill per a fitxers de text que "
-"permet un format avançat. Per saber-ne més visiti <a "
-"href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
+"permet un format avançat. Per saber-ne més vegeu <a "
+"href=\"http://daringfireball.net/projects/markdown\">Markdown</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:56
 msgid "Do not insert Table of Contents into output text when using markdown"
-msgstr ""
-"No insertar la Taula de Continguts en text de sortida quan s'utilitzi "
-"Markdown"
+msgstr "No insereixis l'índex al text de sortida si es fa servir Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:57
 msgid "Preserve &spaces"
@@ -6138,8 +6130,8 @@ msgid ""
 "href=\"http://calibre-ebook.com/user_manual/xpath.html\">XPath Tutorial</a>."
 msgstr ""
 "<p>Per exemple, per fer coincidir totes les etiquetes h2 que tinguin "
-"class=\"chapter\", poseu <i>h2</i> a l'etiqueta, <i>class</i> a l'atribut i "
-"<i>chapter</i> a valor.</p> <p>Un atribut en blanc correspon a qualsevol "
+"class=«capítol», poseu <i>h2</i> a l'etiqueta, <i>class</i> a l'atribut i "
+"<i>capítol</i> a valor.</p> <p>Un atribut en blanc correspon a qualsevol "
 "atribut i un valor en blanc a qualsevol valor. L'etiqueta * correspon a "
 "qualsevol etiqueta.</p> <p>Si voleu saber més usos avançats d'XPath vegeu <a "
 "href=\"http://calibre-ebook.com/user_manual xpath.html\">XPath "
@@ -6178,7 +6170,7 @@ msgstr "Sense qualificació"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:156
 msgid "Set '%s' to today"
-msgstr "Establir data d'avui per '%s'"
+msgstr "Estableix la data d'avui per a «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:266
 msgid " index:"
@@ -6935,7 +6927,7 @@ msgstr "Afegeix-ho al camp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:206
 msgid "Editing meta information for <b>%d books</b>"
-msgstr "S'està editant la metainformació de <b>%d llibres</b>"
+msgstr "S'està editant les metadades de <b>%d llibres</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:259
 msgid "Book %d:"
@@ -6994,7 +6986,7 @@ msgstr ""
 "ho al començament o al final del text que es trobi. Vegeu <a "
 "href=\"http://docs.python.org/library/re.html\"> aquesta referència</a> si "
 "voleu més informació quant a les expressions regulars en python, "
-"especialment quant a la funció 'sub'."
+"especialment quant a la funció «sub»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:438
 msgid "You must specify a destination when source is a composite field"
@@ -7031,7 +7023,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:334
 msgid "Edit Meta information"
-msgstr "Editar Meta-informació"
+msgstr "Edita les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:336
 msgid "A&utomatically set author sort"
@@ -7046,8 +7038,8 @@ msgid ""
 "Specify how the author(s) of this book should be sorted. For example Charles "
 "Dickens should be sorted as Dickens, Charles."
 msgstr ""
-"Especifiqueu com s'ha d'ordenar l'autor(s) d'aquest llibre. Per "
-"exemple,ordena Vicent A. Estellés com a Estellés, Vicent A."
+"Especifiqueu com s'ha d'ordenar l'autor(s) d'aquest llibre. Per exemple, "
+"ordena «Vicent A. Estellés» com a «Estellés, Vicent A»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:384
@@ -7068,7 +7060,7 @@ msgstr "Sense canvis"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:343
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:387
 msgid " stars"
-msgstr " estreles"
+msgstr " estrelles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:345
 msgid "Add ta&gs: "
@@ -7468,11 +7460,11 @@ msgstr "No s'ha pogut obrir %s. L'està fent servir un altre programa?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:371
 msgid "Edit Meta Information"
-msgstr "Edita la meta-informació"
+msgstr "Edita les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:372
 msgid "Meta information"
-msgstr "Meta-informació"
+msgstr "Metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:375
 msgid "Swap the author and title"
@@ -7489,8 +7481,8 @@ msgid ""
 "If the box is colored green, then text matches the individual author's sort "
 "strings. If it is colored red, then the authors and this text do not match."
 msgstr ""
-"Especifiqueu com s'ha d'ordenar l'autor(s) d'aquest llibre. Per exemple, si "
-"'Charles Dickens' s'ha d'ordenar com a 'Dickens, Charles'.\n"
+"Especifiqueu com s'ha d'ordenar l'autor(s) d'aquest llibre. Per exemple, "
+"ordena «Vicent A. Estellés» com a «Estellés, Vicent A».\n"
 "Si el quadre està en verd, el text coincideix amb l'ordre per autors "
 "individuals. Si està en vermell, els autors i el text no coincideixen."
 
@@ -8180,7 +8172,7 @@ msgid ""
 msgstr ""
 "<p>Descomprimeix l'ePub per tal de visualitzar-los en una finestra del "
 "gestor de fitxers. Per ajustar els fitxers individuals, feu clic dret i "
-"aleshores 'Obre amb...' i trieu l'editor. Quan acabeu amb els ajustos, "
+"aleshores «Obre amb...» i trieu l'editor. Quan acabeu amb els ajustos, "
 "tanqueu la finestra del gestor de fitxers <b>i les finestres de l'editor que "
 "hagueu fet servir per modificar-ne les dades</b>.</p><p>Reconstrueix l'ePub "
 "i actualitza la vostra biblioteca del calibre.</p>"
@@ -8314,8 +8306,8 @@ msgstr ""
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Crea una recepta de "
 "notícies bàsica, afegint canals RSS. <br />Per a la majoria dels canals, "
-"necessitareu fer servir el \"Mode avançat\" per personalitzar millor el "
-"procés de descàrrega de dades.</p></body></html>"
+"necessitareu el «Mode avançat» per personalitzar millor el procés de "
+"descàrrega de dades.</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:265
 msgid "Recipe &title:"
@@ -8708,12 +8700,12 @@ msgstr "Llibre %s de %s."
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1236
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:407
 msgid "The lookup/search name is \"{0}\""
-msgstr "El nom de la cerca és \"{0}\""
+msgstr "El nom de la cerca és «{0}»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:699
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1238
 msgid "This book's UUID is \"{0}\""
-msgstr "La UUID del llibre és \"{0}\""
+msgstr "L'UUID del llibre és «{0}»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:922
 msgid "In Library"
@@ -8805,7 +8797,7 @@ msgstr " - Visor de LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
-msgstr "<b>No</b> s'han trobat coincidències per al text \"<i>%s</i>\"."
+msgstr "<b>No</b> s'ha trobat coincidències per al text «<i>%s</i>»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:443
@@ -9171,7 +9163,7 @@ msgid ""
 "Set the default timeout for network fetches (i.e. anytime we go out to the "
 "internet to get information)"
 msgstr ""
-"Configura el temps d'espera per defecte per a les sol·licituds de xarxa (per "
+"Estableix el temps d'espera per defecte per a les sol·licituds de xarxa (per "
 "exemple cada cop que s'hagi d'anar a internet per aconseguir informació)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:144
@@ -9409,8 +9401,8 @@ msgid ""
 "<li>dd MMMM yy gives 05 January 10</li>\n"
 "</ul> "
 msgstr ""
-"<p>Format de data. Fes servir 1-4 lletres 'd' per al dia, 1-4 lletres 'M' "
-"per al mes, i 2 or 4 lletres 'y' per a l'any.</p>\n"
+"<p>Format de data. Feu servir 1-4 lletres «d» per al dia, 1-4 lletres «M» "
+"per al mes, i 2 o 4 lletres «y» per a l'any.</p>\n"
 "<p>Per exemple:\n"
 "<ul>\n"
 "<li> ddd, d MMM yyyy dóna Dil, 5 Gen 2010<li>\n"
@@ -10321,7 +10313,7 @@ msgstr "Drecera &alternativa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:200
 msgid "Rename '%s'"
-msgstr "Reanomena '%s'"
+msgstr "Reanomena «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:204
 msgid "Edit sort for '%s'"
@@ -10394,7 +10386,7 @@ msgstr "Ordena segons la valoració mitjana"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:875
 msgid "Set the sort order for entries in the Tag Browser"
-msgstr "Establiu d'ordre de les entrades a l'explorador d'etiquetes"
+msgstr "Estableix l'ordre de les entrades a l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:881
 msgid "Match all"
@@ -11275,7 +11267,7 @@ msgstr "Mala configuració"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:134
 msgid "You must set the From email address"
-msgstr "Heu d'establir d'adreça de correu electrònic remitent"
+msgstr "Heu d'establir l'adreça de correu electrònic remitent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:141
 msgid "You must set the username and password for the mail server."
@@ -11401,12 +11393,12 @@ msgstr "ahir"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:371
 msgid "thismonth"
-msgstr "aquestmes"
+msgstr "aquest mes"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:374
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:375
 msgid "daysago"
-msgstr "dies"
+msgstr "fa dies"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:539
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:549
@@ -11638,8 +11630,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Prefix de les etiquetes de notes de l'usuari, per exemple «pot ser que al "
-"Josep li agradi llegir això».\n"
+"Prefix de les etiquetes de notes de l'usuari, per exemple «* Al Josep li "
+"agradarà».\n"
 "Per defecte: «%default»\n"
 "S'aplica als formats de sortida ePub i MOBI"
 
@@ -12235,7 +12227,7 @@ msgstr "s'ha suprimit"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:871
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
-msgstr "Error: No es reconeix l'acció %s, ha de ser una de (add/remove/list)"
+msgstr "Error: No es reconeix l'acció %s, ha de ser una de «add/remove/list»"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:879
 msgid ""
@@ -12475,7 +12467,7 @@ msgstr "Les etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:37
 msgid "The series"
-msgstr "Les sèries"
+msgstr "La sèrie"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:38
 msgid ""
@@ -12856,7 +12848,7 @@ msgstr "SÈRIE: %s [%s]<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:248
 msgid "Books in your library"
-msgstr "LLibres a la teva biblioteca"
+msgstr "Llibres a la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:254
 msgid "By "
@@ -12915,7 +12907,7 @@ msgstr "Llista per ordre de preferència dels formats d'entrada"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:715
 msgid "Read metadata from files"
-msgstr "Llegeix metadades dels fitxers"
+msgstr "Llegeix les metadades dels fitxers"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:717
 msgid "The priority of worker processes"
@@ -12956,7 +12948,7 @@ msgstr "«switch» necessita un número senar d'arguments"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
-msgstr "Esperant..."
+msgstr "S'està esperant..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:52
 msgid "Stopped"
@@ -12968,11 +12960,11 @@ msgstr "Finalitzat"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:76
 msgid "Working..."
-msgstr "Treballant..."
+msgstr "S'està treballant..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:95
 msgid "Brazilian Portuguese"
-msgstr "Portuguès de Canadà"
+msgstr "Portuguès del Brasil"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:96
 msgid "English (UK)"

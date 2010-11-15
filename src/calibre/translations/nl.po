@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-11-12 23:11+0000\n"
-"PO-Revision-Date: 2010-11-12 22:31+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-11-14 20:32+0000\n"
+"Last-Translator: Mar2zz <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-13 04:52+0000\n"
+"X-Launchpad-Export-Date: 2010-11-15 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -695,7 +695,7 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
-"Komma-gescheiden lijst van folders om e-boeken naar toe te sturen op het "
+"Komma-gescheiden lijst van mappen om e-boeken naar toe te sturen op het "
 "apparaat. De eerste die wordt gevonden zal worden gebruikt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:98
@@ -1057,11 +1057,11 @@ msgstr "Communiceer met de Nook eBook lezer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Nook Color"
-msgstr ""
+msgstr "Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
 msgid "Communicate with the Nook Color eBook reader."
-msgstr ""
+msgstr "Communiceer met de Nook Color eBook lezer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -3015,7 +3015,7 @@ msgid ""
 "Normally calibre treats blank lines as paragraph markers. With this option "
 "it will assume that every line represents a paragraph instead."
 msgstr ""
-"Normaal gesproken behandeld calibre blanco regels als paragraaf markering. "
+"Normaal gesproken behandelt calibre blanco regels als paragraaf markering. "
 "Met deze optie zal het aannemen dat iedere regel een paragraaf representeert."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
@@ -3027,11 +3027,10 @@ msgid ""
 "spaces) represents a paragraph. Paragraphs end when the next line that "
 "starts with an indent is reached."
 msgstr ""
-"Normaal gesproken behandeld calibre blanco regels als paragraaf markering. "
-"Met deze optie zal het aanemen dat iedere regel die begint met een "
+"Normaal gesproken behandelt calibre blanco regels als paragraaf markering. "
+"Met deze optie zal het aannemen dat iedere regel die begint met een "
 "indentatie (een tab, of twee of meer spaties) een paragraaf voorstelt. "
-"Paragrafen eindigeren wanneer de volgende lijn met een indentatie word "
-"bereikt."
+"Paragrafen eindigen wanneer de volgende lijn met een indentatie word bereikt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
@@ -3616,16 +3615,16 @@ msgid ""
 "Add books from directories, including sub-directories (One book per "
 "directory, assumes every ebook file is the same book in a different format)"
 msgstr ""
-"Voeg boeken toe uit folders, inclusief sub-folders (Een boek per folder, "
-"neemt aan dat ieder eboek bestand hetzelfde boek in een ander formaat bevat)"
+"Voeg boeken toe uit mappen, inclusief submappen (Een boek per map, neemt aan "
+"dat ieder e-boek bestand hetzelfde boek in een ander formaat bevat)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:39
 msgid ""
 "Add books from directories, including sub directories (Multiple books per "
 "directory, assumes every ebook file is a different book)"
 msgstr ""
-"Voeg boeken toe uit folders, inclusief sub-folders (Meerdere boeken per "
-"folder, neemt aan dat ieder eboek bestand een ander boek bevat)"
+"Voeg boeken toe uit mappen, inclusief submappen (Meerdere boeken per map, "
+"neemt aan dat ieder e-boek bestand een ander boek bevat)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:43
 msgid "Add Empty book. (Book entry with no formats)"
@@ -3875,9 +3874,9 @@ msgid ""
 "folder directly."
 msgstr ""
 "De volgende boeken hadden formaten in de database die niet beschikbaar zijn. "
-"De ingangen voor deze formaten zijn verwijderd. Je zult deze handmatig "
-"moeten checken. Dit kan gebeuren als je de bestanden in de folders direct "
-"hebt gemanipuleerd."
+"De opgaves voor deze formaten zijn verwijderd. Je zult deze handmatig moeten "
+"nakijken. Dit kan gebeuren als je de bestanden in de mappen zelf hebt "
+"aangepast."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
@@ -4634,7 +4633,7 @@ msgstr "Toevoegen..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:211
 msgid "Searching in all sub-directories..."
-msgstr "Zoeken in alle subfolders..."
+msgstr "Zoekend in alle submappen..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:224
 msgid "Path error"
@@ -4692,7 +4691,7 @@ msgstr "Opgeslagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:57
 msgid "Searching for sub-folders"
-msgstr "Zoeken naar sub-folders"
+msgstr "Zoekend naar submappen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:62
 msgid "Searching for books"
@@ -4756,13 +4755,13 @@ msgid ""
 "not</b> under the root folder you choose.</p>"
 msgstr ""
 "<p>calibre kan automatisch uw computer op bestaande boeken doorzoeken. Deze "
-"boeken zullen dan aan de calibre colllectie toegevoegd (=<b>gekopieerd</b>) "
-"worden. Deze wizard zal u helpen bij het scannen, aanpassen en importeren "
-"van uw bestaande collectie boeken.</p>\n"
-"<p>Kies een start folder. Er zal alleen in deze en onderliggende folders "
-"naar boeken gezocht worden.</p>\n"
-"<p>Verzeker u ervan dat de folder waar calibre uw collectie bewaard zich "
-"<b>niet</b> in dit pad bevind.</p>"
+"boeken zullen dan naar de calibre bibliotheek (=<b>gekopieerd</b>) worden. "
+"Deze wizard zal u helpen bij het scannen, aanpassen en importeren van uw "
+"bestaande collectie boeken.</p>\n"
+"<p>Kies een beginmap. Er zal alleen in deze en onderliggende mappen naar "
+"boeken gezocht worden.</p>\n"
+"<p>Verzeker u ervan dat de map waar calibre uw collectie bewaart zich "
+"<b>niet</b> in dit pad bevindt.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:68
 msgid "&Root folder:"
@@ -4773,8 +4772,8 @@ msgid ""
 "This folder and its sub-folders will be scanned for books to import into "
 "calibre's library"
 msgstr ""
-"Deze map en de sub-mappen worden gescand op te importeren boeken voor "
-"calibre's library"
+"Deze map en de submappen worden gescand op te importeren boeken voor "
+"calibre's bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:57
@@ -5125,16 +5124,16 @@ msgstr "Tab sjabloon voor catalog.ui"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:25
 msgid "Bold"
-msgstr ""
+msgstr "Vet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:26
 msgid "Italic"
-msgstr ""
+msgstr "Cursief"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:28
 msgid "Underline"
-msgstr ""
+msgstr "Onderstreept"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
 msgid ""
@@ -5880,7 +5879,7 @@ msgstr "Voeg een spatie toe voor de eerste regel van een paragraaf"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:42
 msgid "Insert empty line between paragraphs"
-msgstr "Voeg lege regelst toe tussen paragrafen"
+msgstr "Voeg lege regels toe tussen paragrafen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -6464,7 +6463,7 @@ msgstr "Selecteer beschikbare formaten en hun ranglijst voor dit apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:87
 msgid "Use sub directories"
-msgstr "Gebruik sub-folders"
+msgstr "Gebruik submappen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:88
 msgid "Use author sort for author"
@@ -6944,6 +6943,10 @@ msgid ""
 "your library before proceeding.<p>Search and replace in text fields using "
 "character matching or regular expressions. "
 msgstr ""
+"<b>Je kunt je bibliotheek hiermee vernietigen.</b> Veranderingen zijn "
+"permanent. Je kunt niet ongedaan maken. Je wordt sterk aangeraden om je "
+"Bibliotheek-backup te maken voordat je verder gaat.<p>Zoek en vervang in "
+"tekstvelden met karaktermatching of reguliere expressies. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:282
 msgid ""
@@ -7288,7 +7291,7 @@ msgstr "Jouw test:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:401
 msgid "&Search and replace"
-msgstr ""
+msgstr "Zoek tek&st en vervang"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:91
 msgid "Last modified: %s"
@@ -7847,15 +7850,19 @@ msgstr "Welke vergelijking gebruiken:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
 msgstr ""
+"Bevat: Het woord of de zin kan overal in het metagegevensveld matchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
 msgid "Equals: the word or phrase must match the entire metadata field"
 msgstr ""
+"Gelijke: Het woord of de zin moet matchen met het hele metagegevensveld."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
 msgid ""
 "Regular expression: the expression must match anywhere in the metadata field"
 msgstr ""
+"Reguliere expressie: de expressie moet overal in het metagegevensveld "
+"matchen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
 msgid "Find entries that have..."
@@ -7891,32 +7898,33 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:210
 msgid "A&dvanced Search"
-msgstr ""
+msgstr "Geavanceer&d Zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:212
 msgid "Enter the title."
-msgstr ""
+msgstr "Geef de titel op."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:213
 msgid "&Author:"
-msgstr ""
+msgstr "&Auteur:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:215
 msgid "Ta&gs:"
-msgstr ""
+msgstr "Ta&gs:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:216
 msgid "Enter an author's name. Only one author can be used."
-msgstr ""
+msgstr "Geef een auteursnaam op. Er kan 1 auteur gebruikt worden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:217
 msgid ""
 "Enter a series name, without an index. Only one series name can be used."
 msgstr ""
+"Geef een serienaam op, zonder index. Er kan 1 serienaam gebruikt worden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:218
 msgid "Enter tags separated by spaces"
-msgstr ""
+msgstr "Geef de tags op gescheiden met spaties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:219
 msgid "&Clear"
@@ -7924,11 +7932,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:220
 msgid "Search only in specific fields:"
-msgstr ""
+msgstr "Zoek in specifieke velden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:221
 msgid "Titl&e/Author/Series ..."
-msgstr ""
+msgstr "Tite&l/Auteur/Series ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
@@ -7990,8 +7998,7 @@ msgstr "Verwijder de geselecteerde labelcategory"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:169
 msgid "Enter a new category name. Select the kind before adding it."
 msgstr ""
-"Geef een nieuwe categorienaam in. Selecteer het type voor dat u de naam "
-"toevoegd."
+"Geef een nieuwe categorienaam op. Selecteer het type voor het toevoegen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:170
 msgid "Add the new category"
@@ -8407,7 +8414,7 @@ msgstr ""
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Gebruik de <span style=\" "
 "font-weight:600;\">Test</span> functionaliteit hieronder om de reguliere "
 "expressie uit te proberen op een aantal test bestandsnamen. De groepnamen "
-"voor de diverse metadata velden zin gedocumenteerd onder "
+"voor de diverse metadata velden zijn gedocumenteerd onder "
 "tooltips.</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:119
@@ -8634,7 +8641,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:170
 msgid "Shift+Ctrl+F"
-msgstr ""
+msgstr "Shift+Ctrl+F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:173
 msgid "Advanced search"
@@ -9707,8 +9714,8 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
-"Her kun je de metagegevens die calibre gebruikt om een boek te updaten "
-"wanneer je deze opslaat of naar een apparaat stuurt.\n"
+"Hier kun je de metagegevens aanpassen die calibre gebruikt om een boek te "
+"updaten wanneer je deze opslaat of naar een apparaat stuurt.\n"
 "\n"
 "Gebuik dit om een 'pluginset' te maken voor een formaat (of alle formaten) "
 "en een apparaat (of alle apparaten). De pluginset geeft aan welke template "
@@ -9718,8 +9725,8 @@ msgstr ""
 "hoeft niet. Je kunt elke template gebruiken in een bronveld die je elders in "
 "calibre kunt gebruiken. \n"
 "\n"
-"Een mogelijk gebruik van een pluginset is het veranderen van de titel om "
-"serie informatie te bevatten. Een andere kan auteursortering wijzigen, iets "
+"Een mogelijk gebruik van een pluginset is het veranderen van de titel zodat "
+"deze serie informatie bevat. Een andere kan auteursortering wijzigen, iets "
 "dat mobi-gebruikers zouden kunnen doen om ; te gebruiken, dat bij een kindle "
 "verplicht is."
 
@@ -9869,11 +9876,11 @@ msgid ""
 "particular book does not have some metadata, the variable will be replaced "
 "by the empty string."
 msgstr ""
-"Door het volgende sjabloon aan te passen, kun je beinvloeden in welke "
-"folders de bestanden worden opgeslagen, en met welke namen. Je kunt het '/' "
-"karakter gebruiken om subfolders aan te geven. Beschikbare metagegevens "
-"variabelen worden hieronder omschreven. Als een specifiek boek sommige "
-"metagegevens mist, dan zal de variabele een lege regel bevatten."
+"Door het volgende sjabloon aan te passen, kun je beïnvloeden in welke mappen "
+"de bestanden worden opgeslagen en met welke namen. Je kunt het '/' karakter "
+"gebruiken om submappen aan te geven. Beschikbare metagegevens variabelen "
+"worden hieronder beschreven. Als een specifiek boek sommige metagegevens "
+"mist, dan zal de variabele een lege regel bevatten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:49
 msgid "Available variables:"
@@ -10387,7 +10394,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:890
 msgid "Manage &user categories"
-msgstr "Beheer &door de gebruiker gecreëerde categorien"
+msgstr "Beheer &zelfgemaakte categorien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:893
 msgid "Add your own categories to the Tag Browser"
@@ -11786,9 +11793,9 @@ msgid ""
 msgstr ""
 "%prog add [opties] bestand1 bestand2 bestand3 ...\n"
 "\n"
-"Voeg de opgegeven bestanden toe als boeken in de database. Folders kunnen "
-"ook worden\n"
-"opgegeven, zie de folder gerelateerde opties hier onder.\n"
+"Voeg de opgegeven bestanden toe als boeken in de database. Mappen kunnen ook "
+"worden\n"
+"opgegeven, zie de map gerelateerde opties hier onder.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:279
 msgid ""
@@ -11801,7 +11808,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:281
 msgid "Process directories recursively"
-msgstr "Bewerk folders recursief"
+msgstr "Bewerk mappen recursief"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:283
 msgid ""
@@ -12528,10 +12535,10 @@ msgid ""
 "subdirectory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
-"Het sjabloon dat de bestandsnaam en folder structuur bepaalt voor de "
-"opgeslagen bestanden. Standaard is  \"%s\", en dit slaat boeken op in per-"
-"auteur folders met daarin bestandsnamen met de titel en auteur. Beschikbare "
-"opties zijn: {%s}"
+"Het sjabloon dat de bestandsnaam en mapstructuur bepaalt voor de opgeslagen "
+"bestanden. Standaard is  \"%s\", en dit slaat boeken op in per-auteur mappen "
+"met daarin bestandsnamen met de titel en auteur. Beschikbare opties zijn: "
+"{%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:79
 msgid ""
@@ -12540,10 +12547,10 @@ msgid ""
 "directory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
-"Het sjabloon om de bestands en folder namen te definieren van de bestanden "
-"die naar het appraat worden gestuurd. Standaard is \"%s\", wat boeken "
-"opslaat in folders per auteur, met bestandsnamen die zowel de titel an "
-"auteur bevatten. BEschikbare instellingein zijn: {%s}"
+"Het sjabloon om de bestands- en mapnamen te definiëren van de bestanden die "
+"naar het apparaat worden gestuurd. Standaard is \"%s\", wat boeken opslaat "
+"in folders per auteur, met bestandsnamen die zowel de titel an auteur "
+"bevatten. Beschikbare instellingen zijn: {%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:86
 msgid ""
@@ -12552,9 +12559,9 @@ msgid ""
 "experience errors when saving, depending on how well the filesystem you are "
 "saving to supports unicode."
 msgstr ""
-"Normaal gesproken zal calibre alle niet-Engelse karaters automatisch in de "
+"Normaal gesproken zal calibre alle niet-Engelse karakters automatisch in de "
 "Engelse equivalenten converteren voor bestandsnamen. WAARSCHUWING: als je "
-"dit uitschakeld dan kun je fouten krijgen tijdens het opslaan, afhankelijk "
+"dit uitschakelt dan kun je fouten krijgen tijdens het opslaan, afhankelijk "
 "van hoe goed je bestandssysteem unicode ondersteund."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:92
@@ -12568,7 +12575,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:98
 msgid "Convert paths to lowercase."
-msgstr "Converteer folders naar kleine letters"
+msgstr "Converteer mappen naar kleine letters."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:100
 msgid "Replace whitespace with underscores."
