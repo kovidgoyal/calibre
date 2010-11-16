@@ -620,6 +620,7 @@ static string get_link_dest(LinkAction *link, PDFDoc *doc) {
       case actionSound: break;
       case actionJavaScript: break;
       case actionUnknown: break;
+      default: break;
   }
   return oss.str();
 }
