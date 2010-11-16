@@ -9,6 +9,7 @@ import os, time
 from base64 import b64decode
 from uuid import uuid4
 from lxml import etree
+from datetime import date
 
 from calibre import prints, guess_type, isbytestring
 from calibre.devices.errors import DeviceError
@@ -18,11 +19,31 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, title_sort, \
                                     authors_to_sort_string
 
+'''
+cahceExt.xml
+
+Periodical identifier sample from a PRS-650:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<cacheExt xmlns="http://www.sony.com/xmlns/product/prs/device/1">
+    <text conformsTo="http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0" periodicalName="The Atlantic" description="Current affairs and politics focussed on the US" publicationDate="Tue, 19 Oct 2010 00:00:00 GMT" path="database/media/books/calibre/Atlantic [Mon, 18 Oct 2010], The - calibre_1701.epub">
+        <thumbnail width="167" height="217">main_thumbnail.jpg</thumbnail>
+    </text>
+</cacheExt>
+
+'''
+
 # Utility functions {{{
 EMPTY_CARD_CACHE = '''\
 <?xml version="1.0" encoding="UTF-8"?>
 <cache xmlns="http://www.kinoma.com/FskCache/1">
 </cache>
+'''
+
+EMPTY_EXT_CACHE = '''\
+<?xml version="1.0" encoding="UTF-8"?>
+<cacheExt xmlns="http://www.sony.com/xmlns/product/prs/device/1">
+</cacheExt>
 '''
 
 MIME_MAP   = {
@@ -63,7 +84,7 @@ def uuid():
 
 class XMLCache(object):
 
-    def __init__(self, paths, prefixes, use_author_sort):
+    def __init__(self, paths, ext_paths, prefixes, use_author_sort):
         if DEBUG:
             debug_print('Building XMLCache...', paths)
         self.paths = paths
@@ -76,8 +97,8 @@ class XMLCache(object):
         for source_id, path in paths.items():
             if source_id == 0:
                 if not os.path.exists(path):
-                    raise DeviceError('The SONY XML cache media.xml does not exist. Try'
-                        ' disconnecting and reconnecting your reader.')
+                    raise DeviceError(('The SONY XML cache %r does not exist. Try'
+                        ' disconnecting and reconnecting your reader.')%repr(path))
                 with open(path, 'rb') as f:
                     raw = f.read()
             else:
@@ -85,13 +106,33 @@ class XMLCache(object):
                 if os.access(path, os.R_OK):
                     with open(path, 'rb') as f:
                         raw = f.read()
+
             self.roots[source_id] = etree.fromstring(xml_to_unicode(
                         raw, strip_encoding_pats=True, assume_utf8=True,
                         verbose=DEBUG)[0],
                         parser=parser)
             if self.roots[source_id] is None:
-                raise Exception(('The SONY database at %s is corrupted. Try '
+                raise Exception(('The SONY database at %r is corrupted. Try '
                         ' disconnecting and reconnecting your reader.')%path)
+
+        self.ext_paths, self.ext_roots = {}, {}
+        for source_id, path in ext_paths.items():
+            if not os.path.exists(path):
+                try:
+                    with open(path, 'wb') as f:
+                        f.write(EMPTY_EXT_CACHE)
+                except:
+                    pass
+            if os.access(path, os.W_OK):
+                try:
+                    with open(path, 'rb') as f:
+                        self.ext_roots[source_id] = etree.fromstring(
+                                xml_to_unicode(f.read(),
+                                    strip_encoding_pats=True, assume_utf8=True,
+                                    verbose=DEBUG)[0], parser=parser)
+                        self.ext_paths[source_id] = path
+                except:
+                    pass
 
         # }}}
 
@@ -352,12 +393,18 @@ class XMLCache(object):
             debug_print('Updating XML Cache:', i)
             root = self.record_roots[i]
             lpath_map = self.build_lpath_map(root)
+            ext_root = self.ext_roots[i] if i in self.ext_roots else None
+            ext_lpath_map = None
+            if ext_root is not None:
+                ext_lpath_map = self.build_lpath_map(ext_root)
             gtz_count = ltz_count = 0
             use_tz_var = False
             for book in booklist:
                 path = os.path.join(self.prefixes[i], *(book.lpath.split('/')))
                 record = lpath_map.get(book.lpath, None)
+                created = False
                 if record is None:
+                    created = True
                     record = self.create_text_record(root, i, book.lpath)
                 if plugboard is not None:
                     newmi = book.deepcopy_metadata()
@@ -373,6 +420,13 @@ class XMLCache(object):
                 if book.device_collections is None:
                     book.device_collections = []
                 book.device_collections = playlist_map.get(book.lpath, [])
+
+                if created and ext_root is not None and \
+                        ext_lpath_map.get(book.lpath, None) is None:
+                    ext_record = self.create_ext_text_record(ext_root, i,
+                            book.lpath, book.thumbnail)
+                    self.periodicalize_book(book, ext_record)
+
             debug_print('Timezone votes: %d GMT, %d LTZ, use_tz_var=%s'%
                                         (gtz_count, ltz_count, use_tz_var))
             self.update_playlists(i, root, booklist, collections_attributes)
@@ -385,6 +439,47 @@ class XMLCache(object):
                 book.device_collections = playlist_map.get(book.lpath, [])
         self.fix_ids()
         debug_print('Finished update')
+
+    def is_sony_periodical(self, book):
+        if _('News') not in book.tags:
+            return False
+        if not book.lpath.lower().endswith('.epub'):
+            return False
+        if book.pubdate.date() < date(2010, 10, 17):
+            return False
+        return True
+
+    def periodicalize_book(self, book, record):
+        if not self.is_sony_periodical(book):
+            return
+        record.set('conformsTo',
+            "http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0")
+
+        record.set('description', '')
+
+        name = None
+        if '[' in book.title:
+            name = book.title.split('[')[0].strip()
+            if len(name) < 4:
+                name = None
+        if not name:
+            try:
+                name = [t for t in book.tags if t != _('News')][0]
+            except:
+                name = None
+
+        if not name:
+            name = book.title
+
+        record.set('periodicalName', name)
+
+        try:
+            pubdate = strftime(book.pubdate.utctimetuple(),
+                    zone=lambda x : x)
+            record.set('publicationDate', pubdate)
+        except:
+            pass
+
 
     def rebuild_collections(self, booklist, bl_index):
         if bl_index not in self.record_roots:
@@ -472,6 +567,28 @@ class XMLCache(object):
         root.append(ans)
         return ans
 
+    def create_ext_text_record(self, root, bl_id, lpath, thumbnail):
+        namespace = root.nsmap[None]
+        attrib = { 'path': lpath }
+        ans = root.makeelement('{%s}text'%namespace, attrib=attrib,
+                nsmap=root.nsmap)
+        ans.tail = '\n'
+        if len(root) > 0:
+            root[-1].tail = '\n\t'
+        else:
+            root.text = '\n\t'
+        root.append(ans)
+        if thumbnail and thumbnail[-1]:
+            ans.text = '\n' + '\t\t'
+            t = root.makeelement('{%s}thumbnail'%namespace,
+                attrib={'width':str(thumbnail[0]), 'height':str(thumbnail[1])},
+                nsmap=root.nsmap)
+            t.text = 'main_thumbnail.jpg'
+            ans.append(t)
+            t.tail = '\n\t'
+        return ans
+
+
     def update_text_record(self, record, book, path, bl_index,
                            gtz_count, ltz_count, use_tz_var):
         '''
@@ -493,7 +610,11 @@ class XMLCache(object):
         # is not new, compare its Sony DB date against localtime and gmtime.
         # Count the matches. When we must set a date, use the one with the most
         # matches. Use localtime if the case of a tie, and hope it is right.
-        timestamp = os.path.getmtime(path)
+        try:
+            timestamp = os.path.getmtime(path)
+        except:
+            debug_print('Failed to get timestamp for:', path)
+            timestamp = time.time()
         rec_date = record.get('date', None)
 
         def clean(x):
@@ -502,13 +623,20 @@ class XMLCache(object):
             x.replace(u'\0', '')
             return x
 
+        def record_set(k, v):
+            try:
+                record.set(k, clean(v))
+            except:
+                # v is not suitable for XML, ignore
+                pass
+
         if not getattr(book, '_new_book', False): # book is not new
-                if record.get('tz', None) is not None:
-                    use_tz_var = True
-                if strftime(timestamp, zone=time.gmtime) == rec_date:
-                    gtz_count += 1
-                elif strftime(timestamp, zone=time.localtime) == rec_date:
-                    ltz_count += 1
+            if record.get('tz', None) is not None:
+                use_tz_var = True
+            if strftime(timestamp, zone=time.gmtime) == rec_date:
+                gtz_count += 1
+            elif strftime(timestamp, zone=time.localtime) == rec_date:
+                ltz_count += 1
         else: # book is new. Set the time using the current votes
             if use_tz_var:
                 tz = time.localtime
@@ -522,22 +650,25 @@ class XMLCache(object):
                 debug_print("Use GMT TZ for new book", book.lpath)
             date = strftime(timestamp, zone=tz)
             record.set('date', clean(date))
-        record.set('size', clean(str(os.stat(path).st_size)))
+        try:
+            record.set('size', clean(str(os.stat(path).st_size)))
+        except:
+            record.set('size', '0')
         title = book.title if book.title else _('Unknown')
-        record.set('title', clean(title))
+        record_set('title', title)
         ts = book.title_sort
         if not ts:
             ts = title_sort(title)
-        record.set('titleSorter', clean(ts))
+        record_set('titleSorter', ts)
         if self.use_author_sort:
             if book.author_sort:
                 aus = book.author_sort
             else:
                 debug_print('Author_sort is None for book', book.lpath)
                 aus = authors_to_sort_string(book.authors)
-            record.set('author', clean(aus))
+            record_set('author', aus)
         else:
-            record.set('author', clean(authors_to_string(book.authors)))
+            record_set('author', authors_to_string(book.authors))
         ext = os.path.splitext(path)[1]
         if ext:
             ext = ext[1:].lower()
@@ -589,6 +720,18 @@ class XMLCache(object):
                     '<?xml version="1.0" encoding="UTF-8"?>')
             with open(path, 'wb') as f:
                 f.write(raw)
+
+        for i, path in self.ext_paths.items():
+            try:
+                raw = etree.tostring(self.ext_roots[i], encoding='UTF-8',
+                    xml_declaration=True)
+            except:
+                continue
+            raw = raw.replace("<?xml version='1.0' encoding='UTF-8'?>",
+                    '<?xml version="1.0" encoding="UTF-8"?>')
+            with open(path, 'wb') as f:
+                f.write(raw)
+
     # }}}
 
     # Utility methods {{{

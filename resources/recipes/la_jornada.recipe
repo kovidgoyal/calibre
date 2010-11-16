@@ -38,6 +38,7 @@ class LaJornada_mx(BasicNewsRecipe):
                                 .loc{font-weight: bold} 
                                 .carton{text-align: center}
                                 .credit{font-weight: bold}
+                                .sumario{font-weight: bold; text-align: center}
                                 .text{margin-top: 1.4em}
                                 p.inicial{display: inline; font-size: xx-large; font-weight: bold}
                                 p.s-s{display: inline; text-indent: 0}

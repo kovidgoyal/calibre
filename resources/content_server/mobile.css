@@ -1,5 +1,9 @@
 /* CSS for the mobile version of the content server webpage */
 
+.body {
+    font-family: sans-serif;
+}
+
 .navigation table.buttons {
     width: 100%;
 }
@@ -53,6 +57,7 @@ div.navigation {
 }
 #listing td {
     padding: 0.25em;
+    vertical-align: middle;
 }
 
 #listing td.thumbnail {
@@ -73,6 +78,7 @@ div.navigation {
     overflow: hidden;
     text-align: center;
     text-decoration: none;
+    vertical-align: middle;
 }
 
 #logo {
@@ -83,4 +89,17 @@ div.navigation {
     clear: both;
 }
 
+.data-container {
+    display: inline-block;
+    vertical-align: middle;
+}
 
+.first-line {
+    font-size: larger;
+    font-weight: bold;
+}
+
+.second-line {
+    margin-top: 0.75ex;
+    display: block;
+}

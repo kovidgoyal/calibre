@@ -653,17 +653,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dirtied(book_ids)
 
     def get_metadata_for_dump(self, idx, remove_from_dirtied=True):
+        path, mi = (None, None)
         try:
-            path = os.path.join(self.abspath(idx, index_is_id=True), 'metadata.opf')
-            mi = self.get_metadata(idx, index_is_id=True)
-            # Always set cover to cover.jpg. Even if cover doesn't exist,
-            # no harm done. This way no need to call dirtied when
-            # cover is set/removed
-            mi.cover = 'cover.jpg'
+            # While a book is being created, the path is empty. Don't bother to
+            # try to write the opf, because it will go to the wrong folder.
+            if self.path(idx, index_is_id=True):
+                path = os.path.join(self.abspath(idx, index_is_id=True), 'metadata.opf')
+                mi = self.get_metadata(idx, index_is_id=True)
+                # Always set cover to cover.jpg. Even if cover doesn't exist,
+                # no harm done. This way no need to call dirtied when
+                # cover is set/removed
+                mi.cover = 'cover.jpg'
         except:
             # This almost certainly means that the book has been deleted while
             # the backup operation sat in the queue.
-            path, mi = (None, None)
+            pass
 
         try:
             # clear the dirtied indicator. The user must put it back if
@@ -748,10 +752,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return False
 
     def find_identical_books(self, mi):
-        fuzzy_title_patterns = [(re.compile(pat), repl) for pat, repl in
+        fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
                 [
                     (r'[\[\](){}<>\'";,:#]', ''),
-                    (r'^(the|a|an) ', ''),
+                    (tweaks.get('title_sort_articles', r'^(a|the|an)\s+'), ''),
                     (r'[-._]', ' '),
                     (r'\s+', ' ')
                 ]
@@ -1754,6 +1758,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 seen.add(tag.lower())
                 ans.append(tag)
         return ans
+
+    def remove_all_tags(self, ids, notify=False, commit=True):
+        self.conn.executemany(
+            'DELETE FROM books_tags_link WHERE book=?', [(x,) for x in ids])
+        self.dirtied(ids, commit=False)
+        if commit:
+            self.conn.commit()
+
+        for x in ids:
+            self.data.set(x, self.FIELD_MAP['tags'], '', row_is_id=True)
+        if notify:
+            self.notify('metadata', ids)
 
     def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
         add = self.cleanup_tags(add)

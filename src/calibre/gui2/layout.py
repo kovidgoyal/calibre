@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, \
-    pyqtSignal, QToolButton, \
+    pyqtSignal, QToolButton, QPushButton, \
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup, \
     QMenu
 
@@ -151,6 +151,7 @@ class SearchBar(QWidget): # {{{
         QWidget.__init__(self, parent)
         self._layout = l = QHBoxLayout()
         self.setLayout(self._layout)
+        self._layout.setContentsMargins(0,5,0,0)
 
         x = ComboBoxWithHelp(self)
         x.setMaximumSize(QSize(150, 16777215))
@@ -166,19 +167,24 @@ class SearchBar(QWidget): # {{{
         x.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         parent.advanced_search_button = x = QToolButton(self)
+        parent.advanced_search_button.setShortcut(_("Shift+Ctrl+F"))
         x.setIcon(QIcon(I('search.png')))
         l.addWidget(x)
         x.setToolTip(_("Advanced search"))
-
-        self.label = x = QLabel(_('&Search:'))
-        l.addWidget(self.label)
-        x.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         x = parent.search = SearchBox2(self)
         x.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         x.setObjectName("search")
         x.setToolTip(_("<p>Search the list of books by title, author, publisher, tags, comments, etc.<br><br>Words separated by spaces are ANDed"))
         l.addWidget(x)
+
+        self.search_button = QPushButton(_('&Go!'))
+        l.addWidget(self.search_button)
+        self.search_button.setSizePolicy(QSizePolicy.Minimum,
+                QSizePolicy.Minimum)
+        self.search_button.clicked.connect(parent.search.do_search)
+        self.search_button.setToolTip(
+            _('Do Quick Search (you can also press the Enter key)'))
 
         x = parent.clear_button = QToolButton(self)
         x.setIcon(QIcon(I('clear_left.png')))
@@ -210,7 +216,6 @@ class SearchBar(QWidget): # {{{
         l.addWidget(x)
         x.setToolTip(_("Delete current saved search"))
 
-        self.label.setBuddy(parent.search)
 
 
 # }}}

@@ -144,9 +144,10 @@ class DocAnalysis(object):
 
         # Normalize the histogram into percents
         totalLines = len(self.lines)
-        if totalLines == 0:
-            return False
-        h = [ float(count)/totalLines for count in hRaw ]
+        if totalLines > 0:
+            h = [ float(count)/totalLines for count in hRaw ]
+        else:
+            h = []
         #print "\nhRaw histogram lengths are: "+str(hRaw)
         #print "              percents are: "+str(h)+"\n"
 
@@ -545,6 +546,13 @@ class HTMLPreProcessor(object):
     def smarten_punctuation(self, html):
         from calibre.utils.smartypants import smartyPants
         from calibre.ebooks.chardet import substitute_entites
+        from uuid import uuid4
+        start = 'calibre-smartypants-'+str(uuid4())
+        stop = 'calibre-smartypants-'+str(uuid4())
+        html = html.replace('<!--', start)
+        html = html.replace('-->', stop)
         html = smartyPants(html)
+        html = html.replace(start, '<!--')
+        html = html.replace(stop, '-->')
         return substitute_entites(html)
 

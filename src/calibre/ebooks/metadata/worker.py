@@ -12,7 +12,7 @@ import os, time, sys, shutil
 
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
-from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre import prints
 from calibre.constants import filesystem_encoding
 
@@ -21,51 +21,76 @@ def debug(*args):
     prints(*args)
     sys.stdout.flush()
 
-def read_metadata_(task, tdir, notification=lambda x,y:x):
+def serialize_metadata_for(formats, tdir, id_):
     from calibre.ebooks.metadata.meta import metadata_from_formats
     from calibre.ebooks.metadata.opf2 import metadata_to_opf
+    mi = metadata_from_formats(formats)
+    mi.cover = None
+    cdata = None
+    if mi.cover_data:
+        cdata = mi.cover_data[-1]
+    mi.cover_data = None
+    if not mi.application_id:
+        mi.application_id = '__calibre_dummy__'
+    with open(os.path.join(tdir, '%s.opf'%id_), 'wb') as f:
+        f.write(metadata_to_opf(mi))
+    if cdata:
+        with open(os.path.join(tdir, str(id_)), 'wb') as f:
+            f.write(cdata)
+
+def read_metadata_(task, tdir, notification=lambda x,y:x):
+    with TemporaryDirectory() as mdir:
+        do_read_metadata(task, tdir, mdir, notification)
+
+def do_read_metadata(task, tdir, mdir, notification):
     from calibre.customize.ui import run_plugins_on_import
     for x in task:
         try:
-            id, formats = x
+            id_, formats = x
+        except:
+            continue
+        try:
             if isinstance(formats, basestring): formats = [formats]
-            mi = metadata_from_formats(formats)
-            mi.cover = None
-            cdata = None
-            if mi.cover_data:
-                cdata = mi.cover_data[-1]
-            mi.cover_data = None
-            if not mi.application_id:
-                mi.application_id = '__calibre_dummy__'
-            with open(os.path.join(tdir, '%s.opf'%id), 'wb') as f:
-                f.write(metadata_to_opf(mi))
-            if cdata:
-                with open(os.path.join(tdir, str(id)), 'wb') as f:
-                    f.write(cdata)
             import_map = {}
+            fmts, metadata_fmts = [], []
             for format in formats:
+                mfmt = format
+                name, ext = os.path.splitext(os.path.basename(format))
                 nfp = run_plugins_on_import(format)
-                if nfp is None:
-                    nfp = format
-                nfp = os.path.abspath(nfp)
+                if not nfp or nfp == format or not os.access(nfp, os.R_OK):
+                    nfp = None
+                else:
+                    # Ensure that the filename is preserved so that
+                    # reading metadata from filename is not broken
+                    nfp = os.path.abspath(nfp)
+                    nfext = os.path.splitext(nfp)[1]
+                    mfmt = os.path.join(mdir, name + nfext)
+                    shutil.copyfile(nfp, mfmt)
+                metadata_fmts.append(mfmt)
+                fmts.append(nfp)
+
+            serialize_metadata_for(metadata_fmts, tdir, id_)
+
+            for format, nfp in zip(formats, fmts):
+                if not nfp:
+                    continue
                 if isinstance(nfp, unicode):
                     nfp.encode(filesystem_encoding)
                 x = lambda j : os.path.abspath(os.path.normpath(os.path.normcase(j)))
                 if x(nfp) != x(format) and os.access(nfp, os.R_OK|os.W_OK):
                     fmt = os.path.splitext(format)[1].replace('.', '').lower()
                     nfmt = os.path.splitext(nfp)[1].replace('.', '').lower()
-                    dest = os.path.join(tdir, '%s.%s'%(id, nfmt))
+                    dest = os.path.join(tdir, '%s.%s'%(id_, nfmt))
                     shutil.copyfile(nfp, dest)
                     import_map[fmt] = dest
-                    os.remove(nfp)
             if import_map:
-                with open(os.path.join(tdir, str(id)+'.import'), 'wb') as f:
+                with open(os.path.join(tdir, str(id_)+'.import'), 'wb') as f:
                     for fmt, nfp in import_map.items():
                         f.write(fmt+':'+nfp+'\n')
-            notification(0.5, id)
+            notification(0.5, id_)
         except:
             import traceback
-            with open(os.path.join(tdir, '%s.error'%id), 'wb') as f:
+            with open(os.path.join(tdir, '%s.error'%id_), 'wb') as f:
                 f.write(traceback.format_exc())
 
 class Progress(object):

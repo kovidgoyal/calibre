@@ -71,7 +71,9 @@ class TheAtlantic(BasicNewsRecipe):
         for poem in soup.findAll('div', attrs={'class':'poem'}):
             title = self.tag_to_string(poem.find('h4'))
             desc  = self.tag_to_string(poem.find(attrs={'class':'author'}))
-            url   = 'http://www.theatlantic.com'+poem.find('a')['href']
+            url   = poem.find('a')['href']
+            if url.startswith('/'):
+                url = 'http://www.theatlantic.com' + url
             self.log('\tFound article:', title, 'at', url)
             self.log('\t\t', desc)
             poems.append({'title':title, 'url':url, 'description':desc,
@@ -83,7 +85,9 @@ class TheAtlantic(BasicNewsRecipe):
         if div is not None:
             self.log('Found section: Advice')
             title = self.tag_to_string(div.find('h4'))
-            url = 'http://www.theatlantic.com'+div.find('a')['href']
+            url = div.find('a')['href']
+            if url.startswith('/'):
+                url = 'http://www.theatlantic.com' + url
             desc = self.tag_to_string(div.find('p'))
             self.log('\tFound article:', title, 'at', url)
             self.log('\t\t', desc)

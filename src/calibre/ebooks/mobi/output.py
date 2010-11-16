@@ -42,11 +42,10 @@ class MOBIOutput(OutputFormatPlugin):
     ])
 
     def check_for_periodical(self):
-        if self.oeb.metadata.publication_type and \
-            unicode(self.oeb.metadata.publication_type[0]).startswith('periodical:'):
-                self.periodicalize_toc()
-                self.check_for_masthead()
-                self.opts.mobi_periodical = True
+        if self.is_periodical:
+            self.periodicalize_toc()
+            self.check_for_masthead()
+            self.opts.mobi_periodical = True
         else:
             self.opts.mobi_periodical = False
 

@@ -353,14 +353,16 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.pending_bookmark = bm
                 if spine_index < 0 or spine_index >= len(self.iterator.spine):
                     spine_index = 0
+                    self.pending_bookmark = None
                 self.load_path(self.iterator.spine[spine_index])
 
     def toc_clicked(self, index):
         item = self.toc_model.itemFromIndex(index)
-        url = QUrl.fromLocalFile(item.abspath)
-        if item.fragment:
-            url.setFragment(item.fragment)
-        self.link_clicked(url)
+        if item.abspath is not None:
+            url = QUrl.fromLocalFile(item.abspath)
+            if item.fragment:
+                url.setFragment(item.fragment)
+            self.link_clicked(url)
 
     def selection_changed(self, selected_text):
         self.selected_text = selected_text.strip()
@@ -470,8 +472,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             if path != self.current_page:
                 self.pending_anchor = frag
                 self.load_path(path)
-            elif frag:
-                self.view.scroll_to(frag)
+            else:
+                if frag:
+                    self.view.scroll_to(frag)
+                else:
+                    # Scroll to top
+                    self.view.scroll_to('#')
         else:
             open_url(url)
 
@@ -715,6 +721,9 @@ View an ebook.
 
 
 def main(args=sys.argv):
+    # Ensure viewer can continue to function if GUI is closed
+    os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
+
     parser = option_parser()
     opts, args = parser.parse_args(args)
     pid = os.fork() if False and (islinux or isfreebsd) else -1

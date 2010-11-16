@@ -400,7 +400,7 @@ Future conversion of these books will use the default settings.</string>
        </widget>
        <widget class="QWidget" name="tabWidgetPage3">
         <attribute name="title">
-         <string>&amp;Search and replace (experimental)</string>
+         <string>&amp;Search and replace</string>
         </attribute>
         <layout class="QGridLayout" name="vargrid">
          <property name="sizeConstraint">
@@ -677,6 +677,19 @@ nothing should be put between the original text and the inserted text</string>
              </item>
              <item row="8" column="2">
               <widget class="QLineEdit" name="test_result"/>
+             </item>
+             <item row="25" column="0" colspan="2">
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>5</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </widget>

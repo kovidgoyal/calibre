@@ -143,11 +143,17 @@ def render_jacket(mi, output_profile,
     if comments:
         comments = comments_to_html(comments)
 
+    try:
+        author = mi.format_authors()
+    except:
+        author = ''
+
     def generate_html(comments):
         args = dict(xmlns=XHTML_NS,
                     title_str=title_str,
                     css=css,
                     title=title,
+                    author=author,
                     pubdate_label=_('Published'), pubdate=pubdate,
                     series_label=_('Series'), series=series,
                     rating_label=_('Rating'), rating=rating,

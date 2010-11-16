@@ -1,0 +1,42 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DiarioSport(BasicNewsRecipe):
+    title          = u'Diario Sport'
+    oldest_article = 2
+    max_articles_per_feed = 75
+    __author__  = 'Jefferson Frantz'
+    description = 'Todas las noticias del Barça y del mundo del deporte en general'
+    timefmt = ' [%d %b, %Y]'
+    language = 'es'
+    no_stylesheets = True
+
+    feeds          = [(u'Sport', u'http://feeds.feedburner.com/sport/ultimahora')]
+
+    extra_css              = '''
+                                h2{font-family: serif; font-size: small; font-weight: bold; color: #000000; text-align: justify}
+                                '''
+
+    keep_only_tags = [dict(name='div', attrs={'id':['noticiasMedio']})]
+
+    remove_tags        = [
+                             dict(name=['object','link','script','ul'])
+                            ,dict(name='div', attrs={'id':['scrAdSense','herramientas2','participacion','participacion2','bloque1resultados','bloque2resultados','cont_vinyetesAnt','tinta','noticiasSuperior','cintillopublicidad2']})
+                            ,dict(name='p', attrs={'class':['masinformacion','hora']})
+                            ,dict(name='a', attrs={'class':["'link'"]})
+                            ,dict(name='div', attrs={'class':['addthis_toolbox addthis_default_style','firma','pretitularnoticia']})
+                            ,dict(name='form', attrs={'id':['formularioDeBusquedaAvanzada']})
+                         ]
+
+    def preprocess_html(self, soup):
+            for item in soup.findAll(style=True):
+               del item['style']
+            return soup
+
+
+    def postprocess_html(self, soup, first_fetch):
+        img = soup.find('img',src='/img/videos/mascaravideo.png')
+        if not img is None:
+            img.extract()
+
+        return soup
+

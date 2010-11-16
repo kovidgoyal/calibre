@@ -16,6 +16,7 @@ from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic
+from calibre.utils.titlecase import titlecase
 
 class MyBlockingBusy(QDialog):
 
@@ -50,6 +51,7 @@ class MyBlockingBusy(QDialog):
         self.start()
 
         self.args = args
+        self.series_start_value = None
         self.db = db
         self.ids = ids
         self.error = None
@@ -96,7 +98,7 @@ class MyBlockingBusy(QDialog):
             return self.accept()
 
     def do_one(self, id):
-        remove, add, au, aus, do_aus, rating, pub, do_series, \
+        remove_all, remove, add, au, aus, do_aus, rating, pub, do_series, \
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
             series_start_value, do_title_case, clear_series = self.args
@@ -115,7 +117,7 @@ class MyBlockingBusy(QDialog):
                     aum = [a.strip().replace('|', ',') for a in aum.split(',')]
                     new_title = authors_to_string(aum)
                     if do_title_case:
-                        new_title = new_title.title()
+                        new_title = titlecase(new_title)
                     self.db.set_title(id, new_title, notify=False)
                     title_set = True
                 if title:
@@ -123,7 +125,7 @@ class MyBlockingBusy(QDialog):
                     self.db.set_authors(id, new_authors, notify=False)
             if do_title_case and not title_set:
                 title = self.db.title(id, index_is_id=True)
-                self.db.set_title(id, title.title(), notify=False)
+                self.db.set_title(id, titlecase(title), notify=False)
             if au:
                 self.db.set_authors(id, string_to_authors(au), notify=False)
         elif self.current_phase == 2:
@@ -147,8 +149,10 @@ class MyBlockingBusy(QDialog):
 
             if do_series:
                 if do_series_restart:
-                    next = series_start_value
-                    series_start_value += 1
+                    if self.series_start_value is None:
+                        self.series_start_value = series_start_value
+                    next = self.series_start_value
+                    self.series_start_value += 1
                 else:
                     next = self.db.get_next_series_num_for(series)
                 self.db.set_series(id, series, notify=False, commit=False)
@@ -164,6 +168,8 @@ class MyBlockingBusy(QDialog):
             # both of these are fast enough to just do them all
             for w in self.cc_widgets:
                 w.commit(self.ids)
+            if remove_all:
+                self.db.remove_all_tags(self.ids)
             self.db.bulk_modify_tags(self.ids, add=add, remove=remove,
                                          notify=False)
             self.current_index = len(self.ids)
@@ -179,7 +185,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     s_r_functions = {       ''              : lambda x: x,
                             _('Lower Case') : lambda x: x.lower(),
                             _('Upper Case') : lambda x: x.upper(),
-                            _('Title Case') : lambda x: x.title(),
+                            _('Title Case') : lambda x: titlecase(x),
                     }
 
     s_r_match_modes = [     _('Character match'),
@@ -236,13 +242,13 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.writable_fields = ['']
         fm = self.db.field_metadata
         for f in fm:
-            if (f in ['author_sort'] or (
-                fm[f]['datatype'] in ['text', 'series'])
-                    and fm[f].get('search_terms', None)
-                    and f not in ['formats', 'ondevice']):
+            if (f in ['author_sort'] or
+                    (fm[f]['datatype'] in ['text', 'series']
+                     and fm[f].get('search_terms', None)
+                     and f not in ['formats', 'ondevice', 'sort'])):
                 self.all_fields.append(f)
                 self.writable_fields.append(f)
-            if fm[f]['datatype'] == 'composite':
+            if f in ['sort'] or fm[f]['datatype'] == 'composite':
                 self.all_fields.append(f)
         self.all_fields.sort()
         self.writable_fields.sort()
@@ -270,7 +276,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.main_heading = _(
                  '<b>You can destroy your library using this feature.</b> '
                  'Changes are permanent. There is no undo function. '
-                 ' This feature is experimental, and there may be bugs. '
                  'You are strongly encouraged to back up your library '
                  'before proceeding.<p>'
                  'Search and replace in text fields using character matching '
@@ -334,7 +339,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def s_r_get_field(self, mi, field):
         if field:
             fm = self.db.metadata_for_field(field)
-            val = mi.get(field, None)
+            if field == 'sort':
+                val = mi.get('title_sort', None)
+            else:
+                val = mi.get(field, None)
             if val is None:
                 val = []
             elif not fm['is_multiple']:
@@ -567,6 +575,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.initalize_authors()
         self.initialize_series()
         self.initialize_publisher()
+        for x in ('authors', 'publisher', 'series'):
+            x = getattr(self, x)
+            x.setSizeAdjustPolicy(x.AdjustToMinimumContentsLengthWithIcon)
+            x.setMinimumContentsLength(25)
 
     def initalize_authors(self):
         all_authors = self.db.all_authors()
@@ -630,9 +642,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         for w in getattr(self, 'custom_column_widgets', []):
             w.gui_val
 
-        if self.remove_all_tags.isChecked():
-            remove = self.db.all_tags()
-        else:
+        remove_all = self.remove_all_tags.isChecked()
+        remove = []
+        if not remove_all:
             remove = unicode(self.remove_tags.text()).strip().split(',')
         add = unicode(self.tags.text()).strip().split(',')
         au = unicode(self.authors.text())
@@ -653,7 +665,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         do_auto_author = self.auto_author_sort.isChecked()
         do_title_case = self.change_title_to_title_case.isChecked()
 
-        args = (remove, add, au, aus, do_aus, rating, pub, do_series,
+        args = (remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, clear_series)

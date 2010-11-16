@@ -14,7 +14,7 @@ from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
 from calibre.utils.zipfile import ZipFile
-from calibre import extract, walk
+from calibre import extract, walk, isbytestring, filesystem_encoding
 from calibre.constants import __version__
 
 DEBUG_README=u'''
@@ -77,6 +77,10 @@ class Plumber(object):
         :param input: Path to input file.
         :param output: Path to output file/directory
         '''
+        if isbytestring(input):
+            input = input.decode(filesystem_encoding)
+        if isbytestring(output):
+            output = output.decode(filesystem_encoding)
         self.original_input_arg = input
         self.input = os.path.abspath(input)
         self.output = os.path.abspath(output)
@@ -838,7 +842,8 @@ OptionRecommendation(name='timestamp',
                 self.opts_to_mi(self.user_metadata)
             if not hasattr(self.oeb, 'manifest'):
                 self.oeb = create_oebbook(self.log, self.oeb, self.opts,
-                        self.input_plugin)
+                        self.input_plugin,
+                        encoding=self.input_plugin.output_encoding)
             self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
             self.opts.is_image_collection = self.input_plugin.is_image_collection
             pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)

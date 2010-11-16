@@ -1,0 +1,61 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Eddie Lau'
+'''
+modified from Singtao Toronto calibre recipe by rty
+Change Log:
+2010/10/31: skip repeated articles in section pages
+'''
+
+import datetime
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class AdvancedUserRecipe1278063072(BasicNewsRecipe):
+    title          = 'Ming Pao - Hong Kong'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    __author__            = 'Eddie Lau'
+    description           = 'Hong Kong Chinese Newspaper'
+    publisher             = 'news.mingpao.com'
+    category              = 'Chinese, News, Hong Kong'
+    remove_javascript = True
+    use_embedded_content   = False
+    no_stylesheets = True
+    language = 'zh'
+    encoding = 'Big5-HKSCS'
+    recursions = 0
+    conversion_options = {'linearize_tables':True}
+    masthead_url = 'http://news.mingpao.com/image/portals_top_logo_news.gif'
+    keep_only_tags = [dict(name='h1'),
+                      dict(attrs={'id':['newscontent01','newscontent02']})]
+
+    def get_fetchdate(self):
+        dt_utc = datetime.datetime.utcnow()
+        # convert UTC to local hk time - at around HKT 5.30am, all news are available
+        dt_local = dt_utc - datetime.timedelta(-2.5/24)
+        return dt_local.strftime("%Y%m%d")
+
+    def parse_index(self):
+        feeds = []
+        dateStr = self.get_fetchdate()
+        for title, url in [(u'\u8981\u805e Headline', 'http://news.mingpao.com/' + dateStr + '/gaindex.htm'), (u'\u6559\u80b2 Education', 'http://news.mingpao.com/' + dateStr + '/gfindex.htm'), (u'\u6e2f\u805e Local', 'http://news.mingpao.com/' + dateStr + '/gbindex.htm'), (u'\u793e\u8a55\u2027\u7b46\u9663 Editorial', 'http://news.mingpao.com/' + dateStr + '/mrindex.htm'), (u'\u8ad6\u58c7 Forum', 'http://news.mingpao.com/' + dateStr + '/faindex.htm'), (u'\u4e2d\u570b China', 'http://news.mingpao.com/' + dateStr + '/caindex.htm'), (u'\u570b\u969b World', 'http://news.mingpao.com/' + dateStr + '/taindex.htm'), ('Tech News', 'http://news.mingpao.com/' + dateStr + '/naindex.htm'), (u'\u9ad4\u80b2 Sport', 'http://news.mingpao.com/' + dateStr + '/spindex.htm'), (u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),]:
+            articles = self.parse_section(url)
+            if articles:
+                feeds.append((title, articles))
+            return feeds
+
+    def parse_section(self, url):
+        dateStr = self.get_fetchdate()
+        soup = self.index_to_soup(url)
+        divs = soup.findAll(attrs={'class': ['bullet']})
+        current_articles = []
+        included_urls = []
+        for i in divs:
+            a = i.find('a', href = True)
+            title = self.tag_to_string(a)
+            url = a.get('href', False)
+            url = 'http://news.mingpao.com/' + dateStr + '/' +url
+            if url not in included_urls:
+                current_articles.append({'title': title, 'url': url, 'description':''})
+                included_urls.append(url)
+        return current_articles
+

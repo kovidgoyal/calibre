@@ -120,6 +120,11 @@ class InputFormatPlugin(Plugin):
     #: to make its output suitable for viewing
     for_viewer = False
 
+    #: The encoding that this input plugin creates files in. A value of
+    #: None means that the encoding is undefined and must be
+    #: detected individually
+    output_encoding = 'utf-8'
+
     #: Options shared by all Input format plugins. Do not override
     #: in sub-classes. Use :attr:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.
@@ -288,4 +293,9 @@ class OutputFormatPlugin(Plugin):
 
         '''
         raise NotImplementedError
+
+    @property
+    def is_periodical(self):
+        return self.oeb.metadata.publication_type and \
+            unicode(self.oeb.metadata.publication_type[0]).startswith('periodical:')
 

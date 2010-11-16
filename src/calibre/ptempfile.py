@@ -7,7 +7,7 @@ being closed.
 """
 import tempfile, os, atexit, binascii, cPickle
 
-from calibre import __version__, __appname__
+from calibre.constants import __version__, __appname__
 
 def cleanup(path):
     try:

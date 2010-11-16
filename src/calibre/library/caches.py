@@ -380,7 +380,7 @@ class ResultCache(SearchQueryParser): # {{{
             field_count = 3
         else:
             try:
-                qd = parse_date(query)
+                qd = parse_date(query, as_utc=False)
             except:
                 raise ParseException(query, len(query), 'Date conversion error', self)
             if '-' in query:
@@ -625,7 +625,11 @@ class ResultCache(SearchQueryParser): # {{{
     # }}}
 
     def remove(self, id):
-        self._data[id] = None
+        try:
+            self._data[id] = None
+        except IndexError:
+            # id is out of bounds, no point setting it to None anyway
+            pass
         try:
             self._map.remove(id)
         except ValueError:
@@ -816,6 +820,10 @@ class SortKeyGenerator(object):
                 if val is None:
                     val = ''
                 val = val.lower()
+
+            elif dt == 'bool':
+                val = {True: 1, False: 2, None: 3}.get(val, 3)
+
             yield val
 
     # }}}

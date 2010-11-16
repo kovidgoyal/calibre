@@ -25,6 +25,7 @@ from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
+from calibre import isbytestring
 
 RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 
@@ -404,7 +405,8 @@ class DirContainer(object):
 
     def __init__(self, path, log):
         self.log = log
-        path = unicode(path)
+        if isbytestring(path):
+            path = path.decode(filesystem_encoding)
         ext = os.path.splitext(path)[1].lower()
         if ext == '.opf':
             self.opfname = os.path.basename(path)
@@ -785,6 +787,8 @@ class Manifest(object):
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
             data = self.oeb.html_preprocessor(data)
+            # There could be null bytes in data if it had &#0; entities in it
+            data = data.replace('\0', '')
 
             # Remove DOCTYPE declaration as it messes up parsing
             # In particular, it causes tostring to insert xmlns

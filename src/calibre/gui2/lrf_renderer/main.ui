@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,75 +10,51 @@
     <height>701</height>
    </rect>
   </property>
-  <property name="sizePolicy" >
-   <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>LRF Viewer</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="../../../../resources/images.qrc" >
+  <property name="windowIcon">
+   <iconset>
     <normaloff>:/images/viewer.png</normaloff>:/images/viewer.png</iconset>
   </property>
-  <widget class="QWidget" name="central_widget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>39</y>
-     <width>601</width>
-     <height>662</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" >
-    <property name="margin" >
+  <widget class="QWidget" name="central_widget">
+   <layout class="QVBoxLayout">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
-     <widget class="QStackedWidget" name="stack" >
-      <property name="currentIndex" >
+     <widget class="QStackedWidget" name="stack">
+      <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="viewer_page" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>601</width>
-         <height>662</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" >
-        <property name="margin" >
+      <widget class="QWidget" name="viewer_page">
+       <layout class="QGridLayout">
+        <property name="margin">
          <number>0</number>
         </property>
-        <item row="0" column="0" >
-         <widget class="BookView" name="graphics_view" >
-          <property name="mouseTracking" >
+        <item row="0" column="0">
+         <widget class="BookView" name="graphics_view">
+          <property name="mouseTracking">
            <bool>true</bool>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="bar_page" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>601</width>
-         <height>701</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" >
+      <widget class="QWidget" name="bar_page">
+       <layout class="QVBoxLayout">
         <item>
          <spacer>
-          <property name="orientation" >
+          <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <property name="sizeHint" stdset="0" >
+          <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
             <height>40</height>
@@ -86,34 +63,34 @@
          </spacer>
         </item>
         <item>
-         <widget class="QFrame" name="frame_2" >
-          <property name="frameShape" >
+         <widget class="QFrame" name="frame_2">
+          <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
-          <property name="frameShadow" >
+          <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" >
+          <layout class="QVBoxLayout">
            <item>
-            <widget class="QProgressBar" name="progress_bar" >
-             <property name="maximum" >
+            <widget class="QProgressBar" name="progress_bar">
+             <property name="maximum">
               <number>0</number>
              </property>
-             <property name="value" >
+             <property name="value">
               <number>-1</number>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="progress_label" >
-             <property name="font" >
+            <widget class="QLabel" name="progress_label">
+             <property name="font">
               <font>
                <pointsize>11</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
-             <property name="text" >
+             <property name="text">
               <string>Parsing LRF file</string>
              </property>
             </widget>
@@ -123,10 +100,10 @@
         </item>
         <item>
          <spacer>
-          <property name="orientation" >
+          <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <property name="sizeHint" stdset="0" >
+          <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
             <height>40</height>
@@ -140,93 +117,85 @@
     </item>
    </layout>
   </widget>
-  <widget class="QToolBar" name="tool_bar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>601</width>
-     <height>39</height>
-    </rect>
-   </property>
-   <property name="windowTitle" >
+  <widget class="QToolBar" name="tool_bar">
+   <property name="windowTitle">
     <string>LRF Viewer toolbar</string>
    </property>
-   <property name="allowedAreas" >
+   <property name="allowedAreas">
     <set>Qt::AllToolBarAreas</set>
    </property>
-   <attribute name="toolBarArea" >
-    <enum>TopToolBarArea</enum>
+   <attribute name="toolBarArea">
+    <enum>Qt::TopToolBarArea</enum>
    </attribute>
-   <attribute name="toolBarBreak" >
-    <bool>true</bool>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
    </attribute>
-   <addaction name="action_back" />
-   <addaction name="action_forward" />
-   <addaction name="separator" />
-   <addaction name="action_open_ebook" />
-   <addaction name="action_configure" />
-   <addaction name="separator" />
-   <addaction name="action_previous_page" />
-   <addaction name="action_next_page" />
-   <addaction name="separator" />
+   <addaction name="action_back"/>
+   <addaction name="action_forward"/>
+   <addaction name="separator"/>
+   <addaction name="action_open_ebook"/>
+   <addaction name="action_configure"/>
+   <addaction name="separator"/>
+   <addaction name="action_previous_page"/>
+   <addaction name="action_next_page"/>
+   <addaction name="separator"/>
   </widget>
-  <action name="action_next_page" >
-   <property name="icon" >
-    <iconset resource="../../../../resources/images.qrc" >
+  <action name="action_next_page">
+   <property name="icon">
+    <iconset>
      <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Next Page</string>
    </property>
   </action>
-  <action name="action_previous_page" >
-   <property name="icon" >
-    <iconset resource="../../../../resources/images.qrc" >
+  <action name="action_previous_page">
+   <property name="icon">
+    <iconset>
      <normaloff>:/images/previous.png</normaloff>:/images/previous.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Previous Page</string>
    </property>
   </action>
-  <action name="action_back" >
-   <property name="icon" >
-    <iconset resource="../../../../resources/images.qrc" >
+  <action name="action_back">
+   <property name="icon">
+    <iconset>
      <normaloff>:/images/back.png</normaloff>:/images/back.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Back</string>
    </property>
   </action>
-  <action name="action_forward" >
-   <property name="icon" >
-    <iconset resource="../../../../resources/images.qrc" >
+  <action name="action_forward">
+   <property name="icon">
+    <iconset>
      <normaloff>:/images/forward.png</normaloff>:/images/forward.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Forward</string>
    </property>
   </action>
-  <action name="action_next_match" >
-   <property name="text" >
+  <action name="action_next_match">
+   <property name="text">
     <string>Next match</string>
    </property>
   </action>
-  <action name="action_open_ebook" >
-   <property name="icon" >
-    <iconset resource="../../../../resources/images.qrc" >
+  <action name="action_open_ebook">
+   <property name="icon">
+    <iconset>
      <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Open ebook</string>
    </property>
   </action>
-  <action name="action_configure" >
-   <property name="icon" >
-    <iconset resource="../../../../resources/images.qrc" >
+  <action name="action_configure">
+   <property name="icon">
+    <iconset>
      <normaloff>:/images/config.png</normaloff>:/images/config.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Configure</string>
    </property>
   </action>
@@ -239,7 +208,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../resources/images.qrc" />
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>

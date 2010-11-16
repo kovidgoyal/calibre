@@ -19,20 +19,22 @@ class TheEconomicTimes(BasicNewsRecipe):
     simultaneous_downloads = 1
     encoding               = 'utf-8'
     language               = 'en_IN'
-    publication_type       = 'newspaper'    
+    publication_type       = 'newspaper'
     masthead_url           = 'http://economictimes.indiatimes.com/photo/2676871.cms'
-    extra_css              = """ body{font-family: Arial,Helvetica,sans-serif} 
-                                .heading1{font-size: xx-large; font-weight: bold} """
-    
+    extra_css              = """
+                                 body{font-family: Arial,Helvetica,sans-serif}
+                             """
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
                         , 'publisher'        : publisher
                         , 'language'         : language
                         }
-                        
-    keep_only_tags = [dict(attrs={'class':['heading1','headingnext','Normal']})]
+
+    keep_only_tags = [dict(attrs={'class':'printdiv'})]
     remove_tags    = [dict(name=['object','link','embed','iframe','base','table','meta'])]
+    remove_attributes = ['name']
 
     feeds          = [(u'All articles', u'http://economictimes.indiatimes.com/rssfeedsdefault.cms')]
 
@@ -48,5 +50,5 @@ class TheEconomicTimes(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
-            del item['style']    
+            del item['style']
         return self.adeify_images(soup)

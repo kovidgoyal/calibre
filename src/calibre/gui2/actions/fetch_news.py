@@ -9,7 +9,6 @@ from PyQt4.Qt import Qt
 
 from calibre.gui2 import Dispatcher
 from calibre.gui2.tools import fetch_scheduled_recipe
-from calibre.utils.config import dynamic
 from calibre.gui2.actions import InterfaceAction
 
 class FetchNewsAction(InterfaceAction):
@@ -60,9 +59,9 @@ class FetchNewsAction(InterfaceAction):
             return self.gui.job_exception(job)
         id = self.gui.library_view.model().add_news(pt.name, arg)
         self.gui.library_view.model().reset()
-        sync = dynamic.get('news_to_be_synced', set([]))
+        sync = self.gui.news_to_be_synced
         sync.add(id)
-        dynamic.set('news_to_be_synced', sync)
+        self.gui.news_to_be_synced = sync
         self.scheduler.recipe_downloaded(arg)
         self.gui.status_bar.show_message(arg['title'] + _(' fetched.'), 3000)
         self.gui.email_news(id)

@@ -338,6 +338,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
 
     * - Keyboard Shortcut
       - Action
+    * - :kbd:`F2 (Enter in OS X)`
+      - Edit the metadata of the currently selected field in the book list.
     * - :kbd:`A` 
       - Add Books
     * - :kbd:`C` 
@@ -378,6 +380,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Show books in the same series as current book
     * - :kbd:`/, Ctrl+F` 
       - Focus the search bar
+    * - :kbd:`Shift+Ctrl+F`
+      - Open the advanced search dialog
     * - :kbd:`Ctrl+D` 
       - Download metadata and shortcuts
     * - :kbd:`Ctrl+R` 

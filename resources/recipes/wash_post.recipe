@@ -31,8 +31,9 @@ class WashingtonPost(BasicNewsRecipe):
                 ('Education', 'http://www.washingtonpost.com/wp-dyn/rss/education/index.xml'),
                 ('Style',
                      'http://www.washingtonpost.com/wp-dyn/rss/print/style/index.xml'),
-                ('Sports',
-                     'http://feeds.washingtonpost.com/wp-dyn/rss/linkset/2010/08/19/LI2010081904067_xml'),
+                ('NFL Sports',
+                     'http://www.washingtonpost.com/wp-dyn/rss/sports/index/nfl/index.xml'),
+                ('Redskins', 'http://www.washingtonpost.com/wp-dyn/rss/sports/redskins/index.xml'),
                 ('Editorials', 'http://www.washingtonpost.com/wp-dyn/rss/linkset/2005/05/30/LI2005053000331.xml'),
     ]
 

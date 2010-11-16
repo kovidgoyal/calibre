@@ -20,20 +20,10 @@ class SNBOutput(OutputFormatPlugin):
     file_type = 'snb'
 
     options = set([
-        # OptionRecommendation(name='newline', recommended_value='system',
-        #     level=OptionRecommendation.LOW,
-        #     short_switch='n', choices=TxtNewlines.NEWLINE_TYPES.keys(),
-        #     help=_('Type of newline to use. Options are %s. Default is \'system\'. '
-        #         'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
-        #         'For Mac OS X use \'unix\'. \'system\' will default to the newline '
-        #         'type used by this OS.') % sorted(TxtNewlines.NEWLINE_TYPES.keys())),
         OptionRecommendation(name='snb_output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \
             'The default is utf-8.')),
-        # OptionRecommendation(name='inline_toc',
-        #     recommended_value=False, level=OptionRecommendation.LOW,
-        #     help=_('Add Table of Contents to beginning of the book.')),
         OptionRecommendation(name='snb_max_line_length',
             recommended_value=0, level=OptionRecommendation.LOW,
             help=_('The maximum number of characters per line. This splits on '
@@ -41,10 +31,18 @@ class SNBOutput(OutputFormatPlugin):
             'the line will be broken at the space after and will exceed the '
             'specified value. Also, there is a minimum of 25 characters. '
             'Use 0 to disable line splitting.')),
-        # OptionRecommendation(name='force_max_line_length',
-        #     recommended_value=False, level=OptionRecommendation.LOW,
-        #     help=_('Force splitting on the max-line-length value when no space '
-        #     'is present. Also allows max-line-length to be below the minimum')),
+        OptionRecommendation(name='snb_insert_empty_line',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Specify whether or not to insert an empty line between '
+            'two paragraphs.')),
+        OptionRecommendation(name='snb_indent_first_line',
+            recommended_value=True, level=OptionRecommendation.LOW,
+            help=_('Specify whether or not to insert two space characters '
+            'to indent the first line of each paragraph.')),
+        OptionRecommendation(name='snb_hide_chapter_name',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Specify whether or not to hide the chapter title for each '
+            'chapter. Useful for image-only output (eg. comics).')),
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -230,7 +228,7 @@ class SNBOutput(OutputFormatPlugin):
         img.load(imageData)
         (x,y) = img.size
         if self.opts:
-            SCREEN_Y, SCREEN_X = self.opts.output_profile.comic_screen_size
+            SCREEN_X, SCREEN_Y = self.opts.output_profile.comic_screen_size
         else:
             SCREEN_X = 540
             SCREEN_Y = 700

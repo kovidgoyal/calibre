@@ -12,6 +12,7 @@ from calibre.utils.logging import default_log
 from calibre.utils.titlecase import titlecase
 from calibre.customize import Plugin
 from calibre.ebooks.metadata.covers import check_for_cover
+from calibre.utils.html2text import html2text
 
 metadata_config = None
 
@@ -48,6 +49,11 @@ class MetadataSource(Plugin): # {{{
     #: member.
     string_customization_help = None
 
+    #: Set this to true if your plugin returns HTML markup in comments.
+    #: Then if the user disables HTML, calibre will automagically convert
+    #: the HTML to Markdown.
+    has_html_comments = False
+
     type = _('Metadata download')
 
     def __call__(self, title, author, publisher, isbn, verbose, log=None,
@@ -79,6 +85,13 @@ class MetadataSource(Plugin): # {{{
                         mi.comments = None
                     if not c.get('tags', True):
                         mi.tags = []
+                    if self.has_html_comments and mi.comments and \
+                            c.get('textcomments', False):
+                        try:
+                            mi.comments = html2text(mi.comments)
+                        except:
+                            traceback.print_exc()
+                            mi.comments = None
 
         except Exception, e:
             self.exception = e
@@ -132,11 +145,17 @@ class MetadataSource(Plugin): # {{{
             setattr(w, '_'+x, cb)
             cb.setChecked(c.get(x, True))
             w._layout.addWidget(cb)
+
+        cb = QCheckBox(_('Convert comments downloaded from %s to plain text')%(self.name))
+        setattr(w, '_textcomments', cb)
+        cb.setChecked(c.get('textcomments', False))
+        w._layout.addWidget(cb)
+
         return w
 
     def save_settings(self, w):
         dl_settings = {}
-        for x in ('rating', 'tags', 'comments'):
+        for x in ('rating', 'tags', 'comments', 'textcomments'):
             dl_settings[x] = getattr(w, '_'+x).isChecked()
         c = self.config_store()
         c.set(self.name, dl_settings)
@@ -209,6 +228,8 @@ class Amazon(MetadataSource): # {{{
     name = 'Amazon'
     metadata_type = 'social'
     description = _('Downloads social metadata from amazon.com')
+
+    has_html_comments = True
 
     def fetch(self):
         if not self.isbn:

@@ -25,7 +25,7 @@ class Danas(BasicNewsRecipe):
     remove_empty_feeds    = True
     extra_css             = """ @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
                                 @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
-                                .article_description,body,.lokacija{font-family: Tahoma,Arial,Helvetica,sans1,sans-serif}
+                                .article,.articledescription,body,.lokacija,.feed{font-family: Tahoma,Arial,Helvetica,sans1,sans-serif}
                                 .nadNaslov,h1,.preamble{font-family: Georgia,"Times New Roman",Times,serif1,serif}
                                 .antrfileText{border-left: 2px solid #999999; 
                                               margin-left: 0.8em; 
@@ -59,11 +59,14 @@ class Danas(BasicNewsRecipe):
                           ,(re.compile(u'\u201d'), lambda match: '&rdquo;') # right double quotation mark
                           ,(re.compile(u'\u201e'), lambda match: '&ldquo;') # double low-9 quotation mark                          
                           ,(re.compile(u'\u201f'), lambda match: '&rdquo;') # double high-reversed-9 quotation mark
+                          ,(re.compile(u'\u00f4'), lambda match: '&ldquo;') # latin small letter o with circumflex
+                          ,(re.compile(u'\u00f6'), lambda match: '&rdquo;') # latin small letter o with dieaeresis
+                          ,(re.compile(u'\u00e1'), lambda match: '&nbsp;' ) # latin small letter a with acute
                          ]
 
     keep_only_tags     = [dict(name='div', attrs={'id':'left'})]
     remove_tags = [
-                     dict(name='div', attrs={'class':['width_1_4','metaClanka','baner']})
+                     dict(name='div', attrs={'class':['width_1_4','metaClanka','baner','listaVesti','article_nav']})
                     ,dict(name='div', attrs={'id':'comments'})
                     ,dict(name=['object','link','iframe','meta'])
                   ]

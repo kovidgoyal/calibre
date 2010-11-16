@@ -1,74 +1,43 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
+import re
 
 class NewZealandHerald(BasicNewsRecipe):
 
     title       = 'New Zealand Herald'
-    __author__  = 'Krittika Goyal'
+    __author__  = 'Kovid Goyal'
     description = 'Daily news'
     timefmt = ' [%d %b, %Y]'
     language = 'en_NZ'
+    oldest_article = 2.5
 
-    no_stylesheets = True
-    remove_tags_before = dict(name='div', attrs={'class':'contentContainer left eight'})
-    remove_tags_after  = dict(name='div', attrs={'class':'callToAction'})
-    remove_tags = [
-       dict(name='iframe'),
-       dict(name='div', attrs={'class':['sectionHeader', 'tools','callToAction', 'contentContainer right two nopad relatedColumn']}),
-       #dict(name='div', attrs={'id':['shareContainer']}),
-       #dict(name='form', attrs={'onsubmit':"return verifySearch(this.w,'Keyword, citation, or #author')"}),
-       #dict(name='table', attrs={'cellspacing':'0'}),
+    feeds = [
+            ('Business',
+                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000003.xml'),
+            ('World',
+                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000002.xml'),
+            ('National',
+                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000001.xml'),
+            ('Entertainment',
+                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_001501119.xml'),
+            ('Travel',
+                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000007.xml'),
+            ('Opinion',
+                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000466.xml'),
+            ('Life & Style',
+                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000006.xml'),
+            ('Technology'
+                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000005.xml'),
+            ('Sport',
+                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000004.xml'),
+            ('Motoring',
+                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000009.xml'),
+            ('Property',
+                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000008.xml'),
     ]
 
-    def preprocess_html(self, soup):
-        table = soup.find('table')
-        if table is not None:
-            table.extract()
-        return soup
-
-    #TO GET ARTICLES IN SECTION
-    def nz_parse_section(self, url):
-            soup = self.index_to_soup(url)
-            div = soup.find(attrs={'class':'col-300 categoryList'})
-            date = div.find(attrs={'class':'link-list-heading'})
-
-            current_articles = []
-            for x in date.findAllNext(attrs={'class':['linkList', 'link-list-heading']}):
-                if x.get('class') == 'link-list-heading': break
-                for li in x.findAll('li'):
-                    a = li.find('a', href=True)
-                    if a is None:
-                        continue
-                    title = self.tag_to_string(a)
-                    url = a.get('href', False)
-                    if not url or not title:
-                        continue
-                    if url.startswith('/'):
-                         url = 'http://www.nzherald.co.nz'+url
-                    self.log('\t\tFound article:', title)
-                    self.log('\t\t\t', url)
-                    current_articles.append({'title': title, 'url':url,
-                        'description':'', 'date':''})
-
-            return current_articles
-
-
-    # To GET SECTIONS
-    def parse_index(self):
-            feeds = []
-            for title, url in [
-                ('National',
-                 'http://www.nzherald.co.nz/nz/news/headlines.cfm?c_id=1'),
-                ('World',
-                 'http://www.nzherald.co.nz/world/news/headlines.cfm?c_id=2'),
-                ('Politics',
-                 'http://www.nzherald.co.nz/politics/news/headlines.cfm?c_id=280'),
-                ('Crime',
-                 'http://www.nzherald.co.nz/crime/news/headlines.cfm?c_id=30'),
-                ('Environment',
-                 'http://www.nzherald.co.nz/environment/news/headlines.cfm?c_id=39'),
-             ]:
-               articles = self.nz_parse_section(url)
-               if articles:
-                   feeds.append((title, articles))
-            return feeds
+    def print_version(self, url):
+        m = re.search(r'objectid=(\d+)', url)
+        if m is None:
+            return url
+        return 'http://www.nzherald.co.nz/news/print.cfm?pnum=1&objectid=' + m.group(1)
 

@@ -233,17 +233,10 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def delete_books_by_id(self, ids):
         for id in ids:
-            try:
-                row = self.db.row(id)
-            except:
-                row = -1
-            if row > -1:
-                self.beginRemoveRows(QModelIndex(), row, row)
             self.db.delete_book(id)
-            if row > -1:
-                self.endRemoveRows()
         self.count_changed()
         self.clear_caches()
+        self.reset()
 
     def books_added(self, num):
         if num > 0:
@@ -335,7 +328,7 @@ class BooksModel(QAbstractTableModel): # {{{
             sidx = self.db.series_index(idx)
             sidx = fmt_sidx(sidx, use_roman = self.use_roman_numbers)
             data[_('Series')] = \
-                _('Book <font face="serif">%s</font> of %s.')%\
+                _('Book %s of %s.')%\
                     (sidx, prepare_string_for_xml(series))
         mi = self.db.get_metadata(idx)
         for key in mi.custom_field_keys():
@@ -374,6 +367,8 @@ class BooksModel(QAbstractTableModel): # {{{
         if isinstance(index, int):
             index = self.index(index, 0)
         data = self.current_changed(index, None, False)
+        if data is None:
+            return data
         row = index.row()
         data[_('Title')] = self.db.title(row)
         au = self.db.authors(row)
@@ -783,18 +778,22 @@ class BooksModel(QAbstractTableModel): # {{{
                     self.db.set_rating(id, val)
                 elif column == 'series':
                     val = val.strip()
-                    pat = re.compile(r'\[([.0-9]+)\]')
-                    match = pat.search(val)
-                    if match is not None:
-                        self.db.set_series_index(id, float(match.group(1)))
-                        val = pat.sub('', val).strip()
-                    elif val:
-                        if tweaks['series_index_auto_increment'] == 'next':
-                            ni = self.db.get_next_series_num_for(val)
-                            if ni != 1:
-                                self.db.set_series_index(id, ni)
-                    if val:
+                    if not val:
                         self.db.set_series(id, val)
+                        self.db.set_series_index(id, 1.0)
+                    else:
+                        pat = re.compile(r'\[([.0-9]+)\]')
+                        match = pat.search(val)
+                        if match is not None:
+                            self.db.set_series_index(id, float(match.group(1)))
+                            val = pat.sub('', val).strip()
+                        elif val:
+                            if tweaks['series_index_auto_increment'] == 'next':
+                                ni = self.db.get_next_series_num_for(val)
+                                if ni != 1:
+                                    self.db.set_series_index(id, ni)
+                        if val:
+                            self.db.set_series(id, val)
                 elif column == 'timestamp':
                     if val.isNull() or not val.isValid():
                         return False

@@ -1,0 +1,70 @@
+#!/usr/bin/env  python
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class PCLab(BasicNewsRecipe):
+    cover_url             = 'http://pclab.pl/img/logo.png'
+    title                 = u"PC Lab"
+    __author__            = 'ravcio - rlelusz[at]gmail.com'
+    description           = u"Articles from PC Lab website"
+    language              = 'pl'
+    oldest_article        = 30.0
+    max_articles_per_feed = 100
+    recursions            = 0
+    encoding              = 'iso-8859-2'
+    no_stylesheets        = True
+    remove_javascript     = True
+    use_embedded_content  = False
+
+    keep_only_tags = [
+            dict(name='div', attrs={'class':['substance']})
+                     ]
+
+    remove_tags = [
+            dict(name='div', attrs={'class':['chapters']})
+            ,dict(name='div', attrs={'id':['script_bxad_slot_display_list_bxad_slot']})
+                  ]
+
+    remove_tags_after = [
+            dict(name='div', attrs={'class':['navigation']})
+                ]
+
+    #links to RSS feeds
+    feeds = [ ('PCLab', u'http://pclab.pl/xml/artykuly.xml') ]
+
+    #load second and subsequent page content
+    # in: soup - full page with 'next' button
+    # out: appendtag - tag to which new page is to be added
+    def append_page(self, soup, appendtag):
+        # find the 'Next' button
+        pager = soup.find('div', attrs={'class':'next'})
+
+        if pager:
+            #search for 'a' element with link to next page (exit if not found)
+            a = pager.find('a')
+            if a:
+                nexturl = a['href']
+
+                soup2 = self.index_to_soup('http://pclab.pl/' + nexturl)
+
+                pagetext_substance = soup2.find('div', attrs={'class':'substance'})
+                pagetext = pagetext_substance.find('div', attrs={'class':'data'})
+                pagetext.extract()
+
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+                pos = len(appendtag.contents)
+
+                self.append_page(soup2, appendtag)
+
+
+    def preprocess_html(self, soup):
+
+        # soup.body contains no title and no navigator, they are in soup
+        self.append_page(soup, soup.body)
+
+        # finally remove some tags
+        tags = soup.findAll('div',attrs={'class':['tags', 'index', 'script_bxad_slot_display_list_bxad_slot', 'index first', 'zumi', 'navigation']})
+        [tag.extract() for tag in tags]
+
+        return soup

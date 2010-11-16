@@ -22,7 +22,9 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and Kovid Goyal'
-    version = (1, 0, 6)
+    version = (1, 0, 7)
+
+    dbversion = 0
 
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -36,8 +38,8 @@ class KOBO(USBMS):
     PRODUCT_ID  = [0x4161]
     BCD         = [0x0110]
 
-    VENDOR_NAME = 'KOBO_INC'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '.KOBOEREADER'
+    VENDOR_NAME = ['KOBO_INC', 'KOBO']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['.KOBOEREADER', 'EREADER']
 
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
@@ -92,7 +94,7 @@ class KOBO(USBMS):
                 if lpath.startswith(os.sep):
                     lpath = lpath[len(os.sep):]
                     lpath = lpath.replace('\\', '/')
-#                print "LPATH: " + lpath
+                # debug_print("LPATH: ", lpath, "  - Title:  " , title)
 
                 playlist_map = {}
 
@@ -112,7 +114,7 @@ class KOBO(USBMS):
                         #print "Image name Normalized: " + imagename
                         if imagename is not None:
                             bl[idx].thumbnail = ImageWrapper(imagename)
-                    if ContentType != '6':
+                    if (ContentType != '6'and self.dbversion < 8) or (self.dbversion >= 8):
                         if self.update_metadata_item(bl[idx]):
                             # print 'update_metadata_item returned true'
                             changed = True
@@ -120,10 +122,16 @@ class KOBO(USBMS):
                         playlist_map[lpath] not in bl[idx].device_collections:
                             bl[idx].device_collections.append(playlist_map[lpath])
                 else:
-                    if ContentType == '6':
+                    if ContentType == '6' and self.dbversion < 8:
                         book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
                     else:
-                        book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
+                        try:
+                            book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
+                        except:
+                            debug_print("prefix: ", prefix, "lpath: ", lpath, "title: ", title, "authors: ", authors, \
+                                        "mime: ", mime, "date: ", date, "ContentType: ", ContentType, "ImageID: ", ImageID)
+                            raise
+
                     # print 'Update booklist'
                     book.device_collections = [playlist_map[lpath]] if lpath in playlist_map else []
 
@@ -143,6 +151,13 @@ class KOBO(USBMS):
         #    numrows = row[0]
         #cursor.close()
 
+        # Determine the database version 
+        # 4 - Bluetooth Kobo Rev 2 (1.4) 
+        # 8 - WIFI KOBO Rev 1
+        cursor.execute('select version from dbversion')
+        result = cursor.fetchone()
+        self.dbversion = result[0]
+
         query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                 'ImageID, ReadStatus from content where BookID is Null'
 
@@ -153,7 +168,8 @@ class KOBO(USBMS):
         #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
 
             path = self.path_from_contentid(row[3], row[5], oncard)
-            mime = mime_type_ext(path_to_ext(row[3]))
+            mime = mime_type_ext(path_to_ext(path)) if path.find('kepub') == -1 else 'application/epub+zip'
+            # debug_print("mime:", mime)
 
             if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
                 changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7])
@@ -206,7 +222,7 @@ class KOBO(USBMS):
         cursor.close()
 
         cursor = connection.cursor()
-        if ContentType == 6:
+        if ContentType == 6 and self.dbversion < 8:
             # Delete the shortcover_pages first
             cursor.execute('delete from shortcover_page where shortcoverid in (select ContentID from content where BookID = ?)', t)
 
@@ -249,7 +265,7 @@ class KOBO(USBMS):
             path = self.normalize_path(path)
             # print "Delete file normalized path: " + path
             extension =  os.path.splitext(path)[1]
-            ContentType = self.get_content_type_from_extension(extension)
+            ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path)
 
             ContentID = self.contentid_from_path(path, ContentType)
 
@@ -332,9 +348,14 @@ class KOBO(USBMS):
 
     def contentid_from_path(self, path, ContentType):
         if ContentType == 6:
-            ContentID = os.path.splitext(path)[0]
-            # Remove the prefix on the file.  it could be either
-            ContentID = ContentID.replace(self._main_prefix, '')
+            if self.dbversion < 8:
+                ContentID = os.path.splitext(path)[0]
+                # Remove the prefix on the file.  it could be either
+                ContentID = ContentID.replace(self._main_prefix, '')
+            else:
+                ContentID = path
+                ContentID = ContentID.replace(self._main_prefix + '.kobo/kepub/', '')
+
             if self._card_a_prefix is not None:
                 ContentID = ContentID.replace(self._card_a_prefix, '')
         elif ContentType == 999: # HTML Files
@@ -349,6 +370,13 @@ class KOBO(USBMS):
                 ContentID = ContentID.replace(self._card_a_prefix, "file:///mnt/sd/")
         ContentID = ContentID.replace("\\", '/')
         return ContentID
+
+    def get_content_type_from_path(self, path):
+        # Strictly speaking the ContentType could be 6 or 10
+        # however newspapers have the same storage format
+        if path.find('kepub') >= 0:
+            ContentType = 6
+        return ContentType
 
     def get_content_type_from_extension(self, extension):
         if extension == '.kobo':
@@ -369,19 +397,22 @@ class KOBO(USBMS):
             print 'path from_contentid cardb'
         elif oncard == 'carda':
             path = path.replace("file:///mnt/sd/", self._card_a_prefix)
-            # print "SD Card: " + filename
+            # print "SD Card: " + path
         else:
-            if ContentType == "6":
+            if ContentType == "6" and self.dbversion < 8:
                 # This is a hack as the kobo files do not exist
                 # but the path is required to make a unique id
                 # for calibre's reference
                 path = self._main_prefix + path + '.kobo'
                 # print "Path: " + path
+            elif (ContentType == "6" or ContentType == "10") and self.dbversion >= 8:
+                path = self._main_prefix + '.kobo/kepub/' + path
+                # print "Internal: " + path
             else:
                 # if path.startswith("file:///mnt/onboard/"):
                 path = path.replace("file:///mnt/onboard/", self._main_prefix)
                 path = path.replace("/mnt/onboard/", self._main_prefix)
-                    # print "Internal: " + filename
+                # print "Internal: " + path
 
         return path
 
@@ -469,10 +500,14 @@ class KOBO(USBMS):
                         book.device_collections = ['Im_Reading']
 
                         extension =  os.path.splitext(book.path)[1]
-                        ContentType = self.get_content_type_from_extension(extension)
+                        ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
 
                         ContentID = self.contentid_from_path(book.path, ContentType)
-                        datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+
+                        t = (ContentID,)
+                        cursor.execute('select DateLastRead from Content where BookID is Null and ContentID = ?', t)
+                        result = cursor.fetchone()
+                        datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00' 
 
                         t = (datelastread,ContentID,)
 
@@ -505,7 +540,7 @@ class KOBO(USBMS):
                         book.device_collections = ['Read']
 
                         extension =  os.path.splitext(book.path)[1]
-                        ContentType = self.get_content_type_from_extension(extension)
+                        ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
 
                         ContentID = self.contentid_from_path(book.path, ContentType)
 #                        datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())

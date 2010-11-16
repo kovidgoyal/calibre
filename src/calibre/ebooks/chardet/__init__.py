@@ -30,9 +30,9 @@ def detect(aBuf):
 
 # Added by Kovid
 ENCODING_PATS = [
-                 re.compile(r'<\?[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>',
+                 re.compile(r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>',
                             re.IGNORECASE),
-                 re.compile(r'''<meta\s+?[^<>]+?content=['"][^'"]*?charset=([-a-z0-9]+)[^'"]*?['"][^<>]*>''',
+                 re.compile(r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-a-z0-9]+)[^'"]*?['"][^<>]*>''',
                             re.IGNORECASE)
                  ]
 ENTITY_PATTERN = re.compile(r'&(\S+?);')

@@ -21,8 +21,16 @@ class Pagina12(BasicNewsRecipe):
     use_embedded_content  = False
     language              = 'es'
     remove_empty_feeds    = True
+    publication_type      = 'newspaper'
     masthead_url          = 'http://www.pagina12.com.ar/commons/imgs/logo-home.gif'
-    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} #autor{font-weight: bold} #fecha,#epigrafe{font-size: 0.9em; margin: 5px} #imagen{border: 1px solid black; margin: 0 0 1.25em 1.25em; width: 232px }  '
+    extra_css             = """ 
+                               body{font-family: Arial,Helvetica,sans-serif } 
+                               img{margin-bottom: 0.4em; display:block}
+                               #autor{font-weight: bold} 
+                               #fecha,#epigrafe{font-size: 0.9em; margin: 5px} 
+                               #imagen{border: 1px solid black; margin: 0 0 1.25em 1.25em; width: 232px }
+                               .fgprincipal{font-size: large; font-weight: bold}
+                            """
 
     conversion_options = {
                           'comment'   : description
@@ -31,7 +39,11 @@ class Pagina12(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    remove_tags = [dict(name='div', attrs={'id':['volver','logo','logo_suple','fin','permalink']})]
+    remove_tags = [
+                     dict(name=['meta','link'])
+                    ,dict(name='div', attrs={'id':['volver','logo','logo_suple','fin','permalink']})
+                  ]
+    remove_attributes=['lang']
 
 
     feeds = [
@@ -65,4 +77,13 @@ class Pagina12(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
+        for item in soup.findAll('span', attrs={'id':'seccion'}):
+            it = item.a
+            it.name='span'
+            del it['href']
+            del it['title']
+        for item in soup.findAll('p'):
+            it = item.find('h3')            
+            if it:
+               it.name='span'
         return soup

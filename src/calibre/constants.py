@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = 'calibre'
-__version__   = '0.7.23'
+__version__   = '0.7.28'
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
 import re
@@ -105,7 +105,9 @@ else:
         os.makedirs(config_dir, mode=CONFIG_DIR_MODE)
     except:
         pass
-    if not os.access(config_dir, os.W_OK) or not os.access(config_dir, os.X_OK):
+    if not os.path.exists(config_dir) or \
+            not os.access(config_dir, os.W_OK) or not \
+            os.access(config_dir, os.X_OK):
         print 'No write acces to', config_dir, 'using a temporary dir instead'
         import tempfile, atexit
         config_dir = tempfile.mkdtemp(prefix='calibre-config-')

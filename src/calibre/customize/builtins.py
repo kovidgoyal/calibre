@@ -2,9 +2,7 @@ import os.path
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap
-import os
-import glob
+import textwrap, os, glob, functools
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase
 from calibre.constants import numeric_version
@@ -95,10 +93,12 @@ class ComicMetadataReader(MetadataReaderPlugin):
 
     def get_metadata(self, stream, ftype):
         if ftype == 'cbr':
-            from calibre.libunrar import extract_member as extract_first
+            from calibre.libunrar import extract_first_alphabetically as extract_first
             extract_first
         else:
-            from calibre.libunzip import extract_member as extract_first
+            from calibre.libunzip import extract_member
+            extract_first = functools.partial(extract_member,
+                    sort_alphabetically=True)
         from calibre.ebooks.metadata import MetaInformation
         ret = extract_first(stream)
         mi = MetaInformation(None, None)
@@ -292,7 +292,7 @@ class RTFMetadataReader(MetadataReaderPlugin):
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.rtf import get_metadata
         return get_metadata(stream)
-        
+
 class SNBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read SNB metadata'
@@ -446,6 +446,7 @@ from calibre.ebooks.rb.output import RBOutput
 from calibre.ebooks.rtf.output import RTFOutput
 from calibre.ebooks.tcr.output import TCROutput
 from calibre.ebooks.txt.output import TXTOutput
+from calibre.ebooks.html.output import HTMLOutput
 from calibre.ebooks.snb.output import SNBOutput
 
 from calibre.customize.profiles import input_profiles, output_profiles
@@ -453,7 +454,7 @@ from calibre.customize.profiles import input_profiles, output_profiles
 from calibre.devices.apple.driver import ITUNES
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY
-from calibre.devices.cybook.driver import CYBOOK
+from calibre.devices.cybook.driver import CYBOOK, ORIZON
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK, \
                 BOOQ, ELONEX, POCKETBOOK301, MENTOR
@@ -461,7 +462,7 @@ from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
-from calibre.devices.nook.driver import NOOK
+from calibre.devices.nook.driver import NOOK, NOOK_COLOR
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.android.driver import ANDROID, S60
 from calibre.devices.nokia.driver import N770, N810, E71X, E52
@@ -471,10 +472,11 @@ from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
-from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, SOVOS
+from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
+        SOVOS, PICO
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
-        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO
+        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
@@ -524,6 +526,7 @@ plugins += [
     RTFOutput,
     TCROutput,
     TXTOutput,
+    HTMLOutput,
     SNBOutput,
 ]
 # Order here matters. The first matched device is the one used.
@@ -532,6 +535,7 @@ plugins += [
     HANLINV5,
     BLACKBERRY,
     CYBOOK,
+    ORIZON,
     ILIAD,
     IREXDR1000,
     IREXDR800,
@@ -545,6 +549,7 @@ plugins += [
     KINDLE2,
     KINDLE_DX,
     NOOK,
+    NOOK_COLOR,
     PRS505,
     ANDROID,
     S60,
@@ -572,6 +577,7 @@ plugins += [
     ELONEX,
     TECLAST_K3,
     NEWSMY,
+    PICO,
     IPAPYRUS,
     SOVOS,
     EDGE,
@@ -584,6 +590,7 @@ plugins += [
     AVANT,
     MENTOR,
     SWEEX,
+    Q600,
     KOGAN,
     PDNOVEL,
     SPECTRA,
@@ -890,4 +897,3 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
         Email, Server, Plugins, Tweaks, Misc]
 
 #}}}
-
