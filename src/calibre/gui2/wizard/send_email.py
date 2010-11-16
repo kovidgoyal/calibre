@@ -125,6 +125,7 @@ class SendEmail(QWidget, Ui_Form):
                     'port': 587,
                     'username': '@gmail.com',
                     'url': 'www.gmail.com',
+                    'extra': ''
                 },
                 'hotmail': {
                     'name': 'Hotmail',
@@ -132,6 +133,9 @@ class SendEmail(QWidget, Ui_Form):
                     'port': 587,
                     'username': '',
                     'url': 'www.hotmail.com',
+                    'extra': _('If you are setting up a new'
+                        ' hotmail account, you must log in to it '
+                        ' once before you will be able to send mails.'),
                 }
         }[service]
         d = QDialog(self)
@@ -141,7 +145,7 @@ class SendEmail(QWidget, Ui_Form):
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
         d.tl = QLabel('<p>'+_('You can sign up for a free {name} email '
-            'account at <a href="http://{url}">http://{url}</a>.').format(
+            'account at <a href="http://{url}">http://{url}</a>. {extra}').format(
                 **service))
         l.addWidget(d.tl, 0, 0, 3, 0)
         d.tl.setWordWrap(True)
