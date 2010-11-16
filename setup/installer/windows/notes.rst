@@ -28,7 +28,7 @@ If there are no windows binaries already compiled for the version of python you 
 
 Run the following command to install python dependencies::
 
-    easy_install --always-unzip -U ipython mechanize pyreadline python-dateutil dnspython
+    easy_install --always-unzip -U ipython mechanize pyreadline python-dateutil dnspython cssutils clientform
 
 Install BeautifulSoup 3.0.x manually into site-packages (3.1.x parses broken HTML very poorly)
 
