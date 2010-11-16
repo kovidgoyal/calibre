@@ -1,31 +1,33 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
-moscowtimes.ru
+www.themoscowtimes.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Moscowtimes(BasicNewsRecipe):
-    title                 = u'The Moscow Times'
+    title                 = 'The Moscow Times'
     __author__            = 'Darko Miletic and Sujata Raman'
-    description           = 'News from Russia'
-    language = 'en'
-    lang = 'en'
-    oldest_article        = 7
+    description           = 'The Moscow Times is a daily English-language newspaper featuring objective, reliable news on business, politics, sports and culture in Moscow, in Russia and the former Soviet Union (CIS).'
+    category              = 'Russia, Moscow, Russian news, Moscow news, Russian newspaper, daily news, independent news, reliable news, USSR, Soviet Union, CIS, Russian politics, Russian business, Russian culture, Russian opinion, St Petersburg, Saint Petersburg'
+    publisher             = 'The Moscow Times'
+    language              = 'en'
+    oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    #encoding = 'utf-8'
-    encoding =  'cp1252'
-    remove_javascript = True
+    remove_empty_feeds    = True
+    encoding              = 'cp1251'
+    masthead_url          = 'http://www.themoscowtimes.com/bitrix/templates/tmt/img/logo.gif'
+    publication_type      = 'newspaper'
 
     conversion_options = {
-          'comment'          : description
-        , 'language'         : lang
-    }
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
 
     extra_css      = '''
                         h1{ color:#0066B3; font-family: Georgia,serif ; font-size: large}
@@ -35,39 +37,37 @@ class Moscowtimes(BasicNewsRecipe):
                         .text{font-family:Arial,Tahoma,Verdana,Helvetica,sans-serif ; font-size:75%; }
                         '''
     feeds          = [
-                        (u'The Moscow Times Top Stories' , u'http://www.themoscowtimes.com/rss/top'),
-                        (u'The Moscow Times Current Issue' , u'http://www.themoscowtimes.com/rss/issue'),
-                        (u'The Moscow Times News' , u'http://www.themoscowtimes.com/rss/news'),
-                        (u'The Moscow Times Business' , u'http://www.themoscowtimes.com/rss/business'),
-                        (u'The Moscow Times Art and Ideas' , u'http://www.themoscowtimes.com/rss/art'),
-                        (u'The Moscow Times Opinion' , u'http://www.themoscowtimes.com/rss/opinion')
+                         (u'Top Stories'   , u'http://www.themoscowtimes.com/rss/top'     )
+                        ,(u'Current Issue' , u'http://www.themoscowtimes.com/rss/issue'   )
+                        ,(u'News'          , u'http://www.themoscowtimes.com/rss/news'    )
+                        ,(u'Business'      , u'http://www.themoscowtimes.com/rss/business')
+                        ,(u'Art and Ideas' , u'http://www.themoscowtimes.com/rss/art'     )
+                        ,(u'Opinion'       , u'http://www.themoscowtimes.com/rss/opinion' )
                      ]
 
-    keep_only_tags = [
-                        dict(name='div', attrs={'class':['newstextblock']})
-                    ]
-
+    keep_only_tags = [dict(name='div', attrs={'id':'content'})]
     remove_tags    = [
-                        dict(name='div', attrs={'class':['photo_nav']})
-                    ]
-
+                       dict(name='div', attrs={'class':['photo_nav','phototext']})
+                      ,dict(name=['iframe','meta','base','link','embed','object'])
+                     ]
+                     
     def preprocess_html(self, soup):
-        soup.html['xml:lang'] = self.lang
-        soup.html['lang']     = self.lang
-        mtag = '<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '">'
-        soup.head.insert(0,mtag)
+        for lnk in soup.findAll('a'):
+            if lnk.string is not None:
+               ind = self.tag_to_string(lnk)
+               lnk.replaceWith(ind)
+        return soup
 
-        return self.adeify_images(soup)
-
+    def print_version(self, url):        
+        return url.replace('.themoscowtimes.com/','.themoscowtimes.com/print/')
 
     def get_cover_url(self):
-
+        cover_url = None
         href =  'http://www.themoscowtimes.com/pdf/'
-
-        soup = self.index_to_soup(href)
+        soup = self.index_to_soup(href)        
         div = soup.find('div',attrs={'class':'left'})
-        a = div.find('a')
-        print a
-        if a :
-           cover_url = a.img['src']
+        if div:
+            a = div.find('a')
+            if a :
+               cover_url = 'http://www.themoscowtimes.com' + a.img['src']
         return cover_url
