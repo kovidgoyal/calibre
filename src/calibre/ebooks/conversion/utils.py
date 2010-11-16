@@ -165,6 +165,8 @@ class PreProcessor(object):
         title_header_close = ")\s*"
         title_line_close = "(</(?P=inner6)>)?\s*(</(?P=inner5)>)?\s*(</(?P=inner4)\s[^>]*>)?\s*</(?P=outer2)>"
         opt_title_close = ")?"
+        n_lookahead_open = "(?!="
+        n_lookahead_close = ")"
 
         default_title = r"(\s*[\w\'\"-]+){1,5}?(?=<)"
         typical_chapters = r".?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}"
@@ -172,7 +174,11 @@ class PreProcessor(object):
         uppercase_chapters = r"\s*.?([A-Z#]+(\s|-){0,3}){1,5}\s*"
         numeric_titles = r".?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*"
 
-        chapter_marker = lookahead+chapter_line_open+chapter_header_open+typical_chapters+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
+        full_chapter_line = chapter_line_open+chapter_header_open+typical_chapters+chapter_header_close+chapter_line_close
+        n_lookahead = re.sub("(out|inn|cha)", "l", full_chapter_line)
+        print "n_lookahead is " + n_lookahead
+        print "Chapter line is " + full_chapter_line + "\n\n"
+        chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
         print chapter_marker
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
@@ -184,21 +190,33 @@ class PreProcessor(object):
             html = chapdetect.sub(self.chapter_head, html)
         if self.html_preprocess_sections < 10:
             self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying numeric chapters")
-            chapter_marker = lookahead+chapter_line_open+chapter_header_open+numeric_chapters+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
+            full_chapter_line = chapter_line_open+chapter_header_open+numeric_chapters+chapter_header_close+chapter_line_close
+            n_lookahead = re.sub("(out|inn|cha)", "l", full_chapter_line)
+            print "n_lookahead is " + n_lookahead
+            print "Chapter line is " + full_chapter_line + "\n\n"
+            chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
             print chapter_marker
             chapdetect2 = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
             html = chapdetect2.sub(self.chapter_head, html)
 
         if self.html_preprocess_sections < 10:
             self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying with uppercase words")
-            chapter_marker = lookahead+chapter_line_open+chapter_header_open+uppercase_chapters+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
+            full_chapter_line = chapter_line_open+chapter_header_open+uppercase_chapters+chapter_header_close+chapter_line_close
+            n_lookahead = re.sub("(out|inn|cha)", "l", full_chapter_line)
+            print "n_lookahead is " + n_lookahead
+            print "Chapter line is " + full_chapter_line + "\n\n"
+            chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
             print chapter_marker
             chapdetect2 = re.compile(r'%s' % chapter_marker,  re.UNICODE)
             html = chapdetect2.sub(self.chapter_head, html)
 
         if self.html_preprocess_sections < 10:
             self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying numeric chapters with titles")
-            chapter_marker = lookahead+chapter_line_open+chapter_header_open+numeric_titles+chapter_header_close+chapter_line_close+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
+            full_chapter_line = chapter_line_open+chapter_header_open+numeric_titles+chapter_header_close+chapter_line_close
+            n_lookahead = re.sub("(out|inn|cha)", "l", full_chapter_line)
+            print "n_lookahead is " + n_lookahead
+            print "Chapter line is " + full_chapter_line + "\n\n"
+            chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
             print chapter_marker
             chapdetect2 = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
             html = chapdetect2.sub(self.chapter_head, html)
