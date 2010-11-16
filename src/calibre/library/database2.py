@@ -36,33 +36,8 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
+from calibre.utils.recycle_bin import delete_file, delete_tree
 
-if iswindows:
-    import calibre.utils.winshell as winshell
-
-def delete_file(path):
-    try:
-        winshell.delete_file(path, silent=True, no_confirm=True)
-    except:
-        os.remove(path)
-
-def delete_tree(path, permanent=False):
-    if permanent:
-        try:
-            # For completely mysterious reasons, sometimes a file is left open
-            # leading to access errors. If we get an exception, wait and hope
-            # that whatever has the file (the O/S?) lets go of it.
-            shutil.rmtree(path)
-        except:
-            traceback.print_exc()
-            time.sleep(1)
-            shutil.rmtree(path)
-    else:
-        try:
-            if not permanent:
-                winshell.delete_file(path, silent=True, no_confirm=True)
-        except:
-            delete_tree(path, permanent=True)
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
@@ -983,10 +958,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path = None
         self.data.remove(id)
         if path and os.path.exists(path):
-            try:
-                winshell.delete_file(path, no_confirm=True, silent=True)
-            except:
-                self.rmtree(path)
+            self.rmtree(path)
             parent = os.path.dirname(path)
             if len(os.listdir(parent)) == 0:
                 self.rmtree(parent)
