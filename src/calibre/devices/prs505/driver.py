@@ -199,6 +199,8 @@ class PRS505(USBMS):
             thumbnail_dir = os.path.join(prefix, *thumbnail_dir.split('/'))
 
             relpath = os.path.relpath(filepath, prefix)
+            if relpath.startswith('..\\'):
+                relpath = relpath[3:]
             thumbnail_dir = os.path.join(thumbnail_dir, relpath)
             if not os.path.exists(thumbnail_dir):
                 os.makedirs(thumbnail_dir)
