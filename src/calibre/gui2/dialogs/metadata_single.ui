@@ -456,7 +456,7 @@ Using this button to create author sort will change author sort from red to gree
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
-                        <height>130</height>
+                        <height>140</height>
                        </size>
                       </property>
                       <property name="dragDropMode">

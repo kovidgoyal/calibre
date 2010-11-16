@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, tempfile, os, time, sys
+import subprocess, tempfile, os, time, sys, telnetlib
 from threading import RLock
 
 from setup import Command
@@ -28,13 +28,21 @@ else:
         def process_default(self, event):
             name = getattr(event,
                     'name', None)
-            if name and os.path.splitext(name)[1] == '.py':
+            if not name:
+                return
+            ext = os.path.splitext(name)[1]
+            reload = False
+            if ext == '.py':
+                reload = True
                 print
                 print name, 'changed'
                 self.command.kill_server()
                 self.command.launch_server()
                 print self.command.prompt,
                 sys.stdout.flush()
+
+            if reload:
+                self.command.reload_browser(delay=1)
 
 
 class Server(Command):
@@ -75,6 +83,19 @@ class Server(Command):
             self.notifier.start()
             self.wdd = wm.add_watch(os.path.abspath('src'), mask, rec=True)
 
+    def reload_browser(self, delay=0.1):
+        time.sleep(delay)
+        try:
+            t = telnetlib.Telnet('localhost', 4242)
+            t.read_until("repl>")
+            t.write('BrowserReload();')
+            t.read_until("repl>")
+            t.close()
+        except:
+            print 'Failed to reload browser'
+            import traceback
+            traceback.print_exc()
+
     def run(self, opts):
         self.lock = RLock()
         tdir = tempfile.gettempdir()
@@ -85,8 +106,13 @@ class Server(Command):
         print
         self.watch()
 
+        first = True
         while True:
             self.launch_server()
+            if not first:
+                self.reload_browser()
+            first = False
+
             try:
                 raw_input(self.prompt)
             except:

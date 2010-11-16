@@ -861,6 +861,7 @@ class TagBrowserWidget(QWidget): # {{{
         QWidget.__init__(self, parent)
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
+        self._layout.setContentsMargins(0,0,0,0)
 
         parent.tags_view = TagsView(parent)
         self._layout.addWidget(parent.tags_view)

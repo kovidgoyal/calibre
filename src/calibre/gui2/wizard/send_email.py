@@ -8,13 +8,15 @@ __docformat__ = 'restructuredtext en'
 
 import cStringIO, sys
 from binascii import hexlify, unhexlify
+from functools import partial
 
-from PyQt4.Qt import QWidget, pyqtSignal, QDialog, Qt
+from PyQt4.Qt import QWidget, pyqtSignal, QDialog, Qt, QLabel, \
+        QLineEdit, QDialogButtonBox, QGridLayout, QCheckBox
 
 from calibre.gui2.wizard.send_email_ui import Ui_Form
 from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2.dialogs.test_email_ui import Ui_Dialog as TE_Dialog
-from calibre.gui2 import error_dialog, info_dialog
+from calibre.gui2 import error_dialog
 
 class TestEmail(QDialog, TE_Dialog):
 
@@ -74,8 +76,9 @@ class SendEmail(QWidget, Ui_Form):
         (self.relay_tls if opts.encryption == 'TLS' else self.relay_ssl).setChecked(True)
         self.relay_tls.toggled.connect(self.changed)
 
-        self.relay_use_gmail.clicked.connect(
-                     self.create_gmail_relay)
+        for x in ('gmail', 'hotmail'):
+            button = getattr(self, 'relay_use_'+x)
+            button.clicked.connect(partial(self.create_service_relay, x))
         self.relay_show_password.stateChanged.connect(
          lambda state : self.relay_password.setEchoMode(
              self.relay_password.Password if
@@ -114,18 +117,74 @@ class SendEmail(QWidget, Ui_Form):
             sys.stdout, sys.stderr = oout, oerr
         return tb
 
-    def create_gmail_relay(self, *args):
-        self.relay_username.setText('@gmail.com')
-        self.relay_password.setText('')
-        self.relay_host.setText('smtp.gmail.com')
-        self.relay_port.setValue(587)
+    def create_service_relay(self, service, *args):
+        service = {
+                'gmail': {
+                    'name': 'Gmail',
+                    'relay': 'smtp.gmail.com',
+                    'port': 587,
+                    'username': '@gmail.com',
+                    'url': 'www.gmail.com',
+                },
+                'hotmail': {
+                    'name': 'Hotmail',
+                    'relay': 'smtp.live.com',
+                    'port': 587,
+                    'username': '',
+                    'url': 'www.hotmail.com',
+                }
+        }[service]
+        d = QDialog(self)
+        l = QGridLayout()
+        d.setLayout(l)
+        bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb.accepted.connect(d.accept)
+        bb.rejected.connect(d.reject)
+        d.tl = QLabel('<p>'+_('You can sign up for a free {name} email '
+            'account at <a href="http://{url}">http://{url}</a>.').format(
+                **service))
+        l.addWidget(d.tl, 0, 0, 3, 0)
+        d.tl.setWordWrap(True)
+        d.tl.setOpenExternalLinks(True)
+        for name, label in (
+                ['from_', _('Your %s &email address:')],
+                ['username', _('Your %s &username:')],
+                ['password', _('Your %s &password:')],
+                ):
+            la = QLabel(label%service['name'])
+            le = QLineEdit(d)
+            setattr(d, name, le)
+            setattr(d, name+'_label', la)
+            r = l.rowCount()
+            l.addWidget(la, r, 0)
+            l.addWidget(le, r, 1)
+            la.setBuddy(le)
+            if name == 'password':
+                d.ptoggle = QCheckBox(_('&Show password'), d)
+                l.addWidget(d.ptoggle, r, 2)
+                d.ptoggle.stateChanged.connect(
+                        lambda s: d.password.setEchoMode(d.password.Normal if s
+                            == Qt.Checked else d.password.Password))
+        d.username.setText(service['username'])
+        d.password.setEchoMode(d.password.Password)
+        d.bl = QLabel('<p>' + _(
+            'If you plan to use email to send books to your Kindle, remember to'
+            ' add the your %s email address to the allowed email addresses in your '
+            'Amazon.com Kindle management page.')%service['name'])
+        d.bl.setWordWrap(True)
+        l.addWidget(d.bl, l.rowCount(), 0, 3, 0)
+        l.addWidget(bb, l.rowCount(), 0, 3, 0)
+        d.setWindowTitle(_('Setup') + ' ' + service['name'])
+        d.resize(d.sizeHint())
+        bb.setVisible(True)
+        if d.exec_() != d.Accepted:
+            return
+        self.relay_username.setText(d.username.text())
+        self.relay_password.setText(d.password.text())
+        self.email_from.setText(d.from_.text())
+        self.relay_host.setText(service['relay'])
+        self.relay_port.setValue(service['port'])
         self.relay_tls.setChecked(True)
-
-        info_dialog(self, _('Finish gmail setup'),
-            _('Dont forget to enter your gmail username and password. '
-                'You can sign up for a free gmail account at http://gmail.com')).exec_()
-        self.relay_username.setFocus(Qt.OtherFocusReason)
-        self.relay_username.setCursorPosition(0)
 
     def set_email_settings(self, to_set):
         from_ = unicode(self.email_from.text()).strip()

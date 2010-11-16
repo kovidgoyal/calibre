@@ -21,15 +21,14 @@
 #import pdb
 #pdb.set_trace()
 import zipfile
-import xml.sax
 from xml.sax import handler, expatreader
 from xml.sax.xmlreader import InputSource
 from xml.sax.saxutils import escape, quoteattr
 from cStringIO import StringIO
 
-from namespaces import ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FONS, \
-  FORMNS, MATHNS, METANS, NUMBERNS, OFFICENS, PRESENTATIONNS, SCRIPTNS, \
-  SMILNS, STYLENS, SVGNS, TABLENS, TEXTNS, XLINKNS
+from namespaces import DCNS, DRAWNS, FONS, \
+  METANS, NUMBERNS, OFFICENS, PRESENTATIONNS, \
+  STYLENS, SVGNS, TABLENS, TEXTNS, XLINKNS
 
 # Handling of styles
 #
@@ -526,7 +525,8 @@ class ODF2XHTML(handler.ContentHandler):
 
     def get_anchor(self, name):
         if not self.anchors.has_key(name):
-            self.anchors[name] = "anchor%03d" % (len(self.anchors) + 1)
+            # Changed by Kovid
+            self.anchors[name] = "anchor%d" % (len(self.anchors) + 1)
         return self.anchors.get(name)
 
 
@@ -1025,8 +1025,12 @@ class ODF2XHTML(handler.ContentHandler):
         if level < 1: level = 1
         lev = self.headinglevels[1:level+1]
         outline = '.'.join(map(str,lev) )
-        anchor = self.get_anchor("%s.%s" % ( outline, ''.join(self.data)))
+        tail = ''.join(self.data)
+        anchor = self.get_anchor("%s.%s" % ( outline, tail))
+        anchor2 = self.get_anchor(tail) # Added by kovid to fix #7506
         self.opentag('a', {'id': anchor} )
+        self.closetag('a', False)
+        self.opentag('a', {'id': anchor2} )
         self.closetag('a', False)
         self.closetag('h%s' % level)
         self.purgedata()

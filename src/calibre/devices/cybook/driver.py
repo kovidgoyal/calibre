@@ -5,7 +5,7 @@ __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 '''
-Device driver for Bookeen's Cybook Gen 3 and Opus
+Device driver for Bookeen's Cybook Gen 3 and Opus and Orizon
 '''
 
 import os
@@ -56,3 +56,23 @@ class CYBOOK(USBMS):
         if isunix:
             return device_info[3] == 'Bookeen' and (device_info[4] == 'Cybook Gen3' or device_info[4] == 'Cybook Opus')
         return True
+
+class ORIZON(CYBOOK):
+
+    name           = 'Orizon Device Interface'
+    gui_name       = 'Orizon'
+    description    = _('Communicate with the Cybook Orizon eBook reader.')
+
+    BCD         = [0x319]
+
+    WINDOWS_MAIN_MEM = re.compile(r'CYBOOK_ORIZON__-FD')
+    WINDOWS_CARD_A_MEM = re.compile('CYBOOK_ORIZON__-SD')
+
+    EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Digital Editions'
+
+    @classmethod
+    def can_handle(cls, device_info, debug=False):
+        if isunix:
+            return device_info[3] == 'Bookeen' and device_info[4] == 'Cybook Orizon'
+        return True
+

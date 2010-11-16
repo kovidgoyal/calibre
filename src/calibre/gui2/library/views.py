@@ -50,6 +50,13 @@ class BooksView(QTableView): # {{{
     def __init__(self, parent, modelcls=BooksModel):
         QTableView.__init__(self, parent)
 
+        self.setEditTriggers(self.EditKeyPressed)
+        if tweaks['doubleclick_on_library_view'] == 'edit_cell':
+            self.setEditTriggers(self.DoubleClicked|self.editTriggers())
+        elif tweaks['doubleclick_on_library_view'] == 'open_viewer':
+            self.setEditTriggers(self.SelectedClicked|self.editTriggers())
+            self.doubleClicked.connect(parent.iactions['View'].view_triggered)
+
         self.drag_allowed = True
         self.setDragEnabled(True)
         self.setDragDropOverwriteMode(False)
@@ -385,7 +392,8 @@ class BooksView(QTableView): # {{{
         self.save_state()
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
-        self.authors_delegate.set_auto_complete_function(db.all_authors)
+        self.authors_delegate.set_auto_complete_function(
+                lambda: [(x, y.replace('|', ',')) for (x, y) in db.all_authors()])
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
 

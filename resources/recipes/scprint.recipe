@@ -1,0 +1,73 @@
+from calibre.web.feeds.news import BasicNewsRecipe, LoginFailed
+
+class SCPrintMagazine(BasicNewsRecipe):
+    title          = u'SC Print Magazine'
+    __author__ = u'Tony Maro'
+    description = u'Last print version of the data security magazine'
+    INDEX = "http://www.scmagazineus.com/issuearchive/"
+    no_stylesheets = True
+    language = 'en'
+    keep_only_tags = [dict(id=['article','review'])]
+    remove_tags = [dict(id=['articlePrintTools','reviewBodyColumn'])]
+    LOG_IN = 'http://www.scmagazineus.com/login/'
+    tags = 'News,SC Magazine'
+    needs_subscription = True
+
+    def parse_index(self):
+        articles = []
+        issuelink = printsections = None
+
+        soup = self.index_to_soup(self.INDEX)
+        sectit = soup.find('div', attrs={'class':'issueArchiveItem'})
+        if sectit is not None:
+            linkt = sectit.find('a')
+            issuelink = linkt['href']
+            imgt = sectit.find('img')
+            self.cover_url = imgt['src']
+
+        if issuelink is not None:
+            issue = self.index_to_soup(issuelink)
+            if issue is not None:
+                printsections = issue.findAll('div',attrs={'class':'PrintSection'})
+        if printsections is not None:
+            for printsection in printsections:
+                onesection = []
+                sectiontitle = printsection.find('h3').contents[0]
+                articlesec = printsection.findAll('div',attrs={'class':'IssueArchiveFormat'})
+                if articlesec is not None:
+                    ''' got articles '''
+                    for onearticle in articlesec:
+                        ''' process one article '''
+                        arttitlet = onearticle.find('h3')
+                        if arttitlet is not None:
+                            mylink = arttitlet.find('a')
+                            if mylink is not None:
+                                if mylink.has_key('title'):
+                                    arttitle = mylink['title']
+                                else:
+                                    arttitle = 'unknown'
+                                if mylink.has_key('href'):
+                                    artlink = mylink['href']
+                                    artlink = artlink.replace("/article","/printarticle")
+                                    artlink = artlink.replace("/review","/printreview")
+                                    deck = onearticle.find('div',attrs={'class':'deck'})
+                                    if deck is not None:
+                                        deck = deck.contents[0]
+                                        onesection.append({'title':arttitle, 'url':artlink, 'description':deck,'date':''})
+                    articles.append((sectiontitle, onesection))
+
+        return articles
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open(self.LOG_IN)
+        br.select_form(name='aspnetForm')
+        br['ctl00$ctl00$cphAllPageContent$cphMainContent$SubscriberEasyLoginView1$txtEmail'] = self.username
+        br['ctl00$ctl00$cphAllPageContent$cphMainContent$SubscriberEasyLoginView1$txtPassword'] = self.password
+        raw = br.submit("ctl00$ctl00$cphAllPageContent$cphMainContent$SubscriberEasyLoginView1$btnLogin").read()
+        if 'Logout</a>' not in raw:
+            raise LoginFailed(
+                    _('Failed to log in, check your username and password for'
+                    ' the calibre Periodicals service.'))
+        return br
+

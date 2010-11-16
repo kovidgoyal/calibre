@@ -358,10 +358,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def toc_clicked(self, index):
         item = self.toc_model.itemFromIndex(index)
-        url = QUrl.fromLocalFile(item.abspath)
-        if item.fragment:
-            url.setFragment(item.fragment)
-        self.link_clicked(url)
+        if item.abspath is not None:
+            url = QUrl.fromLocalFile(item.abspath)
+            if item.fragment:
+                url.setFragment(item.fragment)
+            self.link_clicked(url)
 
     def selection_changed(self, selected_text):
         self.selected_text = selected_text.strip()
@@ -471,8 +472,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             if path != self.current_page:
                 self.pending_anchor = frag
                 self.load_path(path)
-            elif frag:
-                self.view.scroll_to(frag)
+            else:
+                if frag:
+                    self.view.scroll_to(frag)
+                else:
+                    # Scroll to top
+                    self.view.scroll_to('#')
         else:
             open_url(url)
 

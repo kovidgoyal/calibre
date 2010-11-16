@@ -1,0 +1,43 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import re
+
+class AdvancedUserRecipe1283848012(BasicNewsRecipe):
+    description   = 'This is a recipe of Calcalist.co.il. The recipe downloads the article page to not hurt the sites advertising income.'
+    cover_url      = 'http://ftp5.bizportal.co.il/web/giflib/news/calcalist.JPG'
+    title          = u'Calcalist'
+    language              = 'he'
+    __author__ = 'marbs'
+    extra_css='img {max-width:100%;} body{direction: rtl;},title{direction: rtl; } ,article_description{direction: rtl; }, a.article{direction: rtl; } ,calibre_feed_description{direction: rtl; }'
+    simultaneous_downloads = 5
+    remove_javascript     = True
+    timefmt        = '[%a, %d %b, %Y]'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    remove_attributes = ['width']
+    simultaneous_downloads = 5
+    keep_only_tags =dict(name='div', attrs={'id':'articleContainer'})
+    remove_tags = [dict(name='p', attrs={'text':['&nbsp;']})]
+    max_articles_per_feed = 100
+    preprocess_regexps = [
+        (re.compile(r'<p>&nbsp;</p>', re.DOTALL|re.IGNORECASE), lambda match: '')
+        ]
+
+
+    feeds          = [(u'\u05d3\u05e3 \u05d4\u05d1\u05d9\u05ea', u'http://www.calcalist.co.il/integration/StoryRss8.xml'),
+                           (u'24/7', u'http://www.calcalist.co.il/integration/StoryRss3674.xml'),
+                           (u'\u05d1\u05d0\u05d6\u05d6', u'http://www.calcalist.co.il/integration/StoryRss3674.xml'),
+                           (u'\u05de\u05d1\u05d6\u05e7\u05d9\u05dd', u'http://www.calcalist.co.il/integration/StoryRss184.xml'),
+                           (u'\u05d4\u05e9\u05d5\u05e7', u'http://www.calcalist.co.il/integration/StoryRss2.xml'),
+                           (u'\u05d1\u05d0\u05e8\u05e5', u'http://www.calcalist.co.il/integration/StoryRss14.xml'),
+                           (u'\u05d4\u05db\u05e1\u05e3', u'http://www.calcalist.co.il/integration/StoryRss9.xml'),
+                           (u'\u05e0\u05d3\u05dc"\u05df', u'http://www.calcalist.co.il/integration/StoryRss7.xml'),
+                           (u'\u05e2\u05d5\u05dc\u05dd', u'http://www.calcalist.co.il/integration/StoryRss13.xml'),
+                           (u'\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05e9\u05d9\u05d5\u05d5\u05e7', u'http://www.calcalist.co.il/integration/StoryRss5.xml'),
+                           (u'\u05e4\u05e0\u05d0\u05d9', u'http://www.calcalist.co.il/integration/StoryRss3.xml'),
+                           (u'\u05d8\u05db\u05e0\u05d5\u05dc\u05d5\u05d2\u05d9', u'http://www.calcalist.co.il/integration/StoryRss4.xml'),
+                           (u'\u05e2\u05e1\u05e7\u05d9 \u05e1\u05e4\u05d5\u05e8\u05d8', u'http://www.calcalist.co.il/integration/StoryRss18.xml')]
+
+    def print_version(self, url):
+        split1 = url.split("-")
+        print_url = 'http://www.calcalist.co.il/Ext/Comp/ArticleLayout/CdaArticlePrintPreview/1,2506,L-' + split1[1]
+        return print_url

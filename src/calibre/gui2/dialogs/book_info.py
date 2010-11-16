@@ -5,8 +5,8 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, os, re
 
-from PyQt4.QtCore import QCoreApplication, SIGNAL, QModelIndex, QTimer, Qt
-from PyQt4.QtGui import QDialog, QPixmap, QGraphicsScene, QIcon
+from PyQt4.Qt import QCoreApplication, SIGNAL, QModelIndex, QTimer, Qt, \
+    QDialog, QPixmap, QGraphicsScene, QIcon, QSize
 
 from calibre.gui2.dialogs.book_info_ui import Ui_BookInfo
 from calibre.gui2 import dynamic, open_local_file
@@ -20,6 +20,8 @@ class BookInfo(QDialog, Ui_BookInfo):
         Ui_BookInfo.__init__(self)
         self.setupUi(self)
         self.cover_pixmap = None
+        self.comments.sizeHint = self.comments_size_hint
+
         desktop = QCoreApplication.instance().desktop()
         screen_height = desktop.availableGeometry().height() - 100
         self.resize(self.size().width(), screen_height)
@@ -37,12 +39,16 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
         self.cover.resizeEvent = self.cover_view_resized
 
+    def comments_size_hint(self):
+        return QSize(350, 350)
+
     def toggle_cover_fit(self, state):
         dynamic.set('book_info_dialog_fit_cover', self.fit_cover.isChecked())
         self.resize_cover()
 
     def cover_view_resized(self, event):
         QTimer.singleShot(1, self.resize_cover)
+
     def slave(self, current, previous):
         row = current.row()
         self.refresh(row)
@@ -108,7 +114,7 @@ class BookInfo(QDialog, Ui_BookInfo):
             lines = comments.splitlines()
             lines = [x if x.strip() else '<br><br>' for x in lines]
             comments = '\n'.join(lines)
-        self.comments.setText('<div>%s</div>' % comments)
+        self.comments.setHtml('<div>%s</div>' % comments)
         cdata = info.pop('cover', '')
         self.cover_pixmap = QPixmap.fromImage(cdata)
         self.resize_cover()

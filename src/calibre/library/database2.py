@@ -1759,6 +1759,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 ans.append(tag)
         return ans
 
+    def remove_all_tags(self, ids, notify=False, commit=True):
+        self.conn.executemany(
+            'DELETE FROM books_tags_link WHERE book=?', [(x,) for x in ids])
+        self.dirtied(ids, commit=False)
+        if commit:
+            self.conn.commit()
+
+        for x in ids:
+            self.data.set(x, self.FIELD_MAP['tags'], '', row_is_id=True)
+        if notify:
+            self.notify('metadata', ids)
+
     def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
         add = self.cleanup_tags(add)
         remove = self.cleanup_tags(remove)

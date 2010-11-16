@@ -233,17 +233,10 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def delete_books_by_id(self, ids):
         for id in ids:
-            try:
-                row = self.db.row(id)
-            except:
-                row = -1
-            if row > -1:
-                self.beginRemoveRows(QModelIndex(), row, row)
             self.db.delete_book(id)
-            if row > -1:
-                self.endRemoveRows()
         self.count_changed()
         self.clear_caches()
+        self.reset()
 
     def books_added(self, num):
         if num > 0:
@@ -335,7 +328,7 @@ class BooksModel(QAbstractTableModel): # {{{
             sidx = self.db.series_index(idx)
             sidx = fmt_sidx(sidx, use_roman = self.use_roman_numbers)
             data[_('Series')] = \
-                _('Book <font face="serif">%s</font> of %s.')%\
+                _('Book %s of %s.')%\
                     (sidx, prepare_string_for_xml(series))
         mi = self.db.get_metadata(idx)
         for key in mi.custom_field_keys():

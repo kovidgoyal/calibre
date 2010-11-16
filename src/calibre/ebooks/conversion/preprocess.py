@@ -144,7 +144,10 @@ class DocAnalysis(object):
 
         # Normalize the histogram into percents
         totalLines = len(self.lines)
-        h = [ float(count)/totalLines for count in hRaw ]
+        if totalLines > 0:
+            h = [ float(count)/totalLines for count in hRaw ]
+        else:
+            h = []
         #print "\nhRaw histogram lengths are: "+str(hRaw)
         #print "              percents are: "+str(h)+"\n"
 

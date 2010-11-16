@@ -9,11 +9,13 @@ Fetch metadata using Amazon AWS
 import sys, re
 
 from lxml import html
+from lxml.html import soupparser
 
 from calibre import browser
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.library.comments import sanitize_comments_html
 
 def find_asin(br, isbn):
     q = 'http://www.amazon.com/s?field-keywords='+isbn
@@ -47,13 +49,12 @@ def get_social_metadata(title, authors, publisher, isbn):
         return mi
     br = browser()
     asin = to_asin(br, isbn)
-    if asin:
-        if get_metadata(br, asin, mi):
-            return mi
+    if asin and get_metadata(br, asin, mi):
+        return mi
     from calibre.ebooks.metadata.xisbn import xisbn
     for i in xisbn.get_associated_isbns(isbn):
         asin = to_asin(br, i)
-        if get_metadata(br, asin, mi):
+        if asin and get_metadata(br, asin, mi):
             return mi
     return mi
 
@@ -70,7 +71,10 @@ def get_metadata(br, asin, mi):
         return False
     raw = xml_to_unicode(raw, strip_encoding_pats=True,
             resolve_entities=True)[0]
-    root = html.fromstring(raw)
+    try:
+        root = soupparser.fromstring(raw)
+    except:
+        return False
     ratings = root.xpath('//form[@id="handleBuy"]/descendant::*[@class="asinReviewsSummary"]')
     if ratings:
         pat = re.compile(r'([0-9.]+) out of (\d+) stars')
@@ -95,13 +99,13 @@ def get_metadata(br, asin, mi):
         # remove all attributes from tags
         desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
         # Collapse whitespace
-        desc = re.sub('\n+', '\n', desc)
-        desc = re.sub(' +', ' ', desc)
+        #desc = re.sub('\n+', '\n', desc)
+        #desc = re.sub(' +', ' ', desc)
         # Remove the notice about text referring to out of print editions
         desc = re.sub(r'(?s)<em>--This text ref.*?</em>', '', desc)
         # Remove comments
         desc = re.sub(r'(?s)<!--.*?-->', '', desc)
-        mi.comments = desc
+        mi.comments = sanitize_comments_html(desc)
 
     return True
 
@@ -112,7 +116,7 @@ def main(args=sys.argv):
     print
 
     # Test sophisticated comment formatting
-    print get_social_metadata('Swan Thieves', None, None, '9780316065795')
+    print get_social_metadata('Angels & Demons', None, None, '9781416580829')
     print
 
     # Random tests

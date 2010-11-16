@@ -148,6 +148,10 @@ class SearchBox2(QComboBox):
         self.line_edit.setStyleSheet('QLineEdit { color: black; background-color: %s; }' % col)
 
     def key_pressed(self, event):
+        k = event.key()
+        if k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down,
+                Qt.Key_Home, Qt.Key_End, Qt.Key_PageUp, Qt.Key_PageDown):
+            return
         self.normalize_state()
         if self._in_a_search:
             self.emit(SIGNAL('changed()'))
@@ -159,8 +163,11 @@ class SearchBox2(QComboBox):
 
     def mouse_released(self, event):
         self.normalize_state()
-        if self.as_you_type:
-            self.timer.start(1500)
+        # Dont trigger a search since it make
+        # re-positioning the cursor using the mouse
+        # impossible
+        #if self.as_you_type:
+        #    self.timer.start(1500)
 
     def timer_event(self):
         self.do_search()
@@ -176,7 +183,7 @@ class SearchBox2(QComboBox):
             return ''
         return text
 
-    def do_search(self):
+    def do_search(self, *args):
         text = unicode(self.currentText()).strip()
         if not text or text == self.help_text:
             return self.clear()
@@ -365,7 +372,7 @@ class SearchBoxMixin(object):
         self.search.setMaximumWidth(self.width()-150)
         self.action_focus_search = QAction(self)
         shortcuts = QKeySequence.keyBindings(QKeySequence.Find)
-        shortcuts = list(shortcuts) + [QKeySequence('/')]
+        shortcuts = list(shortcuts) + [QKeySequence('/'), QKeySequence('Alt+S')]
         self.action_focus_search.setShortcuts(shortcuts)
         self.action_focus_search.triggered.connect(lambda x:
                 self.search.setFocus(Qt.OtherFocusReason))
@@ -385,7 +392,7 @@ class SearchBoxMixin(object):
         self.tags_view.clear()
 
     def do_advanced_search(self, *args):
-        d = SearchDialog(self)
+        d = SearchDialog(self, self.library_view.model().db)
         if d.exec_() == QDialog.Accepted:
             self.search.set_search_string(d.search_string())
 

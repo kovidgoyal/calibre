@@ -245,6 +245,9 @@ class BrowseServer(object):
         ans = ans.replace('{sort_select_label}', xml(_('Sort by')+':'))
         ans = ans.replace('{sort_cookie_name}', scn)
         ans = ans.replace('{prefix}', self.opts.url_prefix)
+        ans = ans.replace('{library}', _('library'))
+        ans = ans.replace('{home}', _('home'))
+        ans = ans.replace('{Search}', _('Search'))
         opts = ['<option %svalue="%s">%s</option>' % (
             'selected="selected" ' if k==sort else '',
             xml(k), xml(n), ) for k, n in
@@ -253,8 +256,6 @@ class BrowseServer(object):
         lp = self.db.library_path
         if isbytestring(lp):
             lp = force_unicode(lp, filesystem_encoding)
-        if isinstance(ans, unicode):
-            ans = ans.encode('utf-8')
         ans = ans.replace('{library_name}', xml(os.path.basename(lp)))
         ans = ans.replace('{library_path}', xml(lp, True))
         ans = ans.replace('{initial_search}', initial_search)

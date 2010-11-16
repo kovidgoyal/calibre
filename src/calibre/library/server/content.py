@@ -128,7 +128,7 @@ class ContentServer(object):
         if want_mobile:
             return self.mobile()
 
-        return self.browse_toplevel()
+        return self.browse_catalog()
 
     def old(self, **kwargs):
         return self.static('index.html').replace('{prefix}',

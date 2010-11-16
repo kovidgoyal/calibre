@@ -192,14 +192,15 @@ class EditMetadataAction(InterfaceAction):
                         _('At least two books must be selected for merging'),
                         show=True)
         dest_id, src_books, src_ids = self.books_to_merge(rows)
+        title = self.gui.library_view.model().db.title(dest_id, index_is_id=True)
         if safe_merge:
             if not confirm('<p>'+_(
                 'Book formats and metadata from the selected books '
-                'will be added to the <b>first selected book.</b> '
+                'will be added to the <b>first selected book</b> (%s). '
                 'ISBN will <i>not</i> be merged.<br><br> '
                 'The second and subsequently selected books will not '
                 'be deleted or changed.<br><br>'
-                'Please confirm you want to proceed.')
+                'Please confirm you want to proceed.')%title
             +'</p>', 'merge_books_safe', self.gui):
                 return
             self.add_formats(dest_id, src_books)
@@ -207,14 +208,14 @@ class EditMetadataAction(InterfaceAction):
         else:
             if not confirm('<p>'+_(
                 'Book formats and metadata from the selected books will be merged '
-                'into the <b>first selected book</b>. '
+                'into the <b>first selected book</b> (%s). '
                 'ISBN will <i>not</i> be merged.<br><br>'
                 'After merger the second and '
                 'subsequently selected books will be <b>deleted</b>. <br><br>'
                 'All book formats of the first selected book will be kept '
                 'and any duplicate formats in the second and subsequently selected books '
                 'will be permanently <b>deleted</b> from your computer.<br><br>  '
-                'Are you <b>sure</b> you want to proceed?')
+                'Are you <b>sure</b> you want to proceed?')%title
             +'</p>', 'merge_books', self.gui):
                 return
             if len(rows)>5:
@@ -233,6 +234,7 @@ class EditMetadataAction(InterfaceAction):
             ci = self.gui.library_view.model().index(dest_row, 0)
             if ci.isValid():
                 self.gui.library_view.setCurrentIndex(ci)
+                self.gui.library_view.model().current_changed(ci, ci)
 
     def add_formats(self, dest_id, src_books, replace=False):
         for src_book in src_books:

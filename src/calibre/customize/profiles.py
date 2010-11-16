@@ -250,8 +250,11 @@ class OutputProfile(Plugin):
     #: If True, the date is appended to the title of downloaded news
     periodical_date_in_title = True
 
-    #: The character used to represent a star in ratings
+    #: Characters used in jackets and catalogs
+	missing_char = u'x'
     ratings_char = u'*'
+    empty_ratings_char = u' '
+    read_char = u'+'
 
     #: Unsupported unicode characters to be replaced during preprocessing
     unsupported_unicode_chars = []
@@ -287,7 +290,12 @@ class iPadOutput(OutputProfile):
             'macros': {'border-width': '{length}|medium|thick|thin'}
         }
     ]
-    ratings_char = u'\u2605'
+
+	missing_char = u'\u2715\u200a'		# stylized 'x' plus hair space
+    ratings_char = u'\u2605'			# filled star
+	empty_ratings_char = u'\u2606'		# hollow star
+    read_char = u'\u2713'				# check mark
+
     touchscreen = True
     # touchscreen_news_css {{{
     touchscreen_news_css = u'''
@@ -498,7 +506,6 @@ class SonyReaderLandscapeOutput(SonyReaderOutput):
     screen_size               = (784, 1012)
     comic_screen_size         = (784, 1012)
 
-
 class MSReaderOutput(OutputProfile):
 
     name        = 'Microsoft Reader'
@@ -582,7 +589,12 @@ class KindleOutput(OutputProfile):
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
     supports_mobi_indexing = True
     periodical_date_in_title = False
+
+	missing_char = u'x\u2009'
+	empty_ratings_char = u'\u2606'
     ratings_char = u'\u2605'
+    read_char = u'\u2713'
+
     mobi_ems_per_blockquote = 2.0
 
     @classmethod
@@ -603,6 +615,8 @@ class KindleDXOutput(OutputProfile):
     #comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
+    ratings_char = u'\u2605'
+    read_char = u'\u2713'
     mobi_ems_per_blockquote = 2.0
 
     @classmethod
