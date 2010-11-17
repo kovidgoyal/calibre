@@ -1707,7 +1707,7 @@ class EPUB_MOBI(CatalogPlugin):
                     ttc += 1
                     '''
 
-                    for tag in title['tags']:
+                    for tag in title.get('tags', []):
                         aTag = Tag(soup,'a')
                         #print "aTag: %s" % "Genre_%s.html" % re.sub("\W","",tag.lower())
                         aTag['href'] = "Genre_%s.html" % re.sub("\W","",tag.lower())
