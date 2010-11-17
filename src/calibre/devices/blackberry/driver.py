@@ -19,7 +19,7 @@ class BLACKBERRY(USBMS):
 
     VENDOR_ID   = [0x0fca]
     PRODUCT_ID  = [0x8004, 0x0004]
-    BCD         = [0x0200, 0x0107, 0x0210, 0x0201]
+    BCD         = [0x0200, 0x0107, 0x0210, 0x0201, 0x0211]
 
     VENDOR_NAME = 'RIM'
     WINDOWS_MAIN_MEM = 'BLACKBERRY_SD'

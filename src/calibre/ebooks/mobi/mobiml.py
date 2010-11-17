@@ -363,11 +363,15 @@ class MobiMLizer(object):
                     if value == getattr(self.profile, prop):
                         result = '100%'
                     else:
+                        # Amazon's renderer does not support
+                        # img sizes in units other than px
+                        # See #7520 for test case
                         try:
-                            ems = int(round(float(value) / self.profile.fbase))
+                            pixs = int(round(float(value) / \
+                                (72./self.profile.dpi)))
                         except:
                             continue
-                        result = "%dem" % ems
+                        result = "%d"%pixs
                     istate.attrib[prop] = result
         elif tag == 'hr' and asfloat(style['width']) > 0:
             prop = style['width'] / self.profile.width

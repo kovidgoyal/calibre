@@ -269,3 +269,16 @@ def extract_member(path, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I),
                 path = _extract_member(path, match, name)
                 return path, open(path, 'rb').read()
 
+def extract_first_alphabetically(path):
+    if hasattr(path, 'read'):
+        data = path.read()
+        f = NamedTemporaryFile(suffix='.rar')
+        f.write(data)
+        f.flush()
+        path = f.name
+
+    names_ = [x for x in names(path) if os.path.splitext(x)[1][1:].lower() in
+            ('png', 'jpg', 'jpeg', 'gif')]
+    names_.sort()
+    return extract_member(path, name=names_[0], match=None)
+

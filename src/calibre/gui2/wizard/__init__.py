@@ -153,6 +153,11 @@ class CybookOpus(CybookG3):
     output_profile = 'cybook_opus'
     id = 'cybook_opus'
 
+class CybookOrizon(CybookOpus):
+
+    name = 'Cybook Orizon'
+    id = 'cybook_orizon'
+
 class PocketBook360(CybookOpus):
 
     manufacturer = 'PocketBook'

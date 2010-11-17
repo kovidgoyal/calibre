@@ -7,7 +7,7 @@ class AdvancedUserRecipe1284927619(BasicNewsRecipe):
     __author__ = 'noxxx'
     max_articles_per_feed = 100
     description = 'tagesanzeiger.ch: Nichts verpassen'
-    category = 'News, Politik, Nachrichten, Schweiz, Zürich'
+    category = 'News, Politik, Nachrichten, Schweiz, Zuerich'
     language = 'de'
 
     conversion_options = {

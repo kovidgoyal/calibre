@@ -74,9 +74,9 @@ class DevicePlugin(Plugin):
         if bcd is None or len(bcd) == 0:
             return True
         for c in bcd:
-            # Bug in winutil.get_usb_devices converts a to :
-            rev = ('rev_%4.4x'%c).replace('a', ':')
-            if rev in device_id:
+            rev = 'rev_%4.4x'%c
+            # Bug in winutil.get_usb_devices sometimes converts a to :
+            if rev in device_id or rev.replace('a', ':') in device_id:
                 return True
         return False
 

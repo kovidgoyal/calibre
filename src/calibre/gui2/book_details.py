@@ -212,9 +212,9 @@ class BookInfo(QWebView):
     def _show_data(self, rows, comments):
         f = QFontInfo(QApplication.font(self.parent())).pixelSize()
         p = unicode(QApplication.palette().color(QPalette.Normal,
-            QPalette.Base).name())
+            QPalette.Window).name())
         c = unicode(QApplication.palette().color(QPalette.Normal,
-                        QPalette.Text).name())
+                        QPalette.WindowText).name())
         templ = u'''\
         <html>
             <head>
