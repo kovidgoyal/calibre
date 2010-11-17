@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import time, os
 
 from PyQt4.Qt import SIGNAL, QUrl, QAbstractListModel, Qt, \
-        QVariant, QInputDialog
+        QVariant, QInputDialog, QSortFilterProxyModel
 
 from calibre.web.feeds.recipes import compile_recipe
 from calibre.web.feeds.news import AutomaticNewsRecipe
@@ -19,11 +19,20 @@ class CustomRecipeModel(QAbstractListModel):
     def __init__(self, recipe_model):
         QAbstractListModel.__init__(self)
         self.recipe_model = recipe_model
+        self.proxy_model = QSortFilterProxyModel()
+        self.proxy_model.setSourceModel(recipe_model)
+        self.proxy_model.sort(0, Qt.AscendingOrder)
+        self.proxy_model.setDynamicSortFilter(True)
 
     def title(self, index):
         row = index.row()
         if row > -1 and row < self.rowCount():
+            print 'index is: ', index
+            print 'row is: ', row
+            #print 'recipe_model title return is: ',  self.recipe_model.custom_recipe_collection[row].get('title', '')
+            #print 'proxy_model title return is: ',  self.proxy_model.custom_recipe_collection[row].get('title', '')
             return self.recipe_model.custom_recipe_collection[row].get('title', '')
+            #return self.proxy_model.custom_recipe_collection[row].get('title', '')
 
     def script(self, index):
         row = index.row()
@@ -80,7 +89,14 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         ResizableDialog.__init__(self, parent)
 
         self._model = self.model = CustomRecipeModel(recipe_model)
+        #self._model = self.model = CustomRecipeModel(proxy_model)
         self.available_profiles.setModel(self._model)
+        #proxy = QSortFilterProxyModel()
+        #proxy.setSourceModel(self._model)
+        #proxy.sort(0, Qt.AscendingOrder)
+        #proxy.setDynamicSortFilter(True)
+        #self.available_profiles.setModel(proxy)
+        
         self.available_profiles.currentChanged = self.current_changed
 
         self.connect(self.remove_feed_button, SIGNAL('clicked(bool)'),

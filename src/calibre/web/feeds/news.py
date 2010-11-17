@@ -667,6 +667,7 @@ class BasicNewsRecipe(Recipe):
 
 
     def _postprocess_html(self, soup, first_fetch, job_info):
+        print 'soup in  _postprocess_html is: ', soup
         if self.no_stylesheets:
             for link in list(soup.findAll('link', type=re.compile('css')))+list(soup.findAll('style')):
                 link.extract()
