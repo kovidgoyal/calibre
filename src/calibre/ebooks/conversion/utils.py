@@ -83,6 +83,24 @@ class PreProcessor(object):
         if min_lns > tot_htm_ends:
             return True
 
+    def dump(self, raw, where):
+        import os
+        dp = getattr(self.extra_opts, 'debug_pipeline', None)
+        if dp and os.path.exists(dp):
+            odir = os.path.join(dp, 'preprocess')
+            if not os.path.exists(odir):
+                    os.makedirs(odir)
+            if os.path.exists(odir):
+                odir = os.path.join(odir, where)
+                if not os.path.exists(odir):
+                    os.makedirs(odir)
+                name, i = None, 0
+                while not name or os.path.exists(os.path.join(odir, name)):
+                    i += 1
+                    name = '%04d.html'%i
+                with open(os.path.join(odir, name), 'wb') as f:
+                    f.write(raw.encode('utf-8'))
+
     def __call__(self, html):
         self.log("*********  Preprocessing HTML  *********")
 
@@ -150,7 +168,7 @@ class PreProcessor(object):
                #print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
-        #self.log("\n\n\n\n\n\n\n\n\n\n\n"+html+"\n\n\n\n\n\n\n\n\n\n\n\n\n")
+        #self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
         #
         # Build the Regular Expressions in pieces
@@ -158,7 +176,7 @@ class PreProcessor(object):
         chapter_line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
         chapter_header_open = r"(?P<chap>"
         chapter_header_close = ")\s*"
-        chapter_line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>\s*"
+        chapter_line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
         if blanks_between_paragraphs:
             blank_lines = "(\s*<p[^>]*>\s*</p>){0,2}\s*"
         else:
@@ -169,7 +187,7 @@ class PreProcessor(object):
         title_header_close = ")\s*"
         title_line_close = "(</(?P=inner6)>)?\s*(</(?P=inner5)>)?\s*(</(?P=inner4)\s[^>]*>)?\s*</(?P=outer2)>"
         opt_title_close = ")?"
-        n_lookahead_open = "(?!="
+        n_lookahead_open = "\s+(?!"
         n_lookahead_close = ")"
 
         default_title = r"(\s*[\w\'\"-]+){1,5}?(?=<)"
@@ -181,10 +199,10 @@ class PreProcessor(object):
 
         full_chapter_line = chapter_line_open+chapter_header_open+typical_chapters+chapter_header_close+chapter_line_close
         n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-        print "n_lookahead is " + n_lookahead
-        print "Chapter line is " + full_chapter_line + "\n\n"
+        #print "n_lookahead is:\n" + n_lookahead + "\n\n"
+        #print "'normal' Chapter line - no title - is:\n" + full_chapter_line + "\n\n"
         chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-        print chapter_marker
+        #print "full chapter regex with lookahead is:\n" + chapter_marker + "\n\n"
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
         self.log("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
@@ -197,10 +215,10 @@ class PreProcessor(object):
             self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying numeric chapters")
             full_chapter_line = chapter_line_open+chapter_header_open+numeric_chapters+chapter_header_close+chapter_line_close
             n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-            print "n_lookahead is " + n_lookahead
-            print "Chapter line is " + full_chapter_line + "\n\n"
+            #print "n_lookahead is " + n_lookahead
+            #print "Chapter line is " + full_chapter_line + "\n\n"
             chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-            print chapter_marker
+            #print chapter_marker
             chapdetect2 = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
             html = chapdetect2.sub(self.chapter_head, html)
 
@@ -208,10 +226,10 @@ class PreProcessor(object):
             self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying emphazised lines")
             full_chapter_line = chapter_line_open+chapter_header_open+emphasized_lines+chapter_header_close+chapter_line_close
             n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-            print "n_lookahead is " + n_lookahead
-            print "Chapter line is " + full_chapter_line + "\n\n"
+            #print "n_lookahead is " + n_lookahead
+            #print "Chapter line is " + full_chapter_line + "\n\n"
             chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-            print chapter_marker
+            #print chapter_marker
             chapdetect2 = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
             html = chapdetect2.sub(self.chapter_head, html)            
 
@@ -219,10 +237,10 @@ class PreProcessor(object):
             self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying with uppercase words")
             full_chapter_line = chapter_line_open+chapter_header_open+uppercase_chapters+chapter_header_close+chapter_line_close
             n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-            print "n_lookahead is " + n_lookahead
-            print "Chapter line is " + full_chapter_line + "\n\n"
+            #print "n_lookahead is " + n_lookahead
+            #print "Chapter line is " + full_chapter_line + "\n\n"
             chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-            print chapter_marker
+            #print chapter_marker
             chapdetect2 = re.compile(r'%s' % chapter_marker,  re.UNICODE)
             html = chapdetect2.sub(self.chapter_head, html)
 
@@ -230,10 +248,10 @@ class PreProcessor(object):
             self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying numeric chapters with titles")
             full_chapter_line = chapter_line_open+chapter_header_open+numeric_titles+chapter_header_close+chapter_line_close
             n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-            print "n_lookahead is " + n_lookahead
-            print "Chapter line is " + full_chapter_line + "\n\n"
+            #print "n_lookahead is " + n_lookahead
+            #print "Chapter line is " + full_chapter_line + "\n\n"
             chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-            print chapter_marker
+            #print chapter_marker
             chapdetect2 = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
             html = chapdetect2.sub(self.chapter_head, html)
 
