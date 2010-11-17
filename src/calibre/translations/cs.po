@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-11-12 23:11+0000\n"
-"PO-Revision-Date: 2010-11-13 20:32+0000\n"
-"Last-Translator: Aleš Bajtalon <Unknown>\n"
+"PO-Revision-Date: 2010-11-16 19:32+0000\n"
+"Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-14 05:04+0000\n"
+"X-Launchpad-Export-Date: 2010-11-17 04:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -4784,16 +4784,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:25
 msgid "Bold"
-msgstr ""
+msgstr "Tlustě"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:26
 msgid "Italic"
-msgstr ""
+msgstr "Italic"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:28
 msgid "Underline"
-msgstr ""
+msgstr "Podtrženo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
 msgid ""
@@ -4897,7 +4897,7 @@ msgstr "Debuguj konverzní proces"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:56
 msgid "Choose debug folder"
-msgstr ""
+msgstr "Zvolit ladicí složku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:58
 msgid "Invalid debug directory"
