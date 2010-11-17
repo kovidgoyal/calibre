@@ -221,6 +221,8 @@ class BookInfo(QWebView):
             <style type="text/css">
                 body, td {background-color: %s; font-size: %dpx; color: %s }
                 a { text-decoration: none; color: blue }
+                p { margin-top: .2em }
+                h3 { margin-bottom: .2em }
             </style>
             </head>
             <body>
