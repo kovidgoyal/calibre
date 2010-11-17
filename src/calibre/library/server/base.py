@@ -147,7 +147,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
                 self.config['/'] = {
                         'tools.digest_auth.on'    : True,
                         'tools.digest_auth.realm' : (
-                            _('Password to access your calibre library. Username is ')
+                            'Password to access your calibre library. Username is '
                             + opts.username.strip()),
                         'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
                 }
