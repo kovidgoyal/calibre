@@ -41,12 +41,11 @@ p.formats {
 	text-indent: 0.0in;
 	}
 
-/*
 div.description > p:first-child {
 	margin: 0 0 0 0;
 	text-indent: 0em;
 	}
-*/
+
 div.description {
 	margin: 0 0 0 0;
 	text-indent: 1em;
@@ -133,5 +132,5 @@ td.rating {
 	text-align: center;
 	}
 td.thumbnail img {
-	-webkit-box-shadow: 6px 6px 6px #888;
+	-webkit-box-shadow: 4px 4px 12px #999;
 	}
