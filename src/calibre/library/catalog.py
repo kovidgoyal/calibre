@@ -1666,7 +1666,8 @@ class EPUB_MOBI(CatalogPlugin):
                     elif self.opts.connected_kindle and title['id'] in self.bookmarked_books:
                         authorTag.insert(0, NavigableString(self.READING_SYMBOL + " by "))
                     else:
-                        authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + " by "))
+                        #authorTag.insert(0, NavigableString(self.NOT_READ_SYMBOL + " by "))
+                        authorTag.insert(0, NavigableString("by "))
                 authorTag.insert(1, aTag)
 
                 '''
@@ -1695,6 +1696,7 @@ class EPUB_MOBI(CatalogPlugin):
                     tagsTag = body.find(attrs={'class':'tags'})
                     ttc = 0
 
+                    '''
                     # Insert a spacer to match the author indent
                     fontTag = Tag(soup,"font")
                     fontTag['style'] = 'color:white;font-size:large'
@@ -1703,6 +1705,7 @@ class EPUB_MOBI(CatalogPlugin):
                     fontTag.insert(0, NavigableString(" by "))
                     tagsTag.insert(ttc, fontTag)
                     ttc += 1
+                    '''
 
                     for tag in title['tags']:
                         aTag = Tag(soup,'a')
@@ -1711,10 +1714,18 @@ class EPUB_MOBI(CatalogPlugin):
                         aTag.insert(0,escape(NavigableString(tag)))
                         emTag = Tag(soup, "em")
                         emTag.insert(0, aTag)
-                        if ttc < len(title['tags']):
+                        if ttc < len(title['tags'])-1:
                             emTag.insert(1, NavigableString(' &middot; '))
                         tagsTag.insert(ttc, emTag)
                         ttc += 1
+
+                # Insert formats
+                if 'formats' in title:
+                    formatsTag = body.find(attrs={'class':'formats'})
+                    formats = []
+                    for format in sorted(title['formats']):
+                        formats.append(format.rpartition('.')[2].upper())
+                    formatsTag.insert(0, NavigableString(' &middot; '.join(formats)))
 
                 # Insert the cover <img> if available
                 imgTag = Tag(soup,"img")
@@ -1859,7 +1870,7 @@ class EPUB_MOBI(CatalogPlugin):
                 ptc = 0
 
                 #  book with read|reading|unread symbol or wishlist item
-                if self.opts.wishlist_tag in book['tags']:
+                if self.opts.wishlist_tag in book.get('tags', []):
                         pBookTag['class'] = "wishlist_item"
                         pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                         ptc += 1
@@ -2166,7 +2177,7 @@ class EPUB_MOBI(CatalogPlugin):
                         ptc = 0
 
                         #  book with read|reading|unread symbol or wishlist item
-                        if self.opts.wishlist_tag in new_entry['tags']:
+                        if self.opts.wishlist_tag in new_entry.get('tags', []):
                             pBookTag['class'] = "wishlist_item"
                             pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                             ptc += 1
@@ -2217,7 +2228,7 @@ class EPUB_MOBI(CatalogPlugin):
                         ptc = 0
 
                         #  book with read|reading|unread symbol or wishlist item
-                        if self.opts.wishlist_tag in new_entry['tags']:
+                        if self.opts.wishlist_tag in new_entry.get('tags', []):
                             pBookTag['class'] = "wishlist_item"
                             pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                             ptc += 1
@@ -2671,7 +2682,7 @@ class EPUB_MOBI(CatalogPlugin):
                     book['read'] = False
 
                 #  book with read|reading|unread symbol or wishlist item
-                if self.opts.wishlist_tag in book['tags']:
+                if self.opts.wishlist_tag in book.get('tags', []):
                     pBookTag['class'] = "wishlist_item"
                     pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                     ptc += 1
@@ -3964,7 +3975,7 @@ class EPUB_MOBI(CatalogPlugin):
             for x in output_profiles():
                 if x.short_name == self.opts.output_profile:
                     # .9" width  aspect ratio: 3:4
-                    self.thumbWidth = int(x.dpi * .9)
+                    self.thumbWidth = int(x.dpi * 1)
                     self.thumbHeight = int(self.thumbWidth * 1.33)
                     if 'kindle' in x.short_name and self.opts.fmt == 'mobi':
                         # Kindle DPI appears to be off by a factor of 2
@@ -4169,7 +4180,8 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                # book with read|reading|unread symbol or wishlist item
+                '''
+                # This if clause does not display MISSING_SYMBOL for wishlist items
                 # If this is the wishlist_tag genre, don't show missing symbols
                 # normalized_wishlist_tag = self.genre_tags_dict[self.opts.wishlist_tag]
                 if self.opts.wishlist_tag in book['tags'] and \
@@ -4177,6 +4189,13 @@ class EPUB_MOBI(CatalogPlugin):
                     pBookTag['class'] = "wishlist_item"
                     pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                     ptc += 1
+                '''
+
+                #  book with read|reading|unread symbol or wishlist item
+                if self.opts.wishlist_tag in book.get('tags', []):
+                        pBookTag['class'] = "wishlist_item"
+                        pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
+                        ptc += 1
                 else:
                     if book['read']:
                         # check mark
@@ -4238,34 +4257,28 @@ class EPUB_MOBI(CatalogPlugin):
             <p class="author"></p>
             <!--p class="series"></p-->
             <p class="tags">&nbsp;</p>
+            <p class="formats">&nbsp;</p>
             <table width="100%" border="0">
               <tr>
-                <td class="thumbnail" rowspan="7"></td>
-                <!--td>&nbsp;</td-->
+                <td class="thumbnail" rowspan="7" width="40%"></td>
                 <td>&nbsp;</td>
               </tr>
               <tr>
-                <!--td>&nbsp;</td-->
                 <td>&nbsp;</td>
               </tr>
               <tr>
-                <!--td>Publisher</td-->
                 <td class="publisher"></td>
               </tr>
               <tr>
-                <!--td>Published</td-->
                 <td class="date"></td>
               </tr>
               <tr>
-                <!--td>Rating</td-->
                 <td class="rating"></td>
               </tr>
               <tr>
-                <!--td class="notes_label">Notes</td-->
                 <td class="notes"></td>
               </tr>
               <tr>
-                <!--td>&nbsp;</td-->
                 <td>&nbsp;</td>
               </tr>
             </table>
