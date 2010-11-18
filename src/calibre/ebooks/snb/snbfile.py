@@ -118,8 +118,8 @@ class SNBFile:
             return False
         if self.rev80 != SNBFile.REV80:
             return False
-        if self.revA3 != SNBFile.REVA3:
-            return False
+#        if self.revA3 != SNBFile.REVA3:
+#            return False
         if self.revZ1 != SNBFile.REVZ1:
             return False
         if self.revZ2 != SNBFile.REVZ2:
