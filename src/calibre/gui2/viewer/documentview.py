@@ -80,7 +80,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.css.setPlainText(opts.user_css)
         self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
         self.max_view_width.setValue(opts.max_view_width)
-        pats = [os.path.basename(x).split('.')[0] for x in
+        pats = [os.path.basename(x).split('.')[0].replace('-', '_') for x in
             glob.glob(P('viewer/hyphenate/patterns/*.js',
                 allow_user_override=False))]
         names = list(map(get_language, pats))
@@ -92,7 +92,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         try:
             idx = pats.index(opts.hyphenate_default_lang)
         except ValueError:
-            idx = pats.index('en')
+            idx = pats.index('en_us')
         idx = self.hyphenate_default_lang.findText(names[idx])
         self.hyphenate_default_lang.setCurrentIndex(idx)
         self.hyphenate.setChecked(opts.hyphenate)
@@ -143,7 +143,7 @@ class Document(QWebPage):
             self.set_font_settings()
             self.set_user_stylesheet()
             self.misc_config()
-            self.triggerAction(QWebPage.Reload)
+            self.after_load()
 
     def __init__(self, shortcuts, parent=None):
         QWebPage.__init__(self, parent)
@@ -228,14 +228,17 @@ class Document(QWebPage):
         lang = self.current_language
         if not lang:
             lang = default_lang
-        lang = lang.lower()[:2]
+        def lang_name(l):
+            if l == 'en':
+                l = 'en-us'
+            return l.lower().replace('_', '-')
         if hyphenator is None:
             hyphenator = P('viewer/hyphenate/Hyphenator.js', data=True).decode('utf-8')
         self.javascript(hyphenator)
-        p = P('viewer/hyphenate/patterns/%s.js'%lang)
+        p = P('viewer/hyphenate/patterns/%s.js'%lang_name(lang))
         if not os.path.exists(p):
             lang = default_lang
-            p = P('viewer/hyphenate/patterns/%s.js'%lang)
+            p = P('viewer/hyphenate/patterns/%s.js'%lang_name(lang))
         self.javascript(open(p, 'rb').read().decode('utf-8'))
         self.loaded_lang = lang
 
@@ -248,6 +251,11 @@ class Document(QWebPage):
     def init_hyphenate(self):
         if self.hyphenate:
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
+
+    def after_load(self):
+        self.set_bottom_padding(0)
+        self.fit_images()
+        self.init_hyphenate()
 
     @pyqtSignature("QString")
     def debug(self, msg):
@@ -652,8 +660,7 @@ class DocumentView(QWebView):
             return
         self.loading_url = None
         self.document.load_javascript_libraries()
-        self.document.set_bottom_padding(0)
-        self.document.fit_images()
+        self.document.after_load()
         self._size_hint = self.document.mainFrame().contentsSize()
         scrolled = False
         if self.to_bottom:

@@ -360,13 +360,16 @@
     </xsl:template>
 
     <xsl:template match="rtf:row">
-        <xsl:element name="row">
+        <xsl:element name="tr">
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
 
     <xsl:template match="rtf:cell">
-        <xsl:element name="cell">
+        <xsl:element name="td">
+            <xsl:if test="@class">
+                <xsl:attribute name="class"><xsl:value-of select="@class"/></xsl:attribute>
+            </xsl:if>
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>

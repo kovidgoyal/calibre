@@ -217,6 +217,26 @@
       </widget>
      </item>
      <item>
+      <widget class="QToolButton" name="relay_use_hotmail">
+       <property name="text">
+        <string>Use Hotmail</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/hotmail.png</normaloff>:/images/hotmail.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextUnderIcon</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="test_email_button">
        <property name="text">
         <string>&amp;Test email</string>

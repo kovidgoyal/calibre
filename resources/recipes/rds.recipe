@@ -1,0 +1,18 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1290013720(BasicNewsRecipe):
+    title          = u'RDS'
+    __author__ = 'Nexus'
+    language = 'en_CA'
+    description = 'Hockey News'
+    oldest_article = 7
+    max_articles_per_feed = 25
+    no_stylesheets = True
+    remove_tags = [dict(name='div', attrs={'id':'rdsWrap'}),
+		            dict(name='table', attrs={'id':'aVoir'}),
+		            dict(name='div', attrs={'id':'imageChronique'})]
+    keep_only_tags = [dict(name='div', attrs={'id':['enteteChronique']}),
+		                dict(name='div', attrs={'id':['contenuChronique']})]
+
+
+    feeds          = [(u'RDS', u'http://www.rds.ca/hockey/fildepresse_rds.xml')]

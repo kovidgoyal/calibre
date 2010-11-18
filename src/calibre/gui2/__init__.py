@@ -225,7 +225,6 @@ class MessageBox(QMessageBox):
         if default_button is not None:
             self.setDefaultButton(default_button)
 
-
     def copy_to_clipboard(self):
         QApplication.clipboard().setText('%s: %s\n\n%s' %
                 (self.title, self.msg, self.det_msg))

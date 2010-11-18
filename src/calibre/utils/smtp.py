@@ -101,8 +101,12 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=30,
         if encryption == 'SSL':
             s.sock = s.file.sslobj
         s.login(username, password)
-    s.sendmail(from_, to, msg)
-    return s.quit()
+    ret = None
+    try:
+        s.sendmail(from_, to, msg)
+    finally:
+        ret = s.quit()
+    return ret
 
 def option_parser():
     try:

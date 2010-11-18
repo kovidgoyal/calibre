@@ -13,7 +13,6 @@ class IrishTimes(BasicNewsRecipe):
     language = 'en_IE'
     timefmt = ' (%A, %B %d, %Y)'
 
-
     oldest_article = 3
     no_stylesheets = True
     simultaneous_downloads= 1
@@ -35,12 +34,11 @@ class IrishTimes(BasicNewsRecipe):
 
     def print_version(self, url):
          if url.count('rss.feedsportal.com'):
-             u = 'http://www.irishtimes.com' + \
- (((url[69:].replace('0C','/')).replace('0A','0'))).replace('0Bhtml/story01..htm','_pf.html')
+            u = 'http://www.irishtimes.com' + \
+                     (((url[69:].replace('0C','/')).replace('0A','0'))).replace('0Bhtml/story01.htm','_pf.html')
          else:
              u = url.replace('.html','_pf.html')
          return u
-
 
     def get_article_url(self, article):
         return article.link
