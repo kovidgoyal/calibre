@@ -9,6 +9,36 @@ from lxml import etree
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.conversion.utils import PreProcessor
 
+border_style_map = {
+        'single' : 'solid',
+        'double-thickness-border' : 'double',
+        'shadowed-border': 'outset',
+        'double-border': 'double',
+        'dotted-border': 'dotted',
+        'dashed': 'dashed',
+        'hairline': 'solid',
+        'inset': 'inset',
+        'dash-small': 'dashed',
+        'dot-dash': 'dotted',
+        'dot-dot-dash': 'dotted',
+        'outset': 'outset',
+        'tripple': 'double',
+        'thick-thin-small': 'solid',
+        'thin-thick-small': 'solid',
+        'thin-thick-thin-small': 'solid',
+        'thick-thin-medium': 'solid',
+        'thin-thick-medium': 'solid',
+        'thin-thick-thin-medium': 'solid',
+        'thick-thin-large': 'solid',
+        'thin-thick-thin-large': 'solid',
+        'wavy': 'ridge',
+        'double-wavy': 'ridge',
+        'striped': 'ridge',
+        'emboss': 'inset',
+        'engrave': 'inset',
+        'frame': 'ridge',
+}
+
 class InlineClass(etree.XSLTExtension):
 
     FMTS = ('italics', 'bold', 'underlined', 'strike-through', 'small-caps')
@@ -51,7 +81,6 @@ class RTFInput(InputFormatPlugin):
         parser = ParseRtf(
             in_file    = stream,
             out_file   = ofile,
-			deb_dir = 'H:\\Temp\\Calibre\\rtfdebug',
             # Convert symbol fonts to unicode equivalents. Default
             # is 1
             convert_symbol = 1,
@@ -138,8 +167,7 @@ class RTFInput(InputFormatPlugin):
         return name
 
 
-
-    def write_inline_css(self, ic):
+    def write_inline_css(self, ic, border_styles):
         font_size_classes = ['span.fs%d { font-size: %spt }'%(i, x) for i, x in
                 enumerate(ic.font_sizes)]
         color_classes = ['span.col%d { color: %s }'%(i, x) for i, x in
@@ -163,6 +191,10 @@ class RTFInput(InputFormatPlugin):
         ''')
         css += '\n'+'\n'.join(font_size_classes)
         css += '\n' +'\n'.join(color_classes)
+
+        for cls, val in border_styles.items():
+            css += '\n\n.%s {\n%s\n}'%(cls, val)
+
         with open('styles.css', 'ab') as f:
             f.write(css)
 
@@ -182,6 +214,32 @@ class RTFInput(InputFormatPlugin):
             'Failed to preprocess RTF to convert unicode sequences, ignoring...')
         return fname
 
+    def convert_borders(self, doc):
+        border_styles = []
+        style_map = {}
+        for elem in doc.xpath(r'//*[local-name()="cell"]'):
+            style = ['border-style: hidden', 'border-width: 1px',
+                    'border-color: black']
+            for x in ('bottom', 'top', 'left', 'right'):
+                bs = elem.get('border-cell-%s-style'%x, None)
+                if bs:
+                    cbs = border_style_map.get(bs, 'solid')
+                    style.append('border-%s-style: %s'%(x, cbs))
+                bw = elem.get('border-cell-%s-line-width'%x, None)
+                if bw:
+                    style.append('border-%s-width: %spt'%(x, bw))
+                bc = elem.get('border-cell-%s-color'%x, None)
+                if bc:
+                    style.append('border-%s-color: %s'%(x, bc))
+            style = ';\n'.join(style)
+            if style not in border_styles:
+                border_styles.append(style)
+            idx = border_styles.index(style)
+            cls = 'border_style%d'%idx
+            style_map[cls] = style
+            elem.set('class', cls)
+        return style_map
+
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         from calibre.ebooks.metadata.meta import get_metadata
@@ -191,17 +249,16 @@ class RTFInput(InputFormatPlugin):
         self.log = log
         self.log('Converting RTF to XML...')
         #Name of the preprocesssed RTF file
-        #fname = self.preprocess(stream.name)
-        fname = stream.name
+        fname = self.preprocess(stream.name)
         try:
             xml = self.generate_xml(fname)
         except RtfInvalidCodeException, e:
             raise ValueError(_('This RTF file has a feature calibre does not '
             'support. Convert it to HTML first and then try it.\n%s')%e)
 
-        dataxml = open('dataxml.xml', 'w')
+        '''dataxml = open('dataxml.xml', 'w')
         dataxml.write(xml)
-        dataxml.close
+        dataxml.close'''
 
         d = glob.glob(os.path.join('*_rtf_pict_dir', 'picts.rtf'))
         if d:
@@ -214,6 +271,7 @@ class RTFInput(InputFormatPlugin):
         self.log('Parsing XML...')
         parser = etree.XMLParser(recover=True, no_network=True)
         doc = etree.fromstring(xml, parser=parser)
+        border_styles = self.convert_borders(doc)
         for pict in doc.xpath('//rtf:pict[@num]',
                 namespaces={'rtf':'http://rtf2xml.sourceforge.net/'}):
             num = int(pict.get('num'))
@@ -235,7 +293,7 @@ class RTFInput(InputFormatPlugin):
                 preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
                 res = preprocessor(res)
             f.write(res)
-        self.write_inline_css(inline_class)
+        self.write_inline_css(inline_class, border_styles)
         stream.seek(0)
         mi = get_metadata(stream, 'rtf')
         if not mi.title:

@@ -1,87 +1,98 @@
-body {
-	background-color: white;
-}
+body { background-color: white; }
 
-p.title {
-	margin-top: 0em;
-	margin-bottom: 1em;
-	text-align: center;
-	font-style: italic;
-	font-size: xx-large;
-	border-bottom: solid black 4px;
-}
+p.title  {
+	margin-top:0em;
+	margin-bottom:1em;
+	text-align:center;
+	font-style:italic;
+	font-size:xx-large;
+    border-bottom: solid black 2px;
+	}
 
 p.author {
-	margin-top: 0em;
-	margin-bottom: 0em;
-	text-align: left;
-	text-indent: 1em;
-	font-size: large;
-}
-
-p.tags {
-	margin-top: 0em;
-	margin-bottom: 0em;
-	text-align: left;
-	text-indent: 1em;
-	font-size: small;
-}
-
-p.description {
-	text-align: left;
-	font-style: normal;
-	margin-top: 0em;
-}
-
-p.date_index {
-	font-size: x-large;
+	margin-top:0em;
+	margin-bottom:0em;
 	text-align: center;
-	font-weight: bold;
-	margin-top: 1em;
-	margin-bottom: 0px;
-}
-
-p.letter_index {
-	font-size: x-large;
-	text-align: center;
-	font-weight: bold;
-	margin-top: 1em;
-	margin-bottom: 0px;
-}
+	text-indent: 0em;
+	font-size:large;
+  	}
 
 p.author_index {
-	font-size: large;
-	text-align: left;
-	margin-top: 0px;
-	margin-bottom: 0px;
+	font-size:large;
+	font-weight:bold;
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:-2px;
 	text-indent: 0em;
-}
+	}
+
+p.tags {
+	margin-top:0.5em;
+	margin-bottom:0em;
+	text-align: left;
+	text-indent: 0.0in;
+	}
+
+p.formats {
+	font-size:90%;
+	margin-top:0em;
+	margin-bottom:0.5em;
+	text-align: left;
+	text-indent: 0.0in;
+	}
+
+div.description > p:first-child {
+	margin: 0 0 0 0;
+	text-indent: 0em;
+	}
+
+div.description {
+	margin: 0 0 0 0;
+	text-indent: 1em;
+	}
+
+p.date_index {
+	font-size:x-large;
+	text-align:center;
+	font-weight:bold;
+	margin-top:1em;
+	margin-bottom:0px;
+	}
+
+p.letter_index {
+	font-size:x-large;
+	text-align:center;
+	font-weight:bold;
+	margin-top:1em;
+	margin-bottom:0px;
+	}
 
 p.series {
-	text-align: left;
-	margin-top: 0px;
-	margin-bottom: 0px;
-	margin-left: 2em;
-	text-indent: -2em;
-}
+	font-style:italic;
+	margin-top:2px;
+	margin-bottom:0px;
+	margin-left:2em;
+	text-align:left;
+	text-indent:-2em;
+	}
 
 p.read_book {
-	text-align: left;
-	margin-top: 0px;
-	margin-bottom: 0px;
-	margin-left: 2em;
-	text-indent: -2em;
-}
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:2em;
+	text-indent:-2em;
+	}
 
 p.unread_book {
-	text-align: left;
-	margin-top: 0px;
-	margin-bottom: 0px;
-	margin-left: 2em;
-	text-indent: -2em;
-}
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:2em;
+	text-indent:-2em;
+	}
 
-p.missing_book {
+p.wishlist_item {
 	text-align:left;
 	margin-top:0px;
 	margin-bottom:0px;
@@ -90,23 +101,36 @@ p.missing_book {
 	}
 
 p.date_read {
-	text-align: left;
-	margin-top: 0px;
-	margin-bottom: 0px;
-	margin-left: 6em;
-	text-indent: -6em;
-}
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:6em;
+	text-indent:-6em;
+	}
 
-hr.series_divider {
-	width: 50%;
-	margin-left: 1em;
-	margin-top: 0em;
-	margin-bottom: 0em;
-}
+hr.description_divider {
+	width:90%;
+	margin-left:5%;
+	border-top: solid white 0px;
+	border-right: solid white 0px;
+    border-bottom: solid black 1px;
+    border-left: solid white 0px;
+	}
 
 hr.annotations_divider {
-	width: 50%;
-	margin-left: 1em;
-	margin-top: 0em;
-	margin-bottom: 0em;
-}
+	width:50%;
+	margin-left:1em;
+	margin-top:0em;
+	margin-bottom:0em;
+	}
+
+td.publisher, td.date {
+	font-weight:bold;
+	text-align:center;
+	}
+td.rating {
+	text-align: center;
+	}
+td.thumbnail img {
+	-webkit-box-shadow: 4px 4px 12px #999;
+	}
