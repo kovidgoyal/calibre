@@ -16,17 +16,17 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     remove_attributes = ['width','style']
 
 
-    feeds          = [(u'\u05e9\u05d5\u05e7 \u05d4\u05d4\u05d5\u05df', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=585'),
-                           (u'\u05e0\u05d3\u05dc"\u05df', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=607'),
-                           (u'\u05d5\u05d5\u05dc \u05e1\u05d8\u05e8\u05d9\u05d8 \u05d5\u05e9\u05d5\u05d5\u05e7\u05d9 \u05d4\u05e2\u05d5\u05dc\u05dd', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=1225'),
-                           (u'\u05e0\u05d9\u05ea\u05d5\u05d7 \u05d8\u05db\u05e0\u05d9', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=1294'),
-                           (u'\u05d4\u05d9\u05d9 \u05d8\u05e7', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=594'),
-                           (u'\u05e0\u05ea\u05d7 \u05e9\u05d5\u05e7 \u05d5\u05e6\u05e8\u05db\u05e0\u05d5\u05ea', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=821'),
-                           (u'\u05d3\u05d9\u05df \u05d5\u05d7\u05e9\u05d1\u05d5\u05df', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=829'),
-                           (u'\u05e8\u05db\u05d1', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3220'),
-                           (u'\u05d3\u05e2\u05d5\u05ea', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=845'),
-                           (u'\u05e7\u05e0\u05d9\u05d5\u05df \u05d4\u05de\u05e0\u05d9\u05d5\u05ea - \u05d8\u05d5\u05e8 \u05e9\u05d1\u05d5\u05e2\u05d9', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3175'),
-                           (u'\u05e1\u05d1\u05d9\u05d1\u05d4', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3221')]
+    feeds          = [(u'שוק ההון', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=585'),
+                           (u'נדל"ן', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=607'),
+                           (u'וול סטריט ושווקי העולם', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=1225'),
+                           (u'ניתוח טכני', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=1294'),
+                           (u'היי טק', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=594'),
+                           (u'נתח שוק וצרכנות', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=821'),
+                           (u'דין וחשבון', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=829'),
+                           (u'רכב', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3220'),
+                           (u'דעות', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=845'),
+                           (u'קניון המניות - טור שבועי', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3175'),
+                           (u'סביבה', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3221')]
 
     def print_version(self, url):
         split1 = url.split("=")
@@ -41,6 +41,7 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
 
     def fixChars(self,string):
         # Replace lsquo (\x91)
-        fixed = re.sub("\u25a0","\u25a0",string)
+        fixed = re.sub("■","■",string)
         return fixed
+
 
