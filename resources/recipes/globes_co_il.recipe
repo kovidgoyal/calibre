@@ -1,0 +1,46 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import re
+
+class AdvancedUserRecipe1283848012(BasicNewsRecipe):
+    description   = 'This is Globes.co.il.'
+    cover_url      = 'http://www.the7eye.org.il/SiteCollectionImages/BAKTANA/arye_avnery_010709_377.jpg'
+    title          = u'Globes'
+    language              = 'he'
+    __author__ = 'marbs'
+    extra_css='img {max-width:100%;} body{direction: rtl;max-width:100%;}title{direction: rtl; } article_description{direction: rtl; }, a.article{direction: rtl;max-width:100%;} calibre_feed_description{direction: rtl; }'
+    simultaneous_downloads = 5
+    remove_javascript     = True
+    timefmt        = '[%a, %d %b, %Y]'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    remove_attributes = ['width','style']
+
+
+    feeds          = [(u'\u05e9\u05d5\u05e7 \u05d4\u05d4\u05d5\u05df', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=585'),
+                           (u'\u05e0\u05d3\u05dc"\u05df', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=607'),
+                           (u'\u05d5\u05d5\u05dc \u05e1\u05d8\u05e8\u05d9\u05d8 \u05d5\u05e9\u05d5\u05d5\u05e7\u05d9 \u05d4\u05e2\u05d5\u05dc\u05dd', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=1225'),
+                           (u'\u05e0\u05d9\u05ea\u05d5\u05d7 \u05d8\u05db\u05e0\u05d9', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=1294'),
+                           (u'\u05d4\u05d9\u05d9 \u05d8\u05e7', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=594'),
+                           (u'\u05e0\u05ea\u05d7 \u05e9\u05d5\u05e7 \u05d5\u05e6\u05e8\u05db\u05e0\u05d5\u05ea', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=821'),
+                           (u'\u05d3\u05d9\u05df \u05d5\u05d7\u05e9\u05d1\u05d5\u05df', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=829'),
+                           (u'\u05e8\u05db\u05d1', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3220'),
+                           (u'\u05d3\u05e2\u05d5\u05ea', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=845'),
+                           (u'\u05e7\u05e0\u05d9\u05d5\u05df \u05d4\u05de\u05e0\u05d9\u05d5\u05ea - \u05d8\u05d5\u05e8 \u05e9\u05d1\u05d5\u05e2\u05d9', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3175'),
+                           (u'\u05e1\u05d1\u05d9\u05d1\u05d4', u'http://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3221')]
+
+    def print_version(self, url):
+        split1 = url.split("=")
+        print_url = 'http://www.globes.co.il/serve/globes/printwindow.asp?did=' + split1[1]
+        return print_url
+
+
+    def preprocess_html(self, soup):
+        soup.find('tr',attrs={'bgcolor':'black'}).findPrevious('tr').extract()
+        soup.find('tr',attrs={'bgcolor':'black'}).extract()
+        return soup
+
+    def fixChars(self,string):
+        # Replace lsquo (\x91)
+        fixed = re.sub("\u25a0","\u25a0",string)
+        return fixed
+
