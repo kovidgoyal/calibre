@@ -29,10 +29,10 @@ class Query(object):
     BASE_URL = 'http://www.fictionwise.com/servlet/mw'
 
     def __init__(self, title=None, author=None, publisher=None, keywords=None, max_results=20):
-        assert not(title is None and author is None and keywords is None)
+        assert not(title is None and author is None and publisher is None and keywords is None)
         assert (max_results < 21)
 
-        self.max_results = max_results
+        self.max_results = int(max_results)
         
         q = {   'template' : 'searchresults_adv.htm' ,
                 'searchtitle' : '',
@@ -327,7 +327,7 @@ def option_parser():
     parser.add_option('-a', '--author', help='Book author(s)')
     parser.add_option('-p', '--publisher', help='Book publisher')
     parser.add_option('-k', '--keywords', help='Keywords')
-    parser.add_option('-m', '--max-results', default=5,
+    parser.add_option('-m', '--max-results', default=20,
                       help='Maximum number of results to fetch')
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help='Be more verbose about errors')
