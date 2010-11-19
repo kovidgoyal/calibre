@@ -355,6 +355,25 @@ h2.library_name {
     color: red;
 }
 
+#booklist > #pagelist { display: none; }
+
+#goto_page_dialog ul {
+    list-style-type: none;
+    font-size: medium;
+}
+
+#goto_page_dialog li {
+    margin-bottom: 1.5ex;
+}
+
+#goto_page_dialog a {
+    text-decoration: none;
+    color: blue;
+}
+
+#goto_page_dialog a:hover {
+    color: red;
+}
 
 #booklist .left .ui-button-text {
     font-size: medium;
