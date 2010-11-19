@@ -44,10 +44,14 @@ class PreProcessor(object):
         span = match.group('span')
         self.found_indents = self.found_indents + 1
         if pstyle:
-            if not span:
-                return '<p '+pstyle+' style="text-indent:3%">'
+            if pstyle.lower().find('style'):
+                pstyle = re.sub(r'"$', '; text-indent:3%"', pstyle)
             else:
-                return '<p '+pstyle+' style="text-indent:3%">'+span
+                pstyle = pstyle+' style="text-indent:3%"'
+            if not span:
+                return '<p '+pstyle+'>'
+            else:
+                return '<p '+pstyle+'>'+span
         else:
             if not span:
                 return '<p style="text-indent:3%">'
