@@ -84,7 +84,7 @@ class RTFInput(InputFormatPlugin):
             group_borders = 1,
 
             # Write or do not write paragraphs. Default is 0.
-            empty_paragraphs = 0,
+            empty_paragraphs = 1,
         )
         parser.parse_rtf()
         ans = open('out.xml').read()
@@ -228,6 +228,10 @@ class RTFInput(InputFormatPlugin):
         with open(html, 'wb') as f:
             res = transform.tostring(result)
             res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
+            # Replace newlines inserted by the 'empty_paragraphs' option in rtf2xml with html blank lines
+            if not getattr(self.options, 'remove_paragraph_spacing', False):
+                res = re.sub('\s*<body>', '<body>', res)
+                res = re.sub('\n{4}', u'\n<p>\u00a0</p>\n', res)
             if self.options.preprocess_html:
                 preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
                 res = preprocessor(res)
