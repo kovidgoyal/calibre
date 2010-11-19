@@ -269,11 +269,6 @@ class HTMLInput(InputFormatPlugin):
                 )
         ),
 
-        OptionRecommendation(name='unwrap_factor', recommended_value=0.0,
-            help=_('Average line length for line breaking if the HTML is from a '
-                'previous partial conversion of a PDF file. Default is %default '
-                'which disables this.')),
-
     ])
 
     def convert(self, stream, opts, file_ext, log,
