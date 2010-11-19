@@ -12,6 +12,7 @@ class ZeitDe(BasicNewsRecipe):
     title = 'Zeit Online'
     description = 'Zeit Online'
     language = 'de'
+    encoding = 'UTF-8'
 
     __author__ = 'Martin Pitt, Sujata Raman, Ingo Paschke and Marc Toensing'
 
@@ -58,7 +59,7 @@ class ZeitDe(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for tag in soup.findAll(name=['ul','li']):
             tag.name = 'div'
-        
+
         soup.html['xml:lang'] = self.lang
         soup.html['lang']     = self.lang
         mtag = '<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '">'
