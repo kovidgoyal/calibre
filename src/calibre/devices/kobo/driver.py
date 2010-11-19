@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Timothy Legge <timlegge at gmail.com> and Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time
+import os
 import sqlite3 as sqlite
 
 from calibre.devices.usbms.books import BookList
@@ -151,8 +151,8 @@ class KOBO(USBMS):
         #    numrows = row[0]
         #cursor.close()
 
-        # Determine the database version 
-        # 4 - Bluetooth Kobo Rev 2 (1.4) 
+        # Determine the database version
+        # 4 - Bluetooth Kobo Rev 2 (1.4)
         # 8 - WIFI KOBO Rev 1
         cursor.execute('select version from dbversion')
         result = cursor.fetchone()
@@ -507,7 +507,7 @@ class KOBO(USBMS):
                         t = (ContentID,)
                         cursor.execute('select DateLastRead from Content where BookID is Null and ContentID = ?', t)
                         result = cursor.fetchone()
-                        datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00' 
+                        datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00'
 
                         t = (datelastread,ContentID,)
 
