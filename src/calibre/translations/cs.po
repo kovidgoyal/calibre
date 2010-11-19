@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-11-12 23:11+0000\n"
-"PO-Revision-Date: 2010-11-17 17:23+0000\n"
-"Last-Translator: Aleš Bajtalon <Unknown>\n"
+"PO-Revision-Date: 2010-11-18 20:58+0000\n"
+"Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-18 04:44+0000\n"
+"X-Launchpad-Export-Date: 2010-11-19 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -423,7 +423,7 @@ msgstr "Rozšířené"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
+msgstr "Přidat/odebrat/nastavit různé funkce calibre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:875
 msgid "Tweaks"
@@ -431,7 +431,7 @@ msgstr "Vylepšení"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:881
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr ""
+msgstr "Doladit chování calibre v různých situacích"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:886
 msgid "Miscellaneous"
@@ -975,6 +975,8 @@ msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
+"\".kobo\" soubory neexistují na zařízení jako knihy, jsou to řádky v sqlite "
+"databázi. V současnosti nemohou být exportovány ani prohlíženy."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:17
 msgid "Communicate with the Palm Pre"
@@ -3212,7 +3214,7 @@ msgstr "číslování knih v sérii římskými číslicemi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:77
 msgid "Sort tags list by name, popularity, or rating"
-msgstr ""
+msgstr "Seřadit tagy podle jména, popularity, nebo hodnocení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:79
 msgid "Number of covers to show in the cover browsing mode"
@@ -3296,7 +3298,7 @@ msgstr "Rozvržení uživatelského rozhraní"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:133
 msgid "Show the average rating per item indication in the tag browser"
-msgstr ""
+msgstr "Ukaž průměrné hodnocení na položku v tag prohlížeči"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:135
 msgid "Disable UI animations"
@@ -3401,7 +3403,7 @@ msgstr "MOBI knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:166
 msgid "Topaz books"
-msgstr ""
+msgstr "Topaz knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:167
 msgid "Text books"
@@ -3506,7 +3508,7 @@ msgstr "Nejsou označeny žádné knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:65
 msgid "No books selected to fetch annotations from"
-msgstr ""
+msgstr "Nevybrané žádné knihy pro načtení anotací"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:90
 msgid "Merging user annotations into database"
@@ -3712,6 +3714,8 @@ msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book per second."
 msgstr ""
+"Metadata budou zazálohována během běhu calibre rychlostí zhruba 1kniha za "
+"sekundu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:344
 msgid ""
@@ -4506,18 +4510,20 @@ msgstr "..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:72
 msgid "Handle multiple files per book"
-msgstr ""
+msgstr "Pracovat s více soubory ke knize"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:73
 msgid ""
 "&One book per folder, assumes every ebook file in a folder is the same book "
 "in a different format"
 msgstr ""
+"&Jedna kniha na složku znamená, že každý ebook soubor ve složce je ta samá "
+"kniha v jiném formátu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:74
 msgid ""
 "&Multiple books per folder, assumes every ebook file is a different book"
-msgstr ""
+msgstr "&Více knih ve složce znamené, že každý ebook soubor je různá kniha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:49
@@ -4595,7 +4601,7 @@ msgstr "BibTeX volby"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:17
 msgid "Options specific to"
-msgstr ""
+msgstr "Možnosti specifické pro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
@@ -4700,7 +4706,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:96
 msgid "mixed"
-msgstr ""
+msgstr "smíšený"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:97
 msgid "misc"
@@ -4768,7 +4774,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:85
 msgid "Include 'Recently Added' Section"
-msgstr ""
+msgstr "Zahrň sekci Nedávno přidané"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:86
 msgid "Sort numbers as text"
@@ -4776,7 +4782,7 @@ msgstr "Řadit čísla jako text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
 msgid "Include 'Series' Section"
-msgstr ""
+msgstr "Zahrň sekci Série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -4905,7 +4911,7 @@ msgstr "Neplatný debug adresář"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:59
 msgid "Failed to create debug directory"
-msgstr ""
+msgstr "Nepodařilo se vytvořit ladící adresář"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:55
 msgid ""
@@ -4967,7 +4973,7 @@ msgstr "FB2 Výstup"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:52
 msgid "&Inline TOC"
-msgstr ""
+msgstr "&Inline TOC"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:38
 msgid "Sectionize Chapters (Use with care!)"
@@ -6814,7 +6820,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:398
 msgid "Test &text"
-msgstr ""
+msgstr "Testovací &text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:399
 msgid "Test re&sult"
@@ -6826,7 +6832,7 @@ msgstr "Váš test:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:401
 msgid "&Search and replace"
-msgstr ""
+msgstr "Najít a nahradit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:91
 msgid "Last modified: %s"
@@ -6838,11 +6844,11 @@ msgstr "Není platný obrázek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:150
 msgid "Specify title and author"
-msgstr ""
+msgstr "Vybrat název a autora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:151
 msgid "You must specify a title and author before generating a cover"
-msgstr ""
+msgstr "Před generováním obálky musíte určit název a autora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:169
 msgid "Choose formats for "
@@ -6850,7 +6856,7 @@ msgstr "Zvolte formát pro "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:200
 msgid "No permission"
-msgstr ""
+msgstr "Nedostatečná práva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:201
 msgid "You do not have permission to read the following files:"
@@ -6893,6 +6899,8 @@ msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author"
 msgstr ""
+" Červená barva znamená, že současné třídění podle autora se neshoduje se "
+"současným autorem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:359
 msgid "Abort the editing of all remaining books"
@@ -6928,13 +6936,13 @@ msgstr "Stáhnout obálku..."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:662
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:667
 msgid "Cannot fetch cover"
-msgstr ""
+msgstr "Nemohu stáhnout obálku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:652
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:663
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:668
 msgid "<b>Could not fetch cover.</b><br/>"
-msgstr ""
+msgstr "<b>Nemohu stáhnout obálku.</b><br/>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:653
 msgid "The download timed out."
@@ -6948,6 +6956,7 @@ msgstr "Nemohu najít obal pro tuto knihu. Zkuste nejdříve zadat ISBN."
 msgid ""
 "For the error message from each cover source, click Show details below."
 msgstr ""
+"Pro chybu z každého obálkového zdroje klikněte na Zobrazit detaily. (dole)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:676
 msgid "Bad cover"
@@ -6963,7 +6972,7 @@ msgstr "Nastaly chyby"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:711
 msgid "There were errors downloading social metadata"
-msgstr ""
+msgstr "Během stahování sociálních metadat došlo k chybám"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:742
 msgid "Cannot fetch metadata"
@@ -6989,7 +6998,7 @@ msgstr "Edituj metainformace"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:372
 msgid "Meta information"
-msgstr ""
+msgstr "Meta informace"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:375
 msgid "Swap the author and title"
@@ -6997,7 +7006,7 @@ msgstr "Prohodit autora a název"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:378
 msgid "Author S&ort: "
-msgstr ""
+msgstr "Řazení dle autora: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:379
 msgid ""
@@ -7069,11 +7078,11 @@ msgstr "&Listovat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:417
 msgid "Remove border (if any) from cover"
-msgstr ""
+msgstr "Odstranit pozadí z obálky"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:418
 msgid "T&rim"
-msgstr ""
+msgstr "Oříznout"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:419
 msgid "Reset cover to default"
