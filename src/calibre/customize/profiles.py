@@ -678,6 +678,15 @@ class NookOutput(OutputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
+class NookColorOutput(NookOutput):
+    name = 'Nook Color'
+    short_name = 'nook_color'
+    description = _('This profile is intended for the B&N Nook Color.')
+
+    screen_size               = (600, 980)
+    comic_screen_size         = (584, 980)
+    dpi                       = 169
+
 class BambookOutput(OutputProfile):
 
     author      = 'Li Fanxi'
@@ -698,6 +707,6 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         iPadOutput, KoboReaderOutput, TabletOutput,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-        BambookOutput, ]
+        BambookOutput, NookColorOutput]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
