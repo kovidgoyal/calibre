@@ -14,7 +14,7 @@ from PyQt4.QtGui import QDialog, QItemSelectionModel
 from calibre.gui2.dialogs.fetch_metadata_ui import Ui_FetchMetadata
 from calibre.gui2 import error_dialog, NONE, info_dialog, config
 from calibre.gui2.widgets import ProgressIndicator
-from calibre import strftime
+from calibre import strftime, force_unicode
 from calibre.customize.ui import get_isbndb_key, set_isbndb_key
 
 _hung_fetchers = set([])
@@ -179,7 +179,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
                 self.terminate()
                 return self.queue_reject.emit()
             self.model = Matches(self.fetcher.results)
-            warnings = [(x[0], unicode(x[1])) for x in \
+            warnings = [(x[0], force_unicode(x[1])) for x in \
                             self.fetcher.exceptions if x[1] is not None]
             if warnings:
                 warnings='<br>'.join(['<b>%s</b>: %s'%(name, exc) for name,exc in warnings])

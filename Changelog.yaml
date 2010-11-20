@@ -4,6 +4,82 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.29
+  date: 2010-11-19
+
+  new features:
+    - title: "OSX binary build is now based on Qt 4.7. Also, the build is now Intel only and requires at least OS X 10.5.2. If you are on a PowerPC machine or an older OS X version, do not upgrade"
+
+    - title: "Content server: Allow direct navigation to a set of books in the book list."
+      tickets: [7453]
+
+    - title: "OS X: When deleting books, put the files into the recycle bin instead of deleting them permanently"
+
+    - title: "Add button to easy configure Hotmail as email relay. Also improve usability of easy config buttons"
+
+    - title: "Kobo driver: Support Currently_Reading category"
+
+    - title: "Catalog generation: Thumbnail caching, wishlist, improved description layout."
+      tickets: [7376]
+
+    - title: "Support for the Cybook Orizon"
+
+  bug fixes:
+    - title: "Fix restore to defaults in preferences incorrectly setting PDF unwrap factor to 0.0"
+
+    - title: "PDF Input: Fix unwrapping of accented characters"
+
+    - title: "Do not display dialogs asking for confirmation or showing conversion errors when calibre is minimized to system tray"
+      tickets: [7549]
+
+    - title: "calibre server: Fix regression that broke digest authentication when the calibre interface language was set to non English"
+
+    - title: "EPUB Output: Do not raise an error for invalid embedded fonts in the input document."
+      tickets: [7567]
+
+    - title: "RTF Input: Improved conversion of tables, with support for border styles on table cells"
+
+    - title: "E-book viewer: Fix regression that broke hyphenation. Also add more language patterns for hyphenation"
+
+    - title: "SONY driver: Fix cover thumbnails being uploaded to wrong directory on windows"
+
+    - title: "Fix UnicodeDecodeError when displaying a failed metadata fetch message"
+      tickets: [7560]
+
+    - title: "Bulk metadata edit: Speed up remove all tags operation"
+
+    - title: "MOBI Output: Specify image sizes in pixels instead of em to accomodate Amazon's @#$%#@! MOBI renderer"
+
+    - title: "Fix bug preventing customizing of builtin recipes if they are not ascii encoded"
+
+    - title: "SONY XML cache: Handle case where XML db contains reference to a file that does not exist gracefully"
+
+  improved recipes:
+    - Al Jazeera 
+    - The Moscow Times
+    - GLobe and Mail
+    - Washington Post
+
+  new recipes:
+    - title: "Hannoversche Allgemeine Zeitung"
+      author: "Artemis"
+      
+    - title: "globes.co.il"
+      author: "marbs"
+
+    - title: "THN and RDS"
+      author: "Nexus"
+
+    - title: "pclab.pl"
+      author: "ravcio"
+
+    - title: "Now Toronto"
+      author: "Starson17"
+
+    - title: "Press releases of the German government and EU Commission"
+      author: "malfi"
+
+
 - version: 0.7.28
   date: 2010-11-12
 

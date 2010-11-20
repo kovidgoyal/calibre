@@ -321,7 +321,7 @@ class PreProcessor(object):
 
         # put back non-breaking spaces in empty paragraphs to preserve original formatting
         html = blankreg.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
-        
+
         # Center separator lines
         html = re.sub(u'<p>\s*(?P<break>([*#•]+\s*)+)\s*</p>', '<p style="text-align:center">' + '\g<break>' + '</p>', html)
 
