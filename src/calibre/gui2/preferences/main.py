@@ -155,6 +155,8 @@ class Browser(QScrollArea): # {{{
 
 class Preferences(QMainWindow):
 
+    run_wizard_requested = pyqtSignal()
+
     def __init__(self, gui, initial_plugin=None):
         QMainWindow.__init__(self, gui)
         self.gui = gui
@@ -195,6 +197,11 @@ class Preferences(QMainWindow):
         self.cw.setLayout(QVBoxLayout())
         self.cw.layout().addWidget(self.stack)
         self.bb = QDialogButtonBox(QDialogButtonBox.Close)
+        self.wizard_button = self.bb.addButton(_('Run welcome wizard'),
+                self.bb.DestructiveRole)
+        self.wizard_button.setIcon(QIcon(I('wizard.png')))
+        self.wizard_button.clicked.connect(self.run_wizard,
+                type=Qt.QueuedConnection)
         self.cw.layout().addWidget(self.bb)
         self.bb.rejected.connect(self.close, type=Qt.QueuedConnection)
         self.setCentralWidget(self.cw)
@@ -240,6 +247,9 @@ class Preferences(QMainWindow):
             if plugin is not None:
                 self.show_plugin(plugin)
 
+    def run_wizard(self):
+        self.close()
+        self.run_wizard_requested.emit()
 
     def show_plugin(self, plugin):
         self.showing_widget = plugin.create_widget(self.scroll_area)
