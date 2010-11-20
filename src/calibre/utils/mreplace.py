@@ -17,7 +17,7 @@ class MReplace(UserDict):
         if len(self.data) > 0:
             keys = sorted(self.data.keys(), key=len)
             keys.reverse()
-            tmp = "(%s)" % "|".join([re.escape(item) for item in keys])
+            tmp = "(%s)" % "|".join(map(re.escape, keys))
             if self.re != tmp:
                 self.re = tmp
                 self.regex = re.compile(self.re)
