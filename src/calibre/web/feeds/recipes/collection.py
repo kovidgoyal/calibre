@@ -62,7 +62,8 @@ def serialize_recipe(urn, recipe_class):
 def serialize_collection(mapping_of_recipe_classes):
     collection = E.recipe_collection()
     for urn in sorted(mapping_of_recipe_classes.keys(),
-            key=lambda key: mapping_of_recipe_classes[key].title):
+            key=lambda key: getattr(mapping_of_recipe_classes[key], 'title',
+                'zzz')):
         recipe = serialize_recipe(urn, mapping_of_recipe_classes[urn])
         collection.append(recipe)
     collection.set('count', str(len(collection)))
