@@ -957,8 +957,6 @@ def create_oebbook(log, path_or_stream, opts, input_plugin, reader=None,
     '''
     Create an OEBBook.
     '''
-    if input_plugin == 'LITInput':
-        print "***\n\n*** Input plugin is: "+str(input_plugin)+"\n\n****"
     from calibre.ebooks.oeb.base import OEBBook
     html_preprocessor = HTMLPreProcessor(input_plugin.preprocess_html,
             opts.preprocess_html, opts)
