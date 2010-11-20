@@ -1,0 +1,38 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1287519083(BasicNewsRecipe):
+    title          = u'Hannoversche Allgemeine Zeitung'
+    oldest_article = 1
+    __author__ = 'Artemis'
+    max_articles_per_feed = 30
+    language = 'de'
+    no_stylesheets = True
+
+    feeds = [
+	#(u'Schlagzeilen', u'http://www.haz.de/rss/feed/haz_schlagzeilen'),
+	(u'Politik', u'http://www.haz.de/rss/feed/haz_politik'),
+	(u'Wirtschaft', u'http://www.haz.de/rss/feed/haz_wirtschaft'),
+	(u'Panorama', u'http://www.haz.de/rss/feed/haz_panorama'),
+	(u'Wissen', u'http://www.haz.de/rss/feed/haz_wissen'),
+	(u'Kultur', u'http://www.haz.de/rss/feed/haz_kultur'),
+	(u'Sp\xe4tvorstellung', u'http://www.haz.de/rss/feed/haz_spaetvorstellung'),
+	(u'Hannover & Region', u'http://www.haz.de/rss/feed/haz_hannoverregion'),
+	(u'Netzgefl\xfcster', u'http://www.haz.de/rss/feed/haz_netzgefluester'),
+	(u'Meinung', u'http://www.haz.de/rss/feed/haz_meinung'),
+	(u'ZiSH', u'http://www.haz.de/rss/feed/haz_zish'),
+	(u'Medien', u'http://www.haz.de/rss/feed/haz_medien'),
+	#(u'Sport', u'http://www.haz.de/rss/feed/haz_sport'),
+	#(u'Hannover 96', u'http://www.haz.de/rss/feed/haz_hannover96')
+	]
+
+    remove_tags_before =dict(id='modul_artikel')
+    remove_tags_after =dict(id='articlecontent')
+
+    remove_tags = dict(id='articlesidebar')
+
+    remove_tags = [
+	dict(name='div', attrs={'class':['articlecomment',
+	'articlebookmark', 'teaser_anzeige', 'teaser_umfrage',
+	'navigation', 'subnavigation']})
+	]
+

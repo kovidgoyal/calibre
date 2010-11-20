@@ -437,31 +437,34 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
     def job_exception(self, job):
         if not hasattr(self, '_modeless_dialogs'):
             self._modeless_dialogs = []
+        minz = self.is_minimized_to_tray
         if self.isVisible():
             for x in list(self._modeless_dialogs):
                 if not x.isVisible():
                     self._modeless_dialogs.remove(x)
         try:
             if 'calibre.ebooks.DRMError' in job.details:
-                d = error_dialog(self, _('Conversion Error'),
-                    _('<p>Could not convert: %s<p>It is a '
-                      '<a href="%s">DRM</a>ed book. You must first remove the '
-                      'DRM using third party tools.')%\
-                        (job.description.split(':')[-1],
-                            'http://bugs.calibre-ebook.com/wiki/DRM'))
-                d.setModal(False)
-                d.show()
-                self._modeless_dialogs.append(d)
+                if not minz:
+                    d = error_dialog(self, _('Conversion Error'),
+                        _('<p>Could not convert: %s<p>It is a '
+                        '<a href="%s">DRM</a>ed book. You must first remove the '
+                        'DRM using third party tools.')%\
+                            (job.description.split(':')[-1],
+                                'http://bugs.calibre-ebook.com/wiki/DRM'))
+                    d.setModal(False)
+                    d.show()
+                    self._modeless_dialogs.append(d)
                 return
             if 'calibre.web.feeds.input.RecipeDisabled' in job.details:
-                msg = job.details
-                msg = msg[msg.find('calibre.web.feeds.input.RecipeDisabled:'):]
-                msg = msg.partition(':')[-1]
-                d = error_dialog(self, _('Recipe Disabled'),
-                    '<p>%s</p>'%msg)
-                d.setModal(False)
-                d.show()
-                self._modeless_dialogs.append(d)
+                if not minz:
+                    msg = job.details
+                    msg = msg[msg.find('calibre.web.feeds.input.RecipeDisabled:'):]
+                    msg = msg.partition(':')[-1]
+                    d = error_dialog(self, _('Recipe Disabled'),
+                        '<p>%s</p>'%msg)
+                    d.setModal(False)
+                    d.show()
+                    self._modeless_dialogs.append(d)
                 return
         except:
             pass
@@ -471,12 +474,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             prints(job.details, file=sys.stderr)
         except:
             pass
-        d = error_dialog(self, _('Conversion Error'),
-                _('<b>Failed</b>')+': '+unicode(job.description),
-                det_msg=job.details)
-        d.setModal(False)
-        d.show()
-        self._modeless_dialogs.append(d)
+        if not minz:
+            d = error_dialog(self, _('Conversion Error'),
+                    _('<b>Failed</b>')+': '+unicode(job.description),
+                    det_msg=job.details)
+            d.setModal(False)
+            d.show()
+            self._modeless_dialogs.append(d)
 
     def read_settings(self):
         geometry = config['main_window_geometry']

@@ -176,6 +176,7 @@ class DoDownload(QObject):
                 set_metadata=set_metadata,
                 get_social_metadata=get_social_metadata)
         self.timer = QTimer(self)
+        self.get_covers = get_covers
         self.timer.timeout.connect(self.do_one, type=Qt.QueuedConnection)
         self.db = db
         self.updated = set([])
@@ -222,7 +223,10 @@ class DoDownload(QObject):
         id_, typ, ok, title = r
         what = _('cover') if typ == 'cover' else _('metadata')
         which = _('Downloaded') if ok else _('Failed to get')
-        self.pd.set_msg(_('%s %s for: %s') % (which, what, title))
+        if self.get_covers or typ != 'cover' or ok:
+            # Do not show message when cover fetch fails if user didn't ask to
+            # download covers
+            self.pd.set_msg(_('%s %s for: %s') % (which, what, title))
         self.pd.value += 1
         if ok:
             self.updated.add(id_)
