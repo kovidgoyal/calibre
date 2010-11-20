@@ -237,7 +237,7 @@ class ResultList(list):
         # mi.language = self.get_language(x, verbose)
         return mi
 
-    def get_individual_metadata(self, browser, linkdata):
+    def get_individual_metadata(self, browser, linkdata, verbose):
         try:
             raw = browser.open_novisit(self.BASE_URL + linkdata).read()
         except Exception, e:
@@ -262,7 +262,7 @@ class ResultList(list):
     def populate(self, entries, browser, verbose=False):
         for x in entries:
             try:
-                entry = self.get_individual_metadata(browser, x)
+                entry = self.get_individual_metadata(browser, x, verbose)
                 entry = self.clean_entry(entry)
                 title = self.get_title(entry)
                 #ratings: get table for rating then drop
