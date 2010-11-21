@@ -168,29 +168,30 @@ class PreProcessor(object):
                #print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
-        #self.dump(html, 'before_chapter_markup')
+        self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
         #
         # Build the Regular Expressions in pieces
         init_lookahead = "(?=<(p|div))"
         chapter_line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
+        title_line_open = "<(?P<outer2>p|div)[^>]*>\s*(<(?P<inner4>font|span|[ibu])[^>]*>)?\s*(<(?P<inner5>font|span|[ibu])[^>]*>)?\s*(<(?P<inner6>font|span|[ibu])[^>]*>)?\s*"
         chapter_header_open = r"(?P<chap>"
+        title_header_open = r"(?P<title>"
         chapter_header_close = ")\s*"
+        title_header_close = ")"
         chapter_line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
+        title_line_close = "(</(?P=inner6)>)?\s*(</(?P=inner5)>)?\s*(</(?P=inner4)>)?\s*</(?P=outer2)>"
+
         if blanks_between_paragraphs:
             blank_lines = "(\s*<p[^>]*>\s*</p>){0,2}\s*"
         else:
             blank_lines = ""
         opt_title_open = "("
-        title_line_open = "<(?P<outer2>p|div)[^>]*>\s*(<(?P<inner4>font|span|[ibu])[^>]*>)?\s*(<(?P<inner5>font|span|[ibu])[^>]*>)?\s*(<(?P<inner6>font|span|[ibu])[^>]*>)?\s*"
-        title_header_open = "(?P<title>"
-        title_header_close = ")\s*"
-        title_line_close = "(</(?P=inner6)>)?\s*(</(?P=inner5)>)?\s*(</(?P=inner4)\s[^>]*>)?\s*</(?P=outer2)>"
         opt_title_close = ")?"
         n_lookahead_open = "\s+(?!"
         n_lookahead_close = ")"
 
-        default_title = r"(\s*[\w\'\"-]+){1,5}?(?=<)"
+        default_title = r"\s{0,3}([\w\'\"-]+\s{0,3}){1,5}?(?=<)"
         
         min_chapters = 10
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
@@ -204,7 +205,8 @@ class PreProcessor(object):
             [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles"], # Numeric Titles
             [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters" ] # Uppercase Chapters
             ]
-        
+
+        # Start with most typical chapter headings, get more aggressive until one works
         for [chapter_type, lookahead_ignorecase, log_message] in chapter_types:
             if self.html_preprocess_sections >= min_chapters:
                 break
@@ -215,7 +217,9 @@ class PreProcessor(object):
                 chapter_marker = init_lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
                 chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
             else:
+                print "Chapter line is:\n"+full_chapter_line
                 chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
+                print "\nFull regex is:\n"+chapter_marker
                 chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
                 
             html = chapdetect.sub(self.chapter_head, html)
