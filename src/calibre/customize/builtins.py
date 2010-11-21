@@ -483,8 +483,8 @@ from calibre.devices.kobo.driver import KOBO
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
     LibraryThing, Fictionwise
 from calibre.ebooks.metadata.douban import DoubanBooks
-from calibre.ebooks.metadata.nicebooks import NiceBooks
 from calibre.ebooks.metadata.fictionwise import Fictionwise
+from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
 from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
         LibraryThingCovers, DoubanCovers
 from calibre.ebooks.metadata.nicebooks import NiceBooksCovers
@@ -493,8 +493,9 @@ from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        LibraryThing, Fictionwise, DoubanBooks, NiceBooks,CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
-        Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers, NiceBooksCovers]
+        LibraryThing, DoubanBooks, NiceBooks, Fictionwise, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers,
+        NiceBooksCovers]
 plugins += [
     ComicInput,
     EPUBInput,

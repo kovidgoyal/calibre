@@ -615,10 +615,14 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.emit(SIGNAL('retranslate()'))
         self.init_languages()
         try:
-            if prefs['language'].lower().startswith('zh'):
-                from calibre.customize.ui import enable_plugin
-                for name in ('Douban Books', 'Douban.com covers'):
-                    enable_plugin(name)
+            lang = prefs['language'].lower()[:2]
+            metadata_plugins = {
+                    'zh' : ('Douban Books', 'Douban.com covers'),
+                    'fr' : ('Nicebooks', 'Nicebooks covers'),
+            }.get(lang, [])
+            from calibre.customize.ui import enable_plugin
+            for name in metadata_plugins:
+                enable_plugin(name)
         except:
             pass
 

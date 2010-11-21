@@ -8,7 +8,6 @@ from urllib import urlencode
 from math import ceil
 from copy import deepcopy
 
-from lxml import html
 from lxml.html import soupparser
 
 from calibre.utils.date import parse_date, utcnow
@@ -107,7 +106,7 @@ class Query(object):
         assert (max_results < 21)
 
         self.max_results = int(max_results)
-        
+
         if isbn is not None:
             q = isbn
         else:
@@ -121,7 +120,7 @@ class Query(object):
     def __call__(self, browser, verbose, timeout = 5.):
         if verbose:
             print 'Query:', self.BASE_URL+self.urldata
-        
+
         try:
             raw = browser.open_novisit(self.BASE_URL+self.urldata, timeout=timeout).read()
         except Exception, e:
@@ -138,14 +137,14 @@ class Query(object):
             feed = soupparser.fromstring(raw)
         except:
             return
-        
+
         #nb of page to call
         try:
             nbresults = int(feed.xpath("//div[@id='topbar']/b")[0].text)
         except:
             #direct hit
             return [feed]
-        
+
         nbpagetoquery = int(ceil(float(min(nbresults, self.max_results))/10))
         pages =[feed]
         if nbpagetoquery > 1:
@@ -164,7 +163,7 @@ class Query(object):
                 except:
                     continue
                 pages.append(feed)
-        
+
         results = []
         for x in pages:
             results.extend([i.find_class('title')[0].get('href') \
@@ -172,9 +171,9 @@ class Query(object):
         return results[:self.max_results]
 
 class ResultList(list):
-    
+
     BASE_URL = 'http://fr.nicebooks.com'
- 
+
     def __init__(self):
         self.repub = re.compile(u'\s*.diteur\s*', re.I)
         self.reauteur = re.compile(u'\s*auteur.*', re.I)
@@ -208,8 +207,8 @@ class ResultList(list):
         except:
             report(verbose)
             return None
-    
-    def get_book_info(self, entry, mi):
+
+    def get_book_info(self, entry, mi, verbose):
         entry = entry.find("dl[@title='Informations sur le livre']")
         for x in entry.getiterator('dt'):
             if x.text == 'ISBN':
@@ -240,7 +239,7 @@ class ResultList(list):
         # mi.pubdate = self.get_date(entry, verbose)
         # mi.isbn = self.get_ISBN(entry)
         # mi.language = self.get_language(entry)
-        return self.get_book_info(entry, mi)
+        return self.get_book_info(entry, mi, verbose)
 
     def get_individual_metadata(self, browser, linkdata, verbose):
         try:
@@ -343,7 +342,7 @@ def search(title=None, author=None, publisher=None, isbn=None,
     br = browser()
     entries = Query(title=title, author=author, isbn=isbn, publisher=publisher,
         keywords=keywords, max_results=max_results)(br, verbose)
-    
+
     if entries is None or len(entries) == 0:
         return
 
@@ -390,6 +389,7 @@ def option_parser():
     return parser
 
 def main(args=sys.argv):
+    import os
     parser = option_parser()
     opts, args = parser.parse_args(args)
     try:
