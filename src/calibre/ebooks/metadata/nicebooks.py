@@ -181,13 +181,15 @@ class ResultList(list):
         self.reautclean = re.compile(u'\s*\(.*\)\s*')
 
     def get_title(self, entry):
-        title = deepcopy(entry.find("div[@id='book-info']"))
+        # title = deepcopy(entry.find("div[@id='book-info']"))
+        title = deepcopy(entry)
         title.remove(title.find("dl[@title='Informations sur le livre']"))
         title = ' '.join([i.text_content() for i in title.iterchildren()])
         return unicode(title.replace('\n', ''))
 
     def get_authors(self, entry):
-        author = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
+        # author = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
+        author = entry.find("dl[@title='Informations sur le livre']")
         authortext = []
         for x in author.getiterator('dt'):
             if self.reauteur.match(x.text):
@@ -202,22 +204,46 @@ class ResultList(list):
 
     def get_description(self, entry, verbose):
         try:
-            return 'RESUME:\n' + unicode(entry.xpath("//p[@id='book-description']")[0].text)
+            return u'RESUME:\n' + unicode(entry.getparent().xpath("//p[@id='book-description']")[0].text)
         except:
             report(verbose)
             return None
-
+    
+    def get_book_info(self, entry, mi):
+        entry = entry.find("dl[@title='Informations sur le livre']")
+        for x in entry.getiterator('dt'):
+            if x.text == 'ISBN':
+                isbntext = x.getnext().text_content().replace('-', '')
+                if check_isbn(isbntext):
+                    mi.isbn = unicode(isbntext)
+            elif self.repub.match(x.text):
+                mi.publisher = unicode(x.getnext().text_content())
+            elif x.text == 'Langue':
+                mi.language = unicode(x.getnext().text_content())
+            elif x.text == 'Date de parution':
+                d = x.getnext().text_content()
+                try:
+                    default = utcnow().replace(day=15)
+                    d = replace_monthsfr(d)
+                    d = parse_date(d, assume_utc=True, default=default)
+                    mi.pubdate = d
+                except:
+                    report(verbose)
+        return mi
+        
     def get_publisher(self, entry):
-        publisher = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
+        # publisher = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
+        publisher = entry
         publitext = None
         for x in publisher.getiterator('dt'):
             if self.repub.match(x.text):
                 publitext = x.getnext().text_content()
                 break
-        return unicode(publitext).strip()
+        return unicode(publitext)
 
     def get_date(self, entry, verbose):
-        date = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
+        # date = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
+        date = entry
         d = ''
         for x in date.getiterator('dt'):
             if x.text == 'Date de parution':
@@ -235,35 +261,37 @@ class ResultList(list):
         return d
 
     def get_ISBN(self, entry):
-        isbn = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
+        # isbn = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
+        isbn = entry
         isbntext = None
         for x in isbn.getiterator('dt'):
             if x.text == 'ISBN':
-                isbntext = x.getnext().text_content()
+                isbntext = x.getnext().text_content().replace('-', '')
                 if not check_isbn(isbntext):
                     return None
-                isbntext = isbntext.replace('-', '')
                 break
         return unicode(isbntext)
 
     def get_language(self, entry):
-        language = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
+        # language = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
+        language = entry
         langtext = None
         for x in language.getiterator('dt'):
             if x.text == 'Langue':
                 langtext = x.getnext().text_content()
                 break
-        return unicode(langtext).strip()
+        return unicode(langtext)
 
     def fill_MI(self, entry, title, authors, verbose):
         mi = MetaInformation(title, authors)
-        mi.comments = self.get_description(entry, verbose)
-        mi.publisher = self.get_publisher(entry)
-        mi.pubdate = self.get_date(entry, verbose)
-        mi.isbn = self.get_ISBN(entry)
         mi.author_sort = authors_to_sort_string(authors)
-        mi.language = self.get_language(entry)
-        return mi
+        mi.comments = self.get_description(entry, verbose)
+        # entry = entry.find("dl[@title='Informations sur le livre']")
+        # mi.publisher = self.get_publisher(entry)
+        # mi.pubdate = self.get_date(entry, verbose)
+        # mi.isbn = self.get_ISBN(entry)
+        # mi.language = self.get_language(entry)
+        return self.get_book_info(entry, mi)
 
     def get_individual_metadata(self, browser, linkdata, verbose):
         try:
@@ -292,6 +320,7 @@ class ResultList(list):
         if len(entries) ==1:
             try:
                 entry = entries[0].xpath("//div[@id='container']")[0]
+                entry = entry.find("div[@id='book-info']")
                 title = self.get_title(entry)
                 authors = self.get_authors(entry)
             except Exception, e:
