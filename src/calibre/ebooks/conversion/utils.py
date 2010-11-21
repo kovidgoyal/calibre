@@ -172,7 +172,7 @@ class PreProcessor(object):
         # detect chapters/sections to match xpath or splitting logic
         #
         # Build the Regular Expressions in pieces
-        lookahead = "(?=<(p|div))"
+        init_lookahead = "(?=<(p|div))"
         chapter_line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
         chapter_header_open = r"(?P<chap>"
         chapter_header_close = ")\s*"
@@ -191,69 +191,35 @@ class PreProcessor(object):
         n_lookahead_close = ")"
 
         default_title = r"(\s*[\w\'\"-]+){1,5}?(?=<)"
-        typical_chapters = r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}"
-        numeric_chapters = r"[^'\"]?(\d+\.?|CHAPTER)\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}\s*"
-        uppercase_chapters = r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*"
-        numeric_titles = r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*"
-        emphasized_lines = r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\w#\-*\s]+<)([\w#-*]+\s*){1,5}\s*)(</span>)?\s*</b>"
-
-        full_chapter_line = chapter_line_open+chapter_header_open+typical_chapters+chapter_header_close+chapter_line_close
-        n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-        #print "n_lookahead is:\n" + n_lookahead + "\n\n"
-        #print "'normal' Chapter line - no title - is:\n" + full_chapter_line + "\n\n"
-        chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-        #print "full chapter regex with lookahead is:\n" + chapter_marker + "\n\n"
+        
+        min_chapters = 10
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
         self.log("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
-        #
-        # Start with most typical chapter headings, get more aggressive until one works
-        if self.html_preprocess_sections < 10:
-            chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
+        
+        chapter_types = [
+            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}", True, "Searching for common Chapter Headings"],
+            [r"[^'\"]?(\d+\.?|CHAPTER)\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
+            [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\w#\-*\s]+<)([\w#-*]+\s*){1,5}\s*)(</span>)?\s*</b>", True, "Searching for emphasized lines"], # Emphasized lines
+            [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles"], # Numeric Titles
+            [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters" ] # Uppercase Chapters
+            ]
+        
+        for [chapter_type, lookahead_ignorecase, log_message] in chapter_types:
+            if self.html_preprocess_sections >= min_chapters:
+                break
+            full_chapter_line = chapter_line_open+chapter_header_open+chapter_type+chapter_header_close+chapter_line_close
+            n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
+            self.log("Marked " + unicode(self.html_preprocess_sections) + " headings, " + log_message)
+            if lookahead_ignorecase:
+                chapter_marker = init_lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
+                chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
+            else:
+                chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
+                chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
+                
             html = chapdetect.sub(self.chapter_head, html)
-        if self.html_preprocess_sections < 10:
-            self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying numeric chapters")
-            full_chapter_line = chapter_line_open+chapter_header_open+numeric_chapters+chapter_header_close+chapter_line_close
-            n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-            #print "n_lookahead is " + n_lookahead
-            #print "Chapter line is " + full_chapter_line + "\n\n"
-            chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-            #print chapter_marker
-            chapdetect2 = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
-            html = chapdetect2.sub(self.chapter_head, html)
-
-        if self.html_preprocess_sections < 10:
-            self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying emphazised lines")
-            full_chapter_line = chapter_line_open+chapter_header_open+emphasized_lines+chapter_header_close+chapter_line_close
-            n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-            #print "n_lookahead is " + n_lookahead
-            #print "Chapter line is " + full_chapter_line + "\n\n"
-            chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-            #print chapter_marker
-            chapdetect2 = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
-            html = chapdetect2.sub(self.chapter_head, html)            
-
-        if self.html_preprocess_sections < 10:
-            self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying with uppercase words")
-            full_chapter_line = chapter_line_open+chapter_header_open+uppercase_chapters+chapter_header_close+chapter_line_close
-            n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-            #print "n_lookahead is " + n_lookahead
-            #print "Chapter line is " + full_chapter_line + "\n\n"
-            chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-            #print chapter_marker
-            chapdetect2 = re.compile(r'%s' % chapter_marker,  re.UNICODE)
-            html = chapdetect2.sub(self.chapter_head, html)
-
-        if self.html_preprocess_sections < 10:
-            self.log("not enough chapters, only " + unicode(self.html_preprocess_sections) + ", trying numeric chapters with titles")
-            full_chapter_line = chapter_line_open+chapter_header_open+numeric_titles+chapter_header_close+chapter_line_close
-            n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-            #print "n_lookahead is " + n_lookahead
-            #print "Chapter line is " + full_chapter_line + "\n\n"
-            chapter_marker = lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-            #print chapter_marker
-            chapdetect2 = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
-            html = chapdetect2.sub(self.chapter_head, html)
+            
 
         ###### Unwrap lines ######
         #
