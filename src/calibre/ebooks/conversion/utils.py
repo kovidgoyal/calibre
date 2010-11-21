@@ -168,7 +168,7 @@ class PreProcessor(object):
                #print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
-        self.dump(html, 'before_chapter_markup')
+        #self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
         #
         # Build the Regular Expressions in pieces
