@@ -200,7 +200,7 @@ class PreProcessor(object):
         
         chapter_types = [
             [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}", True, "Searching for common Chapter Headings"],
-            [r"[^'\"]?(\d+\.?|CHAPTER)\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
+            [r"[^'\"]?(\d+\.?|CHAPTER)\s*([\dA-Z\-\'\"\?\.!#,]+\s*){0,10}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
             [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\w#\-*\s]+<)([\w#-*]+\s*){1,5}\s*)(</span>)?\s*</b>", True, "Searching for emphasized lines"], # Emphasized lines
             [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles"], # Numeric Titles
             [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters" ] # Uppercase Chapters
