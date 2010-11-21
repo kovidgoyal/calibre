@@ -22,12 +22,12 @@ class PreProcessor(object):
         title = match.group('title')
         if not title:
             self.html_preprocess_sections = self.html_preprocess_sections + 1
-            self.log("found " + unicode(self.html_preprocess_sections) +
+            self.log("marked " + unicode(self.html_preprocess_sections) +
                     " chapters. - " + unicode(chap))
             return '<h2>'+chap+'</h2>\n'
         else:
             self.html_preprocess_sections = self.html_preprocess_sections + 1
-            self.log("found " + unicode(self.html_preprocess_sections) +
+            self.log("marked " + unicode(self.html_preprocess_sections) +
                     " chapters & titles. - " + unicode(chap) + ", " + unicode(title))
             return '<h2>'+chap+'</h2>\n<h3>'+title+'</h3>\n'
 
@@ -106,7 +106,7 @@ class PreProcessor(object):
 
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = re.sub(r"\s*</p>", "</p>\n", html)
-        html = re.sub(r"\s*<p>\s*", "\n<p>", html)
+        html = re.sub(r"\s*<p(?P<style>[^>]*)>\s*", "\n<p"+"\g<style>"+">", html)
         
         ###### Check Markup ######
         #
@@ -200,7 +200,7 @@ class PreProcessor(object):
         
         chapter_types = [
             [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}", True, "Searching for common Chapter Headings"],
-            [r"[^'\"]?(\d+\.?|CHAPTER)\s*([\dA-Z\-\'\"\?\.!#,]+\s*){0,10}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
+            [r"[^'\"]?(\d+\.?|CHAPTER)\s*([\dA-Z\-\'\"\?\.!#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
             [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\w#\-*\s]+<)([\w#-*]+\s*){1,5}\s*)(</span>)?\s*</b>", True, "Searching for emphasized lines"], # Emphasized lines
             [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles"], # Numeric Titles
             [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters" ] # Uppercase Chapters
@@ -241,6 +241,7 @@ class PreProcessor(object):
             format = 'html'
         # Check Line histogram to determine if the document uses hard line breaks, If 50% or
         # more of the lines break in the same region of the document then unwrapping is required
+        self.dump(html, 'before_doc_analysis_zipped_http')
         docanalysis = DocAnalysis(format, html)
         hardbreaks = docanalysis.line_histogram(.50)
         self.log("Hard line breaks check returned "+unicode(hardbreaks))
