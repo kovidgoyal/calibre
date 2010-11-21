@@ -217,9 +217,7 @@ class PreProcessor(object):
                 chapter_marker = init_lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
                 chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
             else:
-                print "Chapter line is:\n"+full_chapter_line
                 chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
-                print "\nFull regex is:\n"+chapter_marker
                 chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
                 
             html = chapdetect.sub(self.chapter_head, html)
