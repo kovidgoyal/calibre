@@ -5,7 +5,6 @@ __docformat__ = 'restructuredtext en'
 
 import sys, textwrap, re, traceback, socket
 from urllib import urlencode
-from functools import partial
 from math import ceil
 from copy import deepcopy
 
@@ -147,7 +146,7 @@ class Query(object):
             #direct hit
             return [feed]
         
-        nbpagetoquery = ceil(min(nbresults, self.max_results)/10)
+        nbpagetoquery = int(ceil(float(min(nbresults, self.max_results))/10))
         pages =[feed]
         if nbpagetoquery > 1:
             for i in xrange(2, nbpagetoquery + 1):
@@ -193,11 +192,9 @@ class ResultList(list):
         for x in author.getiterator('dt'):
             if self.reauteur.match(x.text):
                 elt = x.getnext()
-                i = 0
-                while elt.tag <> 'dt' and i < 20:
+                while elt.tag == 'dd':
                     authortext.append(unicode(elt.text_content()))
                     elt = elt.getnext()
-                    i += 1
                 break
         if len(authortext) == 1:
             authortext = [self.reautclean.sub('', authortext[0])]
@@ -291,29 +288,32 @@ class ResultList(list):
         return feed.xpath("//div[@id='container']")[0]
 
     def populate(self, entries, browser, verbose=False):
-        for x in entries:
+        #single entry
+        if len(entries) ==1:
             try:
-                entry = self.get_individual_metadata(browser, x, verbose)
+                entry = entries[0].xpath("//div[@id='container']")[0]
                 title = self.get_title(entry)
                 authors = self.get_authors(entry)
             except Exception, e:
                 if verbose:
                     print 'Failed to get all details for an entry'
                     print e
-                continue
+                return
             self.append(self.fill_MI(entry, title, authors, verbose))
+        else:
+        #multiple entries
+            for x in entries:
+                try:
+                    entry = self.get_individual_metadata(browser, x, verbose)
+                    title = self.get_title(entry)
+                    authors = self.get_authors(entry)
+                except Exception, e:
+                    if verbose:
+                        print 'Failed to get all details for an entry'
+                        print e
+                    continue
+                self.append(self.fill_MI(entry, title, authors, verbose))
 
-    def populate_single(self, feed, verbose=False):
-        try:
-            entry = feed.xpath("//div[@id='container']")[0]
-            title = self.get_title(entry)
-            authors = self.get_authors(entry)
-        except Exception, e:
-            if verbose:
-                print 'Failed to get all details for an entry'
-                print e
-            return
-        self.append(self.fill_MI(entry, title, authors, verbose))
 
 class NiceBooksError(Exception):
     pass
@@ -372,13 +372,10 @@ def search(title=None, author=None, publisher=None, isbn=None,
     
     if entries is None or len(entries) == 0:
         return
-    
+
     #List of entry
     ans = ResultList()
-    if len(entries) > 1:
-        ans.populate(entries, br, verbose)
-    else:
-        ans.populate_single(entries[0], verbose)
+    ans.populate(entries, br, verbose)
     return ans
 
 def check_for_cover(isbn):
