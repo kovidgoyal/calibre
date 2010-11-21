@@ -22,5 +22,5 @@ class PluginWidget(Widget, Ui_Form):
 
     def set_value_handler(self, g, val):
         if val is None and isinstance(g, QDoubleSpinBox):
-            g.setValue(0.45)
+            g.setValue(0.0)
             return True
