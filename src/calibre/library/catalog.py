@@ -278,10 +278,10 @@ class BIBTEX(CatalogPlugin):
 
         from calibre.library.save_to_disk import preprocess_template
         #Bibtex functions
-        from calibre.utils.bibtex import bibtex_author_format, utf8ToBibtex, ValidateCitationKey
+        from calibre.utils.bibtex import BibTeX
 
         def create_bibtex_entry(entry, fields, mode, template_citation,
-            asccii_bibtex = True, citation_bibtex = True):
+            bibtexdict, citation_bibtex = True):
 
             #Bibtex doesn't like UTF-8 but keep unicode until writing
             #Define starting chain or if book valid strict and not book return a Fail string
@@ -297,7 +297,8 @@ class BIBTEX(CatalogPlugin):
 
             if citation_bibtex :
                 # Citation tag
-                bibtex_entry.append(make_bibtex_citation(entry, template_citation, asccii_bibtex))
+                bibtex_entry.append(make_bibtex_citation(entry, template_citation,
+                    bibtexdict))
                 bibtex_entry = [u' '.join(bibtex_entry)]
 
             for field in fields:
@@ -312,11 +313,11 @@ class BIBTEX(CatalogPlugin):
                     pass
 
                 if field == 'authors' :
-                    bibtex_entry.append(u'author = "%s"' % bibtex_author_format(item))
+                    bibtex_entry.append(u'author = "%s"' % bibtexdict.bibtex_author_format(item))
 
                 elif field in ['title', 'publisher', 'cover', 'uuid',
                         'author_sort', 'series'] :
-                    bibtex_entry.append(u'%s = "%s"' % (field, utf8ToBibtex(item, asccii_bibtex)))
+                    bibtex_entry.append(u'%s = "%s"' % (field, bibtexdict.utf8ToBibtex(item)))
 
                 elif field == 'id' :
                     bibtex_entry.append(u'calibreid = "%s"' % int(item))
@@ -329,13 +330,13 @@ class BIBTEX(CatalogPlugin):
 
                 elif field == 'tags' :
                     #A list to flatten
-                    bibtex_entry.append(u'tags = "%s"' % utf8ToBibtex(u', '.join(item), asccii_bibtex))
+                    bibtex_entry.append(u'tags = "%s"' % bibtexdict.utf8ToBibtex(u', '.join(item)))
 
                 elif field == 'comments' :
                     #\n removal
                     item = item.replace(u'\r\n',u' ')
                     item = item.replace(u'\n',u' ')
-                    bibtex_entry.append(u'note = "%s"' % utf8ToBibtex(item, asccii_bibtex))
+                    bibtex_entry.append(u'note = "%s"' % bibtexdict.utf8ToBibtex(item))
 
                 elif field == 'isbn' :
                     # Could be 9, 10 or 13 digits
@@ -353,8 +354,7 @@ class BIBTEX(CatalogPlugin):
 
                 elif field == 'pubdate' :
                     bibtex_entry.append(u'year = "%s"' % item.year)
-                    bibtex_entry.append(u'month = "%s"' % utf8ToBibtex(strftime("%b", item),
-                        asccii_bibtex))
+                    bibtex_entry.append(u'month = "%s"' % bibtexdict.utf8ToBibtex(strftime("%b", item)))
 
             bibtex_entry = u',\n    '.join(bibtex_entry)
             bibtex_entry += u' }\n\n'
@@ -371,7 +371,7 @@ class BIBTEX(CatalogPlugin):
             else :
                 return True
 
-        def make_bibtex_citation(entry, template_citation, asccii_bibtex):
+        def make_bibtex_citation(entry, template_citation, bibtexclass):
 
             #define a function to replace the template entry by its value
             def tpl_replace(objtplname) :
@@ -392,8 +392,9 @@ class BIBTEX(CatalogPlugin):
                     return u''
 
             if len(template_citation) >0 :
-                tpl_citation = utf8ToBibtex(ValidateCitationKey(re.sub(u'\{[^{}]*\}',
-                    tpl_replace, template_citation)), asccii_bibtex)
+                tpl_citation = bibtexclass.utf8ToBibtex(
+                    bibtexclass.ValidateCitationKey(re.sub(u'\{[^{}]*\}',
+                        tpl_replace, template_citation)))
 
                 if len(tpl_citation) >0 :
                     return tpl_citation
@@ -405,9 +406,9 @@ class BIBTEX(CatalogPlugin):
                 template_citation = u'%s' % str(entry["id"])
 
             if asccii_bibtex :
-                return ValidateCitationKey(template_citation.encode('ascii', 'replace'))
+                return bibtexclass.ValidateCitationKey(template_citation.encode('ascii', 'replace'))
             else :
-                return ValidateCitationKey(template_citation)
+                return bibtexclass.ValidateCitationKey(template_citation)
 
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification
@@ -475,13 +476,16 @@ class BIBTEX(CatalogPlugin):
         if not len(data):
             log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)
 
+        #Initialize BibTeX class
+        bibtexc = BibTeX()
+        
         #Entries writing after Bibtex formating (or not)
         if bibfile_enc != 'ascii' :
-            asccii_bibtex = False
+            bibtexc.ascii_bibtex = False
         else :
-            asccii_bibtex = True
+            bibtexc.ascii_bibtex = True
 
-        #Check and go to default in case of bad CLI
+        #Check citation choice and go to default in case of bad CLI
         if isinstance(opts.impcit, (StringType, UnicodeType)) :
             if opts.impcit == 'False' :
                 citation_bibtex= False
@@ -493,6 +497,7 @@ class BIBTEX(CatalogPlugin):
         else :
             citation_bibtex= opts.impcit
 
+        #Preprocess for error and light correction
         template_citation = preprocess_template(opts.bib_cit)
 
         #Open output and write entries
@@ -514,7 +519,7 @@ class BIBTEX(CatalogPlugin):
 
         for entry in data:
             outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
-                asccii_bibtex, citation_bibtex))
+                bibtexc, citation_bibtex))
 
         outfile.close()
 
