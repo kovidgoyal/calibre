@@ -1,16 +1,21 @@
 import string, re, sys
 from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
+import mechanize
+from calibre.ptempfile import PersistentTemporaryFile
 
-class NikkeiNet_subscription(BasicNewsRecipe):
-    title          = u'\u65e5\u7d4c\u65b0\u805e\u96fb\u5b50\u7248'
-    __author__     = 'Hiroshi Miura'
-    description    = 'News and current market affairs from Japan'
+
+class NikkeiNet_sub_economy(BasicNewsRecipe):
+    title           = u'\u65e5\u7d4c\u65b0\u805e\u96fb\u5b50\u7248(Sports)'
+    __author__      = 'Hiroshi Miura'
+    description     = 'News and current market affairs from Japan'
     needs_subscription = True
-    oldest_article = 3
+    oldest_article  = 2
     max_articles_per_feed = 20
-    language       = 'ja'
- 
+    language        = 'ja'
+    remove_javascript = False
+    temp_files = []
+
     remove_tags_before = {'class':"cmn-section cmn-indent"}
     remove_tags = [
                        {'class':"JSID_basePageMove JSID_baseAsyncSubmit cmn-form_area JSID_optForm_utoken"},
@@ -19,6 +24,15 @@ class NikkeiNet_subscription(BasicNewsRecipe):
                          ]
     remove_tags_after = {'class':"cmn-pr_list"}
 
+    feeds = [  (u'\u653f\u6cbb', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=seiji'),
+		 (u'\u8ca1\u52d9', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=zaimu'), 
+		 (u'\u7d4c\u6e08', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=keizai'),
+		 (u'\u30de\u30fc\u30b1\u30c3\u30c8', u'http://www.zou3.net/php/rss/nikkei2rss.php?head=market'),
+		 (u'\u96c7\u7528', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=koyou'), 
+		 (u'\u6559\u80b2', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=kyouiku'),
+		 (u'\u304a\u304f\u3084\u307f', 	u'http://www.zou3.net/php/rss/nikkei2rss.php?head=okuyami'),
+		 (u'\u4eba\u4e8b', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=zinzi'),
+        ]
     
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -84,12 +98,4 @@ class NikkeiNet_subscription(BasicNewsRecipe):
 
 
 
-    feeds          =  [ 
-		 (u'\u30b9\u30dd\u30fc\u30c4\uff1a\u30d7\u30ed\u91ce\u7403', u'http://www.zou3.net/php/rss/nikkei2rss.php?head=baseball'),
-		 (u'\u30b9\u30dd\u30fc\u30c4\uff1a\u5927\u30ea\u30fc\u30b0', u'http://www.zou3.net/php/rss/nikkei2rss.php?head=mlb'),
-		 (u'\u30b9\u30dd\u30fc\u30c4\uff1a\u30b5\u30c3\u30ab\u30fc', u'http://www.zou3.net/php/rss/nikkei2rss.php?head=soccer'), 
-		 (u'\u30b9\u30dd\u30fc\u30c4\uff1a\u30b4\u30eb\u30d5', 	u'http://www.zou3.net/php/rss/nikkei2rss.php?head=golf'),
-		 (u'\u30b9\u30dd\u30fc\u30c4\uff1a\u76f8\u64b2', 	u'http://www.zou3.net/php/rss/nikkei2rss.php?head=sumou'),
-		 (u'\u30b9\u30dd\u30fc\u30c4\uff1a\u7af6\u99ac', 	u'http://www.zou3.net/php/rss/nikkei2rss.php?head=keiba')
-		]
 
