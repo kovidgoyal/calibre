@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-19 21:23+0000\n"
-"PO-Revision-Date: 2010-11-19 23:23+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-11-20 16:27+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-20 05:04+0000\n"
+"X-Launchpad-Export-Date: 2010-11-21 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -817,7 +817,7 @@ msgstr "Communiquer avec le lecteur eBook Cybook Gen 3 / Opus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr ""
+msgstr "Communiquer avec le lecteur d'ebooks Cybook Orizon."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
@@ -1068,7 +1068,7 @@ msgstr "Nook Couleur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
 msgid "Communicate with the Nook Color eBook reader."
-msgstr ""
+msgstr "Communiquer avec le lecteur d'ebooks Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -3406,16 +3406,17 @@ msgid ""
 "Specify whether or not to insert two space characters to indent the first "
 "line of each paragraph."
 msgstr ""
-"Spécifier s'il faut ou non insérer deux caractères espace pour indenter la "
-"première ligne de chaque paragraphe."
+"Spécifier s'il faut insérer ou non deux espaces pour indenter la première "
+"ligne de chaque paragraphe."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:44
 msgid ""
 "Specify whether or not to hide the chapter title for each chapter. Useful "
 "for image-only output (eg. comics)."
 msgstr ""
-"Spécifier s'il faut ou non cacher le titre de chapitre pour chaque chapitre. "
-"Utile pour les sorties ne contenant que des images. (eg. bandes dessinées)"
+"Spécifier s'il faut cacher ou non le titre de chapitre pour chaque chapitre. "
+"Utile pour les sorties ne contenant que des images (eg. les bandes "
+"dessinées)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:122
 msgid "Start Page"
@@ -5166,7 +5167,7 @@ msgstr "Inclure la section 'Series'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:94
 msgid "Wishlist tag:"
-msgstr ""
+msgstr "Etiquette Liste de souhaits :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -5183,7 +5184,7 @@ msgstr "Italique"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:28
 msgid "Underline"
-msgstr ""
+msgstr "Souligné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
 msgid ""
@@ -5925,11 +5926,11 @@ msgstr "Sortie SNB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:40
 msgid "Hide chapter name"
-msgstr "Cacher le nom de chapitre"
+msgstr "Cacher le nom des chapitres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:41
 msgid "Insert space before the first line for each paragraph"
-msgstr "Insérer un espace avant la première ligne de chaque paragraphe"
+msgstr "Insérer une espace avant la première ligne de chaque paragraphe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:42
 msgid "Insert empty line between paragraphs"
@@ -6606,7 +6607,7 @@ msgstr "&Démarrer la vérification"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:38
 msgid "Copy &to clipboard"
-msgstr "Copier dans le presse-papier"
+msgstr "Copier &dans le presse-papier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:54
 msgid "Names to ignore:"
@@ -6616,6 +6617,8 @@ msgstr "Noms à ignorer :"
 msgid ""
 "Enter comma-separated standard file name wildcards, such as synctoy*.dat"
 msgstr ""
+"Entrez un nom de fichier standard avec des caractères de remplacement "
+"séparés par des virgules, tel que synctoy*.dat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:62
 msgid "Extensions to ignore"
@@ -6644,7 +6647,7 @@ msgid ""
 "The marked files and folders will be <b>permanently deleted</b>. Are you "
 "sure?"
 msgstr ""
-"Les fichiers et répertoires marqués seront <b>supprimé définitivement</b>. "
+"Les fichiers et répertoires marqués seront <b>définitivement supprimés</b>. "
 "Êtes-vous sûr ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:45
@@ -6864,8 +6867,8 @@ msgid ""
 "No metadata found, try adjusting the title and author and/or removing the "
 "ISBN."
 msgstr ""
-"Aucune métadonnée trouvée, essayer en ajustant le titre et l'auteur et/ou en "
-"supprimant l'ISBN."
+"Aucune métadonnée trouvée, essayez en modifiant le titre et l'auteur et/ou "
+"en supprimant l'ISBN."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:90
 msgid "Fetch metadata"
@@ -7005,6 +7008,11 @@ msgid ""
 "your library before proceeding.<p>Search and replace in text fields using "
 "character matching or regular expressions. "
 msgstr ""
+"<b>Vous pouvez détruire votre bibliothèque en utilisant cette option.</b> "
+"Les changements sont permanents. Il n'y a pas de fonction pour revenir en "
+"arrière. Vous êtes fortement encouragé à sauvegarder votre bibliothèque "
+"avant de continuer. <p>Rechercher et remplacer dans les champs de texte en "
+"utilisant une correspondance de caractères ou une expression régulière. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:284
 msgid ""
@@ -7459,7 +7467,7 @@ msgid ""
 "discard or apply these changes"
 msgstr ""
 "Vous avez modifié les étiquettes. Pour pouvoir utiliser l'éditeur "
-"d'étiquettes, vous devez soit abandonner ou bien valider ces modifications"
+"d'étiquettes, vous devez soit abandonner soit valider ces modifications"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:639
 msgid "Downloading cover..."
@@ -7923,15 +7931,21 @@ msgstr "Type de correspondance à utiliser"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
 msgstr ""
+"Contient : le mot ou la phrase est contenu n'importe où dans le champ de "
+"métadonnée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
 msgid "Equals: the word or phrase must match the entire metadata field"
 msgstr ""
+"Egal : le mot ou la phrase doit correspondre exactement au champ de "
+"métadonnée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
 msgid ""
 "Regular expression: the expression must match anywhere in the metadata field"
 msgstr ""
+"Expression régulière : l'expression doit correspondre n'importe où dans le "
+"champ de métadonnée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
 msgid "Find entries that have..."
@@ -8005,7 +8019,7 @@ msgstr "Chercher seulement dans les champs spécifiques:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:221
 msgid "Titl&e/Author/Series ..."
-msgstr ""
+msgstr "Titr&e/Auteur/Series ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
@@ -8716,7 +8730,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:170
 msgid "Shift+Ctrl+F"
-msgstr ""
+msgstr "Maj+Ctrl+F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:173
 msgid "Advanced search"
@@ -11356,24 +11370,28 @@ msgid ""
 "If you are setting up a new hotmail account, you must log in to it  once "
 "before you will be able to send mails."
 msgstr ""
+"Si vous mettez en place un nouveau compte hotmail, vous devez vous connecter "
+"une première fois avant d'être capable d'envoyer des méls."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:147
 msgid ""
 "You can sign up for a free {name} email account at <a "
 "href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
+"Vous pouvez vous enregistrer pour un compte mél {name} gratuit à <a "
+"href=\"http://{url}\">http://{url}</a>. {extra}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
 msgid "Your %s &email address:"
-msgstr ""
+msgstr "Votre adresse &mél %s :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:155
 msgid "Your %s &username:"
-msgstr ""
+msgstr "Votre nom d'&utilisateur %s :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:156
 msgid "Your %s &password:"
-msgstr ""
+msgstr "Votre mot de &passe %s :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:174
 msgid ""
@@ -11381,10 +11399,13 @@ msgid ""
 "your %s email address to the allowed email addresses in your Amazon.com "
 "Kindle management page."
 msgstr ""
+"Si vous planifiez d'utiliser des méls pour envoyer des livres à votre "
+"Kindle, rappelez-vous  d'ajouter votre adresse mél %s aux adresses méls "
+"autorisées dans la page de coniguration de votre Kindle sur Amazon.com."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:181
 msgid "Setup"
-msgstr ""
+msgstr "Configuration"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:203
@@ -11491,7 +11512,7 @@ msgstr "Utiliser Gmail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:141
 msgid "Use Hotmail"
-msgstr ""
+msgstr "Utiliser Hotmail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:142
 msgid "&Test email"
@@ -11812,6 +11833,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Etiquette indiquant un livre qui doit être affiché comme un élément de la "
+"Liste de souhaits.\n"
+"Par défaut : '%default'\n"
+"S'applique aux formats : ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:17
 msgid "Invalid titles"
@@ -12802,6 +12827,8 @@ msgid ""
 "Prefix to prepend to all URLs. Useful for reverseproxying to this server "
 "from Apache/nginx/etc."
 msgstr ""
+"Préfixe à ajouter avant toutes les URLs. Utile pour faire du reverse proxy "
+"sur ce serveur à partir d'Apache/nginx/etc."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:59
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:427
@@ -12811,7 +12838,7 @@ msgstr "Chargement, veuillez patientez..."
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:85
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "Go to"
-msgstr ""
+msgstr "Aller à"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:101
 msgid "First"
@@ -12941,6 +12968,18 @@ msgid ""
 "\n"
 "The OPDS interface is advertised via BonJour automatically.\n"
 msgstr ""
+"[options]\n"
+"\n"
+"Démarre le serveur de contenu Calibre. Le serveur de contenu Calibre\n"
+"publie votre bibliothèque Calibre sur internet. L'interface par défaut\n"
+" vous permet de parcourir la bibliothèque Calibre par catégories. Vous "
+"pouvez\n"
+"aussi accèder à une interface optimisée pour les navigateurs mobiles à "
+"/mobile\n"
+"et une interface basée sur OPDS pour utiliser avec des applications de "
+"lecture à /opds.\n"
+"\n"
+"L'interface OPDS est affichée automatiquement via BonJour.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:52
 msgid "Path to the library folder to serve with the content server"
