@@ -90,10 +90,8 @@ def build_isbn(base_url, opts):
     return base_url + 'index1=isbn&value1='+opts.isbn
 
 def build_combined(base_url, opts):
-    query = ''
-    for e in (opts.title, opts.author, opts.publisher):
-        if e is not None:
-            query += ' ' + e
+    query = ' '.join([e for e in (opts.title, opts.author, opts.publisher) \
+        if e is not None ])
     query = query.strip()
     if len(query) == 0:
         raise ISBNDBError('You must specify at least one of --author, --title or --publisher')
@@ -139,17 +137,10 @@ def create_books(opts, args, timeout=5.):
 
     if opts.verbose:
         print ('ISBNDB query: '+url)
-
+    
     tans = [ISBNDBMetadata(book) for book in fetch_metadata(url, timeout=timeout)]
-    ans = []
-    for x in tans:
-        add = True
-        for y in ans:
-            if y.isbn == x.isbn:
-                add = False
-        if add:
-            ans.append(x)
-    return ans
+    #remove duplicates ISBN
+    return dict((book.isbn, book) for book in tans).values()
 
 def main(args=sys.argv):
     parser = option_parser()
