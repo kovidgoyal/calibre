@@ -121,6 +121,8 @@ def enable_plugin(plugin_or_name):
 
 default_disabled_plugins = set([
     'Douban Books', 'Douban.com covers',
+    'NiceBooks', 'NiceBooksCovers',
+    'Fictionwise'
 ])
 
 def is_disabled(plugin):
