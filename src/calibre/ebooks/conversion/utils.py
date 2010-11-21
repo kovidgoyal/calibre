@@ -241,7 +241,6 @@ class PreProcessor(object):
             format = 'html'
         # Check Line histogram to determine if the document uses hard line breaks, If 50% or
         # more of the lines break in the same region of the document then unwrapping is required
-        self.dump(html, 'before_doc_analysis_zipped_http')
         docanalysis = DocAnalysis(format, html)
         hardbreaks = docanalysis.line_histogram(.50)
         self.log("Hard line breaks check returned "+unicode(hardbreaks))
