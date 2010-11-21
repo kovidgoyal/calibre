@@ -56,6 +56,7 @@ class cmd_commit(_cmd_commit):
             summary = self.get_trac_summary(bug, url)
         if summary:
             msg = msg.replace('#%s'%bug, '#%s (%s)'%(bug, summary))
+            msg = msg.replace('Fixesed', 'Fixed')
         return msg, bug, url, action
 
 

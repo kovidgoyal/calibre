@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QIcon, QMenu
+from PyQt4.Qt import QIcon, QMenu, Qt
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
@@ -41,5 +41,7 @@ class PreferencesAction(InterfaceAction):
             return
         d = Preferences(self.gui, initial_plugin=initial_plugin)
         d.show()
+        d.run_wizard_requested.connect(self.gui.run_wizard,
+                type=Qt.QueuedConnection)
 
 

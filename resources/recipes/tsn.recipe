@@ -1,0 +1,34 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1289990851(BasicNewsRecipe):
+    title          = u'TSN'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    language = 'en_CA'
+    __author__ = 'Nexus'
+    no_stylesheets = True
+    INDEX = 'http://tsn.ca/nhl/story/?id=nhl'
+    keep_only_tags = [dict(name='div', attrs={'id':['tsnColWrap']}),
+                             dict(name='div', attrs={'id':['tsnStory']})]
+    remove_tags = [dict(name='div', attrs={'id':'tsnRelated'}),
+                          dict(name='div', attrs={'class':'textSize'})]
+
+    def parse_index(self):
+        feeds = []
+        soup = self.index_to_soup(self.INDEX)
+        feed_parts = soup.findAll('div', attrs={'class': 'feature'})
+        for feed_part  in feed_parts:
+            articles = []
+            if not feed_part.h2:
+                continue
+            feed_title = feed_part.h2.string
+            article_parts = feed_part.findAll('a')
+            for article_part in article_parts:
+                article_title = article_part.string
+                article_date = ''
+                article_url = 'http://tsn.ca/' + article_part['href']
+                articles.append({'title': article_title, 'url': article_url, 'description':'', 'date':article_date})
+            if articles:
+                feeds.append((feed_title, articles))
+        return feeds
+
