@@ -266,7 +266,7 @@ class ResultList(list):
 
     def populate(self, entries, browser, verbose=False):
         #single entry
-        if len(entries) ==1:
+        if len(entries) == 1 and not isinstance(entries[0], str):
             try:
                 entry = entries[0].xpath("//div[@id='container']")[0]
                 entry = entry.find("div[@id='book-info']")
@@ -314,25 +314,20 @@ class Covers(object):
         except:
             return self
         isbno = entry.get_element_by_id('book-info').find("dl[@title='Informations sur le livre']")
-        isbntext = None
         for x in isbno.getiterator('dt'):
-            if x.text == 'ISBN':
-                isbntext = x.getnext().text_content()
+            if x.text == 'ISBN' and check_isbn(x.getnext().text_content()):
+                self.isbnf = True
                 break
-        if isbntext is not None:
-            self.isbnf = True
         return self
 
     def check_cover(self):
-        if self.urlimg:
-            return True
-        else:
-            return False
+        return True if self.urlimg else False
 
     def get_cover(self, browser, timeout = 5.):
         try:
-            return browser.open_novisit(self.urlimg, timeout=timeout).read(), \
+            cover, ext = browser.open_novisit(self.urlimg, timeout=timeout).read(), \
                 self.urlimg.rpartition('.')[-1]
+            return cover, ext if ext else 'jpg'
         except Exception, err:
             if isinstance(getattr(err, 'args', [None])[0], socket.timeout):
                 err = NiceBooksError(_('Nicebooks timed out. Try again later.'))
@@ -417,8 +412,6 @@ def main(args=sys.argv):
             print textcover
         elif covact == 2:
             cover_data, ext = cover_from_isbn(result.isbn)
-            if not ext:
-                ext = 'jpg'
             cpath = result.isbn
             if len(opts.coverspath):
                 cpath = os.path.normpath(opts.coverspath + '/' + result.isbn)
