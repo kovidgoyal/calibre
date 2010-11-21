@@ -230,57 +230,6 @@ class ResultList(list):
                 except:
                     report(verbose)
         return mi
-        
-    def get_publisher(self, entry):
-        # publisher = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
-        publisher = entry
-        publitext = None
-        for x in publisher.getiterator('dt'):
-            if self.repub.match(x.text):
-                publitext = x.getnext().text_content()
-                break
-        return unicode(publitext)
-
-    def get_date(self, entry, verbose):
-        # date = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
-        date = entry
-        d = ''
-        for x in date.getiterator('dt'):
-            if x.text == 'Date de parution':
-                d = x.getnext().text_content()
-                break
-        if len(d) == 0:
-            return None
-        try:
-            default = utcnow().replace(day=15)
-            d = replace_monthsfr(d)
-            d = parse_date(d, assume_utc=True, default=default)
-        except:
-            report(verbose)
-            d = None
-        return d
-
-    def get_ISBN(self, entry):
-        # isbn = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
-        isbn = entry
-        isbntext = None
-        for x in isbn.getiterator('dt'):
-            if x.text == 'ISBN':
-                isbntext = x.getnext().text_content().replace('-', '')
-                if not check_isbn(isbntext):
-                    return None
-                break
-        return unicode(isbntext)
-
-    def get_language(self, entry):
-        # language = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
-        language = entry
-        langtext = None
-        for x in language.getiterator('dt'):
-            if x.text == 'Langue':
-                langtext = x.getnext().text_content()
-                break
-        return unicode(langtext)
 
     def fill_MI(self, entry, title, authors, verbose):
         mi = MetaInformation(title, authors)
@@ -334,6 +283,7 @@ class ResultList(list):
             for x in entries:
                 try:
                     entry = self.get_individual_metadata(browser, x, verbose)
+                    entry = entry.find("div[@id='book-info']")
                     title = self.get_title(entry)
                     authors = self.get_authors(entry)
                 except Exception, e:
