@@ -52,7 +52,7 @@ class NiceBooksCovers(CoverDownload):
         br = browser()
         try:
             entry = Query(isbn=mi.isbn, max_results=1)(br, False, timeout)[0]
-            if Covers(isbn)(entry).check_cover():
+            if Covers(mi.isbn)(entry).check_cover():
                 self.debug('cover for', mi.isbn, 'found')
                 ans.set()
         except Exception, e:
@@ -64,7 +64,7 @@ class NiceBooksCovers(CoverDownload):
         br = browser()
         try:
             entry = Query(isbn=mi.isbn, max_results=1)(br, False, timeout)[0]
-            cover_data, ext = Covers(isbn)(entry).get_cover(br, timeout)
+            cover_data, ext = Covers(mi.isbn)(entry).get_cover(br, timeout)
             if not ext:
                 ext = 'jpg'
             result_queue.put((True, cover_data, ext, self.name))
@@ -109,20 +109,12 @@ class Query(object):
 
         self.max_results = int(max_results)
         
-        q = ''
         if isbn is not None:
-            q += isbn
+            q = isbn
         else:
-            
-            if title is not None:
-                q += title
-            if author is not None:
-                q += author
-            if publisher is not None:
-                q += publisher
-            if keywords is not None:
-                q += keywords
-        
+            q = ' '.join([i for i in (title, author, publisher, keywords) \
+                if i is not None])
+
         if isinstance(q, unicode):
             q = q.encode('utf-8')
         self.urldata = 'search?' + urlencode({'q':q,'s':'Rechercher'})
@@ -185,15 +177,15 @@ class ResultList(list):
     BASE_URL = 'http://fr.nicebooks.com'
  
     def __init__(self):
-        self.repub = re.compile(r'\s*.diteur\s*', re.I)
-        self.reauteur = re.compile(r'\s*auteur.*', re.I)
-        self.reautclean = re.compile(r'\s*\(.*\)\s*')
+        self.repub = re.compile(u'\s*.diteur\s*', re.I)
+        self.reauteur = re.compile(u'\s*auteur.*', re.I)
+        self.reautclean = re.compile(u'\s*\(.*\)\s*')
 
     def get_title(self, entry):
         title = deepcopy(entry.find("div[@id='book-info']"))
         title.remove(title.find("dl[@title='Informations sur le livre']"))
         title = ' '.join([i.text_content() for i in title.iterchildren()])
-        return title.replace('\n', '')
+        return unicode(title.replace('\n', ''))
 
     def get_authors(self, entry):
         author = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
@@ -203,7 +195,7 @@ class ResultList(list):
                 elt = x.getnext()
                 i = 0
                 while elt.tag <> 'dt' and i < 20:
-                    authortext.append(elt.text_content())
+                    authortext.append(unicode(elt.text_content()))
                     elt = elt.getnext()
                     i += 1
                 break
@@ -213,7 +205,7 @@ class ResultList(list):
 
     def get_description(self, entry, verbose):
         try:
-            return 'RESUME:\n' + entry.xpath("//p[@id='book-description']")[0].text
+            return 'RESUME:\n' + unicode(entry.xpath("//p[@id='book-description']")[0].text)
         except:
             report(verbose)
             return None
@@ -225,15 +217,16 @@ class ResultList(list):
             if self.repub.match(x.text):
                 publitext = x.getnext().text_content()
                 break
-        return publitext
+        return unicode(publitext).strip()
 
     def get_date(self, entry, verbose):
         date = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
+        d = ''
         for x in date.getiterator('dt'):
             if x.text == 'Date de parution':
                 d = x.getnext().text_content()
                 break
-        if not len(d):
+        if len(d) == 0:
             return None
         try:
             default = utcnow().replace(day=15)
@@ -252,8 +245,9 @@ class ResultList(list):
                 isbntext = x.getnext().text_content()
                 if not check_isbn(isbntext):
                     return None
+                isbntext = isbntext.replace('-', '')
                 break
-        return isbntext
+        return unicode(isbntext)
 
     def get_language(self, entry):
         language = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
@@ -262,7 +256,7 @@ class ResultList(list):
             if x.text == 'Langue':
                 langtext = x.getnext().text_content()
                 break
-        return langtext
+        return unicode(langtext).strip()
 
     def fill_MI(self, entry, title, authors, verbose):
         mi = MetaInformation(title, authors)
@@ -371,12 +365,12 @@ class Covers(object):
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
-           verbose=False, max_results=5, keywords=None):
+           max_results=5, verbose=False, keywords=None):
     br = browser()
     entries = Query(title=title, author=author, isbn=isbn, publisher=publisher,
         keywords=keywords, max_results=max_results)(br, verbose)
     
-    if entries is None:
+    if entries is None or len(entries) == 0:
         return
     
     #List of entry
@@ -434,6 +428,9 @@ def main(args=sys.argv):
         report(True)
         parser.print_help()
         return 1
+    if results is None or len(results) == 0:
+        print 'No result found for this search!'
+        return 0
     for result in results:
         print unicode(result).encode(preferred_encoding, 'replace')
         covact = int(opts.covers)
