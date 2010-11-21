@@ -107,7 +107,7 @@ class PreProcessor(object):
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = re.sub(r"\s*</p>", "</p>\n", html)
         html = re.sub(r"\s*<p>\s*", "\n<p>", html)
-
+        
         ###### Check Markup ######
         #
         # some lit files don't have any <p> tags or equivalent (generally just plain text between
@@ -191,10 +191,10 @@ class PreProcessor(object):
         n_lookahead_close = ")"
 
         default_title = r"(\s*[\w\'\"-]+){1,5}?(?=<)"
-        typical_chapters = r".?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}"
-        numeric_chapters = r".?(\d+\.?|(CHAPTER\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}))\s*"
-        uppercase_chapters = r"\s*.?([A-Z#]+(\s|-){0,3}){1,5}\s*"
-        numeric_titles = r".?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*"
+        typical_chapters = r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}"
+        numeric_chapters = r"[^'\"]?(\d+\.?|CHAPTER)\s*([\dA-Z\-\'\"\?\.!#,]+\s*){1,10}\s*"
+        uppercase_chapters = r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*"
+        numeric_titles = r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*"
         emphasized_lines = r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\w#\-*\s]+<)([\w#-*]+\s*){1,5}\s*)(</span>)?\s*</b>"
 
         full_chapter_line = chapter_line_open+chapter_header_open+typical_chapters+chapter_header_close+chapter_line_close
