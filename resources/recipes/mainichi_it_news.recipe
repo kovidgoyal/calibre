@@ -12,5 +12,5 @@ class MainichiDailyITNews(BasicNewsRecipe):
 
     remove_tags_before = {'class':"NewsTitle"}
     remove_tags = [{'class':"RelatedArticle"}]
-    remove_tags_after = {'class':"ArticleLower"}
+    remove_tags_after = {'class':"Credit"}
 
