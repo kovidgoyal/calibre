@@ -716,10 +716,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             self.title.setText(book.title)
                             self.authors.setText(authors_to_string(book.authors))
                             if book.author_sort: self.author_sort.setText(book.author_sort)
-                        if d.opt_overwrite_cover_image.isChecked() and book.has_cover:
-                            self.fetch_cover()
                         if book.publisher: self.publisher.setEditText(book.publisher)
                         if book.isbn: self.isbn.setText(book.isbn)
+                        if d.opt_overwrite_cover_image.isChecked() and book.has_cover:
+                            self.fetch_cover()
                         if book.pubdate:
                             d = book.pubdate
                             self.pubdate.setDate(QDate(d.year, d.month, d.day))
