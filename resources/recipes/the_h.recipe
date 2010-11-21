@@ -1,4 +1,12 @@
-class AdvancedUserRecipe1289003166(BasicNewsRecipe):
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+www.h-online.com
+'''
+
+class TheHeiseOnline(BasicNewsRecipe):
     title          = u'The H'
     __author__     = 'Hiroshi Miura'
     oldest_article = 3

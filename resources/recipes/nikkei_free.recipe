@@ -1,4 +1,12 @@
-class AdvancedUserRecipe1287958571(BasicNewsRecipe):
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+www.nikkei.com
+'''
+
+class NikkeiNet(BasicNewsRecipe):
     title          = u'\u65e5\u7d4c\u65b0\u805e\u96fb\u5b50\u7248(Free)'
     __author__     = 'Hiroshi Miura'
     description    = 'News and current market affairs from Japan'
