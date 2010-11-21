@@ -15,8 +15,27 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn, \
     authors_to_sort_string
 from calibre.library.comments import sanitize_comments_html
+from calibre.ebooks.metadata.fetch import MetadataSource
 from calibre.utils.config import OptionParser
 from calibre.utils.date import parse_date, utcnow
+
+class Fictionwise(MetadataSource): # {{{
+
+    author = 'Sengian'
+    name = 'Fictionwise'
+    description = _('Downloads metadata from Fictionwise')
+
+    has_html_comments = True
+
+    def fetch(self):
+        try:
+            self.results = search(self.title, self.book_author, self.publisher,
+                self.isbn, max_results=10, verbose=self.verbose)
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
+    # }}}
 
 
 def report(verbose):

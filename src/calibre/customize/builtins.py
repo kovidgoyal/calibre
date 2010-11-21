@@ -484,6 +484,7 @@ from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
     LibraryThing, Fictionwise
 from calibre.ebooks.metadata.douban import DoubanBooks
 from calibre.ebooks.metadata.nicebooks import NiceBooks
+from calibre.ebooks.metadata.fictionwise import Fictionwise
 from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
         LibraryThingCovers, DoubanCovers
 from calibre.ebooks.metadata.nicebooks import NiceBooksCovers
