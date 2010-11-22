@@ -771,7 +771,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         except:
             # Can happen if path has not yet been set
             return False
-        return os.access(path, os.R_OK)
+        return os.path.exists(path)
 
     def remove_cover(self, id, notify=True):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')

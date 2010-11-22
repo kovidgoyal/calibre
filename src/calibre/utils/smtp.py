@@ -105,7 +105,10 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=30,
     try:
         s.sendmail(from_, to, msg)
     finally:
-        ret = s.quit()
+        try:
+            ret = s.quit()
+        except:
+            pass # Ignore so as to not hide original error
     return ret
 
 def option_parser():

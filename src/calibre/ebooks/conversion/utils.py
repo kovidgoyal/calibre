@@ -107,7 +107,7 @@ class PreProcessor(object):
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = re.sub(r"\s*</p>", "</p>\n", html)
         html = re.sub(r"\s*<p(?P<style>[^>]*)>\s*", "\n<p"+"\g<style>"+">", html)
-        
+
         ###### Check Markup ######
         #
         # some lit files don't have any <p> tags or equivalent (generally just plain text between
@@ -192,12 +192,12 @@ class PreProcessor(object):
         n_lookahead_close = ")"
 
         default_title = r"\s{0,3}([\w\'\"-]+\s{0,3}){1,5}?(?=<)"
-        
+
         min_chapters = 10
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
         self.log("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
-        
+
         chapter_types = [
             [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}", True, "Searching for common Chapter Headings"],
             [r"[^'\"]?(\d+\.?|CHAPTER)\s*([\dA-Z\-\'\"\?\.!#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
@@ -219,9 +219,9 @@ class PreProcessor(object):
             else:
                 chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
                 chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
-                
+
             html = chapdetect.sub(self.chapter_head, html)
-            
+
 
         ###### Unwrap lines ######
         #
@@ -259,7 +259,7 @@ class PreProcessor(object):
             html = dehyphenator(html,'html', length)
             self.log("Done dehyphenating")
             # Unwrap lines using punctation and line length
-            unwrap_quotes = re.compile(u"(?<=.{%i}\"')\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*(?=[a-z])" % length, re.UNICODE)
+            #unwrap_quotes = re.compile(u"(?<=.{%i}\"')\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*(?=[a-z])" % length, re.UNICODE)
             unwrap = re.compile(u"(?<=.{%i}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężı,:)\IA\u00DF]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
             html = unwrap.sub(' ', html)
             #check any remaining hyphens, but only unwrap if there is a match
