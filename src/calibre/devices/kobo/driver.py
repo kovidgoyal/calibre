@@ -229,6 +229,10 @@ class KOBO(USBMS):
         #Delete the volume_shortcovers second
         cursor.execute('delete from volume_shortcovers where volumeid = ?', t)
 
+        # Delete the rows from content_keys
+        if self.dbversion >= 8:
+            cursor.execute('delete from content_keys where volumeid = ?', t)
+
         # Delete the chapters associated with the book next
         t = (ContentID,ContentID,)
         cursor.execute('delete from content where BookID  = ? or ContentID = ?', t)
