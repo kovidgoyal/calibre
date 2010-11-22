@@ -476,7 +476,8 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('> <', '>\n<')
         self.processed_html = self.processed_html.replace('<mbp: ', '<mbp:')
         self.processed_html = re.sub(r'<?xml[^>]*>', '', self.processed_html)
-        # Rearrange various style tags & paragraph tags so that lxml and BeautifulSoup don't get upset
+        # Swap inline and block level elements, and order block level elements according to priority 
+        # - lxml and beautifulsoup live in the modern world and expect/assume a specific order
         self.processed_html = re.sub(r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\g<para>'+'\g<styletags>', self.processed_html)
         self.processed_html = re.sub(r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', '\g<styletags>'+'\g<para>', self.processed_html)
 
