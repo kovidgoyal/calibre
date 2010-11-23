@@ -1,5 +1,5 @@
 class MainichiDailyITNews(BasicNewsRecipe):
-    title          = u'Mainichi News'
+    title          = u'Mainichi News - IT&Electronics'
     __author__     = 'Hiroshi Miura'
     oldest_article = 2
     max_articles_per_feed = 100
