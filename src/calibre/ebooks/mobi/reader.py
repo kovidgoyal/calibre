@@ -480,6 +480,9 @@ class MobiReader(object):
         # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
         self.processed_html = re.sub(r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\g<para>'+'\g<styletags>', self.processed_html)
         self.processed_html = re.sub(r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', '\g<styletags>'+'\g<para>', self.processed_html)
+        self.processed_html = re.sub(r'(?i)(?P<blockquote>(</blockquote[^>]*>\s*){1,})(?P<para></p[^>]*>)', '\g<para>'+'\g<blockquote>', self.processed_html)
+        self.processed_html = re.sub(r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<blockquote[^>]*>\s*){1,})', '\g<blockquote>'+'\g<para>', self.processed_html)
+
 
     def remove_random_bytes(self, html):
         return re.sub('\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08',

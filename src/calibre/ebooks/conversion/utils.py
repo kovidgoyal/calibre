@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.utils.logging import default_log
+from calibre.utils.wordcount import get_wordcount_obj
 
 class PreProcessor(object):
 
@@ -107,7 +108,7 @@ class PreProcessor(object):
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = re.sub(r"\s*</p>", "</p>\n", html)
         html = re.sub(r"\s*<p(?P<style>[^>]*)>\s*", "\n<p"+"\g<style>"+">", html)
-
+        
         ###### Check Markup ######
         #
         # some lit files don't have any <p> tags or equivalent (generally just plain text between
@@ -168,9 +169,21 @@ class PreProcessor(object):
                #print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
+                
+        # Count the words in the document to estimate how many chapters to look for
+        word_count_text = re.sub(r'(?s)<head[^>]*>.*?</head>', '', html)
+        word_count_text = re.sub(r'<[^>]*>', '', word_count_text)
+        wordcount = get_wordcount_obj(word_count_text)
+        
+        
         #self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
         #
+        min_chapters = 10
+        heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
+        self.html_preprocess_sections = len(heading.findall(html))
+        self.log("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
+
         # Build the Regular Expressions in pieces
         init_lookahead = "(?=<(p|div))"
         chapter_line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
@@ -192,12 +205,7 @@ class PreProcessor(object):
         n_lookahead_close = ")"
 
         default_title = r"\s{0,3}([\w\'\"-]+\s{0,3}){1,5}?(?=<)"
-
-        min_chapters = 10
-        heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
-        self.html_preprocess_sections = len(heading.findall(html))
-        self.log("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
-
+        
         chapter_types = [
             [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}", True, "Searching for common Chapter Headings"],
             [r"[^'\"]?(\d+\.?|CHAPTER)\s*([\dA-Z\-\'\"\?\.!#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
@@ -219,9 +227,11 @@ class PreProcessor(object):
             else:
                 chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
                 chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
-
+                
             html = chapdetect.sub(self.chapter_head, html)
-
+        
+        words_per_chptr = wordcount.words / self.html_preprocess_sections
+        print "wordcount is: "+ str(wordcount.words)+", Average words per chapter is: "+str(words_per_chptr)+", Marked "+str(self.html_preprocess_sections)+" chapters"
 
         ###### Unwrap lines ######
         #
