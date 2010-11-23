@@ -14,7 +14,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 
 
 class NikkeiNet_sub_economy(BasicNewsRecipe):
-    title           = u'\u65e5\u7d4c\u65b0\u805e\u96fb\u5b50\u7248(\u7523\u696d)'
+    title           = u'\u65e5\u7d4c\u65b0\u805e\u96fb\u5b50\u7248(\u7d4c\u6e08)'
     __author__      = 'Hiroshi Miura'
     description     = 'News and current market affairs from Japan'
     cover_url       = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
