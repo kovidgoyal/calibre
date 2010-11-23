@@ -2509,11 +2509,20 @@ books_series_link      feeds
                 if id not in bad:
                     bad[id] = []
                 bad[id].append(fmt)
+            has_cover = self.data.get(id, self.FIELD_MAP['cover'],
+                    row_is_id=True)
+            if has_cover and self.cover(id, index_is_id=True, as_path=True) is None:
+                if id not in bad:
+                    bad[id] = []
+                bad[id].append('COVER')
             callback(0.1+0.9*(1+i)/total, _('Checked id') + ' %d'%id)
 
         for id in bad:
             for fmt in bad[id]:
-                self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, fmt.upper()))
+                if fmt != 'COVER':
+                    self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, fmt.upper()))
+                else:
+                    self.conn.execute('UPDATE books SET has_cover=0 WHERE id=?', (id,))
         self.conn.commit()
         self.refresh_ids(list(bad.keys()))
 
