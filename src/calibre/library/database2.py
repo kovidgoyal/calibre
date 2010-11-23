@@ -1248,15 +1248,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     traceback.print_exc()
                 else:
                     raise
+        path_changed = False
         if set_title and mi.title:
-            self.set_title(id, mi.title, commit=False)
+            self._set_title(id, mi.title)
+            path_changed = True
         if set_authors:
             if not mi.authors:
                     mi.authors = [_('Unknown')]
             authors = []
             for a in mi.authors:
                 authors += string_to_authors(a)
-            self.set_authors(id, authors, notify=False, commit=False)
+            self._set_authors(id, authors)
+            path_changed = True
+        if path_changed:
+            self.set_path(id, index_is_id=True)
         if mi.author_sort:
             doit(self.set_author_sort, id, mi.author_sort, notify=False,
                     commit=False)
@@ -1348,13 +1353,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 result.append(r)
         return ' & '.join(result).replace('|', ',')
 
-    def set_authors(self, id, authors, notify=True, commit=True):
-        '''
-        Note that even if commit is False, the db will still be committed to
-        because this causes the location of files to change
-
-        :param authors: A list of authors.
-        '''
+    def _set_authors(self, id, authors):
         if not authors:
             authors = [_('Unknown')]
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
@@ -1379,25 +1378,30 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ss = self.author_sort_from_book(id, index_is_id=True)
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
                           (ss, id))
-        self.dirtied([id], commit=False)
-        if commit:
-            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['authors'],
                       ','.join([a.replace(',', '|') for a in authors]),
                       row_is_id=True)
         self.data.set(id, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
+
+    def set_authors(self, id, authors, notify=True, commit=True):
+        '''
+        Note that even if commit is False, the db will still be committed to
+        because this causes the location of files to change
+
+        :param authors: A list of authors.
+        '''
+        self._set_authors(id, authors)
+        self.dirtied([id], commit=False)
+        if commit:
+            self.conn.commit()
         self.set_path(id, index_is_id=True)
         if notify:
             self.notify('metadata', [id])
 
-    def set_title(self, id, title, notify=True, commit=True):
-        '''
-        Note that even if commit is False, the db will still be committed to
-        because this causes the location of files to change
-        '''
+    def _set_title(self, id, title):
         if not title:
-            return
-        if not isinstance(title, unicode):
+            return False
+        if isbytestring(title):
             title = title.decode(preferred_encoding, 'replace')
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.data.set(id, self.FIELD_MAP['title'], title, row_is_id=True)
@@ -1405,6 +1409,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.data.set(id, self.FIELD_MAP['sort'], title_sort(title), row_is_id=True)
         else:
             self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)
+        return True
+
+    def set_title(self, id, title, notify=True, commit=True):
+        '''
+        Note that even if commit is False, the db will still be committed to
+        because this causes the location of files to change
+        '''
+        if not self._set_title(id, title):
+            return
         self.set_path(id, index_is_id=True)
         self.dirtied([id], commit=False)
         if commit:
@@ -2072,13 +2085,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                 (id, title, series_index, aus))
 
         self.data.books_added([id], self)
-        self.set_path(id, True)
-        self.conn.commit()
         if mi.timestamp is None:
             mi.timestamp = utcnow()
         if mi.pubdate is None:
             mi.pubdate = utcnow()
-        self.set_metadata(id, mi, ignore_errors=True)
+        self.set_metadata(id, mi, ignore_errors=True, commit=True)
         if cover is not None:
             try:
                 self.set_cover(id, cover)
@@ -2114,13 +2125,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             id = obj.lastrowid
             self.data.books_added([id], self)
             ids.append(id)
-            self.set_path(id, True)
-            self.conn.commit()
             if mi.timestamp is None:
                 mi.timestamp = utcnow()
             if mi.pubdate is None:
                 mi.pubdate = utcnow()
-            self.set_metadata(id, mi)
+            self.set_metadata(id, mi, commit=True, ignore_errors=True)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
             stream = lopen(npath, 'rb')
@@ -2154,12 +2163,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                           (title, series_index, aus))
         id = obj.lastrowid
         self.data.books_added([id], self)
-        self.set_path(id, True)
         if mi.timestamp is None:
             mi.timestamp = utcnow()
         if mi.pubdate is None:
             mi.pubdate = utcnow()
-        self.set_metadata(id, mi, ignore_errors=True)
+        self.set_metadata(id, mi, ignore_errors=True, commit=True)
         if preserve_uuid and mi.uuid:
             self.set_uuid(id, mi.uuid, commit=False)
         for path in formats:

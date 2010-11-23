@@ -61,6 +61,11 @@ def serialize_recipe(urn, recipe_class):
 
 def serialize_collection(mapping_of_recipe_classes):
     collection = E.recipe_collection()
+    '''for u, x in mapping_of_recipe_classes.items():
+        print 11111, u, repr(x.title)
+        if isinstance(x.title, str):
+            x.title.decode('ascii')
+    '''
     for urn in sorted(mapping_of_recipe_classes.keys(),
             key=lambda key: getattr(mapping_of_recipe_classes[key], 'title',
                 'zzz')):

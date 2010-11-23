@@ -69,6 +69,9 @@ from UserDict import UserDict
 from calibre.constants import preferred_encoding
 from calibre.utils.mreplace import MReplace
 
+from calibre.constants import preferred_encoding
+from calibre.utils.mreplace import MReplace
+
 utf8enc2latex_mapping = {
     # This is a mapping of Unicode characters to LaTeX equivalents.
     # The information has been extracted from
@@ -2465,7 +2468,7 @@ utf8enc2latex_mapping = {
     u'\U0001d7fd': '$\\mathtt{7}$',
     u'\U0001d7fe': '$\\mathtt{8}$',
     u'\U0001d7ff': '$\\mathtt{9}$',
-    
+
     #Items from simple list
     u'\u0106': "{\\a\\'C}",
     u'\u0408': '{\\CYRJE}',
@@ -2853,10 +2856,10 @@ class BibTeX:
         # This substitution is based on the description of cite key restrictions at
         # http://bibdesk.sourceforge.net/manual/BibDesk%20Help_2.html
         self.invalid_cit = re.compile(u'[ "@\',\\#}{~%&$^]')
-        self.upper = re.compile(u'[' + 
+        self.upper = re.compile(u'[' +
             string.uppercase.decode(preferred_encoding) + u']')
         self.escape = re.compile(u'[~#&%_]')
-        
+
     def ValidateCitationKey(self, text):
         """
         removes characters not allowed in BibTeX keys
@@ -2893,7 +2896,7 @@ class BibTeX:
         return self.escape.sub(lambda m: u'\\%s' % m.group(), text)
 
     #Calibre functions
-    #Option to go to official ASCII Bibtex or unofficial UTF-8     
+    #Option to go to official ASCII Bibtex or unofficial UTF-8
     #Go from an unicode entry to ASCII Bibtex format without encoding
     def utf8ToBibtex(self, text):
         if len(text) == 0:

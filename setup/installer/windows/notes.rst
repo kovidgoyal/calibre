@@ -19,7 +19,7 @@ Set CMAKE_PREFIX_PATH environment variable to C:\cygwin\home\kovid\sw
 
 This is where all dependencies will be installed.
 
-Add C:\Python26\Scripts and C:\Python26 to PATH 
+Add C:\Python27\Scripts and C:\Python27 to PATH 
 
 Install setuptools from http://pypi.python.org/pypi/setuptools
 If there are no windows binaries already compiled for the version of python you are using then download the source and run the following command in the folder where the source has been unpacked::
@@ -28,7 +28,7 @@ If there are no windows binaries already compiled for the version of python you 
 
 Run the following command to install python dependencies::
 
-    easy_install --always-unzip -U ipython mechanize pyreadline python-dateutil dnspython cssutils clientform
+    easy_install --always-unzip -U ipython mechanize pyreadline python-dateutil dnspython cssutils clientform pycrypto
 
 Install BeautifulSoup 3.0.x manually into site-packages (3.1.x parses broken HTML very poorly)
 

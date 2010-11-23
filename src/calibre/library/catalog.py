@@ -405,10 +405,7 @@ class BIBTEX(CatalogPlugin):
             else :
                 template_citation = u'%s' % str(entry["id"])
 
-            if asccii_bibtex :
-                return bibtexclass.ValidateCitationKey(template_citation.encode('ascii', 'replace'))
-            else :
-                return bibtexclass.ValidateCitationKey(template_citation)
+            return bibtexclass.ValidateCitationKey(template_citation)
 
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification
@@ -478,7 +475,7 @@ class BIBTEX(CatalogPlugin):
 
         #Initialize BibTeX class
         bibtexc = BibTeX()
-        
+
         #Entries writing after Bibtex formating (or not)
         if bibfile_enc != 'ascii' :
             bibtexc.ascii_bibtex = False

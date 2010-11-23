@@ -140,7 +140,7 @@ def create_books(opts, args, timeout=5.):
     
     tans = [ISBNDBMetadata(book) for book in fetch_metadata(url, timeout=timeout)]
     #remove duplicates ISBN
-    return dict((book.isbn, book) for book in tans).values()
+    return list(dict((book.isbn, book) for book in tans).values())
 
 def main(args=sys.argv):
     parser = option_parser()
