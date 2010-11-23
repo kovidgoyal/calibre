@@ -1,0 +1,18 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MainichiDailyITNews(BasicNewsRecipe):
+    title          = u'\u6bce\u65e5\u65b0\u805e(IT&\u5bb6\u96fb)'
+    __author__     = 'Hiroshi Miura'
+    oldest_article = 2
+    max_articles_per_feed = 100
+    description    = 'Japanese traditional newspaper Mainichi Daily News - IT and electronics'
+    publisher      = 'Mainichi Daily News'
+    category       = 'news, Japan, IT, Electronics'
+    language       = 'ja'
+
+    feeds          = [(u'IT News', u'http://mainichi.pheedo.jp/f/mainichijp_electronics')]
+
+    remove_tags_before = {'class':"NewsTitle"}
+    remove_tags = [{'class':"RelatedArticle"}]
+    remove_tags_after = {'class':"Credit"}
+

@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
+
 class SchemaUpgrade(object):
 
     def __init__(self):
@@ -408,4 +410,18 @@ class SchemaUpgrade(object):
         INSERT INTO metadata_dirtied (book) SELECT id FROM books;
         '''
         self.conn.executescript(script)
+
+    def upgrade_version_14(self):
+        'Cache has_cover'
+        self.conn.execute('ALTER TABLE books ADD COLUMN has_cover BOOL DEFAULT 0')
+        data = self.conn.get('SELECT id,path FROM books', all=True)
+        def has_cover(path):
+            if path:
+                path = os.path.join(self.library_path, path.replace('/', os.sep),
+                    'cover.jpg')
+                return os.path.exists(path)
+            return False
+
+        ids = [(x[0],) for x in data if has_cover(x[1])]
+        self.conn.executemany('UPDATE books SET has_cover=1 WHERE id=?', ids)
 

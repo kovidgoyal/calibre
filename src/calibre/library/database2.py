@@ -226,7 +226,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'lccn',
              'pubdate',
              'flags',
-             'uuid'
+             'uuid',
+             'has_cover'
             ]
         lines = []
         for col in columns:
@@ -245,7 +246,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
              'publisher':9, 'series_index':10,
              'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15,
-             'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19}
+             'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19, 'cover':20}
 
         for k,v in self.FIELD_MAP.iteritems():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
@@ -267,12 +268,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             base,
                             prefer_custom=True)
 
-        self.FIELD_MAP['cover'] = base+1
-        self.field_metadata.set_field_record_index('cover', base+1, prefer_custom=False)
-        self.FIELD_MAP['ondevice'] = base+2
-        self.field_metadata.set_field_record_index('ondevice', base+2, prefer_custom=False)
-        self.FIELD_MAP['all_metadata'] = base+3
-        self.field_metadata.set_field_record_index('all_metadata', base+3, prefer_custom=False)
+        self.field_metadata.set_field_record_index('cover',
+                self.FIELD_MAP['cover'], prefer_custom=False)
+        self.FIELD_MAP['ondevice'] = base+1
+        self.field_metadata.set_field_record_index('ondevice', base+1, prefer_custom=False)
+        self.FIELD_MAP['all_metadata'] = base+2
+        self.field_metadata.set_field_record_index('all_metadata', base+2, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -332,7 +333,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dirtied_cache = set([x[0] for x in d])
 
         self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
+        st = time.time()
         self.refresh()
+        print 'refresh time:', time.time() - st
         self.last_update_check = self.last_modified()
 
 
@@ -763,17 +766,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     identical_book_ids.add(book_id)
         return identical_book_ids
 
-    def has_cover(self, index, index_is_id=False):
-        id = index if index_is_id else self.id(index)
-        try:
-            path = os.path.join(self.abspath(id, index_is_id=True,
-                create_dirs=False), 'cover.jpg')
-        except:
-            # Can happen if path has not yet been set
-            return False
-        return os.path.exists(path)
-
-    def remove_cover(self, id, notify=True):
+    def remove_cover(self, id, notify=True, commit=True):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if os.path.exists(path):
             try:
@@ -781,11 +774,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except (IOError, OSError):
                 time.sleep(0.2)
                 os.remove(path)
+        self.conn.execute('UPDATE books SET has_cover=0 WHERE id=?', (id,))
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['cover'], False, row_is_id=True)
         if notify:
             self.notify('cover', [id])
 
-    def set_cover(self, id, data, notify=True):
+    def set_cover(self, id, data, notify=True, commit=True):
         '''
         Set the cover for this book.
 
@@ -802,6 +798,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except (IOError, OSError):
                 time.sleep(0.2)
                 save_cover_data_to(data, path)
+        self.conn.execute('UPDATE books SET has_cover=1 WHERE id=?', (id,))
+        if commit:
+            self.conn.commit()
         self.data.set(id, self.FIELD_MAP['cover'], True, row_is_id=True)
         if notify:
             self.notify('cover', [id])
@@ -1273,11 +1272,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.series:
             doit(self.set_series, id, mi.series, notify=False, commit=False)
         if mi.cover_data[1] is not None:
-            doit(self.set_cover, id, mi.cover_data[1]) # doesn't use commit
+            doit(self.set_cover, id, mi.cover_data[1], commit=False)
         elif mi.cover is not None:
             if os.access(mi.cover, os.R_OK):
                 with lopen(mi.cover, 'rb') as f:
-                    doit(self.set_cover, id, f)
+                    doit(self.set_cover, id, f, commit=False)
         if mi.tags:
             doit(self.set_tags, id, mi.tags, notify=False, commit=False)
         if mi.comments:
@@ -2291,7 +2290,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             x['tags'] = [i.replace('|', ',').strip() for i in x['tags'].split(',')] if x['tags'] else []
             path = os.path.join(prefix, self.path(record[self.FIELD_MAP['id']], index_is_id=True))
             x['cover'] = os.path.join(path, 'cover.jpg')
-            if not self.has_cover(x['id'], index_is_id=True):
+            if not record[self.FIELD_MAP['cover']]:
                 x['cover'] = None
             formats = self.formats(record[self.FIELD_MAP['id']], index_is_id=True)
             if formats:
@@ -2510,11 +2509,20 @@ books_series_link      feeds
                 if id not in bad:
                     bad[id] = []
                 bad[id].append(fmt)
+            has_cover = self.data.get(id, self.FIELD_MAP['cover'],
+                    row_is_id=True)
+            if has_cover and self.cover(id, index_is_id=True, as_path=True) is None:
+                if id not in bad:
+                    bad[id] = []
+                bad[id].append('COVER')
             callback(0.1+0.9*(1+i)/total, _('Checked id') + ' %d'%id)
 
         for id in bad:
             for fmt in bad[id]:
-                self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, fmt.upper()))
+                if fmt != 'COVER':
+                    self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, fmt.upper()))
+                else:
+                    self.conn.execute('UPDATE books SET has_cover=0 WHERE id=?', (id,))
         self.conn.commit()
         self.refresh_ids(list(bad.keys()))
 

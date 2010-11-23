@@ -132,9 +132,9 @@ class CheckIntegrity(QProgressDialog):
             titles = [self.db.title(x, index_is_id=True) for x in bad]
             det_msg = '\n'.join(titles)
             warning_dialog(self, _('Some inconsistencies found'),
-                    _('The following books had formats listed in the '
+                    _('The following books had formats or covers listed in the '
                         'database that are not actually available. '
-                        'The entries for the formats have been removed. '
+                        'The entries for the formats/covers have been removed. '
                         'You should check them manually. This can '
                         'happen if you manipulate the files in the '
                         'library folder directly.'), det_msg=det_msg, show=True)
