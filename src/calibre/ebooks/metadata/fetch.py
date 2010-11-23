@@ -145,18 +145,21 @@ class MetadataSource(Plugin): # {{{
             setattr(w, '_'+x, cb)
             cb.setChecked(c.get(x, True))
             w._layout.addWidget(cb)
-
-        cb = QCheckBox(_('Convert comments downloaded from %s to plain text')%(self.name))
-        setattr(w, '_textcomments', cb)
-        cb.setChecked(c.get('textcomments', False))
-        w._layout.addWidget(cb)
+        
+        if self.has_html_comments:
+            cb = QCheckBox(_('Convert comments downloaded from %s to plain text')%(self.name))
+            setattr(w, '_textcomments', cb)
+            cb.setChecked(c.get('textcomments', False))
+            w._layout.addWidget(cb)
 
         return w
 
     def save_settings(self, w):
         dl_settings = {}
-        for x in ('rating', 'tags', 'comments', 'textcomments'):
+        for x in ('rating', 'tags', 'comments'):
             dl_settings[x] = getattr(w, '_'+x).isChecked()
+        if self.has_html_comments:
+            dl_settings['textcomments'] = getattr(w, '_textcomments').isChecked()
         c = self.config_store()
         c.set(self.name, dl_settings)
         if hasattr(w, '_sc'):

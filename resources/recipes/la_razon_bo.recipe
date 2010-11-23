@@ -8,7 +8,7 @@ from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LaRazon_Bol(BasicNewsRecipe):
-    title                 = 'La Razón - Bolivia'
+    title                 = u'La Razón - Bolivia'
     __author__            = 'Darko Miletic'
     description           = 'El diario nacional de Bolivia'
     publisher             = 'Praxsis S.R.L.'
