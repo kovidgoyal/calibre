@@ -2089,8 +2089,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             mi.timestamp = utcnow()
         if mi.pubdate is None:
             mi.pubdate = utcnow()
-        self.set_metadata(id, mi, ignore_errors=True, commit=False)
-        self.conn.commit()
+        self.set_metadata(id, mi, ignore_errors=True, commit=True)
         if cover is not None:
             try:
                 self.set_cover(id, cover)
@@ -2130,8 +2129,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 mi.timestamp = utcnow()
             if mi.pubdate is None:
                 mi.pubdate = utcnow()
-            self.set_metadata(id, mi, commit=False)
-            self.conn.commit()
+            self.set_metadata(id, mi, commit=True, ignore_errors=True)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
             stream = lopen(npath, 'rb')
@@ -2169,7 +2167,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             mi.timestamp = utcnow()
         if mi.pubdate is None:
             mi.pubdate = utcnow()
-        self.set_metadata(id, mi, ignore_errors=True)
+        self.set_metadata(id, mi, ignore_errors=True, commit=True)
         if preserve_uuid and mi.uuid:
             self.set_uuid(id, mi.uuid, commit=False)
         for path in formats:
