@@ -476,6 +476,10 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('> <', '>\n<')
         self.processed_html = self.processed_html.replace('<mbp: ', '<mbp:')
         self.processed_html = re.sub(r'<?xml[^>]*>', '', self.processed_html)
+        # Swap inline and block level elements, and order block level elements according to priority 
+        # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
+        self.processed_html = re.sub(r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\g<para>'+'\g<styletags>', self.processed_html)
+        self.processed_html = re.sub(r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', '\g<styletags>'+'\g<para>', self.processed_html)
 
     def remove_random_bytes(self, html):
         return re.sub('\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08',
