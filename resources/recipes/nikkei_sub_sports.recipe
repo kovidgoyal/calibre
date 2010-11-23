@@ -17,6 +17,8 @@ class NikkeiNet_sub_sports(BasicNewsRecipe):
     title           = u'\u65e5\u7d4c\u65b0\u805e\u96fb\u5b50\u7248(\u30b9\u30dd\u30fc\u30c4)'
     __author__      = 'Hiroshi Miura'
     description     = 'News and current market affairs from Japan'
+    cover_url       = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
+    masthead_url    = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
     needs_subscription = True
     oldest_article  = 2
     max_articles_per_feed = 20

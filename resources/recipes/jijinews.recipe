@@ -1,0 +1,24 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+www.jiji.com
+'''
+
+class JijiDotCom(BasicNewsRecipe):
+    title          = u'\u6642\u4e8b\u901a\u4fe1'
+    __author__     = 'Hiroshi Miura'
+    description    = 'World News from Jiji Press'
+    publisher      = 'Jiji Press Ltd.'
+    category       = 'news'
+    encoding       = 'utf-8'
+    oldest_article = 6
+    max_articles_per_feed = 100
+    language       = 'ja'
+    cover_url       = 'http://www.jiji.com/img/top_header_logo2.gif'
+    masthead_url    = 'http://jen.jiji.com/images/logo_jijipress.gif'
+
+    feeds          = [(u'\u30cb\u30e5\u30fc\u30b9', u'http://www.jiji.com/rss/ranking.rdf')]
+    remove_tags_after = dict(id="ad_google")
+
