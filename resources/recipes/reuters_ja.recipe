@@ -1,0 +1,37 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class ReutersJa(BasicNewsRecipe):
+
+    title = 'Reuters(Japan)'
+    description = 'Global news in Japanese'
+    __author__ = 'Hiroshi Miura'
+    use_embedded_content   = False
+    language = 'ja'
+    max_articles_per_feed = 10
+    remove_javascript = True
+
+    feeds = [ ('Top Stories', 'http://feeds.reuters.com/reuters/JPTopNews?format=xml'),
+                  ('World News', 'http://feeds.reuters.com/reuters/JPWorldNews?format=xml'),
+                  ('Business News', 'http://feeds.reuters.com/reuters/JPBusinessNews?format=xml'),
+                  ('Technology News', 'http://feeds.reuters.com/reuters/JPTechnologyNews?format=xml'),
+                  ('Oddly Enough News', 'http://feeds.reuters.com/reuters/JPOddlyEnoughNews?format=xml')
+         ]
+
+    remove_tags_before = {'class':"article primaryContent"}
+    remove_tags = [ dict(id="banner"),
+                    dict(id="autilities"),
+                    dict(id="textSizer"),
+                    dict(id="shareFooter"),
+                    dict(id="relatedNews"),
+                    dict(id="editorsChoice"),
+                    dict(id="ecArticles"),
+                    {'class':"secondaryContent"},
+                    {'class':"module"},
+                     ]
+    remove_tags_after = {'class':"assetBuddy"}
+
+    def print_version(self, url):
+        m = re.search('(.*idJPJAPAN-[0-9]+)', url)
+        return m.group(0)+'?sp=true'
+

@@ -13,6 +13,7 @@ class NowToronto(BasicNewsRecipe):
     title = u'Now Toronto'
     description = u'Now Toronto'
     __author__ = 'Starson17'
+    language = 'en_CA'
     conversion_options = {
         'no_default_epub_cover' : True
     }
