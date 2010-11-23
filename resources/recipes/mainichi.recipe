@@ -7,7 +7,7 @@ www.mainichi.jp
 '''
 
 class MainichiDailyNews(BasicNewsRecipe):
-    title          = u'Mainichi Daily News'
+    title          = u'\u6bce\u65e5\u65b0\u805e'
     __author__     = 'Hiroshi Miura'
     oldest_article = 2
     max_articles_per_feed = 20
