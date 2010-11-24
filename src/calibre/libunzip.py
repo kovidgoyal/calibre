@@ -43,9 +43,12 @@ def extract(filename, dir):
     zf = zipfile.ZipFile( filename )
     zf.extractall(dir)
 
-def extract_member(filename, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I)):
+def extract_member(filename, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$',
+    re.I), sort_alphabetically=False):
     zf = zipfile.ZipFile(filename)
-    names = zf.namelist()
+    names = list(zf.namelist())
+    if sort_alphabetically:
+        names.sort()
     for name in names:
         if match.search(name):
             return name, zf.read(name)

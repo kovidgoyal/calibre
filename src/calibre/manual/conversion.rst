@@ -377,7 +377,7 @@ They are XPath expressions that match tags in the intermediate XHTML produced by
 how to construct XPath expressions. Next to each option is a button that launches a wizard to help with the creation
 of basic XPath expressions. The following simple example illustrates how to use these options.
 
-Suppose you have an input document taht results in XHTML that look like this:
+Suppose you have an input document that results in XHTML that look like this:
 
 .. code-block:: html
 
@@ -417,6 +417,25 @@ This will result in an automatically generated two level Table of Contents that 
 
     Not all output formats support a multi level Table of Contents. You should first try with EPUB Output. If that
     works, then try your format of choice. 
+
+Using images as chapter titles when converting HTML input documents
+---------------------------------------------------------------------
+
+Suppose you want to use an image as your chapter title, but still want |app| to be able to automatically generate a Table of Contents for you from the chapter titles.
+Use the following HTML markup to achieve this
+
+.. code-block:: html
+
+    <html>
+        <body>
+            <h2>Chapter 1</h2>
+            <p>chapter 1 text...</p>
+            <h2 title="Chapter 2"><img src="chapter2.jpg" /></h2>
+            <p>chapter 2 text...</p>
+        </body>
+    </html>
+
+Set the :guilabel:`Level 1 TOC` setting to ``//h:h2``. Then, for chapter two, |app| will take the title from the value of the ``title`` attribute on the ``<h2>`` tag, since the tag has no text.
 
 How options are set/saved for Conversion
 -------------------------------------------

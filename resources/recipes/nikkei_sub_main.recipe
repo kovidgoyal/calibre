@@ -6,8 +6,7 @@ __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
 www.nikkei.com
 '''
 
-import string, re, sys
-from calibre import strftime
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 import mechanize
 from calibre.ptempfile import PersistentTemporaryFile
@@ -35,7 +34,7 @@ class NikkeiNet_sub_main(BasicNewsRecipe):
     remove_tags_after = {'class':"cmn-pr_list"}
 
     feeds = [ (u'NIKKEI', 	u'http://www.zou3.net/php/rss/nikkei2rss.php?head=main')]
-    
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
 
@@ -62,12 +61,12 @@ class NikkeiNet_sub_main(BasicNewsRecipe):
             br['LA0010Form01:LA0010Password'] = self.password
             br.form.find_control(id='LA0010Form01:LA0010AutoLoginOn',type="checkbox").get(nr=0).selected = True
             br.submit()
-            response1 = br.response()
+            br.response()
             #print "----------------------------send login form---------------------------------------------"
             #print "----------------------------open news main page-----------------------------------------"
             # open news site
             br.open('http://www.nikkei.com/')
-            response2 = br.response()
+            br.response()
             #print "----------------------------www.nikkei.com BODY   --------------------------------------"
             #print response2.get_data()
             #print "-------------------------^^-got auto redirect form----^^--------------------------------"

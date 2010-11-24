@@ -1,0 +1,61 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class deredactie(BasicNewsRecipe):
+    title          = u'Deredactie.be'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    cover_url = 'http://www.deredactie.be/polopoly_fs/1.510827!image/2710428628.gif'
+    language = 'de'
+    keep_only_tags = []
+    __author__ = 'malfi'
+    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'articlehead'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'articlebody'}))
+    remove_tags = []
+    remove_tags.append(dict(name = 'div', attrs = {'id': 'story'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id': 'useractions'}))
+    remove_tags.append(dict(name = 'hr'))
+
+    extra_css = '''
+     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+     h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+     p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+     '''
+    def parse_index(self):
+        categories = []
+        catnames = {}
+        soup = self.index_to_soup('http://www.deredactie.be/cm/vrtnieuws.deutsch')
+        for elem in soup.findAll('li', attrs={'id' : re.compile("^navItem[2-9]") }):
+              a = elem.find('a', href=True)
+              m = re.search('(?<=/)[^/]*$', a['href'])
+              cat = str(m.group(0))
+              categories.append(cat)
+              catnames[cat] = a['title']
+              self.log("found cat %s\n" % catnames[cat])
+
+        feeds = []
+
+        for cat in categories:
+            articles = []
+            soup = self.index_to_soup('http://www.deredactie.be/cm/vrtnieuws.deutsch/'+cat)
+            for a in soup.findAll('a',attrs={'href' : re.compile("deutsch.*/[0-9][0-9][0-9][0-9][0-9][0-9]_")}):
+                skip_this_article = False
+                url = a['href'].strip()
+                if url.startswith('/'):
+                    url = 'http://www.deredactie.be' + url
+                myarticle=({'title':self.tag_to_string(a), 'url':url, 'description':'', 'date':''})
+                for article in articles :
+                    if article['url'] == url :
+                        skip_this_article = True
+                        self.log("SKIPPING DUP %s" % url)
+                        break
+                if skip_this_article :
+                        continue;
+                articles.append(myarticle)
+                self.log("Adding URL %s\n" %url)
+            if articles:
+                feeds.append((catnames[cat], articles))
+        return feeds
+

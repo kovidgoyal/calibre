@@ -49,7 +49,6 @@ class Push(Command):
             print '\n\nPushing to:', host, '\n'
             threads.append(Thread(target=subprocess.check_call, args=(rcmd,)))
             threads[-1].start()
-            subprocess.check_call(rcmd)
         for thread in threads:
             thread.join()
 

@@ -1,3 +1,5 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
 class MainichiDailyITNews(BasicNewsRecipe):
     title          = u'\u6bce\u65e5\u65b0\u805e(IT&\u5bb6\u96fb)'
     __author__     = 'Hiroshi Miura'

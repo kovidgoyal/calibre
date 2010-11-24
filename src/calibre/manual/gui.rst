@@ -380,6 +380,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Show books in the same series as current book
     * - :kbd:`/, Ctrl+F` 
       - Focus the search bar
+    * - :kbd:`Shift+Ctrl+F`
+      - Open the advanced search dialog
     * - :kbd:`Ctrl+D` 
       - Download metadata and shortcuts
     * - :kbd:`Ctrl+R` 

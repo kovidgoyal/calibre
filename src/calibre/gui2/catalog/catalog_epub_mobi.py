@@ -23,7 +23,9 @@ class PluginWidget(QWidget,Ui_Form):
                      ('generate_recently_added', True),
                      ('note_tag','*'),
                      ('numbers_as_text', False),
-                     ('read_tag','+')]
+                     ('read_tag','+'),
+                     ('wishlist_tag','Wishlist'),
+                     ]
 
 
     # Output synced to the connected device?

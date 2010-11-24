@@ -34,10 +34,11 @@ sqlite.register_adapter(datetime, adapt_datetime)
 sqlite.register_converter('timestamp', convert_timestamp)
 
 def convert_bool(val):
-    return bool(int(val))
+    return val != '0'
 
 sqlite.register_adapter(bool, lambda x : 1 if x else 0)
 sqlite.register_converter('bool', convert_bool)
+sqlite.register_converter('BOOL', convert_bool)
 
 class DynamicFilter(object):
 

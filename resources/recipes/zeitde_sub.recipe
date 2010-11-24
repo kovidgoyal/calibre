@@ -1,0 +1,63 @@
+#!/usr/bin/env  python
+# -*- coding: utf-8 mode: python -*-
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Steffen Siebert <calibre at steffensiebert.de>'
+__docformat__ = 'restructuredtext de'
+__version__   = '1.1'
+
+"""
+Die Zeit EPUB
+"""
+
+import os, urllib2, zipfile, re
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+
+class ZeitEPUBAbo(BasicNewsRecipe):
+
+    title = u'Zeit Online Premium'
+    description = u'Das EPUB Abo der Zeit (needs subscription)'
+    language = 'de'
+    lang = 'de-DE'
+
+    __author__ = 'Steffen Siebert'
+    needs_subscription = True
+
+    conversion_options = {
+        'no_default_epub_cover' : True
+    }
+
+    def build_index(self):
+        domain = "http://premium.zeit.de"
+        url = domain + "/abovorteile/cgi-bin/_er_member/p4z.fpl?ER_Do=getUserData&ER_NextTemplate=login_ok"
+
+        browser = self.get_browser()
+        browser.add_password("http://premium.zeit.de", self.username, self.password)
+
+        try:
+            browser.open(url)
+        except urllib2.HTTPError:
+            self.report_progress(0,_("Can't login to download issue"))
+            raise ValueError('Failed to login, check your username and password')
+
+        response = browser.follow_link(text="DIE ZEIT als E-Paper")
+        response = browser.follow_link(url_regex=re.compile('^http://contentserver.hgv-online.de/nodrm/fulfillment\\?distributor=zeit-online&orderid=zeit_online.*'))
+
+        tmp = PersistentTemporaryFile(suffix='.epub')
+        self.report_progress(0,_('downloading epub'))
+        tmp.write(response.read())
+        tmp.close()
+
+        zfile = zipfile.ZipFile(tmp.name, 'r')
+        self.report_progress(0,_('extracting epub'))
+
+        zfile.extractall(self.output_dir)
+
+        tmp.close()
+        index = os.path.join(self.output_dir, 'content.opf')
+
+        self.report_progress(1,_('epub downloaded and extracted'))
+
+        return index
+

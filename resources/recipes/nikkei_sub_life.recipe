@@ -6,8 +6,7 @@ __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
 www.nikkei.com
 '''
 
-import string, re, sys
-from calibre import strftime
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 import mechanize
 from calibre.ptempfile import PersistentTemporaryFile
@@ -34,15 +33,15 @@ class NikkeiNet_sub_life(BasicNewsRecipe):
                          ]
     remove_tags_after = {'class':"cmn-pr_list"}
 
-    feeds = [  (u'\u304f\u3089\u3057', 	u'http://www.zou3.net/php/rss/nikkei2rss.php?head=kurashi'), 
+    feeds = [  (u'\u304f\u3089\u3057', 	u'http://www.zou3.net/php/rss/nikkei2rss.php?head=kurashi'),
 		 (u'\u30b9\u30dd\u30fc\u30c4', 	u'http://www.zou3.net/php/rss/nikkei2rss.php?head=sports'),
-		 (u'\u793e\u4f1a', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=shakai'), 
+		 (u'\u793e\u4f1a', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=shakai'),
 		 (u'\u30a8\u30b3', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=eco'),
-		 (u'\u5065\u5eb7', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=kenkou'), 
+		 (u'\u5065\u5eb7', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=kenkou'),
 		 (u'\u7279\u96c6', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=special'),
 		 (u'\u30e9\u30f3\u30ad\u30f3\u30b0', u'http://www.zou3.net/php/rss/nikkei2rss.php?head=ranking')
         ]
-    
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
 
@@ -69,12 +68,12 @@ class NikkeiNet_sub_life(BasicNewsRecipe):
             br['LA0010Form01:LA0010Password'] = self.password
             br.form.find_control(id='LA0010Form01:LA0010AutoLoginOn',type="checkbox").get(nr=0).selected = True
             br.submit()
-            response1 = br.response()
+            br.response()
             #print "----------------------------send login form---------------------------------------------"
             #print "----------------------------open news main page-----------------------------------------"
             # open news site
             br.open('http://www.nikkei.com/')
-            response2 = br.response()
+            br.response()
             #print "----------------------------www.nikkei.com BODY   --------------------------------------"
             #print response2.get_data()
             #print "-------------------------^^-got auto redirect form----^^--------------------------------"

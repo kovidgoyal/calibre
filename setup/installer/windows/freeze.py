@@ -13,7 +13,7 @@ from setup import Command, modules, functions, basenames, __version__, \
 from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
-QT_DIR = 'C:\\Qt\\4.6.3'
+QT_DIR = 'Q:\\Qt\\4.7.1'
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
@@ -132,7 +132,7 @@ class Win32Freeze(Command, WixMixIn):
         shutil.copytree(self.j(comext, 'shell'), self.j(sp_dir, 'win32com', 'shell'))
         shutil.rmtree(comext)
 
-        for pat in (r'numpy', r'PyQt4\uic\port_v3'):
+        for pat in (r'PyQt4\uic\port_v3', ):
             x = glob.glob(self.j(self.lib_dir, 'site-packages', pat))[0]
             shutil.rmtree(x)
 

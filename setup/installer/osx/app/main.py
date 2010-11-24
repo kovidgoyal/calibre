@@ -48,14 +48,14 @@ def compile_launcher_lib(contents_dir, gcc, base):
     fd = join(contents_dir, 'Frameworks')
     dest = join(fd, 'calibre-launcher.dylib')
     src = join(base, 'util.c')
-    cmd = [gcc] + '-Wall -arch i386 -arch ppc -dynamiclib -std=gnu99'.split() + [src] + \
+    cmd = [gcc] + '-Wall -arch i386 -arch x86_64 -dynamiclib -std=gnu99'.split() + [src] + \
             ['-I'+base] + \
-            ['-I/Library/Frameworks/Python.framework/Versions/Current/Headers'] + \
+            ['-I/sw/python/Python.framework/Versions/Current/Headers'] + \
             '-current_version 1.0 -compatibility_version 1.0'.split() + \
             '-fvisibility=hidden -o'.split() + [dest] + \
             ['-install_name',
                 '@executable_path/../Frameworks/'+os.path.basename(dest)] + \
-            ['-framework', 'Python', '-framework', 'CoreFoundation', '-headerpad_max_install_names']
+            ['-F/sw/python', '-framework', 'Python', '-framework', 'CoreFoundation', '-headerpad_max_install_names']
     info('\t'+' '.join(cmd))
     sys.stdout.flush()
     subprocess.check_call(cmd)
@@ -88,7 +88,7 @@ def compile_launchers(contents_dir, xprograms, pyver):
         fsrc = '/tmp/%s.c'%program
         with open(fsrc, 'wb') as f:
             f.write(psrc)
-        cmd = [gcc, '-Wall', '-arch', 'ppc', '-arch', 'i386',
+        cmd = [gcc, '-Wall', '-arch', 'x86_64', '-arch', 'i386',
                 '-I'+base, fsrc, lib, '-o', out,
             '-headerpad_max_install_names']
         info('\t'+' '.join(cmd))
@@ -108,14 +108,6 @@ def flipwritable(fn, mode=None):
     os.chmod(fn, stat.S_IWRITE | old_mode)
     return old_mode
 
-def thin(path):
-    try:
-        subprocess.check_call(['lipo', path, '-verify_arch', 'ppc64'])
-        info('\tThinning', path)
-    except:
-        return
-    else:
-        subprocess.check_call(['lipo', path, '-thin', 'x86_64', '-output', path])
 
 STRIPCMD = ['/usr/bin/strip', '-x', '-S', '-']
 def strip_files(files, argv_max=(256 * 1024)):
@@ -200,7 +192,6 @@ class Py2App(object):
         self.copy_site()
         self.create_exe()
         if not test_launchers:
-            #self.thin_to_x86_64()
             self.strip_files()
 
         ret = self.makedmg(self.build_dir, APPNAME+'-'+VERSION)
@@ -211,19 +202,6 @@ class Py2App(object):
     def add_resources(self):
         shutil.copytree('resources', os.path.join(self.resources_dir,
             'resources'))
-
-    @flush
-    def thin_to_x86_64(self):
-        info('\nThinning to x86_64')
-        for y in (self.frameworks_dir, join(self.resources_dir, 'Python')):
-            for x in os.walk(y):
-                for f in x[-1]:
-                    f = join(x[0], f)
-                    if not os.path.isfile(f): continue
-                    for t in ('.so', '.dylib', '/Python'):
-                        if f.endswith(t):
-                            thin(f)
-                            break
 
     @flush
     def strip_files(self):
@@ -270,10 +248,10 @@ class Py2App(object):
                 continue
             for y in (SW+'/lib/', '/usr/local/lib/', SW+'/qt/lib/',
                     '/opt/local/lib/',
-                    '/Library/Frameworks/Python.framework/', SW+'/freetype/lib/'):
+                    SW+'/python/Python.framework/', SW+'/freetype/lib/'):
                 if x.startswith(y):
-                    if y == '/Library/Frameworks/Python.framework/':
-                        y = '/Library/Frameworks/'
+                    if y == SW+'/python/Python.framework/':
+                        y = SW+'/python/'
                     yield x, x[len(y):]
                     break
 
@@ -299,7 +277,7 @@ class Py2App(object):
     @flush
     def add_python_framework(self):
         info('\nAdding Python framework')
-        src = join('/Library/Frameworks', 'Python.framework')
+        src = join('/sw/python', 'Python.framework')
         x = join(self.frameworks_dir, 'Python.framework')
         curr = os.path.realpath(join(src, 'Versions', 'Current'))
         currd = join(x, 'Versions', basename(curr))
@@ -314,7 +292,7 @@ class Py2App(object):
     def add_qt_frameworks(self):
         info('\nAdding Qt Framework')
         for f in ('QtCore', 'QtGui', 'QtXml', 'QtNetwork', 'QtSvg', 'QtWebKit',
-                'QtXmlPatterns', 'phonon'):
+                'QtXmlPatterns'):
             self.add_qt_framework(f)
         for d in glob.glob(join(SW, 'qt', 'plugins', '*')):
             shutil.copytree(d, join(self.contents_dir, 'MacOS', basename(d)))
@@ -353,8 +331,8 @@ class Py2App(object):
             shutil.copy2(f, dest)
             self.fix_dependencies_in_lib(join(dest, basename(f)))
             if 'podofo' in f:
-                self.change_dep('libpodofo.0.6.99.dylib',
-                self.FID+'/'+'libpodofo.0.6.99.dylib', join(dest, basename(f)))
+                self.change_dep('libpodofo.0.8.4.dylib',
+                self.FID+'/'+'libpodofo.0.8.4.dylib', join(dest, basename(f)))
 
 
     @flush
@@ -378,7 +356,7 @@ class Py2App(object):
                 CFBundleSignature='????',
                 CFBundleExecutable='calibre',
                 CFBundleDocumentTypes=docs,
-                LSMinimumSystemVersion='10.4.2',
+                LSMinimumSystemVersion='10.5.2',
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
                 NSHumanReadableCopyright='Copyright 2010, Kovid Goyal',
@@ -401,25 +379,27 @@ class Py2App(object):
     @flush
     def add_podofo(self):
         info('\nAdding PoDoFo')
-        pdf = join(SW, 'lib', 'libpodofo.0.8.2.dylib')
+        pdf = join(SW, 'lib', 'libpodofo.0.8.4.dylib')
         self.install_dylib(pdf)
 
     @flush
     def add_poppler(self):
         info('\nAdding poppler')
-        for x in ('libpoppler.5.dylib', 'libpoppler-qt4.3.dylib'):
+        for x in ('libpoppler.7.dylib',):
             self.install_dylib(os.path.join(SW, 'lib', x))
         self.install_dylib(os.path.join(SW, 'bin', 'pdftohtml'), False)
 
     @flush
     def add_libjpeg(self):
         info('\nAdding libjpeg')
-        self.install_dylib(os.path.join(SW, 'lib', 'libjpeg.7.dylib'))
+        self.install_dylib(os.path.join(SW, 'lib', 'libjpeg.8.dylib'))
 
     @flush
     def add_libpng(self):
         info('\nAdding libpng')
         self.install_dylib(os.path.join(SW, 'lib', 'libpng12.0.dylib'))
+        self.install_dylib(os.path.join(SW, 'lib', 'libpng.3.dylib'))
+
 
     @flush
     def add_fontconfig(self):
@@ -449,7 +429,7 @@ class Py2App(object):
     def add_imagemagick(self):
         info('\nAdding ImageMagick')
         for x in ('Wand', 'Core'):
-            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.2.dylib'%x))
+            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.4.dylib'%x))
         idir = glob.glob(os.path.join(SW, 'lib', 'ImageMagick-*'))[-1]
         dest = os.path.join(self.frameworks_dir, 'ImageMagick')
         if os.path.exists(dest):
@@ -463,7 +443,8 @@ class Py2App(object):
 
     @flush
     def add_misc_libraries(self):
-        for x in ('usb', 'unrar', 'readline.6.0', 'wmflite-0.2.7', 'chm.0'):
+        for x in ('usb', 'unrar', 'readline.6.1', 'wmflite-0.2.7', 'chm.0',
+                'sqlite3.0'):
             info('\nAdding', x)
             x = 'lib%s.dylib'%x
             shutil.copy2(join(SW, 'lib', x), self.frameworks_dir)
@@ -551,7 +532,7 @@ class Py2App(object):
     @flush
     def add_stdlib(self):
         info('\nAdding python stdlib')
-        src = '/Library/Frameworks/Python.framework/Versions/Current/lib/python'
+        src = '/sw/python/Python.framework/Versions/Current/lib/python'
         src += self.version_info
         dest = join(self.resources_dir, 'Python', 'lib', 'python')
         dest += self.version_info

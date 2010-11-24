@@ -13,9 +13,9 @@ from PyQt4 import pyqtconfig
 
 from setup import isosx, iswindows, islinux
 
-OSX_SDK = '/Developer/SDKs/MacOSX10.4u.sdk'
+OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
 
-os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.4'
+os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.5'
 
 NMAKE = RC = msvc = MT = win_inc = win_lib = win_ddk = None
 if iswindows:
@@ -124,7 +124,7 @@ elif isosx:
     fc_inc = '/sw/include/fontconfig'
     fc_lib = '/sw/lib'
     poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
-            '/sw/build/poppler-0.12.2/poppler:/sw/build/poppler-0.12.2')
+            '/sw/build/poppler-0.14.5/poppler:/sw/build/poppler-0.14.5')
     popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[0]+'/qt4']
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
             '/sw/lib')

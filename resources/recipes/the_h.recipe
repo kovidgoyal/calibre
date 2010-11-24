@@ -6,6 +6,8 @@ __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
 www.h-online.com
 '''
 
+from calibre.web.feeds.news import BasicNewsRecipe
+
 class TheHeiseOnline(BasicNewsRecipe):
     title          = u'The H'
     __author__     = 'Hiroshi Miura'

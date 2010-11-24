@@ -50,7 +50,12 @@ class BooksView(QTableView): # {{{
     def __init__(self, parent, modelcls=BooksModel):
         QTableView.__init__(self, parent)
 
-        self.setEditTriggers(self.SelectedClicked|self.EditKeyPressed)
+        self.setEditTriggers(self.EditKeyPressed)
+        if tweaks['doubleclick_on_library_view'] == 'edit_cell':
+            self.setEditTriggers(self.DoubleClicked|self.editTriggers())
+        elif tweaks['doubleclick_on_library_view'] == 'open_viewer':
+            self.setEditTriggers(self.SelectedClicked|self.editTriggers())
+            self.doubleClicked.connect(parent.iactions['View'].view_triggered)
 
         self.drag_allowed = True
         self.setDragEnabled(True)
@@ -99,8 +104,6 @@ class BooksView(QTableView): # {{{
         self.selected_ids = []
         self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
         self._model.sorting_done.connect(self.sorting_done)
-
-        self.doubleClicked.connect(parent.iactions['View'].view_triggered)
 
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):

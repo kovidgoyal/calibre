@@ -212,12 +212,14 @@ class BookInfo(QWebView):
     def _show_data(self, rows, comments):
         f = QFontInfo(QApplication.font(self.parent())).pixelSize()
         p = unicode(QApplication.palette().color(QPalette.Normal,
-            QPalette.Base).name())
+            QPalette.Window).name())
+        c = unicode(QApplication.palette().color(QPalette.Normal,
+                        QPalette.WindowText).name())
         templ = u'''\
         <html>
             <head>
             <style type="text/css">
-                body, td {background-color: %s; font-size: %dpx}
+                body, td {background-color: %s; font-size: %dpx; color: %s }
                 a { text-decoration: none; color: blue }
             </style>
             </head>
@@ -225,7 +227,7 @@ class BookInfo(QWebView):
             %%s
             </body>
         <html>
-        '''%(p, f)
+        '''%(p, f, c)
         if self.vertical:
             if comments:
                 rows += u'<tr><td colspan="2">%s</td></tr>'%comments

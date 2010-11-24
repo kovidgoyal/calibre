@@ -20,8 +20,7 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
-                        warning_dialog, \
-                        question_dialog, info_dialog, choose_dir
+        warning_dialog, info_dialog, choose_dir
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode
 from calibre.utils.filenames import ascii_filename
@@ -665,6 +664,16 @@ class DeviceMixin(object): # {{{
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
+    def auto_convert_question(self, msg, autos):
+        autos = u'\n'.join(map(unicode, map(force_unicode, autos)))
+        return self.ask_a_yes_no_question(
+                _('No suitable formats'), msg,
+                buttons=QMessageBox.Yes|QMessageBox.Cancel,
+                ans_when_user_unavailable=True,
+                det_msg=autos,
+                show_copy_button=False
+        )
+
     def set_default_thumbnail(self, height):
         img = I('book.png', data=True)
         self.default_thumbnail = thumbnail(img, height, height)
@@ -978,11 +987,9 @@ class DeviceMixin(object): # {{{
                 bad += auto
             else:
                 autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
-                autos = '\n'.join('%s'%i for i in autos)
-                if question_dialog(self, _('No suitable formats'),
+                if self.auto_convert_question(
                     _('Auto convert the following books before sending via '
-                        'email?'), det_msg=autos,
-                    buttons=QMessageBox.Yes|QMessageBox.Cancel):
+                        'email?'), autos):
                     self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format)
 
         if bad:
@@ -1014,7 +1021,13 @@ class DeviceMixin(object): # {{{
             self.status_bar.show_message(_('Sent by email:') + ', '.join(good),
                     5000)
             if remove:
-                self.library_view.model().delete_books_by_id(remove)
+                try:
+                    self.library_view.model().delete_books_by_id(remove)
+                except:
+                    # Probably the user deleted the files, in any case, failing
+                    # to delete the book is not catastrophic
+                    traceback.print_exc()
+
 
     def cover_to_thumbnail(self, data):
         ht = self.device_manager.device.THUMBNAIL_HEIGHT \
@@ -1079,11 +1092,9 @@ class DeviceMixin(object): # {{{
                         break
                 if format is not None:
                     autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
-                    autos = '\n'.join('%s'%i for i in autos)
-                    if question_dialog(self, _('No suitable formats'),
+                    if self.auto_convert_question(
                         _('Auto convert the following books before uploading to '
-                            'the device?'), det_msg=autos,
-                        buttons=QMessageBox.Yes|QMessageBox.Cancel):
+                            'the device?'), autos):
                         self.iactions['Convert Books'].auto_convert_catalogs(auto, format)
             files = [f for f in files if f is not None]
             if not files:
@@ -1164,11 +1175,9 @@ class DeviceMixin(object): # {{{
                         break
                 if format is not None:
                     autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
-                    autos = '\n'.join('%s'%i for i in autos)
-                    if question_dialog(self, _('No suitable formats'),
+                    if self.auto_convert_question(
                         _('Auto convert the following books before uploading to '
-                            'the device?'), det_msg=autos,
-                        buttons=QMessageBox.Yes|QMessageBox.Cancel):
+                            'the device?'), autos):
                         self.iactions['Convert Books'].auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
             for f in files:
@@ -1283,11 +1292,9 @@ class DeviceMixin(object): # {{{
                 bad += auto
             else:
                 autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
-                autos = '\n'.join('%s'%i for i in autos)
-                if question_dialog(self, _('No suitable formats'),
+                if self.auto_convert_question(
                     _('Auto convert the following books before uploading to '
-                        'the device?'), det_msg=autos,
-                    buttons=QMessageBox.Yes|QMessageBox.Cancel):
+                        'the device?'), autos):
                     self.iactions['Convert Books'].auto_convert(auto, on_card, format)
 
         if bad:

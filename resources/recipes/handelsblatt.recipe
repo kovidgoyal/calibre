@@ -1,0 +1,41 @@
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Handelsblatt(BasicNewsRecipe):
+    title          = u'Handelsblatt'
+    __author__ = 'malfi'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    cover_url = 'http://www.handelsblatt.com/images/logo/logo_handelsblatt.com.png'
+    language = 'de'
+    keep_only_tags = []
+    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'structOneCol'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'fullText'}))
+    remove_tags    = [dict(name='img', attrs = {'src': 'http://www.handelsblatt.com/images/icon/loading.gif'})]
+
+    feeds          = [
+                        (u'Handelsblatt Exklusiv',u'http://www.handelsblatt.com/rss/exklusiv'),
+                        (u'Handelsblatt Top-Themen',u'http://www.handelsblatt.com/rss/top-themen'),
+                        (u'Handelsblatt Schlagzeilen',u'http://www.handelsblatt.com/rss/ticker/'),
+                        (u'Handelsblatt Finanzen',u'http://www.handelsblatt.com/rss/finanzen/'),
+                        (u'Handelsblatt Unternehmen',u'http://www.handelsblatt.com/rss/unternehmen/'),
+                        (u'Handelsblatt Politik',u'http://www.handelsblatt.com/rss/politik/'),
+                        (u'Handelsblatt Technologie',u'http://www.handelsblatt.com/rss/technologie/'),
+                        (u'Handelsblatt Meinung',u'http://www.handelsblatt.com/rss/meinung'),
+                        (u'Handelsblatt Magazin',u'http://www.handelsblatt.com/rss/magazin/'),
+                        (u'Handelsblatt Weblogs',u'http://www.handelsblatt.com/rss/blogs')
+                     ]
+    extra_css = '''
+        h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+        h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+        p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+        body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+        '''
+
+    def print_version(self, url):
+         m = re.search('(?<=;)[0-9]*', url)
+         return u'http://www.handelsblatt.com/_b=' + str(m.group(0)) + ',_p=21,_t=ftprint,doc_page=0;printpage'
+
+

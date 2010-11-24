@@ -25,7 +25,7 @@ class Danas(BasicNewsRecipe):
     remove_empty_feeds    = True
     extra_css             = """ @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
                                 @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
-                                .article_description,body,.lokacija{font-family: Tahoma,Arial,Helvetica,sans1,sans-serif}
+                                .article,.articledescription,body,.lokacija,.feed{font-family: Tahoma,Arial,Helvetica,sans1,sans-serif}
                                 .nadNaslov,h1,.preamble{font-family: Georgia,"Times New Roman",Times,serif1,serif}
                                 .antrfileText{border-left: 2px solid #999999; 
                                               margin-left: 0.8em; 
@@ -66,7 +66,7 @@ class Danas(BasicNewsRecipe):
 
     keep_only_tags     = [dict(name='div', attrs={'id':'left'})]
     remove_tags = [
-                     dict(name='div', attrs={'class':['width_1_4','metaClanka','baner']})
+                     dict(name='div', attrs={'class':['width_1_4','metaClanka','baner','listaVesti','article_nav']})
                     ,dict(name='div', attrs={'id':'comments'})
                     ,dict(name=['object','link','iframe','meta'])
                   ]

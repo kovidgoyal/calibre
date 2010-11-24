@@ -131,7 +131,8 @@ def comments_to_html(comments):
 def sanitize_comments_html(html):
     text = html2text(html)
     md = markdown.Markdown(safe_mode=True)
-    return md.convert(text)
+    cleansed = re.sub('\n+', '', md.convert(text))
+    return cleansed
 
 def test():
     for pat, val in [

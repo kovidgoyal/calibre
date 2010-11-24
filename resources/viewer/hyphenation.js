@@ -1,14 +1,8 @@
 /*
- * bookmarks management
+ * Hyphenation
  * Copyright 2008 Kovid Goyal
  * License: GNU GPL v3
  */
-
-function init_hyphenate() {
-    window.py_bridge.init_hyphenate();
-}
-
-document.addEventListener("DOMContentLoaded", init_hyphenate, false);
 
 function do_hyphenation(lang) {
     Hyphenator.config(
@@ -17,6 +11,9 @@ function do_hyphenation(lang) {
         //'hyphenchar'     : '|',
         'displaytogglebox' : false,
         'remoteloading'    : false,
+        'doframes'         : true,
+        'defaultlanguage'  : 'en',
+        'storagetype'      : 'session',
         'onerrorhandler'   : function (e) {
                                 window.py_bridge.debug(e);
                             }

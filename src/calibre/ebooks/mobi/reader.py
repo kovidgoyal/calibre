@@ -221,7 +221,10 @@ class MetadataHeader(BookHeader):
         else:
             end = self.section_offset(number + 1)
         self.stream.seek(start)
-        return self.stream.read(end - start)
+        try:
+            return self.stream.read(end - start)
+        except OverflowError:
+            return self.stream.read(os.stat(self.stream.name).st_size - start)
 
 
 class MobiReader(object):
@@ -398,6 +401,8 @@ class MobiReader(object):
             elem.getparent().remove(elem)
         fname = self.name.encode('ascii', 'replace')
         fname = re.sub(r'[\x08\x15\0]+', '', fname)
+        if not fname:
+            fname = 'dummy'
         htmlfile = os.path.join(output_dir,
             ascii_filename(fname) + '.html')
         try:
@@ -471,6 +476,10 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('> <', '>\n<')
         self.processed_html = self.processed_html.replace('<mbp: ', '<mbp:')
         self.processed_html = re.sub(r'<?xml[^>]*>', '', self.processed_html)
+        # Swap inline and block level elements, and order block level elements according to priority 
+        # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
+        self.processed_html = re.sub(r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\g<para>'+'\g<styletags>', self.processed_html)
+        self.processed_html = re.sub(r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', '\g<styletags>'+'\g<para>', self.processed_html)
 
     def remove_random_bytes(self, html):
         return re.sub('\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08',
@@ -564,6 +573,10 @@ class MobiReader(object):
                 for attr in self.IMAGE_ATTRS:
                     recindex = attrib.pop(attr, None) or recindex
                 if recindex is not None:
+                    try:
+                        recindex = '%05d'%int(recindex)
+                    except:
+                        pass
                     attrib['src'] = 'images/%s.jpg' % recindex
                 for attr in ('width', 'height'):
                     if attr in attrib:
