@@ -479,6 +479,7 @@ from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
+from calibre.devices.bambook.driver import BAMBOOK
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
     LibraryThing
@@ -598,6 +599,7 @@ plugins += [
     VELOCITYMICRO,
     PDNOVEL_KOBO,
     ITUNES,
+    BAMBOOK,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
