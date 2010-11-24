@@ -6,10 +6,10 @@
 
 function scale_images() {
     $("img:visible").each(function() {
-        var offset = $(this).offset();
+        var img = $(this);
+        var offset = img.offset();
         var avail_width = window.innerWidth - offset.left - 5;
         var avail_height = window.innerHeight - 5;
-        var img = $(this);
         img.css('width', img.data('orig-width'));
         img.css('height', img.data('orig-height'));
         var width = img.width();
