@@ -240,8 +240,7 @@ class Document(QWebPage):
             lang = default_lang
             p = P('viewer/hyphenate/patterns/%s.js'%lang_name(lang))
         self.javascript(open(p, 'rb').read().decode('utf-8'))
-        self.loaded_lang = lang
-
+        self.loaded_lang = lang_name(lang)
 
     @pyqtSignature("")
     def animated_scroll_done(self):
