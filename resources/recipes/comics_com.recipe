@@ -347,6 +347,7 @@ class Comics(BasicNewsRecipe):
                   title = strip_tag['title']
                   print 'title: ', title
             current_articles.append({'title': title, 'url': page_url, 'description':'', 'date':''})
+        current_articles.reverse()
         return current_articles
 
     extra_css = '''
