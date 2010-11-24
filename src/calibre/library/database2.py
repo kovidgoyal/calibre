@@ -333,9 +333,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dirtied_cache = set([x[0] for x in d])
 
         self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
-        st = time.time()
         self.refresh()
-        print 'refresh time:', time.time() - st
         self.last_update_check = self.last_modified()
 
 
