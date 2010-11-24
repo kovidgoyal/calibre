@@ -91,8 +91,8 @@ class BrandEins(BasicNewsRecipe):
     latest_jahrgang = soup.findAll('div', attrs={'class': re.compile(r'\bjahrgang-latest\b') })[0].findAll('ul')[0]
     pre_latest_issue = latest_jahrgang.findAll('a')[len(latest_jahrgang.findAll('a'))-issue]
     url = pre_latest_issue.get('href', False)
-    # Get the title for the magazin - build it out of the title of the cover - take the issue and year;
-    self.title = "brand eins "+ re.search(r"(?P<date>\d\d\/\d\d\d\d)", pre_latest_issue.find('img').get('title', False)).group('date')
+    # Get month and year of the magazine issue - build it out of the title of the cover
+    self.timefmt = " " + re.search(r"(?P<date>\d\d\/\d\d\d\d)", pre_latest_issue.find('img').get('title', False)).group('date')
     url = 'http://brandeins.de/'+url
 
     # url = "http://www.brandeins.de/archiv/magazin/tierisch.html"
