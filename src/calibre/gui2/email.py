@@ -66,7 +66,6 @@ class EmailJob(BaseJob): # {{{
 class Emailer(Thread): # {{{
 
     MAX_RETRIES = 1
-    RATE_LIMIT = 65 # seconds between connections to the SMTP server
 
     def __init__(self, job_manager):
         Thread.__init__(self)
@@ -74,7 +73,14 @@ class Emailer(Thread): # {{{
         self.jobs = Queue()
         self.job_manager = job_manager
         self._run = True
-        self.last_send_time = time.time() - self.RATE_LIMIT
+        self.rate_limit = 1
+        opts = email_config().parse()
+        rh = opts.relay_host
+        if rh and (
+            'gmail.com' in rh or 'live.com' in rh):
+            self.rate_limit = 301
+
+        self.last_send_time = time.time() - self.rate_limit
 
     def stop(self):
         self._run = False
@@ -102,7 +108,7 @@ class Emailer(Thread): # {{{
                 failed = False
                 if try_count > 0:
                     job.log_write('\nRetrying in %d seconds...\n' %
-                            self.RATE_LIMIT)
+                            self.rate_limit)
                 try:
                     self.sendmail(job)
                     break
@@ -140,7 +146,7 @@ class Emailer(Thread): # {{{
             self.jobs.put(job)
 
     def sendmail(self, job):
-        while time.time() - self.last_send_time <= self.RATE_LIMIT:
+        while time.time() - self.last_send_time <= self.rate_limit:
             time.sleep(1)
         try:
             opts = email_config().parse()
