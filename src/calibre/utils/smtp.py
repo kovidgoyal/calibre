@@ -58,11 +58,15 @@ def get_mx(host, verbose=0):
                                       int(getattr(y, 'preference', sys.maxint))))
     return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
 
-def sendmail_direct(from_, to, msg, timeout, localhost, verbose):
-    import smtplib
+def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
+        debug_output=None):
+    import calibre.utils.smtplib as smtplib
     hosts = get_mx(to.split('@')[-1].strip(), verbose)
     timeout=None # Non blocking sockets sometimes don't work
-    s = smtplib.SMTP(timeout=timeout, local_hostname=localhost)
+    kwargs = dict(timeout=timeout, local_hostname=localhost)
+    if debug_output is not None:
+        kwargs['debug_to'] = debug_output
+    s = smtplib.SMTP(**kwargs)
     s.set_debuglevel(verbose)
     if not hosts:
         raise ValueError('No mail server found for address: %s'%to)
@@ -79,17 +83,20 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose):
         raise IOError('Failed to send mail: '+repr(last_error))
 
 
-def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=30,
+def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
              relay=None, username=None, password=None, encryption='TLS',
-             port=-1):
+             port=-1, debug_output=None):
     if relay is None:
         for x in to:
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
-    import smtplib
+    import calibre.utils.smtplib as smtplib
     cls = smtplib.SMTP if encryption == 'TLS' else smtplib.SMTP_SSL
     timeout = None # Non-blocking sockets sometimes don't work
     port = int(port)
-    s = cls(timeout=timeout, local_hostname=localhost)
+    kwargs = dict(timeout=timeout, local_hostname=localhost)
+    if debug_output is not None:
+        kwargs['debug_to'] = debug_output
+    s = cls(**kwargs)
     s.set_debuglevel(verbose)
     if port < 0:
         port = 25 if encryption == 'TLS' else 465
