@@ -794,7 +794,7 @@ class TagBrowserMixin(object): # {{{
             cc_label = None
             if category in db.field_metadata:
                 cc_label = db.field_metadata[category]['label']
-                result = self.db.get_custom_items_with_ids(label=cc_label)
+                result = db.get_custom_items_with_ids(label=cc_label)
             else:
                 result = []
             compare = (lambda x,y:cmp(x.lower(), y.lower()))
