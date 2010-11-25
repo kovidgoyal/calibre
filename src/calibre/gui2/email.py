@@ -73,14 +73,17 @@ class Emailer(Thread): # {{{
         self.jobs = Queue()
         self.job_manager = job_manager
         self._run = True
+        self.calculate_rate_limit()
+
+        self.last_send_time = time.time() - self.rate_limit
+
+    def calculate_rate_limit(self):
         self.rate_limit = 1
         opts = email_config().parse()
         rh = opts.relay_host
         if rh and (
             'gmail.com' in rh or 'live.com' in rh):
             self.rate_limit = 301
-
-        self.last_send_time = time.time() - self.rate_limit
 
     def stop(self):
         self._run = False
