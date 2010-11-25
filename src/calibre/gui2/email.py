@@ -126,7 +126,8 @@ class Emailer(Thread): # {{{
             try:
                 job.email_sent_callback(job)
             except:
-                pass
+                import traceback
+                traceback.print_exc()
 
     def send_mails(self, jobnames, callback, attachments, to_s, subjects,
                   texts, attachment_names):
