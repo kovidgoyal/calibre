@@ -457,7 +457,7 @@ from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK, ORIZON
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK, \
-                BOOQ, ELONEX, POCKETBOOK301, MENTOR
+                BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
@@ -547,6 +547,7 @@ plugins += [
     SHINEBOOK,
     POCKETBOOK360,
     POCKETBOOK301,
+    POCKETBOOK602,
     KINDLE,
     KINDLE2,
     KINDLE_DX,
