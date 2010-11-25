@@ -174,74 +174,81 @@ class TagsView(QTreeView): # {{{
 
     def show_context_menu(self, point):
         index = self.indexAt(point)
-        if not index.isValid():
-            return False
-        item = index.internalPointer()
-        tag_name = ''
-        if item.type == TagTreeItem.TAG:
-            tag_item = item
-            tag_name = item.tag.name
-            tag_id = item.tag.id
-            item = item.parent
-        if item.type == TagTreeItem.CATEGORY:
-            category = unicode(item.name.toString())
-            key = item.category_key
-            # Verify that we are working with a field that we know something about
-            if key not in self.db.field_metadata:
-                return True
+        self.context_menu = QMenu(self)
 
-            self.context_menu = QMenu(self)
-            # If the user right-clicked on an editable item, then offer
-            # the possibility of renaming that item
-            if tag_name and \
-                    (key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
-                     self.db.field_metadata[key]['is_custom'] and \
-                     self.db.field_metadata[key]['datatype'] != 'rating'):
-                self.context_menu.addAction(_('Rename \'%s\'')%tag_name,
-                        partial(self.context_menu_handler, action='edit_item',
-                                category=tag_item, index=index))
-                if key == 'authors':
-                    self.context_menu.addAction(_('Edit sort for \'%s\'')%tag_name,
-                            partial(self.context_menu_handler,
-                                    action='edit_author_sort', index=tag_id))
+        if index.isValid():
+            item = index.internalPointer()
+            tag_name = ''
+
+            if item.type == TagTreeItem.TAG:
+                tag_item = item
+                tag_name = item.tag.name
+                tag_id = item.tag.id
+                item = item.parent
+
+            if item.type == TagTreeItem.CATEGORY:
+                category = unicode(item.name.toString())
+                key = item.category_key
+                # Verify that we are working with a field that we know something about
+                if key not in self.db.field_metadata:
+                    return True
+
+                # If the user right-clicked on an editable item, then offer
+                # the possibility of renaming that item
+                if tag_name and \
+                        (key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
+                        self.db.field_metadata[key]['is_custom'] and \
+                        self.db.field_metadata[key]['datatype'] != 'rating'):
+                    self.context_menu.addAction(_('Rename \'%s\'')%tag_name,
+                            partial(self.context_menu_handler, action='edit_item',
+                                    category=tag_item, index=index))
+                    if key == 'authors':
+                        self.context_menu.addAction(_('Edit sort for \'%s\'')%tag_name,
+                                partial(self.context_menu_handler,
+                                        action='edit_author_sort', index=tag_id))
+                    self.context_menu.addSeparator()
+                # Hide/Show/Restore categories
+                self.context_menu.addAction(_('Hide category %s') % category,
+                    partial(self.context_menu_handler, action='hide', category=category))
+                if self.hidden_categories:
+                    m = self.context_menu.addMenu(_('Show category'))
+                    for col in sorted(self.hidden_categories, cmp=lambda x,y: cmp(x.lower(), y.lower())):
+                        m.addAction(col,
+                            partial(self.context_menu_handler, action='show', category=col))
+
+                # Offer specific editors for tags/series/publishers/saved searches
                 self.context_menu.addSeparator()
-            # Hide/Show/Restore categories
-            self.context_menu.addAction(_('Hide category %s') % category,
-                partial(self.context_menu_handler, action='hide', category=category))
-            if self.hidden_categories:
-                m = self.context_menu.addMenu(_('Show category'))
-                for col in sorted(self.hidden_categories, cmp=lambda x,y: cmp(x.lower(), y.lower())):
-                    m.addAction(col,
-                        partial(self.context_menu_handler, action='show', category=col))
-                self.context_menu.addAction(_('Show all categories'),
-                            partial(self.context_menu_handler, action='defaults'))
+                if key in ['tags', 'publisher', 'series'] or \
+                            self.db.field_metadata[key]['is_custom']:
+                    self.context_menu.addAction(_('Manage %s')%category,
+                            partial(self.context_menu_handler, action='open_editor',
+                                    category=tag_name, key=key))
+                elif key == 'authors':
+                    self.context_menu.addAction(_('Manage %s')%category,
+                            partial(self.context_menu_handler, action='edit_author_sort'))
+                elif key == 'search':
+                    self.context_menu.addAction(_('Manage Saved Searches'),
+                        partial(self.context_menu_handler, action='manage_searches',
+                                category=tag_name))
 
-            # Offer specific editors for tags/series/publishers/saved searches
-            self.context_menu.addSeparator()
-            if key in ['tags', 'publisher', 'series'] or \
-                        self.db.field_metadata[key]['is_custom']:
-                self.context_menu.addAction(_('Manage %s')%category,
-                        partial(self.context_menu_handler, action='open_editor',
-                                category=tag_name, key=key))
-            elif key == 'authors':
-                self.context_menu.addAction(_('Manage %s')%category,
-                        partial(self.context_menu_handler, action='edit_author_sort'))
-            elif key == 'search':
-                self.context_menu.addAction(_('Manage Saved Searches'),
-                    partial(self.context_menu_handler, action='manage_searches',
-                            category=tag_name))
+                # Always show the user categories editor
+                self.context_menu.addSeparator()
+                if category in self.db.prefs.get('user_categories', {}).keys():
+                    self.context_menu.addAction(_('Manage User Categories'),
+                            partial(self.context_menu_handler, action='manage_categories',
+                                    category=category))
+                else:
+                    self.context_menu.addAction(_('Manage User Categories'),
+                            partial(self.context_menu_handler, action='manage_categories',
+                                    category=None))
 
-            # Always show the user categories editor
-            self.context_menu.addSeparator()
-            if category in self.db.prefs.get('user_categories', {}).keys():
-                self.context_menu.addAction(_('Manage User Categories'),
-                        partial(self.context_menu_handler, action='manage_categories',
-                                category=category))
-            else:
-                self.context_menu.addAction(_('Manage User Categories'),
-                        partial(self.context_menu_handler, action='manage_categories',
-                                category=None))
+        if self.hidden_categories:
+            if not self.context_menu.isEmpty():
+                self.context_menu.addSeparator()
+            self.context_menu.addAction(_('Show all categories'),
+                        partial(self.context_menu_handler, action='defaults'))
 
+        if not self.context_menu.isEmpty():
             self.context_menu.popup(self.mapToGlobal(point))
         return True
 
