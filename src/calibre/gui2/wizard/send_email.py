@@ -73,7 +73,7 @@ class SendEmail(QWidget, Ui_Form):
         if opts.relay_password:
             self.relay_password.setText(unhexlify(opts.relay_password))
         self.relay_password.textChanged.connect(self.changed)
-        (self.relay_tls if opts.encryption == 'TLS' else self.relay_ssl).setChecked(True)
+        getattr(self, 'relay_'+opts.encryption.lower()).setChecked(True)
         self.relay_tls.toggled.connect(self.changed)
 
         for x in ('gmail', 'hotmail'):
@@ -210,7 +210,8 @@ class SendEmail(QWidget, Ui_Form):
         conf.set('relay_port', self.relay_port.value())
         conf.set('relay_username', username if username else None)
         conf.set('relay_password', hexlify(password))
-        conf.set('encryption', 'TLS' if self.relay_tls.isChecked() else 'SSL')
+        conf.set('encryption', 'TLS' if self.relay_tls.isChecked() else 'SSL'
+                if self.relay_ssl.isChecked() else 'NONE')
         return True
 
 

@@ -90,7 +90,7 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
         for x in to:
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
     import calibre.utils.smtplib as smtplib
-    cls = smtplib.SMTP if encryption == 'TLS' else smtplib.SMTP_SSL
+    cls = smtplib.SMTP_SSL if encryption == 'SSL' else smtplib.SMTP
     timeout = None # Non-blocking sockets sometimes don't work
     port = int(port)
     kwargs = dict(timeout=timeout, local_hostname=localhost)
@@ -99,7 +99,7 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
     s = cls(**kwargs)
     s.set_debuglevel(verbose)
     if port < 0:
-        port = 25 if encryption == 'TLS' else 465
+        port = 25 if encryption != 'SSL' else 465
     s.connect(relay, port)
     if encryption == 'TLS':
         s.starttls()
@@ -158,9 +158,9 @@ def option_parser():
     r('-u', '--username', help='Username for relay')
     r('-p', '--password', help='Password for relay')
     r('-e', '--encryption-method', default='TLS',
-      choices=['TLS', 'SSL'],
+      choices=['TLS', 'SSL', 'NONE'],
       help='Encryption method to use when connecting to relay. Choices are '
-      'TLS and SSL. Default is TLS.')
+      'TLS, SSL and NONE. Default is TLS. WARNING: Choosing NONE is highly insecure')
     parser.add_option('-o', '--outbox', help='Path to maildir folder to store '
                       'failed email messages in.')
     parser.add_option('-f', '--fork', default=False, action='store_true',
@@ -231,6 +231,7 @@ def main(args=sys.argv):
     if opts.fork:
         if os.fork() != 0:
             return 0
+
     try:
         sendmail(msg, efrom, eto, localhost=opts.localhost, verbose=opts.verbose,
              timeout=opts.timeout, relay=opts.relay, username=opts.username,
