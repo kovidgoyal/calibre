@@ -123,7 +123,10 @@ class Emailer(Thread): # {{{
             job.failed = failed
             job.exception = exc
             job.job_done()
-            job.email_sent_callback(job)
+            try:
+                job.email_sent_callback(job)
+            except:
+                pass
 
     def send_mails(self, jobnames, callback, attachments, to_s, subjects,
                   texts, attachment_names):
@@ -190,7 +193,6 @@ class Emailer(Thread): # {{{
 
 
 # }}}
-
 
 class EmailMixin(object): # {{{
 
