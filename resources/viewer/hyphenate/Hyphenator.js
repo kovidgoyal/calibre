@@ -2022,7 +2022,8 @@ var Hyphenator = (function (window) {
 						if (n.nodeType === 3 && n.data.length >= min) { //type 3 = #text -> hyphenate!
 							n.data = n.data.replace(Hyphenator.languages[lang].genRegExp, hyphenate);
 						} else if (n.nodeType === 1) {
-							if (n.lang !== '') {
+                            // Modified by Kovid to use element lang only if it has been loaded
+							if (n.lang !== '' && Hyphenator.languages.hasOwnProperty(n.lang)) {
 								Hyphenator.hyphenate(n, n.lang);
 							} else {
 								Hyphenator.hyphenate(n, lang);
