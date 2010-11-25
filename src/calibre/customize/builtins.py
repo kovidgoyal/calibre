@@ -476,7 +476,7 @@ from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
         SOVOS, PICO
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
-        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600
+        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600, LUMIREAD
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
@@ -600,6 +600,7 @@ plugins += [
     GEMEI,
     VELOCITYMICRO,
     PDNOVEL_KOBO,
+    LUMIREAD,
     ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
