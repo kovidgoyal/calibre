@@ -81,7 +81,9 @@ def txt2rtf(text):
     buf = cStringIO.StringIO()
     for x in text:
         val = ord(x)
-        if val <= 127:
+        if val == 160:
+            buf.write('\\~')
+        elif val <= 127:
             buf.write(x)
         else:
             repl = ascii_text(x)
