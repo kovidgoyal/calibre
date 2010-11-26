@@ -315,6 +315,9 @@ class ToolBar(QToolBar): # {{{
         self.child_bar.addWidget(self.spacers[1])
         if gprefs['show_child_bar']:
             self.addWidget(self.spacers[3])
+        else:
+            for s in self.spacers[2:]:
+                s.setVisible(False)
 
     def setup_tool_button(self, ac, menu_mode=None):
         ch = self.widgetForAction(ac)

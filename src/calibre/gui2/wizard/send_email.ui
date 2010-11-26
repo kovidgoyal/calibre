@@ -168,7 +168,7 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="2" colspan="2">
+      <item row="4" column="2">
        <widget class="QRadioButton" name="relay_ssl">
         <property name="toolTip">
          <string>Use SSL encryption when connecting to the mail server.</string>
@@ -191,6 +191,16 @@
         </property>
        </spacer>
       </item>
+      <item row="4" column="3">
+       <widget class="QRadioButton" name="relay_none">
+        <property name="toolTip">
+         <string>WARNING: Using no encryption is highly insecure</string>
+        </property>
+        <property name="text">
+         <string>&amp;None</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -204,6 +214,26 @@
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/gmail_logo.png</normaloff>:/images/gmail_logo.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextUnderIcon</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="relay_use_hotmail">
+       <property name="text">
+        <string>Use Hotmail</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/hotmail.png</normaloff>:/images/hotmail.png</iconset>
        </property>
        <property name="iconSize">
         <size>

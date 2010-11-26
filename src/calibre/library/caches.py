@@ -625,7 +625,11 @@ class ResultCache(SearchQueryParser): # {{{
     # }}}
 
     def remove(self, id):
-        self._data[id] = None
+        try:
+            self._data[id] = None
+        except IndexError:
+            # id is out of bounds, no point setting it to None anyway
+            pass
         try:
             self._map.remove(id)
         except ValueError:
@@ -666,7 +670,6 @@ class ResultCache(SearchQueryParser): # {{{
         for id in ids:
             try:
                 self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
-                self._data[id].append(db.has_cover(id, index_is_id=True))
                 self._data[id].append(db.book_on_device_string(id))
                 self._data[id].append(None)
                 if len(self.composites) > 0:
@@ -687,7 +690,6 @@ class ResultCache(SearchQueryParser): # {{{
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
             self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
-            self._data[id].append(db.has_cover(id, index_is_id=True))
             self._data[id].append(db.book_on_device_string(id))
             self._data[id].append(None)
             if len(self.composites) > 0:
@@ -717,7 +719,6 @@ class ResultCache(SearchQueryParser): # {{{
             self._data[r[0]] = r
         for item in self._data:
             if item is not None:
-                item.append(db.has_cover(item[0], index_is_id=True))
                 item.append(db.book_on_device_string(item[0]))
                 item.append(None)
                 if len(self.composites) > 0:

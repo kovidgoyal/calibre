@@ -18,7 +18,7 @@ from setup.build_environment import fc_inc, fc_lib, chmlib_inc_dirs, \
         QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, win_ddk, \
         magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
         magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, \
-        jpg_lib_dirs, chmlib_lib_dirs
+        jpg_lib_dirs, chmlib_lib_dirs, sqlite_inc_dirs
 MT
 isunix = islinux or isosx or isfreebsd
 
@@ -57,6 +57,11 @@ if iswindows:
     pdfreflow_libs = ['advapi32', 'User32', 'Gdi32', 'zlib']
 
 extensions = [
+
+    Extension('sqlite_custom',
+        ['calibre/library/sqlite_custom.c'],
+        inc_dirs=sqlite_inc_dirs
+        ),
 
     Extension('chmlib',
             ['calibre/utils/chm/swig_chm.c'],
@@ -186,7 +191,7 @@ if isfreebsd:
 
 
 if isosx:
-    x, p = ('i386', 'ppc')
+    x, p = ('i386', 'x86_64')
     archs = ['-arch', x, '-arch', p, '-isysroot',
                 OSX_SDK]
     cflags.append('-D_OSX')
@@ -339,7 +344,7 @@ class Build(Command):
         obj_pat = 'release\\*.obj' if iswindows else '*.o'
         objects = glob.glob(obj_pat)
         if not objects or self.newer(objects, ext.sources+ext.headers):
-            archs = 'x86 ppc'
+            archs = 'x86 x86_64'
             pro = textwrap.dedent('''\
                 TARGET   = %s
                 TEMPLATE = lib
@@ -348,8 +353,12 @@ class Build(Command):
                 VERSION  = 1.0.0
                 CONFIG   += %s
             ''')%(ext.name, ' '.join(ext.headers), ' '.join(ext.sources), archs)
+            pro = pro.replace('\\', '\\\\')
             open(ext.name+'.pro', 'wb').write(pro)
-            subprocess.check_call([QMAKE, '-o', 'Makefile', ext.name+'.pro'])
+            qmc = [QMAKE, '-o', 'Makefile']
+            if iswindows:
+                qmc += ['-spec', 'win32-msvc2008']
+            subprocess.check_call(qmc + [ext.name+'.pro'])
             subprocess.check_call([make, '-f', 'Makefile'])
             objects = glob.glob(obj_pat)
         return list(map(self.a, objects))

@@ -165,6 +165,11 @@ class ConvertAction(InterfaceAction):
             if job.failed:
                 self.gui.job_exception(job)
                 return
+            fmtf = temp_files[-1].name
+            if os.stat(fmtf).st_size < 1:
+                raise Exception(_('Empty output file, '
+                    'probably the conversion process crashed'))
+
             data = open(temp_files[-1].name, 'rb')
             self.gui.library_view.model().db.add_format(book_id, \
                     fmt, data, index_is_id=True)

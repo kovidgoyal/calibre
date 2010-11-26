@@ -787,6 +787,8 @@ class Manifest(object):
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
             data = self.oeb.html_preprocessor(data)
+            # There could be null bytes in data if it had &#0; entities in it
+            data = data.replace('\0', '')
 
             # Remove DOCTYPE declaration as it messes up parsing
             # In particular, it causes tostring to insert xmlns

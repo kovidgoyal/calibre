@@ -5,9 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import operator, os, json
+import operator, os, json, re
 from binascii import hexlify, unhexlify
-from urllib import quote, unquote
 
 import cherrypy
 
@@ -21,6 +20,7 @@ from calibre.utils.magick import Image
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.field_metadata import category_icon_map
+from calibre.library.server.utils import quote, unquote
 
 def render_book_list(ids, prefix, suffix=''): # {{{
     pages = []
@@ -43,18 +43,33 @@ def render_book_list(ids, prefix, suffix=''): # {{{
                 <div class="loaded"></div>
             </div>
             '''
-    rpages = []
+    pagelist_template = u'''\
+        <div class="pagelist">
+            <ul>
+                {pages}
+            </ul>
+        </div>
+    '''
+    rpages, lpages = [], []
     for i, x in enumerate(pages):
         pg, pos = x
         ld = xml(json.dumps(pg), True)
+        start, end = pos+1, pos+len(pg)
         rpages.append(page_template.format(i, ld,
             xml(_('Loading, please wait')) + '&hellip;',
-            start=pos+1, end=pos+len(pg), prefix=prefix))
+            start=start, end=end, prefix=prefix))
+        lpages.append(' '*20 + (u'<li><a href="#" title="Books {start} to {end}"'
+            ' onclick="gp_internal(\'{id}\'); return false;"> '
+            '{start}&nbsp;to&nbsp;{end}</a></li>').format(start=start, end=end,
+                id='page%d'%i))
     rpages = u'\n\n'.join(rpages)
+    lpages = u'\n'.join(lpages)
+    pagelist = pagelist_template.format(pages=lpages)
 
     templ = u'''\
             <h3>{0} {suffix}</h3>
             <div id="booklist">
+                <div id="pagelist" title="{goto}">{pagelist}</div>
                 <div class="listnav topnav">
                 {navbar}
                 </div>
@@ -64,24 +79,31 @@ def render_book_list(ids, prefix, suffix=''): # {{{
                 </div>
             </div>
             '''
-
+    gp_start = gp_end = ''
+    if len(pages) > 1:
+        gp_start = '<a href="#" onclick="goto_page(); return false;" title="%s">' % \
+                (_('Go to') + '&hellip;')
+        gp_end = '</a>'
     navbar = u'''\
         <div class="navleft">
             <a href="#" onclick="first_page(); return false;">{first}</a>
             <a href="#" onclick="previous_page(); return false;">{previous}</a>
         </div>
         <div class="navmiddle">
-            <span class="start">0</span> to <span class="end">0</span> of {num}
+            {gp_start}
+                <span class="start">0</span> to <span class="end">0</span>
+            {gp_end}of {num}
         </div>
         <div class="navright">
             <a href="#" onclick="next_page(); return false;">{next}</a>
             <a href="#" onclick="last_page(); return false;">{last}</a>
         </div>
     '''.format(first=_('First'), last=_('Last'), previous=_('Previous'),
-            next=_('Next'), num=num)
+            next=_('Next'), num=num, gp_start=gp_start, gp_end=gp_end)
 
     return templ.format(_('Browsing %d books')%num, suffix=suffix,
-            pages=rpages, navbar=navbar)
+            pages=rpages, navbar=navbar, pagelist=pagelist,
+            goto=xml(_('Go to'), True) + '&hellip;')
 
 # }}}
 
@@ -378,6 +400,16 @@ class BrowseServer(object):
         sort = self.browse_sort_categories(items, sort)
 
         script = 'true'
+
+        if len(items) == 1:
+            # Only one item in category, go directly to book list
+            prefix = '' if self.is_wsgi else self.opts.url_prefix
+            html = get_category_items(category, items,
+                    self.search_restriction_name, datatype,
+                    self.opts.url_prefix)
+            href = re.search(r'<a href="([^"]+)"', html)
+            if href is not None:
+                raise cherrypy.HTTPRedirect(prefix+href.group(1))
 
         if len(items) <= self.opts.max_opds_ungrouped_items:
             script = 'false'

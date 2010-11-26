@@ -13,9 +13,9 @@ from PyQt4 import pyqtconfig
 
 from setup import isosx, iswindows, islinux
 
-OSX_SDK = '/Developer/SDKs/MacOSX10.4u.sdk'
+OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
 
-os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.4'
+os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.5'
 
 NMAKE = RC = msvc = MT = win_inc = win_lib = win_ddk = None
 if iswindows:
@@ -90,11 +90,13 @@ fc_lib = '/usr/lib'
 podofo_inc = '/usr/include/podofo'
 podofo_lib = '/usr/lib'
 chmlib_inc_dirs = chmlib_lib_dirs = []
+sqlite_inc_dirs = []
 
 if iswindows:
     prefix  = r'C:\cygwin\home\kovid\sw'
     sw_inc_dir  = os.path.join(prefix, 'include')
     sw_lib_dir  = os.path.join(prefix, 'lib')
+    sqlite_inc_dirs = [sw_inc_dir]
     fc_inc = os.path.join(sw_inc_dir, 'fontconfig')
     fc_lib = sw_lib_dir
     chmlib_inc_dirs = consolidate('CHMLIB_INC_DIR', os.path.join(prefix,
@@ -124,7 +126,7 @@ elif isosx:
     fc_inc = '/sw/include/fontconfig'
     fc_lib = '/sw/lib'
     poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
-            '/sw/build/poppler-0.12.2/poppler:/sw/build/poppler-0.12.2')
+            '/sw/build/poppler-0.14.5/poppler:/sw/build/poppler-0.14.5')
     popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[0]+'/qt4']
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
             '/sw/lib')

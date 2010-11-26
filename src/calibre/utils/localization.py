@@ -118,8 +118,13 @@ _extra_lang_codes = {
         'und'   : _('Unknown')
         }
 
+_lcase_map = {}
+for k in _extra_lang_codes:
+    _lcase_map[k.lower()] = k
+
 def get_language(lang):
     global _iso639
+    lang = _lcase_map.get(lang, lang)
     if lang in _extra_lang_codes:
         return _extra_lang_codes[lang]
     ip = P('localization/iso639.pickle')

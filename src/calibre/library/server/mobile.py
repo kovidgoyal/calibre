@@ -235,7 +235,7 @@ class MobileServer(object):
                                              no_tag_count=True)
             book['title'] = record[FM['title']]
             for x in ('timestamp', 'pubdate'):
-                book[x] = strftime('%b, %Y', record[FM[x]])
+                book[x] = strftime('%d %b, %Y', record[FM[x]])
             book['id'] = record[FM['id']]
             books.append(book)
             for key in CKEYS:

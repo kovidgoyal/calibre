@@ -2,9 +2,7 @@ import os.path
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap
-import os
-import glob
+import textwrap, os, glob, functools
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase
 from calibre.constants import numeric_version
@@ -95,10 +93,12 @@ class ComicMetadataReader(MetadataReaderPlugin):
 
     def get_metadata(self, stream, ftype):
         if ftype == 'cbr':
-            from calibre.libunrar import extract_member as extract_first
+            from calibre.libunrar import extract_first_alphabetically as extract_first
             extract_first
         else:
-            from calibre.libunzip import extract_member as extract_first
+            from calibre.libunzip import extract_member
+            extract_first = functools.partial(extract_member,
+                    sort_alphabetically=True)
         from calibre.ebooks.metadata import MetaInformation
         ret = extract_first(stream)
         mi = MetaInformation(None, None)
@@ -454,15 +454,15 @@ from calibre.customize.profiles import input_profiles, output_profiles
 from calibre.devices.apple.driver import ITUNES
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY
-from calibre.devices.cybook.driver import CYBOOK
+from calibre.devices.cybook.driver import CYBOOK, ORIZON
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK, \
-                BOOQ, ELONEX, POCKETBOOK301, MENTOR
+                BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
-from calibre.devices.nook.driver import NOOK
+from calibre.devices.nook.driver import NOOK, NOOK_COLOR
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.android.driver import ANDROID, S60
 from calibre.devices.nokia.driver import N770, N810, E71X, E52
@@ -476,13 +476,14 @@ from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
         SOVOS, PICO
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
-        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600
+        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600, LUMIREAD
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
     LibraryThing
 from calibre.ebooks.metadata.douban import DoubanBooks
+from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
 from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
         LibraryThingCovers, DoubanCovers
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
@@ -490,8 +491,9 @@ from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
-        Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers]
+        LibraryThing, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers,
+        NiceBooksCovers]
 plugins += [
     ComicInput,
     EPUBInput,
@@ -535,6 +537,7 @@ plugins += [
     HANLINV5,
     BLACKBERRY,
     CYBOOK,
+    ORIZON,
     ILIAD,
     IREXDR1000,
     IREXDR800,
@@ -544,10 +547,12 @@ plugins += [
     SHINEBOOK,
     POCKETBOOK360,
     POCKETBOOK301,
+    POCKETBOOK602,
     KINDLE,
     KINDLE2,
     KINDLE_DX,
     NOOK,
+    NOOK_COLOR,
     PRS505,
     ANDROID,
     S60,
@@ -595,6 +600,7 @@ plugins += [
     GEMEI,
     VELOCITYMICRO,
     PDNOVEL_KOBO,
+    LUMIREAD,
     ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \

@@ -12,8 +12,8 @@ p.title  {
 p.author {
 	margin-top:0em;
 	margin-bottom:0em;
-	text-align: left;
-	text-indent: 1em;
+	text-align: center;
+	text-indent: 0em;
 	font-size:large;
   	}
 
@@ -27,17 +27,28 @@ p.author_index {
 	}
 
 p.tags {
-	margin-top:0em;
+	margin-top:0.5em;
 	margin-bottom:0em;
 	text-align: left;
-	text-indent: 1em;
-	font-size:small;
+	text-indent: 0.0in;
 	}
 
-p.description {
-	text-align:left;
-	font-style:normal;
-	margin-top: 0em;
+p.formats {
+	font-size:90%;
+	margin-top:0em;
+	margin-bottom:0.5em;
+	text-align: left;
+	text-indent: 0.0in;
+	}
+
+div.description > p:first-child {
+	margin: 0 0 0 0;
+	text-indent: 0em;
+	}
+
+div.description {
+	margin: 0 0 0 0;
+	text-indent: 1em;
 	}
 
 p.date_index {
@@ -81,6 +92,14 @@ p.unread_book {
 	text-indent:-2em;
 	}
 
+p.wishlist_item {
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:2em;
+	text-indent:-2em;
+	}
+
 p.date_read {
 	text-align:left;
 	margin-top:0px;
@@ -103,4 +122,15 @@ hr.annotations_divider {
 	margin-left:1em;
 	margin-top:0em;
 	margin-bottom:0em;
+	}
+
+td.publisher, td.date {
+	font-weight:bold;
+	text-align:center;
+	}
+td.rating {
+	text-align: center;
+	}
+td.thumbnail img {
+	-webkit-box-shadow: 4px 4px 12px #999;
 	}

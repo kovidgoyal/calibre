@@ -1,0 +1,19 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1289990851(BasicNewsRecipe):
+    title          = u'The Hockey News'
+    language = 'en_CA'
+    __author__ = 'Nexus'
+    oldest_article = 7
+    max_articles_per_feed = 25
+    no_stylesheets = True
+    remove_tags = [dict(name='div', attrs={'class':'article_info'}),
+                          dict(name='div', attrs={'class':'photo_details'}),
+                          dict(name='div', attrs={'class':'tool_menu'}),
+	                  dict(name='div', attrs={'id':'comments_container'}),
+                          dict(name='div', attrs={'id':'wrapper'})]
+    keep_only_tags = [dict(name='h1', attrs={'class':['headline']}),
+		                dict(name='div', attrs={'class':['box_container']})]
+
+    feeds          = [(u'THN', u'http://www.thehockeynews.com/rss/all_categories.xml')]
+

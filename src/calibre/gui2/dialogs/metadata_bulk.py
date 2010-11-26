@@ -98,7 +98,7 @@ class MyBlockingBusy(QDialog):
             return self.accept()
 
     def do_one(self, id):
-        remove, add, au, aus, do_aus, rating, pub, do_series, \
+        remove_all, remove, add, au, aus, do_aus, rating, pub, do_series, \
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
             series_start_value, do_title_case, clear_series = self.args
@@ -168,6 +168,8 @@ class MyBlockingBusy(QDialog):
             # both of these are fast enough to just do them all
             for w in self.cc_widgets:
                 w.commit(self.ids)
+            if remove_all:
+                self.db.remove_all_tags(self.ids)
             self.db.bulk_modify_tags(self.ids, add=add, remove=remove,
                                          notify=False)
             self.current_index = len(self.ids)
@@ -341,7 +343,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 val = mi.get('title_sort', None)
             else:
                 val = mi.get(field, None)
-            print field, val
             if val is None:
                 val = []
             elif not fm['is_multiple']:
@@ -641,9 +642,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         for w in getattr(self, 'custom_column_widgets', []):
             w.gui_val
 
-        if self.remove_all_tags.isChecked():
-            remove = self.db.all_tags()
-        else:
+        remove_all = self.remove_all_tags.isChecked()
+        remove = []
+        if not remove_all:
             remove = unicode(self.remove_tags.text()).strip().split(',')
         add = unicode(self.tags.text()).strip().split(',')
         au = unicode(self.authors.text())
@@ -664,7 +665,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         do_auto_author = self.auto_author_sort.isChecked()
         do_title_case = self.change_title_to_title_case.isChecked()
 
-        args = (remove, add, au, aus, do_aus, rating, pub, do_series,
+        args = (remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, clear_series)

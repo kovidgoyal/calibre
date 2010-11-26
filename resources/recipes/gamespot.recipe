@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__author__ = u'Marc T\xf6nsing'
+__author__    = u'Marc Toensing'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -17,6 +17,7 @@ class GamespotCom(BasicNewsRecipe):
     no_javascript = True
 
     feeds =  [
+               ('All Reviews', 'http://www.gamespot.com/rss/game_updates.php?type=5'),
                ('PC Reviews', 'http://www.gamespot.com/rss/game_updates.php?type=5&platform=5'),
                ('XBOX 360 Reviews', 'http://www.gamespot.com/rss/game_updates.php?type=5&platform=1029'),
                ('Wii Reviews', 'http://www.gamespot.com/rss/game_updates.php?type=5&platform=1031'),
@@ -37,5 +38,3 @@ class GamespotCom(BasicNewsRecipe):
 
     def get_article_url(self, article):
         return article.get('link') + '?print=1'
-
-

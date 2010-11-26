@@ -3,11 +3,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Imports {{{
-import os, traceback, Queue, time, socket, cStringIO, re, sys
-from threading import Thread, RLock
-from itertools import repeat
-from functools import partial
-from binascii import unhexlify
+import os, traceback, Queue, time, cStringIO, re, sys
+from threading import Thread
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
                      Qt, pyqtSignal, QDialog, QMessageBox
@@ -20,14 +17,11 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
-                        warning_dialog, \
-                        question_dialog, info_dialog, choose_dir
+        warning_dialog, info_dialog, choose_dir
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
-from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
-        config as email_config
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.ebooks.metadata.meta import set_metadata
@@ -592,64 +586,6 @@ class DeviceMenu(QMenu): # {{{
 
     # }}}
 
-class Emailer(Thread): # {{{
-
-    def __init__(self, timeout=60):
-        Thread.__init__(self)
-        self.setDaemon(True)
-        self.job_lock = RLock()
-        self.jobs = []
-        self._run = True
-        self.timeout = timeout
-
-    def run(self):
-        while self._run:
-            job = None
-            with self.job_lock:
-                if self.jobs:
-                    job = self.jobs[0]
-                    self.jobs = self.jobs[1:]
-            if job is not None:
-                self._send_mails(*job)
-            time.sleep(1)
-
-    def stop(self):
-        self._run = False
-
-    def send_mails(self, jobnames, callback, attachments, to_s, subjects,
-                  texts, attachment_names):
-        job = (jobnames, callback, attachments, to_s, subjects, texts,
-                attachment_names)
-        with self.job_lock:
-            self.jobs.append(job)
-
-    def _send_mails(self, jobnames, callback, attachments,
-                    to_s, subjects, texts, attachment_names):
-        opts = email_config().parse()
-        opts.verbose = 3 if os.environ.get('CALIBRE_DEBUG_EMAIL', False) else 0
-        from_ = opts.from_
-        if not from_:
-            from_ = 'calibre <calibre@'+socket.getfqdn()+'>'
-        results = []
-        for i, jobname in enumerate(jobnames):
-            try:
-                msg = compose_mail(from_, to_s[i], texts[i], subjects[i],
-                        open(attachments[i], 'rb'),
-                        attachment_name = attachment_names[i])
-                efrom, eto = map(extract_email_address, (from_, to_s[i]))
-                eto = [eto]
-                sendmail(msg, efrom, eto, localhost=None,
-                            verbose=opts.verbose,
-                            timeout=self.timeout, relay=opts.relay_host,
-                            username=opts.relay_username,
-                            password=unhexlify(opts.relay_password), port=opts.relay_port,
-                            encryption=opts.encryption)
-                results.append([jobname, None, None])
-            except Exception, e:
-                results.append([jobname, e, traceback.format_exc()])
-        callback(results)
-
-    # }}}
 
 class DeviceMixin(object): # {{{
 
@@ -657,13 +593,21 @@ class DeviceMixin(object): # {{{
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
-        self.emailer = Emailer()
-        self.emailer.start()
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
                 self.job_manager, Dispatcher(self.status_bar.show_message))
         self.device_manager.start()
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
+
+    def auto_convert_question(self, msg, autos):
+        autos = u'\n'.join(map(unicode, map(force_unicode, autos)))
+        return self.ask_a_yes_no_question(
+                _('No suitable formats'), msg,
+                buttons=QMessageBox.Yes|QMessageBox.Cancel,
+                ans_when_user_unavailable=True,
+                det_msg=autos,
+                show_copy_button=False
+        )
 
     def set_default_thumbnail(self, height):
         img = I('book.png', data=True)
@@ -902,120 +846,6 @@ class DeviceMixin(object): # {{{
             fmts = [x.strip().lower() for x in fmts.split(',')]
             self.send_by_mail(to, fmts, delete)
 
-    def send_by_mail(self, to, fmts, delete_from_library, send_ids=None,
-            do_auto_convert=True, specific_format=None):
-        ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
-        if not ids or len(ids) == 0:
-            return
-        files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
-                                    fmts, set_metadata=True,
-                                    specific_format=specific_format,
-                                    exclude_auto=do_auto_convert)
-        if do_auto_convert:
-            nids = list(set(ids).difference(_auto_ids))
-            ids = [i for i in ids if i in nids]
-        else:
-            _auto_ids = []
-
-        full_metadata = self.library_view.model().metadata_for(ids)
-
-        bad, remove_ids, jobnames = [], [], []
-        texts, subjects, attachments, attachment_names = [], [], [], []
-        for f, mi, id in zip(files, full_metadata, ids):
-            t = mi.title
-            if not t:
-                t = _('Unknown')
-            if f is None:
-                bad.append(t)
-            else:
-                remove_ids.append(id)
-                jobnames.append(u'%s:%s'%(id, t))
-                attachments.append(f)
-                subjects.append(_('E-book:')+ ' '+t)
-                a = authors_to_string(mi.authors if mi.authors else \
-                        [_('Unknown')])
-                texts.append(_('Attached, you will find the e-book') + \
-                        '\n\n' + t + '\n\t' + _('by') + ' ' + a + '\n\n' + \
-                        _('in the %s format.') %
-                        os.path.splitext(f)[1][1:].upper())
-                prefix = ascii_filename(t+' - '+a)
-                if not isinstance(prefix, unicode):
-                    prefix = prefix.decode(preferred_encoding, 'replace')
-                attachment_names.append(prefix + os.path.splitext(f)[1])
-        remove = remove_ids if delete_from_library else []
-
-        to_s = list(repeat(to, len(attachments)))
-        if attachments:
-            self.emailer.send_mails(jobnames,
-                    Dispatcher(partial(self.emails_sent, remove=remove)),
-                    attachments, to_s, subjects, texts, attachment_names)
-            self.status_bar.show_message(_('Sending email to')+' '+to, 3000)
-
-        auto = []
-        if _auto_ids != []:
-            for id in _auto_ids:
-                if specific_format == None:
-                    formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
-                    formats = formats if formats != None else []
-                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(fmts).intersection(available_output_formats())) != []:
-                        auto.append(id)
-                    else:
-                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
-                else:
-                    if specific_format in list(set(fmts).intersection(set(available_output_formats()))):
-                        auto.append(id)
-                    else:
-                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
-
-        if auto != []:
-            format = specific_format if specific_format in list(set(fmts).intersection(set(available_output_formats()))) else None
-            if not format:
-                for fmt in fmts:
-                    if fmt in list(set(fmts).intersection(set(available_output_formats()))):
-                        format = fmt
-                        break
-            if format is None:
-                bad += auto
-            else:
-                autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
-                autos = '\n'.join('%s'%i for i in autos)
-                if question_dialog(self, _('No suitable formats'),
-                    _('Auto convert the following books before sending via '
-                        'email?'), det_msg=autos,
-                    buttons=QMessageBox.Yes|QMessageBox.Cancel):
-                    self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format)
-
-        if bad:
-            bad = '\n'.join('%s'%(i,) for i in bad)
-            d = warning_dialog(self, _('No suitable formats'),
-                _('Could not email the following books '
-                'as no suitable formats were found:'), bad)
-            d.exec_()
-
-    def emails_sent(self, results, remove=[]):
-        errors, good = [], []
-        for jobname, exception, tb in results:
-            title = jobname.partition(':')[-1]
-            if exception is not None:
-                errors.append(list(map(force_unicode, [title, exception, tb])))
-            else:
-                good.append(title)
-        if errors:
-            errors = u'\n'.join([
-                    u'%s\n\n%s\n%s\n' %
-                    (title, e, tb) for \
-                            title, e, tb in errors
-                    ])
-            error_dialog(self, _('Failed to email books'),
-                    _('Failed to email the following books:'),
-                            '%s'%errors, show=True
-                        )
-        else:
-            self.status_bar.show_message(_('Sent by email:') + ', '.join(good),
-                    5000)
-            if remove:
-                self.library_view.model().delete_books_by_id(remove)
-
     def cover_to_thumbnail(self, data):
         ht = self.device_manager.device.THUMBNAIL_HEIGHT \
                 if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
@@ -1023,36 +853,6 @@ class DeviceMixin(object): # {{{
             return thumbnail(data, ht, ht)
         except:
             pass
-
-    def email_news(self, id):
-        opts = email_config().parse()
-        accounts = [(account, [x.strip().lower() for x in x[0].split(',')])
-                for account, x in opts.accounts.items() if x[1]]
-        sent_mails = []
-        for account, fmts in accounts:
-            files, auto = self.library_view.model().\
-                    get_preferred_formats_from_ids([id], fmts)
-            files = [f for f in files if f is not None]
-            if not files:
-                continue
-            attachment = files[0]
-            mi = self.library_view.model().db.get_metadata(id,
-                    index_is_id=True)
-            to_s = [account]
-            subjects = [_('News:')+' '+mi.title]
-            texts    = [_('Attached is the')+' '+mi.title]
-            attachment_names = [ascii_filename(mi.title)+os.path.splitext(attachment)[1]]
-            attachments = [attachment]
-            jobnames = ['%s:%s'%(id, mi.title)]
-            remove = [id] if config['delete_news_from_library_on_upload']\
-                    else []
-            self.emailer.send_mails(jobnames,
-                    Dispatcher(partial(self.emails_sent, remove=remove)),
-                    attachments, to_s, subjects, texts, attachment_names)
-            sent_mails.append(to_s[0])
-        if sent_mails:
-            self.status_bar.show_message(_('Sent news to')+' '+\
-                    ', '.join(sent_mails),  3000)
 
     def sync_catalogs(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
@@ -1079,11 +879,9 @@ class DeviceMixin(object): # {{{
                         break
                 if format is not None:
                     autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
-                    autos = '\n'.join('%s'%i for i in autos)
-                    if question_dialog(self, _('No suitable formats'),
+                    if self.auto_convert_question(
                         _('Auto convert the following books before uploading to '
-                            'the device?'), det_msg=autos,
-                        buttons=QMessageBox.Yes|QMessageBox.Cancel):
+                            'the device?'), autos):
                         self.iactions['Convert Books'].auto_convert_catalogs(auto, format)
             files = [f for f in files if f is not None]
             if not files:
@@ -1164,11 +962,9 @@ class DeviceMixin(object): # {{{
                         break
                 if format is not None:
                     autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
-                    autos = '\n'.join('%s'%i for i in autos)
-                    if question_dialog(self, _('No suitable formats'),
+                    if self.auto_convert_question(
                         _('Auto convert the following books before uploading to '
-                            'the device?'), det_msg=autos,
-                        buttons=QMessageBox.Yes|QMessageBox.Cancel):
+                            'the device?'), autos):
                         self.iactions['Convert Books'].auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
             for f in files:
@@ -1283,11 +1079,9 @@ class DeviceMixin(object): # {{{
                 bad += auto
             else:
                 autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
-                autos = '\n'.join('%s'%i for i in autos)
-                if question_dialog(self, _('No suitable formats'),
+                if self.auto_convert_question(
                     _('Auto convert the following books before uploading to '
-                        'the device?'), det_msg=autos,
-                    buttons=QMessageBox.Yes|QMessageBox.Cancel):
+                        'the device?'), autos):
                     self.iactions['Convert Books'].auto_convert(auto, on_card, format)
 
         if bad:

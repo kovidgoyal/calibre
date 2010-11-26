@@ -9,6 +9,7 @@ from zlib import compress, decompress
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata import string_to_authors
+from calibre import isbytestring
 
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
@@ -1379,6 +1380,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def add_feed(self, title, script):
+        if isbytestring(title):
+            title = title.decode('utf-8')
+        if isbytestring(script):
+            script = script.decode('utf-8')
         self.conn.execute('INSERT INTO feeds(title, script) VALUES (?, ?)',
                                   (title, script))
         self.conn.commit()

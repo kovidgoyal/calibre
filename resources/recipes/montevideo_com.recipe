@@ -1,0 +1,56 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__author__ = '2010, Gustavo Azambuja <hola at gazambuja.com>'
+'''
+http://www.montevideo.com.uy
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Noticias(BasicNewsRecipe):
+    title                 = 'Montevideo COMM'
+    __author__            = 'Gustavo Azambuja'
+    description           = 'Noticias de Uruguay'
+    language       = 'es'
+    timefmt        = '[%a, %d %b, %Y]'
+    use_embedded_content  = False
+    recursion             = 5
+    encoding = 'utf-8'
+    remove_javascript = True
+    no_stylesheets = True
+
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    keep_only_tags = [dict(id=['txt'])]
+    remove_tags = [
+             dict(name=['object','link'])
+                  ]
+
+    remove_attributes = ['width','height', 'style', 'font', 'color']
+
+    extra_css = '''
+                h1{font-family:Geneva, Arial, Helvetica, sans-serif;color:#154B7A;}
+                h3{font-size: 14px;color:#999999; font-family:Geneva, Arial, Helvetica, sans-serif;font-weight: bold;}
+                h2{color:#666666; font-family:Geneva, Arial, Helvetica, sans-serif;font-size:small;}
+                p {font-family:Arial,Helvetica,sans-serif;}
+                '''
+    feeds = [
+           (u'Destacados', u'http://www.montevideo.com.uy/anxml.aspx?58'),
+           (u'Noticias', u'http://www.montevideo.com.uy/anxml.aspx?59'),
+           (u'Tecnologia', u'http://www.montevideo.com.uy/anxml.aspx?133'),
+           (u'Tiempo Libre', u'http://www.montevideo.com.uy/anxml.aspx?60'),
+           # (u'Deportes', u'http://www.montevideo.com.uy/anxml.aspx?968'),
+           # (u'Pantallazo', u'http://www.montevideo.com.uy/anxml.aspx?1022'),
+           (u'Gastronomia', u'http://www.montevideo.com.uy/anxml.aspx?1023')
+        ]
+
+    def get_cover_url(self):
+		return 'http://sphotos.ak.fbcdn.net/hphotos-ak-snc1/hs276.snc1/10319_147339559330_147337559330_2625816_6636564_n.jpg'
+
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+
