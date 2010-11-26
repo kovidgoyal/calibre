@@ -1,4 +1,3 @@
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
@@ -16,9 +15,13 @@ class MSNSankeiNewsProduct(BasicNewsRecipe):
     max_articles_per_feed = 100
     encoding       = 'Shift_JIS'
     language       = 'ja'
+    cover_url       = 'http://sankei.jp.msn.com/images/common/sankeShinbunLogo.jpg'
+    masthead_url = 'http://sankei.jp.msn.com/images/common/sankeiNewsLogo.gif'
 
     feeds          = [(u'\u65b0\u5546\u54c1', u'http://sankei.jp.msn.com/rss/news/release.xml')]
 
     remove_tags_before = dict(id="__r_article_title__")
     remove_tags_after  = dict(id="ajax_release_news")
-    remove_tags = [{'class':"parent chromeCustom6G"}]
+    remove_tags = [{'class':"parent chromeCustom6G"},
+                              {'class':"RelatedImg"}
+                            ]
