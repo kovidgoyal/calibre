@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-11-25 04:21+0000\n"
-"PO-Revision-Date: 2010-11-24 22:10+0000\n"
-"Last-Translator: Aleš Bajtalon <Unknown>\n"
+"PO-Revision-Date: 2010-11-25 20:48+0000\n"
+"Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-25 04:50+0000\n"
+"X-Launchpad-Export-Date: 2010-11-26 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -600,7 +600,7 @@ msgstr "Tento profil je určený pro Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:684
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Tento profil je určen pro B&N Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:695
 msgid "This profile is intended for the Sanda Bambook."
@@ -2736,19 +2736,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:25
 msgid "Downloads metadata from french Nicebooks"
-msgstr ""
+msgstr "Stažení metadat z francouzského webu Nicebooks"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:41
 msgid "Downloads covers from french Nicebooks"
-msgstr ""
+msgstr "Stažení obalů z francouzského webu Nicebooks"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:332
 msgid "Nicebooks timed out. Try again later."
-msgstr ""
+msgstr "Vypršel časový limit. Zkuste dotaz později."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:337
 msgid "An errror occured with Nicebooks cover fetcher"
-msgstr ""
+msgstr "Při stahování obalu z Nicebooks došlo k chybě"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1308
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1401
@@ -6202,6 +6202,9 @@ msgid ""
 "metadata and covers for them.<p>Any invalid ISBNs in the list will be "
 "ignored."
 msgstr ""
+"<p>Zadejte seznam ISBN do pole na levé straně, na každý řádek jedno. Calibre "
+"vytvoří automaticky položky pro knihy na základě ISBN a stáhne pro ně "
+"metadata a obálky.<p>Neplatné ISBN v seznamu budou ignorovány."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:50
 msgid "&Paste from clipboard"
@@ -7997,7 +8000,7 @@ msgstr "Kód zdroje (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:38
 msgid "No details available"
-msgstr ""
+msgstr "Žádné detaily nejsou k dispozici"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:120
 msgid "Email %s to %s"
@@ -8367,7 +8370,7 @@ msgstr "Kniha %s z %s."
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1236
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:407
 msgid "The lookup/search name is \"{0}\""
-msgstr ""
+msgstr "Hledaný název je \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:699
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1238
@@ -8956,13 +8959,15 @@ msgstr "Označený sloupec není uživatelsky definovaný"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:111
 msgid "No lookup name was provided"
-msgstr ""
+msgstr "Nebyl zadán žádný název pro hledání"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:113
 msgid ""
 "The lookup name must contain only lower case letters, digits and "
 "underscores, and start with a letter"
 msgstr ""
+"Název pro vyhledání musí obsahovat pouze malá písmena, číslice a podtržítka, "
+"a musí začínat písmenem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:116
 msgid ""
@@ -8980,7 +8985,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:145
 msgid "The heading %s is already used"
-msgstr ""
+msgstr "Záhlaví %s je již používáno."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:156
 msgid "You must enter a template for composite columns"
@@ -9028,6 +9033,13 @@ msgid ""
 "<li>dd MMMM yy gives 05 January 10</li>\n"
 "</ul> "
 msgstr ""
+"<p>Formát datumu. Použijte 1-4 'd's pro den, 1-4 'M's pro měsíc, a 2 nebo 4 "
+"'y's pro rok.</p>\n"
+"<p>Například:\n"
+"<ul>\n"
+"<li> ddd, d MMM yyyy se zobrazí Mon, 5 Jan 2010<li>\n"
+"<li>dd MMMM yy se zobrazí 05 January 10</li>\n"
+"</ul> "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:140
 msgid "Use MMM yyyy for month + year, yyyy for year only"
@@ -9105,7 +9117,7 @@ msgstr "Email"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Formats to email. The first matching format will be sent."
-msgstr ""
+msgstr "Formáty pro e-mail. První odpovídající formát bude zaslán."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:30
 msgid ""
@@ -9617,7 +9629,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:133
 msgid "Restriction (saved search) to apply:"
-msgstr ""
+msgstr "Omezení (uložených vyhledávání) k použítí:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:134
 msgid ""
@@ -9924,7 +9936,7 @@ msgstr "Zduplikovat hledané jméno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:596
 msgid "The saved search name %s is already used."
-msgstr ""
+msgstr "Uložené vyhledávací jméno %s je již používáno."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:871
 msgid "Sort by name"
@@ -10302,7 +10314,7 @@ msgstr "Velikost standartního fontu v px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:61
 msgid "The monospaced font size in px"
-msgstr ""
+msgstr "Velikost fontu monospaced v px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:62
 msgid "The standard font type"
@@ -10411,7 +10423,7 @@ msgstr "Náhled tisku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:312
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
-msgstr ""
+msgstr "Připojení k dict.org pro vyhledávání: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:413
 msgid "Choose ebook"
@@ -10431,7 +10443,7 @@ msgstr "Načítam tok..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:524
 msgid "Laying out %s"
-msgstr ""
+msgstr "Rozvržení %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:555
 msgid "Bookmark #%d"
@@ -10491,6 +10503,9 @@ msgid ""
 "\n"
 "View an ebook.\n"
 msgstr ""
+"%prog [options] soubor\n"
+"\n"
+"Prohlédnout ebook.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "E-book Viewer"
@@ -10606,6 +10621,9 @@ msgid ""
 "your calibre book collection directly on the device. To do this you have to "
 "turn on the content server."
 msgstr ""
+"Pokud používáte WordPlayer e-book aplikaci na Vašem Android telefonu, můžete "
+"přistupovat k Vaší calibre kolekci přímo ze zařízení. Musíte ale nastartovat "
+"content server."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:404
 msgid ""
@@ -10639,6 +10657,8 @@ msgid ""
 "<p>An invalid library already exists at %s, delete it before trying to move "
 "the existing library.<br>Error: %s"
 msgstr ""
+"<p> Neplatná knihovna již existuje na %s, smažte ji před pokusem přesunout "
+"existující knihovnu.<br> Chyba: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:566
 msgid "Could not move library"
@@ -10741,6 +10761,8 @@ msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
+"<p>Zvolte umístění pro knihy. Když přidáváte knihy do calibre, musí být "
+"nakopírovány zde. Použijte <b>prázdnou složku</b> pro novou calibre knihovnu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -10840,6 +10862,8 @@ msgid ""
 "<p>A mail server is useful if the service you are sending mail to only "
 "accepts email from well know mail services."
 msgstr ""
+"<p>Mail server je použitelný, pokud služba, přes kterou posíláte emaily, "
+"akceptuje zprávy jen přes známé mailové služby."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Mail &Server"
@@ -11102,6 +11126,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Zahrnout sekci 'Nedávno přidané' do katalogu.\n"
+"Výchozí: '%default'\n"
+"Použité na: ePub, MOBI výstupní formáty"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:592
 msgid ""
@@ -11118,6 +11145,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Třiď názvy s prvním číslem jako textem, např.,\n"
+"'2001: Vesmírná Odyssea' setřídit jako \n"
+"'Dva Tisíce Jedna: Vesmírná Odyssea'.\n"
+"Výchozí: '%default'\n"
+"Aplikuje se na: ePub, MOBI výstupní formáty"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:606
 msgid ""
@@ -11194,6 +11226,9 @@ msgid ""
 "\n"
 "List the books available in the calibre database.\n"
 msgstr ""
+"%prog list [options]\n"
+"\n"
+"Seznam knih dostupných v calibre databáze.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:130
 msgid ""
@@ -11416,7 +11451,7 @@ msgstr "Nastavení tohoto přepínače vypne toto chování."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:541
 msgid "You must specify some ids or the %s option"
-msgstr ""
+msgstr "Musíte specifikovat nějaká IDčka, nebo %s volby"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:554
 msgid ""
@@ -11442,6 +11477,7 @@ msgid ""
 "A dictionary of options to customize how the data in this column will be "
 "interpreted."
 msgstr ""
+"Slovník voleb pro nastavení, jak budou data ve sloupcích interpretována."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:580
 msgid "You must specify label, name and datatype"
@@ -11464,6 +11500,9 @@ msgid ""
 "If declared, --search is ignored.\n"
 "Default: all"
 msgstr ""
+"Čárkami oddělený seznam databázových ID pro katalog.\n"
+"Pokud je deklarováno, volba --search je ignorována.\n"
+"Výchozí: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:659
 msgid ""
@@ -11503,6 +11542,8 @@ msgid ""
 "If the column stores multiple values, append the specified values to the "
 "existing ones, instead of replacing them."
 msgstr ""
+"Pokud sloupec ukládá více hodnot, přidá zvolené hodnoty do jedné existující, "
+"místo toho, aby se nahradila."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:749
 msgid "Error: You must specify a field name, id and value"
@@ -11611,12 +11652,16 @@ msgid ""
 "Comma-separated list of reports.\n"
 "Default: all"
 msgstr ""
+"Čárkou oddělený seznam reportů.\n"
+"Výchozí: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:893
 msgid ""
 "Comma-separated list of extensions to ignore.\n"
 "Default: all"
 msgstr ""
+"Čárkami oddělený seznam ignorovaných přípon.\n"
+"Výchozí: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:897
 msgid ""
@@ -11648,10 +11693,11 @@ msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
+"Opravdu proveď obnovu. Příkaz nebude spuštěn, dokud je volba zvolena."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:988
 msgid "You must provide the --really-do-it option to do a recovery"
-msgstr ""
+msgstr "Musíte použít volbu --realy-do-it-option , aby se obnova provedla"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1025
 msgid ""
@@ -11672,6 +11718,8 @@ msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
+"Znak, který se umístí kolem hodnoty kategorie v CSV módu. Výchozí jsou "
+"uvozovky (\")."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1041
 msgid ""
@@ -11701,7 +11749,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:544
 msgid "No label was provided"
-msgstr ""
+msgstr "Nebyl vložen žádný popisek"
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:546
 msgid ""
@@ -11721,7 +11769,7 @@ msgstr "Hlavní"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2310
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
-msgstr ""
+msgstr "<p>Migruji starou databázi do knihovy ebooků v %s<br><center>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2339
 msgid "Copying <b>%s</b>"
@@ -11729,7 +11777,7 @@ msgstr "Kopírování <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2356
 msgid "Compacting database"
-msgstr ""
+msgstr "Zhutňování databáze"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2449
 msgid "Checking SQL integrity..."
@@ -11788,6 +11836,8 @@ msgid ""
 "The series number. To get leading zeros use {series_index:0>3s} or "
 "{series_index:>3s} for leading spaces"
 msgstr ""
+"Číslo série. Pro získání úvodních nul použijte {series_index:0>3s} nebo "
+"{series_index:>3s} pro úvodní mezery"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:41
 msgid "The rating"
@@ -11828,18 +11878,23 @@ msgid ""
 "Normally, calibre will write the metadata into a separate OPF file along "
 "with the actual e-book files."
 msgstr ""
+"Calibre zapíše metadata do odděleného OPF souboru k aktuálním e-book "
+"souborům."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:68
 msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
 msgstr ""
+"Calibre uloží obálku knihy do odděleného souboru k aktuálním e-book souborům."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:71
 msgid ""
 "Comma separated list of formats to save for each book. By default all "
 "available formats are saved."
 msgstr ""
+"Čárkou oddělený seznam formátů pro uložení pro každou knihu. Ve výchozím "
+"nastavení se uloží všechny dostupné formáty."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:74
 msgid ""
@@ -11922,6 +11977,8 @@ msgid ""
 "The maximum number of matches to return per OPDS query. This affects Stanza, "
 "WordPlayer, etc. integration."
 msgstr ""
+"Nejvyšší počet výsledů vrácený přes OPDS dotaz. Toto ovlivní Stanza, "
+"WordPlayer a další integrace."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:43
 msgid ""
@@ -12077,7 +12134,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:52
 msgid "Path to the library folder to serve with the content server"
-msgstr ""
+msgstr "Cesta ke knihovně pro content server"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:54
 msgid "Write process PID to the specified file"
@@ -12142,6 +12199,7 @@ msgid ""
 "Whenever you pass arguments to %prog that have spaces in them, enclose the "
 "arguments in quotation marks."
 msgstr ""
+"Kdykoliv předáváte argument %prog , který obsahuje mezery, použijte uvozovky."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:697
 msgid "Path to the database in which books are stored"
@@ -12420,6 +12478,8 @@ msgstr "Heslo pro stránky, které vyžadují přihlášení pro přístup k obs
 msgid ""
 "Do not download latest version of builtin recipes from the calibre server"
 msgstr ""
+"Nestahovat poslední verzi zabudovaných skriptů pro stahování zpráv z calibre "
+"serveru"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:47
 msgid "Unknown News Source"
@@ -12439,7 +12499,7 @@ msgstr "Nepodařilo se stáhnout následující články:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:735
 msgid "Failed to download parts of the following articles:"
-msgstr ""
+msgstr "Nepodařilo se stáhnout části následujících článků:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:737
 msgid " from "
@@ -12451,15 +12511,15 @@ msgstr "\tChybné odkazy:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:834
 msgid "Could not fetch article. Run with -vv to see the reason"
-msgstr ""
+msgstr "Nelze získat článek. Spustit s parametrem -w pro zobrazení důvodů."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:855
 msgid "Fetching feeds..."
-msgstr ""
+msgstr "Stahuji zdroje..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:860
 msgid "Got feeds from index page"
-msgstr ""
+msgstr "Získány zdroje z úvodní strany"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
 msgid "Trying to download cover..."
