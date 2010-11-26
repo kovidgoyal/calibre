@@ -32,6 +32,12 @@ Run the following command to install python dependencies::
 
 Install BeautifulSoup 3.0.x manually into site-packages (3.1.x parses broken HTML very poorly)
 
+
+SQLite
+---------
+
+Put sqlite3*.h from the sqlite windows amlgamation in ~/sw/include
+
 Qt
 --------
 
