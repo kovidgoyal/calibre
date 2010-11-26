@@ -55,18 +55,31 @@ class SVGRasterizer(object):
         self.rasterize_cover()
 
     def rasterize_svg(self, elem, width=0, height=0, format='PNG'):
+        view_box = elem.get('viewBox', elem.get('viewbox', None))
+        sizes = None
+        logger = self.oeb.logger
+
+        if view_box is not None:
+            box = [float(x) for x in view_box.split()]
+            sizes = [box[2]-box[0], box[3] - box[1]]
+            for image in elem.xpath('descendant::*[local-name()="image" and '
+                    '@height and contains(@height, "%")]'):
+                logger.info('Found SVG image height in %, trying to convert...')
+                try:
+                    h = float(image.get('height').replace('%', ''))/100.
+                    image.set('height', str(h*sizes[1]))
+                except:
+                    logger.exception('Failed to convert percentage height:',
+                            image.get('height'))
+
         data = QByteArray(xml2str(elem, with_tail=False))
         svg = QSvgRenderer(data)
         size = svg.defaultSize()
-        view_box = elem.get('viewBox', elem.get('viewbox', None))
-        if size.width() == 100 and size.height() == 100 \
-           and view_box is not None:
-            box = [float(x) for x in view_box.split()]
-            size.setWidth(box[2] - box[0])
-            size.setHeight(box[3] - box[1])
+        if size.width() == 100 and size.height() == 100 and sizes:
+            size.setWidth(sizes[0])
+            size.setHeight(sizes[1])
         if width or height:
             size.scale(width, height, Qt.KeepAspectRatio)
-        logger = self.oeb.logger
         logger.info('Rasterizing %r to %dx%d'
                     % (elem, size.width(), size.height()))
         image = QImage(size, QImage.Format_ARGB32_Premultiplied)
