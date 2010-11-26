@@ -88,18 +88,18 @@ class AddAction(InterfaceAction):
             for x in xrange(num):
                 self.gui.library_view.model().db.import_book(MetaInformation(None), [])
             self.gui.library_view.model().books_added(num)
-        
+
     def add_isbns(self, books):
         from calibre.ebooks.metadata import MetaInformation
         ids = set([])
         for x in books:
             mi = MetaInformation(None)
             mi.isbn = x['isbn']
+            db = self.gui.library_view.model().db
             if x['path'] is not None:
-				ids.add(self.gui.library_view.model().db.import_book(mi, [x['path']]))
-				os.remove(x['path'])
-			else:
-				ids.add(self.gui.library_view.model().db.import_book(mi, []))
+                ids.add(db.import_book(mi, [x['path']]))
+            else:
+                ids.add(db.import_book(mi, []))
         self.gui.library_view.model().books_added(len(books))
         self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
 
