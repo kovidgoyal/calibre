@@ -190,6 +190,10 @@ class BookInfo(QWebView):
         self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
         self.linkClicked.connect(self.link_activated)
         self._link_clicked = False
+        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        palette = self.palette()
+        palette.setBrush(QPalette.Base, Qt.transparent)
+        self.page().setPalette(palette)
 
     def link_activated(self, link):
         self._link_clicked = True
@@ -211,8 +215,6 @@ class BookInfo(QWebView):
 
     def _show_data(self, rows, comments):
         f = QFontInfo(QApplication.font(self.parent())).pixelSize()
-        p = unicode(QApplication.palette().color(QPalette.Normal,
-            QPalette.Window).name())
         c = unicode(QApplication.palette().color(QPalette.Normal,
                         QPalette.WindowText).name())
         templ = u'''\
@@ -227,7 +229,7 @@ class BookInfo(QWebView):
             %%s
             </body>
         <html>
-        '''%(p, f, c)
+        '''%(f, c)
         if self.vertical:
             if comments:
                 rows += u'<tr><td colspan="2">%s</td></tr>'%comments
