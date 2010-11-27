@@ -4,6 +4,14 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.31
+  date: 2010-11-27
+
+  bug fixes:
+    - title: "Fix various regressions in the calibre windows build caused by the switch to python 2.7. If you are on windows and upgraded to 0.7.30, it is highly recommended that you upgrade to 0.7.31. If you are not on windows, you can ignore 0.7.31"
+      tickets: [7685, 7694, 7691]
+
+
 - version: 0.7.30
   date: 2010-11-26
 
