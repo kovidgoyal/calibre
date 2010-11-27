@@ -38,6 +38,7 @@ class Device(object):
     name = 'Default'
     manufacturer = 'Default'
     id = 'default'
+    supports_color = False
 
     @classmethod
     def set_output_profile(cls):
@@ -56,6 +57,12 @@ class Device(object):
     def commit(cls):
         cls.set_output_profile()
         cls.set_output_format()
+        if cls.supports_color:
+            from calibre.ebooks.conversion.config import load_defaults, save_defaults
+            recs = load_defaults('comic_input')
+            recs['dont_grayscale'] = True
+            save_defaults('comic_input', recs)
+
 
 class Kindle(Device):
 
@@ -138,6 +145,12 @@ class Nook(Sony505):
     manufacturer = 'Barnes & Noble'
     output_profile = 'nook'
 
+class NookColor(Nook):
+    id = 'nook_color'
+    name = 'Nook Color'
+    output_profile = 'nook_color'
+    supports_color = True
+
 class CybookG3(Device):
 
     name = 'Cybook Gen 3'
@@ -178,6 +191,7 @@ class iPhone(Device):
     output_format = 'EPUB'
     manufacturer = 'Apple'
     id = 'iphone'
+    supports_color = True
 
 class Android(Device):
 
@@ -185,6 +199,7 @@ class Android(Device):
     output_format = 'EPUB'
     manufacturer = 'Android'
     id = 'android'
+    supports_color = True
 
 class HanlinV3(Device):
 
@@ -354,11 +369,6 @@ class StanzaPage(QWizardPage, StanzaUI):
         return FinishPage.ID
 
     def commit(self):
-        from calibre.ebooks.conversion.config import load_defaults, save_defaults
-        recs = load_defaults('comic_input')
-        recs['dont_grayscale'] = True
-        save_defaults('comic_input', recs)
-
         p = self.set_port()
         if p is not None:
             from calibre.library.server import server_config
@@ -605,10 +615,14 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.emit(SIGNAL('retranslate()'))
         self.init_languages()
         try:
-            if prefs['language'].lower().startswith('zh'):
-                from calibre.customize.ui import enable_plugin
-                for name in ('Douban Books', 'Douban.com covers'):
-                    enable_plugin(name)
+            lang = prefs['language'].lower()[:2]
+            metadata_plugins = {
+                    'zh' : ('Douban Books', 'Douban.com covers'),
+                    'fr' : ('Nicebooks', 'Nicebooks covers'),
+            }.get(lang, [])
+            from calibre.customize.ui import enable_plugin
+            for name in metadata_plugins:
+                enable_plugin(name)
         except:
             pass
 

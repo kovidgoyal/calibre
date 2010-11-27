@@ -1,0 +1,80 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__author__ = '2010, Gustavo Azambuja <hola at gazambuja.com>'
+'''
+http://www.elpais.com.uy/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class General(BasicNewsRecipe):
+    title                 = 'El Pais - Uruguay'
+    __author__            = 'Gustavo Azambuja'
+    description           = 'Noticias de Uruguay y el resto del mundo'
+    publisher             = 'EL PAIS S.A.'
+    category              = 'news, politics, Uruguay'
+    language       = 'es'
+    timefmt        = '[%a, %d %b, %Y]'
+    use_embedded_content  = False
+    recursion             = 2
+    encoding = 'iso-8859-1'
+    masthead_url          = 'http://www.elpais.com.uy/Images/09/cabezal/logo_PDEP.png'
+    publication_type      = 'newspaper'
+    remove_javascript = True
+    no_stylesheets = True
+
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    keep_only_tags = [
+                      dict(name='h1'),
+                      dict(name='div', attrs={'id':'Contenido'})
+                      ]
+
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : language
+                        }
+    remove_tags = [
+				 dict(name='div', attrs={'class':['date_text', 'comments', 'form_section', 'share_it']}),
+				 dict(name='div', attrs={'id':['relatedPosts', 'spacer', 'banner_izquierda', 'right_container']}),
+				 dict(name='p', attrs={'class':'FacebookLikeButton'}),
+				 dict(name=['object','form']),
+				 dict(name=['object','table']) ]
+
+    extra_css = '''
+                h1{font-family:Geneva, Arial, Helvetica, sans-serif;color:#154B7A;}
+                h3{font-size: 14px;color:#999999; font-family:Geneva, Arial, Helvetica, sans-serif;font-weight: bold;}
+                h2{color:#666666; font-family:Geneva, Arial, Helvetica, sans-serif;font-size:small;}
+                p {font-family:Arial,Helvetica,sans-serif;}
+                body{font-family: Verdana,Arial,Helvetica,sans-serif }
+                img{margin-bottom: 0.4em; display:block;}
+                '''
+    feeds = [
+           (u'Ultimo Momento', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=umomento'),
+           (u'Editorial', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=editorial'),
+           (u'Nacional', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=nacional'),
+           (u'Internacional', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=internacional'),
+           (u'Espectaculos', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=espectaculos'),
+           (u'Deportes', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=deportes'),
+           (u'Ciudades', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=ciudades'),
+           (u'Economia', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=economia')
+        ]
+
+    def get_cover_url(self):
+		cover_url = None
+		index = 'http://www.elpais.com.uy'
+		soup = self.index_to_soup(index)
+		link_item = soup.find('div',attrs={'class':'boxmedio box257'})
+		print link_item
+		if link_item:
+			cover_url = 'http://www.elpais.com.uy'+link_item.img['src']
+		return cover_url
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+

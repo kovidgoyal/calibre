@@ -4,6 +4,108 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.30
+  date: 2010-11-26
+
+  new features:
+    - title: "Support for Acer Lumiread and PocketBook Pro 602"
+
+    - title: "When importing by ISBN also allow the specification of a file to be imported."
+      tickets: [7400]
+
+    - title: "E-mail sending: Email sends are now regular jobs that can be accessed from the jobs list. Also when sending using gmail/hotmail send at most one email every five minutes to avoid trigerring their spam controls. Failed sends are now retried one more time, automatically."
+
+    - title: "Content server: When a category contains only one item, go directly to the book list instead of forcing the user to click on that one item"
+
+    - title: "E-mail sending: Allow unencrypted connections to SMTP relay"
+
+    - title: "Improve startup times for large libraries by caching the has_cover check"
+
+    - title: "Update windows binary build to use python 2.7"
+
+    - title: "Metadata and cover download plugins from Nicebooks (disabled by default)"
+
+
+  bug fixes:
+    - title: "MOBI Input: Fix bug in cleanup regex that broke parsing of escaped XML declarations."
+      tickets: [7585]
+
+    - title: "Content server: Fix bug when user has custom categories/columns with non ascii names"
+      tickets: [7590]
+
+    - title: "RTF Output: Handle non breaking spaces correctly"
+      tickets: [7668]
+
+    - title: "Conversion pipeline: When rasterizing SVG images workaround incorrect handinlg of percentage height specifications in QSvgRenderer."
+      tickets: [7598]
+
+    - title: "News download: Update version of feedparser used to parse RSS feeds."
+      tickets: [7674]
+
+    - title: "Tag Browser: Allow user to restore hidden categories by a right click even is all categories have been hidden"
+
+    - title: "TXT/RTF Output: Handle XML processing instructions embedded in content correctly."
+      tickets: [7644]
+
+    - title: "MOBI Input: Workarounds for lack of nesting rules between block and inline tags"
+      tickets: [7618]
+
+    - title: "E-book viewer: Load all hyphenation patterns to support multi-lingual books"
+
+    - title: "E-book viewer: Fix incorrect lang names being used in hyphenation"
+
+    - title: "Check to see that the result file from a conversion is not empty before adding it, protects against the case where the conversion process crashes and the GUI adds a zero byte file to the book record"
+
+    - title: "E-book viewer: More sophisticated algorithm to resize images to fit viewer window. Should preserve aspect ratio in more cases"
+
+    - title: "Remove unneccessary calls to set_path when creating book records. Speeds up record creation by about 30% on my system"
+
+    - title: "Speedup for bibtex catalog generation."
+
+    - title: "Kobo driver: Fix missing table in deleting books process for Kobo WiFi and Kobo-O 1.8 Beta"
+
+    - title: "RTF Input: Preserve scene breaks in the form of empty paragraphs. Preprocessing: Improvements to chapter detection"
+
+    - title: "Fix custom recipe not sorted by title"
+      tickets: [7486]
+
+    - title: "Kobo driver: Fix bug in managing the Im_Reading category on windows"
+
+  improved recipes:
+    - "El Pais - Uruguay"
+    - Argentinian La Nacion
+    - comics.com
+    - Mingpao
+    - Revista Muy Intersante
+    - Telepolis
+    - New York Times
+
+  new recipes:
+    - title: "Bangkok Biz News and Matichon"
+      author: "Anat Ruangrassamee"
+      
+    - title: "The Workingham Times and Deutsche Welle"
+      author: "Darko Miletic"
+
+    - title: "Biz Portal"
+      author: "marbs"
+
+    - title: "Various Japanese news sources"
+      author: "Hiroshi Miura"
+
+    - title: "Arcamax"
+      author: "Starson17"
+
+    - title: "Various Spanish news sources"
+      author: "Gustavo Azambuja"
+
+    - title: "TSN"
+      author: Nexus
+
+    - title: "Zeit Online Premium"
+      author: Steffen Siebert
+
+
 - version: 0.7.29
   date: 2010-11-19
 
@@ -79,14 +181,6 @@
     - title: "Press releases of the German government and EU Commission"
       author: "malfi"
 
-    - title: "Dnevnik, Siol.net, MMC-RTV and Avto-magazon"
-      author: "BlonG"
-
-    - title: "SC Print Magazine"
-      author: "Tony Maro"
-
-    - title: "Diario Sport"
-      author: "Jefferson Frantz"
 
 - version: 0.7.28
   date: 2010-11-12

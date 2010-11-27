@@ -20,7 +20,7 @@ from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
                          info_dialog, error_dialog, open_url
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks import DRMError
-from calibre.constants import islinux, isfreebsd
+from calibre.constants import islinux, isfreebsd, isosx
 from calibre.utils.config import Config, StringConfig, dynamic
 from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
@@ -209,7 +209,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.toc.setVisible(False)
         self.action_quit = QAction(self)
         self.addAction(self.action_quit)
-        self.action_quit.setShortcut(Qt.CTRL+Qt.Key_Q)
+        qs = [Qt.CTRL+Qt.Key_Q]
+        if isosx:
+            qs += [Qt.CTRL+Qt.Key_W]
+        self.action_quit.setShortcuts(qs)
         self.connect(self.action_quit, SIGNAL('triggered(bool)'),
                      lambda x:QApplication.instance().quit())
         self.action_copy.setDisabled(True)

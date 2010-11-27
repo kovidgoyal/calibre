@@ -170,6 +170,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if not self.send_email_widget.set_email_settings(to_set):
             raise AbortCommit('abort')
         self.proxy['accounts'] =  self._email_accounts.accounts
+
         return ConfigWidgetBase.commit(self)
 
     def make_default(self, *args):
@@ -187,6 +188,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         idx = self.email_view.currentIndex()
         self._email_accounts.remove(idx)
         self.changed_signal.emit()
+
+    def refresh_gui(self, gui):
+        gui.emailer.calculate_rate_limit()
 
 
 if __name__ == '__main__':

@@ -1,18 +1,22 @@
 #!/usr/bin/env  python
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 mode: python -*-
+
+# Find the newest version of this recipe here:
+# https://github.com/consti/BrandEins-Recipe/raw/master/brandeins.recipe
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, Constantin Hofstetter <consti at consti.de>'
-__version__   = '0.95'
+__copyright__ = '2010, Constantin Hofstetter <consti at consti.de>, Steffen Siebert <calibre at steffensiebert.de>'
+__version__   = '0.96'
 
 ''' http://brandeins.de - Wirtschaftsmagazin '''
 import re
 import string
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class BrandEins(BasicNewsRecipe):
 
-  title = u'Brand Eins'
+  title = u'brand eins'
   __author__ = 'Constantin Hofstetter'
   description = u'Wirtschaftsmagazin'
   publisher ='brandeins.de'
@@ -22,11 +26,14 @@ class BrandEins(BasicNewsRecipe):
   no_stylesheets = True
   encoding = 'utf-8'
   language = 'de'
+  publication_type = 'magazine'
+  needs_subscription = 'optional'
 
   # 2 is the last full magazine (default)
   # 1 is the newest (but not full)
   # 3 is one before 2 etc.
-  which_ausgabe = 2
+  # This value can be set via the username field.
+  default_issue = 2
 
   keep_only_tags = [dict(name='div', attrs={'id':'theContent'}), dict(name='div', attrs={'id':'sidebar'}), dict(name='div', attrs={'class':'intro'}), dict(name='p', attrs={'class':'bodytext'}), dict(name='div', attrs={'class':'single_image'})]
 
@@ -61,17 +68,31 @@ class BrandEins(BasicNewsRecipe):
 
     return soup
 
+  def get_cover(self, soup):
+    cover_url = None
+    cover_item = soup.find('div', attrs = {'class': 'cover_image'})
+    if cover_item:
+      cover_url = 'http://www.brandeins.de/' + cover_item.img['src']
+    return cover_url
+
   def parse_index(self):
     feeds = []
 
     archive = "http://www.brandeins.de/archiv.html"
 
+    issue = self.default_issue
+    if self.username:
+      try:
+        issue = int(self.username)
+      except:
+        pass
+
     soup = self.index_to_soup(archive)
     latest_jahrgang = soup.findAll('div', attrs={'class': re.compile(r'\bjahrgang-latest\b') })[0].findAll('ul')[0]
-    pre_latest_issue = latest_jahrgang.findAll('a')[len(latest_jahrgang.findAll('a'))-self.which_ausgabe]
+    pre_latest_issue = latest_jahrgang.findAll('a')[len(latest_jahrgang.findAll('a'))-issue]
     url = pre_latest_issue.get('href', False)
-    # Get the title for the magazin - build it out of the title of the cover - take the issue and year;
-    self.title = "Brand Eins "+ re.search(r"(?P<date>\d\d\/\d\d\d\d+)", pre_latest_issue.find('img').get('title', False)).group('date')
+    # Get month and year of the magazine issue - build it out of the title of the cover
+    self.timefmt = " " + re.search(r"(?P<date>\d\d\/\d\d\d\d)", pre_latest_issue.find('img').get('title', False)).group('date')
     url = 'http://brandeins.de/'+url
 
     # url = "http://www.brandeins.de/archiv/magazin/tierisch.html"
@@ -83,6 +104,7 @@ class BrandEins(BasicNewsRecipe):
 
   def brand_eins_parse_latest_issue(self, url):
     soup = self.index_to_soup(url)
+    self.cover_url = self.get_cover(soup)
     article_lists = [soup.find('div', attrs={'class':'subColumnLeft articleList'}), soup.find('div', attrs={'class':'subColumnRight articleList'})]
 
     titles_and_articles = []
@@ -123,3 +145,4 @@ class BrandEins(BasicNewsRecipe):
           current_articles.append({'title': title, 'url': url, 'description': description, 'date':''})
     titles_and_articles.append([chapter_title, current_articles])
     return titles_and_articles
+

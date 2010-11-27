@@ -81,7 +81,9 @@ def txt2rtf(text):
     buf = cStringIO.StringIO()
     for x in text:
         val = ord(x)
-        if val <= 127:
+        if val == 160:
+            buf.write('\\~')
+        elif val <= 127:
             buf.write(x)
         else:
             repl = ascii_text(x)
@@ -191,6 +193,10 @@ class RTFMLizer(object):
     def dump_text(self, elem, stylizer, tag_stack=[]):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
+            p = elem.getparent()
+            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+                    and elem.tail:
+                return elem.tail
             return u''
 
         text = u''

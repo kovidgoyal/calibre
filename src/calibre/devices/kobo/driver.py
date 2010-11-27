@@ -93,7 +93,7 @@ class KOBO(USBMS):
                 lpath = path.partition(self.normalize_path(prefix))[2]
                 if lpath.startswith(os.sep):
                     lpath = lpath[len(os.sep):]
-                    lpath = lpath.replace('\\', '/')
+                lpath = lpath.replace('\\', '/')
                 # debug_print("LPATH: ", lpath, "  - Title:  " , title)
 
                 playlist_map = {}
@@ -229,6 +229,10 @@ class KOBO(USBMS):
         #Delete the volume_shortcovers second
         cursor.execute('delete from volume_shortcovers where volumeid = ?', t)
 
+        # Delete the rows from content_keys
+        if self.dbversion >= 8:
+            cursor.execute('delete from content_keys where volumeid = ?', t)
+
         # Delete the chapters associated with the book next
         t = (ContentID,ContentID,)
         cursor.execute('delete from content where BookID  = ? or ContentID = ?', t)
@@ -354,7 +358,7 @@ class KOBO(USBMS):
                 ContentID = ContentID.replace(self._main_prefix, '')
             else:
                 ContentID = path
-                ContentID = ContentID.replace(self._main_prefix + '.kobo/kepub/', '')
+                ContentID = ContentID.replace(self._main_prefix + self.normalize_path('.kobo/kepub/'), '')
 
             if self._card_a_prefix is not None:
                 ContentID = ContentID.replace(self._card_a_prefix, '')
@@ -507,7 +511,10 @@ class KOBO(USBMS):
                         t = (ContentID,)
                         cursor.execute('select DateLastRead from Content where BookID is Null and ContentID = ?', t)
                         result = cursor.fetchone()
-                        datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00'
+                        if result is None:
+                            datelastread = '1970-01-01T00:00:00'
+                        else:
+                            datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00' 
 
                         t = (datelastread,ContentID,)
 

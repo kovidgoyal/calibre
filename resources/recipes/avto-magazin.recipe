@@ -13,6 +13,7 @@ class Dnevnik(BasicNewsRecipe):
   labguage = 'sl'
   no_stylesheets = True
   use_embedded_content = False
+  language = 'sl'
 
   conversion_options = {'linearize_tables' : True}
 

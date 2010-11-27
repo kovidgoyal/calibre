@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-11-12 23:11+0000\n"
-"PO-Revision-Date: 2010-11-14 04:08+0000\n"
+"POT-Creation-Date: 2010-11-25 04:21+0000\n"
+"PO-Revision-Date: 2010-11-25 23:44+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-15 04:58+0000\n"
+"X-Launchpad-Export-Date: 2010-11-26 04:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -27,11 +27,11 @@ msgstr "Ez du ezer egiten"
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:76
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/books.py:24
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:444
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:448
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:71
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/books.py:267
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:650
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:657
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:401
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:97
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:100
@@ -40,8 +40,8 @@ msgstr "Ez du ezer egiten"
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:124
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:93
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:95
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:343
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:346
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:338
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:341
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1894
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1896
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
@@ -55,7 +55,7 @@ msgstr "Ez du ezer egiten"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:50
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:354
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:357
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:64
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:66
@@ -74,9 +74,9 @@ msgstr "Ez du ezer egiten"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:78
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:119
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:153
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:620
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:826
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:828
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:624
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:830
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:832
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:913
@@ -89,7 +89,7 @@ msgstr "Ez du ezer egiten"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:118
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:173
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:174
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:39
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:40
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/palmdoc/writer.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ztxt/writer.py:27
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:82
@@ -109,10 +109,10 @@ msgstr "Ez du ezer egiten"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:82
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:97
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:98
-#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:239
-#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:241
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:356
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:363
+#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:304
+#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:306
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:362
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:282
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:137
@@ -121,15 +121,15 @@ msgstr "Ez du ezer egiten"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:927
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:936
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1249
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1252
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1039
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1042
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:571
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:395
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:918
@@ -137,14 +137,14 @@ msgstr "Ez du ezer egiten"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:189
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:215
-#: /home/kovid/work/calibre/src/calibre/library/database.py:913
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:399
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:411
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1283
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1387
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2161
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2163
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2295
+#: /home/kovid/work/calibre/src/calibre/library/database.py:914
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:375
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:387
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1254
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2151
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2153
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2284
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:229
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:139
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:142
@@ -164,7 +164,7 @@ msgstr "Oinarria"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:172
 msgid "File type"
-msgstr "Fitxategi mota"
+msgstr "Fitxategi-mota"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:208
 msgid "Metadata reader"
@@ -176,7 +176,7 @@ msgstr "Metadatuen idazlea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:268
 msgid "Catalog generator"
-msgstr "Katalogo sortzailea"
+msgstr "Katalogo-sortzailea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:369
 msgid "User Interface Action"
@@ -185,9 +185,9 @@ msgstr "Erabiltzailearen interfaze ekintza"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:386
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:22
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:187
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:251
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:273
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:261
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:283
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
 msgstr "Hobespenak"
@@ -267,45 +267,45 @@ msgstr "Ezarri metadatuak %s fitxategietan"
 msgid "Set metadata from %s files"
 msgstr "Ezarri metadatuak %s fitxategietatik"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:712
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:715
 msgid "Look and Feel"
 msgstr "Itxura eta izaera"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:714
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:726
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:737
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:748
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:717
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
 msgid "Interface"
 msgstr "Interfazea"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:718
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:721
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
 msgstr "Doi ezazu calibreren interfazearen itxura zure gustuen arabera"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:724
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:727
 msgid "Behavior"
 msgstr "Jokabidea"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:730
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:733
 msgid "Change the way calibre behaves"
 msgstr "Alda ezazu calibreren jokatzeko era"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:738
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:209
 msgid "Add your own columns"
 msgstr "Gehi itzazu zureak diren zutabeak"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:741
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:744
 msgid "Add/remove your own columns to the calibre book list"
 msgstr ""
 "Gehitu/ezabatu itzazu zuk egindako zure zutabeak calibreren liburu "
 "zerrendara/zerrendatik"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:746
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:749
 msgid "Customize the toolbar"
 msgstr "Pertsonalizatu tresna-barra"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:752
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
@@ -313,58 +313,58 @@ msgstr ""
 "Pertsonalizatu tresna-barra eta testuinguruaren araberako menuak, bakoitzean "
 "eskuragarri agertuko diren ekintzekin aldatuz."
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:758
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Input Options"
 msgstr "Sorburu aukerak"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:771
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:782
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:763
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:774
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Conversion"
 msgstr "Bihurketa"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:764
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
 msgid "Set conversion options specific to each input format"
 msgstr "Ezarri itzazu sorburu formatu bakoitzeko bihurketa aukera zehatzak"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:769
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:772
 msgid "Common Options"
 msgstr "Aukera komunak"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:778
 msgid "Set conversion options common to all formats"
 msgstr "Ezarri itzazu formatu guztietarako komunak diren bihurketa aukerak"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:783
 msgid "Output Options"
 msgstr "Helburu aukerak"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:789
 msgid "Set conversion options specific to each output format"
 msgstr "Ezarri itzazu helburu formatu bakoitzeko bihurketa aukera zehatzak"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:794
 msgid "Adding books"
 msgstr "Liburuak gehitzen"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:793
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:829
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:808
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:820
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:832
 msgid "Import/Export"
 msgstr "Inportatu/Esportatu"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
 "Kontrola ezazu calibrek nola irakurtzen dituen metadatuak fitxategietatik "
 "liburuak gehitzerakoan"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:803
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 msgid "Saving books to disk"
 msgstr "Liburuak diskan gordetzen"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
@@ -372,34 +372,34 @@ msgstr ""
 "Kontrola ezazu calibrek nola esportatzen dituen fitxategiak bere datu "
 "basetik diskora \"Diskoan gorde\" aukera erabiltzen denean."
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:815
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:818
 msgid "Sending books to devices"
 msgstr "Bidaltzen liburuak gailuetara"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:821
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:824
 msgid "Control how calibre transfers files to your ebook reader"
 msgstr ""
 "Kontrola ezazu ea calibrek nola bidaltzen dituen fitxategiak zure liburu "
 "elektronikoetara"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:827
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Metadata plugboards"
 msgstr "Metadatuen konektore-txartela"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:836
 msgid "Change metadata fields before saving/sending"
 msgstr "Aldatu metadatu eremuak gorde/igorri baino lehenago"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:841
 msgid "Sharing books by email"
 msgstr "Liburuak e-posta bidez partekatzen"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:840
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:852
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:855
 msgid "Sharing"
 msgstr "Partekatzen"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:844
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
@@ -407,11 +407,11 @@ msgstr ""
 "Antolatu liburuen elkarbanatzea e-postaren bidez. Saretik deskargatutako "
 "albisteak norbere gailuetara automatikoki bidaltzeko erabil daiteke"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:850
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Sharing over the net"
 msgstr "Sarean zehar elkarbanatzen"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:856
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
@@ -420,35 +420,35 @@ msgstr ""
 "interneten bidezko sarbidea emango dizun edozein lekutan eta edozein "
 "gailuren bidez"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:866
 msgid "Plugins"
 msgstr "Pluginak"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:865
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:877
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:888
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:880
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
 msgid "Advanced"
 msgstr "Aurreratua"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:872
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr "Gehitu/ezabatu/pertsonalizatu calibreren zenbait aukera"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:875
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:878
 msgid "Tweaks"
 msgstr "Doikuntzak"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:881
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:884
 msgid "Fine tune how calibre behaves in various contexts"
 msgstr ""
 "Afina ezazu zehaztasun handiz nola jokatuko duen calibrek hainbat "
 "testuingurutan"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:886
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:889
 msgid "Miscellaneous"
 msgstr "Denetarik"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:892
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Miscellaneous advanced configuration"
 msgstr "Hainbat gauzetarako ezarpen aurreratuak"
 
@@ -617,7 +617,11 @@ msgstr ""
 msgid "This profile is intended for the Amazon Kindle DX."
 msgstr "Profil hau Amazon Kindle DX-arentzat zuzendua dago."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:686
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:684
+msgid "This profile is intended for the B&N Nook Color."
+msgstr "Profil hau B&N Nook Color horrentzat sortu da."
+
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:695
 msgid "This profile is intended for the Sanda Bambook."
 msgstr "Sanda Bambook horrentzat egindako profila."
 
@@ -786,18 +790,18 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:888
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:918
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:257
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:212
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:225
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2021
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:187
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:200
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2015
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:149
 msgid "News"
 msgstr "Albisteak"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2554
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:556
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1984
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2002
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:560
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1978
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1996
 msgid "Catalog"
 msgstr "Katalogoa"
 
@@ -823,6 +827,10 @@ msgstr "Kovid Goyal"
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
 msgstr ""
 "Jar zaitez harremanetan \"Cybook Gen 3 / Opus eBook reader\" horrekin."
+
+#: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
+msgid "Communicate with the Cybook Orizon eBook reader."
+msgstr "Jar zaitez harremanetan Cybook Orizon eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
@@ -896,8 +904,8 @@ msgstr "Jar zaitez harremanetan \"SpringDesign Alex eBook reader\" horrekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:102
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:113
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:264
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:296
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:268
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:300
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:256
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:274
 msgid "Removing books from device..."
@@ -986,26 +994,26 @@ msgstr ""
 msgid "Getting list of books on device..."
 msgstr "Liburu zerrenda gailutik eskuratzen..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:300
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:307
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:304
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:311
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:281
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:286
 msgid "Removing books from device metadata listing..."
 msgstr "Gailuaren metadatu zerrendatik liburuak kentzen..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:312
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:347
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:316
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:351
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:219
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:250
 msgid "Adding books to device metadata listing..."
 msgstr "Gailuaren metadatu zerrendara liburuak gehitzen..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:424
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:428
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:258
 msgid "Not Implemented"
 msgstr "Abiarazi gabea, inplementatu gabea"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:425
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:429
 msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
@@ -2194,15 +2202,6 @@ msgstr ""
 "hau bakarrik ondo dakizunean zertaz ari zaren. Aukera honek gustuko ez diren "
 "ondorio batzuk bihurketaren beste eremu batzuetara ekar ditzake."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:273
-msgid ""
-"Average line length for line breaking if the HTML is from a previous partial "
-"conversion of a PDF file. Default is %default which disables this."
-msgstr ""
-"Batez besteko lerroaren luzera jauzi-lerroan baldin eta HTML hori aurretik "
-"egin den PDF fitxategi baten bihurketa bada. Lehenetsita hauxe: %default eta "
-"horrek hau bertan behera utziko luke."
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:33
 msgid "CSS file used for the output instead of the default file"
 msgstr ""
@@ -2381,7 +2380,7 @@ msgid "Path to output file"
 msgstr "Helburu fitxategirako bidea"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:290
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:128
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:126
 msgid "Verbose processing"
 msgstr "Hitz-jarioa prozesatzen"
 
@@ -2625,7 +2624,7 @@ msgstr "Iruzkinak"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:313
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1127
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:160
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:623
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:645
 msgid "Tags"
 msgstr "Etiketak"
 
@@ -2780,6 +2779,7 @@ msgid "No cover found"
 msgstr "Ez da liburu-azalik aurkitu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:28
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:44
 msgid "Cover download"
 msgstr "Deskargatu liburu-azala"
 
@@ -2849,19 +2849,19 @@ msgstr "deskripzioa/aipamenak edo kritikak"
 msgid "Download %s from %s"
 msgstr "Deskargatu %s hemendik: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:149
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:150
 msgid "Convert comments downloaded from %s to plain text"
 msgstr "Bihurtu deskargatutako iruzkinak %s horretatik testu sinplera"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:175
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:178
 msgid "Downloads metadata from Google Books"
 msgstr "Deskargatu metadatatuak Google Books gunetik"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:192
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:195
 msgid "Downloads metadata from isbndb.com"
 msgstr "Deskargatu datuak isbndb.com gunetik"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:220
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:223
 msgid ""
 "To use isbndb.com you must sign up for a %sfree account%s and enter your "
 "access key below."
@@ -2869,17 +2869,17 @@ msgstr ""
 "Erabiltzeko isbndb.com izena eman beharko duzu %sfree account%s doaneko "
 "kontua izateko. Gero zure pasahitza erabili beharko duzu."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:230
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:233
 msgid "Downloads social metadata from amazon.com"
 msgstr "Deskargatu gizarte mailako metadatuak amazon.com gunetik"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:251
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:254
 msgid "Downloads series/tags/rating information from librarything.com"
 msgstr ""
 "Deskargatu serieak/etiketak/balorazioak informazioa hemendik: "
 "librarything.com"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:109
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:107
 msgid ""
 "\n"
 "%prog [options] key\n"
@@ -2904,23 +2904,24 @@ msgstr ""
 "doaneko kontu batean izena ematen duzunean sortzen duzun pasahitza.\n"
 "\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:120
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:118
 msgid "The ISBN ID of the book you want metadata for."
 msgstr "Nahi dituzun metadatuen liburuaren ISBN ID."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:122
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:120
 msgid "The author whose book to search for."
 msgstr "Bilatzen ari zaren liburuaren egilea."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:124
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:122
 msgid "The title of the book to search for."
 msgstr "Bilatzen ari zaren liburuaren izenburua."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:126
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:124
 msgid "The publisher of the book to search for."
 msgstr "Bilatzen ari zaren liburuaren argitaleytxea."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:77
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:336
 msgid " not found."
 msgstr " ez da aurkitu."
 
@@ -2937,6 +2938,23 @@ msgstr ""
 "\n"
 "Eskura ezazu liburu azal bat irudi/gizarte metadatuekin bere ISBN-ren bidez "
 "hemendik: LibraryThing.com\n"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:25
+msgid "Downloads metadata from french Nicebooks"
+msgstr "Deskargatzen ditu metadatuak Nicebooks frantziarretik"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:41
+msgid "Downloads covers from french Nicebooks"
+msgstr "Deskargatzen ditu liburu-azalak Nicebooks frantziarretik"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:332
+msgid "Nicebooks timed out. Try again later."
+msgstr ""
+"Nicebooks horretan egoteko denbora agorturik. Saia zaitez berriro geroago."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:337
+msgid "An errror occured with Nicebooks cover fetcher"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1308
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1401
@@ -3056,7 +3074,7 @@ msgstr "Testu nagusia"
 msgid "%s format books are not supported"
 msgstr "%s liburuen formatuekin ezin. Oraingoz sostengurik ez"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:103
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:156
 msgid "Book %s of %s"
 msgstr "%s liburu %s-etatik"
@@ -3067,7 +3085,7 @@ msgstr "HTML aurkibideak sortzeko aukerak."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:71
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:621
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:643
 msgid "Rating"
 msgstr "Balorazioa"
 
@@ -3101,7 +3119,7 @@ msgstr "Oin-oharrak"
 msgid "Sidebar"
 msgstr "Alboko barra"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:22
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:23
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:23
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:24
 msgid ""
@@ -3111,7 +3129,7 @@ msgstr ""
 "Normalean calibre honek lerro zuriak paragrafo markatzat hartzen ditu. "
 "Aukera honekin kontu egingo da lerro guztiek paragrafo baten maila daukatela."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:27
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:27
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:28
 msgid ""
@@ -3427,7 +3445,7 @@ msgid ""
 msgstr ""
 "Zehaztu karaktereen kodea helburu dokumentuan. Lehenetsita hauxe: cp1252."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:196
+#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:256
 msgid ""
 "This RTF file has a feature calibre does not support. Convert it to HTML "
 "first and then try it.\n"
@@ -3678,7 +3696,7 @@ msgid "Disable UI animations"
 msgstr "Desgaitu EI (erabiltzailearen interfazearen) animazioak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:183
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:494
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:509
 msgid "Copied"
 msgstr "Kopiaturik"
 
@@ -3690,7 +3708,7 @@ msgstr "Kopiatu"
 msgid "Copy to Clipboard"
 msgstr "Kopiatu arbelean"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:467
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:466
 msgid "Choose Files"
 msgstr "Aukeratu fitxategiak"
 
@@ -3855,7 +3873,7 @@ msgid "Add books to your calibre library from the connected device"
 msgstr "Gehitu liburuak zure calibre liburutegira konektatutako gailutik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:548
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:542
 msgid "Fetch annotations (experimental)"
 msgstr "Berreskura itzazu zure ohar eta zirriborroak (esperimentala)"
 
@@ -3952,7 +3970,7 @@ msgid "Checking database integrity"
 msgstr "Datu baseen osaketa aztertzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:657
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:41
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Error"
@@ -3968,19 +3986,15 @@ msgstr "Funsgabetasun batzuk aurkitu egin dira"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:135
 msgid ""
-"The following books had formats listed in the database that are not actually "
-"available. The entries for the formats have been removed. You should check "
-"them manually. This can happen if you manipulate the files in the library "
-"folder directly."
+"The following books had formats or covers listed in the database that are "
+"not actually available. The entries for the formats/covers have been "
+"removed. You should check them manually. This can happen if you manipulate "
+"the files in the library folder directly."
 msgstr ""
-"Hurrengo liburuek badituzte datu basean zerrendatzen diren formatuak baina "
-"oraindik eskuragarri ez daudenak. Formatu horietako sarrerak ezabatu egin "
-"dira. Horiek eskuz aztertu beharko dituzu. Hau gerta daiteke liburutegiaren "
-"karpetan bertan fitxategiak eraldatzen badituzu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:140
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:162
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:112
 msgid "%d books"
 msgstr "%d books"
@@ -4162,6 +4176,11 @@ msgstr "Ezin da bihurtu"
 msgid "Starting conversion of %d book(s)"
 msgstr "%d liburu(ar)en bihurketa abiatzen"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:170
+msgid "Empty output file, probably the conversion process crashed"
+msgstr ""
+"Helburu fitxategia hutsik. Ziur aski bihurketa prozesuak huts egin du"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:83
 msgid "Copy to library"
 msgstr "Kopiatu liburutegira."
@@ -4196,9 +4215,9 @@ msgid "Could not copy books: "
 msgstr "Ezin izan dira liburuak kopiatu: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:147
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:720
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:685
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:664
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:687
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:190
 msgid "Failed"
 msgstr "Huts egin du"
 
@@ -4259,14 +4278,14 @@ msgid "Main memory"
 msgstr "Memoria nagusia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:116
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:473
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:482
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:467
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:476
 msgid "Storage Card A"
 msgstr "Memoria-txartela A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:117
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:475
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:484
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:469
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:478
 msgid "Storage Card B"
 msgstr "Memoria-txartela B"
 
@@ -4411,7 +4430,7 @@ msgid "covers"
 msgstr "liburu-azalak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:96
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:224
 msgid "metadata"
 msgstr "metadatuak"
 
@@ -4513,6 +4532,7 @@ msgid "Ctrl+P"
 msgstr "Ctrl+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:23
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:200
 msgid "Run welcome wizard"
 msgstr "Run welcome wizard"
 
@@ -4602,7 +4622,7 @@ msgstr ""
 "Egin klik zehaztasunak erakutsi botoian ea zeintzuk izan diren ikusteko."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:628
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:650
 msgid "Show book details"
 msgstr "Show book details"
 
@@ -4746,7 +4766,7 @@ msgid "The specified directory could not be processed."
 msgstr "Zehaztutako direktorioa ezin izan da prozesatu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:229
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:869
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:813
 msgid "No books"
 msgstr "Libururik ez"
 
@@ -5048,7 +5068,7 @@ msgstr "outputa, helburua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:42
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:76
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:54
@@ -5091,7 +5111,7 @@ msgstr "outputa, helburua"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:49
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:120
 msgid "Form"
 msgstr "Inprimakia"
 
@@ -5179,25 +5199,25 @@ msgstr "CSV/XML aukerak"
 msgid "E-book options"
 msgstr "E-liburu aukerak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:77
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:83
 msgid "'Don't include this book' tag:"
 msgstr "'Liburu hau ez sartu' etiketa:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:78
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:84
 msgid "'Mark this book as read' tag:"
 msgstr "'Liburu hau irakurrita bezala markatu' etiketa:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:79
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:85
 msgid "Additional note tag prefix:"
 msgstr "Ohar gehigarriaren etiketa aurrizkia:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:80
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:86
 msgid "Regex pattern describing tags to exclude as genres:"
 msgstr ""
 "Regex eredua, \"ohiko adierazpen\" eredua,  baztertzeko etiketak "
 "deskribatzen, generoarengatik esaterako:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:81
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
 msgid ""
 "Regex tips:\n"
 "- The default regex - \\[.+\\] - excludes genre tags of the form [tag], "
@@ -5211,21 +5231,25 @@ msgstr ""
 "-  dot sinple baten regex eredu batek kanpoan utziko ditu genero etiketa "
 "guztiak, Generorik Gabeko Saila sortuz."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:90
 msgid "Include 'Titles' Section"
 msgstr "Bere baitan 'Izenburuak' saila badago"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:85
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:91
 msgid "Include 'Recently Added' Section"
 msgstr "Erantsi 'Gehitu berriak' atala"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:86
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:92
 msgid "Sort numbers as text"
 msgstr "Sailkatu zenbakiak testuak izango balira bezala"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:93
 msgid "Include 'Series' Section"
 msgstr "'Series' Saila barne"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:94
+msgid "Wishlist tag:"
+msgstr "Desio-zerrenda etiketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -5735,7 +5759,7 @@ msgid "Change the title of this book"
 msgstr "Aldatu liburu honen izenburua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:179
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:335
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:336
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:377
 msgid "&Author(s): "
 msgstr "&Egilea(k):s "
@@ -5753,7 +5777,7 @@ msgstr ""
 "beharko lirateke."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:182
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:344
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:345
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:388
 msgid "&Publisher: "
 msgstr "&Argitaratzailea: "
@@ -5764,7 +5788,7 @@ msgid "Ta&gs: "
 msgstr "Etike&tak: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:184
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:346
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:347
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:390
 msgid ""
 "Tags categorize the book. This is particularly useful while searching. "
@@ -5775,7 +5799,7 @@ msgstr ""
 "etiketa, komekin bereiziak."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:185
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:353
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:354
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:393
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:214
 msgid "&Series:"
@@ -5783,8 +5807,8 @@ msgstr "&Sailak:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:187
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:354
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:356
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:394
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:395
 msgid "List of known series. You can add new series."
@@ -6309,7 +6333,7 @@ msgid "Automatically number books"
 msgstr "Liburuen zenbaketa automatikoa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:499
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:366
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:367
 msgid "Force numbers to start with "
 msgstr "behartu zenbakia honekin hasten "
 
@@ -6325,97 +6349,103 @@ msgstr "gehitzeko etiketak"
 msgid "tags to remove"
 msgstr "ezabatzeko etiketak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:44
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:136
 msgid "No details available."
 msgstr "Ez dago zehaztasunik eskura."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:183
 msgid "Device no longer connected."
 msgstr "Irakurgailua dagoeneko ez dago konektaturik."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:307
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:301
 msgid "Get device information"
 msgstr "Lortu irakurgailutik informazioa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:318
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:312
 msgid "Get list of books on device"
 msgstr "Lortu liburu zerrenda irakurgailutik"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:328
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:322
 msgid "Get annotations from device"
 msgstr "Lortu zirriborroak eta oharrak irakurgailutik"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:340
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:334
 msgid "Send metadata to device"
 msgstr "Igorri irakurgailura metadatuak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:339
 msgid "Send collections to device"
 msgstr "Igorri irakurgailura bildumak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:380
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:374
 msgid "Upload %d books to device"
 msgstr "Kargatu %d liburuak irakurgailuan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:395
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:389
 msgid "Delete books from device"
 msgstr "Ezabatu liburuak irakurgailutik"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:412
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:406
 msgid "Download books from device"
 msgstr "Deskargatu liburuak irakurgailutik"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:416
 msgid "View book on device"
 msgstr "Ikusi liburua irakurgailuan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:456
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:450
 msgid "Set default send to device action"
 msgstr "Ezarri lehenetsia bezala \"irakurgailura bidali\" ekintza"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:462
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:456
 msgid "Send to main memory"
 msgstr "Bidali memoria nagusira"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:464
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:458
 msgid "Send to storage card A"
 msgstr "Bidali A memoria-txartelera"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:466
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:460
 msgid "Send to storage card B"
 msgstr "Bidali B memoria-txartelera"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:471
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:480
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:465
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:474
 msgid "Main Memory"
 msgstr "Memoria nagusia"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:492
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:486
 msgid "Send specific format to"
 msgstr "Bidali formatu zehatza hona"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:493
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:487
 msgid "Send and delete from library"
 msgstr "Bidali eta ezabatu liburutegitik"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:536
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:530
 msgid "Eject device"
 msgstr "Egotzi irakurgailua (Eject)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:658
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:594
 msgid "Error communicating with device"
 msgstr "Irakurgailuarekin komunikatzeko saioak huts egin du"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:679
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:605
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1089
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:267
+msgid "No suitable formats"
+msgstr "Ez dago formatu egokirik"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:623
 msgid "Select folder to open as device"
 msgstr "Aukeratu karpeta bat irakurgailua izango balitz bezala zabaltzeko"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:726
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:670
 msgid "Error talking to device"
 msgstr "Akatsen bat irakurgailuarekin komunikatzerakoan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:727
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:671
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -6423,127 +6453,60 @@ msgstr ""
 "Behin-behineko huts egite bat egon da irakurgailuarekin komunikatzerakoan. "
 "Mesedez, deskonektatu eta konektatu berriro gailua, edo berrabiarazi."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:770
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:714
 msgid "Device: "
 msgstr "Gailua: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:772
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:716
 msgid " detected."
 msgstr " detektaturik."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:870
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:814
 msgid "selected to send"
 msgstr "hautatua bidaltzeko"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:875
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:819
 msgid "Choose format to send to device"
 msgstr "Aukeratu irakurgailura bidaltzeko formatua"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:884
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:828
 msgid "No device"
 msgstr "Gailurik ez dago"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:885
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:829
 msgid "Cannot send: No device is connected"
 msgstr "Ezin izan da igorri: ez dago inolako gailurik konektatua"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:888
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:892
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:832
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:836
 msgid "No card"
 msgstr "Txartelik ez dago"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:889
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:893
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:833
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:837
 msgid "Cannot send: Device has no storage card"
 msgstr "Ezin bidali: gailuak ez dauka memoria-txartelik"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:934
-msgid "E-book:"
-msgstr "Liburu elektronikoa:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:937
-msgid "Attached, you will find the e-book"
-msgstr "Erantsita, liburu elektronikoa topatuko duzu"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:938
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:107
-msgid "by"
-msgstr "egilea:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:939
-msgid "in the %s format."
-msgstr "%s formatuan."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:952
-msgid "Sending email to"
-msgstr "E-posta igortzen honi:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:982
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:990
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1089
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1174
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1293
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1301
-msgid "No suitable formats"
-msgstr "Ez dago formatu egokirik"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:983
-msgid "Auto convert the following books before sending via email?"
-msgstr ""
-"Bihurtu modu automatikoan ondorengo liburuak e-postaren bidez igorri "
-"aurretik?"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:991
-msgid ""
-"Could not email the following books as no suitable formats were found:"
-msgstr ""
-"Ezin izan da e-postaz ondorengo liburuak igorri formatu egokirik topatu ez "
-"delako:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1009
-msgid "Failed to email books"
-msgstr "Huts egin du liburuak igortzerakoan"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1010
-msgid "Failed to email the following books:"
-msgstr "Huts egin du e-postaz hurrengo liburuak bidaltzerakoan:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1014
-msgid "Sent by email:"
-msgstr "E-postaz igorria:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1048
-msgid "News:"
-msgstr "Albisteak:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1049
-msgid "Attached is the"
-msgstr "Erantsita doana hau da"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1060
-msgid "Sent news to"
-msgstr "Bidali albisteak honi:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1090
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1175
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1294
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:883
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:966
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1083
 msgid "Auto convert the following books before uploading to the device?"
 msgstr ""
 "Bihurtu modu automatikoan hurrengo liburuak irakurgailuan kargatu aurretik?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1120
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:912
 msgid "Sending catalogs to device."
 msgstr "Katalogoak irakurgailura bidaltzen."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1207
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:997
 msgid "Sending news to device."
 msgstr "Albisteak irakurgailura bidaltzen."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1260
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1050
 msgid "Sending books to device."
 msgstr "Liburuak irakurgailura bidaltzen."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1302
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1090
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
@@ -6552,11 +6515,11 @@ msgstr ""
 "topatu egin ez delako. Lehenengo eta behin, bihurtu liburua(k) zure "
 "irakurgailuak onartzen duen formaturen batean."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1366
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1154
 msgid "No space on device"
 msgstr "Lekurik ez irakurgailuan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1367
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1155
 msgid ""
 "<p>Cannot upload books to device there is no more free space available "
 msgstr ""
@@ -6698,7 +6661,7 @@ msgstr "Liburutegitiko laster-bidea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:119
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:89
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:226
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
 msgid "Name"
 msgstr "Izena"
 
@@ -6752,7 +6715,7 @@ msgid "No location selected"
 msgstr "Kokogunea hautatu gabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:84
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:635
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:654
 msgid "Bad location"
 msgstr "Txarto kokatua"
 
@@ -7021,50 +6984,50 @@ msgstr "Bilatu/Ordeztu"
 msgid "Working"
 msgstr "Lanean"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:386
 msgid "Lower Case"
 msgstr "Letra xeheak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:185
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:385
 msgid "Upper Case"
 msgstr "Letra larriak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:388
 msgid "Title Case"
 msgstr "Izenburuaren letra mota (xehe/larri)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:191
 msgid "Character match"
 msgstr "Karaktereek bat egin"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:192
 msgid "Regular Expression"
 msgstr "Adierazpen erregularra"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:193
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:195
 msgid "Replace field"
 msgstr "Ordeztu eremua"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:194
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:196
 msgid "Prepend to field"
 msgstr "Erantsi aurretik eremuari"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:197
 msgid "Append to field"
 msgstr "Erantsi eremuari"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:208
 msgid "Editing meta information for <b>%d books</b>"
 msgstr "Editatzen <b>%d liburuetako</b>metadatuen informazioa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:259
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:261
 msgid "Book %d:"
 msgstr "Liburua %d:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:274
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:276
 msgid ""
 "<b>You can destroy your library using this feature.</b> Changes are "
 "permanent. There is no undo function. You are strongly encouraged to back up "
@@ -7076,7 +7039,7 @@ msgstr ""
 "babes-kopia egitea zeharo gomendagarria da.<b> Bilatu eta ordeztu eremuak "
 "testuan adierazpen erregularrak edo irizpide-karaktereak erabiliz. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:282
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:284
 msgid ""
 "In character mode, the field is searched for the entered search text. The "
 "text is replaced by the specified replacement text everywhere it is found in "
@@ -7093,7 +7056,7 @@ msgstr ""
 "bada ondo zehazten, bilaketa testua bai letra larriekin bai letra xeheekin "
 "egingo da."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:293
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:295
 msgid ""
 "In regular expression mode, the search text is an arbitrary python-"
 "compatible regular expression. The replacement text can contain "
@@ -7119,34 +7082,34 @@ msgstr ""
 "erreferentzia</a> python adierazpen arruntei buruz gehiago irakurtzeko eta "
 "begiratu batez ere 'sub' funtzioa."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:438
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:440
 msgid "You must specify a destination when source is a composite field"
 msgstr "Zehaztu beha duzu helburu bat sorburua eremu mistoa denean"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:530
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:538
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:633
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:635
 msgid "Search/replace invalid"
 msgstr "Bilatu/ordeztu ez dabil"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:533
 msgid ""
 "Authors cannot be set to the empty string. Book title %s not processed"
 msgstr ""
 "Egileak ezin dira hutsik dagoen kate batean ezarri. Liburuaren izenburua %s "
 "ez da prozesatu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:539
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:541
 msgid "Title cannot be set to the empty string. Book title %s not processed"
 msgstr ""
 "Izenburuak ezin dira hutsik dagoen kate batean ezarri. Liburuaren izenburua "
 "%s ez da prozesatu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:634
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:636
 msgid "Search pattern is invalid: %s"
 msgstr "Bilatzeko patroaia ez dabil: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:671
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:673
 msgid ""
 "Applying changes to %d books.\n"
 "Phase {0} {1}%%."
@@ -7154,19 +7117,19 @@ msgstr ""
 "Aldaketak ezartzen %d liburuetara.\n"
 "Fase {0} {1}%%."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:334
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:335
 msgid "Edit Meta information"
 msgstr "Editatu meta informazioa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:336
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:337
 msgid "A&utomatically set author sort"
 msgstr "A&utomatikoki ezarri egile izenaren araberako sailkapena"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:337
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:338
 msgid "Author s&ort: "
 msgstr "Egile izenaren araberako s&ailkapena: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:338
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:339
 msgid ""
 "Specify how the author(s) of this book should be sorted. For example Charles "
 "Dickens should be sorted as Dickens, Charles."
@@ -7174,63 +7137,63 @@ msgstr ""
 "Zehaztu ea nola sailkatuko d(ir)en liburu honen egile izena(k) Adibidez "
 "Charles Dickens honela sailkatuko da; Dickens, Charles."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:339
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:340
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:384
 msgid "&Rating:"
 msgstr "&Balorazioa:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:340
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:341
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:342
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:385
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:386
 msgid "Rating of this book. 0-5 stars"
 msgstr "Liburu honen balorazioa. 0-5 izar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:342
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:343
 msgid "No change"
 msgstr "Aldaketarik ez"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:343
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:344
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:387
 msgid " stars"
 msgstr " izarrak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:346
 msgid "Add ta&gs: "
 msgstr "Gehitu eti&ketak: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:347
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:348
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:349
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:392
 msgid "Open Tag Editor"
 msgstr "Zabaldu etiketen editorea"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:349
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:350
 msgid "&Remove tags:"
 msgstr "&Ezabatu etiketak:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:350
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:351
 msgid "Comma separated list of tags to remove from the books. "
 msgstr "Liburuetatik ezabatzeko komen bidez bereiziriko etiketen zerrenda. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:351
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:352
 msgid "Check this box to remove all tags from the books."
 msgstr "Aztertu kutxatila hau liburuetako etiketa guztiak ezabatzeko"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:352
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:353
 msgid "Remove all"
 msgstr "Ezabatu dena"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:356
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:357
 msgid "If checked, the series will be cleared"
 msgstr "Arakatuz gero, seriak ezabatu egingo dira"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:357
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:358
 msgid "Clear series"
 msgstr "Ezabatu serieak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:358
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:359
 msgid ""
 "If not checked, the series number for the books will be set to 1.\n"
 "If checked, selected books will be automatically numbered, in the order\n"
@@ -7245,11 +7208,11 @@ msgstr ""
 "A Liburuak 1 serie zenbakia izango du eta B Liburuak 2 serie zenbakia izango "
 "du."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:362
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:363
 msgid "Automatically number books in this series"
 msgstr "Automatikoki esleitu zenbakiak liburuei sail honetan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:363
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:364
 msgid ""
 "Series will normally be renumbered from the highest number in the database\n"
 "for that series. Checking this box will tell calibre to start numbering\n"
@@ -7261,15 +7224,15 @@ msgstr ""
 "zenbaketarekin hasteko\n"
 "kutxan dagoen zenbakitik hasita"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:367
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:368
 msgid "Remove &format:"
 msgstr "Ezabatu &formatua:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:368
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:369
 msgid "&Swap title and author"
 msgstr "&Trukatu haien artean izenburua eta egilearen izena"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:369
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:370
 msgid ""
 "Force the title to be in title case. If both this and swap authors are "
 "checked,\n"
@@ -7279,11 +7242,11 @@ msgstr ""
 "bai egile azterketan\n"
 "egile eta izenburua aztertuko dira izenburu letra tipoa ezarri baino lehen."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:371
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:372
 msgid "Change title to title case"
 msgstr "Aldatu izenburua, izenburu letra tipora"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:373
 msgid ""
 "Remove stored conversion settings for the selected books.\n"
 "\n"
@@ -7294,33 +7257,33 @@ msgstr ""
 "Etorkizunean liburu hauen bihurketek lehenetsitako ezarpenak erabiliko "
 "dituzte."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:375
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:376
 msgid "Remove &stored conversion settings for the selected books"
 msgstr "Ezabatu &gordetako bihurketa ezarpenak hautatutako liburuentzat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:376
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:377
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:424
 msgid "&Basic metadata"
 msgstr "&Oinarrizko metadatuak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:377
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:378
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:425
 msgid "&Custom metadata"
 msgstr "&Pertsonalizaturiko metadatuak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:378
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:379
 msgid "Search &field:"
 msgstr "Search &eremua:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:379
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:380
 msgid "The name of the field that you want to search"
 msgstr "Aztertu nahi duzun eremuaren izena"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:380
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:381
 msgid "Search mode:"
 msgstr "Bilaketa modua:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:381
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:382
 msgid ""
 "Choose whether to use basic text matching or advanced regular expression "
 "matching"
@@ -7328,11 +7291,11 @@ msgstr ""
 "Aukeratu ea oinarrizko testuaren bilaketa egin edo adierazpen arrunten "
 "bilaketa aurreratua egin"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:382
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:383
 msgid "&Search for:"
 msgstr "&Bilatu hau:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:383
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:384
 msgid ""
 "Enter the what you are looking for, either plain text or a regular "
 "expression, depending on the mode"
@@ -7340,7 +7303,7 @@ msgstr ""
 "Sartu bilatzen ari zaren hori, bai testu hutsa bai adierazpen arrunta, "
 "aukeratu duzun moduaren arabera"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:384
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:385
 msgid ""
 "Check this box if the search string must match exactly upper and lower case. "
 "Uncheck it if case is to be ignored"
@@ -7349,26 +7312,26 @@ msgstr ""
 "letra larri eta letra xeheekin. Ez arakatu kutxa honetan baldin eta letra "
 "tipoari ez badiozu arreta eskaini nahi."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:385
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:386
 msgid "Case sensitive"
 msgstr "Letra larriak/xeheak bereiziz"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:386
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:387
 msgid "&Replace with:"
 msgstr "&Ordeztu honekin:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:387
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:388
 msgid ""
 "The replacement text. The matched search text will be replaced with this "
 "string"
 msgstr ""
 "Ordezkatze testua. Bat egiten duen testua kate honekin ordezkatu egingo da"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:388
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:389
 msgid "Apply function after replace:"
 msgstr "Aplikatu funtzioa ordezkatu eta gero:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:389
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:390
 msgid ""
 "Specify how the text is to be processed after matching and replacement. In "
 "character mode, the entire\n"
@@ -7380,11 +7343,11 @@ msgstr ""
 "eremu osoa prozesatu egingo da. Adierazpen erregular moduan, bakarrik "
 "prozesatuko da bilatu eta bat egiten duen testua"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:392
 msgid "&Destination field:"
 msgstr "&Helburu eremua:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:392
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:393
 msgid ""
 "The field that the text will be put into after all replacements. If blank, "
 "the source field is used."
@@ -7392,15 +7355,15 @@ msgstr ""
 "Ordezkatzeak egin eta gero ezarriko den eremua. Zuriz utziz gero, sorburu "
 "eremua erabiliko da."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:393
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:394
 msgid "Mode:"
 msgstr "Modua:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:394
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:395
 msgid "Specify how the text should be copied into the destination."
 msgstr "Zehaztu nola kopiatuko den testua helburura."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:395
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:396
 msgid ""
 "If the replace mode is prepend or append, then this box indicates whether a "
 "comma or\n"
@@ -7410,23 +7373,23 @@ msgstr ""
 "adieraziko du ea koma bat edo\n"
 "ezer ez jarriko den jatorrizko testua eta txertatutako testuaren artean"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:397
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:398
 msgid "use comma"
 msgstr "erabili koma bat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:398
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:399
 msgid "Test &text"
 msgstr "Testua &testua"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:399
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:400
 msgid "Test re&sult"
 msgstr "Testu emai&tza"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:400
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:401
 msgid "Your test:"
 msgstr "Zure testua:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:401
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:402
 msgid "&Search and replace"
 msgstr "Bilatu eta ordeztu"
 
@@ -7720,20 +7683,21 @@ msgstr "Pasahitza beharko"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:217
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:125
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:130
 msgid "&Username:"
 msgstr "&Erabiltzaile-izena:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:218
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:126
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:132
 msgid "&Password:"
 msgstr "&Pasahitza:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:130
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:167
 msgid "&Show password"
 msgstr "&Erakutsi pasahitza"
 
@@ -8296,7 +8260,7 @@ msgid "Discard changes"
 msgstr "Baztertu aldaketak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:225
 msgid "&Cancel"
 msgstr "&Bertan behera utzi"
 
@@ -8506,6 +8470,72 @@ msgstr ""
 msgid "Recipe source code (python)"
 msgstr "Formularen iturri kodea (python)"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:38
+msgid "No details available"
+msgstr "Ez dago xehetasunik eskuragarri"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:120
+msgid "Email %s to %s"
+msgstr "E-postal %s honi %s"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:160
+msgid "News:"
+msgstr "Albisteak:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:161
+msgid "Attached is the"
+msgstr "Erantsita doana hau da"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:213
+msgid "E-book:"
+msgstr "Liburu elektronikoa:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:216
+msgid "Attached, you will find the e-book"
+msgstr "Erantsita, liburu elektronikoa topatuko duzu"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:217
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:107
+msgid "by"
+msgstr "egilea:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:218
+msgid "in the %s format."
+msgstr "%s formatuan."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:231
+msgid "Sending email to"
+msgstr "E-posta igortzen honi:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:261
+msgid "Auto convert the following books before sending via email?"
+msgstr ""
+"Bihurtu modu automatikoan ondorengo liburuak e-postaren bidez igorri "
+"aurretik?"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:268
+msgid ""
+"Could not email the following books as no suitable formats were found:"
+msgstr ""
+"Ezin izan da e-postaz ondorengo liburuak igorri formatu egokirik topatu ez "
+"delako:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:286
+msgid "Failed to email books"
+msgstr "Huts egin du liburuak igortzerakoan"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:287
+msgid "Failed to email the following books:"
+msgstr "Huts egin du e-postaz hurrengo liburuak bidaltzerakoan:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:291
+msgid "Sent by email:"
+msgstr "E-postaz igorria:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:314
+msgid "Sent news to"
+msgstr "Bidali albisteak honi:"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:112
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
@@ -8702,23 +8732,23 @@ msgstr "Ezin dira irakurgailuarekin konektaturik dauden lanak geldiarazi"
 msgid "Job has already run"
 msgstr "Lana dagoeneko exekutatu egin da"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:251
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:262
 msgid "Unavailable"
 msgstr "Ez dago erabilgarri"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:283
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:294
 msgid "Jobs:"
 msgstr "Lanak:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:296
 msgid "Shift+Alt+J"
 msgstr "Maiusk+Alt+J"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:313
 msgid "Click to see list of jobs"
 msgstr "Egin klik lanen zerrenda ikusteko"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:371
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:382
 msgid " - Jobs"
 msgstr " - Lanak"
 
@@ -8744,7 +8774,7 @@ msgid "Show books in the main memory of the device"
 msgstr "Erakutsi liburuak irakurgailuaren memoria nagusian"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:67
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:848
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:820
 msgid "Card A"
 msgstr "A txartela"
 
@@ -8753,7 +8783,7 @@ msgid "Show books in storage card A"
 msgstr "Erakutsi liburuak A memoria-txartelean"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:69
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:850
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:822
 msgid "Card B"
 msgstr "B txartela"
 
@@ -8938,7 +8968,7 @@ msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
 msgstr "Ez da <b>bat datorrenik</b> esaldia bilatzerakoan <i>%s</i> aurkitu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:443
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:446
 msgid "No matches found"
 msgstr "Ez da bat datorrenik aurkitu"
 
@@ -8955,12 +8985,12 @@ msgid "LRF Viewer toolbar"
 msgstr "LRF Ikustailearen tresna-barra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:487
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:494
 msgid "Next Page"
 msgstr "Hurrengo orrialdea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:488
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:495
 msgid "Previous Page"
 msgstr "Aurreko orrialdea"
 
@@ -9004,7 +9034,7 @@ msgid "Do not check for updates"
 msgstr "Ez ibili eguneratzeen bila"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:643
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:662
 msgid "Calibre Library"
 msgstr "calibre liburutegia"
 
@@ -9143,37 +9173,37 @@ msgstr "Liburuak ez du ez izenbururik ez ISBNrik"
 msgid "No matches found for this book"
 msgstr "Ez da bat etortzerik aurkitu liburu honetarako"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:191
 msgid "Failed to download metadata"
 msgstr "Kale egin du metadatuak deskargatzen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:224
 msgid "cover"
 msgstr "liburu-azala"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:225
 msgid "Downloaded"
 msgstr "Deskargatua"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:225
 msgid "Failed to get"
 msgstr "Ezin izan da eskuratu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:225
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:229
 msgid "%s %s for: %s"
 msgstr "%s %s honetarako: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:284
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:288
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:162
 msgid "Done"
 msgstr "Egina"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:289
 msgid "Successfully downloaded metadata for %d out of %d books"
 msgstr "Ongi deskargatu dira metadatuak %d horietarako %d liburuetatik"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:287
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:627
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:291
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:649
 msgid "Details"
 msgstr "Zehaztasunak"
 
@@ -9742,27 +9772,27 @@ msgstr "Erakutsi &testua ikonoen azpian:"
 msgid "&Split the toolbar into two toolbars"
 msgstr "&Banatu tresna barra bi tresna barra berrietan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:215
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:222
 msgid "&Apply"
 msgstr "&Aplikatu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:222
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:229
 msgid "Restore &defaults"
 msgstr "Berrezarri &lehenetsiak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:230
 msgid "Save changes"
 msgstr "Gorde aldaketak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:231
 msgid "Cancel and return to overview"
 msgstr "Bertan behera utzi eta itzuli ikuspegi orokorrera"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:259
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:269
 msgid "Restoring to defaults not supported for"
 msgstr "Lehenetsitako balioak berreskuratzea ez dago onartua honentzat :"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:294
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:304
 msgid ""
 "Some of the changes you made require a restart. Please restart calibre as "
 "soon as possible."
@@ -9770,7 +9800,7 @@ msgstr ""
 "Egindako aldaketa batzuek berrabiaraztea eskatzen dute. Mesedez, "
 "berrabiarazi calibre ahal bezain pronto."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:297
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:307
 msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed set any more preferences, until you restart."
@@ -9779,7 +9809,7 @@ msgstr ""
 "duten. Ezin izango dituzu aukera gehiago aldatu edo ezarri calibre "
 "berrabiarazi arte."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:312
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
 msgid "Restart needed"
 msgstr "Berrabiarazi beharko"
@@ -10143,7 +10173,7 @@ msgstr ""
 "honela: Preferences->Advanced->Plugins (Aukerak>Aurreratua>Gehigarriak)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:75
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:320
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:331
 msgid "Failed to start content server"
 msgstr "Huts egin du edukien zerbitzaria abiarazten"
 
@@ -10364,7 +10394,7 @@ msgstr "&Current oraingo aldaketak"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:270
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:574
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:250
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:272
 msgid "Search"
 msgstr "Bilatu"
 
@@ -10510,7 +10540,7 @@ msgstr ""
 "Liburu multzo batean metadatuak aldatzeko denbora beharko. Ziur zaude?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:512
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:320
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:296
 msgid "Searches"
 msgstr "Bilaketak"
 
@@ -10604,28 +10634,28 @@ msgstr ""
 "Honako liburuak dagoeneko %s formatura bihurtu dira. Nahi dituzu berriro "
 "bihurtu?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:171
 msgid "&Restore"
 msgstr "&Lehengoratu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:173
 msgid "&Donate to support calibre"
 msgstr "&Emaitza egin calibre diruz laguntzeko"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:177
 msgid "&Eject connected device"
 msgstr "&Deskonektatu konektatuta zegoen gailua"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:216
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:218
 msgid "Calibre Quick Start Guide"
 msgstr "Calibre Quick Start Guide (azkar erabiltzeko gida)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:437
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:465
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:450
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:480
 msgid "Conversion Error"
 msgstr "Bihurketa akatsa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:438
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:451
 msgid ""
 "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
 "first remove the DRM using third party tools."
@@ -10635,15 +10665,15 @@ msgstr ""
 "sistema bat). Bihurtu ahal izateko DRM arazo hori konpondu beharko duzu "
 "beste batzuen lanabesak erabiliz."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:451
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:465
 msgid "Recipe Disabled"
 msgstr "Formula desgaitua"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:466
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:481
 msgid "<b>Failed</b>"
 msgstr "<b>Huts egin du</b>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:502
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:517
 msgid ""
 "is the result of the efforts of many volunteers from all over the world. If "
 "you find it useful, please consider donating to support its development. "
@@ -10654,12 +10684,12 @@ msgstr ""
 "kontua garapenean laguntzeko. Zure emaitzak lagunduko dio calibreri garatzen "
 "jarraitzen."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:543
 msgid "There are active jobs. Are you sure you want to quit?"
 msgstr ""
 "Oraintxe bertan lan batzuk egiten ari dira. Ziur zaude irten nahi duzula?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:546
 msgid ""
 " is communicating with the device!<br>\n"
 "                      Quitting may cause corruption on the device.<br>\n"
@@ -10670,11 +10700,11 @@ msgstr ""
 "daiteke.<br>\n"
 "                      Ziur zaude? Benetan irten nahi duzu?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:550
 msgid "WARNING: Active jobs"
 msgstr "ABISUA: lanean dihardu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:613
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:628
 msgid ""
 "will keep running in the system tray. To close it, choose <b>Quit</b> in the "
 "context menu of the system tray."
@@ -10860,7 +10890,7 @@ msgid "Options to customize the ebook viewer"
 msgstr "Liburu elektronikoen irakurgailua pertsonalizatzeko aukerak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:42
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:708
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:711
 msgid "Remember last used window size"
 msgstr "Gogoratu erabilitako azken leiho tamaina"
 
@@ -10920,36 +10950,36 @@ msgstr "Monospaced letra-tipo tamaina pixeletan"
 msgid "The standard font type"
 msgstr "Letra-tipo estandarra"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:463
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:470
 msgid "&Lookup in dictionary"
 msgstr "&Bilatu hiztegian"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:466
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:473
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:138
 msgid "Go to..."
 msgstr "Joan horra..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:478
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:485
 msgid "Next Section"
 msgstr "Hurrengo atala"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:479
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:486
 msgid "Previous Section"
 msgstr "Aurreko atala"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:481
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:488
 msgid "Document Start"
 msgstr "Documentuaren hasiera"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:482
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:489
 msgid "Document End"
 msgstr "Documentuaren bukaera"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:484
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:491
 msgid "Section Start"
 msgstr "Atalaren hasiera"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:492
 msgid "Section End"
 msgstr "Atalaren amaiera"
 
@@ -11019,91 +11049,91 @@ msgstr ""
 msgid "Search for text in book"
 msgstr "Bilatu testua liburuan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:272
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:275
 msgid "Print Preview"
 msgstr "Inprimatze-aurrebista"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:309
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:312
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
 msgstr "Konektatzen dict.org horrekin hauxe bilatzeko: <b>%s</b>&hellip;"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:410
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:413
 msgid "Choose ebook"
 msgstr "Aukeratu liburua"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:411
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:414
 msgid "Ebooks"
 msgstr "Liburu elektronikoak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:444
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:447
 msgid "No matches found for: %s"
 msgstr "Ez da bat etortzerik aurkitu %s horretarako"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:488
 msgid "Loading flow..."
 msgstr "Jarioa kargatzen..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:521
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:524
 msgid "Laying out %s"
 msgstr "Bistarazten %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:552
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:555
 msgid "Bookmark #%d"
 msgstr "Laster-marka #%d"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:556
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:559
 msgid "Add bookmark"
 msgstr "Gehitu laster-marka"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:557
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:560
 msgid "Enter title for bookmark:"
 msgstr "Sartu laster-markaren izenburua:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:567
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:570
 msgid "Manage Bookmarks"
 msgstr "Kudeatu laster-markak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:604
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:607
 msgid "Loading ebook..."
 msgstr "Liburu elektronikoa kargatzen..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:612
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:615
 msgid "DRM Error"
 msgstr "DRM, Digital Rights Management, sistemak eragindako errorea"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:613
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:616
 msgid "<p>This book is protected by <a href=\"%s\">DRM</a>"
 msgstr ""
 "<p>Liburu hau irakurtzeko murriztapenak daude: <a href=\"%s\">DRM \"Digital "
 "Rights Management\"</a>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:617
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:620
 msgid "Could not open ebook"
 msgstr "Ezin izan da liburua zabaldu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:695
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:698
 msgid "Options to control the ebook viewer"
 msgstr "Liburu elektronikoen irakurgailua kontrolatzeko aukerak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:702
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:705
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
 "Zehazten bada, ikustailearen leihoa saiatuko da aurreko aldera etortzen "
 "hasterakoan."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:705
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:708
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
 "Hauxe hautatu  eginez gero, ikusiko den leihoa saiatuko da pantaila osoa "
 "zabaltzen hasi eta berehalakoan."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:710
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:713
 msgid "Print javascript alert and console messages to the console"
 msgstr "Inprimatu javascript alerta eta kontsola mezuak kontsolara"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:716
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:719
 msgid ""
 "%prog [options] file\n"
 "\n"
@@ -11221,7 +11251,7 @@ msgstr "Ezkutatu"
 msgid "Toggle"
 msgstr "Txandakatu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:385
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:400
 msgid ""
 "If you use the WordPlayer e-book app on your Android phone, you can access "
 "your calibre book collection directly on the device. To do this you have to "
@@ -11231,7 +11261,7 @@ msgstr ""
 "zaitezke calibre liburu bildumara gailutik beratik. Hau egiteko gaitu egin "
 "beharko duzu edukien zerbitzaria."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:389
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:404
 msgid ""
 "Remember to leave calibre running as the server only runs as long as calibre "
 "is running."
@@ -11239,7 +11269,7 @@ msgstr ""
 "Gogoratu calibre exekutatzen uztea, zerbitzaria ibiliko da calibre dabilen "
 "bitartean bakarrik."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:406
 msgid ""
 "You have to add the URL http://myhostname:8080 as your calibre library in "
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
@@ -11250,20 +11280,20 @@ msgstr ""
 "erabat hartakoturiko, kualifikaturiko, ostatze-izena edo bestela, calibre "
 "exekutatzen ari den ordenagailuko IP helbidea."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:468
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:483
 msgid "Moving library..."
 msgstr "Mugitzen liburutegia..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:484
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:500
 msgid "Failed to move library"
 msgstr "Huts egin du liburutegia mugitzen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:539
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:554
 msgid "Invalid database"
 msgstr "Datu base balio gabea"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:555
 msgid ""
 "<p>An invalid library already exists at %s, delete it before trying to move "
 "the existing library.<br>Error: %s"
@@ -11271,22 +11301,22 @@ msgstr ""
 "<p>Balio gabeko liburutegia dago %s horretan, ezabatu oraingo liburutegia "
 "mugitzen saiatu baino lehen.<br>Errorea: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:566
 msgid "Could not move library"
 msgstr "Ezin izan da liburutegia mugitu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:622
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:641
 msgid "Select location for books"
 msgstr "Hautatu liburuendako kokagunea"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:636
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:655
 msgid ""
 "You must choose an empty folder for the calibre library. %s is not empty."
 msgstr ""
 "Aukeratu beharko duzu hutsik dagoen edozein karpeta calibre liburutegirako. "
 "%s hori ez dago hutsik."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:710
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:729
 msgid "welcome wizard"
 msgstr "ongi-etorri laguntzailea"
 
@@ -11373,11 +11403,9 @@ msgstr "Aukeratu zure &hizkuntza:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:58
 msgid ""
-"Choose a location for your books. When you add books to calibre, they will "
-"be copied here:"
+"<p>Choose a location for your books. When you add books to calibre, they "
+"will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
-"Aukeratu kokaleku bat zure liburuentzat. calibren liburuak gehitzen "
-"dituzunean, hemen kopiatuko dira:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -11393,50 +11421,80 @@ msgstr ""
 "da.  calibre liburutegia existitzen bada dagoeneko kokagune berrian, "
 "calibrek aldatuko du hori erabiltzeko."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:32
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 msgid "Using: %s:%s@%s:%s and %s encryption"
 msgstr "Erabiltzen: %s:%s@%s:%s eta %s kodeketa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:39
 msgid "Sending..."
 msgstr "Bidaltzen..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:44
 msgid "Mail successfully sent"
 msgstr "E-posta arrakastaz igorria"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:124
-msgid "Finish gmail setup"
-msgstr "Bukatu gmail konfiguratzen"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:136
 msgid ""
-"Dont forget to enter your gmail username and password. You can sign up for a "
-"free gmail account at http://gmail.com"
+"If you are setting up a new hotmail account, you must log in to it  once "
+"before you will be able to send mails."
 msgstr ""
-"Ez ahantzi zure gmail kontuko erabiltzaile izena eta pasahitza sartzen. "
-"Doaneko e-posta zerbitzuko kontua eskatzea duzu http://gmail.com horretan."
+"Hotmail kontu berri bat konfiguratzen ari bazara, mezuak bidaltzen hasi "
+"baino lehen saioa hasita izan beharko duzu."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:133
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:147
+msgid ""
+"You can sign up for a free {name} email account at <a "
+"href=\"http://{url}\">http://{url}</a>. {extra}"
+msgstr ""
+"Izena eman ahal duzu {name} e-posta kontua doan izateko hemen: <a "
+"href=\"http://{url}\">http://{url}</a>. {extra}"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
+msgid "Your %s &email address:"
+msgstr "Zure %s &e-posta helbidea:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:155
+msgid "Your %s &username:"
+msgstr "Zure %s &erabiltzaile-izena:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:156
+msgid "Your %s &password:"
+msgstr "Your %s &pasahitza:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:174
+msgid ""
+"If you plan to use email to send books to your Kindle, remember to add the "
+"your %s email address to the allowed email addresses in your Amazon.com "
+"Kindle management page."
+msgstr ""
+"Zure Kindle horretara liburuak e-postaren bidez bidaltzeko asmoa baduzu, "
+"gogoratu zure %s e-posta helbidea gehitzea Amazon.com Kindle kudeaketa "
+"orriko baimenduetako e-posta helbideetara."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:181
+msgid "Setup"
+msgstr "Konfiguratu"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:203
 msgid "Bad configuration"
 msgstr "Konfigurazio okerra"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:197
 msgid "You must set the From email address"
 msgstr "Aukeratu beharko duzu igorle e-posta helbidea"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:204
 msgid "You must set the username and password for the mail server."
 msgstr ""
 "Zehaztu beharko duzu erabiltzaile izena eta pasahitza e-posta "
 "zerbitzariarentzat."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:113
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:121
 msgid "Send email &from:"
 msgstr "Bidali e-posta &hemendik:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:114
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:122
 msgid ""
 "<p>This is what will be present in the From: field of emails sent by "
 "calibre.<br> Set it to your email address"
@@ -11444,7 +11502,7 @@ msgstr ""
 "<p>Hauxe da Igorlearen eremuan erakutsiko dena: calibrek bidalitako e-posta "
 "mezuen igorlea.<br> Ezarri ezazu zure e-posta helbidearekin."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:123
 msgid ""
 "<p>A mail server is useful if the service you are sending mail to only "
 "accepts email from well know mail services."
@@ -11453,53 +11511,53 @@ msgstr ""
 "zerbitzuak bakarrik onartzen baditu oso ezagunak diren e-posta zerbitzuetako "
 "mezuak."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:116
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Mail &Server"
 msgstr "E-posta &Zerbitzaria"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:117
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:125
 msgid "calibre can <b>optionally</b> use a server to send mail"
 msgstr ""
 "calibrek erabil dezake, <b>hautazko</b>, horrelako zerbitzari bat mezua "
 "bidaltzeko"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:118
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:126
 msgid "&Hostname:"
 msgstr "&Ostalariaren izena:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:119
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:127
 msgid "The hostname of your mail server. For e.g. smtp.gmail.com"
 msgstr ""
 "Zure e-posta zerbitzariaren ostalariaren izena. Esate baterako smtp.gmail.com"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:128
 msgid "&Port:"
 msgstr "&Portua:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:121
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:129
 msgid ""
 "The port your mail server listens for connections on. The default is 25"
 msgstr ""
 "Zure e-posta zerbitzariaren portua konexioen zain egongo da. Lehenetsita 25 "
 "da"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:123
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:131
 msgid "Your username on the mail server"
 msgstr "Zire erabiltzaile izena e-posta zerbitzarian"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:133
 msgid "Your password on the mail server"
 msgstr "Zire pasahitza e-posta zerbitzarian"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:134
 msgid "&Show"
 msgstr "&Erakutsi"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:135
 msgid "&Encryption:"
 msgstr "&Kodeketa:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:128
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:136
 msgid ""
 "Use TLS encryption when connecting to the mail server. This is the most "
 "common."
@@ -11507,25 +11565,29 @@ msgstr ""
 "Erabil ezazu TLS encryption, Transport Layer Security kodeketa, zure e-"
 "postarekiko konexioan. Hauxe da erabiliena."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:129
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:137
 msgid "&TLS"
 msgstr "&TLS (Transport Layer Security kodeketa)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:130
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:138
 msgid "Use SSL encryption when connecting to the mail server."
 msgstr ""
 "Erabili SSL encryption, Secure Sockets Layer kodeketa, e-posta "
 "zerbitzariarekin konexioa egiterakoan."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:139
 msgid "&SSL"
 msgstr "&SSL"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:140
 msgid "Use Gmail"
 msgstr "Erabili Gmail"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:141
+msgid "Use Hotmail"
+msgstr "Erabil ezazu Hotmail"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:142
 msgid "&Test email"
 msgstr "&Aztertu e-posta"
 
@@ -11592,7 +11654,7 @@ msgstr "hutsunea, zuriunea"
 msgid "empty"
 msgstr "hutsik"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:48
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:50
 msgid ""
 "The fields to output when cataloging books in the database.  Should be a "
 "comma-separated list of fields.\n"
@@ -11606,7 +11668,7 @@ msgstr ""
 "Lehenetsita: '%%default'\n"
 "Aplikatu hauek: CSV, XML output formatuei"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:58
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:60
 msgid ""
 "Output field to sort on.\n"
 "Available fields: author_sort, id, rating, size, timestamp, title.\n"
@@ -11618,7 +11680,7 @@ msgstr ""
 "Lehenetsita: '%default'\n"
 "Aplikatuko: CSV, XML output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:212
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:214
 msgid ""
 "The fields to output when cataloging books in the database.  Should be a "
 "comma-separated list of fields.\n"
@@ -11632,7 +11694,7 @@ msgstr ""
 "Lehenetsita: '%%default'\n"
 "Aplikatu hauek: BIBTEX output formatuei"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:222
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:224
 msgid ""
 "Output field to sort on.\n"
 "Available fields: author_sort, id, rating, size, timestamp, title.\n"
@@ -11644,7 +11706,7 @@ msgstr ""
 "Lehenetsita: '%default'\n"
 "Aplikatuko: BIBTEX output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:231
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:233
 msgid ""
 "Create a citation for BibTeX entries.\n"
 "Boolean value: True, False\n"
@@ -11656,7 +11718,7 @@ msgstr ""
 "Lehenetsita: '%default'\n"
 "Aplikatuko da: BIBTEX output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:240
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:242
 msgid ""
 "The template for citation creation from database fields.\n"
 " Should be a template with {} enclosed fields.\n"
@@ -11670,7 +11732,7 @@ msgstr ""
 "Lehenetsita: '%%default'\n"
 "Aplikatuko da: BIBTEX output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:250
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:252
 msgid ""
 "BibTeX file encoding output.\n"
 "Available types: utf8, cp1252, ascii.\n"
@@ -11682,7 +11744,7 @@ msgstr ""
 "Lehenetsita: '%default'\n"
 "Aplikatuko da: BIBTEX output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:259
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:261
 msgid ""
 "BibTeX file encoding flag.\n"
 "Available types: strict, replace, ignore, backslashreplace.\n"
@@ -11694,7 +11756,7 @@ msgstr ""
 "Lehenetsita: '%default'\n"
 "Aplikatuko da: BIBTEX output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:268
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:270
 msgid ""
 "Entry type for BibTeX catalog.\n"
 "Available types: book, misc, mixed.\n"
@@ -11706,7 +11768,7 @@ msgstr ""
 "Lehenetsia: '%default'\n"
 "Aplikatuko da: BIBTEX output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:536
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:540
 msgid ""
 "Title of generated catalog used as title in metadata.\n"
 "Default: '%default'\n"
@@ -11716,7 +11778,7 @@ msgstr ""
 "Lehenetsita: '%default'\n"
 "Aplikatuko zaie ePub, MOBI irteera formatuei"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:543
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:547
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
 "specified directory. Useful if you are unsure at which stage of the "
@@ -11730,7 +11792,7 @@ msgstr ""
 "Lehenetsita: '%default'None\n"
 "Aplikatzeko formatu hauetarako: ePUB eta MOBI irteera formatuak"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:553
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:557
 msgid ""
 "Regex describing tags to exclude as genres.\n"
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
@@ -11741,7 +11803,7 @@ msgstr ""
 "adibidez '[<etiketa>]'\n"
 "Erantsiko da: ePub, MOBI output formatuetan"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:559
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:563
 msgid ""
 "Comma-separated list of tag words indicating book should be excluded from "
 "output.  Case-insensitive.\n"
@@ -11757,7 +11819,7 @@ msgstr ""
 "Lehenetsita: '%default'\n"
 "Aplikatuko da: ePub, MOBI output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:567
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:571
 msgid ""
 "Include 'Titles' section in catalog.\n"
 "Default: '%default'\n"
@@ -11767,7 +11829,7 @@ msgstr ""
 "Lehenetsia: '%default'\n"
 "Aplikatuko: ePub, MOBI output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:574
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:578
 msgid ""
 "Include 'Series' section in catalog.\n"
 "Default: '%default'\n"
@@ -11777,7 +11839,7 @@ msgstr ""
 "Lehenetsita: '%default'\n"
 "Aplikatzeko: ePub, MOBI output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:581
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:585
 msgid ""
 "Include 'Recently Added' section in catalog.\n"
 "Default: '%default'\n"
@@ -11787,7 +11849,7 @@ msgstr ""
 "Lehenetsia: '%default'\n"
 "Aplikatuko da: ePub, MOBI output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:588
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:592
 msgid ""
 "Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
 "Default: '%default'\n"
@@ -11798,7 +11860,7 @@ msgstr ""
 "Lehenetsita: '%default'\n"
 "Applikatuko da: ePub, MOBI output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:595
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:599
 msgid ""
 "Sort titles with leading numbers as text, e.g.,\n"
 "'2001: A Space Odyssey' sorts as \n"
@@ -11813,7 +11875,7 @@ msgstr ""
 "Lehentsita: '%default'\n"
 "Aplikatuko da: ePub, MOBI output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:602
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:606
 msgid ""
 "Specifies the output profile.  In some cases, an output profile is required "
 "to optimize the catalog for the device.  For example, 'kindle' or "
@@ -11828,7 +11890,7 @@ msgstr ""
 "Lehenetsita: '%default'\n"
 "Aplikatuko da: ePub, MOBI output formatuetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:609
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:613
 msgid ""
 "Tag indicating book has been read.\n"
 "Default: '%default'\n"
@@ -11837,6 +11899,16 @@ msgstr ""
 "Liburua irakurri egin dela adierazten duen etiketa.\n"
 "Lehenetsia: '%default'\n"
 "Aplikatuko da: ePub, MOBI output formatuetara"
+
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:619
+msgid ""
+"Tag indicating book to be displayed as wishlist item.\n"
+"Default: '%default'\n"
+"Applies to: ePub, MOBI output formats"
+msgstr ""
+"Etiketa honek liburua desio-zerrenda horretakoa bezala erakutsiko.\n"
+"Lehenetsita: '%default'\n"
+"Aplikatuko den formatuak: ePub, MOBI helburu formatuak"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:17
 msgid "Invalid titles"
@@ -12568,37 +12640,37 @@ msgstr ""
 "Etiketak idazteko bakarrik letra xeheak, zenbakiak eta azpimarrak (hau da "
 "beheko gidoitxoak). Letra batekin hasi beharko"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:82
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:57
 msgid "%sAverage rating is %3.1f"
 msgstr "%sBatezbesteko balorazioa hauxe: %3.1f"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:846
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:818
 msgid "Main"
 msgstr "Nagusia"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2321
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2310
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 "<p>Migrazioa egiten datu base zaharretik liburu elektronikoen liburutegira "
 "zera honetan: %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2350
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2339
 msgid "Copying <b>%s</b>"
 msgstr "Kopiatzen <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2367
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2356
 msgid "Compacting database"
 msgstr "Trinkotzen datu basea"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2460
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2449
 msgid "Checking SQL integrity..."
 msgstr "Aztertzen SQL-ren osotasuna..."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2499
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2488
 msgid "Checking for missing files."
 msgstr "Aztertzen fitxategi galduen bila."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2521
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2516
 msgid "Checked id"
 msgstr "Aztertutako ID"
 
@@ -12830,128 +12902,129 @@ msgstr ""
 "URL guztiei aurretik eskegitzeko kodea. Erabilgarria zerbitzari honantz "
 "egiten diren atzekoz aurrerako proxyetan, Apache/nginx/ eta abarretatik hona."
 
-#: /home/kovid/work/calibre/src/calibre/library/server/base.py:150
-msgid "Password to access your calibre library. Username is "
-msgstr "calibre liburutegian sartzeko pasahitza. Erabiltzaile izena: "
-
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:51
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:405
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:59
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:427
 msgid "Loading, please wait"
 msgstr "Kargatzen. Mesedez, zaude apur batean."
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:80
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:85
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
+msgid "Go to"
+msgstr "Joan hona"
+
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:101
 msgid "First"
 msgstr "Lehena"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:80
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:101
 msgid "Last"
 msgstr "Azkena"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:80
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:101
 msgid "Previous"
 msgstr "Aurrekoa"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:81
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:102
 msgid "Next"
 msgstr "Hurrengoa"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:83
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:104
 msgid "Browsing %d books"
 msgstr "Gainbegiratzen %d liburuak"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:99
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:225
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:121
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:247
 msgid "Average rating"
 msgstr "Batez besteko balorazioa"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:100
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:122
 msgid "%s: %.1f stars"
 msgstr "%s: %.1f izarrak"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:133
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:155
 msgid "%d stars"
 msgstr "%d izarrak"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:226
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
 msgid "Popularity"
 msgstr "Ospea"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:245
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:267
 msgid "Sort by"
 msgstr "Sailkatu honen arabera:"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:270
 msgid "library"
 msgstr "liburutegia"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:249
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:271
 msgid "home"
 msgstr "hasiera"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:310
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:516
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:332
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:538
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:569
 msgid "Newest"
 msgstr "Berriena"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:311
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:517
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:333
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:539
 msgid "All books"
 msgstr "Liburu guztiak"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:344
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:366
 msgid "Browse books by"
 msgstr "Gainbegiratu liburuak honen arabera:"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:349
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:371
 msgid "Choose a category to browse by:"
 msgstr "Aukeratu kategoria bat horren arabera gainbegiratzeko:"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:425
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:447
 msgid "Browsing by"
 msgstr "Gainbegiratzen honen arabera:"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:426
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:448
 msgid "Up"
 msgstr "Gora"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:547
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:569
 msgid "in"
 msgstr "barnean"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:550
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:572
 msgid "Books in"
 msgstr "Liburuan non:"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:602
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:624
 msgid "Other formats"
 msgstr "Beste formatu batzuk"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:609
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:631
 msgid "Read %s in the %s format"
 msgstr "Irakur ezazu %s formatu honetan: %s"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:614
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:636
 msgid "Get"
 msgstr "Eskuratu"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:629
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:651
 msgid "Permalink"
 msgstr "Esteka iraunkorra"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:630
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:652
 msgid "A permanent link to this book"
 msgstr "Behin betiko esteka liburu honetara"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:641
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:663
 msgid "This book has been deleted"
 msgstr "Liburu hau ezabatu egin da"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:725
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:747
 msgid "in search"
 msgstr "bilatzen"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:727
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:749
 msgid "Matching books"
 msgstr "Liburuak parekatzen"
 
@@ -13296,7 +13369,7 @@ msgstr "Huts egin du SSH saioa ezartzerakoan: "
 msgid "Failed to authenticate with server: %s"
 msgstr "Huts egin du zerbitzariarekin egiaztatzerakon: %s"
 
-#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:234
+#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:248
 msgid "Control email delivery"
 msgstr "Kontrolatu e-posta banaketa"
 
@@ -13611,6 +13684,14 @@ msgstr "Ez deskargatu CSS (Cascading Style Sheets) estilo orririk."
 #~ msgid "General"
 #~ msgstr "Orokorra"
 
+#~ msgid ""
+#~ "Average line length for line breaking if the HTML is from a previous partial "
+#~ "conversion of a PDF file. Default is %default which disables this."
+#~ msgstr ""
+#~ "Batez besteko lerroaren luzera jauzi-lerroan baldin eta HTML hori aurretik "
+#~ "egin den PDF fitxategi baten bihurketa bada. Lehenetsita hauxe: %default eta "
+#~ "horrek hau bertan behera utziko luke."
+
 #~ msgid "EDITORIAL REVIEW"
 #~ msgstr "ARGITALETXEAREN BERRIKUSKETA"
 
@@ -13813,6 +13894,16 @@ msgstr "Ez deskargatu CSS (Cascading Style Sheets) estilo orririk."
 #~ "bat"
 
 #~ msgid ""
+#~ "Choose a location for your books. When you add books to calibre, they will "
+#~ "be copied here:"
+#~ msgstr ""
+#~ "Aukeratu kokaleku bat zure liburuentzat. calibren liburuak gehitzen "
+#~ "dituzunean, hemen kopiatuko dira:"
+
+#~ msgid "Password to access your calibre library. Username is "
+#~ msgstr "calibre liburutegian sartzeko pasahitza. Erabiltzaile izena: "
+
+#~ msgid ""
 #~ "[options]\n"
 #~ "\n"
 #~ "Start the calibre content server."
@@ -13837,6 +13928,17 @@ msgstr "Ez deskargatu CSS (Cascading Style Sheets) estilo orririk."
 #~ msgstr ""
 #~ "Egindako aldaketek calibre berrabiaraztea eskatzen dute. Mesedez, "
 #~ "berrabiarazi ahalik eta lehenen."
+
+#~ msgid ""
+#~ "The following books had formats listed in the database that are not actually "
+#~ "available. The entries for the formats have been removed. You should check "
+#~ "them manually. This can happen if you manipulate the files in the library "
+#~ "folder directly."
+#~ msgstr ""
+#~ "Hurrengo liburuek badituzte datu basean zerrendatzen diren formatuak baina "
+#~ "oraindik eskuragarri ez daudenak. Formatu horietako sarrerak ezabatu egin "
+#~ "dira. Horiek eskuz aztertu beharko dituzu. Hau gerta daiteke liburutegiaren "
+#~ "karpetan bertan fitxategiak eraldatzen badituzu."
 
 #~ msgid ""
 #~ "<li><b>Manual Management</b>: Calibre updates the metadata and adds "
@@ -13925,6 +14027,16 @@ msgstr "Ez deskargatu CSS (Cascading Style Sheets) estilo orririk."
 
 #~ msgid "Update available"
 #~ msgstr "Eskuragarri dago eguneratze berri bat"
+
+#~ msgid ""
+#~ "Dont forget to enter your gmail username and password. You can sign up for a "
+#~ "free gmail account at http://gmail.com"
+#~ msgstr ""
+#~ "Ez ahantzi zure gmail kontuko erabiltzaile izena eta pasahitza sartzen. "
+#~ "Doaneko e-posta zerbitzuko kontua eskatzea duzu http://gmail.com horretan."
+
+#~ msgid "Finish gmail setup"
+#~ msgstr "Bukatu gmail konfiguratzen"
 
 #~ msgid ""
 #~ "Book formats and metadata from the selected books will be added to the "

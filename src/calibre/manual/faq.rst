@@ -247,6 +247,20 @@ Also, ::
 
 must return ``CONFIG_SCSI_MULTI_LUN=y``. If you don't see either, you have to recompile your kernel with the correct settings.
 
+
+Why does |app| not support collection on the Kindle or shelves on the Nook?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Neither the Kindle nor the Nook provide any way to manipulate collections over a USB connection.
+If you really care about using collections, I would urge you to sell your Kindle/Nook and get a SONY. 
+Only SONY seems to understand that life is too short to be entering collections one by one on an
+e-ink screen :)
+
+Note that in the case of the Kindle, there is a way to manipulate collections via USB,
+but it requires that the Kindle be rebooted *every time* it is disconnected from the computer, for the 
+changes to the collections to be recognized. As such, it is unlikely that
+any |app| developers will ever feel motivated enough to support it.
+
 Library Management
 ------------------
 
