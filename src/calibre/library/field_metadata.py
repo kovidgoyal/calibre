@@ -3,6 +3,7 @@ Created on 25 May 2010
 
 @author: charles
 '''
+import copy
 
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.config import tweaks
@@ -86,7 +87,7 @@ class FieldMetadata(dict):
 
     # Builtin metadata {{{
 
-    _field_metadata = [
+    _field_metadata_prototype = [
             ('authors',   {'table':'authors',
                            'column':'name',
                            'link_column':'author',
@@ -322,6 +323,7 @@ class FieldMetadata(dict):
                     ]
 
     def __init__(self):
+        self._field_metadata = copy.deepcopy(self._field_metadata_prototype)
         self._tb_cats = OrderedDict()
         self._search_term_map = {}
         self.custom_label_to_key_map = {}
