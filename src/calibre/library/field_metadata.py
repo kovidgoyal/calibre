@@ -3,6 +3,7 @@ Created on 25 May 2010
 
 @author: charles
 '''
+import copy
 
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.config import tweaks
@@ -86,7 +87,7 @@ class FieldMetadata(dict):
 
     # Builtin metadata {{{
 
-    _field_metadata = [
+    _field_metadata_prototype = [
             ('authors',   {'table':'authors',
                            'column':'name',
                            'link_column':'author',
@@ -161,6 +162,15 @@ class FieldMetadata(dict):
                            'search_terms':['tags', 'tag'],
                            'is_custom':False,
                            'is_category':True}),
+            ('all_metadata',{'table':None,
+                             'column':None,
+                             'datatype':None,
+                             'is_multiple':None,
+                             'kind':'field',
+                             'name':None,
+                             'search_terms':[],
+                             'is_custom':False,
+                             'is_category':False}),
             ('author_sort',{'table':None,
                             'column':None,
                             'datatype':'text',
@@ -180,7 +190,7 @@ class FieldMetadata(dict):
                            'is_custom':False, 'is_category':False}),
             ('cover',     {'table':None,
                            'column':None,
-                           'datatype':None,
+                           'datatype':'int',
                            'is_multiple':None,
                            'kind':'field',
                            'name':None,
@@ -223,15 +233,6 @@ class FieldMetadata(dict):
                            'search_terms':[],
                            'is_custom':False,
                            'is_category':False}),
-            ('all_metadata',{'table':None,
-                             'column':None,
-                             'datatype':None,
-                             'is_multiple':None,
-                             'kind':'field',
-                             'name':None,
-                             'search_terms':[],
-                             'is_custom':False,
-                             'is_category':False}),
             ('ondevice',  {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -322,6 +323,7 @@ class FieldMetadata(dict):
                     ]
 
     def __init__(self):
+        self._field_metadata = copy.deepcopy(self._field_metadata_prototype)
         self._tb_cats = OrderedDict()
         self._search_term_map = {}
         self.custom_label_to_key_map = {}
