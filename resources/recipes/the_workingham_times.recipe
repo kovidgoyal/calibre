@@ -19,11 +19,11 @@ class TheWokinghamTimes(BasicNewsRecipe):
     category               = 'news, UK, world'
     language               = 'en_GB'
     publication_type       = 'newsportal'
-    extra_css              = """ 
+    extra_css              = """
                                 body{ font-family: Arial,sans-serif }
-                                img{display: block; margin-bottom: 0.4em}                                
+                                img{display: block; margin-bottom: 0.4em}
                              """
-    
+
     conversion_options = {
                              'comments'  : description
                             ,'tags'      : category
@@ -32,10 +32,10 @@ class TheWokinghamTimes(BasicNewsRecipe):
                          }
 
     keep_only_tags = [dict(name='div', attrs={'id':'article-body'})]
-    remove_tags    = [ 
+    remove_tags    = [
                       dict(name='div'  , attrs={'class':['ad']})
                      ,dict(name=['meta','base','iframe','embed','object'])
-                     ,dict(name='span' , attrs={'class':'caption small'})                     
+                     ,dict(name='span' , attrs={'class':'caption small'})
                      ]
     remove_attributes = ['width','height','lang']
 
@@ -55,5 +55,5 @@ class TheWokinghamTimes(BasicNewsRecipe):
                item.replaceWith(str)
             else:
                item.name = 'span'
-               del item['href']               
-        return soup                    
+               del item['href']
+        return soup
