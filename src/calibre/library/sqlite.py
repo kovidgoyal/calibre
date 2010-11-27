@@ -150,7 +150,7 @@ class DBThread(Thread):
                                    detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
         self.conn.execute('pragma cache_size=5000')
         encoding = self.conn.execute('pragma encoding').fetchone()[0]
-        c_ext_loaded = False #load_c_extensions(self.conn)
+        c_ext_loaded = load_c_extensions(self.conn)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
         if not c_ext_loaded:
