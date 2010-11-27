@@ -21,6 +21,8 @@ This is where all dependencies will be installed.
 
 Add C:\Python27\Scripts and C:\Python27 to PATH 
 
+Edit mimetypes.py in C:\Python27\Lib and change line 250 UnicodeEncodeError to ValueError
+
 Install setuptools from http://pypi.python.org/pypi/setuptools
 If there are no windows binaries already compiled for the version of python you are using then download the source and run the following command in the folder where the source has been unpacked::
 
@@ -32,6 +34,8 @@ Run the following command to install python dependencies::
 
 Install BeautifulSoup 3.0.x manually into site-packages (3.1.x parses broken HTML very poorly)
 
+Install pywin32 and edit win32com\__init__.py setting _frozen = True and
+__gen_path__ to a temp dir (otherwise it tries to set it to a dir in the install tree which leads to permission errors)
 
 SQLite
 ---------
