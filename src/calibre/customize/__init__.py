@@ -373,7 +373,7 @@ class InterfaceActionBase(Plugin): # {{{
 
     def load_actual_plugin(self, gui):
         '''
-        This method should must the actual interface action plugin object.
+        This method must return the actual interface action plugin object.
         '''
         mod, cls = self.actual_plugin.split(':')
         return getattr(__import__(mod, fromlist=['1'], level=0), cls)(gui,
