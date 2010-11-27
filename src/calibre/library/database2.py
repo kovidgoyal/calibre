@@ -268,8 +268,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             base,
                             prefer_custom=True)
 
-        self.field_metadata.set_field_record_index('cover',
-                self.FIELD_MAP['cover'], prefer_custom=False)
         self.FIELD_MAP['ondevice'] = base+1
         self.field_metadata.set_field_record_index('ondevice', base+1, prefer_custom=False)
         self.FIELD_MAP['all_metadata'] = base+2
