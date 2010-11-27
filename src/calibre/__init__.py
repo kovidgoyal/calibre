@@ -48,6 +48,13 @@ mimetypes.add_type('application/x-cbz',                   '.cbz')
 mimetypes.add_type('application/x-cbr',                   '.cbr')
 mimetypes.add_type('application/x-koboreader-ebook',      '.kobo')
 mimetypes.add_type('image/wmf',                           '.wmf')
+mimetypes.add_type('image/jpeg',                          '.jpg')
+mimetypes.add_type('image/jpeg',                          '.jpeg')
+mimetypes.add_type('image/png',                           '.png')
+mimetypes.add_type('image/gif',                           '.gif')
+mimetypes.add_type('image/bmp',                           '.bmp')
+mimetypes.add_type('image/svg+xml',                       '.svg')
+
 guess_type = mimetypes.guess_type
 import cssutils
 cssutils.log.setLevel(logging.WARN)
