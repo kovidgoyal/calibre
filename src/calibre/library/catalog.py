@@ -4627,6 +4627,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             if open_pTag:
                 result.insert(rtc, pTag)
+                rtc += 1
 
             paras = result.findAll('p')
             for p in paras:
