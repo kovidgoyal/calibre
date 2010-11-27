@@ -274,6 +274,14 @@ Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the col
     
     :guilabel:`Advanced Search Dialog`
 
+You can test for the number of items in multiple-value columns, such as tags, formats, authors, and tags-like custom columns. This is done using a syntax very similar to numeric tests (discussed above), except that the relational operator begins with a ``#`` character. For example::
+
+    tags:#>3 will give you books with more than three tags
+    tags:#!=3 will give you books that do not have three tags
+    authors:#=1 will give you books with exactly one author
+    #cust:#<5 will give you books with less than five items in custom column #cust
+    formats:#>1 will give you books with more than one format
+
 Saving searches
 -----------------
 
