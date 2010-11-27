@@ -219,7 +219,7 @@ class BookInfo(QWebView):
         <html>
             <head>
             <style type="text/css">
-                body, td { font-size: %dpx; color: %s }
+                body, td {background-color: transparent; font-size: %dpx; color: %s }
                 a { text-decoration: none; color: blue }
             </style>
             </head>
@@ -227,7 +227,7 @@ class BookInfo(QWebView):
             %%s
             </body>
         <html>
-        '''%(f, c)
+        '''%(p, f, c)
         if self.vertical:
             if comments:
                 rows += u'<tr><td colspan="2">%s</td></tr>'%comments
