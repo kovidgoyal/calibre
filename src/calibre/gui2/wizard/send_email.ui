@@ -168,7 +168,7 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="2" colspan="2">
+      <item row="4" column="2">
        <widget class="QRadioButton" name="relay_ssl">
         <property name="toolTip">
          <string>Use SSL encryption when connecting to the mail server.</string>
@@ -190,6 +190,16 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="4" column="3">
+       <widget class="QRadioButton" name="relay_none">
+        <property name="toolTip">
+         <string>WARNING: Using no encryption is highly insecure</string>
+        </property>
+        <property name="text">
+         <string>&amp;None</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

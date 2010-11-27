@@ -632,6 +632,10 @@ def main(outfile, args=sys.argv[1:]):
             except tokenize.TokenError, e:
                 print >> sys.stderr, '%s: %s, line %d, column %d' % (
                     e[0], filename, e[1][0], e[1][1])
+            except IndentationError, e:
+                print >> sys.stderr, '%s: %s, line %s, column %s' % (
+                    e[0], filename, e.lineno, e[1][1])
+
         finally:
             if closep:
                 fp.close()

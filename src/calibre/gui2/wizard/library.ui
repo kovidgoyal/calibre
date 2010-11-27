@@ -36,7 +36,7 @@
    <item row="2" column="0" colspan="3">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Choose a location for your books. When you add books to calibre, they will be copied here:</string>
+      <string>&lt;p&gt;Choose a location for your books. When you add books to calibre, they will be copied here. Use an &lt;b&gt;empty folder&lt;/b&gt; for a new calibre library:</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

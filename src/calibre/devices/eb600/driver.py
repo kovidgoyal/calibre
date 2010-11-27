@@ -227,4 +227,22 @@ class POCKETBOOK301(USBMS):
     PRODUCT_ID  = [0x301]
     BCD         = [0x132]
 
+class POCKETBOOK602(USBMS):
+
+    name = 'PocketBook Pro 602 Device Interface'
+    description    = _('Communicate with the PocketBook 602 reader.')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm',
+            'doc', 'tcr', 'txt']
+
+    EBOOK_DIR_MAIN = 'books'
+    SUPPORTS_SUB_DIRS = True
+
+    VENDOR_ID   = [0x0525]
+    PRODUCT_ID  = [0xa4a5]
+    BCD         = [0x0324]
+
+    VENDOR_NAME = ''
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'PB602'
 

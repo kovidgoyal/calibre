@@ -58,11 +58,15 @@ def get_mx(host, verbose=0):
                                       int(getattr(y, 'preference', sys.maxint))))
     return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
 
-def sendmail_direct(from_, to, msg, timeout, localhost, verbose):
-    import smtplib
+def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
+        debug_output=None):
+    import calibre.utils.smtplib as smtplib
     hosts = get_mx(to.split('@')[-1].strip(), verbose)
     timeout=None # Non blocking sockets sometimes don't work
-    s = smtplib.SMTP(timeout=timeout, local_hostname=localhost)
+    kwargs = dict(timeout=timeout, local_hostname=localhost)
+    if debug_output is not None:
+        kwargs['debug_to'] = debug_output
+    s = smtplib.SMTP(**kwargs)
     s.set_debuglevel(verbose)
     if not hosts:
         raise ValueError('No mail server found for address: %s'%to)
@@ -79,20 +83,23 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose):
         raise IOError('Failed to send mail: '+repr(last_error))
 
 
-def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=30,
+def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
              relay=None, username=None, password=None, encryption='TLS',
-             port=-1):
+             port=-1, debug_output=None):
     if relay is None:
         for x in to:
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
-    import smtplib
-    cls = smtplib.SMTP if encryption == 'TLS' else smtplib.SMTP_SSL
+    import calibre.utils.smtplib as smtplib
+    cls = smtplib.SMTP_SSL if encryption == 'SSL' else smtplib.SMTP
     timeout = None # Non-blocking sockets sometimes don't work
     port = int(port)
-    s = cls(timeout=timeout, local_hostname=localhost)
+    kwargs = dict(timeout=timeout, local_hostname=localhost)
+    if debug_output is not None:
+        kwargs['debug_to'] = debug_output
+    s = cls(**kwargs)
     s.set_debuglevel(verbose)
     if port < 0:
-        port = 25 if encryption == 'TLS' else 465
+        port = 25 if encryption != 'SSL' else 465
     s.connect(relay, port)
     if encryption == 'TLS':
         s.starttls()
@@ -151,9 +158,9 @@ def option_parser():
     r('-u', '--username', help='Username for relay')
     r('-p', '--password', help='Password for relay')
     r('-e', '--encryption-method', default='TLS',
-      choices=['TLS', 'SSL'],
+      choices=['TLS', 'SSL', 'NONE'],
       help='Encryption method to use when connecting to relay. Choices are '
-      'TLS and SSL. Default is TLS.')
+      'TLS, SSL and NONE. Default is TLS. WARNING: Choosing NONE is highly insecure')
     parser.add_option('-o', '--outbox', help='Path to maildir folder to store '
                       'failed email messages in.')
     parser.add_option('-f', '--fork', default=False, action='store_true',
@@ -224,6 +231,7 @@ def main(args=sys.argv):
     if opts.fork:
         if os.fork() != 0:
             return 0
+
     try:
         sendmail(msg, efrom, eto, localhost=opts.localhost, verbose=opts.verbose,
              timeout=opts.timeout, relay=opts.relay, username=opts.username,

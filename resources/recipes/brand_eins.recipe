@@ -27,7 +27,7 @@ class BrandEins(BasicNewsRecipe):
   encoding = 'utf-8'
   language = 'de'
   publication_type = 'magazine'
-  needs_subscription = True
+  needs_subscription = 'optional'
 
   # 2 is the last full magazine (default)
   # 1 is the newest (but not full)

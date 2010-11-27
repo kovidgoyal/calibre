@@ -5,9 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import operator, os, json
+import operator, os, json, re
 from binascii import hexlify, unhexlify
-from urllib import quote, unquote
 
 import cherrypy
 
@@ -21,6 +20,7 @@ from calibre.utils.magick import Image
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.field_metadata import category_icon_map
+from calibre.library.server.utils import quote, unquote
 
 def render_book_list(ids, prefix, suffix=''): # {{{
     pages = []
@@ -400,6 +400,16 @@ class BrowseServer(object):
         sort = self.browse_sort_categories(items, sort)
 
         script = 'true'
+
+        if len(items) == 1:
+            # Only one item in category, go directly to book list
+            prefix = '' if self.is_wsgi else self.opts.url_prefix
+            html = get_category_items(category, items,
+                    self.search_restriction_name, datatype,
+                    self.opts.url_prefix)
+            href = re.search(r'<a href="([^"]+)"', html)
+            if href is not None:
+                raise cherrypy.HTTPRedirect(prefix+href.group(1))
 
         if len(items) <= self.opts.max_opds_ungrouped_items:
             script = 'false'
