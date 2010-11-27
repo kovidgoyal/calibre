@@ -14,7 +14,6 @@ class JijiDotCom(BasicNewsRecipe):
     description    = 'World News from Jiji Press'
     publisher      = 'Jiji Press Ltd.'
     category       = 'news'
-    encoding       = 'utf-8'
     oldest_article = 6
     max_articles_per_feed = 100
     encoding       = 'euc_jisx0213'
