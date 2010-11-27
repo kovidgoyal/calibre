@@ -17,7 +17,7 @@ class JijiDotCom(BasicNewsRecipe):
     encoding       = 'utf-8'
     oldest_article = 6
     max_articles_per_feed = 100
-    encoding       = 'EUC_JP'
+    encoding       = 'euc_jisx0213'
     language       = 'ja'
     masthead_url   = 'http://jen.jiji.com/images/logo_jijipress.gif'
     top_url        = 'http://www.jiji.com/'

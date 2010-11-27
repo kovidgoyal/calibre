@@ -23,5 +23,5 @@ class MSNSankeiNewsProduct(BasicNewsRecipe):
     remove_tags_before = dict(id="__r_article_title__")
     remove_tags_after  = dict(id="ajax_release_news")
     remove_tags = [{'class':"parent chromeCustom6G"},
-                              {'class':"RelatedImg"}
+                              dict(id="RelatedImg")
                             ]
