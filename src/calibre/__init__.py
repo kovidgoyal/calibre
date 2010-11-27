@@ -362,6 +362,8 @@ def walk(dir):
 def strftime(fmt, t=None):
     ''' A version of strftime that returns unicode strings and tries to handle dates
     before 1900 '''
+    if not fmt:
+        return u''
     if t is None:
         t = time.localtime()
     if hasattr(t, 'timetuple'):
@@ -378,7 +380,8 @@ def strftime(fmt, t=None):
         if isinstance(fmt, unicode):
             fmt = fmt.encode('mbcs')
         ans = plugins['winutil'][0].strftime(fmt, t)
-    ans = time.strftime(fmt, t).decode(preferred_encoding, 'replace')
+    else:
+        ans = time.strftime(fmt, t).decode(preferred_encoding, 'replace')
     if early_year:
         ans = ans.replace('_early year hack##', str(orig_year))
     return ans
