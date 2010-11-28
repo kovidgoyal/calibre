@@ -9,7 +9,7 @@ from math import ceil
 from lxml import html
 from lxml.html import soupparser
 
-from calibre.utils.date import parse_date, utcnow
+from calibre.utils.date import parse_date, utcnow, replace_months
 from calibre import browser, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn, \
@@ -32,6 +32,40 @@ class AmazonFr(MetadataSource):
         try:
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10, verbose=self.verbose, lang='fr')
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
+class AmazonEs(MetadataSource):
+
+    name = 'Amazon spanish'
+    description = _('Downloads social metadata from amazon.com in spanish')
+    supported_platforms = ['windows', 'osx', 'linux']
+    author = 'Sengian'
+    version = (1, 0, 0)
+    has_html_comments = True
+
+    def fetch(self):
+        try:
+            self.results = search(self.title, self.book_author, self.publisher,
+                                  self.isbn, max_results=10, verbose=self.verbose, lang='es')
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
+class AmazonUS(MetadataSource):
+
+    name = 'Amazon US english'
+    description = _('Downloads social metadata from amazon.com in english')
+    supported_platforms = ['windows', 'osx', 'linux']
+    author = 'Sengian'
+    version = (1, 0, 0)
+    has_html_comments = True
+
+    def fetch(self):
+        try:
+            self.results = search(self.title, self.book_author, self.publisher,
+                                  self.isbn, max_results=10, verbose=self.verbose, lang='us')
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
@@ -65,7 +99,7 @@ class Amazon(MetadataSource):
     def fetch(self):
         try:
             self.results = search(self.title, self.book_author, self.publisher,
-                                  self.isbn, max_results=10, verbose=self.verbose, lang='en')
+                                  self.isbn, max_results=10, verbose=self.verbose, lang='all')
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
@@ -76,56 +110,15 @@ def report(verbose):
         import traceback
         traceback.print_exc()
 
-def replace_months(datez, clang):
-    # Replace months by english equivalent for parse_date
-    frtoen = {
-        u'[jJ]anvier': u'jan',
-        u'[fF].vrier': u'feb',
-        u'[mM]ars': u'mar',
-        u'[aA]vril': u'apr',
-        u'[mM]ai': u'may',
-        u'[jJ]uin': u'jun',
-        u'[jJ]uillet': u'jul',
-        u'[aA]o.t': u'aug',
-        u'[sS]eptembre': u'sep',
-        u'[Oo]ctobre': u'oct',
-        u'[nN]ovembre': u'nov',
-        u'[dD].cembre': u'dec' }
-    detoen = {
-        u'[jJ]anuar': u'jan',
-        u'[fF]ebruar': u'feb',
-        u'[mM].rz': u'mar',
-        u'[aA]pril': u'apr',
-        u'[mM]ai': u'may',
-        u'[jJ]uni': u'jun',
-        u'[jJ]uli': u'jul',
-        u'[aA]ugust': u'aug',
-        u'[sS]eptember': u'sep',
-        u'[Oo]ktober': u'oct',
-        u'[nN]ovember': u'nov',
-        u'[dD]ezember': u'dec' }
-        
-    if clang == 'fr':
-        dictoen = frtoen
-    elif clang == 'de':
-        dictoen = detoen
-    else:
-        return datez
-    
-    for k in dictoen.iterkeys():
-        tmp = re.sub(k, dictoen[k], datez)
-        if tmp != datez: break
-    return tmp
-
 
 class Query(object):
 
     BASE_URL_FR = 'http://www.amazon.fr'
-    BASE_URL_EN = 'http://www.amazon.com'
+    BASE_URL_ALL = 'http://www.amazon.com'
     BASE_URL_DE = 'http://www.amazon.de'
 
     def __init__(self, title=None, author=None, publisher=None, isbn=None, keywords=None,
-        max_results=20, rlang='en'):
+        max_results=20, rlang='all'):
         assert not(title is None and author is None and publisher is None \
             and isbn is None and keywords is None)
         assert (max_results < 21)
@@ -153,9 +146,17 @@ class Query(object):
                 #many options available
             }
         
-        if rlang =='en':
+        if rlang =='all':
             q['sort'] = 'relevanceexprank'
-            self.urldata = self.BASE_URL_EN
+            self.urldata = self.BASE_URL_ALL
+        elif rlang =='es':
+            q['sort'] = 'relevanceexprank'
+            q['field-language'] = 'Spanish'
+            self.urldata = self.BASE_URL_ALL
+        elif rlang =='us':
+            q['sort'] = 'relevanceexprank'
+            q['field-language'] = 'English'
+            self.urldata = self.BASE_URL_ALL
         elif rlang =='fr':
             q['sort'] = 'relevancerank'
             self.urldata = self.BASE_URL_FR
@@ -238,7 +239,7 @@ class Query(object):
 
 class ResultList(list):
 
-    def __init__(self, baseurl, lang = 'en'):
+    def __init__(self, baseurl, lang = 'all'):
         self.baseurl = baseurl
         self.lang = lang
         self.repub = re.compile(u'\((.*)\)')
@@ -358,7 +359,7 @@ class ResultList(list):
                 d = d.group(1)
                 try:
                     default = utcnow().replace(day=15)
-                    if self.lang != 'en':
+                    if self.lang != 'all':
                         d = replace_months(d, self.lang)
                     d = parse_date(d, assume_utc=True, default=default)
                     mi.pubdate = d
@@ -437,7 +438,7 @@ class ResultList(list):
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
-           max_results=5, verbose=False, keywords=None, lang='en'):
+           max_results=5, verbose=False, keywords=None, lang='all'):
     br = browser()
     entries, baseurl = Query(title=title, author=author, isbn=isbn, publisher=publisher,
         keywords=keywords, max_results=max_results,rlang=lang)(br, verbose)
@@ -458,7 +459,8 @@ def option_parser():
         Fetch book metadata from Amazon. You must specify one of title, author,
         ISBN, publisher or keywords. Will fetch a maximum of 10 matches,
         so you should make your query as specific as possible.
-        You can chose the language for metadata retrieval (french & american & german).
+        You can chose the language for metadata retrieval:
+        All & US english & french & german & spanish
     '''
     ))
     parser.add_option('-t', '--title', help='Book title')
@@ -468,8 +470,8 @@ def option_parser():
     parser.add_option('-k', '--keywords', help='Keywords')
     parser.add_option('-m', '--max-results', default=10,
                       help='Maximum number of results to fetch')
-    parser.add_option('-l', '--lang', default='en',
-                      help='Chosen language for metadata search (fr, en , de)')
+    parser.add_option('-l', '--lang', default='all',
+                      help='Chosen language for metadata search (all, us, fr, es , de)')
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help='Be more verbose about errors')
     return parser
