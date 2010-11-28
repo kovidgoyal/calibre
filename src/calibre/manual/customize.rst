@@ -98,6 +98,44 @@ Every time you use calibre to convert a book, the plugin's :meth:`run` method wi
 converted book will have its publisher set to "Hello World". For more information about 
 |app|'s plugin system, read on...
 
+
+A Hello World GUI plugin
+---------------------------
+
+Here's a simple Hello World plugin for the |app| GUI. It will cause a box to popup with the message "Hellooo World!" when you press Ctrl+Shift+H
+
+.. code-block:: python
+
+    from calibre.customize import InterfaceActionBase
+
+    class HelloWorldBase(InterfaceActionBase):
+
+        name = 'Hello World GUI'
+        author = 'The little green man'
+
+        def load_actual_plugin(self, gui):
+            from calibre.gui2.actions import InterfaceAction
+
+            class HelloWorld(InterfaceAction):
+                name = 'Hello World GUI'
+                action_spec = ('Hello World!', 'add_book.png', None,
+                        _('Ctrl+Shift+H'))
+
+                def genesis(self):
+                    self.qaction.triggered.connect(self.hello_world)
+
+                def hello_world(self, *args):
+                    from calibre.gui2 import info_dialog
+                    info_dialog(self.gui, 'Hello World!', 'Hellooo World!',
+                            show=True)
+
+            return HelloWorld(gui, None)
+
+You can also have it show up in the toolbars/context menu by going to Preferences->Toolbars and adding this plugin to the locations you want it to be in.
+
+While this plugin is utterly useless, note that all calibre GUI actions like adding/saving/removing/viewing/etc. are implemented as plugins, so there is no limit to what you can acheive. The key thing to remember is that the plugin has access to the full |app| GUI via ``self.gui``.
+
+
 The Plugin base class
 ------------------------
 
