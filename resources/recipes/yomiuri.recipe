@@ -22,7 +22,7 @@ class YOLNews(BasicNewsRecipe):
 
     remove_tags_before = {'class':"article-def"}
     remove_tags = [{'class':"RelatedArticle"},
-                   {'class:"sbtns"}
+                   {'class':"sbtns"}
                     ]
     remove_tags_after = {'class':"date-def"}
 
