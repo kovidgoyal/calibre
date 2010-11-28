@@ -1,5 +1,3 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
 '''
@@ -9,9 +7,9 @@ www.nikkei.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class NikkeiNet(BasicNewsRecipe):
-    title          = u'\u65e5\u7d4c\u65b0\u805e\u96fb\u5b50\u7248(Free)'
+    title          = u'\u65e5\u7d4c\u65b0\u805e\u96fb\u5b50\u7248(Free, MAX)'
     __author__     = 'Hiroshi Miura'
-    description    = 'News and current market affairs from Japan'
+    description    = 'News and current market affairs from Japan, no subscription and getting max feed.'
     cover_url       = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
     masthead_url    = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
     oldest_article = 2
