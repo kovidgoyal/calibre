@@ -161,10 +161,19 @@ The base class for such devices is :class:`calibre.devices.usbms.driver.USBMS`. 
 User Interface Actions
 --------------------------
 
+If you are adding your own plugin in a zip file, you should subclass both InterfaceActionBase and InterfaceAction. The :meth:`load_actual_plugin` method of you InterfaceActionBase subclass must return an instantiated object of your InterfaceBase subclass.
+
+
 .. autoclass:: calibre.gui2.actions.InterfaceAction
    :show-inheritance:
    :members:
    :member-order: bysource
+
+.. autoclass:: calibre.customize.InterfaceActionBase
+   :show-inheritance:
+   :members:
+   :member-order: bysource
+
 
 Preferences Plugins
 --------------------------

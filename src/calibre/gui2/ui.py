@@ -102,9 +102,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.device_connected = None
         acmap = OrderedDict()
         for action in interface_actions():
-            mod, cls = action.actual_plugin.split(':')
-            ac = getattr(__import__(mod, fromlist=['1'], level=0), cls)(self,
-                    action.site_customization)
+            ac = action.load_actual_plugin(self)
             if ac.name in acmap:
                 if ac.priority >= acmap[ac.name].priority:
                     acmap[ac.name] = ac

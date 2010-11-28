@@ -214,9 +214,18 @@ class BookInfo(QWebView):
 
 
     def _show_data(self, rows, comments):
+
+        def color_to_string(col):
+            ans = '#000000'
+            if col.isValid():
+                col = col.toRgb()
+                if col.isValid():
+                    ans = unicode(col.name())
+            return ans
+
         f = QFontInfo(QApplication.font(self.parent())).pixelSize()
-        c = unicode(QApplication.palette().color(QPalette.Normal,
-                        QPalette.WindowText).name())
+        c = color_to_string(QApplication.palette().color(QPalette.Normal,
+                        QPalette.WindowText))
         templ = u'''\
         <html>
             <head>
