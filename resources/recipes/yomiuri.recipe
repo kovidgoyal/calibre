@@ -1,0 +1,66 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+www.yomiuri.co.jp
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class YOLNews(BasicNewsRecipe):
+    title          = u'YOMIURI ONLINE'
+    __author__     = 'Hiroshi Miura'
+    oldest_article = 1
+    max_articles_per_feed = 50
+    description    = 'Japanese traditional newspaper Yomiuri Online News'
+    publisher      = 'Yomiuri Online News'
+    category       = 'news, japan'
+    language       = 'ja'
+    encoding       = 'Shift_JIS'
+    index          = 'http://www.yomiuri.co.jp/latestnews/'
+    remove_javascript = True
+
+    remove_tags_before = {'class':"article-def"}
+    remove_tags = [{'class':"RelatedArticle"},
+                   {'class:"sbtns"}
+                    ]
+    remove_tags_after = {'class':"date-def"}
+
+    def parse_feeds(self):
+
+        feeds = BasicNewsRecipe.parse_feeds(self)
+
+        for curfeed in feeds:
+            delList = []
+            for a,curarticle in enumerate(curfeed.articles):
+                if re.search(r'rssad.jp', curarticle.url):
+                    delList.append(curarticle)
+            if len(delList)>0:
+                for d in delList:
+                    index = curfeed.articles.index(d)
+                    curfeed.articles[index:index+1] = []
+
+        return feeds
+
+    def parse_index(self):
+        feeds = []
+        soup   = self.index_to_soup(self.index)
+        topstories = soup.find('ul',attrs={'class':'list-def'})
+        if topstories:
+           newsarticles = []
+           for itt in topstories.findAll('li'):
+                itema = itt.find('a',href=True)
+                if itema:
+                    itd1 = itema.findNextSibling(text = True)
+                    itd2 = itd1.findNextSibling(text = True)
+                    itd3 = itd2.findNextSibling(text = True)
+                    newsarticles.append({
+                                      'title'      :itema.string
+                                     ,'date'       :''.join([itd1, itd2, itd3])
+                                     ,'url'        :'http://www.yomiuri.co.jp' + itema['href']
+                                     ,'description':''
+                                    })
+           feeds.append(('News', newsarticles))
+
+        return feeds
+
