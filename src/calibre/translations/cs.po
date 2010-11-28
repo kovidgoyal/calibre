@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-11-26 19:04+0000\n"
-"PO-Revision-Date: 2010-11-26 21:42+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-11-27 20:21+0000\n"
+"PO-Revision-Date: 2010-11-27 20:34+0000\n"
+"Last-Translator: Aleš Bajtalon <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-27 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-11-28 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -817,7 +817,7 @@ msgstr "Spojit se s PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602 reader."
-msgstr ""
+msgstr "Komunikovat se čtečkou PocketBook 602."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1031,7 +1031,7 @@ msgstr "Spojit se s GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:180
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Komunikovat s Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1768,6 +1768,11 @@ msgid ""
 "by Chinese and Japanese for instance) the representation used by the largest "
 "number of people will be used (Chinese in the previous example)."
 msgstr ""
+"Přeložit unicode znaky do ASCII. Používat opatrně, protože nahradí znaky "
+"Unicode za znaky ASCII. Například nahradí \"%s\" s \"Michail Gorbachiov\". "
+"Také si všimněte, že v případech, kdy existuje více zastoupení znaku "
+"(například znaky sdílené čínštinou a japonštinou) bude použité to "
+"nejpoužívanější (čínština v předchozím příkladě)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:437
 msgid ""
@@ -1997,6 +2002,11 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
+"Při použití obálky ve formátu SVG tato volba způsobí, že obálka pokryje "
+"dostupné oblasti obrazovky, ale zachová poměr stran (poměr šířky k výšce). "
+"To znamená, že mohou být vidět bílé okraje po stranách nebo v horní a dolní "
+"části obrazovky, ale obraz již nikdy nebude zkřivený. Bez této volby může "
+"být obraz mírně zkřivený, ale nebudou vidět žádné okraje."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:170
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:203
@@ -2706,6 +2716,15 @@ msgid ""
 "isbndb.com.\n"
 "\n"
 msgstr ""
+"\n"
+"%prog [options] key\n"
+"\n"
+"Získat metadata pro knihy z isndb.com. Můžete zadat buď ISBN ID\n"
+"knihy nebo její název a autora. Pokud zadáte název knihy a autora,\n"
+"potom může být nalezena více než jedna kniha.\n"
+"\n"
+"klíč je klíč k účtu, který vygenerujete po přihlášení k účtu na isbndb.com.\n"
+"\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:118
 msgid "The ISBN ID of the book you want metadata for."
@@ -3234,6 +3253,10 @@ msgid ""
 "the space after and will exceed the specified value. Also, there is a "
 "minimum of 25 characters. Use 0 to disable line splitting."
 msgstr ""
+"Maximální počet znaků na řádek. Rozdělení bude provedeno v první mezeře před "
+"stanovenou hodnotu. Pokud není nalezena mezera, bude rozděleno až v další "
+"mezeře a překročí tak stanovenou hodnotu. Minimum je 25 znaků. Použitím "
+"hodnoty 0 lze rozdělení řádku vypnout."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:36
 msgid ""
@@ -3728,6 +3751,10 @@ msgid ""
 "removed. You should check them manually. This can happen if you manipulate "
 "the files in the library folder directly."
 msgstr ""
+"Následující knihy mají formáty nebo obálky uvedené v databázi, které ve "
+"skutečnosti nejsou k dispozici. Údaje pro formáty/obálky byly odstraněny. "
+"Měli byste je zkontrolovat ručně. Tato situace může nastat v případě, pokud "
+"budete manipulovat přímo se soubory ve složce knihovny."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
@@ -3911,7 +3938,7 @@ msgstr "Zahajuji konverzi %d knih(y)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:170
 msgid "Empty output file, probably the conversion process crashed"
-msgstr ""
+msgstr "Výstupní soubor je prázdný, pravděpodobně proces převodu havaroval"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:83
 msgid "Copy to library"
@@ -6805,6 +6832,11 @@ msgid ""
 "you selected them. So if you selected Book A and then Book B,\n"
 "Book A will have series number 1 and Book B series number 2."
 msgstr ""
+"Pokud není zaškrtnuto, bude pořadové číslo knihy nastaveno na 1.\n"
+"Pokud je zaškrtnuto, budou vybrané knihy automaticky číslovány v pořadí,\n"
+"ve kterém jste je vybrali. Takže pokud jste vybrali knihu A a potom knihu "
+"B,\n"
+"kniha A bude mít pořadové číslo 1 a kniha B pořadové číslo 2."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:363
 msgid "Automatically number books in this series"
@@ -6842,6 +6874,9 @@ msgid ""
 "\n"
 "Future conversion of these books will use the default settings."
 msgstr ""
+"Smazat uložené nastavení konverze pro vybrané knihy.\n"
+"\n"
+"Pro budoucí konverzi těchto knih bude použito výchozí nastavení."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:376
 msgid "Remove &stored conversion settings for the selected books"
@@ -7624,7 +7659,7 @@ msgstr "Aplikované položky"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:163
 msgid "Unapply (remove) tag from current tag category"
-msgstr ""
+msgstr "Nepoužívat (odebrat) tag z aktuální kategorie tagů"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:165
 msgid "Category name: "
@@ -8008,7 +8043,7 @@ msgstr "Kód zdroje (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:145
 msgid "Email %s to %s"
-msgstr ""
+msgstr "E-mail %s pro %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:187
 msgid "News:"
@@ -8051,11 +8086,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:303
 msgid "Failed to email book"
-msgstr ""
+msgstr "Chyba při odeslání knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:306
 msgid "sent"
-msgstr ""
+msgstr "odesláno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:329
 msgid "Sent news to"
@@ -8084,6 +8119,27 @@ msgid ""
 "expression on a few sample filenames. The group names for the various "
 "metadata entries are documented in tooltips.</p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Candara'; font-size:10pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Nastavit vzor regulárního "
+"výrazu k použití, pokud se snaží odhadnout ebook metadata z názvů souborů. "
+"</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><a "
+"href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
+"decoration: underline; color:#0000ff;\">Reference</span></a> o syntaxi "
+"regulárních výrazů jsou k dispozici.</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Použijte funkci <span "
+"style=\" font-weight:600;\">TEST</span> uvedenou níže, která prověří Váš "
+"regulární výraz na několika vzorových souborech. Názvy skupin pro různé "
+"položky metadat jsou zdokumentovány ve vysvětlivkách.</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:119
 msgid "Regular &expression"
@@ -8303,6 +8359,7 @@ msgstr "dostupné"
 msgid ""
 "Books display will be restricted to those matching the selected saved search"
 msgstr ""
+"Zobrazení knih bude omezeno na ty, které odpovídají zvolenému uložené hledání"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:170
 msgid "Shift+Ctrl+F"
@@ -9009,6 +9066,8 @@ msgid ""
 "Used for searching the column. Must contain only digits and lower case "
 "letters."
 msgstr ""
+"Používá se pro prohledávání sloupců. Musí obsahovat pouze číslice a malá "
+"písmena."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:131
 msgid ""
@@ -9055,7 +9114,7 @@ msgstr "Formát &data"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:143
 msgid "<p>Field template. Uses the same syntax as save templates."
-msgstr ""
+msgstr "<p>Pole šablony. Používá stejnou syntaxi jako ukládání šablon."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:144
 msgid "Similar to save templates. For example, {title} {isbn}"
@@ -9401,6 +9460,8 @@ msgid ""
 "\n"
 "Customization: "
 msgstr ""
+"\n"
+"Přizpůsobení: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:155
 msgid "No valid plugin path"
@@ -9577,6 +9638,10 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
+"Zde můžete nastavit, jakým způsobem Calibre uloží Vaše knihy, když kliknete "
+"na tlačítko Odeslat do zařízení. Toto nastavení může být potlačeno pro "
+"jednotlivá zařízení přizpůsobením pluginů rozhraní zařízení v Nastavení-> "
+"Upřesnit-> Pluginy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:331
@@ -9678,6 +9743,12 @@ msgid ""
 "on your iPhone. Here myhostname should be the fully qualified hostname or "
 "the IP address of the computer calibre is running on."
 msgstr ""
+"<p>Nezapomeňte, že Calibre běží jako server tak dlouho, jak dlouho je "
+"spuštěný program Calibre.\n"
+"<p>Stanza by měla vidět Vaši Calibre sbírku automaticky. Pokud ne, zkuste "
+"přidat ve Stanza čtečce v iPhonu nový katalog s URL http://myhostname:8080. "
+"Myhostname označuje název hostitele nebo IP adresu počítače, kde Calibre "
+"běží."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/social.py:34
 msgid "Downloading social metadata, please wait..."
@@ -9764,6 +9835,8 @@ msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
 msgstr ""
+"Vylepšení, která jste zadali, jsou neplatná, zkuste vylepšení vrátit do "
+"výchozího nastavení a měnit je postupně, dokud nenajdete neplatné nastavení."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:50
 msgid ""
@@ -10031,7 +10104,7 @@ msgstr "&Vysunout připojené zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:218
 msgid "Calibre Quick Start Guide"
-msgstr ""
+msgstr "Calibre příručka pro začínající uživatele"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:439
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:450
@@ -10638,6 +10711,9 @@ msgid ""
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
 "address of the computer calibre is running on."
 msgstr ""
+"Musíte v aplikaci WordPlayer přidat Calibre knihovnu s URL "
+"http://myhostname:8080. Myhostname označuje název hostitele nebo IP adresu "
+"počítače, na kterém Calibre běží."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:483
 msgid "Moving library..."
@@ -10927,11 +11003,11 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr ""
+msgstr "VAROVÁNÍ: Nepoužívání žádného šifrování je velice nebezpečné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
-msgstr ""
+msgstr "Žádný"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:145
 msgid "Use Gmail"
@@ -10972,7 +11048,7 @@ msgstr "tentoměsíc"
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:374
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:375
 msgid "daysago"
-msgstr ""
+msgstr "dní zpět"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:539
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:549
@@ -11062,6 +11138,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"BibTeX kódování výstupního souboru.\n"
+"Dostupné typy: utf8, cp1252, ascii.\n"
+"Výchozí: '%default'\n"
+"Platí pro: výstupní formát BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:261
 msgid ""
@@ -11078,6 +11158,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Typ záznamu pro katalog BibTeX.\n"
+"Dostupné typy: kniha, různé, smíšené.\n"
+"Výchozí: '%default'\n"
+"Platí pro: výstupní formát BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:540
 msgid ""
@@ -11085,6 +11169,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Název vygenerovaného katalogu použit jako název v metadatech.\n"
+"Výchozí: '%default'\n"
+"Platí pro: výstupní formáty ePub a MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:547
 msgid ""
@@ -11253,6 +11340,9 @@ msgid ""
 "Available fields: %s\n"
 "Default: %%default"
 msgstr ""
+"Pole podle kterého třídit výsledky\n"
+"Dostupná pole: %s\n"
+"Výchozí: %%default"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:139
 msgid "Sort results in ascending order"
@@ -11318,6 +11408,8 @@ msgid ""
 "Assume that each directory has only a single logical book and that all files "
 "in it are different e-book formats of that book"
 msgstr ""
+"Předpokládá se, že každý adresář obsahuje pouze jednu logickou knihu, a že "
+"všechny soubory v něm jsou různé formáty této knihy"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:281
 msgid "Process directories recursively"
@@ -11359,6 +11451,11 @@ msgid ""
 "separated list of id numbers (you can get id numbers by using the list "
 "command). For example, 23,34,57-85\n"
 msgstr ""
+"%prog remove ids\n"
+"\n"
+"Odstraní knihy označené podle ids z databáze. Ids by měl být seznam id čísel "
+"oddělený čárkami (id čísla můžete získat pomocí seznamu příkazů). Například, "
+"23,34,57-85\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:349
 msgid "You must specify at least one book to remove"
@@ -11565,6 +11662,11 @@ msgid ""
 "    List available custom columns. Shows column labels and ids.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog custom_columns [options]\n"
+"\n"
+"    Seznam dostupných vlastních sloupců. Zobrazí popisky sloupců a ids.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:775
 msgid "Show details for each column."
@@ -11676,10 +11778,12 @@ msgid ""
 "Comma-separated list of names to ignore.\n"
 "Default: all"
 msgstr ""
+"Čárkami oddělený seznam ignorovaných jmen.\n"
+"Výchozí: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:927
 msgid "Unknown report check"
-msgstr ""
+msgstr "Neznámé hlášení o kontrole"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:960
 msgid ""
@@ -11734,6 +11838,8 @@ msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
+"Čárkami oddělený seznam kategorií hledaných jmen.\n"
+"Výchozí: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1047
 msgid "The string used to separate fields in CSV mode. Default is a comma."
@@ -11797,7 +11903,7 @@ msgstr "Kontrola chybějících souborů."
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2516
 msgid "Checked id"
-msgstr ""
+msgstr "Zkontrolované id"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:139
 msgid "Ratings"

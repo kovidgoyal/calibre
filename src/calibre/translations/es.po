@@ -10,14 +10,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-26 19:04+0000\n"
-"PO-Revision-Date: 2010-11-26 21:41+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-11-27 20:21+0000\n"
+"PO-Revision-Date: 2010-11-27 17:43+0000\n"
+"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-27 04:49+0000\n"
+"X-Launchpad-Export-Date: 2010-11-28 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
@@ -622,7 +622,7 @@ msgstr "Este perfil está pensado para el JetBook de 5 pulgadas."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:684
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Este perfil está orientado al B&N Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:695
 msgid "This profile is intended for the Sanda Bambook."
@@ -842,7 +842,7 @@ msgstr "Comunicarse con el lector PocketBook 301."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602 reader."
-msgstr ""
+msgstr "Comunicarse con el lector PocketBook 602."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1057,7 +1057,7 @@ msgstr "Comunicar con el GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:180
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Comunicarse con el Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2855,19 +2855,21 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:25
 msgid "Downloads metadata from french Nicebooks"
-msgstr ""
+msgstr "Descarga metadatos en francés de Nicebooks"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:41
 msgid "Downloads covers from french Nicebooks"
-msgstr ""
+msgstr "Descarga portadas en francés de Nicebooks"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:332
 msgid "Nicebooks timed out. Try again later."
 msgstr ""
+"El tiempo de conexión con Nicebooks ha vencido. Inténtelo de nuevo más tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:337
 msgid "An errror occured with Nicebooks cover fetcher"
 msgstr ""
+"Ha ocurrido un error al intentar obtener las portadas desde Nicebooks"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1308
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1401
@@ -4087,6 +4089,7 @@ msgstr "Iniciando la conversión de %d libro(s)"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:170
 msgid "Empty output file, probably the conversion process crashed"
 msgstr ""
+"Archivo de salida vacío, probablemente el proceso de conversión ha reventado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:83
 msgid "Copy to library"
@@ -8410,11 +8413,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:303
 msgid "Failed to email book"
-msgstr ""
+msgstr "Falló al enviar por correo el libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:306
 msgid "sent"
-msgstr ""
+msgstr "enviado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:329
 msgid "Sent news to"
@@ -11441,11 +11444,11 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr ""
+msgstr "Aviso: no usar cifrado es muy inseguro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
-msgstr ""
+msgstr "&Ninguno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:145
 msgid "Use Gmail"

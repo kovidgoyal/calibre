@@ -10,14 +10,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-26 19:04+0000\n"
-"PO-Revision-Date: 2010-11-26 21:32+0000\n"
+"POT-Creation-Date: 2010-11-27 20:21+0000\n"
+"PO-Revision-Date: 2010-11-28 01:00+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-27 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-11-28 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -617,7 +617,7 @@ msgstr "Aquest perfil és adient per a l'Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:684
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Aquest perfil és adient per al B&N Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:695
 msgid "This profile is intended for the Sanda Bambook."
@@ -840,7 +840,7 @@ msgstr "Comunica't amb un lector PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602 reader."
-msgstr ""
+msgstr "Comunica't amb el PocketBook 602 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1054,7 +1054,7 @@ msgstr "Comunica't amb un GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:180
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Comunica't amb l'Acer Lumiread."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2712,7 +2712,8 @@ msgstr "Descarrega portades des de librarything.com"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:129
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:69
 msgid "LibraryThing.com timed out. Try again later."
-msgstr "LibraryThing.com ha esgotat el temps. Provi-ho de nou més tard."
+msgstr ""
+"El temps d'espera per a LibraryThing.com s'ha esgotat. Intenteu-ho més tard."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:136
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:76
@@ -2735,7 +2736,7 @@ msgstr "Descarrega portades de Douban.com"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:235
 msgid "Douban.com API timed out. Try again later."
 msgstr ""
-"El temps d'espera d l'API Douban.com s'ha esgotat. Intenteu-ho més tard."
+"El temps d'espera de l'API Douban.com s'ha esgotat. Intenteu-ho més tard."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
@@ -2852,19 +2853,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:25
 msgid "Downloads metadata from french Nicebooks"
-msgstr ""
+msgstr "Descarrega metadades del Nicebooks francès"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:41
 msgid "Downloads covers from french Nicebooks"
-msgstr ""
+msgstr "Descarrega portades del Nicebooks francès"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:332
 msgid "Nicebooks timed out. Try again later."
 msgstr ""
+"El temps d'espera per a Nicebooks s'ha esgotat. Intenteu-ho més tard."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:337
 msgid "An errror occured with Nicebooks cover fetcher"
-msgstr ""
+msgstr "Hi ha hagut un error a la descàrrega de portades des de Nicebooks"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1308
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1401
@@ -3893,6 +3895,10 @@ msgid ""
 "removed. You should check them manually. This can happen if you manipulate "
 "the files in the library folder directly."
 msgstr ""
+"Aquests llibres tenien formats o portades a la llista de la base de dades "
+"que no estan disponibles. S'ha suprimit les entrades per als "
+"formats/portades. Caldria comprovar-ho manualment. Pot passar en manipular "
+"directament els fitxers a la carpeta de la biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
@@ -4079,6 +4085,7 @@ msgstr "S'està començant la conversió de %d llibre(s)"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:170
 msgid "Empty output file, probably the conversion process crashed"
 msgstr ""
+"Fitxer de sortida buit, probablement el procés de conversió ha fallat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:83
 msgid "Copy to library"
@@ -4207,16 +4214,16 @@ msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
 msgstr ""
-"Els llibres que seleccionats s'eliminaran <b>permanentment</b> i els fitxers "
-"es suprimiran de la vostra llibreria del calibre. N'esteu segur?"
+"Els llibres seleccionats se suprimiran <b>permanentment</b> i els fitxers es "
+"suprimiran de la vostra llibreria del calibre. N'esteu segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:185
 msgid ""
 "The selected books will be <b>permanently deleted</b> from your device. Are "
 "you sure?"
 msgstr ""
-"Els llibres que seleccionats se suprimiran <b>permanentment</b> del "
-"dispositiu. N'esteu segur?"
+"Els llibres seleccionats se suprimiran <b>permanentment</b> del dispositiu. "
+"N'esteu segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:26
 msgid "Connect to folder"
@@ -4647,7 +4654,7 @@ msgstr "S'està  cercant a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:198
 msgid "Adding..."
-msgstr "Afegint..."
+msgstr "S'està afegint..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:211
 msgid "Searching in all sub-directories..."
@@ -4668,7 +4675,7 @@ msgstr "Cap llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:294
 msgid "Added"
-msgstr "Afegit"
+msgstr "S'ha afegit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:307
 msgid "Adding failed"
@@ -6455,6 +6462,13 @@ msgid ""
 "enter the full path to the file after a <code>>></code>.  For example:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 msgstr ""
+"<p>Introduïu una llista d'ISBNs al quadre de l'esquerra, un per línia. El "
+"calibre crearà entrades per als llibres automàticament basant-se en l'ISBN i "
+"en descarregarà les metadades i portades.</p>\n"
+"<p>S'ignora qualsevol ISBN de la llista no vàlid.</p>\n"
+"<p>També podeu indicar un fitxer per afegir amb cada ISBN. Introduïu el camí "
+"complert del fitxer després de <code>>></code> per fer-ho. Exemple:</p>\n"
+"<p><code>9788842915232 >> %s</code></p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:53
 msgid "&Paste from clipboard"
@@ -8339,7 +8353,7 @@ msgstr "Codi font de la recepta (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:145
 msgid "Email %s to %s"
-msgstr ""
+msgstr "Envia per correu electrònic %s a %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:187
 msgid "News:"
@@ -8347,7 +8361,7 @@ msgstr "Notícies:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:189
 msgid "Attached is the %s periodical downloaded by calibre."
-msgstr ""
+msgstr "S'adjunta el diari %s descarregat pel calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:242
 msgid "E-book:"
@@ -8385,11 +8399,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:303
 msgid "Failed to email book"
-msgstr ""
+msgstr "No s'ha pogut enviar el llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:306
 msgid "sent"
-msgstr ""
+msgstr "s'ha enviat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:329
 msgid "Sent news to"
@@ -11248,6 +11262,9 @@ msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
+"<p>Trieu una localització per als llibres. Quan s'afegeixin llibres al "
+"calibre es copiaran aquí. Utilitzeu una <b>carpeta buida</b> per a una nova "
+"biblioteca del calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -11418,11 +11435,11 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr ""
+msgstr "Avís: No fer servir encriptació és molt insegur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
-msgstr ""
+msgstr "&Cap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:145
 msgid "Use Gmail"

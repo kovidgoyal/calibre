@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-11-26 19:04+0000\n"
-"PO-Revision-Date: 2010-11-26 21:48+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-11-27 20:21+0000\n"
+"PO-Revision-Date: 2010-11-27 10:19+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-27 04:50+0000\n"
+"X-Launchpad-Export-Date: 2010-11-28 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -823,7 +823,7 @@ msgstr "Communicate with the PocketBook 301 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602 reader."
-msgstr ""
+msgstr "Communicate with the PocketBook 602 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1037,7 +1037,7 @@ msgstr "Communicate with the GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:180
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Communicate with the Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -6361,6 +6361,13 @@ msgid ""
 "enter the full path to the file after a <code>>></code>.  For example:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 msgstr ""
+"<p>Enter a list of ISBNs in the box to the left, one per line. calibre will "
+"automatically create entries for books based on the ISBN and download "
+"metadata and covers for them.</p>\n"
+"<p>Any invalid ISBNs in the list will be ignored.</p>\n"
+"<p>You can also specify a file that will be added with each ISBN. To do this "
+"enter the full path to the file after a <code>>></code>.  For example:</p>\n"
+"<p><code>9788842915232 >> %s</code></p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:53
 msgid "&Paste from clipboard"
@@ -8223,7 +8230,7 @@ msgstr "News:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:189
 msgid "Attached is the %s periodical downloaded by calibre."
-msgstr ""
+msgstr "Attached is the %s periodical downloaded by calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:242
 msgid "E-book:"
@@ -8258,11 +8265,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:303
 msgid "Failed to email book"
-msgstr ""
+msgstr "Failed to email book"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:306
 msgid "sent"
-msgstr ""
+msgstr "sent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:329
 msgid "Sent news to"
@@ -11227,11 +11234,11 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr ""
+msgstr "WARNING: Using no encryption is highly insecure"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
-msgstr ""
+msgstr "&None"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:145
 msgid "Use Gmail"
