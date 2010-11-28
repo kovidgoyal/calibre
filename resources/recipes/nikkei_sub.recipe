@@ -5,12 +5,12 @@ from calibre.ptempfile import PersistentTemporaryFile
 
 
 class NikkeiNet_subscription(BasicNewsRecipe):
-    title           = u'\u65e5\u7d4c\u65b0\u805e\u96fb\u5b50\u7248'
+    title           = u'\u65e5\u7d4c\u65b0\u805e\u96fb\u5b50\u7248(MAX)'
     __author__      = 'Hiroshi Miura'
-    description     = 'News and current market affairs from Japan'
+    description     = 'News and current market affairs from Japan, gather MAX articles'
     needs_subscription = True
     oldest_article  = 2
-    max_articles_per_feed = 20
+    max_articles_per_feed = 10
     language        = 'ja'
     remove_javascript = False
     temp_files = []

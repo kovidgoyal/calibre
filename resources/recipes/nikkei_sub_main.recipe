@@ -1,5 +1,3 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
 '''
@@ -30,6 +28,9 @@ class NikkeiNet_sub_main(BasicNewsRecipe):
                        {'class':"JSID_basePageMove JSID_baseAsyncSubmit cmn-form_area JSID_optForm_utoken"},
                        {'class':"cmn-article_keyword cmn-clearfix"},
                        {'class':"cmn-print_headline cmn-clearfix"},
+                       {'class':"cmn-article_list"},
+                       {'class':"cmn-dashedline"},
+                       {'class':"cmn-hide"},
                          ]
     remove_tags_after = {'class':"cmn-pr_list"}
 
