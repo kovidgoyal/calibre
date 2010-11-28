@@ -36,6 +36,23 @@ class AmazonFr(MetadataSource):
             self.exception = e
             self.tb = traceback.format_exc()
 
+class AmazonDe(MetadataSource):
+
+    name = 'Amazon german'
+    description = _('Downloads social metadata from amazon.de')
+    supported_platforms = ['windows', 'osx', 'linux']
+    author = 'Sengian'
+    version = (1, 0, 0)
+    has_html_comments = True
+
+    def fetch(self):
+        try:
+            self.results = search(self.title, self.book_author, self.publisher,
+                                  self.isbn, max_results=10, verbose=self.verbose, lang='de')
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
 class Amazon(MetadataSource):
 
     name = 'Amazon'
@@ -59,8 +76,8 @@ def report(verbose):
         import traceback
         traceback.print_exc()
 
-def replace_monthsfr(datefr):
-    # Replace french months by english equivalent for parse_date
+def replace_months(datez, clang):
+    # Replace months by english equivalent for parse_date
     frtoen = {
         u'[jJ]anvier': u'jan',
         u'[fF].vrier': u'feb',
@@ -74,15 +91,38 @@ def replace_monthsfr(datefr):
         u'[Oo]ctobre': u'oct',
         u'[nN]ovembre': u'nov',
         u'[dD].cembre': u'dec' }
-    for k in frtoen.iterkeys():
-        tmp = re.sub(k, frtoen[k], datefr)
-        if tmp <> datefr: break
+    detoen = {
+        u'[jJ]anuar': u'jan',
+        u'[fF]ebruar': u'feb',
+        u'[mM].rz': u'mar',
+        u'[aA]pril': u'apr',
+        u'[mM]ai': u'may',
+        u'[jJ]uni': u'jun',
+        u'[jJ]uli': u'jul',
+        u'[aA]ugust': u'aug',
+        u'[sS]eptember': u'sep',
+        u'[Oo]ktober': u'oct',
+        u'[nN]ovember': u'nov',
+        u'[dD]ezember': u'dec' }
+        
+    if clang == 'fr':
+        dictoen = frtoen
+    elif clang == 'de':
+        dictoen = detoen
+    else:
+        return datez
+    
+    for k in dictoen.iterkeys():
+        tmp = re.sub(k, dictoen[k], datez)
+        if tmp != datez: break
     return tmp
+
 
 class Query(object):
 
     BASE_URL_FR = 'http://www.amazon.fr'
     BASE_URL_EN = 'http://www.amazon.com'
+    BASE_URL_DE = 'http://www.amazon.de'
 
     def __init__(self, title=None, author=None, publisher=None, isbn=None, keywords=None,
         max_results=20, rlang='en'):
@@ -119,6 +159,9 @@ class Query(object):
         elif rlang =='fr':
             q['sort'] = 'relevancerank'
             self.urldata = self.BASE_URL_FR
+        elif rlang =='de':
+            q['sort'] = 'relevancerank'
+            self.urldata = self.BASE_URL_DE
         self.baseurl = self.urldata
         
         if isbn is not None:
@@ -203,11 +246,11 @@ class ResultList(list):
         self.reattr = re.compile(r'<([a-zA-Z0-9]+)\s[^>]+>')
         self.reoutp = re.compile(r'(?s)<em>--This text ref.*?</em>')
         self.recom = re.compile(r'(?s)<!--.*?-->')
-        self.republi = re.compile(u'(Editeur|Publisher)', re.I)
+        self.republi = re.compile(u'(Editeur|Publisher|Verlag)', re.I)
         self.reisbn = re.compile(u'(ISBN-10|ISBN-10|ASIN)', re.I)
-        self.relang = re.compile(u'(Language|Langue)', re.I)
-        self.reratelt = re.compile(u'(Average\s*Customer\s*Review|Moyenne\s*des\s*commentaires\s*client)', re.I)
-        self.reprod = re.compile(u'(Product\s*Details|D.tails\s*sur\s*le\s*produit)', re.I)
+        self.relang = re.compile(u'(Language|Langue|Sprache)', re.I)
+        self.reratelt = re.compile(u'(Average\s*Customer\s*Review|Moyenne\s*des\s*commentaires\s*client|Durchschnittliche\s*Kundenbewertung)', re.I)
+        self.reprod = re.compile(u'(Product\s*Details|D.tails\s*sur\s*le\s*produit|Produktinformation)', re.I)
 
     def strip_tags_etree(self, etreeobj, invalid_tags):
         for (itag, rmv) in invalid_tags.iteritems():
@@ -315,8 +358,8 @@ class ResultList(list):
                 d = d.group(1)
                 try:
                     default = utcnow().replace(day=15)
-                    if self.lang == 'fr':
-                        d = replace_monthsfr(d)
+                    if self.lang != 'en':
+                        d = replace_months(d, self.lang)
                     d = parse_date(d, assume_utc=True, default=default)
                     mi.pubdate = d
                 except:
@@ -415,7 +458,7 @@ def option_parser():
         Fetch book metadata from Amazon. You must specify one of title, author,
         ISBN, publisher or keywords. Will fetch a maximum of 10 matches,
         so you should make your query as specific as possible.
-        You can chose the language for metadata retrieval (french & american).
+        You can chose the language for metadata retrieval (french & american & german).
     '''
     ))
     parser.add_option('-t', '--title', help='Book title')
@@ -423,14 +466,10 @@ def option_parser():
     parser.add_option('-p', '--publisher', help='Book publisher')
     parser.add_option('-i', '--isbn', help='Book ISBN')
     parser.add_option('-k', '--keywords', help='Keywords')
-    parser.add_option('-c', '--covers', default=0,
-                      help='Covers: 1-Check/ 2-Download')
-    parser.add_option('-p', '--coverspath', default='',
-                      help='Covers files path')
     parser.add_option('-m', '--max-results', default=10,
                       help='Maximum number of results to fetch')
     parser.add_option('-l', '--lang', default='en',
-                      help='Chosen language for metadata search')
+                      help='Chosen language for metadata search (fr, en , de)')
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help='Be more verbose about errors')
     return parser
