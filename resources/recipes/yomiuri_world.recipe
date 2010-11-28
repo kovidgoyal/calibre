@@ -8,18 +8,18 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
 class YOLNews(BasicNewsRecipe):
-    title          = u'YOMIURI ONLINE(Latest)'
+    title          = u'YOMIURI ONLINE(World)'
     __author__     = 'Hiroshi Miura'
-    oldest_article = 1
+    oldest_article = 2
     max_articles_per_feed = 50
-    description    = 'Japanese traditional newspaper Yomiuri Online News'
+    description    = 'Japanese traditional newspaper Yomiuri Online News/world news'
     publisher      = 'Yomiuri Online News'
     category       = 'news, japan'
     language       = 'ja'
     encoding       = 'Shift_JIS'
-    index          = 'http://www.yomiuri.co.jp/latestnews/'
+    index          = 'http://www.yomiuri.co.jp/world/'
     remove_javascript = True
-    masthead_title = u'YOMIURI ONLINE'
+    masthead_title = u"YOMIURI ONLINE"
 
     remove_tags_before = {'class':"article-def"}
     remove_tags = [{'class':"RelatedArticle"},
@@ -58,6 +58,6 @@ class YOLNews(BasicNewsRecipe):
                                      ,'url'        :'http://www.yomiuri.co.jp' + itema['href']
                                      ,'description':''
                                     })
-           feeds.append(('latest', newsarticles))
+           feeds.append(('World', newsarticles))
         return feeds
 
