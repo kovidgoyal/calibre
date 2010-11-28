@@ -129,11 +129,11 @@ Here's a simple Hello World plugin for the |app| GUI. It will cause a box to pop
                     info_dialog(self.gui, 'Hello World!', 'Hellooo World!',
                             show=True)
 
-            return HelloWorld(gui, None)
+            return HelloWorld(gui, self.site_customization)
 
 You can also have it show up in the toolbars/context menu by going to Preferences->Toolbars and adding this plugin to the locations you want it to be in.
 
-While this plugin is utterly useless, note that all calibre GUI actions like adding/saving/removing/viewing/etc. are implemented as plugins, so there is no limit to what you can acheive. The key thing to remember is that the plugin has access to the full |app| GUI via ``self.gui``.
+While this plugin is utterly useless, note that all calibre GUI actions like adding/saving/removing/viewing/etc. are implemented as plugins, so there is no limit to what you can achieve. The key thing to remember is that the plugin has access to the full |app| GUI via ``self.gui``.
 
 
 The Plugin base class
