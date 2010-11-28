@@ -10,6 +10,7 @@ from lxml import html
 from lxml.html import soupparser
 
 from calibre.utils.date import parse_date, utcnow, replace_months
+from calibre.utils.cleantext import clean_ascii_char
 from calibre import browser, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn, \
@@ -53,9 +54,9 @@ class AmazonEs(MetadataSource):
             self.exception = e
             self.tb = traceback.format_exc()
 
-class AmazonUS(MetadataSource):
+class AmazonEn(MetadataSource):
 
-    name = 'Amazon US english'
+    name = 'Amazon english'
     description = _('Downloads social metadata from amazon.com in english')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Sengian'
@@ -65,7 +66,7 @@ class AmazonUS(MetadataSource):
     def fetch(self):
         try:
             self.results = search(self.title, self.book_author, self.publisher,
-                                  self.isbn, max_results=10, verbose=self.verbose, lang='us')
+                                  self.isbn, max_results=10, verbose=self.verbose, lang='en')
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
@@ -97,24 +98,29 @@ class Amazon(MetadataSource):
     has_html_comments = True
 
     def fetch(self):
+        # if not self.site_customization:
+            # return
         try:
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10, verbose=self.verbose, lang='all')
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
+    
+    # @property
+    # def string_customization_help(self):
+        # return _('You can select here the language for metadata search with amazon.com')
 
 
 def report(verbose):
     if verbose:
-        import traceback
         traceback.print_exc()
 
 
 class Query(object):
 
-    BASE_URL_FR = 'http://www.amazon.fr'
     BASE_URL_ALL = 'http://www.amazon.com'
+    BASE_URL_FR = 'http://www.amazon.fr'
     BASE_URL_DE = 'http://www.amazon.de'
 
     def __init__(self, title=None, author=None, publisher=None, isbn=None, keywords=None,
@@ -153,7 +159,7 @@ class Query(object):
             q['sort'] = 'relevanceexprank'
             q['field-language'] = 'Spanish'
             self.urldata = self.BASE_URL_ALL
-        elif rlang =='us':
+        elif rlang =='en':
             q['sort'] = 'relevanceexprank'
             q['field-language'] = 'English'
             self.urldata = self.BASE_URL_ALL
@@ -197,24 +203,25 @@ class Query(object):
             return
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
+        
         try:
             feed = soupparser.fromstring(raw)
         except:
-            return None, self.urldata
+            try:
+                #remove ASCII invalid chars
+                return soupparser.fromstring(clean_ascii_char(raw))
+            except:
+                return None, self.urldata
         
         #nb of page
         try:
             nbresults = self.renbres.findall(feed.xpath("//*[@class='resultCount']")[0].text)
-            rpp = 0
-            if len(nbresults) > 1:
-                rpp = int(nbresults[1])
-                nbresults = int(nbresults[2])
         except:
             return None, self.urldata
         
         pages =[feed]
-        if rpp:
-            nbpagetoquery = int(ceil(float(min(nbresults, self.max_results))/ rpp))
+        if len(nbresults) > 1:
+            nbpagetoquery = int(ceil(float(min(int(nbresults[2]), self.max_results))/ int(nbresults[1])))
             for i in xrange(2, nbpagetoquery + 1):
                 try:
                     urldata = self.urldata + '&page=' + str(i)
@@ -228,7 +235,11 @@ class Query(object):
                 try:
                     feed = soupparser.fromstring(raw)
                 except:
-                    continue
+                    try:
+                        #remove ASCII invalid chars
+                        return soupparser.fromstring(clean_ascii_char(raw))
+                    except:
+                        continue
                 pages.append(feed)
         
         results = []
@@ -416,7 +427,12 @@ class ResultList(list):
         try:
             return soupparser.fromstring(raw)
         except:
-            return
+            try:
+                #remove ASCII invalid chars
+                return soupparser.fromstring(clean_ascii_char(raw))
+            except:
+                report(verbose)
+                return
 
     def populate(self, entries, browser, verbose=False):
         for x in entries:
@@ -433,6 +449,8 @@ class ResultList(list):
                 if verbose:
                     print 'Failed to get all details for an entry'
                     print e
+                    print 'URL who failed:', x
+                    report(verbose)
                 continue
             self.append(self.fill_MI(entry, title, authors, browser, verbose))
 
@@ -453,16 +471,16 @@ def search(title=None, author=None, publisher=None, isbn=None,
 
 def option_parser():
     parser = OptionParser(textwrap.dedent(\
-    '''\
+    _('''\
         %prog [options]
 
         Fetch book metadata from Amazon. You must specify one of title, author,
         ISBN, publisher or keywords. Will fetch a maximum of 10 matches,
         so you should make your query as specific as possible.
         You can chose the language for metadata retrieval:
-        All & US english & french & german & spanish
+        All & english & french & german & spanish
     '''
-    ))
+    )))
     parser.add_option('-t', '--title', help='Book title')
     parser.add_option('-a', '--author', help='Book author(s)')
     parser.add_option('-p', '--publisher', help='Book publisher')
@@ -471,7 +489,7 @@ def option_parser():
     parser.add_option('-m', '--max-results', default=10,
                       help='Maximum number of results to fetch')
     parser.add_option('-l', '--lang', default='all',
-                      help='Chosen language for metadata search (all, us, fr, es , de)')
+                      help='Chosen language for metadata search (all, en, fr, es, de)')
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help='Be more verbose about errors')
     return parser
