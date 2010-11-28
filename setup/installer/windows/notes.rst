@@ -21,6 +21,8 @@ This is where all dependencies will be installed.
 
 Add C:\Python27\Scripts and C:\Python27 to PATH 
 
+Edit mimetypes.py in C:\Python27\Lib and change line 250 UnicodeEncodeError to ValueError and set _winreg = None to prevent reading of mimetypes from the windows registry
+
 Install setuptools from http://pypi.python.org/pypi/setuptools
 If there are no windows binaries already compiled for the version of python you are using then download the source and run the following command in the folder where the source has been unpacked::
 
@@ -31,6 +33,14 @@ Run the following command to install python dependencies::
     easy_install --always-unzip -U ipython mechanize pyreadline python-dateutil dnspython cssutils clientform pycrypto
 
 Install BeautifulSoup 3.0.x manually into site-packages (3.1.x parses broken HTML very poorly)
+
+Install pywin32 and edit win32com\__init__.py setting _frozen = True and
+__gen_path__ to a temp dir (otherwise it tries to set it to a dir in the install tree which leads to permission errors)
+
+SQLite
+---------
+
+Put sqlite3*.h from the sqlite windows amlgamation in ~/sw/include
 
 Qt
 --------
@@ -60,7 +70,11 @@ Compiling instructions::
 Python Imaging Library
 ------------------------
 
-Install as normal using provided installer.
+Install as normal using installer at http://www.lfd.uci.edu/~gohlke/pythonlibs/
+
+Test it on the target system with
+
+calibre-debug -c "import _imaging, _imagingmath, _imagingft, _imagingcms"
 
 Libunrar
 ----------

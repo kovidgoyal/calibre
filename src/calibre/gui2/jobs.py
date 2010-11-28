@@ -221,16 +221,27 @@ class JobManager(QAbstractTableModel):
         if job.duration is not None:
             return error_dialog(view, _('Cannot kill job'),
                          _('Job has already run')).exec_()
-        self.server.kill_job(job)
+        if isinstance(job, ParallelJob):
+            self.server.kill_job(job)
+        else:
+            job.kill_on_start = True
 
     def kill_all_jobs(self):
         for job in self.jobs:
             if isinstance(job, DeviceJob) or job.duration is not None:
                 continue
-            self.server.kill_job(job)
+            if isinstance(job, ParallelJob):
+                self.server.kill_job(job)
+            else:
+                job.kill_on_start = True
 
     def terminate_all_jobs(self):
         self.server.killall()
+        for job in self.jobs:
+            if isinstance(job, DeviceJob) or job.duration is not None:
+                continue
+            if not isinstance(job, ParallelJob):
+                job.kill_on_start = True
 
 
 class ProgressBarDelegate(QAbstractItemDelegate):

@@ -23,7 +23,8 @@ from calibre.constants import iswindows
 from calibre import prints, guess_type
 from calibre.gui2.viewer.keys import SHORTCUTS
 
-bookmarks = referencing = hyphenation = jquery = jquery_scrollTo = hyphenator = images =None
+bookmarks = referencing = hyphenation = jquery = jquery_scrollTo = \
+        hyphenator = images = hyphen_pats = None
 
 def load_builtin_fonts():
     base = P('fonts/liberation/*.ttf')
@@ -202,7 +203,8 @@ class Document(QWebPage):
         self.loaded_javascript = False
 
     def load_javascript_libraries(self):
-        global bookmarks, referencing, hyphenation, jquery, jquery_scrollTo, hyphenator, images
+        global bookmarks, referencing, hyphenation, jquery, jquery_scrollTo, \
+                hyphenator, images, hyphen_pats
         if self.loaded_javascript:
             return
         self.loaded_javascript = True
@@ -234,14 +236,20 @@ class Document(QWebPage):
             return l.lower().replace('_', '-')
         if hyphenator is None:
             hyphenator = P('viewer/hyphenate/Hyphenator.js', data=True).decode('utf-8')
-        self.javascript(hyphenator)
+        if hyphen_pats is None:
+            hyphen_pats = []
+            for x in glob.glob(P('viewer/hyphenate/patterns/*.js',
+                allow_user_override=False)):
+                with open(x, 'rb') as f:
+                    hyphen_pats.append(f.read().decode('utf-8'))
+            hyphen_pats = u'\n'.join(hyphen_pats)
+
+        self.javascript(hyphenator+hyphen_pats)
         p = P('viewer/hyphenate/patterns/%s.js'%lang_name(lang))
         if not os.path.exists(p):
             lang = default_lang
             p = P('viewer/hyphenate/patterns/%s.js'%lang_name(lang))
-        self.javascript(open(p, 'rb').read().decode('utf-8'))
-        self.loaded_lang = lang
-
+        self.loaded_lang = lang_name(lang)
 
     @pyqtSignature("")
     def animated_scroll_done(self):

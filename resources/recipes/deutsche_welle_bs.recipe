@@ -1,0 +1,76 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+dw-world.de
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DeutscheWelle_bs(BasicNewsRecipe):
+    title                 = 'Deutsche Welle'
+    __author__            = 'Darko Miletic'
+    description           = 'Vijesti iz Njemacke i svijeta'
+    publisher             = 'Deutsche Welle'
+    category              = 'news, politics, Germany'
+    oldest_article        = 1
+    max_articles_per_feed = 100
+    use_embedded_content  = False
+    no_stylesheets        = True
+    language              = 'bs'
+    publication_type      = 'newsportal'
+    remove_empty_feeds    = True
+    masthead_url          = 'http://www.dw-world.de/skins/std/channel1/pics/dw_logo1024.gif'
+    extra_css             = """
+                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                                body{font-family: Arial,sans1,sans-serif}
+                                img{margin-top: 0.5em; margin-bottom: 0.2em; display: block}
+                                .caption{font-size: x-small; display: block; margin-bottom: 0.4em}
+                            """
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
+                        }
+
+    remove_tags = [
+                     dict(name=['iframe','embed','object','form','base','meta','link'])
+                    ,dict(attrs={'class':'actionFooter'})
+                  ]
+    keep_only_tags=[dict(attrs={'class':'ArticleDetail detail'})]
+    remove_attributes = ['height','width','onclick','border','lang']
+
+    feeds          = [
+                        (u'Politika'         , u'http://rss.dw-world.de/rdf/rss-bos-pol')
+                       ,(u'Evropa'           , u'http://rss.dw-world.de/rdf/rss-bos-eu' )
+                       ,(u'Kiosk'            , u'http://rss.dw-world.de/rdf/rss-bos-eu' )
+                       ,(u'Ekonomija i Nuka' , u'http://rss.dw-world.de/rdf/rss-bos-eco')
+                       ,(u'Kultura'          , u'http://rss.dw-world.de/rdf/rss-bos-cul')
+                       ,(u'Sport'            , u'http://rss.dw-world.de/rdf/rss-bos-sp' )
+                     ]
+
+    def print_version(self, url):
+        artl = url.rpartition('/')[2]
+        return 'http://www.dw-world.de/popups/popup_printcontent/' + artl
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  del item['href']
+                  if item.has_key('target'):
+                     del item['target']
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        return soup
+

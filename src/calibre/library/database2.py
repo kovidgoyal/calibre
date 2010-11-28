@@ -268,8 +268,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             base,
                             prefer_custom=True)
 
-        self.field_metadata.set_field_record_index('cover',
-                self.FIELD_MAP['cover'], prefer_custom=False)
         self.FIELD_MAP['ondevice'] = base+1
         self.field_metadata.set_field_record_index('ondevice', base+1, prefer_custom=False)
         self.FIELD_MAP['all_metadata'] = base+2
@@ -333,9 +331,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dirtied_cache = set([x[0] for x in d])
 
         self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
-        st = time.time()
         self.refresh()
-        print 'refresh time:', time.time() - st
         self.last_update_check = self.last_modified()
 
 

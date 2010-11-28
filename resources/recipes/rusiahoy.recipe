@@ -19,7 +19,7 @@ class RusiaHoy(BasicNewsRecipe):
     use_embedded_content  = False
     language              = 'es'
     remove_empty_feeds    = True
-    extra_css             = """ 
+    extra_css             = """
                                 body{font-family: Arial,sans-serif }
                                 .article_article_title{font-size: xx-large; font-weight: bold}
                                 .article_date{color: black; font-size: small}
@@ -44,4 +44,4 @@ class RusiaHoy(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-        
+
