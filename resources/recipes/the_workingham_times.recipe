@@ -6,8 +6,8 @@ www.getwokingham.co.uk
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
-class TheWorkinghamTimes(BasicNewsRecipe):
-    title                  = 'The Workingham Times'
+class TheWokinghamTimes(BasicNewsRecipe):
+    title                  = 'The Wokingham Times'
     __author__             = 'Darko Miletic'
     description            = 'News from UK'
     oldest_article         = 2

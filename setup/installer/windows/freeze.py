@@ -108,8 +108,7 @@ class Win32Freeze(Command, WixMixIn):
             for f in x[-1]:
                 if f.lower().endswith('.dll'):
                     f = self.j(x[0], f)
-                    if 'py2exe' not in f:
-                        shutil.copy2(f, self.dll_dir)
+                    shutil.copy2(f, self.dll_dir)
         shutil.copy2(
             r'C:\Python%(v)s\Lib\site-packages\pywin32_system32\pywintypes%(v)s.dll'
             % dict(v=self.py_ver), self.dll_dir)
@@ -118,7 +117,7 @@ class Win32Freeze(Command, WixMixIn):
             ans = []
             for x in items:
                 ext = os.path.splitext(x)[1]
-                if (not ext and (x in ('demos', 'tests') or 'py2exe' in x)) or \
+                if (not ext and (x in ('demos', 'tests'))) or \
                     (ext in ('.dll', '.chm', '.htm', '.txt')):
                     ans.append(x)
             return ans
