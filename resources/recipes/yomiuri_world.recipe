@@ -50,11 +50,9 @@ class YOLNews(BasicNewsRecipe):
                 itema = itt.find('a',href=True)
                 if itema:
                     itd1 = itema.findNextSibling(text = True)
-                    itd2 = itd1.findNextSibling(text = True)
-                    itd3 = itd2.findNextSibling(text = True)
                     newsarticles.append({
                                       'title'      :itema.string
-                                     ,'date'       :''.join([itd1, itd2, itd3])
+                                     ,'date'       :''.join([itd1])
                                      ,'url'        :'http://www.yomiuri.co.jp' + itema['href']
                                      ,'description':''
                                     })
