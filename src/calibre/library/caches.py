@@ -403,7 +403,7 @@ class ResultCache(SearchQueryParser): # {{{
                         '<=':[2, lambda r, q: r <= q]
                     }
 
-    def get_numeric_matches(self, location, query):
+    def get_numeric_matches(self, location, query, val_func = None):
         matches = set([])
         if len(query) == 0:
             return matches
@@ -419,7 +419,10 @@ class ResultCache(SearchQueryParser): # {{{
         if relop is None:
                 (p, relop) = self.numeric_search_relops['=']
 
-        loc = self.field_metadata[location]['rec_index']
+        if val_func is None:
+            loc = self.field_metadata[location]['rec_index']
+            val_func = lambda item, loc=loc: item[loc]
+
         dt = self.field_metadata[location]['datatype']
         if dt == 'int':
             cast = (lambda x: int (x))
@@ -429,6 +432,9 @@ class ResultCache(SearchQueryParser): # {{{
             adjust = lambda x: x/2
         elif dt == 'float':
             cast = lambda x : float (x)
+            adjust = lambda x: x
+        else: # count operation
+            cast = (lambda x: int (x))
             adjust = lambda x: x
 
         if len(query) > 1:
@@ -446,10 +452,11 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is None:
                 continue
-            if not item[loc]:
+            v = val_func(item)
+            if not v:
                 i = 0
             else:
-                i = adjust(item[loc])
+                i = adjust(v)
             if relop(i, q):
                 matches.add(item[0])
         return matches
@@ -467,15 +474,23 @@ class ResultCache(SearchQueryParser): # {{{
                     return matches
                 raise ParseException(query, len(query), 'Recursive query group detected', self)
 
-            # take care of dates special case
-            if location in self.field_metadata and \
-                     self.field_metadata[location]['datatype'] == 'datetime':
-                return self.get_dates_matches(location, query.lower())
+            if location in self.field_metadata:
+                fm = self.field_metadata[location]
+                # take care of dates special case
+                if fm['datatype'] == 'datetime':
+                    return self.get_dates_matches(location, query.lower())
 
-            # take care of numbers special case
-            if location in self.field_metadata and \
-                    self.field_metadata[location]['datatype'] in ('rating', 'int', 'float'):
-                return self.get_numeric_matches(location, query.lower())
+                # take care of numbers special case
+                if fm['datatype'] in ('rating', 'int', 'float'):
+                    return self.get_numeric_matches(location, query.lower())
+
+                # take care of the 'count' operator for is_multiples
+                if fm['is_multiple'] and \
+                        len(query) > 1 and query.startswith('#') and \
+                        query[1:1] in '=<>!':
+                    vf = lambda item, loc=fm['rec_index'], ms=fm['is_multiple']:\
+                            len(item[loc].split(ms)) if item[loc] is not None else 0
+                    return self.get_numeric_matches(location, query[1:], val_func=vf)
 
             # everything else, or 'all' matches
             matchkind = CONTAINS_MATCH

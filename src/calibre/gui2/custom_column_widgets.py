@@ -437,7 +437,7 @@ class BulkBool(BulkBase, Bool):
             if tweaks['bool_custom_columns_are_tristate'] == 'no' and val is None:
                 val = False
             if value is not None and value != val:
-                return None
+                return 'nochange'
             value = val
         return value
 
@@ -445,19 +445,23 @@ class BulkBool(BulkBase, Bool):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QComboBox(parent)]
         w = self.widgets[1]
-        items = [_('Yes'), _('No'), _('Undefined')]
-        icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
+        items = [_('Yes'), _('No'), _('Undefined'), _('Do not change')]
+        icons = [I('ok.png'), I('list_remove.png'), I('blank.png'), I('blank.png')]
         for icon, text in zip(icons, items):
             w.addItem(QIcon(icon), text)
 
+    def getter(self):
+        val = self.widgets[1].currentIndex()
+        return {3: 'nochange', 2: None, 1: False, 0: True}[val]
+
     def setter(self, val):
-        val = {None: 2, False: 1, True: 0}[val]
+        val = {'nochange': 3, None: 2, False: 1, True: 0}[val]
         self.widgets[1].setCurrentIndex(val)
 
     def commit(self, book_ids, notify=False):
         val = self.gui_val
         val = self.normalize_ui_val(val)
-        if val != self.initial_val:
+        if val != self.initial_val and val != 'nochange':
             if tweaks['bool_custom_columns_are_tristate'] == 'no' and val is None:
                 val = False
             self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
