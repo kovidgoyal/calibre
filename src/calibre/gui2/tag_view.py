@@ -67,7 +67,7 @@ class TagsView(QTreeView): # {{{
     author_sort_edit    = pyqtSignal(object, object)
     tag_item_renamed    = pyqtSignal()
     search_item_renamed = pyqtSignal()
-    drag_drop_finished  = pyqtSignal(object)
+    drag_drop_finished  = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -251,6 +251,28 @@ class TagsView(QTreeView): # {{{
         if not self.context_menu.isEmpty():
             self.context_menu.popup(self.mapToGlobal(point))
         return True
+
+    def dragMoveEvent(self, event):
+        QTreeView.dragMoveEvent(self, event)
+        self.setDropIndicatorShown(False)
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            return
+        item = index.internalPointer()
+        flags = self._model.flags(index)
+        if item.type == TagTreeItem.TAG and flags & Qt.ItemIsDropEnabled:
+            self.setDropIndicatorShown(True)
+        else:
+            if item.type == TagTreeItem.CATEGORY:
+                fm_dest = self.db.metadata_for_field(item.category_key)
+                if fm_dest['kind'] == 'user':
+                    md = event.mimeData()
+                    fm_src = self.db.metadata_for_field(md.column_name)
+                    if md.column_name in ['authors', 'publisher', 'series'] or \
+                            (fm_src['is_custom'] and
+                             fm_src['datatype'] in ['series', 'text'] and
+                             not fm_src['is_multiple']):
+                        self.setDropIndicatorShown(True)
 
     def clear(self):
         if self.model():
@@ -448,8 +470,59 @@ class TagsModel(QAbstractItemModel): # {{{
                     ids = list(map(int, str(md.data(mime)).split()))
                     self.handle_drop(node, ids)
                     return True
+            elif node.type == TagTreeItem.CATEGORY:
+                fm_dest = self.db.metadata_for_field(node.category_key)
+                if fm_dest['kind'] == 'user':
+                    fm_src = self.db.metadata_for_field(md.column_name)
+                    if md.column_name in ['authors', 'publisher', 'series'] or \
+                            (fm_src['is_custom'] and
+                             fm_src['datatype'] in ['series', 'text'] and
+                             not fm_src['is_multiple']):
+                        mime = 'application/calibre+from_library'
+                        ids = list(map(int, str(md.data(mime)).split()))
+                        self.handle_user_category_drop(node, ids, md.column_name)
+                        return True
         return False
 
+    def handle_user_category_drop(self, on_node, ids, column):
+        categories = self.db.prefs.get('user_categories', {})
+        category = categories.get(on_node.category_key[:-1], None)
+        if category is None:
+            return
+        fm_src = self.db.metadata_for_field(column)
+        for id in ids:
+            vmap = {}
+            label = fm_src['label']
+            if not fm_src['is_custom']:
+                if label == 'authors':
+                    items = self.db.get_authors_with_ids()
+                    items = [(i[0], i[1].replace('|', ',')) for i in items]
+                    value = self.db.authors(id, index_is_id=True)
+                    value = [v.replace('|', ',') for v in value.split(',')]
+                elif label == 'publisher':
+                    items = self.db.get_publishers_with_ids()
+                    value = self.db.publisher(id, index_is_id=True)
+                elif label == 'series':
+                    items = self.db.get_series_with_ids()
+                    value = self.db.series(id, index_is_id=True)
+            else:
+                items = self.db.get_custom_items_with_ids(label=label)
+                value = self.db.get_custom(id, label=label, index_is_id=True)
+            if value is None:
+                return
+            if not isinstance(value, list):
+                value = [value]
+            for v in items:
+                vmap[v[1]] = v[0]
+            for val in value:
+                for (v, c, id) in category:
+                    if v == val and c == column:
+                        break
+                else:
+                    category.append([val, column, vmap[val]])
+            categories[on_node.category_key[:-1]] = category
+            self.db.prefs.set('user_categories', categories)
+            self.drag_drop_finished.emit(None, True)
 
     def handle_drop(self, on_node, ids):
         #print 'Dropped ids:', ids, on_node.tag
@@ -499,7 +572,7 @@ class TagsModel(QAbstractItemModel): # {{{
             self.db.set_metadata(id, mi, set_title=False,
                                  set_authors=set_authors, commit=False)
         self.db.commit()
-        self.drag_drop_finished.emit(ids)
+        self.drag_drop_finished.emit(ids, False)
 
     def set_search_restriction(self, s):
         self.search_restriction = s
@@ -641,6 +714,8 @@ class TagsModel(QAbstractItemModel): # {{{
                     (fm['is_custom'] and \
                         fm['datatype'] in ['text', 'rating', 'series']):
                     ans |= Qt.ItemIsDropEnabled
+            else:
+                ans |= Qt.ItemIsDropEnabled
         return ans
 
     def supportedDropActions(self):
@@ -857,8 +932,11 @@ class TagBrowserMixin(object): # {{{
             self.library_view.model().refresh()
             self.tags_view.recount()
 
-    def drag_drop_finished(self, ids):
-        self.library_view.model().refresh_ids(ids)
+    def drag_drop_finished(self, ids, is_category):
+        if is_category:
+            self.tags_view.recount()
+        else:
+            self.library_view.model().refresh_ids(ids)
 
 # }}}
 
