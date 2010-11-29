@@ -359,15 +359,15 @@ class BrowseServer(object):
                 icon = 'blank.png'
             cats.append((meta['name'], category, icon))
 
-        cats = [('<li><a title="{2} {0}" href="/browse/category/{1}">&nbsp;</a>'
-                 '<img src="{3}{src}" alt="{0}" />'
-                 '<span class="label">{0}</span>'
-                 '</li>')
+        cats = [(u'<li><a title="{2} {0}" href="/browse/category/{1}">&nbsp;</a>'
+                 u'<img src="{3}{src}" alt="{0}" />'
+                 u'<span class="label">{0}</span>'
+                 u'</li>')
                 .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
                     self.opts.url_prefix, src='/browse/icon/'+z)
                 for x, y, z in cats]
 
-        main = '<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
+        main = u'<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
                 .format(_('Choose a category to browse by:'), '\n\n'.join(cats))
         return self.browse_template('name').format(title='',
                     script='toplevel();', main=main)
