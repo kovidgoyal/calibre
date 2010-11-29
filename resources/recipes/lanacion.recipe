@@ -20,11 +20,14 @@ class Lanacion(BasicNewsRecipe):
     publication_type      = 'newspaper'
     remove_empty_feeds    = True    
     masthead_url          = 'http://www.lanacion.com.ar/imgs/layout/logos/ln341x47.gif'
-    extra_css             = """ h1{font-family: Georgia,serif} 
+    extra_css             = """ h1{font-family: Georgia,serif}
+                                h2{color: #626262}    
                                 body{font-family: Arial,sans-serif} 
-                                img{margin-top: 0.5em; margin-bottom: 0.2em} 
+                                img{margin-top: 0.5em; margin-bottom: 0.2em; display: block}
+                                .notaFecha{color: #808080}                                
                                 .notaEpigrafe{font-size: x-small} 
-                                .topNota h1{font-family: Arial,sans-serif} """
+                                .topNota h1{font-family: Arial,sans-serif} 
+                            """
 
 
     conversion_options = {
@@ -38,12 +41,12 @@ class Lanacion(BasicNewsRecipe):
     remove_tags = [
                      dict(name='div' , attrs={'class':'notaComentario floatFix noprint' })
                     ,dict(name='ul'  , attrs={'class':['cajaHerramientas cajaTop noprint','herramientas noprint']})
-                    ,dict(name='div' , attrs={'class':'cajaHerramientas noprint'        })
-                    ,dict(attrs={'class':['titulosMultimedia','derecha','techo color','encuesta','izquierda compartir','floatFix']})
-                    ,dict(name=['iframe','embed','object','form','base','hr'])
+                    ,dict(name='div' , attrs={'class':['cajaHerramientas noprint','cajaHerramientas floatFix']   })
+                    ,dict(attrs={'class':['titulosMultimedia','derecha','techo color','encuesta','izquierda compartir','floatFix','videoCentro']})
+                    ,dict(name=['iframe','embed','object','form','base','hr','meta','link','input'])
                   ]
     remove_tags_after = dict(attrs={'class':['tags','nota-destacado']})                
-    remove_attributes = ['height','width','visible']
+    remove_attributes = ['height','width','visible','onclick','data-count','name']
 
     feeds          = [
                          (u'Ultimas noticias'     , u'http://www.lanacion.com.ar/herramientas/rss/index.asp?origen=2'         )

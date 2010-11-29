@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
 class YOLNews(BasicNewsRecipe):
-    title          = u'YOMIURI ONLINE(World)'
+    title          = u'Yomiuri Online (World)'
     __author__     = 'Hiroshi Miura'
     oldest_article = 2
     max_articles_per_feed = 50

@@ -5,9 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import operator, os, json
+import operator, os, json, re
 from binascii import hexlify, unhexlify
-from urllib import quote, unquote
 
 import cherrypy
 
@@ -21,6 +20,7 @@ from calibre.utils.magick import Image
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.field_metadata import category_icon_map
+from calibre.library.server.utils import quote, unquote
 
 def render_book_list(ids, prefix, suffix=''): # {{{
     pages = []
@@ -359,16 +359,16 @@ class BrowseServer(object):
                 icon = 'blank.png'
             cats.append((meta['name'], category, icon))
 
-        cats = [('<li><a title="{2} {0}" href="/browse/category/{1}">&nbsp;</a>'
-                 '<img src="{3}{src}" alt="{0}" />'
-                 '<span class="label">{0}</span>'
-                 '</li>')
+        cats = [(u'<li><a title="{2} {0}" href="/browse/category/{1}">&nbsp;</a>'
+                 u'<img src="{3}{src}" alt="{0}" />'
+                 u'<span class="label">{0}</span>'
+                 u'</li>')
                 .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
                     self.opts.url_prefix, src='/browse/icon/'+z)
                 for x, y, z in cats]
 
-        main = '<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
-                .format(_('Choose a category to browse by:'), '\n\n'.join(cats))
+        main = u'<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
+                .format(_('Choose a category to browse by:'), u'\n\n'.join(cats))
         return self.browse_template('name').format(title='',
                     script='toplevel();', main=main)
 
@@ -400,6 +400,16 @@ class BrowseServer(object):
         sort = self.browse_sort_categories(items, sort)
 
         script = 'true'
+
+        if len(items) == 1:
+            # Only one item in category, go directly to book list
+            prefix = '' if self.is_wsgi else self.opts.url_prefix
+            html = get_category_items(category, items,
+                    self.search_restriction_name, datatype,
+                    self.opts.url_prefix)
+            href = re.search(r'<a href="([^"]+)"', html)
+            if href is not None:
+                raise cherrypy.HTTPRedirect(prefix+href.group(1))
 
         if len(items) <= self.opts.max_opds_ungrouped_items:
             script = 'false'

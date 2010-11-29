@@ -34,6 +34,7 @@ from calibre.gui2.update import UpdateMixin
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.layout import MainWindowMixin
 from calibre.gui2.device import DeviceMixin
+from calibre.gui2.email import EmailMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
@@ -88,7 +89,7 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 # }}}
 
-class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
+class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin
         ):
@@ -101,9 +102,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.device_connected = None
         acmap = OrderedDict()
         for action in interface_actions():
-            mod, cls = action.actual_plugin.split(':')
-            ac = getattr(__import__(mod, fromlist=['1'], level=0), cls)(self,
-                    action.site_customization)
+            ac = action.load_actual_plugin(self)
             if ac.name in acmap:
                 if ac.priority >= acmap[ac.name].priority:
                     acmap[ac.name] = ac
@@ -141,6 +140,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         # }}}
 
         LayoutMixin.__init__(self)
+        EmailMixin.__init__(self)
         DeviceMixin.__init__(self)
 
         self.restriction_count_of_books_in_view = 0
@@ -434,7 +434,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
 
 
-    def job_exception(self, job):
+    def job_exception(self, job, dialog_title=_('Conversion Error')):
         if not hasattr(self, '_modeless_dialogs'):
             self._modeless_dialogs = []
         minz = self.is_minimized_to_tray
@@ -475,7 +475,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         except:
             pass
         if not minz:
-            d = error_dialog(self, _('Conversion Error'),
+            d = error_dialog(self, dialog_title,
                     _('<b>Failed</b>')+': '+unicode(job.description),
                     det_msg=job.details)
             d.setModal(False)

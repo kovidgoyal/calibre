@@ -38,6 +38,7 @@ Monocle.Browser.on = {
   iPad: navigator.userAgent.indexOf("iPad") != -1,
   BlackBerry: navigator.userAgent.indexOf("BlackBerry") != -1,
   Android: navigator.userAgent.indexOf('Android') != -1,
+  MacOSX: navigator.userAgent.indexOf('Mac OS X') != -1,
   Kindle3: navigator.userAgent.match(/Kindle\/3/)
 }
 
@@ -162,11 +163,22 @@ Monocle.Browser.has.transform3d = Monocle.Browser.CSSProps.isSupported([
   'OPerspective',
   'msPerspective'
 ]) && Monocle.Browser.CSSProps.supportsMediaQueryProperty('transform-3d');
+Monocle.Browser.has.embedded = (top != self);
+
 Monocle.Browser.has.iframeTouchBug = Monocle.Browser.iOSVersionBelow("4.2");
+
 Monocle.Browser.has.selectThruBug = Monocle.Browser.iOSVersionBelow("4.2");
+
 Monocle.Browser.has.mustScrollSheaf = Monocle.Browser.is.MobileSafari;
 Monocle.Browser.has.iframeDoubleWidthBug = Monocle.Browser.has.mustScrollSheaf;
+
 Monocle.Browser.has.floatColumnBug = Monocle.Browser.is.WebKit;
+
+Monocle.Browser.has.relativeIframeWidthBug = Monocle.Browser.on.Android;
+
+
+Monocle.Browser.has.jumpFlickerBug =
+  Monocle.Browser.on.MacOSX && Monocle.Browser.is.WebKit;
 
 
 if (typeof window.console == "undefined") {
@@ -1091,8 +1103,26 @@ Monocle.Reader = function (node, bookData, options, onLoadCallback) {
       cmpt.dom.setStyles(Monocle.Styles.component);
       Monocle.Styles.applyRules(cmpt.contentDocument.body, Monocle.Styles.body);
     }
+    lockFrameWidths();
     dom.find('overlay').dom.setStyles(Monocle.Styles.overlay);
     dispatchEvent('monocle:styles');
+  }
+
+
+  function lockingFrameWidths() {
+    if (!Monocle.Browser.has.relativeIframeWidthBug) { return; }
+    for (var i = 0, cmpt; cmpt = dom.find('component', i); ++i) {
+      cmpt.style.display = "none";
+    }
+  }
+
+
+  function lockFrameWidths() {
+    if (!Monocle.Browser.has.relativeIframeWidthBug) { return; }
+    for (var i = 0, cmpt; cmpt = dom.find('component', i); ++i) {
+      cmpt.style.width = cmpt.parentNode.offsetWidth+"px";
+      cmpt.style.display = "block";
+    }
   }
 
 
@@ -1121,12 +1151,14 @@ Monocle.Reader = function (node, bookData, options, onLoadCallback) {
     if (!p.initialized) {
       console.warn('Attempt to resize book before initialization.');
     }
+    lockingFrameWidths();
     if (!dispatchEvent("monocle:resizing", {}, true)) {
       return;
     }
     clearTimeout(p.resizeTimer);
     p.resizeTimer = setTimeout(
       function () {
+        lockFrameWidths();
         p.flipper.moveTo({ page: pageNumber() });
         dispatchEvent("monocle:resize");
       },
@@ -1765,12 +1797,7 @@ Monocle.Book = function (dataSource) {
 
 
   function componentIdMatching(str) {
-    for (var i = 0; i < p.componentIds.length; ++i) {
-      if (str.indexOf(p.componentIds[i]) > -1) {
-        return p.componentIds[i];
-      }
-    }
-    return null;
+    return p.componentIds.indexOf(str) >= 0 ? str : null;
   }
 
 
@@ -2018,6 +2045,12 @@ Monocle.Component = function (book, id, index, chapters, source) {
 
 
   function loadFrameFromURL(url, frame, callback) {
+    if (!url.match(/^\//)) {
+      var link = document.createElement('a');
+      link.setAttribute('href', url);
+      url = link.href;
+      delete(link);
+    }
     frame.onload = function () {
       frame.onload = null;
       Monocle.defer(callback);
@@ -2460,7 +2493,7 @@ Monocle.Flippers.Legacy = function (reader) {
   function moveTo(locus, callback) {
     var fn = frameToLocus;
     if (typeof callback == "function") {
-      fn = function () { frameToLocus(); callback(); }
+      fn = function (locus) { frameToLocus(locus); callback(locus); }
     }
     p.reader.getBook().setOrLoadPageAt(page(), locus, fn);
   }
@@ -2794,7 +2827,9 @@ Monocle.Dimensions.Columns = function (pageDiv) {
   function scrollerWidth() {
     var bdy = p.page.m.activeFrame.contentDocument.body;
     if (Monocle.Browser.has.iframeDoubleWidthBug) {
-      if (Monocle.Browser.iOSVersion < "4.1") {
+      if (Monocle.Browser.on.Android) {
+        return bdy.scrollWidth * 1.5; // I actually have no idea why 1.5.
+      } else if (Monocle.Browser.iOSVersion < "4.1") {
         var hbw = bdy.scrollWidth / 2;
         var sew = scrollerElement().scrollWidth;
         return Math.max(sew, hbw);
@@ -2969,6 +3004,7 @@ Monocle.Flippers.Slider = function (reader) {
 
 
   function setPage(pageDiv, locus, callback) {
+    ensureWaitControl();
     p.reader.getBook().setOrLoadPageAt(
       pageDiv,
       locus,
@@ -3048,6 +3084,7 @@ Monocle.Flippers.Slider = function (reader) {
     checkPoint(boxPointX);
 
     p.turnData.releasing = true;
+    showWaitControl(lowerPage());
 
     if (dir == k.FORWARDS) {
       if (
@@ -3088,14 +3125,18 @@ Monocle.Flippers.Slider = function (reader) {
 
 
   function onGoingBackward(x) {
-    var lp = lowerPage();
+    var lp = lowerPage(), up = upperPage();
+    showWaitControl(up);
     jumpOut(lp, // move lower page off-screen
       function () {
         flipPages(); // flip lower to upper
         setPage( // set upper page to previous
           lp,
           getPlace(lowerPage()).getLocus({ direction: k.BACKWARDS }),
-          function () { lifted(x); }
+          function () {
+            lifted(x);
+            hideWaitControl(up);
+          }
         );
       }
     );
@@ -3103,8 +3144,10 @@ Monocle.Flippers.Slider = function (reader) {
 
 
   function afterGoingForward() {
-    var up = upperPage();
+    var up = upperPage(), lp = lowerPage();
     if (p.interactive) {
+      showWaitControl(up);
+      showWaitControl(lp);
       setPage( // set upper (off screen) to current
         up,
         getPlace().getLocus({ direction: k.FORWARDS }),
@@ -3113,6 +3156,7 @@ Monocle.Flippers.Slider = function (reader) {
         }
       );
     } else {
+      showWaitControl(lp);
       flipPages();
       jumpIn(up, function () { prepareNextPage(announceTurn); });
     }
@@ -3171,6 +3215,8 @@ Monocle.Flippers.Slider = function (reader) {
 
 
   function announceTurn() {
+    hideWaitControl(upperPage());
+    hideWaitControl(lowerPage());
     p.reader.dispatchEvent('monocle:turn');
     resetTurnData();
   }
@@ -3319,12 +3365,14 @@ Monocle.Flippers.Slider = function (reader) {
 
 
   function jumpIn(pageDiv, callback) {
-    setX(pageDiv, 0, { duration: 1 }, callback);
+    var dur = Monocle.Browser.has.jumpFlickerBug ? 1 : 0;
+    setX(pageDiv, 0, { duration: dur }, callback);
   }
 
 
   function jumpOut(pageDiv, callback) {
-    setX(pageDiv, 0 - pageDiv.offsetWidth, { duration: 1 }, callback);
+    var dur = Monocle.Browser.has.jumpFlickerBug ? 1 : 0;
+    setX(pageDiv, 0 - pageDiv.offsetWidth, { duration: dur }, callback);
   }
 
 
@@ -3356,6 +3404,28 @@ Monocle.Flippers.Slider = function (reader) {
     );
   }
 
+
+  function ensureWaitControl() {
+    if (p.waitControl) { return; }
+    p.waitControl = {
+      createControlElements: function (holder) {
+        return holder.dom.make('div', 'flippers_slider_wait');
+      }
+    }
+    p.reader.addControl(p.waitControl, 'page');
+  }
+
+
+  function showWaitControl(page) {
+    var ctrl = p.reader.dom.find('flippers_slider_wait', page.m.pageIndex);
+    ctrl.style.opacity = 0.5;
+  }
+
+
+  function hideWaitControl(page) {
+    var ctrl = p.reader.dom.find('flippers_slider_wait', page.m.pageIndex);
+    ctrl.style.opacity = 0;
+  }
 
   API.pageCount = p.pageCount;
   API.addPage = addPage;

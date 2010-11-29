@@ -24,7 +24,10 @@
    <item row="0" column="1">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;p&gt;Enter a list of ISBNs in the box to the left, one per line. calibre will automatically create entries for books based on the ISBN and download metadata and covers for them.&lt;p&gt;Any invalid ISBNs in the list will be ignored.</string>
+      <string>&lt;p&gt;Enter a list of ISBNs in the box to the left, one per line. calibre will automatically create entries for books based on the ISBN and download metadata and covers for them.&lt;/p&gt;
+&lt;p&gt;Any invalid ISBNs in the list will be ignored.&lt;/p&gt;
+&lt;p&gt;You can also specify a file that will be added with each ISBN. To do this enter the full path to the file after a &lt;code&gt;&gt;&gt;&lt;/code&gt;.  For example:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;9788842915232 &gt;&gt; %s&lt;/code&gt;&lt;/p&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

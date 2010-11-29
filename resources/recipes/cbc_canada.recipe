@@ -11,7 +11,6 @@ class AdvancedUserRecipe1275798572(BasicNewsRecipe):
     remove_javascript = True
     use_embedded_content   = False
     no_stylesheets = True
-    language = 'en'
     masthead_url = 'http://www.cbc.ca/includes/gfx/cbcnews_logo_09.gif'
     cover_url = 'http://img692.imageshack.us/img692/2814/cbc.png'
     keep_only_tags = [dict(name='div', attrs={'id':['storyhead','storybody']})]

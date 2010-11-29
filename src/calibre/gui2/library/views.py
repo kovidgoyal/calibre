@@ -517,6 +517,8 @@ class BooksView(QTableView): # {{{
 
         md.setUrls([url_for_id(i) for i in selected])
         drag = QDrag(self)
+        col = self.selectionModel().currentIndex().column()
+        md.column_name = self.column_map[col]
         drag.setMimeData(md)
         cover = self.drag_icon(m.cover(self.currentIndex().row()),
                 len(selected) > 1)

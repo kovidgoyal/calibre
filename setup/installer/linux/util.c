@@ -11,10 +11,8 @@ static char exe_path[PATH_MAX];
 static char base_dir[PATH_MAX];
 static char bin_dir[PATH_MAX];
 static char lib_dir[PATH_MAX];
-static char qt_dir[PATH_MAX];
 static char extensions_dir[PATH_MAX];
 static char resources_dir[PATH_MAX];
-static char magick_dir[PATH_MAX];
 
 void set_gui_app(bool yes) { GUI_APP = yes; }
 
@@ -26,7 +24,8 @@ int report_error(const char *msg, int code) {
 int report_libc_error(const char *msg) {
     char buf[2000];
     int err = errno;
-    snprintf("%s::%s", 2000, msg, strerror(err));
+
+    snprintf(buf, 2000, "%s::%s", msg, strerror(err));
     return report_error(buf, err);
 }
 
@@ -122,54 +121,31 @@ static void get_paths()
         exit(report_error("No path separators in executable path", EXIT_FAILURE));
     }
     strncat(base_dir, exe_path, p - exe_path);
-    strcat(base_dir, "\0");
+    p = rindex(base_dir, '/');
+    if (p ==  NULL) {
+        exit(report_error("Only one path separator in executable path", EXIT_FAILURE));
+    }
+    *p = 0;
+
     snprintf(bin_dir,        PATH_MAX, "%s/bin", base_dir);
     snprintf(lib_dir,        PATH_MAX, "%s/lib", base_dir);
-    snprintf(magick_dir,     PATH_MAX, "%s/ImageMagick", lib_dir);
-    snprintf(qt_dir,         PATH_MAX, "%s/qt_plugins", lib_dir);
     snprintf(resources_dir,  PATH_MAX, "%s/resources", base_dir);
     snprintf(extensions_dir, PATH_MAX, "%s/%s/site-packages/calibre/plugins", lib_dir, PYTHON_VER);
 }
 
-void init_env() {
-    char buf[PATH_MAX];
-
-    if (setenv("QT_PLUGIN_PATH", qt_dir, 1) == -1) 
-        exit(report_libc_error("Failed to set environment variable"));
-
-    snprintf(buf, PATH_MAX, "%s/config", magick_dir);
-    if (setenv("MAGICK_CONFIGURE_PATH", buf, 1) == -1) 
-        exit(report_libc_error("Failed to set environment variable"));
-
-    snprintf(buf, PATH_MAX, "%s/modules-Q16/coders", magick_dir);
-    if (setenv("MAGICK_CODER_MODULE_PATH", buf, 1) == -1) 
-        exit(report_libc_error("Failed to set environment variable"));
-
-    snprintf(buf, PATH_MAX, "%s/modules-Q16/filters", magick_dir);
-    if (setenv("MAGICK_CODER_FILTER_PATH", buf, 1) == -1) 
-        exit(report_libc_error("Failed to set environment variable"));
-
-    if (setenv("PYTHONIOENCODING", "utf-8", 1) == -1) 
-        exit(report_libc_error("Failed to set environment variable"));
-
-    if (setenv("PYTHONHOME", base_dir, 1) == -1) 
-        exit(report_libc_error("Failed to set environment variable"));
-
-}
 
 void setup_stream(const char *name, const char *errors) {
     PyObject *stream;
-    char *buf = (char *)calloc(100, sizeof(char));
-    if (!buf) OOM;
+    char buf[100];
 
-    snprintf(buf, 100, "%s", "utf-8");
+    snprintf(buf, 20, "%s", name);
+    stream = PySys_GetObject(buf);
 
-    stream = PySys_GetObject(name);
+    snprintf(buf, 20, "%s", "utf-8");
+    snprintf(buf+21, 30, "%s", errors);
 
-    if (!PyFile_SetEncodingAndErrors(stream, buf, errors)) 
+    if (!PyFile_SetEncodingAndErrors(stream, buf, buf+21)) 
         exit(report_python_error("Failed to set stream encoding", 1));
-
-    free(buf);
     
 }
 
@@ -187,10 +163,9 @@ void setup_streams() {
 
 void initialize_interpreter(int argc, char **argv, char *outr, char *errr,
         const char *basename, const char *module, const char *function) {
-    char *path;
+    char *path, *encoding, *p;
 
     get_paths();
-    init_env();
 
     path = (char*)calloc(3*PATH_MAX, sizeof(char));
     if (!path) OOM;
@@ -213,6 +188,17 @@ void initialize_interpreter(int argc, char **argv, char *outr, char *errr,
 
     //printf("Path before Py_Initialize(): %s\r\n\n", Py_GetPath()); 
     Py_Initialize();
+    if (!Py_FileSystemDefaultEncoding) {
+        encoding = getenv("PYTHONIOENCODING");
+        if (encoding != NULL) {
+            Py_FileSystemDefaultEncoding = strndup(encoding, 20);
+            p = index(Py_FileSystemDefaultEncoding, ':');
+            if (p != NULL) *p = 0;
+        } else
+            Py_FileSystemDefaultEncoding = strndup("UTF-8", 10);
+    }
+
+
     setup_streams();
 
     PySys_SetArgv(argc, argv);
@@ -220,16 +206,21 @@ void initialize_interpreter(int argc, char **argv, char *outr, char *errr,
     PySys_SetPath(path);
     //printf("Path set by me: %s\r\n\n", path);
     PySys_SetObject("gui_app", PyBool_FromLong((long)GUI_APP));
-    PySys_SetObject("app_dir", PyString_FromString(base_dir));
-
     PySys_SetObject("calibre_basename", PyBytes_FromString(basename));
     PySys_SetObject("calibre_module",   PyBytes_FromString(module));
     PySys_SetObject("calibre_function", PyBytes_FromString(function));
+    PySys_SetObject("extensions_location", PyBytes_FromString(extensions_dir));
+    PySys_SetObject("resources_location", PyBytes_FromString(resources_dir));
+    PySys_SetObject("executables_location", PyBytes_FromString(base_dir));
+    PySys_SetObject("frozen_path", PyBytes_FromString(base_dir));
+    PySys_SetObject("frozen", Py_True);
+    Py_INCREF(Py_True);
 
-    //if (GUI_APP && outr && errr) {
+
+    if (GUI_APP && outr && errr) {
     //    PySys_SetObject("stdout_redirect", PyUnicode_FromWideChar(outr, wcslen(outr)));
     //    PySys_SetObject("stderr_redirect", PyUnicode_FromWideChar(errr, wcslen(outr)));
-    //}
+    }
 
 }
 
@@ -256,6 +247,8 @@ int execute_python_entrypoint(int argc, char **argv, const char *basename, const
 
             if (res == NULL) 
                 ret = report_python_error("Python function terminated unexpectedly", 1);
+            
+            ret = pyobject_to_int(res);
         }
     }
     PyErr_Clear();

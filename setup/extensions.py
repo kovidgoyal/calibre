@@ -18,7 +18,7 @@ from setup.build_environment import fc_inc, fc_lib, chmlib_inc_dirs, \
         QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, win_ddk, \
         magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
         magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, \
-        jpg_lib_dirs, chmlib_lib_dirs
+        jpg_lib_dirs, chmlib_lib_dirs, sqlite_inc_dirs
 MT
 isunix = islinux or isosx or isfreebsd
 
@@ -57,6 +57,11 @@ if iswindows:
     pdfreflow_libs = ['advapi32', 'User32', 'Gdi32', 'zlib']
 
 extensions = [
+
+    Extension('sqlite_custom',
+        ['calibre/library/sqlite_custom.c'],
+        inc_dirs=sqlite_inc_dirs
+        ),
 
     Extension('chmlib',
             ['calibre/utils/chm/swig_chm.c'],
