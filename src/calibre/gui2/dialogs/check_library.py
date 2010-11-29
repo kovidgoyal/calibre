@@ -32,23 +32,30 @@ class CheckLibraryDialog(QDialog):
         self.log.itemChanged.connect(self.item_changed)
         self._layout.addWidget(self.log)
 
-        self.check = QPushButton(_('&Run the check'))
-        self.check.setDefault(False)
-        self.check.clicked.connect(self.run_the_check)
-        self.copy = QPushButton(_('Copy &to clipboard'))
-        self.copy.setDefault(False)
-        self.copy.clicked.connect(self.copy_to_clipboard)
-        self.ok = QPushButton('&Done')
-        self.ok.setDefault(True)
-        self.ok.clicked.connect(self.accept)
-        self.delete = QPushButton('Delete &marked')
-        self.delete.setDefault(False)
-        self.delete.clicked.connect(self.delete_marked)
+        self.check_button = QPushButton(_('&Run the check'))
+        self.check_button.setDefault(False)
+        self.check_button.clicked.connect(self.run_the_check)
+        self.copy_button = QPushButton(_('Copy &to clipboard'))
+        self.copy_button.setDefault(False)
+        self.copy_button.clicked.connect(self.copy_to_clipboard)
+        self.ok_button = QPushButton('&Done')
+        self.ok_button.setDefault(True)
+        self.ok_button.clicked.connect(self.accept)
+        self.delete_button = QPushButton('Delete &marked')
+        self.delete_button.setToolTip(_('Delete marked files (checked subitems)'))
+        self.delete_button.setDefault(False)
+        self.delete_button.clicked.connect(self.delete_marked)
+        self.fix_button = QPushButton('&Fix marked')
+        self.fix_button.setDefault(False)
+        self.fix_button.setEnabled(False)
+        self.fix_button.setToolTip(_('Fix marked sections (checked fixable items)'))
+        self.fix_button.clicked.connect(self.fix_items)
         self.bbox = QDialogButtonBox(self)
-        self.bbox.addButton(self.check, QDialogButtonBox.ActionRole)
-        self.bbox.addButton(self.delete, QDialogButtonBox.ActionRole)
-        self.bbox.addButton(self.copy, QDialogButtonBox.ActionRole)
-        self.bbox.addButton(self.ok, QDialogButtonBox.AcceptRole)
+        self.bbox.addButton(self.check_button, QDialogButtonBox.ActionRole)
+        self.bbox.addButton(self.delete_button, QDialogButtonBox.ActionRole)
+        self.bbox.addButton(self.fix_button, QDialogButtonBox.ActionRole)
+        self.bbox.addButton(self.copy_button, QDialogButtonBox.ActionRole)
+        self.bbox.addButton(self.ok_button, QDialogButtonBox.AcceptRole)
 
         h = QHBoxLayout()
         ln = QLabel(_('Names to ignore:'))
@@ -93,12 +100,19 @@ class CheckLibraryDialog(QDialog):
         plaintext = []
 
         def builder(tree, checker, check):
-            attr, h, checkable = check
+            attr, h, checkable, fixable = check
             list = getattr(checker, attr, None)
             if list is None:
                 return
 
-            tl = Item([h])
+            tl = Item()
+            tl.setText(0, h)
+            if fixable:
+                tl.setText(1, _('(fixable)'))
+                tl.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+                tl.setCheckState(1, False)
+            self.top_level_items[attr] = tl
+
             for problem in list:
                 it = Item()
                 if checkable:
@@ -107,6 +121,7 @@ class CheckLibraryDialog(QDialog):
                 else:
                     it.setFlags(Qt.ItemIsEnabled)
                 it.setText(0, problem[0])
+                it.setData(0, Qt.UserRole, problem[2])
                 it.setText(1, problem[1])
                 tl.addChild(it)
                 self.all_items.append(it)
@@ -118,18 +133,25 @@ class CheckLibraryDialog(QDialog):
         t.setColumnCount(2);
         t.setHeaderLabels([_('Name'), _('Path from library')])
         self.all_items = []
+        self.top_level_items = {}
         for check in CHECKS:
             builder(t, checker, check)
 
         t.setColumnWidth(0, 200)
         t.setColumnWidth(1, 400)
-        self.delete.setEnabled(False)
+        self.delete_button.setEnabled(False)
         self.text_results = '\n'.join(plaintext)
 
     def item_changed(self, item, column):
+        self.fix_button.setEnabled(False)
+        for it in self.top_level_items.values():
+            if it.checkState(1):
+                self.fix_button.setEnabled(True)
+
+        self.delete_button.setEnabled(False)
         for it in self.all_items:
             if it.checkState(1):
-                self.delete.setEnabled(True)
+                self.delete_button.setEnabled(True)
                 return
 
     def delete_marked(self):
@@ -155,6 +177,33 @@ class CheckLibraryDialog(QDialog):
                     prints('failed to delete',
                             os.path.join(self.db.library_path,
                                 unicode(it.text(1))))
+        self.run_the_check()
+
+    def fix_missing_covers(self):
+        tl = self.top_level_items['missing_covers']
+        child_count = tl.childCount()
+        for i in range(0, child_count):
+            item = tl.child(i);
+            id = item.data(0, Qt.UserRole).toInt()[0]
+            self.db.set_has_cover(id, False)
+
+    def fix_extra_covers(self):
+        tl = self.top_level_items['extra_covers']
+        child_count = tl.childCount()
+        for i in range(0, child_count):
+            item = tl.child(i);
+            id = item.data(0, Qt.UserRole).toInt()[0]
+            self.db.set_has_cover(id, True)
+
+    def fix_items(self):
+        for check in CHECKS:
+            attr = check[0]
+            fixable = check[3]
+            tl = self.top_level_items[attr]
+            if fixable and tl.checkState(1):
+                func = getattr(self, 'fix_' + attr, None)
+                if func is not None and callable(func):
+                    func()
         self.run_the_check()
 
     def copy_to_clipboard(self):

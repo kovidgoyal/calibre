@@ -17,7 +17,8 @@ class Linux32(VMInstaller):
     INSTALLER_EXT = 'tar.bz2'
     VM_NAME = 'gentoo32_build'
     VM = '/vmware/bin/gentoo32_build'
-    FREEZE_COMMAND = 'linux_freeze'
+    FREEZE_COMMAND = 'linux_freeze2'
+    FREEZE_TEMPLATE = 'sudo python -OO setup.py {freeze_command}'
 
 
 class Linux64(Linux32):

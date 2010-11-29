@@ -586,8 +586,8 @@ class Device(DeviceConfig, DevicePlugin):
                     pass
 
                 cmd = 'calibre-mount-helper'
-                if getattr(sys, 'frozen_path', False):
-                    cmd = os.path.join(sys.frozen_path, cmd)
+                if getattr(sys, 'frozen', False):
+                    cmd = os.path.join(sys.executables_location, 'bin', cmd)
                 cmd = [cmd, 'mount']
                 try:
                     p = subprocess.Popen(cmd + [node, '/media/'+label])
@@ -754,8 +754,8 @@ class Device(DeviceConfig, DevicePlugin):
 
         for drive in drives:
             cmd = 'calibre-mount-helper'
-            if getattr(sys, 'frozen_path', False):
-                cmd = os.path.join(sys.frozen_path, cmd)
+            if getattr(sys, 'frozen', False):
+                cmd = os.path.join(sys.executables_location, 'bin', cmd)
             cmd = [cmd, 'eject']
             mp = getattr(self, "_linux_mount_map", {}).get(drive,
                     'dummy/')[:-1]
@@ -787,8 +787,8 @@ class Device(DeviceConfig, DevicePlugin):
             if drive and mp:
                 mp = mp[:-1]
                 cmd = 'calibre-mount-helper'
-                if getattr(sys, 'frozen_path', False):
-                    cmd = os.path.join(sys.frozen_path, cmd)
+                if getattr(sys, 'frozen', False):
+                    cmd = os.path.join(sys.executables_location, 'bin', cmd)
                 cmd = [cmd, 'cleanup']
                 if mp and os.path.exists(mp):
                     try:
