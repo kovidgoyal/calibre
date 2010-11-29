@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-27 20:21+0000\n"
-"PO-Revision-Date: 2010-11-28 01:00+0000\n"
+"PO-Revision-Date: 2010-11-28 12:13+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-28 04:46+0000\n"
+"X-Launchpad-Export-Date: 2010-11-29 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3834,7 +3834,7 @@ msgstr "<b>Localització %d &bull; %s</b><br />"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:34
 msgid "Create catalog of books in your calibre library"
-msgstr "Crea un catàleg de llibres de la vostra biblioteca"
+msgstr "Crea un catàleg dels llibres de la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:31
 msgid "No books selected to generate catalog for"
@@ -4045,7 +4045,7 @@ msgid ""
 "No existing calibre library was found at %s. It will be removed from the "
 "list of known libraries."
 msgstr ""
-"No hi ha cap biblioteques del calibre a %s. S'esborrarà de la llista de "
+"No hi ha cap biblioteca del calibre a %s. Se suprimirà de la llista de "
 "biblioteques conegudes."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:391
@@ -4068,11 +4068,11 @@ msgstr "Converteix llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:28
 msgid "Convert individually"
-msgstr "Converteix individualment"
+msgstr "Converteix-los individualment"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:30
 msgid "Bulk convert"
-msgstr "Converteix tots"
+msgstr "Converteix-los en grup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:86
 msgid "Cannot convert"
@@ -4215,7 +4215,7 @@ msgid ""
 "from your calibre library. Are you sure?"
 msgstr ""
 "Els llibres seleccionats se suprimiran <b>permanentment</b> i els fitxers es "
-"suprimiran de la vostra llibreria del calibre. N'esteu segur?"
+"trauran de la biblioteca del calibre. N'esteu segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:185
 msgid ""
@@ -4506,8 +4506,8 @@ msgid ""
 "calibre library elsewhere."
 msgstr ""
 "Esteu intentant desar fitxers a la biblioteca del calibre. Això pot causar "
-"corrupció a la vostra llibreria. Desar al disc està fet per exportar fitxers "
-"des de la vostra llibreria del calibre a un altre lloc."
+"corrupció a la biblioteca. Desar al disc està fet per exportar fitxers des "
+"de la biblioteca del calibre a un altre lloc."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:136
 msgid "Error while saving"
@@ -4785,8 +4785,8 @@ msgstr ""
 "importació de la vostra col·lecció de llibres.</p>\n"
 "<p>Trieu una carpeta arrel. Només es cercaran llibres dins d'aquesta carpeta "
 "i de les seves subcarpetes.</p>\n"
-"<p>Assegureu-vos que la carpeta escollida per a la vostra biblioteca del "
-"calibre <b>no està</b> dins de la carpeta arrel que heu triat.</p>"
+"<p>Assegureu-vos que la carpeta escollida per a la biblioteca del calibre "
+"<b>no està</b> dins de la carpeta arrel que heu triat.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:68
 msgid "&Root folder:"
@@ -5179,7 +5179,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:70
 msgid "Bulk Convert"
-msgstr "Convertir en massa"
+msgstr "Conversió en grup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:185
@@ -6576,7 +6576,7 @@ msgstr "Trieu format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:38
 msgid "Choose location for calibre library"
-msgstr "Tria la localització de la biblioteca del calibre"
+msgstr "Localització de la biblioteca del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:45
 msgid "Same as current"
@@ -6584,7 +6584,7 @@ msgstr "Igual que l'actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:46
 msgid "The location %s contains the current calibre library"
-msgstr "La localització %s conté la biblioteca del calibre actual"
+msgstr "La biblioteca actual del calibre és a %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:51
 msgid "No existing library found"
@@ -6621,11 +6621,11 @@ msgstr "La carpeta %s no existeix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:71
 msgid "Choose your calibre library"
-msgstr "Trieu la vostra biblioteca del calibre"
+msgstr "Trieu la biblioteca del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:72
 msgid "Your calibre library is currently located at {0}"
-msgstr "La vostra biblioteca del calibre està actualment situada a {0}"
+msgstr "La biblioteca del calibre està actualment situada a {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:73
 msgid "New &Location:"
@@ -8098,7 +8098,7 @@ msgid ""
 "then remove it from the database."
 msgstr ""
 "Suprimeix l'element de la base de dades. Això traurà l'element de tots els "
-"llibre i després el suprimirà de la base de dades."
+"llibres i després el suprimirà de la base de dades."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:81
 msgid "Rename the item in every book where it is used."
@@ -8160,7 +8160,7 @@ msgstr ""
 "aleshores «Obre amb...» i trieu l'editor. Quan acabeu amb els ajustos, "
 "tanqueu la finestra del gestor de fitxers <b>i les finestres de l'editor que "
 "hagueu fet servir per modificar-ne les dades</b>.</p><p>Reconstrueix l'ePub "
-"i actualitza la vostra biblioteca del calibre.</p>"
+"i actualitza la biblioteca del calibre.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:132
 msgid "No recipe selected"
@@ -8637,7 +8637,7 @@ msgstr "Biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:64
 msgid "Show books in calibre library"
-msgstr "Mostra els llibres a la biblioteca del calibre"
+msgstr "Mostra els llibres de la biblioteca del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:65
 msgid "Device"
@@ -8967,9 +8967,9 @@ msgid ""
 "and repair it automatically? If you say No, a new empty calibre library will "
 "be created."
 msgstr ""
-"Sembla que la vostra base de dades del calibre està malmesa. Voleu que el "
-"calibre intenti reparar-la automàticament? Si dieu 'No', es crearà una nova "
-"biblioteca del calibre buida."
+"Sembla que la base de dades del calibre està malmesa. Voleu que el calibre "
+"intenti reparar-la automàticament? Si dieu «No», es crearà una nova "
+"biblioteca buida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:214
 msgid ""
@@ -8987,7 +8987,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:237
 msgid "Starting %s: Loading books..."
-msgstr "S'està iniciant %s: Carregant llibres..."
+msgstr "S'està iniciant el %s: s'està carregant els llibres..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:282
 msgid "If you are sure it is not running"
@@ -12891,10 +12891,10 @@ msgstr ""
 "[opcions]\n"
 "\n"
 "Inicia el servidor de continguts del calibre. El servidor de continguts\n"
-"del calibre mostra la vostra biblioteca per internet. La interfície per\n"
-"defecte permet navegar per la biblioteca per categories. També podeu\n"
-"accedir una interfície optimitzada per a navegadors mòbils a /mobile i \n"
-"una interfície basada en OPDS en aplicacions de lectura a /opds.\n"
+"del calibre mostra la biblioteca per internet. La interfície per defecte\n"
+"permet navegar per la biblioteca per categories. També podeu accedir\n"
+"a una interfície optimitzada per a navegadors mòbils a /mobile i una\n"
+"interfície basada en OPDS en aplicacions de lectura a /opds.\n"
 "\n"
 "La interfície OPDS es publicita automàticament fent servir el BonJour.\n"
 

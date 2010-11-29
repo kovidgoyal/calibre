@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-11-26 19:04+0000\n"
-"PO-Revision-Date: 2010-11-26 21:06+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2010-11-27 20:21+0000\n"
+"PO-Revision-Date: 2010-11-28 07:28+0000\n"
+"Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-27 04:48+0000\n"
+"X-Launchpad-Export-Date: 2010-11-29 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -605,7 +605,7 @@ msgstr "Denne profil er beregnet til Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:684
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Denne profil er forbeholdt B&N Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:695
 msgid "This profile is intended for the Sanda Bambook."
@@ -828,7 +828,7 @@ msgstr "Kommunikér med PocketBook 301 læseren."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602 reader."
-msgstr ""
+msgstr "Kommunikér med PocketBook 602 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1042,7 +1042,7 @@ msgstr "Kommunikér med GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:180
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Kommunikér med Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2808,19 +2808,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:25
 msgid "Downloads metadata from french Nicebooks"
-msgstr ""
+msgstr "Hent metadata fra franske Nicebooks"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:41
 msgid "Downloads covers from french Nicebooks"
-msgstr ""
+msgstr "Hent omslag fra franske Nicebooks"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:332
 msgid "Nicebooks timed out. Try again later."
-msgstr ""
+msgstr "Nicebooks timede ud. Prøv igen senere."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:337
 msgid "An errror occured with Nicebooks cover fetcher"
-msgstr ""
+msgstr "Der skete en fejl under Nicebooks omslagshentning"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1308
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1401
@@ -3831,6 +3831,11 @@ msgid ""
 "removed. You should check them manually. This can happen if you manipulate "
 "the files in the library folder directly."
 msgstr ""
+"Følgende bøger havde referencer/indgange til formater eller omslag i "
+"databasen som ikke er tilgængelig. Indgangene til formaterne/omslagene er "
+"blevet fjernet. Du opfordres at checke dem manuelt. De fejlende indgange kan "
+"opstå, hvis du udenom calibre har ændret og/eller fjernet filer i "
+"biblioteksmappen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
@@ -4015,7 +4020,7 @@ msgstr "Starter konvertering af %d bog/bøger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:170
 msgid "Empty output file, probably the conversion process crashed"
-msgstr ""
+msgstr "Tom output-fil, sandsynligvis gik konverteringsprocessen ned"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:83
 msgid "Copy to library"
@@ -6380,6 +6385,14 @@ msgid ""
 "enter the full path to the file after a <code>>></code>.  For example:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 msgstr ""
+"<p>Indtast en liste af ISBN i tekstboksen til venstre, én per linje. Calibre "
+"vil automatisk oprette indgange til bøgerne baseret på ISBN og hente "
+"metadata og omslag til dem.</p>\n"
+"<p>Enhver ugyldig ISBN i listen vil blive ignoreret.</p>\n"
+"<p>Du kan også angive en fil, som vil blive tilføjet til hver ISBN. For at "
+"gøre dette indtastes den fulde sti til filnavnet efter <code>>></code>.  For "
+"eksempel:</p>\n"
+"<p><code>9788842915232 >> %s</code></p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:53
 msgid "&Paste from clipboard"
@@ -8244,7 +8257,7 @@ msgstr "Opskriftskildekode (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:145
 msgid "Email %s to %s"
-msgstr ""
+msgstr "Email %s til %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:187
 msgid "News:"
@@ -8252,7 +8265,7 @@ msgstr "Nyheder:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:189
 msgid "Attached is the %s periodical downloaded by calibre."
-msgstr ""
+msgstr "Som bilag er %s tidsskriftet hentet af calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:242
 msgid "E-book:"
@@ -8287,11 +8300,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:303
 msgid "Failed to email book"
-msgstr ""
+msgstr "Emailsending af bog fejlede"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:306
 msgid "sent"
-msgstr ""
+msgstr "sendt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:329
 msgid "Sent news to"
@@ -11098,6 +11111,9 @@ msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
+"<p>Vælg en placering til dine bøger. Når du tilføjer bøger til calibre, "
+"bliver de kopieret hertil. Anvend en <b>tom mappe</b> til et nyt calibre-"
+"bibliotek:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -11266,11 +11282,11 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr ""
+msgstr "ADVARSEL: Det er meget usikkert at udelade kryptering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
-msgstr ""
+msgstr "&Ingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:145
 msgid "Use Gmail"
