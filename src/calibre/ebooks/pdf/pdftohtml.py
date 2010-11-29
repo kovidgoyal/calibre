@@ -23,8 +23,8 @@ if isosx and hasattr(sys, 'frameworks_dir'):
 if iswindows and hasattr(sys, 'frozen'):
     PDFTOHTML = os.path.join(os.path.dirname(sys.executable), 'pdftohtml.exe')
     popen = partial(subprocess.Popen, creationflags=0x08) # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up
-if (islinux or isfreebsd) and getattr(sys, 'frozen_path', False):
-    PDFTOHTML = os.path.join(getattr(sys, 'frozen_path'), 'pdftohtml')
+if (islinux or isfreebsd) and getattr(sys, 'frozen', False):
+    PDFTOHTML = os.path.join(sys.executables_location, 'bin', 'pdftohtml')
 
 def pdftohtml(output_dir, pdf_path, no_images):
     '''

@@ -801,6 +801,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('cover', [id])
 
+    def has_cover(self, id):
+        return self.data.get(id, self.FIELD_MAP['cover'], row_is_id=True)
+
+    def set_has_cover(self, id, val):
+        dval = 1 if val else 0
+        self.conn.execute('UPDATE books SET has_cover=? WHERE id=?', (dval, id,))
+        self.data.set(id, self.FIELD_MAP['cover'], val, row_is_id=True)
+
     def book_on_device(self, id):
         if callable(self.book_on_device_func):
             return self.book_on_device_func(id)
