@@ -684,7 +684,7 @@ class NookColorOutput(NookOutput):
     description = _('This profile is intended for the B&N Nook Color.')
 
     screen_size               = (600, 900)
-    comic_screen_size         = (584, 900)
+    comic_screen_size         = (594, 900)
     dpi                       = 169
 
 class BambookOutput(OutputProfile):
