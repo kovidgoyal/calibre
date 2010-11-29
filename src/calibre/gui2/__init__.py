@@ -644,7 +644,7 @@ def open_url(qurl):
                 '').split(os.pathsep)
     paths = [x for x in paths if x]
     if isfrozen and islinux and paths:
-        npaths = [x for x in paths if x != sys.frozen_path]
+        npaths = [x for x in paths if x != sys.frozen_path+'/lib']
         os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
     QDesktopServices.openUrl(qurl)
     if isfrozen and islinux and paths:

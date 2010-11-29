@@ -28,7 +28,7 @@ if hasattr(sys, 'frozen') and iswindows:
     lp = os.path.join(os.path.dirname(sys.executable), 'DLLs', 'unrar.dll')
     _libunrar = cdll.LoadLibrary(lp)
 elif hasattr(sys, 'frozen_path'):
-    lp = os.path.join(sys.frozen_path, 'libunrar.so')
+    lp = os.path.join(sys.frozen_path, 'lib', 'libunrar.so')
     _libunrar = cdll.LoadLibrary(lp)
 else:
     _libunrar = load_library(_librar_name, cdll)

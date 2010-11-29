@@ -6,10 +6,22 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shutil, platform, subprocess, stat, py_compile, glob
+import sys, os, shutil, platform, subprocess, stat, py_compile, glob, \
+        textwrap, tarfile
 
-from setup import Command, modules, basenames, functions
+from setup import Command, modules, basenames, functions, __version__, \
+    __appname__
 
+SITE_PACKAGES = ['IPython', 'PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
+        'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
+        'sipconfig.py', 'xdg']
+
+
+
+gcc = subprocess.Popen(["gcc-config", "-c"], stdout=subprocess.PIPE).communicate()[0]
+chost, _, gcc = gcc.rpartition('-')
+stdcpp = '/usr/lib/gcc/%s/%s/libstdc++.so.?'%(chost.strip(), gcc.strip())
+stdcpp = glob.glob(stdcpp)[-1]
 is64bit = platform.architecture()[0] == '64bit'
 arch = 'x86_64' if is64bit else 'i686'
 ffi = '/usr/lib/libffi.so.5' if is64bit else '/usr/lib/gcc/i686-pc-linux-gnu/4.4.1/libffi.so.4'
@@ -25,37 +37,34 @@ binary_includes = [
                 '/usr/lib/liblcms.so.1',
                 '/usr/lib/libunrar.so',
                 '/usr/lib/libsqlite3.so.0',
-                '/usr/lib/libsqlite3.so.0',
                 '/usr/lib/libmng.so.1',
-                '/usr/lib/libpodofo.so.0.6.99',
+                '/usr/lib/libpodofo.so.0.8.4',
                 '/lib/libz.so.1',
-                '/usr/lib/libtiff.so.3',
+                '/usr/lib/libtiff.so.5',
                 '/lib/libbz2.so.1',
-                '/usr/lib/libpoppler.so.5',
+                '/usr/lib/libpoppler.so.7',
                 '/usr/lib/libxml2.so.2',
                 '/usr/lib/libopenjpeg.so.2',
                 '/usr/lib/libxslt.so.1',
-                '/usr/lib/libjpeg.so.7',
+                '/usr/lib/libjpeg.so.8',
                 '/usr/lib/libxslt.so.1',
                 '/usr/lib/libgthread-2.0.so.0',
-                '/usr/lib/gcc/***-pc-linux-gnu/4.4.1/libstdc++.so.6'.replace('***',
-                    arch),
+                stdcpp,
                 ffi,
-                '/usr/lib/libpng12.so.0',
+                '/usr/lib/libpng14.so.14',
                 '/usr/lib/libexslt.so.0',
-                '/usr/lib/libMagickWand.so.2',
-                '/usr/lib/libMagickCore.so.2',
+                '/usr/lib/libMagickWand.so.4',
+                '/usr/lib/libMagickCore.so.4',
                 '/usr/lib/libgcrypt.so.11',
                 '/usr/lib/libgpg-error.so.0',
                 '/usr/lib/libphonon.so.4',
-                '/usr/lib/libssl.so.0.9.8',
-                '/usr/lib/libcrypto.so.0.9.8',
+                '/usr/lib/libssl.so.1.0.0',
+                '/usr/lib/libcrypto.so.1.0.0',
                 '/lib/libreadline.so.6',
+                '/usr/lib/libchm.so.0',
+                '/usr/lib/liblcms2.so.2',
                 ]
 binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]
-
-SITE_PACKAGES = ['IPython', 'PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
-        'sip.so', 'BeautifulSoup.py', 'ClientForm.py', 'lxml']
 
 class LinuxFreeze2(Command):
 
@@ -68,11 +77,12 @@ class LinuxFreeze2(Command):
         self.lib_dir = self.j(self.base, 'lib')
         self.bin_dir = self.j(self.base, 'bin')
 
-        #self.initbase()
-        #self.copy_libs()
-        #self.copy_python()
-        #self.compile_mount_helper()
+        self.initbase()
+        self.copy_libs()
+        self.copy_python()
+        self.compile_mount_helper()
         self.build_launchers()
+        self.create_tarfile()
 
     def initbase(self):
         if os.path.exists(self.base):
@@ -109,7 +119,7 @@ class LinuxFreeze2(Command):
                 'linux_mount_helper.c'), '-o', dest])
         os.chown(dest, 0, 0)
         os.chmod(dest, stat.S_ISUID|stat.S_ISGID|stat.S_IRUSR|stat.S_IWUSR|\
-                stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)
+                stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IRGRP|stat.S_IROTH)
         self.drop_privileges()
 
     def copy_python(self):
@@ -117,27 +127,30 @@ class LinuxFreeze2(Command):
 
         def ignore_in_lib(base, items):
             ans = []
-            for x in items:
-                x = os.path.join(base, x)
+            for y in items:
+                x = os.path.join(base, y)
                 if (os.path.isfile(x) and os.path.splitext(x)[1] in ('.so',
                         '.py')) or \
-                   (os.path.isdir(x) and x in ('.svn', '.bzr', 'test')):
+                   (os.path.isdir(x) and x not in ('.svn', '.bzr', 'test', 'tests',
+                       'testing')):
                     continue
-                ans.append(x)
+                ans.append(y)
             return ans
 
         srcdir = self.j('/usr/lib/python'+self.py_ver)
         self.py_dir = self.j(self.lib_dir, self.b(srcdir))
-        os.mkdir(self.py_dir)
+        if not os.path.exists(self.py_dir):
+            os.mkdir(self.py_dir)
 
         for x in os.listdir(srcdir):
             y = self.j(srcdir, x)
             ext = os.path.splitext(x)[1]
             if os.path.isdir(y) and x not in ('test', 'hotshot', 'distutils',
-                    'site-packages',  'idlelib', 'test', 'lib2to3'):
+                    'site-packages', 'idlelib', 'lib2to3', 'dist-packages'):
                 shutil.copytree(y, self.j(self.py_dir, x),
                         ignore=ignore_in_lib)
-            if os.path.isfile(y) and ext in ('.py', '.so'):
+            if os.path.isfile(y) and ext in ('.py', '.so') and \
+                    self.b(y) not in ('pdflib_py.so',):
                 shutil.copy2(y, self.py_dir)
 
         srcdir = self.j(srcdir, 'site-packages')
@@ -155,12 +168,18 @@ class LinuxFreeze2(Command):
         for x in os.listdir(self.SRC):
             shutil.copytree(self.j(self.SRC, x), self.j(dest, x),
                     ignore=ignore_in_lib)
-        for x in ('translations', 'manual'):
+        for x in ('manual', 'trac'):
             x = self.j(dest, 'calibre', x)
-            shutil.rmtree(x)
+            if os.path.exists(x):
+                shutil.rmtree(x)
+
+        for x in glob.glob(self.j(dest, 'calibre', 'translations', '*.po')):
+            os.remove(x)
 
         shutil.copytree(self.j(self.src_root, 'resources'), self.j(self.base,
                 'resources'))
+
+        self.create_site_py()
 
         for x in os.walk(self.py_dir):
             for f in x[-1]:
@@ -176,16 +195,36 @@ class LinuxFreeze2(Command):
                     except:
                         self.warn('Failed to byte-compile', y)
 
-    def run_builder(self, cmd):
+
+    def run_builder(self, cmd, verbose=True):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
-        self.info(*cmd)
-        self.info(p.stdout.read())
-        self.info(p.stderr.read())
+        if verbose:
+            self.info(*cmd)
+        x = p.stdout.read() + p.stderr.read()
+        if x.strip():
+            self.info(x.strip())
 
         if p.wait() != 0:
             self.info('Failed to run builder')
             sys.exit(1)
+
+    def create_tarfile(self):
+        self.info('Creating archive...')
+        dist = os.path.join(self.d(self.SRC), 'dist',
+            '%s-%s-%s.tar.bz2'%(__appname__, __version__, arch))
+        with tarfile.open(dist, mode='w:bz2',
+                    format=tarfile.PAX_FORMAT) as tf:
+            cwd = os.getcwd()
+            os.chdir(self.base)
+            try:
+                for x in os.listdir('.'):
+                    tf.add(x)
+            finally:
+                os.chdir(cwd)
+        self.info('Archive %s created: %.2f MB'%(dist,
+            os.stat(dist).st_size/(1024.**2)))
+
 
     def build_launchers(self):
         self.obj_dir = self.j(self.src_root, 'build', 'launcher')
@@ -195,7 +234,7 @@ class LinuxFreeze2(Command):
         sources = [self.j(base, x) for x in ['util.c']]
         headers = [self.j(base, x) for x in ['util.h']]
         objects = [self.j(self.obj_dir, self.b(x)+'.o') for x in sources]
-        cflags  = '-W -Wall -c -O2 -pipe -DPYTHON_VER="python%s"'%self.py_ver
+        cflags  = '-fno-strict-aliasing -W -Wall -c -O2 -pipe -DPYTHON_VER="python%s"'%self.py_ver
         cflags  = cflags.split() + ['-I/usr/include/python'+self.py_ver]
         for src, obj in zip(sources, objects):
             if not self.newer(obj, headers+[src, __file__]): continue
@@ -210,34 +249,109 @@ class LinuxFreeze2(Command):
             self.run_builder(cmd)
 
         src = self.j(base, 'main.c')
+
+        modules['console'].append('calibre.linux')
+        basenames['console'].append('calibre_postinstall')
+        functions['console'].append('main')
         for typ in ('console', 'gui', ):
             self.info('Processing %s launchers'%typ)
             for mod, bname, func in zip(modules[typ], basenames[typ],
                     functions[typ]):
                 xflags = list(cflags)
-                xflags += ['-DGUI_APP='+('1' if type == 'gui' else '0')]
+                xflags += ['-DGUI_APP='+('1' if typ == 'gui' else '0')]
                 xflags += ['-DMODULE="%s"'%mod, '-DBASENAME="%s"'%bname,
                     '-DFUNCTION="%s"'%func]
+
+                launcher = textwrap.dedent('''\
+                #!/bin/sh
+                path=`readlink -e $0`
+                base=`dirname $path`
+                lib=$base/lib
+                export LD_LIBRARY_PATH=$lib:$LD_LIBRARY_PATH
+                export QT_PLUGIN_PATH=$lib/qt_plugins
+                export MAGICK_CONFIGURE_PATH=$lib/ImageMagick/config
+                export MAGICK_CODER_MODULE_PATH=$lib/ImageMagick/modules-Q16/coders
+                export MAGICK_CODER_FILTER_PATH=$lib/ImageMagick/modules-Q16/filters
+                $base/bin/{0} "$@"
+                ''')
 
                 dest = self.j(self.obj_dir, bname+'.o')
                 if self.newer(dest, [src, __file__]+headers):
                     self.info('Compiling', bname)
                     cmd = ['gcc'] + xflags + [src, '-o', dest]
-                    self.run_builder(cmd)
+                    self.run_builder(cmd, verbose=False)
                 exe = self.j(self.bin_dir, bname)
+                sh = self.j(self.base, bname)
+                with open(sh, 'wb') as f:
+                    f.write(launcher.format(bname))
+                os.chmod(sh,
+                    stat.S_IREAD|stat.S_IEXEC|stat.S_IWRITE|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH)
+
                 if self.newer(exe, [dest, __file__]):
                     self.info('Linking', bname)
-                    cmd = ['gcc', '-O2', '-Wl,--rpath=$ORIGIN/../lib',
+                    cmd = ['gcc', '-O2',
                             '-o', exe,
                             dest,
                             '-L'+self.lib_dir,
                             '-lcalibre-launcher',
                             ]
 
-                    self.run_builder(cmd)
+                    self.run_builder(cmd, verbose=False)
 
 
+    def create_site_py(self): # {{{
+        with open(self.j(self.py_dir, 'site.py'), 'wb') as f:
+            f.write(textwrap.dedent('''\
+            import sys
+            import encodings
+            import __builtin__
+            import locale
+            import os
+            import codecs
+
+            def set_default_encoding():
+                locale.setlocale(locale.LC_ALL, '')
+                enc = locale.getdefaultlocale()[1]
+                if not enc:
+                    enc = locale.nl_langinfo(locale.CODESET)
+                if not enc or enc.lower() == 'ascii':
+                    enc = 'UTF-8'
+                enc = codecs.lookup(enc).name
+                sys.setdefaultencoding(enc)
+                del sys.setdefaultencoding
+
+            class _Helper(object):
+                """Define the builtin 'help'.
+                This is a wrapper around pydoc.help (with a twist).
+
+                """
+
+                def __repr__(self):
+                    return "Type help() for interactive help, " \
+                        "or help(object) for help about object."
+                def __call__(self, *args, **kwds):
+                    import pydoc
+                    return pydoc.help(*args, **kwds)
+
+            def set_helper():
+                __builtin__.help = _Helper()
 
 
+            def main():
+                try:
+                    sys.argv[0] = sys.calibre_basename
+                    set_default_encoding()
+                    set_helper()
+                    mod = __import__(sys.calibre_module, fromlist=[1])
+                    func = getattr(mod, sys.calibre_function)
+                    return func()
+                except SystemExit:
+                    raise
+                except:
+                    import traceback
+                    traceback.print_exc()
+                return 1
+            '''))
+    # }}}
 
 
