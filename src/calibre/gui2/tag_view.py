@@ -253,17 +253,16 @@ class TagsView(QTreeView): # {{{
         return True
 
     def dragMoveEvent(self, event):
+        QTreeView.dragMoveEvent(self, event)
         self.setDropIndicatorShown(False)
         index = self.indexAt(event.pos())
         if not index.isValid():
-            self.setDropIndicatorShown(False)
             return
         item = index.internalPointer()
         flags = self._model.flags(index)
         if item.type == TagTreeItem.TAG and flags & Qt.ItemIsDropEnabled:
             self.setDropIndicatorShown(True)
         else:
-            item = index.internalPointer()
             if item.type == TagTreeItem.CATEGORY:
                 fm_dest = self.db.metadata_for_field(item.category_key)
                 if fm_dest['kind'] == 'user':
@@ -274,7 +273,6 @@ class TagsView(QTreeView): # {{{
                              fm_src['datatype'] in ['series', 'text'] and
                              not fm_src['is_multiple']):
                         self.setDropIndicatorShown(True)
-        QTreeView.dragMoveEvent(self, event)
 
     def clear(self):
         if self.model():
