@@ -140,7 +140,7 @@ class SearchBox2(QComboBox):
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self.do_search()
             self.focus_to_library.emit()
-        if self.as_you_type:
+        elif self.as_you_type and unicode(event.text()):
             self.timer.start(1500)
 
     def timer_event(self):
