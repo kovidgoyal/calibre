@@ -17,6 +17,8 @@ class PluginWidget(Widget, Ui_Form):
     ICON = I('mimetypes/fb2.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, ['inline_toc', 'sectionize_chapters'])
+        Widget.__init__(self, parent, ['inline_toc', 'sectionize_chapters', 
+            'sectionize_chapters_using_file_structure', 'h1_to_title', 
+            'h2_to_title', 'h3_to_title'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)

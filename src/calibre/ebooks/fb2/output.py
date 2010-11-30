@@ -25,6 +25,20 @@ class FB2Output(OutputFormatPlugin):
                    'WARNING: ' \
                    'This option is experimental. It can cause conversion ' \
                    'to fail. It can also produce unexpected output.')),
+        OptionRecommendation(name='sectionize_chapters_using_file_structure',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Try to turn chapters into individual sections using the ' \
+                   'internal structure of the ebook. This works well for EPUB ' \
+                   'books that have been internally split by chapter.')),
+        OptionRecommendation(name='h1_to_title',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Wrap all h1 tags with fb2 title elements.')),
+        OptionRecommendation(name='h2_to_title',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Wrap all h2 tags with fb2 title elements.')),
+        OptionRecommendation(name='h3_to_title',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Wrap all h3 tags with fb2 title elements.')),
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
