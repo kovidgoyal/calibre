@@ -199,6 +199,11 @@ if not _run_once:
 
     __builtin__.__dict__['lopen'] = local_open
 
+
+    import mimetypes
+    mimetypes.init([P('mime.types')])
+    guess_type = mimetypes.guess_type
+
 def test_lopen():
     from calibre.ptempfile import TemporaryDirectory
     from calibre import CurrentDir
