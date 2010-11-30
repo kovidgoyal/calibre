@@ -76,7 +76,6 @@ class SearchBox2(QComboBox):
         self.activated.connect(self.history_selected)
         self.setEditable(True)
         self.as_you_type = True
-        self.prev_search = ''
         self.timer = QTimer()
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.timer_event, type=Qt.QueuedConnection)
@@ -91,7 +90,11 @@ class SearchBox2(QComboBox):
         self.as_you_type = config['search_as_you_type']
         self.opt_name = opt_name
         self.addItems(QStringList(list(set(config[opt_name]))))
-        self.line_edit.setPlaceholderText(help_text)
+        try:
+            self.line_edit.setPlaceholderText(help_text)
+        except:
+            # Using Qt < 4.7
+            pass
         self.colorize = colorize
         self.clear()
 
@@ -103,10 +106,11 @@ class SearchBox2(QComboBox):
     def text(self):
         return self.currentText()
 
-    def clear(self):
+    def clear(self, emit_search=True):
         self.normalize_state()
         self.setEditText('')
-        self.search.emit('')
+        if emit_search:
+            self.search.emit('')
         self._in_a_search = False
         self.cleared.emit()
 
@@ -115,7 +119,7 @@ class SearchBox2(QComboBox):
             self.setToolTip(ok)
             ok = False
         if not unicode(self.currentText()).strip():
-            self.clear()
+            self.clear(emit_search=False)
             return
         self._in_a_search = ok
         col = 'rgba(0,255,0,20%)' if ok else 'rgb(255,0,0,20%)'
@@ -126,7 +130,8 @@ class SearchBox2(QComboBox):
     def key_pressed(self, event):
         k = event.key()
         if k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down,
-                Qt.Key_Home, Qt.Key_End, Qt.Key_PageUp, Qt.Key_PageDown):
+                Qt.Key_Home, Qt.Key_End, Qt.Key_PageUp, Qt.Key_PageDown,
+                Qt.Key_unknown):
             return
         self.normalize_state()
         if self._in_a_search:
@@ -135,7 +140,7 @@ class SearchBox2(QComboBox):
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self.do_search()
             self.focus_to_library.emit()
-        if self.as_you_type:
+        elif self.as_you_type and unicode(event.text()):
             self.timer.start(1500)
 
     def timer_event(self):
@@ -149,7 +154,6 @@ class SearchBox2(QComboBox):
         text = unicode(self.currentText()).strip()
         if not text:
             return self.clear()
-        self.prev_search = text
         self.search.emit(text)
 
         idx = self.findText(text, Qt.MatchFixedString)
