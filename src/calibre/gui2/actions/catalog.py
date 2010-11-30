@@ -37,7 +37,8 @@ class GenerateCatalogAction(InterfaceAction):
 			dbspec[id] = {'ondevice': db.ondevice(id, index_is_id=True)}
 
         # Calling gui2.tools:generate_catalog()
-        ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager)
+        ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager,
+                db)
         if ret is None:
             return
 
