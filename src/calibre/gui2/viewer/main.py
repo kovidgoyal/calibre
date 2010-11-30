@@ -237,9 +237,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.action_previous_page, SIGNAL('triggered(bool)'),
                      lambda x:self.view.previous_page())
         self.connect(self.action_find_next, SIGNAL('triggered(bool)'),
-                     lambda x:self.find(self.search.smart_text, repeat=True))
+                     lambda x:self.find(unicode(self.search.text()), repeat=True))
         self.connect(self.action_find_previous, SIGNAL('triggered(bool)'),
-                     lambda x:self.find(self.search.smart_text,
+                     lambda x:self.find(unicode(self.search.text()),
                          repeat=True, backwards=True))
 
         self.connect(self.action_full_screen, SIGNAL('triggered(bool)'),

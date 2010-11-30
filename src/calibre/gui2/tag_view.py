@@ -843,7 +843,7 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.set_database(self.library_view.model().db,
                 self.tag_match, self.sort_by)
         self.tags_view.tags_marked.connect(self.search.search_from_tags)
-        self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
+        self.tags_view.tags_marked.connect(self.saved_search.clear)
         self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
@@ -910,14 +910,14 @@ class TagBrowserMixin(object): # {{{
             self.library_view.model().refresh()
             self.tags_view.set_new_model()
             self.tags_view.recount()
-            self.saved_search.clear_to_help()
-            self.search.clear_to_help()
+            self.saved_search.clear()
+            self.search.clear()
 
     def do_tag_item_renamed(self):
         # Clean up library view and search
         self.library_view.model().refresh()
-        self.saved_search.clear_to_help()
-        self.search.clear_to_help()
+        self.saved_search.clear()
+        self.search.clear()
 
     def do_author_sort_edit(self, parent, id):
         db = self.library_view.model().db
