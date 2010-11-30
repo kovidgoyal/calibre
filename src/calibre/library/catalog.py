@@ -2676,14 +2676,7 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                # THIS SHOULDN'T BE NECESSARY
-                #  book with read/reading/unread symbol
-#                 for tag in book['tags']:
-#                     if tag == self.opts.read_tag:
-#                         book['read'] = True
-#                         break
-#                 else:
-#                     book['read'] = False
+                book['read'] = self.discoverReadStatus(book)
 
                 #  book with read|reading|unread symbol or wishlist item
                 if self.opts.wishlist_tag in book.get('tags', []):
@@ -4552,7 +4545,6 @@ class EPUB_MOBI(CatalogPlugin):
             markerTags = []
             markerTags.extend(self.opts.exclude_tags.split(','))
             markerTags.extend(self.opts.note_tag.split(','))
-            markerTags.extend(self.opts.read_tag.split(','))
             return markerTags
 
         def letter_or_symbol(self,char):

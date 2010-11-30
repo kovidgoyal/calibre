@@ -82,7 +82,6 @@ class PluginWidget(QWidget,Ui_Form):
             elif opt[0] in ['read_source_field_cb']:
                 # Look for last-stored combo box value
                 index = self.read_source_field_cb.findText(opt_value)
-                print "last index: %d" % index
                 if index == -1:
                     index = self.read_source_field_cb.findText('Tag')
                 self.read_source_field_cb.setCurrentIndex(index)
