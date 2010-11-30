@@ -12,6 +12,7 @@ for using |app| is to first add books to the library from your hard disk.
 to its internal database. Once they are in the database, you can perform a various
 :ref:`actions` on them that include conversion from one format to another,
 transfer to the reading device, viewing on your computer, editing metadata, including covers, etc.
+Note that |app| creates copies of the files you add to it, your original files are left untouched. 
 
 The interface is divided into various sections:
 
@@ -27,7 +28,7 @@ Actions
 .. image:: images/actions.png
     :alt: The Actions Toolbar
 
-The actions toolbar provides convenient shortcuts to commonly used actions. Most of the action buttons have little arrows next to them. By clicking the arrows, you can perform variations on the default action.
+The actions toolbar provides convenient shortcuts to commonly used actions. Most of the action buttons have little arrows next to them. By clicking the arrows, you can perform variations on the default action. Please note that the actions toolbar will look slightly different depending on whether you have an ebook reader attached to your computer.
 
 .. contents::
     :depth: 1
@@ -39,99 +40,51 @@ Add books
 ~~~~~~~~~~~~~~~~~~
 .. |adbi| image:: images/add_books.png
 
-|adbi| The :guilabel:`Add books` action has three variations, accessed by the arrow next to the button.
+|adbi| The :guilabel:`Add books` action has five variations, accessed by the clicking the down arrow on the right side of the button.
 
 
     1. **Add books from a single directory**: Opens a file chooser dialog and allows you to specify which books in a directory should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the ebook reader device, the books will be uploaded to the device, and so on.
 
-    2. **Add books recursively (One book per directory)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library.The algorithm assumes that each directory contains a single book. All ebook files in a directory are assumedto be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information (except date).
+    2. **Add books from directories, including sub-directories (One book per directory, assumes every ebook file is the same book in a different format)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library. The algorithm assumes that each directory contains a single book. All ebook files in a directory are assumedto be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information (except date).
 
-    3. **Add books recursively (Multiple books per directory)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library.The algorithm assumes that each directory contains many books. All ebook files with the same name in a directory are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_single>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information (except date).
+    3. **Add books directories, including sub-directories (Multiple books per directory, assumes every ebook file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library. The algorithm assumes that each directory contains many books. All ebook files with the same name in a directory are assumed to be the same book in different formats. Ebooks with different names are added as different books. This action is the inverse of the :ref:`Save to disk <save_to_disk_single>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information (except date).
 
+    4. **Add empty book. (Book Entry with blank formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection. 
+    
+    5. **Add by ISBN**: Allows you to add one or more books by entering just their ISBN into a list or pasting the list of ISBNs from your clipboard. 
+    
+The :guilabel:`Add books` action can read metadata from a wide variety of e-book formats. In addition it tries to guess metadata from the filename.
+See the :ref:`config_filename_metadata` section, to learn how to configure this.
 
-The :guilabel:`Add books` action can read metadata from the following ebook formats: ``LRF, EPUB, LIT, MOBI, RTF, PDF, PRC, HTML``. In addition it tries to guess metadata from the filename. See the :ref:`config_filename_metadata` section, to learn how to configure this.
-
-To add a new format to an existing book, use the :ref:`edit_meta_information` action.
-
-.. _remove_books:
-
-Remove books
-~~~~~~~~~~~~~~~~~~~~~
-.. |rbi| image:: images/remove_books.png
-
-|rbi| The :guilabel:`Remove books` action deletes books permanently, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, the books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.
+To add an additional format for an existing book, use the :ref:`edit_meta_information` action.
 
 .. _edit_meta_information:
 
-Edit meta information
+Edit metadata
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. |emii| image:: images/edit_meta_information.png
 
-|emii| The :guilabel:`Edit meta information` action has two variations, accessed by the arrow next to the button.
+|emii| The :guilabel:`Edit metadata` action has six variations, which can be accessed by clicking the down arrow on the right side of the button.
 
     1. **Edit metadata individually**: This allows you to edit the metadata of books one-by-one, with the option of fetching metadata, including covers from the internet. It also allows you to add/remove particular ebook formats from a book. For more detail see :ref:`metadata`.
-
     2. **Edit metadata in bulk**: This allows you to edit common metadata fields for large numbers of books simulataneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
+    3. **Download metadata and covers**: Downloads metadata and covers (if available), for the books that are selected in the book list.
+    4. **Download only metadata**: Downloads only metadata (if available), for the books that are selected in the book list.
+    5. **Download only covers**: Downloads only covers (if available), for the books that are selected in the book list.
+    6. **Download only social metadata**: Downloads only social metadata such as tags and reviews (if available), for the books that are selected in the book list.
+    7. **Merge Book Records**: Gives you the capability of merging the metadata and formats of two or more book records together. You can choose to either delete or keep the records that were not clicked first.
 
-.. _send_to_device:
-
-Send to device
-~~~~~~~~~~~~~~~~~~~~~~~~
-.. |stdi| image:: images/send_to_device.png
-
-|stdi| The :guilabel:`Send to device` action has two variations, accessed by the arrow next to the button.
-
-    1. **Send to main memory**: The selected books are transferred to the main memory of the ebook reader.
-    2. **Send to card**: The selected books are transferred to the storage card on the ebook reader.
-
-You can control the file name and folder structure of files sent to the device by setting up a template in
-:guilabel:`Preferences->Import/Export->Sending books to devices`. Also see :ref:`templatelangcalibre`.
-
-.. _save_to_disk:
-
-Save to disk
-~~~~~~~~~~~~~~~~~~~~~~~~~
-.. |svdi| image:: images/save_to_disk.png
-
-|svdi| The :guilabel:`Save to disk` action has two variations, accessed by the arrow next to the button.
-
-.. _save_to_disk_multiple:
-
-    1. **Save to disk**: This will save the selected books to disk organized in directories. The directory structure looks like::
-
-        Author
-            Title
-                Book Files
-            
-.. _save_to_disk_single:
-
-    2. **Save to disk in a single directory**: The selected books are saved to disk in a single directory.
-            
-All available formats as well as metadata is stored to disk for each selected book. Metadata is stored in an OPF file.
-
-Saved books can be re-imported to the library without any loss of information by using the :ref:`Add books <add_books>` action.
-
-You can control the file name and folder structure of files saved to disk by setting up a template in
-:guilabel:`Preferences->Import/Export->Saving books to disk`. Also see :ref:`templatelangcalibre`.
-
-
-.. _fetch_news:
-
-Fetch news
-~~~~~~~~~~~~~~~~~
-.. |fni| image:: images/fetch_news.png
-
-|fni| The :guilabel:`Fetch news` action downloads news from various websites and converts it into an ebook that can be read on your ebook reader. Normally, the newly created ebook is added to your ebook library, but if an ebook reader is connected at the time the download finishes, the news is uploaded to the reader directly.
-            
-The :guilabel:`Fetch news` action uses simple recipes (10-15 lines of code) for each news site. To learn how to create recipes for your own news sources, see :ref:`news`.
-
+    
 .. _convert_ebooks:
 
 Convert e-books
 ~~~~~~~~~~~~~~~~~~~~~~
 .. |cei| image:: images/convert_ebooks.png
 
-|cei| Ebooks can be converted from a number of formats into the LRF format (for the SONY Reader). Note that ebooks you purchase will typically have `Digital Rights Management <http://bugs.calibre-ebook.com/wiki/DRM>`_ *(DRM)*. |app| will not convert these ebooks. For many DRM formats, it is easy to remove the DRM, but as this is illegal, you have to find tools to liberate your books yourself and then use |app| to convert them.
+|cei| Ebooks can be converted from a number of formats into whatever format your e-book reader prefers.
+Note that ebooks you purchase will typically have `Digital Rights Management <http://bugs.calibre-ebook.com/wiki/DRM>`_ *(DRM)*.
+|app| will not convert these ebooks. For many DRM formats, it is easy to remove the DRM, but as this may be illegal,
+you have to find tools to liberate your books yourself and then use |app| to convert them.
 
 For most people, conversion should be a simple 1-click affair. But if you want to learn more about the conversion process, see :ref:`conversion`.
             
@@ -141,29 +94,180 @@ The :guilabel:`Convert E-books` action has three variations, accessed by the arr
                 
     2. **Bulk convert**: This allows you to specify options only once to convert a number of ebooks in bulk.
     
-    3. **Create catalog**: This action allows you to generate a complete listing with all metadata of the books in your library, in several formats, like XML, CSV, EPUB and MOBI. The catalog will contain all the books showing in the library view currently, so you can use the search features to limit the books to be catalogued. In addition, if you select multiple books using the mouse, only those books will be added to the catalog. If you generate the catalog in an e-book format such as EPUB or MOBI, the next time you connect your e-book reader, the catalog will be automatically sent to the device. For details on how catalogs work, see `here <http://www.mobileread.com/forums/showthread.php?p=755468#post755468>`_.
-                                            
+    3. **Create catalog**: This action allows you to generate a complete listing with all metadata of the books in your library,
+       in several formats, like XML, CSV, BiBTeX, EPUB and MOBI. The catalog will contain all the books showing in the library view currently,
+       so you can use the search features to limit the books to be catalogued. In addition, if you select multiple books using the mouse,
+       only those books will be added to the catalog. If you generate the catalog in an e-book format such as EPUB or MOBI,
+       the next time you connect your e-book reader, the catalog will be automatically sent to the device.
+       For details on how catalogs work, see `here <http://www.mobileread.com/forums/showthread.php?p=755468#post755468>`.
+
 .. _view:
 
 View
 ~~~~~~~~~~~
 .. |vi| image:: images/view.png
 
-|vi| The :guilabel:`View` action displays the book in an ebook viewer program. |app| has a builtin viewer for the LRF format. For other formats it uses the default operating system application. If a book has more than one format, you can view a particular format by clicking the arrow next to the :guilabel:`View` button.
+|vi| The :guilabel:`View` action displays the book in an ebook viewer program. |app| has a builtin viewer for the most e-book formats.
+For other formats it uses the default operating system application. You can configure which formats should open with the internal viewer via
+Preferences->Behavior. If a book has more than one format, you can view a particular format by clicking the down arrow
+on the right of the :guilabel:`View` button.
 
+    
+.. _send_to_device:
+
+Send to device
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. |stdi| image:: images/send_to_device.png
+
+|stdi| The :guilabel:`Send to device` action has eight variations, accessed by clicking the down arrow on the right of the button.
+
+    1. **Send to main memory**: The selected books are transferred to the main memory of the ebook reader.
+    2. **Send to card (A)**: The selected books are transferred to the storage card (A) on the ebook reader.
+    3. **Send to card (B)**: The selected books are transferred to the storage card (B) on the ebook reader.
+    4. **Send and delete from library>**: The selected books are transferred to the selected storage location on the device, and then **deleted** from the Library.
+    5. **Send Specific format>**: The selected books are transferred to the selected storage location on the device, in the format that you specify.
+    6. **Eject device**: The device is detached from |app|.
+    7. **Set default send to device action>**: This action allows you to Specify which of the option 1) through 6) above will be the default action when you click the main button.
+    8. **Fetch Annotations**: This is an experimental action which will transfer annotations you may have made on an ebook on your device, and add those annotations to the comments metadata of the book in the |app| library
+
+You can control the file name and folder structure of files sent to the device by setting up a template in
+:guilabel:`Preferences->Import/Export->Sending books to devices`. Also see :ref:`templatelangcalibre`.
+    
+.. _fetch_news:
+
+Fetch news
+~~~~~~~~~~~~~~~~~
+.. |fni| image:: images/fetch_news.png
+
+|fni| The :guilabel:`Fetch news` action downloads news from various websites and converts it into an ebook that can be read on your ebook reader. Normally, the newly created ebook is added to your ebook library, but if an ebook reader is connected at the time the download finishes, the news is also uploaded to the reader automatically.
+            
+The :guilabel:`Fetch news` action uses simple recipes (10-15 lines of code) for each news site. To learn how to create recipes for your own news sources, see :ref:`news`.
+
+The :guilabel:`Fetch news` action has three variations, accessed by clicking the down arrow on the right of the button.
+    
+    1. **Schedule news download**: This action allows you to schedule the download of of your selected news sources from a list of hundreds of available.  Scheduling can be set individually for each news source you select and the scheduling is flexible allowing you to select specific days of the week or a frequency of days between downloads.
+    2. **Add a custom news service**: This action allows you to create a simple recipe for downloading news from a custom news site that you wish to access.  Creating the recipe can be as simple as specifying an RSS news feed URL, or you can be more prescriptive by creating python based code for the task, see :ref:`news`.
+    3. **Download all scheduled news sources**:  This action causes |app| to immediately begin to download all news sources that you have previously scheduled.
+
+
+.. _library:
+
+Library
+~~~~~~~~~~~~~~~~~
+.. |lii| image:: images/library.png
+
+|lii| The :guilabel: `Library` action allows you to create, switch between, rename or delete a Library.  |app| allows you to create as many libraries as you wish. You coudl for instance create a fiction library, a non fiction library, a foreign language library a project library, basically any structure that suits your needs. Libraries are the highest organizational structure within |app|, each library has its own set of books, tags, categories and base storage location.
+
+    1. **Switch\Create library..**: This action allows you to; a) connect to a pre-existing |app| library at another location from your currently open library, b) Create and empty library at a nw location or, c) Move the current Library to a newly specified location.
+    2. **Quick Switch>**: This action allows you to switch between libraries that have been registered or created within |app|.
+    3. **Rename Library>**: This action allows you to rename a Library.
+    4. **Delete Library>**: This action allows you to **permanenetly delete** a Library.
+    5. **<calibre library>**: Actions 5, 6 etc .. give you immediate switch access between multiple Libraries that you have created or attached to.
+
+.. _device:
+
+Device
+~~~~~~~~~~~~~~~~~
+.. |dvi| image:: images/device.png
+
+|dvi| The :guilabel:`Device` action allows you to view the books in the main memory or storage cards of your device, or to eject the device (detach it from |app|).
+This icon shows up automatically on the main |app| toolbar when you connect a supported device. You can click on it to see the books on your device. You can also drag  and drop books from your |app| library onto the icon to transfer them to your device. Conversely, you can drag and drop books from your device onto the |app| icon on the toolbar to transfer books from your device to the |app| library. 
+
+    
+.. _save_to_disk:
+
+Save to disk
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. |svdi| image:: images/save_to_disk.png
+
+|svdi| The :guilabel:`Save to disk` action has five variations, accessed by the arrow next to the button.
+
+.. _save_to_disk_multiple:
+
+    1. **Save to disk**: This will save the selected books to disk organized in directories. The directory structure looks like::
+
+            Author_(sort)
+                Title
+                    Book Files
+                
+    You can control the file name and folder structure of files saved to disk by setting up a template in
+    :guilabel:`Preferences->Import/Export->Saving books to disk`. Also see :ref:`templatelangcalibre`.
+            
+.. _save_to_disk_single:
+
+    2. **Save to disk in a single directory**: The selected books are saved to disk in a single directory.
+            
+    For 1. and 2. All available formats as well as metadata is stored to disk for each selected book. Metadata is stored in an OPF file.
+
+    Saved books can be re-imported to the library without any loss of information by using the :ref:`Add books <add_books>` action.
+
+    3. **Save only *<your preferred>* format to disk**: The selected books are saved to disk in the directory structure as shown in (1.) but only in your preferred ebook format you can set <your preferred> format in :guilabel:`Preferences->Behaviour->Preferred output format`
+
+    4. **Save only *<your preferred>* format to disk in a single directory**: The selected books are saved to disk in a single directory but only in <your preferred> ebook format you can set <your preferred> format in :guilabel:`Preferences->Behaviour->Preferred output format`
+
+    5. **Save single format to disk ..**: The selected books are saved to disk in the directory structure as shown in (1.) but only in the format you select from the pop-out list.  There are currently 35 formats available and new ones are being added all the time.
+
+.. _connect_share:
+
+Connect/Share
+~~~~~~~~~~~~~~~~~
+.. |csi| image:: images/connect_share.png
+
+|csi| The :guilabel:`Connect/Share` action allows you to manually connect to a device or folder on your computer, it also allows you to set up you |app| library for access via a web browser, or email.
+
+    The :guilabel:`Connect/Share` action has four variations, accessed by clicking the down arrow on the right of the button.
+    
+    1. **Connect to folder**: This action allows you to connect to any folder on your computer as though it were a device and use all the facilities |app| has for devices with that folder. Useful if your device cannot be supported by |app| but is available as a USB disk.
+    
+    2. **Connect to iTunes**: Allows you to connect to your iTunes books database as though it were a device. Once the books are sent to iTunes, you can then use iTunes to make them available on your various iDevices. Useful if you would rather not have |app| send books to your iDevice directly. 
+    
+    3. **Start Content Server**: This action causes |app| to start up its built-in web server.  When this is started, your |app| library will be accessible via a web browser from the internet (if you choose). You can configure how the web server is accessed by setting preferences at :guilabel:`Preferences->Sharing->Sharing over the net`
+    
+    4. **Setup email based sharing of books**: This action allows you to setup |app| to share books (and news feeds) by email.  After setting up email addresses for this option |app| will send news updates and book updates to the entered email addresses. You can configure how the |app| sends email by setting preferences at :guilabel:`Preferences->Sharing->Sharing books by email`. Once you have setup one or more email addresses, this menu entry get replaced by menu entries to send books to the setup email addresses. 
+
+.. _remove_books:
+
+Remove books
+~~~~~~~~~~~~~~~~~~~~~
+.. |rbi| image:: images/remove_books.png
+
+|rbi| The :guilabel:`Remove books` action **deletes books permanently**, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, the books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.  Remove books also has five variations which can be accessed by clicking the down arrow on the right side of the button.
+
+    1. **Remove Selected Books**: Allows you to **permanently** remove all books that are selected in the book list. 
+    
+    2. **Remove files of a specified format from selected books..**: Allows you to **permanently** remove ebook files of a specified format, from books that are selected in the book list.
+    
+    3. **Remove all files of a specified format, except..**: Allows you to **permanently** remove ebook files of a multiple formats except a given format, from books that are selected in the book list.
+    
+    4. **Remove covers from selected books**: Allows you to **permanently** remove cover images files, from books that are selected in the book list.
+    
+    5. **Remove matching books from device**: Allows you to remove ebook files from a connected device, that match the books that are selected in the book list.
+
+.. note::
+    Note that when you use Remove books to delete books from your |app| library, the book record is permanently deleted, but, on (Windows and OS X) the files are placed into the recycle bin, so you can recover them if you change your mind.
+
+.. _configuration:
+
+Preferences
+---------------
+.. |cbi| image:: images/preferences.png
+
+The Preferences Action allows you to change the way various aspects of |app| work. To access it, click the |cbi|.
+    
 .. _catalogs:
 
 Catalogs
 ----------
 .. image:: images/catalogs.png
 
-A *catalog* is a collection of books. |app| can manage three different catalogs:
+A *catalog* is a collection of books. |app| can manage two types of different catalogs:
                 
-    1. **Library**: This is a collection of books stored in a database file on your computers harddisk.
+    1. **Library**: This is a collection of books stored in your |app| library on your computer
                 
-    2. **Reader**:  This is a collection of books stored in the main memory of your ebook reader. It will be available when you connect the reader to your computer.
-                
-    3. **Card**: This is a collection of books stored on the storage card in your reader.
+    2. **Device**:  This is a collection of books stored in the main memory of your ebook reader. It will be available when you connect the reader to your computer.
+       - In addition, you can see the books on the storage card (if any) in your reader device.
+
+Many operations, like Adding books, deleting, viewing, etc. are context sensitive. So, for example, if you click the View button when you have the **Device** catalog selected, |app| will open the files on the device to view. If you have the **Library** catalog selected, files in your |app| library will be opened instead.
 
 .. _search_sort:
 
@@ -274,28 +378,12 @@ Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the col
     
     :guilabel:`Advanced Search Dialog`
 
-You can test for the number of items in multiple-value columns, such as tags, formats, authors, and tags-like custom columns. This is done using a syntax very similar to numeric tests (discussed above), except that the relational operator begins with a ``#`` character. For example::
-
-    tags:#>3 will give you books with more than three tags
-    tags:#!=3 will give you books that do not have three tags
-    authors:#=1 will give you books with exactly one author
-    #cust:#<5 will give you books with less than five items in custom column #cust
-    formats:#>1 will give you books with more than one format
-
 Saving searches
 -----------------
 
 |app| has a useful feature, it allows you to save a search you use frequently under a special name and then re-use that search with a single click. To do this, create your search, either by typing it in the search bar, or using the Tag Browser. Then, type the name you would like to give to the search in the Saved Searches box next to the search bar and click the plus icon next to the saved searches box to save the search. 
 
 Now, you can access your saved search in the Tag Browser under "Searches". A single click will allow you to re-use any arbitrarily complex search easily, without needing to re-create it.
-
-.. _configuration:
-
-Preferences
----------------
-The Preferences dialog allows you to change the way various aspects of |app| work. To access it, click the |cbi|.
-
-.. |cbi| image:: images/configuration.png
 
 .. _config_filename_metadata:
 

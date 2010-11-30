@@ -368,7 +368,7 @@ class BrowseServer(object):
                 for x, y, z in cats]
 
         main = u'<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
-                .format(_('Choose a category to browse by:'), '\n\n'.join(cats))
+                .format(_('Choose a category to browse by:'), u'\n\n'.join(cats))
         return self.browse_template('name').format(title='',
                     script='toplevel();', main=main)
 
