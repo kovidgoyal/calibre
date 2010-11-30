@@ -210,6 +210,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         # Remove all controls from the dialog box by deleting the top layout
         if self.layout():
             import sip
+            while True:
+                child = self.layout().takeAt(0)
+                if not child:
+                    break;
+                sip.delete(child)
             sip.delete(self.layout())
 
         self.setupUi(self)
