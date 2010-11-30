@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-11-27 20:21+0000\n"
-"PO-Revision-Date: 2010-11-28 20:16+0000\n"
+"PO-Revision-Date: 2010-11-29 19:40+0000\n"
 "Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-29 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-11-30 04:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3010,6 +3010,14 @@ msgid ""
 "\n"
 "Manipulate a PDF.\n"
 msgstr ""
+"příkaz...\n"
+"\n"
+"příkaz může být jeden z následujících:\n"
+"[%%commands]\n"
+"\n"
+"Použijte %prog příkaz --help pro získání více informací o příkazu\n"
+"\n"
+"Měnit PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:29
 msgid ""
@@ -3197,6 +3205,17 @@ msgid ""
 "\n"
 "Split a PDF.\n"
 msgstr ""
+"\n"
+"%prog %%name [options] file.pdf page_to_split_on ...\n"
+"%prog %%name [options] file.pdf page_range_to_split_on ...\n"
+"\t\n"
+"Ex.\n"
+"\t\n"
+"%prog %%name file.pdf 6\n"
+"%prog %%name file.pdf 6-12\n"
+"%prog %%name file.pdf 6-12 8 10 9-20\n"
+"\n"
+"Rozdělit PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Split Options:"
@@ -3367,6 +3386,8 @@ msgid ""
 "Force splitting on the max-line-length value when no space is present. Also "
 "allows max-line-length to be below the minimum"
 msgstr ""
+"Vynuť rozdělení podle maximální délky řádku když není místo. Dovoluje, aby "
+"maximální délka řádku byla pod minimem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:67
 msgid "Send file to storage card instead of main memory by default"
@@ -4950,6 +4971,13 @@ msgid ""
 "   wil be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"Vysvětlení této šablony:\n"
+" -Dostupná pole jsou 'author_sort', 'authors', 'id',\n"
+"    'isbn','pubdate','publisher','series_index','series',\n"
+"   'tags','timestamp','title','uuid'\n"
+" -Pro typy seznamů, tj. autory a tagy, je označen\n"
+"   jen první prvek.\n"
+" -Pro časové pole je použité jen datum. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -5143,6 +5171,10 @@ msgid ""
 "understanding the conversion process and figuring out the correct values for "
 "conversion parameters like Table of Contents and Chapter Detection."
 msgstr ""
+"Zvolte složku, do které budou ukládány ladící informace. Pokud zvolíte "
+"složku, calibre do ní uloží mnoho ladících hlášek. Toto může být použito při "
+"pochopení konverzních procesů a nalezení správných hodnot pro konverzní "
+"parametry jako Obsah a detekce kapitol."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:59
 msgid ""
@@ -6661,7 +6693,7 @@ msgstr "&Zastavit označenou úlohu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:51
 msgid "Show job &details"
-msgstr "Ukázat &detaily úlohy"
+msgstr "Zobrazit &detaily úlohy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:52
 msgid "Stop &all non device jobs"
@@ -6903,6 +6935,9 @@ msgid ""
 "for that series. Checking this box will tell calibre to start numbering\n"
 "from the value in the box"
 msgstr ""
+"Série budou přečíslovány od nejvyššího čísla v databázi\n"
+"pro tuto sérii. Zaškrtnutí tohoto pole říká calibre, aby\n"
+"začalo číslovat od hodnoty v tomto poli"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:368
 msgid "Remove &format:"
@@ -6918,6 +6953,9 @@ msgid ""
 "checked,\n"
 "title and author are swapped before the title case is set"
 msgstr ""
+"Vynutit název knihy velkými písmeny. Pokud je zaškrtnuta tato volba a prohoď "
+"autora, \n"
+"název a autor budou prohozeni před tím, než se nastaví velikost písma."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:372
 msgid "Change title to title case"
@@ -7012,6 +7050,10 @@ msgid ""
 "field is processed. In regular expression mode, only the matched text is "
 "processed"
 msgstr ""
+"Zvolte, jak bude zpracován text po nalezení a nahrazení. Ve znakovém módu "
+"je\n"
+"zprocesované celé pole. V módu regulárních výrazů je zprocesován jen "
+"nalezený text."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:392
 msgid "&Destination field:"
@@ -8955,6 +8997,9 @@ msgid ""
 "used. Also applied when switching to this library. Note that this setting is "
 "per library. "
 msgstr ""
+"Použít toto omezení při startu Calibre, pokud je používána stávající "
+"knihovna. Také bude použito při přepnutí na tuto knihovnu. Všimněte si, že "
+"toto nastavení je na knihovnu. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:152
 msgid ""
@@ -8999,6 +9044,8 @@ msgid ""
 "book list. You can hide columns by unchecking them. You can also create your "
 "own, custom columns."
 msgstr ""
+"Zde můžete přeskupit rozložení sloupců v seznamu calibre knihovny. Můžete "
+"schovávat sloupce odškrtnutím. Můžete si také vytvořit své vlastní."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:84
@@ -9030,7 +9077,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:19
 msgid "Text, column shown in the tag browser"
-msgstr ""
+msgstr "Text, sloupec zobrazen v prohlížeči tagů"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:22
 msgid "Comma separated text, like tags, shown in the tag browser"
@@ -9093,6 +9140,8 @@ msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
 msgstr ""
+"Lookup names nemohou končit _index, protože tato jména jsou rezervována pro "
+"index sloupec sérií."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:126
 msgid "No column heading was provided"
@@ -9134,7 +9183,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:131
 msgid ""
 "Column heading in the library view and category name in the tag browser"
-msgstr ""
+msgstr "Nadpis sloupce v knihovním pohledu a kategorii v prohlížeči tagů"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:132
 msgid "Column &type"
@@ -9604,7 +9653,7 @@ msgstr "Libovolné pole"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "The lookup name of any custom field. These names begin with \"#\")"
-msgstr ""
+msgstr "Lookup name libovolného pole. Tato jména začínají s \"#\")"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
@@ -9752,7 +9801,7 @@ msgstr "Maximum OPDS položek v dotaze:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:132
 msgid "Max. OPDS &ungrouped items:"
-msgstr ""
+msgstr "Max. OPDS &neseskupených položek:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:133
 msgid "Restriction (saved search) to apply:"
@@ -10087,7 +10136,7 @@ msgstr "Seřadit podle průměrného hodnocení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:882
 msgid "Set the sort order for entries in the Tag Browser"
-msgstr ""
+msgstr "Nastavit pořadí položek v Tag prohlížeči"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:888
 msgid "Match all"
@@ -10197,6 +10246,9 @@ msgid ""
 "you find it useful, please consider donating to support its development. "
 "Your donation helps keep calibre development going."
 msgstr ""
+"je výsledek přispění mnoha dobrovolníků z celého světa. Pokud se Vám produkt "
+"líbí, podpořte jejich práci nějakým příspěvkem. Váš dar pomůže udržet vývoj "
+"calibre v chodu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:543
 msgid "There are active jobs. Are you sure you want to quit?"
@@ -10239,7 +10291,7 @@ msgstr "Dostupný update!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:64
 msgid "Show this notification for future updates"
-msgstr "Ukázat toto upozornění pro budoucí updaty"
+msgstr "Zobrazit toto upozornění pro budoucí aktualizace"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:69
 msgid "&Get update"
@@ -10442,11 +10494,11 @@ msgstr "Patkové písmo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:58
 msgid "The sans-serif font family"
-msgstr ""
+msgstr "Rodina fontů sans-serif"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:60
 msgid "The monospaced font family"
-msgstr ""
+msgstr "Rodina fontů monospaced"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:61
 msgid "The standard font size in px"
@@ -10745,7 +10797,7 @@ msgstr "Táhněte pro změnu velikosti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:893
 msgid "Show"
-msgstr "Ukázat"
+msgstr "Zobrazit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:900
 msgid "Hide"
@@ -11043,7 +11095,7 @@ msgstr "Vaše heslo na e-mailovém serveru"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:137
 msgid "&Show"
-msgstr "&Ukázat"
+msgstr "&Zobrazit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:138
 msgid "&Encryption:"
@@ -11095,6 +11147,10 @@ msgid ""
 "directly on the device. To do this you have to turn on the calibre content "
 "server."
 msgstr ""
+"<p> Pokud používáte <a href=\"http://www.lexcycle.com/download\">Stanza</a> "
+"e-book aplikaci na Vašem iPhone/iTouch, můžete si zpřístupnit Vaši calibre "
+"sbírku přímo na přístroji. Pro přístup budete muset zapnout calibre content "
+"server."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:50
 msgid "Turn on the &content server"
@@ -11188,6 +11244,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Vytvořit citaci pro BibTeX záznamy.\n"
+"Boolská hodnota: True, False\n"
+"Výchozí: '%default'\n"
+"Používá se na: BIBTEX výstupní formát"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:242
 msgid ""
@@ -11818,6 +11878,8 @@ msgid ""
 "Perform some checks on the filesystem representing a library. Reports are "
 "{0}\n"
 msgstr ""
+"%prog check_library [options]\n"
+"Provede nějaké kontroly na filesystému, kde je knihovna. Reporty jsou {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:886
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1036
@@ -11885,12 +11947,18 @@ msgid ""
 "Produce a report of the category information in the database. The\n"
 "information is the equivalent of what is shown in the tags pane.\n"
 msgstr ""
+"%prog list_categories [options]\n"
+"\n"
+"Vytvoří report kategorií informací v databázi.\n"
+"Informace je ekvivalentem toho, co se zobrazuje v panelu tagů.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1033
 msgid ""
 "Output only the number of items in a category instead of the counts per item "
 "within the category"
 msgstr ""
+"Výstupem je jen počet položek v kategorii namísto počtu položek v rámci "
+"kategorie."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1038
 msgid ""
@@ -12053,6 +12121,7 @@ msgid ""
 "Normally, calibre will update the metadata in the saved files from what is "
 "in the calibre library. Makes saving to disk slower."
 msgstr ""
+"Calibre upraví metadata v uložených souborech. Zpomalí ukládání na disk."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:65
 msgid ""
@@ -12173,6 +12242,8 @@ msgid ""
 "Prefix to prepend to all URLs. Useful for reverseproxying to this server "
 "from Apache/nginx/etc."
 msgstr ""
+"Prefix pro přidání ke všem URL. Použitelné pro reverzní proxy na tento "
+"server z Apache/nginx/atd."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:59
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:437
@@ -12452,7 +12523,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:56
 msgid "switch requires an odd number of arguments"
-msgstr ""
+msgstr "přepnutí potřebuje lichý počet parametrů"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -12583,7 +12654,7 @@ msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
 msgstr ""
-"Interpretr vytuhl během provádění příkazu. Klikněte na Ukázat detaily pro "
+"Interpretr vytuhl během provádění příkazu. Klikněte na Zobrazit detaily pro "
 "zobrazení problémového příkazu"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
@@ -12728,7 +12799,7 @@ msgstr "Stahování obálky z %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1032
 msgid "Masthead image downloaded"
-msgstr ""
+msgstr "Obrázek z tiráže stažen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1200
 msgid "Untitled Article"
