@@ -106,10 +106,11 @@ class SearchBox2(QComboBox):
     def text(self):
         return self.currentText()
 
-    def clear(self, emit_search=False):
+    def clear(self, emit_search=True):
         self.normalize_state()
         self.setEditText('')
-        self.search.emit('')
+        if emit_search:
+            self.search.emit('')
         self._in_a_search = False
         self.cleared.emit()
 
