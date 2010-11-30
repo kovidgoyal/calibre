@@ -401,7 +401,7 @@ class KOBO(USBMS):
         elif extension == '.pdf' or extension == '.epub':
             # print "ePub or pdf"
             ContentType = 16
-        elif extension == '.txt':
+        elif extension == '.rtf' or extension == '.txt' or extension == '.htm' or extension == '.html':
             # print "txt"
             ContentType = 901
         else: # if extension == '.html' or extension == '.txt':
