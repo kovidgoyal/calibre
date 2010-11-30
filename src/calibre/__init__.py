@@ -21,7 +21,9 @@ from calibre.constants import iswindows, isosx, islinux, isfreebsd, isfrozen, \
                               filesystem_encoding, plugins, config_dir
 from calibre.startup import winutil, winutilerror, guess_type
 
-uuid.uuid4() # Imported before PyQt4 to workaround PyQt4 util-linux conflict on gentoo
+if islinux and not getattr(sys, 'frozen', False):
+    # Imported before PyQt4 to workaround PyQt4 util-linux conflict on gentoo
+    uuid.uuid4()
 
 if False:
     # Prevent pyflakes from complaining
