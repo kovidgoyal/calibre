@@ -198,35 +198,15 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                         ]
 
     def __init__(self, window, rows, model):
-        self.model = model
-        self.db = self.model.db
-        self.ids = [self.db.id(r) for r in rows]
         QDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
-        self._initialize()
-        self.exec_()
-
-    def _initialize(self):
-        # Remove all controls from the dialog box by deleting the top layout
-        if self.layout():
-            import sip
-            while True:
-                child = self.layout().takeAt(0)
-                if not child:
-                    break;
-                sip.delete(child)
-            sip.delete(self.layout())
-
         self.setupUi(self)
-        self.button_box.clicked.connect(self.button_clicked)
-        self.button_box.button(QDialogButtonBox.Apply).setToolTip(_(
-            'Immediately make all changes without closing the dialog. '
-            'This operation cannot be canceled or undone'))
-
+        self.model = model
+        self.db = model.db
+        self.ids = [self.db.id(r) for r in rows]
         self.box_title.setText('<p>' +
                 _('Editing meta information for <b>%d books</b>') %
-                len(self.ids))
-
+                len(rows))
         self.write_series = False
         self.changed = False
 
@@ -253,10 +233,17 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         self.prepare_search_and_replace()
 
+        self.button_box.clicked.connect(self.button_clicked)
+        self.button_box.button(QDialogButtonBox.Apply).setToolTip(_(
+            'Immediately make all changes without closing the dialog. '
+            'This operation cannot be canceled or undone'))
+        self.do_again = False
+        self.exec_()
+
     def button_clicked(self, which):
         if which == self.button_box.button(QDialogButtonBox.Apply):
-            self._do_the_work()
-            self._initialize()
+            self.do_again = True
+            self.accept()
 
     def prepare_search_and_replace(self):
         self.search_for.initialize('bulk_edit_search_for')
@@ -651,7 +638,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.series_start_number.setEnabled(False)
             self.series_start_number.setValue(1)
 
-    def _do_the_work(self):
+    def accept(self):
+        if len(self.ids) < 1:
+            return QDialog.accept(self)
+
         if self.s_r_error is not None:
             error_dialog(self, _('Search/replace invalid'),
                     _('Search pattern is invalid: %s')%self.s_r_error.message,
@@ -711,13 +701,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         dynamic['s_r_search_mode'] = self.search_mode.currentIndex()
         self.db.clean()
-        return True
-
-    def accept(self):
-        if len(self.ids) < 1:
-            return QDialog.accept(self)
-        if not self._do_the_work():
-            return False
         return QDialog.accept(self)
 
     def series_changed(self, *args):
