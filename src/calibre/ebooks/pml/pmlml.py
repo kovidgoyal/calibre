@@ -216,7 +216,7 @@ class PMLMLizer(object):
             w = '\\w'
             width = elem.get('width')
             if width:
-                w += '="%s%%"' % width
+                w += '="%s"' % width
             else:
                 w += '="50%"'
             text.append(w)
@@ -252,8 +252,8 @@ class PMLMLizer(object):
                     if href not in self.link_hrefs.keys():
                         self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
                     href = '#%s' % self.link_hrefs[href]
-                text.append('\\q="%s"' % href)
-                tags.append('q')
+                    text.append('\\q="%s"' % href)
+                    tags.append('q')
 
         # Anchor ids
         id_name = elem.get('id')
