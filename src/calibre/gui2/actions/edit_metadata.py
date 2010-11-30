@@ -162,9 +162,14 @@ class EditMetadataAction(InterfaceAction):
             return
         # Prevent the TagView from updating due to signals from the database
         self.gui.tags_view.blockSignals(True)
+        changed = False
         try:
-            changed = MetadataBulkDialog(self.gui, rows,
-                self.gui.library_view.model()).changed
+            while True:
+                dialog = MetadataBulkDialog(self.gui, rows, self.gui.library_view.model())
+                if dialog.changed:
+                    changed = True
+                if not dialog.do_again:
+                    break
         finally:
             self.gui.tags_view.blockSignals(False)
         if changed:
