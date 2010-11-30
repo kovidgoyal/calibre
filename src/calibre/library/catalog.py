@@ -606,12 +606,12 @@ class EPUB_MOBI(CatalogPlugin):
                           help=_("Specifies the output profile.  In some cases, an output profile is required to optimize the catalog for the device.  For example, 'kindle' or 'kindle_dx' creates a structured Table of Contents with Sections and Articles.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
-                   Option('--read-tag',
-                          default='+',
-                          dest='read_tag',
+                   Option('--read-book-marker',
+                          default='tag:+',
+                          dest='read_book_marker',
                           action = None,
-                          help=_("Tag indicating book has been read.\n" "Default: '%default'\n"
-                          "Applies to: ePub, MOBI output formats")),
+                          help=_("field:pattern indicating book has been read.\n" "Default: '%default'\n"
+                          "Applies to ePub, MOBI output formats")),
                    Option('--wishlist-tag',
                           default='Wishlist',
                           dest='wishlist_tag',
@@ -898,6 +898,8 @@ class EPUB_MOBI(CatalogPlugin):
             self.__plugin = plugin
             self.__progressInt = 0.0
             self.__progressString = ''
+            self.__read_book_marker = {'field':opts.read_book_marker.split(':')[0],
+                                       'pattern':opts.read_book_marker.split(':')[1]}
             self.__reporter = report_progress
             self.__stylesheet = stylesheet
             self.__thumbs = None
@@ -935,7 +937,6 @@ class EPUB_MOBI(CatalogPlugin):
                     self.__totalSteps += 2
             if self.opts.generate_series:
                 self.__totalSteps += 2
-
 
         # Accessors
         if True:
@@ -1402,7 +1403,7 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['cover'] = re.sub('&amp;', '&', record['cover'])
 
                 # This may be updated in self.processSpecialTags()
-                this_title['read'] = False
+                this_title['read'] = self.discoverReadStatus(record)
 
                 if record['tags']:
                     this_title['tags'] = self.processSpecialTags(record['tags'],
@@ -2675,13 +2676,14 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
+                # THIS SHOULDN'T BE NECESSARY
                 #  book with read/reading/unread symbol
-                for tag in book['tags']:
-                    if tag == self.opts.read_tag:
-                        book['read'] = True
-                        break
-                else:
-                    book['read'] = False
+#                 for tag in book['tags']:
+#                     if tag == self.opts.read_tag:
+#                         book['read'] = True
+#                         break
+#                 else:
+#                     book['read'] = False
 
                 #  book with read|reading|unread symbol or wishlist item
                 if self.opts.wishlist_tag in book.get('tags', []):
@@ -4027,6 +4029,37 @@ class EPUB_MOBI(CatalogPlugin):
             if not os.path.isdir(images_path):
                 os.makedirs(images_path)
 
+        def discoverReadStatus(self, record):
+            '''
+            Given a field:pattern spec, discover if this book marked as read
+
+            if field == tag, scan tags for pattern
+            if custom field, try regex match for pattern
+            This allows maximum flexibility with fields of type
+             datatype bool: #field_name:True
+             datatype text: #field_name:<string>
+             datatype datetime: #field_name:.*
+
+            '''
+            # Legacy handling of special 'read' tag
+            if self.__read_book_marker['field'] == 'tag':
+                return self.__read_book_marker['pattern'] in record['tags']
+
+            # Custom fields
+            elif self.__read_book_marker['field'].startswith('#'):
+                field_contents = self.__db.get_field(record['id'],
+                                          self.__read_book_marker['field'],
+                                          index_is_id=True)
+                if field_contents == '':
+                    field_contents = None
+
+                if field_contents is not None:
+                    if re.match(self.__read_book_marker['pattern'],str(field_contents), re.IGNORECASE):
+                        return True
+
+            return False
+
+
         def filterDbTags(self, tags):
             # Remove the special marker tags from the database's tag list,
             # return sorted list of normalized genre tags
@@ -4648,9 +4681,11 @@ class EPUB_MOBI(CatalogPlugin):
                 tag = self.convertHTMLEntities(tag)
                 if tag.startswith(opts.note_tag):
                     this_title['notes'] = tag[len(self.opts.note_tag):]
-                elif tag == opts.read_tag:
-                    this_title['read'] = True
                 elif re.search(opts.exclude_genre, tag):
+                    continue
+                elif self.__read_book_marker['field'] == 'tag' and \
+                     tag == self.__read_book_marker['pattern']:
+                    # remove 'read' tag
                     continue
                 else:
                     tag_list.append(tag)
@@ -4760,7 +4795,7 @@ class EPUB_MOBI(CatalogPlugin):
         for key in keys:
             if key in ['catalog_title','authorClip','connected_kindle','descriptionClip',
                        'exclude_genre','exclude_tags','note_tag','numbers_as_text',
-                       'output_profile','read_tag',
+                       'output_profile','read_book_marker','read_tag',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
                         'wishlist_tag']:
                 build_log.append("  %s: %s" % (key, opts_dict[key]))

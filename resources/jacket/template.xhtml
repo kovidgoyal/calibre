@@ -6,17 +6,24 @@
     </head>
     <body>
         <div class="cbj_banner">
-            <div class="cbj_title">{title}</div>
-            <div class="cbj_author">{author}</div>
             <table class="cbj_header">
-                <tr class="cbj_series">
-                    <td class="cbj_label">{series_label}:</td>
-                    <td class="cbj_content">{series}</td>
+            	<tr>
+            		<td class="cbj_title" colspan="2">{title}</td>
+            	</tr>
+                <tr>
+                    <td  class="cbj_series" colspan="2">{series}</td>
                 </tr>
-                <tr class="cbj_pubdate">
-                    <td class="cbj_label">{pubdate_label}:</td>
-                    <td class="cbj_content">{pubdate}</td>
+            	<tr>
+            		<td class="cbj_author" colspan="2">{author}</td>
+            	</tr>
+                <tr>
+                	<td class="cbj_pubdata" colspan="2">{publisher} ({pubdate})</td>
                 </tr>
+
+            	<tr>
+            		<td class="cbj_author" colspan="2"><hr class="metadata_divider" /></td>
+            	</tr>
+
                 <tr class="cbj_rating">
                     <td class="cbj_label">{rating_label}:</td>
                     <td class="cbj_content">{rating}</td>
