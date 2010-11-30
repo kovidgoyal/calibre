@@ -107,13 +107,15 @@ class SearchBox2(QComboBox):
         return self.currentText()
 
     def clear(self, emit_search=True):
-        print 'in clear', emit_search
         self.normalize_state()
         self.setEditText('')
         if emit_search:
             self.search.emit('')
         self._in_a_search = False
         self.cleared.emit()
+
+    def clear_clicked(self, *args):
+        self.clear()
 
     def search_done(self, ok):
         if isinstance(ok, basestring):
@@ -319,7 +321,7 @@ class SearchBoxMixin(object):
         self.search.cleared.connect(self.search_box_cleared)
         self.search.changed.connect(self.search_box_changed)
         self.search.focus_to_library.connect(self.focus_to_library)
-        self.clear_button.clicked.connect(lambda:self.search.clear(True))
+        self.clear_button.clicked.connect(self.search.clear_clicked)
         self.advanced_search_button.clicked[bool].connect(self.do_advanced_search)
 
         self.search.clear()
