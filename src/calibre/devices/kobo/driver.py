@@ -220,6 +220,7 @@ class KOBO(USBMS):
         #    2) volume_shorcover
         #    2) content
 
+#        debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType) 
         connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
         cursor = connection.cursor()
         t = (ContentID,)
@@ -400,6 +401,9 @@ class KOBO(USBMS):
         elif extension == '.pdf' or extension == '.epub':
             # print "ePub or pdf"
             ContentType = 16
+        elif extension == '.txt':
+            # print "txt"
+            ContentType = 901
         else: # if extension == '.html' or extension == '.txt':
             ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
         return ContentType
