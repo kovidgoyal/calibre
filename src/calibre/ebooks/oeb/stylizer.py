@@ -240,18 +240,26 @@ class Stylizer(object):
             else:
                 for elem in matches:
                     self.style(elem)._update_cssdict(cssdict)
-        for elem in xpath(tree, '//h:img[@width or @height]'):
-            base = elem.get('style', '').strip()
-            if base:
-                base += ';'
-            for prop in ('width', 'height'):
-                val = elem.get(prop, False)
-                if val:
-                    base += '%s: %s;'%(prop, val)
-                    del elem.attrib[prop]
-            elem.set('style', base)
         for elem in xpath(tree, '//h:*[@style]'):
             self.style(elem)._apply_style_attr()
+        num_pat = re.compile(r'\d+$')
+        for elem in xpath(tree, '//h:img[@width or @height]'):
+            style = self.style(elem)
+            # Check if either height or width is not default
+            is_styled = style._style.get('width', 'auto') != 'auto' or \
+                    style._style.get('height', 'auto') != 'auto'
+            if not is_styled:
+                # Update img style dimension using width and height
+                upd = {}
+                for prop in ('width', 'height'):
+                    val = elem.get(prop, '').strip()
+                    del elem.attrib[prop]
+                    if val:
+                        if num_pat.match(val) is not None:
+                            val += 'px'
+                        upd[prop] = val
+                if upd:
+                    style._update_cssdict(upd)
 
     def _fetch_css_file(self, path):
         hrefs = self.oeb.manifest.hrefs
