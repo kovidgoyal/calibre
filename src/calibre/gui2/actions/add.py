@@ -18,6 +18,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
+from calibre.gui2 import config
 
 class AddAction(InterfaceAction):
 
@@ -101,7 +102,12 @@ class AddAction(InterfaceAction):
             else:
                 ids.add(db.import_book(mi, []))
         self.gui.library_view.model().books_added(len(books))
-        self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
+        orig = config['overwrite_author_title_metadata']
+        config['overwrite_author_title_metadata'] = True
+        try:
+            self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
+        finally:
+            config['overwrite_author_title_metadata'] = orig
 
 
     def files_dropped(self, paths):
