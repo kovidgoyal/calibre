@@ -76,7 +76,6 @@ class SearchBox2(QComboBox):
         self.activated.connect(self.history_selected)
         self.setEditable(True)
         self.as_you_type = True
-        self.prev_search = ''
         self.timer = QTimer()
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.timer_event, type=Qt.QueuedConnection)
@@ -154,7 +153,6 @@ class SearchBox2(QComboBox):
         text = unicode(self.currentText()).strip()
         if not text:
             return self.clear()
-        self.prev_search = text
         self.search.emit(text)
 
         idx = self.findText(text, Qt.MatchFixedString)
