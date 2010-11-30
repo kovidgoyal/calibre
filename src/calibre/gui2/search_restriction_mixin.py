@@ -49,8 +49,8 @@ class SearchRestrictionMixin(object):
             restriction = ''
         self.restriction_count_of_books_in_view = \
                     self.library_view.model().set_search_restriction(restriction)
-        self.search.clear_to_help()
-        self.saved_search.clear_to_help()
+        self.search.clear()
+        self.saved_search.clear()
         self.tags_view.set_search_restriction(restriction)
         self.set_number_of_books_shown()
 
