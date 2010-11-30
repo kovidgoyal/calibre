@@ -79,11 +79,11 @@ class KOBO(USBMS):
 
         # Determine the firmware version
         f = open(self.normalize_path(self._main_prefix + '.kobo/version'), 'r')
-        fwversion = f.readline().split(',')[2]
+        self.fwversion = f.readline().split(',')[2]
         f.close()
-        if fwversion != '1.0' and fwversion != '1.4':
+        if self.fwversion != '1.0' and self.fwversion != '1.4':
             self.has_kepubs = True
-        debug_print('Version of firmware: ', fwversion, 'Has kepubs:', self.has_kepubs)
+        debug_print('Version of firmware: ', self.fwversion, 'Has kepubs:', self.has_kepubs)
 
         self.booklist_class.rebuild_collections = self.rebuild_collections
 
@@ -220,6 +220,7 @@ class KOBO(USBMS):
         #    2) volume_shorcover
         #    2) content
 
+        debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType) 
         connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
         cursor = connection.cursor()
         t = (ContentID,)
@@ -400,6 +401,12 @@ class KOBO(USBMS):
         elif extension == '.pdf' or extension == '.epub':
             # print "ePub or pdf"
             ContentType = 16
+        elif extension == '.rtf' or extension == '.txt' or extension == '.htm' or extension == '.html':
+            # print "txt"
+            if self.fwversion == '1.0' or self.fwversion == '1.4' or self.fwversion == '1.7.4':
+                ContentType = 999
+            else:
+                ContentType = 901
         else: # if extension == '.html' or extension == '.txt':
             ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
         return ContentType
