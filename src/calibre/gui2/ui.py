@@ -383,8 +383,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.tags_view.set_database(db, self.tag_match, self.sort_by)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clear_message()
-        self.search.clear_to_help()
-        self.saved_search.clear_to_help()
+        self.search.clear()
+        self.saved_search.clear()
         self.book_details.reset_info()
         self.library_view.model().count_changed()
         prefs['library_path'] = self.library_path

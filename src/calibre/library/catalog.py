@@ -898,8 +898,8 @@ class EPUB_MOBI(CatalogPlugin):
             self.__plugin = plugin
             self.__progressInt = 0.0
             self.__progressString = ''
-            self.__read_book_marker = {'field':opts.read_book_marker.split(':')[0],
-                                       'pattern':opts.read_book_marker.split(':')[1]}
+            f, _, p = opts.read_book_marker.partition(':')
+            self.__read_book_marker = {'field':f, 'pattern':p}
             self.__reporter = report_progress
             self.__stylesheet = stylesheet
             self.__thumbs = None
@@ -1211,7 +1211,7 @@ class EPUB_MOBI(CatalogPlugin):
             def READING_SYMBOL(self):
                 def fget(self):
                     return '<span style="color:black">&#x25b7;</span>' if self.generateForKindle else \
-                           '<span style="color:white">%s</span>' % self.opts.read_tag
+                           '<span style="color:white">+</span>'
                 return property(fget=fget)
             @dynamic_property
             def READ_SYMBOL(self):
@@ -1402,7 +1402,6 @@ class EPUB_MOBI(CatalogPlugin):
                 if record['cover']:
                     this_title['cover'] = re.sub('&amp;', '&', record['cover'])
 
-                # This may be updated in self.processSpecialTags()
                 this_title['read'] = self.discoverReadStatus(record)
 
                 if record['tags']:
@@ -2684,7 +2683,7 @@ class EPUB_MOBI(CatalogPlugin):
                     pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
                     ptc += 1
                 else:
-                    if book['read']:
+                    if book.get('read', False):
                         # check mark
                         pBookTag.insert(ptc,NavigableString(self.READ_SYMBOL))
                         pBookTag['class'] = "read_book"
@@ -4035,23 +4034,20 @@ class EPUB_MOBI(CatalogPlugin):
 
             '''
             # Legacy handling of special 'read' tag
-            if self.__read_book_marker['field'] == 'tag':
-                return self.__read_book_marker['pattern'] in record['tags']
+            field = self.__read_book_marker['field']
+            pat = self.__read_book_marker['pattern']
+            if field == 'tag' and pat in record['tags']:
+                return True
 
-            # Custom fields
-            elif self.__read_book_marker['field'].startswith('#'):
-                field_contents = self.__db.get_field(record['id'],
-                                          self.__read_book_marker['field'],
-                                          index_is_id=True)
-                if field_contents == '':
-                    field_contents = None
-
-                if field_contents is not None:
-                    if re.match(self.__read_book_marker['pattern'],str(field_contents), re.IGNORECASE):
-                        return True
+            field_contents = self.__db.get_field(record['id'],
+                                        field,
+                                        index_is_id=True)
+            if field_contents:
+                if re.search(pat, unicode(field_contents),
+                        re.IGNORECASE) is not None:
+                    return True
 
             return False
-
 
         def filterDbTags(self, tags):
             # Remove the special marker tags from the database's tag list,
@@ -4787,7 +4783,7 @@ class EPUB_MOBI(CatalogPlugin):
         for key in keys:
             if key in ['catalog_title','authorClip','connected_kindle','descriptionClip',
                        'exclude_genre','exclude_tags','note_tag','numbers_as_text',
-                       'output_profile','read_book_marker','read_tag',
+                       'output_profile','read_book_marker',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
                         'wishlist_tag']:
                 build_log.append("  %s: %s" % (key, opts_dict[key]))

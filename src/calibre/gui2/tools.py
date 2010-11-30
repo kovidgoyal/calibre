@@ -245,11 +245,11 @@ def fetch_scheduled_recipe(arg):
 
     return 'gui_convert', args, _('Fetch news from ')+arg['title'], fmt.upper(), [pt]
 
-def generate_catalog(parent, dbspec, ids, device_manager):
+def generate_catalog(parent, dbspec, ids, device_manager, db):
     from calibre.gui2.dialogs.catalog import Catalog
 
     # Build the Catalog dialog in gui2.dialogs.catalog
-    d = Catalog(parent, dbspec, ids)
+    d = Catalog(parent, dbspec, ids, db)
 
     if d.exec_() != d.Accepted:
         return None

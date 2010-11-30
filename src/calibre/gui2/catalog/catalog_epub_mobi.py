@@ -7,16 +7,11 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-import os
-
 from calibre.ebooks.conversion.config import load_defaults
 from calibre.gui2 import gprefs
-from calibre.library.database2 import LibraryDatabase2
-from calibre.utils.config import prefs
 
 from catalog_epub_mobi_ui import Ui_Form
-from PyQt4 import QtGui
-from PyQt4.Qt import QWidget
+from PyQt4.Qt import QWidget, QLineEdit
 
 class PluginWidget(QWidget,Ui_Form):
 
@@ -45,12 +40,10 @@ class PluginWidget(QWidget,Ui_Form):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
-    def initialize(self, name):
+    def initialize(self, name, db):
         self.name = name
 
         # Populate the 'Read book' source fields
-        dbpath = os.path.abspath(prefs['library_path'])
-        db =  LibraryDatabase2(dbpath)
         all_custom_fields = db.custom_field_keys()
         custom_fields = {}
         custom_fields['Tag'] = {'field':'tag', 'datatype':u'text'}
@@ -91,8 +84,8 @@ class PluginWidget(QWidget,Ui_Form):
                 getattr(self, opt[0]).setText(opt_value)
 
         # Init self.read_source_field
-        cs = str(self.read_source_field_cb.currentText())
-        read_source_spec = self.read_source_fields[str(cs)]
+        cs = unicode(self.read_source_field_cb.currentText())
+        read_source_spec = self.read_source_fields[cs]
         self.read_source_field = read_source_spec['field']
 
     def options(self):
@@ -151,9 +144,9 @@ class PluginWidget(QWidget,Ui_Form):
 
         # Change pattern input widget to match the source field datatype
         if read_source_spec['datatype'] in ['bool','composite','datetime','text']:
-            if  type(self.read_pattern) != type(QtGui.QLineEdit()):
+            if not isinstance(self.read_pattern, QLineEdit):
                 self.read_spec_hl.removeWidget(self.read_pattern)
-                dw = QtGui.QLineEdit()
+                dw = QLineEdit(self)
                 dw.setObjectName('read_pattern')
                 dw.setToolTip('Pattern for read book')
                 self.read_pattern = dw

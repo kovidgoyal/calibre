@@ -171,24 +171,18 @@ def render_jacket(mi, output_profile,
         generated_html = P('jacket/template.xhtml',
                 data=True).decode('utf-8').format(**args)
 
-        print generated_html
-
         # Post-process the generated html to strip out empty header items
         soup = BeautifulSoup(generated_html)
         if not series:
-            #series_tag = soup.find('tr', attrs={'class':'cbj_series'})
             series_tag = soup.find(attrs={'class':'cbj_series'})
             series_tag.extract()
         if not rating:
-            #rating_tag = soup.find('tr', attrs={'class':'cbj_rating'})
             rating_tag = soup.find(attrs={'class':'cbj_rating'})
             rating_tag.extract()
         if not tags:
-            #tags_tag = soup.find('tr', attrs={'class':'cbj_tags'})
             tags_tag = soup.find(attrs={'class':'cbj_tags'})
             tags_tag.extract()
         if not pubdate:
-            #pubdate_tag = soup.find('tr', attrs={'class':'cbj_pubdate'})
             pubdate_tag = soup.find(attrs={'class':'cbj_pubdate'})
             pubdate_tag.extract()
         if output_profile.short_name != 'kindle':

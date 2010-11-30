@@ -16,20 +16,8 @@ SITE_PACKAGES = ['IPython', 'PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
         'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
         'sipconfig.py', 'xdg']
 
-
-
-gcc = subprocess.Popen(["gcc-config", "-c"], stdout=subprocess.PIPE).communicate()[0]
-chost, _, gcc = gcc.rpartition('-')
-stdcpp = '/usr/lib/gcc/%s/%s/libstdc++.so.?'%(chost.strip(), gcc.strip())
-stdcpp = glob.glob(stdcpp)[-1]
-is64bit = platform.architecture()[0] == '64bit'
-arch = 'x86_64' if is64bit else 'i686'
-ffi = '/usr/lib/libffi.so.5' if is64bit else '/usr/lib/gcc/i686-pc-linux-gnu/4.4.1/libffi.so.4'
-
-
 QTDIR          = '/usr/lib/qt4'
 QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 'QtDBus')
-
 
 binary_includes = [
                 '/usr/bin/pdftohtml',
@@ -49,8 +37,6 @@ binary_includes = [
                 '/usr/lib/libjpeg.so.8',
                 '/usr/lib/libxslt.so.1',
                 '/usr/lib/libgthread-2.0.so.0',
-                stdcpp,
-                ffi,
                 '/usr/lib/libpng14.so.14',
                 '/usr/lib/libexslt.so.0',
                 '/usr/lib/libMagickWand.so.4',
@@ -66,7 +52,11 @@ binary_includes = [
                 ]
 binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]
 
-class LinuxFreeze2(Command):
+is64bit = platform.architecture()[0] == '64bit'
+arch = 'x86_64' if is64bit else 'i686'
+
+
+class LinuxFreeze(Command):
 
     def run(self, opts):
         self.drop_privileges()
@@ -93,7 +83,21 @@ class LinuxFreeze2(Command):
         self.info('Copying libs...')
         os.mkdir(self.lib_dir)
         os.mkdir(self.bin_dir)
-        for x in binary_includes:
+
+        gcc = subprocess.Popen(["gcc-config", "-c"], stdout=subprocess.PIPE).communicate()[0]
+        chost, _, gcc = gcc.rpartition('-')
+        gcc_lib = '/usr/lib/gcc/%s/%s/'%(chost.strip(), gcc.strip())
+        stdcpp = gcc_lib+'libstdc++.so.?'
+        stdcpp = glob.glob(stdcpp)[-1]
+        ffi = gcc_lib+'libffi.so.?'
+        ffi = glob.glob(ffi)
+        if ffi:
+            ffi = ffi[-1]
+        else:
+            ffi = glob.glob('/usr/lib/libffi.so.?')[-1]
+
+
+        for x in binary_includes + [stdcpp, ffi]:
             dest = self.bin_dir if '/bin/' in x else self.lib_dir
             shutil.copy2(x, dest)
         shutil.copy2('/usr/lib/libpython%s.so.1.0'%self.py_ver, dest)
@@ -268,7 +272,6 @@ class LinuxFreeze2(Command):
                 base=`dirname $path`
                 lib=$base/lib
                 export LD_LIBRARY_PATH=$lib:$LD_LIBRARY_PATH
-                export QT_PLUGIN_PATH=$lib/qt_plugins
                 export MAGICK_CONFIGURE_PATH=$lib/ImageMagick/config
                 export MAGICK_CODER_MODULE_PATH=$lib/ImageMagick/modules-Q16/coders
                 export MAGICK_CODER_FILTER_PATH=$lib/ImageMagick/modules-Q16/filters
@@ -336,12 +339,21 @@ class LinuxFreeze2(Command):
             def set_helper():
                 __builtin__.help = _Helper()
 
+            def set_qt_plugin_path():
+                import uuid
+                uuid.uuid4() # Workaround for libuuid/PyQt conflict
+                from PyQt4.Qt import QCoreApplication
+                paths = list(map(unicode, QCoreApplication.libraryPaths()))
+                paths.insert(0, sys.frozen_path + '/lib/qt_plugins')
+                QCoreApplication.setLibraryPaths(paths)
+
 
             def main():
                 try:
                     sys.argv[0] = sys.calibre_basename
                     set_default_encoding()
                     set_helper()
+                    set_qt_plugin_path()
                     mod = __import__(sys.calibre_module, fromlist=[1])
                     func = getattr(mod, sys.calibre_function)
                     return func()

@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
-                     pyqtSignal
+                     pyqtSignal, QDialogButtonBox
 from PyQt4 import QtGui
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
@@ -232,7 +232,18 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.create_custom_column_editors()
 
         self.prepare_search_and_replace()
+
+        self.button_box.clicked.connect(self.button_clicked)
+        self.button_box.button(QDialogButtonBox.Apply).setToolTip(_(
+            'Immediately make all changes without closing the dialog. '
+            'This operation cannot be canceled or undone'))
+        self.do_again = False
         self.exec_()
+
+    def button_clicked(self, which):
+        if which == self.button_box.button(QDialogButtonBox.Apply):
+            self.do_again = True
+            self.accept()
 
     def prepare_search_and_replace(self):
         self.search_for.initialize('bulk_edit_search_for')
@@ -691,7 +702,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         dynamic['s_r_search_mode'] = self.search_mode.currentIndex()
         self.db.clean()
         return QDialog.accept(self)
-
 
     def series_changed(self, *args):
         self.write_series = True

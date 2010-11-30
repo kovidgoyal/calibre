@@ -247,6 +247,18 @@ Also, ::
 
 must return ``CONFIG_SCSI_MULTI_LUN=y``. If you don't see either, you have to recompile your kernel with the correct settings.
 
+My device is getting mounted read-only in linux, so |app| cannot connect to it?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+linux kernels mount devices read-only when their filesystems have errors. You can repair the filesystem with::
+
+    sudo fsck.vfat -y /dev/sdc
+
+Replace /dev/sdc with the path to the device node of your device. You can find the device node of your device, which
+will always be under /dev by examining the output of::
+
+    mount
+
 
 Why does |app| not support collection on the Kindle or shelves on the Nook?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

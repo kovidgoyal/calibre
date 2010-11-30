@@ -104,6 +104,8 @@ A Hello World GUI plugin
 
 Here's a simple Hello World plugin for the |app| GUI. It will cause a box to popup with the message "Hellooo World!" when you press Ctrl+Shift+H
 
+.. note:: Only available in calibre versions ``>= 0.7.32``.
+
 .. code-block:: python
 
     from calibre.customize import InterfaceActionBase
