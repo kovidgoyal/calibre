@@ -62,7 +62,7 @@ class SNBInput(InputFormatPlugin):
                 oeb.uid = oeb.metadata.identifier[0]
                 break
 
-        with TemporaryDirectory('_chm2oeb', keep=True) as tdir:
+        with TemporaryDirectory('_snb2oeb', keep=True) as tdir:
             log.debug('Process TOC ...')
             toc = snbFile.GetFileStream('snbf/toc.snbf')
             oeb.container = DirContainer(tdir, log)
