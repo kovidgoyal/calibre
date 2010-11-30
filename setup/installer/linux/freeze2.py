@@ -340,6 +340,8 @@ class LinuxFreeze(Command):
                 __builtin__.help = _Helper()
 
             def set_qt_plugin_path():
+                import uuid
+                uuid.uuid4() # Workaround for libuuid/PyQt conflict
                 from PyQt4.Qt import QCoreApplication
                 paths = list(map(unicode, QCoreApplication.libraryPaths()))
                 paths.insert(0, sys.frozen_path + '/lib/qt_plugins')
