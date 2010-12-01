@@ -253,6 +253,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.vertical_scrollbar, SIGNAL('valueChanged(int)'),
                      lambda x: self.goto_page(x/100.))
         self.search.search.connect(self.find)
+        self.search.focus_to_library.connect(lambda: self.view.setFocus(Qt.OtherFocusReason))
         self.connect(self.toc, SIGNAL('clicked(QModelIndex)'), self.toc_clicked)
         self.connect(self.reference, SIGNAL('goto(PyQt_PyObject)'), self.goto)
 
