@@ -9,7 +9,8 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, QDialog, \
-                     pyqtSignal, QCompleter, QAction, QKeySequence, QTimer
+                     pyqtSignal, QCompleter, QAction, QKeySequence, QTimer, \
+                     QString
 
 from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -23,10 +24,6 @@ class SearchLineEdit(QLineEdit):
     def keyPressEvent(self, event):
         self.key_pressed.emit(event)
         QLineEdit.keyPressEvent(self, event)
-
-    def mouseReleaseEvent(self, event):
-        QLineEdit.mouseReleaseEvent(self, event)
-        QLineEdit.selectAll(self)
 
     def dropEvent(self, ev):
         self.parent().normalize_state()
@@ -66,8 +63,11 @@ class SearchBox2(QComboBox):
         self.normal_background = 'rgb(255, 255, 255, 0%)'
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
+
         c = self.line_edit.completer()
         c.setCompletionMode(c.PopupCompletion)
+        c.highlighted[QString].connect(self.completer_used)
+
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
         self.activated.connect(self.history_selected)
         self.setEditable(True)
@@ -126,6 +126,7 @@ class SearchBox2(QComboBox):
             col = self.normal_background
         self.line_edit.setStyleSheet('QLineEdit{color:black;background-color:%s;}' % col)
 
+    # Comes from the lineEdit control
     def key_pressed(self, event):
         k = event.key()
         if k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down,
@@ -141,6 +142,21 @@ class SearchBox2(QComboBox):
             self.focus_to_library.emit()
         elif self.as_you_type and unicode(event.text()):
             self.timer.start(1500)
+
+    # Comes from the combobox itself
+    def keyPressEvent(self, event):
+        k = event.key()
+        if k not in (Qt.Key_Up, Qt.Key_Down):
+            QComboBox.keyPressEvent(self, event)
+        else:
+            self.blockSignals(True)
+            self.normalize_state()
+            QComboBox.keyPressEvent(self, event)
+            self.blockSignals(False)
+
+    def completer_used(self, text):
+        self.timer.stop()
+        self.normalize_state()
 
     def timer_event(self):
         self.do_search()
@@ -183,14 +199,16 @@ class SearchBox2(QComboBox):
         self.set_search_string(joiner.join(tags))
 
     def set_search_string(self, txt):
+        self.setFocus(Qt.OtherFocusReason)
         if not txt:
             self.clear()
-            return
-        self.normalize_state()
-        self.setEditText(txt)
-        self.search.emit(txt)
-        self.line_edit.end(False)
-        self.initial_state = False
+        else:
+            self.normalize_state()
+            self.setEditText(txt)
+            self.search.emit(txt)
+            self.line_edit.end(False)
+            self.initial_state = False
+        self.focus_to_library.emit()
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
@@ -208,7 +226,6 @@ class SavedSearchBox(QComboBox):
     '''
 
     changed = pyqtSignal()
-    focus_to_library = pyqtSignal()
 
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
@@ -253,7 +270,6 @@ class SavedSearchBox(QComboBox):
     def key_pressed(self, event):
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self.saved_search_selected(self.currentText())
-            self.focus_to_library.emit()
 
     def saved_search_selected(self, qname):
         qname = unicode(qname)
@@ -267,7 +283,6 @@ class SavedSearchBox(QComboBox):
         self.search_box.set_search_string(u'search:"%s"' % qname)
         self.setEditText(qname)
         self.setToolTip(saved_searches().lookup(qname))
-        self.focus_to_library.emit()
 
     def initialize_saved_search_names(self):
         qnames = saved_searches().names()
@@ -355,6 +370,10 @@ class SearchBoxMixin(object):
         if d.exec_() == QDialog.Accepted:
             self.search.set_search_string(d.search_string())
 
+    def do_search_button(self):
+        self.search.do_search()
+        self.focus_to_library()
+
     def focus_to_library(self):
         self.current_view().setFocus(Qt.OtherFocusReason)
 
@@ -363,7 +382,6 @@ class SavedSearchBoxMixin(object):
     def __init__(self):
         self.saved_search.changed.connect(self.saved_searches_changed)
         self.clear_button.clicked.connect(self.saved_search.clear)
-        self.saved_search.focus_to_library.connect(self.focus_to_library)
         self.save_search_button.clicked.connect(
                                 self.saved_search.save_search_button_clicked)
         self.delete_search_button.clicked.connect(
@@ -398,7 +416,3 @@ class SavedSearchBoxMixin(object):
         if d.result() == d.Accepted:
             self.saved_searches_changed()
             self.saved_search.clear()
-
-    def focus_to_library(self):
-        self.current_view().setFocus(Qt.OtherFocusReason)
-
