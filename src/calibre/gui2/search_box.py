@@ -25,10 +25,6 @@ class SearchLineEdit(QLineEdit):
         self.key_pressed.emit(event)
         QLineEdit.keyPressEvent(self, event)
 
-    def mouseReleaseEvent(self, event):
-        QLineEdit.mouseReleaseEvent(self, event)
-        QLineEdit.selectAll(self)
-
     def dropEvent(self, ev):
         self.parent().normalize_state()
         return QLineEdit.dropEvent(self, ev)
@@ -71,6 +67,7 @@ class SearchBox2(QComboBox):
         c = self.line_edit.completer()
         c.setCompletionMode(c.PopupCompletion)
         c.highlighted[QString].connect(self.completer_used)
+        c.activated[QString].connect(self.history_selected)
 
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
         self.activated.connect(self.history_selected)
