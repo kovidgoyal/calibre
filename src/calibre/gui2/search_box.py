@@ -67,6 +67,7 @@ class SearchBox2(QComboBox):
         c = self.line_edit.completer()
         c.setCompletionMode(c.PopupCompletion)
         c.highlighted[QString].connect(self.completer_used)
+        c.activated[QString].connect(self.history_selected)
 
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
         self.activated.connect(self.history_selected)
