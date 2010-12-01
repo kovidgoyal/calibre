@@ -203,14 +203,16 @@ class SearchBox2(QComboBox):
         self.set_search_string(joiner.join(tags))
 
     def set_search_string(self, txt):
+        self.setFocus(Qt.OtherFocusReason)
         if not txt:
             self.clear()
-            return
-        self.normalize_state()
-        self.setEditText(txt)
-        self.search.emit(txt)
-        self.line_edit.end(False)
-        self.initial_state = False
+        else:
+            self.normalize_state()
+            self.setEditText(txt)
+            self.search.emit(txt)
+            self.line_edit.end(False)
+            self.initial_state = False
+        self.focus_to_library.emit()
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
@@ -228,7 +230,6 @@ class SavedSearchBox(QComboBox):
     '''
 
     changed = pyqtSignal()
-    focus_to_library = pyqtSignal()
 
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
@@ -273,7 +274,6 @@ class SavedSearchBox(QComboBox):
     def key_pressed(self, event):
         if event.key() in (Qt.Key_Return, Qt.Key_Enter):
             self.saved_search_selected(self.currentText())
-            self.focus_to_library.emit()
 
     def saved_search_selected(self, qname):
         qname = unicode(qname)
@@ -287,7 +287,6 @@ class SavedSearchBox(QComboBox):
         self.search_box.set_search_string(u'search:"%s"' % qname)
         self.setEditText(qname)
         self.setToolTip(saved_searches().lookup(qname))
-        self.focus_to_library.emit()
 
     def initialize_saved_search_names(self):
         qnames = saved_searches().names()
@@ -387,7 +386,6 @@ class SavedSearchBoxMixin(object):
     def __init__(self):
         self.saved_search.changed.connect(self.saved_searches_changed)
         self.clear_button.clicked.connect(self.saved_search.clear)
-        self.saved_search.focus_to_library.connect(self.focus_to_library)
         self.save_search_button.clicked.connect(
                                 self.saved_search.save_search_button_clicked)
         self.delete_search_button.clicked.connect(
@@ -422,7 +420,3 @@ class SavedSearchBoxMixin(object):
         if d.result() == d.Accepted:
             self.saved_searches_changed()
             self.saved_search.clear()
-
-    def focus_to_library(self):
-        self.current_view().setFocus(Qt.OtherFocusReason)
-

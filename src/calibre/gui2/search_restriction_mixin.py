@@ -4,6 +4,8 @@ Created on 10 Jun 2010
 @author: charles
 '''
 
+from PyQt4.Qt import Qt
+
 class SearchRestrictionMixin(object):
 
     def __init__(self):
@@ -53,6 +55,7 @@ class SearchRestrictionMixin(object):
         self.saved_search.clear()
         self.tags_view.set_search_restriction(restriction)
         self.set_number_of_books_shown()
+        self.current_view().setFocus(Qt.OtherFocusReason)
 
     def set_number_of_books_shown(self):
         if self.current_view() == self.library_view and self.restriction_in_effect:
