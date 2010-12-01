@@ -51,7 +51,7 @@ class SearchBox2(QComboBox): # {{{
         * Call search_done() after every search is complete
         * Call set_search_string() to perform a search programmatically
         * You can use the current_text property to get the current search text
-          Be aware that if you are using it in a slow connected to the
+          Be aware that if you are using it in a slot connected to the
           changed() signal, if the connection is not queued it will not be
           accurate.
     '''
