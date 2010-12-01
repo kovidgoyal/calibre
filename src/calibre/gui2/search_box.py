@@ -28,10 +28,6 @@ class SearchLineEdit(QLineEdit):
         QLineEdit.mouseReleaseEvent(self, event)
         QLineEdit.selectAll(self)
 
-    def focusInEvent(self, event):
-        QLineEdit.focusInEvent(self, event)
-        QLineEdit.selectAll(self)
-
     def dropEvent(self, ev):
         self.parent().normalize_state()
         return QLineEdit.dropEvent(self, ev)
@@ -334,13 +330,16 @@ class SearchBoxMixin(object):
         shortcuts = QKeySequence.keyBindings(QKeySequence.Find)
         shortcuts = list(shortcuts) + [QKeySequence('/'), QKeySequence('Alt+S')]
         self.action_focus_search.setShortcuts(shortcuts)
-        self.action_focus_search.triggered.connect(lambda x:
-                self.search.setFocus(Qt.OtherFocusReason))
+        self.action_focus_search.triggered.connect(self.focus_search_box)
         self.addAction(self.action_focus_search)
         self.search.setStatusTip(re.sub(r'<\w+>', ' ',
             unicode(self.search.toolTip())))
         self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
         self.clear_button.setStatusTip(self.clear_button.toolTip())
+
+    def focus_search_box(self, *args):
+        self.search.setFocus(Qt.OtherFocusReason)
+        self.search.lineEdit().selectAll()
 
     def search_box_cleared(self):
         self.tags_view.clear()
