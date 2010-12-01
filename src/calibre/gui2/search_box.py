@@ -236,7 +236,11 @@ class SavedSearchBox(QComboBox):
 
     def initialize(self, _search_box, colorize=False, help_text=_('Search')):
         self.search_box = _search_box
-        self.line_edit.setPlaceholderText(help_text)
+        try:
+           self.line_edit.setPlaceholderText(help_text)
+        except:
+            # Using Qt < 4.7
+            pass
         self.colorize = colorize
         self.clear()
 
