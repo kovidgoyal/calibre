@@ -208,8 +208,9 @@ class BookInfo(QWebView):
         rows = u'\n'.join([u'<tr><td valign="top"><b>%s:</b></td><td valign="top">%s</td></tr>'%(k,t) for
             k, t in rows])
         comments = data.get(_('Comments'), '')
-        if comments and comments != u'None':
-            self.renderer.queue.put((rows, comments))
+        if not comments or comments == u'None':
+            comments = ''
+        self.renderer.queue.put((rows, comments))
         self._show_data(rows, '')
 
 
