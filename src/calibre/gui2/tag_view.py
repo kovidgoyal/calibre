@@ -60,7 +60,7 @@ class TagDelegate(QItemDelegate): # {{{
 class TagsView(QTreeView): # {{{
 
     refresh_required    = pyqtSignal()
-    tags_marked         = pyqtSignal(object, object)
+    tags_marked         = pyqtSignal(object)
     user_category_edit  = pyqtSignal(object)
     tag_list_edit       = pyqtSignal(object, object)
     saved_search_edit   = pyqtSignal(object)
@@ -135,11 +135,21 @@ class TagsView(QTreeView): # {{{
         # swallow these to avoid toggling and editing at the same time
         pass
 
+    @property
+    def search_string(self):
+        tokens = self._model.tokens()
+        joiner = ' and ' if self.match_all else ' or '
+        return joiner.join(tokens)
+
     def toggle(self, index):
         modifiers = int(QApplication.keyboardModifiers())
         exclusive = modifiers not in (Qt.CTRL, Qt.SHIFT)
         if self._model.toggle(index, exclusive):
-            self.tags_marked.emit(self._model.tokens(), self.match_all)
+            self.tags_marked.emit(self.search_string)
+
+    def conditional_clear(self, search_string):
+        if search_string != self.search_string:
+            self.clear()
 
     def context_menu_handler(self, action=None, category=None,
                              key=None, index=None):
@@ -842,8 +852,7 @@ class TagBrowserMixin(object): # {{{
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
         self.tags_view.set_database(self.library_view.model().db,
                 self.tag_match, self.sort_by)
-        self.tags_view.tags_marked.connect(self.search.search_from_tags)
-        self.tags_view.tags_marked.connect(self.saved_search.clear)
+        self.tags_view.tags_marked.connect(self.search.set_search_string)
         self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)

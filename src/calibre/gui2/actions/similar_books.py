@@ -58,6 +58,7 @@ class SimilarBooksAction(InterfaceAction):
                                 for a in authors.split(',')]
                 join = ' or '
         if search:
-            self.gui.search.set_search_string(join.join(search))
+            self.gui.search.set_search_string(join.join(search),
+                    store_in_history=True)
 
 

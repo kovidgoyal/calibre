@@ -1402,7 +1402,6 @@ class EPUB_MOBI(CatalogPlugin):
                 if record['cover']:
                     this_title['cover'] = re.sub('&amp;', '&', record['cover'])
 
-                # This may be updated in self.processSpecialTags()
                 this_title['read'] = self.discoverReadStatus(record)
 
                 if record['tags']:
@@ -2676,14 +2675,7 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag = Tag(soup, "p")
                 ptc = 0
 
-                # THIS SHOULDN'T BE NECESSARY
-                #  book with read/reading/unread symbol
-#                 for tag in book['tags']:
-#                     if tag == self.opts.read_tag:
-#                         book['read'] = True
-#                         break
-#                 else:
-#                     book['read'] = False
+                book['read'] = self.discoverReadStatus(book)
 
                 #  book with read|reading|unread symbol or wishlist item
                 if self.opts.wishlist_tag in book.get('tags', []):
@@ -4057,7 +4049,6 @@ class EPUB_MOBI(CatalogPlugin):
 
             return False
 
-
         def filterDbTags(self, tags):
             # Remove the special marker tags from the database's tag list,
             # return sorted list of normalized genre tags
@@ -4550,7 +4541,6 @@ class EPUB_MOBI(CatalogPlugin):
             markerTags = []
             markerTags.extend(self.opts.exclude_tags.split(','))
             markerTags.extend(self.opts.note_tag.split(','))
-            # Process read_book_marker if field is tag
             return markerTags
 
         def letter_or_symbol(self,char):

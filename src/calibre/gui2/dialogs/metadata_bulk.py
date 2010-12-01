@@ -197,7 +197,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                             _('Append to field'),
                         ]
 
-    def __init__(self, window, rows, model):
+    def __init__(self, window, rows, model, tab):
         QDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
         self.setupUi(self)
@@ -238,6 +238,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             'Immediately make all changes without closing the dialog. '
             'This operation cannot be canceled or undone'))
         self.do_again = False
+        self.central_widget.setCurrentIndex(tab)
         self.exec_()
 
     def button_clicked(self, which):
