@@ -164,12 +164,15 @@ class EditMetadataAction(InterfaceAction):
         self.gui.tags_view.blockSignals(True)
         changed = False
         try:
+            current_tab = 0
             while True:
-                dialog = MetadataBulkDialog(self.gui, rows, self.gui.library_view.model())
+                dialog = MetadataBulkDialog(self.gui, rows,
+                                self.gui.library_view.model(), current_tab)
                 if dialog.changed:
                     changed = True
                 if not dialog.do_again:
                     break
+                current_tab = dialog.central_widget.currentIndex()
         finally:
             self.gui.tags_view.blockSignals(False)
         if changed:
