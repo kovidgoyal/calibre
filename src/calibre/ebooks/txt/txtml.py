@@ -35,6 +35,7 @@ BLOCK_STYLES = [
 
 SPACE_TAGS = [
     'td',
+    'br',
 ]
 
 class TXTMLizer(object):
