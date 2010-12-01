@@ -17,7 +17,7 @@ from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
-                         info_dialog, error_dialog, open_url
+                         info_dialog, error_dialog, open_url, available_height
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.constants import islinux, isfreebsd, isosx
@@ -694,6 +694,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             if ss is not None:
                 self.splitter.restoreState(ss)
             self.show_toc_on_open = dynamic.get('viewer_toc_isvisible', False)
+        av = available_height() - 30
+        if self.height() > av:
+            self.resize(self.width(), av)
 
 def config(defaults=None):
     desc = _('Options to control the ebook viewer')
