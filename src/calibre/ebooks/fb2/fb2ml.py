@@ -91,6 +91,10 @@ class FB2MLizer(object):
         return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def clean_text(self, text):
+        text = re.sub(r'(?miu)<section>\s*</section>', '', text)
+        text = re.sub(r'(?miu)\s+</section>', '</section>', text)
+        text = re.sub(r'(?miu)</section><section>', '</section>\n\n<section>', text)
+
         text = re.sub(r'(?miu)<p>\s*</p>', '', text)
         text = re.sub(r'(?miu)\s+</p>', '</p>', text)
         text = re.sub(r'(?miu)</p><p>', '</p>\n\n<p>', text)
@@ -166,11 +170,15 @@ class FB2MLizer(object):
 
     def get_text(self):
         text = []
-        for item in self.oeb_book.spine:
+        for i, item in enumerate(self.oeb_book.spine):
+            if self.opts.sectionize_chapters_using_file_structure and i is not 0:
+                text.append('<section>')
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             text.append(self.add_page_anchor(item))
             text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+            if self.opts.sectionize_chapters_using_file_structure and i is not len(self.oeb_book.spine) - 1:
+                text.append('</section>')
         return ''.join(text)
 
     def fb2_body_footer(self):
@@ -257,6 +265,10 @@ class FB2MLizer(object):
         id_name = elem.get('id')
         if id_name:
             fb2_text.append(self.get_anchor(page, id_name))
+
+        if tag == 'h1' and self.opts.h1_to_title or tag == 'h2' and self.opts.h2_to_title or tag == 'h3' and self.opts.h3_to_title:
+            fb2_text.append('<title>')
+            tags.append('title')
 
         fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag == 'p':

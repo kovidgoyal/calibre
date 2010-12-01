@@ -8,12 +8,15 @@ www.nin.co.rs
 import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
+from contextlib import nested, closing
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
+from calibre import entity_to_unicode
 
 class Nin(BasicNewsRecipe):
     title                  = 'NIN online'
     __author__             = 'Darko Miletic'
     description            = 'Nedeljne Informativne Novine'
-    publisher              = 'NIN d.o.o.'
+    publisher              = 'NIN d.o.o. - Ringier d.o.o.'
     category               = 'news, politics, Serbia'
     no_stylesheets         = True
     delay                  = 1
@@ -26,18 +29,29 @@ class Nin(BasicNewsRecipe):
     use_embedded_content   = False
     language               = 'sr'
     publication_type       = 'magazine'
-    extra_css              = ' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Verdana, Lucida, sans1, sans-serif} .article_description{font-family: Verdana, Lucida, sans1, sans-serif} .artTitle{font-size: x-large; font-weight: bold; color: #900} .izjava{font-size: x-large; font-weight: bold} .columnhead{font-size: small; font-weight: bold;} img{margin-top:0.5em; margin-bottom: 0.7em} b{margin-top: 1em} '
+    extra_css              = """ 
+                                 @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                                 body{font-family: Verdana, Lucida, sans1, sans-serif} 
+                                 .article_description{font-family: Verdana, Lucida, sans1, sans-serif} 
+                                 .artTitle{font-size: x-large; font-weight: bold; color: #900} 
+                                 .izjava{font-size: x-large; font-weight: bold} 
+                                 .columnhead{font-size: small; font-weight: bold;} 
+                                 img{margin-top:0.5em; margin-bottom: 0.7em; display: block} 
+                                 b{margin-top: 1em}
+                             """
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        , 'linearize_tables' : True
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
                         }
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
-    remove_attributes = ['height','width']
+    preprocess_regexps = [
+                           (re.compile(r'</body>.*?<html>', re.DOTALL|re.IGNORECASE),lambda match: '</body>')
+                          ,(re.compile(r'</html>.*?</html>', re.DOTALL|re.IGNORECASE),lambda match: '</html>')
+                          ,(re.compile(u'\u0110'), lambda match: u'\u00D0')
+                         ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -50,7 +64,10 @@ class Nin(BasicNewsRecipe):
         return br
 
     keep_only_tags    =[dict(name='td', attrs={'width':'520'})]
+    remove_tags_before =dict(name='span', attrs={'class':'izjava'})
     remove_tags_after =dict(name='html')
+    remove_tags = [dict(name=['object','link','iframe','meta','base'])]
+    remove_attributes=['border','background','height','width','align','valign']
 
     def get_cover_url(self):
         cover_url = None
@@ -63,7 +80,7 @@ class Nin(BasicNewsRecipe):
     def parse_index(self):
         articles = []
         count = 0
-        soup = self.index_to_soup(self.PREFIX)
+        soup = self.index_to_soup(self.INDEX)
         for item in soup.findAll('a',attrs={'class':'lmeninavFont'}):
             count = count +1
             if self.test and count > 2:
@@ -90,3 +107,45 @@ class Nin(BasicNewsRecipe):
             articles.append((section,inarts))
         return articles
 
+    def index_to_soup(self, url_or_raw, raw=False):
+        if re.match(r'\w+://', url_or_raw):
+            open_func = getattr(self.browser, 'open_novisit', self.browser.open)
+            with closing(open_func(url_or_raw)) as f:
+                _raw = f.read()
+            if not _raw:
+                raise RuntimeError('Could not fetch index from %s'%url_or_raw)
+        else:
+            _raw = url_or_raw
+        if raw:
+            return _raw
+        if not isinstance(_raw, unicode) and self.encoding:
+            if callable(self.encoding):
+                _raw = self.encoding(_raw)
+            else:
+                _raw = _raw.decode(self.encoding, 'replace')
+        massage = list(BeautifulSoup.MARKUP_MASSAGE)
+        enc = 'cp1252' if callable(self.encoding) or self.encoding is None else self.encoding
+        massage.append((re.compile(r'&(\S+?);'), lambda match:
+            entity_to_unicode(match, encoding=enc)))
+        massage.append((re.compile(r'[\x00-\x08]+'), lambda match:
+            ''))
+        return BeautifulSoup(_raw, markupMassage=massage)
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('div'):
+            if len(item.contents) == 0:
+               item.extract()
+        for item in soup.findAll(['td','tr']):
+            item.name='div'
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        for tbl in soup.findAll('table'):
+            img = tbl.find('img')
+            if img:
+               img.extract()
+               tbl.replaceWith(img)
+        return soup
+        
