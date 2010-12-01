@@ -352,6 +352,10 @@ class SearchBoxMixin(object):
         if d.exec_() == QDialog.Accepted:
             self.search.set_search_string(d.search_string())
 
+    def do_search_button(self):
+        self.search.do_search()
+        self.focus_to_library()
+
     def focus_to_library(self):
         self.current_view().setFocus(Qt.OtherFocusReason)
 
