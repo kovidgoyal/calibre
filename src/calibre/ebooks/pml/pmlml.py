@@ -216,6 +216,8 @@ class PMLMLizer(object):
             w = '\\w'
             width = elem.get('width')
             if width:
+                if not width.endswith('%'):
+                    width += '%'
                 w += '="%s"' % width
             else:
                 w += '="50%"'
