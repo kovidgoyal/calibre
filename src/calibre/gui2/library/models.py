@@ -634,7 +634,7 @@ class BooksModel(QAbstractTableModel): # {{{
         for col in self.custom_columns:
             idx = self.custom_columns[col]['rec_index']
             datatype = self.custom_columns[col]['datatype']
-            if datatype in ('text', 'comments', 'composite'):
+            if datatype in ('text', 'comments', 'composite', 'enumeration'):
                 self.dc[col] = functools.partial(text_type, idx=idx,
                                                  mult=self.custom_columns[col]['is_multiple'])
             elif datatype in ('int', 'float'):
@@ -719,7 +719,7 @@ class BooksModel(QAbstractTableModel): # {{{
         typ = cc['datatype']
         label=self.db.field_metadata.key_to_label(colhead)
         s_index = None
-        if typ in ('text', 'comments'):
+        if typ in ('text', 'comments', 'enumeration'):
             val = unicode(value.toString()).strip()
             val = val if val else None
         if typ == 'bool':

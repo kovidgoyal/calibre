@@ -18,7 +18,7 @@ from calibre.utils.date import parse_date
 class CustomColumns(object):
 
     CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
-        'int', 'float', 'bool', 'series', 'composite'])
+        'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
     def custom_table_names(self, num):
         return 'custom_column_%d'%num, 'books_custom_column_%d_link'%num
@@ -144,7 +144,8 @@ class CustomColumns(object):
                 'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
                 'datetime' : adapt_datetime,
                 'text':adapt_text,
-                'series':adapt_text
+                'series':adapt_text,
+                'enumeration': adapt_text
         }
 
         # Create Tag Browser categories for custom columns
@@ -558,7 +559,7 @@ class CustomColumns(object):
 
         if datatype in ('rating', 'int'):
             dt = 'INT'
-        elif datatype in ('text', 'comments', 'series', 'composite'):
+        elif datatype in ('text', 'comments', 'series', 'composite', 'enumeration'):
             dt = 'TEXT'
         elif datatype in ('float',):
             dt = 'REAL'

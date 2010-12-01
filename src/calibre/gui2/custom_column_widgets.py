@@ -310,6 +310,37 @@ class Series(Base):
             self.db.set_custom(book_id, val, extra=s_index,
                                num=self.col_id, notify=notify, commit=False)
 
+class Enumeration(Base):
+
+    def setup_ui(self, parent):
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
+                QComboBox(parent)]
+        w = self.widgets[1]
+        print self.col_metadata['display']
+        vals = self.col_metadata['display']['enum_values']
+        w.addItem('')
+        for v in vals:
+            w.addItem(v)
+
+    def initialize(self, book_id):
+        val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+        if val is None:
+            val = ''
+        self.initial_val = val
+        val = self.normalize_db_val(val)
+        idx = self.widgets[1].findText(val)
+        if idx < 0:
+            idx = 0
+        self.widgets[1].setCurrentIndex(idx)
+
+    def setter(self, val):
+        if val is None:
+            val = ''
+        self.widgets[1].setCurrentIndex(self.widgets[1].findText(val))
+
+    def getter(self):
+        return unicode(self.widgets[1].currentText())
+
 widgets = {
         'bool' : Bool,
         'rating' : Rating,
@@ -319,6 +350,7 @@ widgets = {
         'text' : Text,
         'comments': Comments,
         'series': Series,
+        'enumeration': Enumeration
 }
 
 def field_sort(y, z, x=None):
@@ -551,6 +583,55 @@ class BulkSeries(BulkBase):
             self.db.set_custom_bulk(book_ids, val, extras=extras,
                                    num=self.col_id, notify=notify)
 
+class BulkEnumeration(BulkBase, Enumeration):
+
+    def get_initial_value(self, book_ids):
+        value = None
+        for book_id in book_ids:
+            val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+            if value is not None and value != val:
+                return ' nochange '
+            value = val
+        return value
+
+    def setup_ui(self, parent):
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
+                QComboBox(parent)]
+        w = self.widgets[1]
+        print self.col_metadata['display']
+        vals = self.col_metadata['display']['enum_values']
+        w.addItem('Do Not Change')
+        w.addItem('')
+        for v in vals:
+            w.addItem(v)
+
+    def getter(self):
+        if self.widgets[1].currentIndex() == 0:
+            return ' nochange '
+        return unicode(self.widgets[1].currentText())
+
+    def setter(self, val):
+        if val == ' nochange ':
+            self.widgets[1].setCurrentIndex(0)
+        else:
+            self.widgets[1].setCurrentIndex(self.widgets[1].findText(val))
+
+    def commit(self, book_ids, notify=False):
+        val = self.gui_val
+        val = self.normalize_ui_val(val)
+        if val != self.initial_val and val != ' nochange ':
+            self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
+
+    def normalize_ui_val(self, val):
+        if val == '':
+            return None
+        return val
+
+    def normalize_db_val(self, val):
+        if val is None:
+            return ''
+        return val
+
 class RemoveTags(QWidget):
 
     def __init__(self, parent, values):
@@ -656,4 +737,5 @@ bulk_widgets = {
         'datetime': BulkDateTime,
         'text' : BulkText,
         'series': BulkSeries,
+        'enumeration': BulkEnumeration,
 }

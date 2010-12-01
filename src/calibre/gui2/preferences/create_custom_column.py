@@ -40,6 +40,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                         'text':_('Yes/No'), 'is_multiple':False},
                     9:{'datatype':'composite',
                         'text':_('Column built from other columns'), 'is_multiple':False},
+                    10:{'datatype':'enumeration',
+                        'text':_('Fixed set of text values'), 'is_multiple':False},
                 }
 
     def __init__(self, parent, editing, standard_colheads, standard_colnames):
@@ -90,7 +92,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             if c['display'].get('date_format', None):
                 self.date_format_box.setText(c['display'].get('date_format', ''))
         elif ct == 'composite':
-            self.composite_box.setText(c['display'].get('composite_template', ''))
+            self.composite_box.setText(c['display'].get('enum_values', ''))
         self.datatype_changed()
         self.exec_()
 
@@ -103,7 +105,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             getattr(self, 'date_format_'+x).setVisible(col_type == 'datetime')
         for x in ('box', 'default_label', 'label'):
             getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
-
+        for x in ('box', 'default_label', 'label'):
+            getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
 
     def accept(self):
         col = unicode(self.column_name_box.text())
@@ -145,17 +148,23 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             return self.simple_error('', _('The heading %s is already used')%col_heading)
 
         display_dict = {}
+
         if col_type == 'datetime':
             if self.date_format_box.text():
                 display_dict = {'date_format':unicode(self.date_format_box.text())}
             else:
                 display_dict = {'date_format': None}
-
-        if col_type == 'composite':
+        elif col_type == 'composite':
             if not self.composite_box.text():
                 return self.simple_error('', _('You must enter a template for'
                     ' composite columns'))
             display_dict = {'composite_template':unicode(self.composite_box.text())}
+        elif col_type == 'enumeration':
+            if not self.enum_box.text():
+                return self.simple_error('', _('You must enter at least one'
+                    ' value for enumeration columns'))
+            display_dict = {'enum_values':
+                [v.strip() for v in unicode(self.enum_box.text()).split(',')]}
 
         db = self.parent.gui.library_view.model().db
         key = db.field_metadata.custom_field_prefix+col

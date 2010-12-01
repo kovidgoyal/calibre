@@ -254,6 +254,39 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
+class CcEnumDelegate(QStyledItemDelegate): # {{{
+    '''
+    Delegate for text/int/float data.
+    '''
+
+    def createEditor(self, parent, option, index):
+        m = index.model()
+        col = m.column_map[index.column()]
+        print 'delegate'
+        editor = QComboBox(parent)
+        editor.addItem('')
+        for v in m.custom_columns[col]['display']['enum_values']:
+            editor.addItem(v)
+        return editor
+
+    def setModelData(self, editor, model, index):
+        val = unicode(editor.currentText())
+        if val == '':
+            val = None
+        model.setData(index, QVariant(val), Qt.EditRole)
+
+    def setEditorData(self, editor, index):
+        m = index.model()
+        val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
+        if val is None:
+            val = ''
+        idx = editor.findText(val)
+        if idx < 0:
+            editor.setCurrentIndex(0)
+        else:
+            editor.setCurrentIndex(idx)
+# }}}
+
 class CcCommentsDelegate(QStyledItemDelegate): # {{{
     '''
     Delegate for comments data.

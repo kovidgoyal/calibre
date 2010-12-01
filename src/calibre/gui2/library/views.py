@@ -14,7 +14,8 @@ from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
 
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
-    CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate
+    CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate, \
+    CcEnumDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs
@@ -76,6 +77,7 @@ class BooksView(QTableView): # {{{
         self.publisher_delegate = TextDelegate(self)
         self.text_delegate = TextDelegate(self)
         self.cc_text_delegate = CcTextDelegate(self)
+        self.cc_enum_delegate = CcEnumDelegate(self)
         self.cc_bool_delegate = CcBoolDelegate(self)
         self.cc_comments_delegate = CcCommentsDelegate(self)
         self.cc_template_delegate = CcTemplateDelegate(self)
@@ -427,6 +429,8 @@ class BooksView(QTableView): # {{{
                     self.setItemDelegateForColumn(cm.index(colhead), self.rating_delegate)
                 elif cc['datatype'] == 'composite':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_template_delegate)
+                elif cc['datatype'] == 'enumeration':
+                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_enum_delegate)
             else:
                 dattr = colhead+'_delegate'
                 delegate = colhead if hasattr(self, dattr) else 'text'
