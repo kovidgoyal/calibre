@@ -9,7 +9,8 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, QDialog, \
-                     pyqtSignal, QCompleter, QAction, QKeySequence, QTimer
+                     pyqtSignal, QCompleter, QAction, QKeySequence, QTimer, \
+                     QString
 
 from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -70,8 +71,11 @@ class SearchBox2(QComboBox):
         self.normal_background = 'rgb(255, 255, 255, 0%)'
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
+
         c = self.line_edit.completer()
         c.setCompletionMode(c.PopupCompletion)
+        c.highlighted[QString].connect(self.completer_used)
+
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
         self.activated.connect(self.history_selected)
         self.setEditable(True)
@@ -130,6 +134,7 @@ class SearchBox2(QComboBox):
             col = self.normal_background
         self.line_edit.setStyleSheet('QLineEdit{color:black;background-color:%s;}' % col)
 
+    # Comes from the lineEdit control
     def key_pressed(self, event):
         k = event.key()
         if k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down,
@@ -145,6 +150,21 @@ class SearchBox2(QComboBox):
             self.focus_to_library.emit()
         elif self.as_you_type and unicode(event.text()):
             self.timer.start(1500)
+
+    # Comes from the combobox itself
+    def keyPressEvent(self, event):
+        k = event.key()
+        if k not in (Qt.Key_Up, Qt.Key_Down):
+            QComboBox.keyPressEvent(self, event)
+        else:
+            self.blockSignals(True)
+            self.normalize_state()
+            QComboBox.keyPressEvent(self, event)
+            self.blockSignals(False)
+
+    def completer_used(self, text):
+        self.timer.stop()
+        self.normalize_state()
 
     def timer_event(self):
         self.do_search()
