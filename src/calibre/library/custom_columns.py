@@ -525,30 +525,18 @@ class CustomColumns(object):
             display = data['display']
             table, lt = self.custom_table_names(data['num'])
             if data['normalized']:
-                if data['datatype'] == 'enumeration':
-                    query = '%s.value'
-                    line = '''
-                    val_for_enum(\'
-                        SELECT {table}.value FROM {lt}
-                        AS link INNER JOIN {table} ON(link.value={table}.id)
-                        WHERE link.book=?\',
-                    \'{default}\', books.id) custom_{num}
-                    '''.format(lt=lt, table=table,
-                               default=data['display']['enum_values'][0],
-                               num=data['num'])
-                else:
-                    query = '%s.value'
-                    if data['is_multiple']:
-                        query = 'group_concat(%s.value, "|")'
-                        if not display.get('sort_alpha', False):
-                            query = 'sort_concat(link.id, %s.value)'
-                    line = '''(SELECT {query} FROM {lt} AS link INNER JOIN
-                        {table} ON(link.value={table}.id) WHERE link.book=books.id)
-                        custom_{num}
-                    '''.format(query=query%table, lt=lt, table=table, num=data['num'])
-                    if data['datatype'] == 'series':
-                        line += ''',(SELECT extra FROM {lt} WHERE {lt}.book=books.id)
-                            custom_index_{num}'''.format(lt=lt, num=data['num'])
+                query = '%s.value'
+                if data['is_multiple']:
+                    query = 'group_concat(%s.value, "|")'
+                    if not display.get('sort_alpha', False):
+                        query = 'sort_concat(link.id, %s.value)'
+                line = '''(SELECT {query} FROM {lt} AS link INNER JOIN
+                    {table} ON(link.value={table}.id) WHERE link.book=books.id)
+                    custom_{num}
+                '''.format(query=query%table, lt=lt, table=table, num=data['num'])
+                if data['datatype'] == 'series':
+                    line += ''',(SELECT extra FROM {lt} WHERE {lt}.book=books.id)
+                        custom_index_{num}'''.format(lt=lt, num=data['num'])
             else:
                 line = '''
                 (SELECT value FROM {table} WHERE book=books.id) custom_{num}
