@@ -575,7 +575,7 @@ class Style(object):
             if parent is not None:
                 base = parent.width
             else:
-                base = self._profile.width
+                base = self._profile.width_pts
             if 'width' in self._element.attrib:
                 width = self._element.attrib['width']
             elif 'width' in self._style:
@@ -605,7 +605,7 @@ class Style(object):
             if parent is not None:
                 base = parent.height
             else:
-                base = self._profile.height
+                base = self._profile.height_pts
             if 'height' in self._element.attrib:
                 height = self._element.attrib['height']
             elif 'height' in self._style:
