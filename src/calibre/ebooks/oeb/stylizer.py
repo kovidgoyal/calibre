@@ -253,7 +253,10 @@ class Stylizer(object):
                 upd = {}
                 for prop in ('width', 'height'):
                     val = elem.get(prop, '').strip()
-                    del elem.attrib[prop]
+                    try:
+                        del elem.attrib[prop]
+                    except:
+                        pass
                     if val:
                         if num_pat.match(val) is not None:
                             val += 'px'
@@ -584,6 +587,13 @@ class Style(object):
             if isinstance(result, (unicode, str, bytes)):
                 result = self._profile.width
             self._width = result
+            if 'max-width' in self._style:
+                result = self._unit_convert(self._style['max-width'], base=base)
+                if isinstance(result, (unicode, str, bytes)):
+                    result = self._width
+                if result < self._width:
+                    self._width = result
+
         return self._width
 
     @property
@@ -607,6 +617,13 @@ class Style(object):
             if isinstance(result, (unicode, str, bytes)):
                 result = self._profile.height
             self._height = result
+            if 'max-height' in self._style:
+                result = self._unit_convert(self._style['max-height'], base=base)
+                if isinstance(result, (unicode, str, bytes)):
+                    result = self._height
+                if result < self._height:
+                    self._height = result
+
         return self._height
 
     @property
