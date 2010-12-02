@@ -7,9 +7,11 @@ add/remove formats
 '''
 
 import os, re, time, traceback, textwrap
+from functools import partial
 
 from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QThread, QDate, \
-    QPixmap, QListWidgetItem, QDialog, pyqtSignal, QMessageBox
+    QPixmap, QListWidgetItem, QDialog, pyqtSignal, QMessageBox, QIcon, \
+    QPushButton
 
 from calibre.gui2 import error_dialog, file_icon_provider, dynamic, \
                            choose_files, choose_images, ResizableDialog, \
@@ -429,11 +431,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     # }}}
 
-    def do_cancel_all(self):
-        self.cancel_all = True
-        self.reject()
-
-    def __init__(self, window, row, db, accepted_callback=None, cancel_all=False):
+    def __init__(self, window, row, db, prev=None,
+            next_=None):
         ResizableDialog.__init__(self, window)
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
         self.cancel_all = False
@@ -445,16 +444,27 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 _(' The red color indicates that the current '
                     'author sort does not match the current author'))
 
-        if cancel_all:
-            self.__abort_button = self.button_box.addButton(self.button_box.Abort)
-            self.__abort_button.setToolTip(_('Abort the editing of all remaining books'))
-            self.connect(self.__abort_button, SIGNAL('clicked()'),
-                    self.do_cancel_all)
+        self.row_delta = 0
+        if prev:
+            self.prev_button = QPushButton(QIcon(I('back.png')), _('Previous'),
+                    self)
+            self.button_box.addButton(self.prev_button, self.button_box.ActionRole)
+            tip = _('Edit the metadata of %s')%prev
+            self.prev_button.setToolTip(tip)
+            self.prev_button.clicked.connect(partial(self.next_triggered,
+                -1))
+        if next_:
+            self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
+                    self)
+            self.button_box.addButton(self.next_button, self.button_box.ActionRole)
+            tip = _('Edit the metadata of %s')%next_
+            self.next_button.setToolTip(tip)
+            self.next_button.clicked.connect(partial(self.next_triggered, 1))
+
         self.splitter.setStretchFactor(100, 1)
         self.read_state()
         self.db = db
         self.pi = ProgressIndicator(self)
-        self.accepted_callback = accepted_callback
         self.id = db.id(row)
         self.row = row
         self.cover_data = None
@@ -801,6 +811,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             unicode(self.tags.text()).split(',')],
                 notify=notify, commit=commit)
 
+    def next_triggered(self, row_delta, *args):
+        self.row_delta = row_delta
+        self.accept()
+
     def accept(self):
         cf = getattr(self, 'cover_fetcher', None)
         if cf is not None and hasattr(cf, 'terminate'):
@@ -862,8 +876,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             raise
         self.save_state()
         QDialog.accept(self)
-        if callable(self.accepted_callback):
-            self.accepted_callback(self.id)
 
     def reject(self, *args):
         cf = getattr(self, 'cover_fetcher', None)
