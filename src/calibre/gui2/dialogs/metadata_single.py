@@ -449,7 +449,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.prev_button = QPushButton(QIcon(I('back.png')), _('Previous'),
                     self)
             self.button_box.addButton(self.prev_button, self.button_box.ActionRole)
-            tip = _('Edit the metadata of %s')%prev
+            tip = _('Save changes and edit the metadata of %s')%prev
             self.prev_button.setToolTip(tip)
             self.prev_button.clicked.connect(partial(self.next_triggered,
                 -1))
@@ -457,7 +457,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
                     self)
             self.button_box.addButton(self.next_button, self.button_box.ActionRole)
-            tip = _('Edit the metadata of %s')%next_
+            tip = _('Save changes and edit the metadata of %s')%next_
             self.next_button.setToolTip(tip)
             self.next_button.clicked.connect(partial(self.next_triggered, 1))
 
@@ -513,6 +513,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.connect(self.reset_cover, SIGNAL('clicked()'), self.do_reset_cover)
         self.connect(self.swap_button, SIGNAL('clicked()'), self.swap_title_author)
         self.timeout = float(prefs['network_timeout'])
+
+
         self.title.setText(db.title(row))
         isbn = db.isbn(self.id, index_is_id=True)
         if not isbn:
@@ -580,6 +582,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         else:
             self.create_custom_column_editors()
         self.generate_cover_button.clicked.connect(self.generate_cover)
+
+        self.original_author = unicode(self.authors.text()).strip()
+        self.original_title = unicode(self.title.text()).strip()
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
@@ -824,9 +829,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if self.formats_changed:
                 self.sync_formats()
             title = unicode(self.title.text()).strip()
-            self.db.set_title(self.id, title, notify=False)
+            if title != self.original_title:
+                self.db.set_title(self.id, title, notify=False)
             au = unicode(self.authors.text()).strip()
-            if au:
+            if au and au != self.original_author:
                 self.db.set_authors(self.id, string_to_authors(au), notify=False)
             aus = unicode(self.author_sort.text()).strip()
             if aus:
