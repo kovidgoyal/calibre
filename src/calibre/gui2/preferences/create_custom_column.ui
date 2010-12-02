@@ -212,7 +212,7 @@
          <item>
           <widget class="QLineEdit" name="enum_box">
            <property name="toolTip">
-            <string>A comma-separated list of valid values.</string>
+            <string>A comma-separated list of permitted values. The empty value is always permitted</string>
            </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -226,6 +226,9 @@
           <widget class="QLabel" name="enum_default_label">
            <property name="text">
             <string>Default: (nothing)</string>
+           </property>
+           <property name="toolTip">
+            <string>Note that the empty value is always permitted, but is not shown in the list</string>
            </property>
           </widget>
          </item>

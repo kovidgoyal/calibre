@@ -27,21 +27,21 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     3:{'datatype':'series',
                         'text':_('Text column for keeping series-like information'),
                         'is_multiple':False},
-                    4:{'datatype':'datetime',
+                    4:{'datatype':'enumeration',
+                        'text':_('Text, but with a fixed set of permitted values'), 'is_multiple':False},
+                    5:{'datatype':'datetime',
                         'text':_('Date'), 'is_multiple':False},
-                    5:{'datatype':'float',
+                    6:{'datatype':'float',
                         'text':_('Floating point numbers'), 'is_multiple':False},
-                    6:{'datatype':'int',
+                    7:{'datatype':'int',
                         'text':_('Integers'), 'is_multiple':False},
-                    7:{'datatype':'rating',
+                    8:{'datatype':'rating',
                         'text':_('Ratings, shown with stars'),
                         'is_multiple':False},
-                    8:{'datatype':'bool',
+                    9:{'datatype':'bool',
                         'text':_('Yes/No'), 'is_multiple':False},
-                    9:{'datatype':'composite',
+                    10:{'datatype':'composite',
                         'text':_('Column built from other columns'), 'is_multiple':False},
-                    10:{'datatype':'enumeration',
-                        'text':_('Fixed set of text values'), 'is_multiple':False},
                 }
 
     def __init__(self, parent, editing, standard_colheads, standard_colnames):
@@ -61,6 +61,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.editing_col = editing
         self.standard_colheads = standard_colheads
         self.standard_colnames = standard_colnames
+        self.column_type_box.setMaxVisibleItems(len(self.column_types))
         for t in self.column_types:
             self.column_type_box.addItem(self.column_types[t]['text'])
         self.column_type_box.currentIndexChanged.connect(self.datatype_changed)
