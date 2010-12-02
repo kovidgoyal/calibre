@@ -177,6 +177,8 @@ class CustomColumns(object):
             ans = ans.split('|') if ans else []
             if data['display'].get('sort_alpha', False):
                 ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+        elif data['datatype'] == 'enumeration' and ans is None:
+            ans = data['display']['enum_values'][0]
         return ans
 
     def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
@@ -442,7 +444,6 @@ class CustomColumns(object):
         if data['normalized']:
             if data['datatype'] == 'enumeration' and \
                         val not in data['display']['enum_values']:
-                print 'attempt to set enum to', val
                 return None
             if not append or not data['is_multiple']:
                 self.conn.execute('DELETE FROM %s WHERE book=?'%lt, (id_,))
@@ -524,18 +525,30 @@ class CustomColumns(object):
             display = data['display']
             table, lt = self.custom_table_names(data['num'])
             if data['normalized']:
-                query = '%s.value'
-                if data['is_multiple']:
-                    query = 'group_concat(%s.value, "|")'
-                    if not display.get('sort_alpha', False):
-                        query = 'sort_concat(link.id, %s.value)'
-                line = '''(SELECT {query} FROM {lt} AS link INNER JOIN
-                    {table} ON(link.value={table}.id) WHERE link.book=books.id)
-                    custom_{num}
-                '''.format(query=query%table, lt=lt, table=table, num=data['num'])
-                if data['datatype'] == 'series':
-                    line += ''',(SELECT extra FROM {lt} WHERE {lt}.book=books.id)
-                        custom_index_{num}'''.format(lt=lt, num=data['num'])
+                if data['datatype'] == 'enumeration':
+                    query = '%s.value'
+                    line = '''
+                    val_for_enum(\'
+                        SELECT {table}.value FROM {lt}
+                        AS link INNER JOIN {table} ON(link.value={table}.id)
+                        WHERE link.book=?\',
+                    \'{default}\', books.id) custom_{num}
+                    '''.format(lt=lt, table=table,
+                               default=data['display']['enum_values'][0],
+                               num=data['num'])
+                else:
+                    query = '%s.value'
+                    if data['is_multiple']:
+                        query = 'group_concat(%s.value, "|")'
+                        if not display.get('sort_alpha', False):
+                            query = 'sort_concat(link.id, %s.value)'
+                    line = '''(SELECT {query} FROM {lt} AS link INNER JOIN
+                        {table} ON(link.value={table}.id) WHERE link.book=books.id)
+                        custom_{num}
+                    '''.format(query=query%table, lt=lt, table=table, num=data['num'])
+                    if data['datatype'] == 'series':
+                        line += ''',(SELECT extra FROM {lt} WHERE {lt}.book=books.id)
+                            custom_index_{num}'''.format(lt=lt, num=data['num'])
             else:
                 line = '''
                 (SELECT value FROM {table} WHERE book=books.id) custom_{num}

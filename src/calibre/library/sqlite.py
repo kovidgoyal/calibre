@@ -115,6 +115,17 @@ def pynocase(one, two, encoding='utf-8'):
             pass
     return cmp(one.lower(), two.lower())
 
+def enum_col_value(select, def_val, id, conn=None):
+    try:
+        v = conn.get(select, (id,), all=False)
+        if v is None:
+            v = def_val
+    except Exception, e:
+        if DEBUG:
+            print 'enum_col_value failed'
+            print e
+        v = def_val
+    return v
 
 def load_c_extensions(conn, debug=DEBUG):
     try:
@@ -165,6 +176,8 @@ class DBThread(Thread):
         self.conn.create_function('author_to_author_sort', 1,
                 _author_to_author_sort)
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
+        self.conn.create_function('val_for_enum', 3,
+                                  partial(enum_col_value, conn=self.conn))
         # Dummy functions for dynamically created filters
         self.conn.create_function('books_list_filter', 1, lambda x: 1)
 

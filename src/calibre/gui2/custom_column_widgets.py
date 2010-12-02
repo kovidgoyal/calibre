@@ -15,7 +15,7 @@ from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
 
 from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
-from calibre.gui2 import UNDEFINED_QDATE
+from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.utils.config import tweaks
 
 class Base(object):
@@ -313,22 +313,29 @@ class Series(Base):
 class Enumeration(Base):
 
     def setup_ui(self, parent):
+        self.parent = parent
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QComboBox(parent)]
         w = self.widgets[1]
         vals = self.col_metadata['display']['enum_values']
-        w.addItem('')
         for v in vals:
             w.addItem(v)
 
     def initialize(self, book_id):
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
         if val is None:
-            val = ''
+            # This really shouldn't happen
+            val = self.col_metadata['display']['enum_values'][0]
         self.initial_val = val
         val = self.normalize_db_val(val)
         idx = self.widgets[1].findText(val)
         if idx < 0:
+            error_dialog(self.parent, '',
+                    _('The enumeration "{0}" contains an invalid value '
+                      'that will be set to the default').format(
+                                            self.col_metadata['name']),
+                    show=True, show_copy_button=False)
+
             idx = 0
         self.widgets[1].setCurrentIndex(idx)
 
@@ -586,20 +593,33 @@ class BulkEnumeration(BulkBase, Enumeration):
 
     def get_initial_value(self, book_ids):
         value = None
+        ret_value = None
+        dialog_shown = False
         for book_id in book_ids:
             val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
-            if value is not None and value != val:
-                return ' nochange '
+            if val not in self.col_metadata['display']['enum_values']:
+                if not dialog_shown:
+                    error_dialog(self.parent, '',
+                            _('The enumeration "{0}" contains invalid values '
+                              'that will not appear in the list').format(
+                                                    self.col_metadata['name']),
+                            show=True, show_copy_button=False)
+                    dialog_shown = True
+                ret_value = ' nochange '
+            elif value is not None and value != val:
+                ret_value = ' nochange '
             value = val
-        return value
+        if ret_value is None:
+            return value
+        return ret_value
 
     def setup_ui(self, parent):
+        self.parent = parent
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QComboBox(parent)]
         w = self.widgets[1]
         vals = self.col_metadata['display']['enum_values']
         w.addItem('Do Not Change')
-        w.addItem('')
         for v in vals:
             w.addItem(v)
 
@@ -620,14 +640,10 @@ class BulkEnumeration(BulkBase, Enumeration):
         if val != self.initial_val and val != ' nochange ':
             self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
 
-    def normalize_ui_val(self, val):
-        if val == '':
-            return None
-        return val
-
     def normalize_db_val(self, val):
         if val is None:
-            return ''
+            # this really shouldn't happen
+            val = self.col_metadata['display']['enum_values'][0]
         return val
 
 class RemoveTags(QWidget):
