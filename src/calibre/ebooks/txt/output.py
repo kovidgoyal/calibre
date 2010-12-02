@@ -8,6 +8,7 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
+from calibre.ebooks.txt.markdownml import MarkdownMLizer
 from calibre.ebooks.txt.txtml import TXTMLizer
 from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 
@@ -44,10 +45,27 @@ class TXTOutput(OutputFormatPlugin):
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Force splitting on the max-line-length value when no space '
             'is present. Also allows max-line-length to be below the minimum')),
+        OptionRecommendation(name='markdown_format',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Produce Markdown formatted text.')),
+        OptionRecommendation(name='keep_links',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Do not remove links within the document. This is only ' \
+            'useful when paired with the markdown-format option because' \
+            'links are always removed with plain text output.')),
+        OptionRecommendation(name='keep_image_references',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Do not remove image references within the document. This is only ' \
+            'useful when paired with the markdown-format option because' \
+            'image references are always removed with plain text output.')),
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        writer = TXTMLizer(log)
+        if opts.markdown_format:
+            writer = MarkdownMLizer(log)
+        else:
+            writer = TXTMLizer(log)
+        
         txt = writer.extract_content(oeb_book, opts)
 
         log.debug('\tReplacing newlines with selected type...')

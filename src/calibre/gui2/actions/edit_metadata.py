@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import Qt, QMenu
+from PyQt4.Qt import Qt, QMenu, QModelIndex
 
 from calibre.gui2 import error_dialog, config
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
@@ -126,20 +126,35 @@ class EditMetadataAction(InterfaceAction):
         if bulk or (bulk is None and len(rows) > 1):
             return self.edit_bulk_metadata(checked)
 
-        def accepted(id):
-            self.gui.library_view.model().refresh_ids([id])
+        row_list = [r.row() for r in rows]
+        current_row = 0
+        changed = set([])
+        db = self.gui.library_view.model().db
 
-        for row in rows:
-            self.gui.iactions['View'].metadata_view_id = self.gui.library_view.model().db.id(row.row())
-            d = MetadataSingleDialog(self.gui, row.row(),
-                                    self.gui.library_view.model().db,
-                                    accepted_callback=accepted,
-                                    cancel_all=rows.index(row) < len(rows)-1)
-            d.view_format.connect(self.gui.iactions['View'].metadata_view_format)
-            d.exec_()
-            if d.cancel_all:
+        if len(row_list) == 1:
+            cr = row_list[0]
+            row_list = \
+                list(range(self.gui.library_view.model().rowCount(QModelIndex())))
+            current_row = row_list.index(cr)
+
+        while True:
+            prev = next_ = None
+            if current_row > 0:
+                prev = db.title(row_list[current_row-1])
+            if current_row < len(row_list) - 1:
+                next_ = db.title(row_list[current_row+1])
+
+            d = MetadataSingleDialog(self.gui, row_list[current_row], db,
+                    prev=prev, next_=next_)
+            if d.exec_() != d.Accepted:
                 break
-        if rows:
+            changed.add(d.id)
+            if d.row_delta == 0:
+                break
+            current_row += d.row_delta
+
+        if changed:
+            self.gui.library_view.model().refresh_ids(list(changed))
             current = self.gui.library_view.currentIndex()
             m = self.gui.library_view.model()
             if self.gui.cover_flow:
