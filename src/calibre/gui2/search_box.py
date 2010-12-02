@@ -384,7 +384,7 @@ class SearchBoxMixin(object): # {{{
     def do_advanced_search(self, *args):
         d = SearchDialog(self, self.library_view.model().db)
         if d.exec_() == QDialog.Accepted:
-            self.search.set_search_string(d.search_string())
+            self.search.set_search_string(d.search_string(), store_in_history=True)
 
     def do_search_button(self):
         self.search.do_search()
