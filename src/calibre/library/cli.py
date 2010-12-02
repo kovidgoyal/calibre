@@ -565,8 +565,9 @@ datatype is one of: {0}
                           'applies if datatype is text.'))
     parser.add_option('--display', default='{}',
             help=_('A dictionary of options to customize how '
-                'the data in this column will be interpreted.'))
-
+                'the data in this column will be interpreted. This is a JSON '
+                ' string. For enumeration columns, use '
+                '--display=\'{"enum_values":["val1", "val2"]}\''))
     return parser
 
 

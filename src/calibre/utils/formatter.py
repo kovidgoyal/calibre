@@ -79,6 +79,9 @@ class TemplateFormatter(string.Formatter):
         else:
             return val
 
+    def _count(self, val, sep):
+        return unicode(len(val.split(sep)))
+
     functions = {
                     'uppercase'     : (0, lambda s,x: x.upper()),
                     'lowercase'     : (0, lambda s,x: x.lower()),
@@ -91,6 +94,7 @@ class TemplateFormatter(string.Formatter):
                     'shorten'       : (3, _shorten),
                     'switch'        : (-1, _switch),
                     'test'          : (2, _test),
+                    'count'         : (1, _count),
         }
 
     format_string_re = re.compile(r'^(.*)\|(.*)\|(.*)$')
@@ -136,8 +140,13 @@ class TemplateFormatter(string.Formatter):
             if fmt[colon:p] in self.functions:
                 field = fmt[colon:p]
                 func = self.functions[field]
-                args = self.arg_parser.scan(fmt[p+1:])[0]
-                args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
+                if func[0] == 1:
+                    # only one arg expected. Don't bother to scan. Avoids need
+                    # for escaping characters
+                    args = [fmt[p+1:-1]]
+                else:
+                    args = self.arg_parser.scan(fmt[p+1:])[0]
+                    args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
                 if (func[0] == 0 and (len(args) != 1 or args[0])) or \
                         (func[0] > 0 and func[0] != len(args)):
                     raise ValueError('Incorrect number of arguments for function '+ fmt[0:p])
