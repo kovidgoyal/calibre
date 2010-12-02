@@ -580,7 +580,6 @@ def command_add_custom_column(args, dbpath):
         print
         print >>sys.stderr, _('You must specify label, name and datatype')
         return 1
-    print opts.display
     do_add_custom_column(get_db(dbpath, opts), args[0], args[1], args[2],
             opts.is_multiple, json.loads(opts.display))
     # Re-open the DB so that  field_metadata is reflects the column changes

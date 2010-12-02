@@ -166,8 +166,12 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             if not self.enum_box.text():
                 return self.simple_error('', _('You must enter at least one'
                     ' value for enumeration columns'))
-            display_dict = {'enum_values':
-                [v.strip() for v in unicode(self.enum_box.text()).split(',')]}
+            l = [v.strip() for v in unicode(self.enum_box.text()).split(',')]
+            for i in range(0, len(l)-1):
+                if l[i] in l[i+1:]:
+                    return self.simple_error('', _('The value "{0}" is in the '
+                    'list more than once').format(l[i]))
+            display_dict = {'enum_values': l}
 
         db = self.parent.gui.library_view.model().db
         key = db.field_metadata.custom_field_prefix+col

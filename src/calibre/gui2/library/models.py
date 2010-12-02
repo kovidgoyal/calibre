@@ -719,10 +719,12 @@ class BooksModel(QAbstractTableModel): # {{{
         typ = cc['datatype']
         label=self.db.field_metadata.key_to_label(colhead)
         s_index = None
-        if typ in ('text', 'comments', 'enumeration'):
+        if typ in ('text', 'comments'):
             val = unicode(value.toString()).strip()
             val = val if val else None
-        if typ == 'bool':
+        elif typ == 'enumeration':
+            val = unicode(value.toString()).strip()
+        elif typ == 'bool':
             val = value.toPyObject()
         elif typ == 'rating':
             val = value.toInt()[0]

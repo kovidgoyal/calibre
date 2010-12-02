@@ -269,10 +269,11 @@ class CcEnumDelegate(QStyledItemDelegate): # {{{
 
     def setModelData(self, editor, model, index):
         val = unicode(editor.currentText())
-        if val == '':
+        m = index.model()
+        col = m.column_map[index.column()]
+        if val not in m.custom_columns[col]['display']['enum_values']:
             # This shouldn't happen ...
-            m = index.model()
-            col = m.column_map[index.column()]
+            print 'shouldnt happen'
             val = m.custom_columns[col]['display']['enum_values'][0]
         model.setData(index, QVariant(val), Qt.EditRole)
 

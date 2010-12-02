@@ -212,7 +212,10 @@
          <item>
           <widget class="QLineEdit" name="enum_box">
            <property name="toolTip">
-            <string>A comma-separated list of permitted values. The first value is the default</string>
+            <string>A comma-separated list of permitted values. You can specify
+empty values by entering only the comma. For example, the list
+',one,two,three' has 4 valid values, one of them empty. The first
+value in the list is the default.</string>
            </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
