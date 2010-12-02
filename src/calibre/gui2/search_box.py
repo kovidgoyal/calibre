@@ -51,7 +51,7 @@ class SearchBox2(QComboBox): # {{{
         * Call search_done() after every search is complete
         * Call set_search_string() to perform a search programmatically
         * You can use the current_text property to get the current search text
-          Be aware that if you are using it in a slow connected to the
+          Be aware that if you are using it in a slot connected to the
           changed() signal, if the connection is not queued it will not be
           accurate.
     '''
@@ -92,7 +92,11 @@ class SearchBox2(QComboBox): # {{{
     def initialize(self, opt_name, colorize=False, help_text=_('Search')):
         self.as_you_type = config['search_as_you_type']
         self.opt_name = opt_name
-        self.addItems(QStringList(list(set(config[opt_name]))))
+        items = []
+        for item in config[opt_name]:
+            if item not in items:
+                items.append(item)
+        self.addItems(QStringList(items))
         try:
             self.line_edit.setPlaceholderText(help_text)
         except:
@@ -189,8 +193,9 @@ class SearchBox2(QComboBox): # {{{
                 self.insertItem(0, t)
             self.setCurrentIndex(0)
             self.block_signals(False)
-            config[self.opt_name] = [unicode(self.itemText(i)) for i in
+            history = [unicode(self.itemText(i)) for i in
                     range(self.count())]
+            config[self.opt_name] = history
 
     def do_search(self, *args):
         self._do_search()

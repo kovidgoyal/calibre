@@ -86,6 +86,10 @@ class LibraryViewMixin(object): # {{{
         if view is self.current_view():
             self.search.search_done(ok)
             self.set_number_of_books_shown()
+            if ok:
+                v = self.current_view()
+                if hasattr(v, 'set_current_row'):
+                    v.set_current_row(0)
 
     # }}}
 

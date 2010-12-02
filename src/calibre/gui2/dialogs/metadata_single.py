@@ -98,9 +98,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     COVER_FETCH_TIMEOUT = 240 # seconds
     view_format = pyqtSignal(object)
 
+    def update_cover_tooltip(self):
+        p = self.cover.pixmap()
+        self.cover.setToolTip(_('Cover size: %dx%d pixels') %
+                (p.width(), p.height()))
+
+
     def do_reset_cover(self, *args):
         pix = QPixmap(I('default_cover.png'))
         self.cover.setPixmap(pix)
+        self.update_cover_tooltip()
         self.cover_changed = True
         self.cover_data = None
 
@@ -136,6 +143,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 else:
                     self.cover_path.setText(_file)
                     self.cover.setPixmap(pix)
+                    self.update_cover_tooltip()
                     self.cover_changed = True
                     self.cpixmap = pix
                     self.cover_data = cover
@@ -161,6 +169,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         pix = QPixmap()
         pix.loadFromData(self.cover_data)
         self.cover.setPixmap(pix)
+        self.update_cover_tooltip()
         self.cover_changed = True
         self.cpixmap = pix
 
@@ -296,6 +305,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                          _('The cover in the %s format is invalid')%ext).exec_()
             return
         self.cover.setPixmap(pix)
+        self.update_cover_tooltip()
         self.cover_changed = True
         self.cpixmap = pix
         self.cover_data = cdata
@@ -312,6 +322,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         pix = QPixmap()
         pix.loadFromData(cdata)
         self.cover.setPixmap(pix)
+        self.update_cover_tooltip()
         self.cover_changed = True
         self.cpixmap = pix
         self.cover_data = cdata
@@ -472,6 +483,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         else:
             self.cover_data = cover
         self.cover.setPixmap(pm)
+        self.update_cover_tooltip()
         self.original_series_name = unicode(self.series.text()).strip()
         if len(db.custom_column_label_map) == 0:
             self.central_widget.tabBar().setVisible(False)
@@ -677,6 +689,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                              _('The cover is not a valid picture')).exec_()
             else:
                 self.cover.setPixmap(pix)
+                self.update_cover_tooltip()
                 self.cover_changed = True
                 self.cpixmap = pix
                 self.cover_data = self.cover_fetcher.cover_data
