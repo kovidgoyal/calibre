@@ -48,11 +48,16 @@ class TXTOutput(OutputFormatPlugin):
         OptionRecommendation(name='markdown_format',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Produce Markdown formatted text.')),
-        OptionRecommendation(name='remove_links',
+        OptionRecommendation(name='keep_links',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Remove links within the document. This is only ' \
-            'useful when paried with the markdown-format option because' \
-            'links are removed with plain text output.')),
+            help=_('Do not remove links within the document. This is only ' \
+            'useful when paired with the markdown-format option because' \
+            'links are always removed with plain text output.')),
+        OptionRecommendation(name='keep_image_references',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Do not remove image references within the document. This is only ' \
+            'useful when paired with the markdown-format option because' \
+            'image references are always removed with plain text output.')),
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):

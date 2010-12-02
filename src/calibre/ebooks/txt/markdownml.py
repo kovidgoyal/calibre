@@ -31,9 +31,12 @@ class MarkdownMLizer(object):
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to Markdown formatted TXT...' % item.href)
             html = unicode(etree.tostring(item.data, encoding=unicode))
-            if self.opts.remove_links:
+            if not self.opts.keep_links:
                 html = re.sub(r'<\s*a[^>]*>', '', html)
                 html = re.sub(r'<\s*/\s*a\s*>', '', html)
+            if not self.opts.keep_image_references:
+                html = re.sub(r'<\s*img[^>]*>', '', html)
+                html = re.sub(r'<\s*img\s*>', '', html)
             output += html2text(html)
         output = u''.join(output)
 

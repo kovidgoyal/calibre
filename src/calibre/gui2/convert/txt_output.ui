@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
+    <width>477</width>
     <height>300</height>
    </rect>
   </property>
@@ -27,7 +27,7 @@
    <item row="0" column="1">
     <widget class="QComboBox" name="opt_newline"/>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -75,9 +75,16 @@
     </widget>
    </item>
    <item row="5" column="0">
-    <widget class="QCheckBox" name="opt_remove_links">
+    <widget class="QCheckBox" name="opt_keep_links">
      <property name="text">
-      <string>Remove links (&lt;a&gt; tags) before processing</string>
+      <string>Do not remove links (&lt;a&gt; tags) before processing</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QCheckBox" name="opt_keep_image_references">
+     <property name="text">
+      <string>Do not remove image references before processing</string>
      </property>
     </widget>
    </item>
