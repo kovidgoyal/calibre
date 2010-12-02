@@ -177,7 +177,7 @@ class FieldMetadata(dict):
                            'is_multiple':None,
                            'kind':'field',
                            'name':None,
-                           'search_terms':[],
+                           'search_terms':['author_sort'],
                            'is_custom':False,
                            'is_category':False}),
             ('comments',  {'table':None,

@@ -565,8 +565,9 @@ datatype is one of: {0}
                           'applies if datatype is text.'))
     parser.add_option('--display', default='{}',
             help=_('A dictionary of options to customize how '
-                'the data in this column will be interpreted.'))
-
+                'the data in this column will be interpreted. This is a JSON '
+                ' string. For enumeration columns, use '
+                '--display=\'{"enum_values":["val1", "val2"]}\''))
     return parser
 
 
@@ -579,6 +580,7 @@ def command_add_custom_column(args, dbpath):
         print
         print >>sys.stderr, _('You must specify label, name and datatype')
         return 1
+    print opts.display
     do_add_custom_column(get_db(dbpath, opts), args[0], args[1], args[2],
             opts.is_multiple, json.loads(opts.display))
     # Re-open the DB so that  field_metadata is reflects the column changes
