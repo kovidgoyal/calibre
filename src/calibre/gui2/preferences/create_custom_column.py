@@ -92,7 +92,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             if c['display'].get('date_format', None):
                 self.date_format_box.setText(c['display'].get('date_format', ''))
         elif ct == 'composite':
-            self.composite_box.setText(c['display'].get('enum_values', ''))
+            self.composite_box.setText(c['display'].get('composite_template', ''))
+        elif ct == 'enumeration':
+            self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
         self.datatype_changed()
         self.exec_()
 

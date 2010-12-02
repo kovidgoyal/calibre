@@ -18,7 +18,7 @@ from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.search_query_parser import saved_searches
 
-class SearchLineEdit(QLineEdit):
+class SearchLineEdit(QLineEdit): # {{{
     key_pressed = pyqtSignal(object)
 
     def keyPressEvent(self, event):
@@ -37,17 +37,23 @@ class SearchLineEdit(QLineEdit):
     def paste(self, *args):
         self.parent().normalize_state()
         return QLineEdit.paste(self)
+# }}}
 
-class SearchBox2(QComboBox):
+class SearchBox2(QComboBox): # {{{
 
     '''
     To use this class:
 
         * Call initialize()
         * Connect to the search() and cleared() signals from this widget.
-        * Connect to the cleared() signal to know when the box content changes
-        * Connect to focus_to_library signal to be told to manually change focus
+        * Connect to the changed() signal to know when the box content changes
+        * Connect to focus_to_library() signal to be told to manually change focus
         * Call search_done() after every search is complete
+        * Call set_search_string() to perform a search programmatically
+        * You can use the current_text property to get the current search text
+          Be aware that if you are using it in a slow connected to the
+          changed() signal, if the connection is not queued it will not be
+          accurate.
     '''
 
     INTERVAL = 1500 #: Time to wait before emitting search signal
@@ -166,49 +172,43 @@ class SearchBox2(QComboBox):
         self.changed.emit()
         self.do_search()
 
-    def do_search(self, *args):
+    def _do_search(self, store_in_history=True):
         text = unicode(self.currentText()).strip()
         if not text:
             return self.clear()
         self.search.emit(text)
 
-        idx = self.findText(text, Qt.MatchFixedString)
-        self.block_signals(True)
-        if idx < 0:
-            self.insertItem(0, text)
-        else:
-            t = self.itemText(idx)
-            self.removeItem(idx)
-            self.insertItem(0, t)
+        if store_in_history:
+            idx = self.findText(text, Qt.MatchFixedString)
+            self.block_signals(True)
+            if idx < 0:
+                self.insertItem(0, text)
+            else:
+                t = self.itemText(idx)
+                self.removeItem(idx)
+                self.insertItem(0, t)
             self.setCurrentIndex(0)
-        self.block_signals(False)
-        config[self.opt_name] = [unicode(self.itemText(i)) for i in
-                range(self.count())]
+            self.block_signals(False)
+            config[self.opt_name] = [unicode(self.itemText(i)) for i in
+                    range(self.count())]
+
+    def do_search(self, *args):
+        self._do_search()
 
     def block_signals(self, yes):
         self.blockSignals(yes)
         self.line_edit.blockSignals(yes)
 
-    def search_from_tokens(self, tokens, all):
-        ans = u' '.join([u'%s:%s'%x for x in tokens])
-        if not all:
-            ans = '[' + ans + ']'
-        self.set_search_string(ans)
-
-    def search_from_tags(self, tags, all):
-        joiner = ' and ' if all else ' or '
-        self.set_search_string(joiner.join(tags))
-
-    def set_search_string(self, txt):
+    def set_search_string(self, txt, store_in_history=False):
         self.setFocus(Qt.OtherFocusReason)
         if not txt:
             self.clear()
         else:
             self.normalize_state()
             self.setEditText(txt)
-            self.search.emit(txt)
             self.line_edit.end(False)
-            self.initial_state = False
+            self.changed.emit()
+            self._do_search(store_in_history=store_in_history)
         self.focus_to_library.emit()
 
     def search_as_you_type(self, enabled):
@@ -217,7 +217,13 @@ class SearchBox2(QComboBox):
     def in_a_search(self):
         return self._in_a_search
 
-class SavedSearchBox(QComboBox):
+    @property
+    def current_text(self):
+        return unicode(self.lineEdit().text())
+
+    # }}}
+
+class SavedSearchBox(QComboBox): # {{{
 
     '''
     To use this class:
@@ -329,13 +335,17 @@ class SavedSearchBox(QComboBox):
             return
         self.search_box.set_search_string(saved_searches().lookup(unicode(self.currentText())))
 
-class SearchBoxMixin(object):
+    # }}}
+
+class SearchBoxMixin(object): # {{{
 
     def __init__(self):
         self.search.initialize('main_search_history', colorize=True,
                 help_text=_('Search (For Advanced Search click the button to the left)'))
         self.search.cleared.connect(self.search_box_cleared)
-        self.search.changed.connect(self.search_box_changed)
+        # Queued so that search.current_text will be correct
+        self.search.changed.connect(self.search_box_changed,
+                type=Qt.QueuedConnection)
         self.search.focus_to_library.connect(self.focus_to_library)
         self.clear_button.clicked.connect(self.search.clear_clicked)
         self.advanced_search_button.clicked[bool].connect(self.do_advanced_search)
@@ -364,7 +374,7 @@ class SearchBoxMixin(object):
 
     def search_box_changed(self):
         self.saved_search.clear()
-        self.tags_view.clear()
+        self.tags_view.conditional_clear(self.search.current_text)
 
     def do_advanced_search(self, *args):
         d = SearchDialog(self, self.library_view.model().db)
@@ -378,7 +388,9 @@ class SearchBoxMixin(object):
     def focus_to_library(self):
         self.current_view().setFocus(Qt.OtherFocusReason)
 
-class SavedSearchBoxMixin(object):
+    # }}}
+
+class SavedSearchBoxMixin(object): # {{{
 
     def __init__(self):
         self.saved_search.changed.connect(self.saved_searches_changed)
@@ -417,3 +429,6 @@ class SavedSearchBoxMixin(object):
         if d.result() == d.Accepted:
             self.saved_searches_changed()
             self.saved_search.clear()
+
+    # }}}
+

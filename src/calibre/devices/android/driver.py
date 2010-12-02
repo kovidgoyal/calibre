@@ -38,7 +38,7 @@ class ANDROID(USBMS):
                 0x227]},
 
             # Samsung
-            0x04e8 : { 0x681d : [0x0222, 0x0224, 0x0400],
+            0x04e8 : { 0x681d : [0x0222, 0x0223, 0x0224, 0x0400],
                        0x681c : [0x0222, 0x0224, 0x0400],
                        0x6640 : [0x0100],
                      },
@@ -62,7 +62,8 @@ class ANDROID(USBMS):
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
-            'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID']
+            'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
+            'SCH-I500_CARD']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID']
 

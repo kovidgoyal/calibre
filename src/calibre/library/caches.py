@@ -520,7 +520,7 @@ class ResultCache(SearchQueryParser): # {{{
                 if len(self.field_metadata[x]['search_terms']):
                     db_col[x] = self.field_metadata[x]['rec_index']
                     if self.field_metadata[x]['datatype'] not in \
-                                    ['composite', 'text', 'comments', 'series']:
+                            ['composite', 'text', 'comments', 'series', 'enumeration']:
                         exclude_fields.append(db_col[x])
                     col_datatype[db_col[x]] = self.field_metadata[x]['datatype']
                     is_multiple_cols[db_col[x]] = self.field_metadata[x]['is_multiple']
@@ -828,7 +828,7 @@ class SortKeyGenerator(object):
                     sidx = record[sidx_fm['rec_index']]
                     val = (val, sidx)
 
-            elif dt in ('text', 'comments', 'composite'):
+            elif dt in ('text', 'comments', 'composite', 'enumeration'):
                 if val is None:
                     val = ''
                 val = val.lower()

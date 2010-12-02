@@ -440,6 +440,10 @@ class CustomColumns(object):
         val = self.custom_data_adapters[data['datatype']](val, data)
 
         if data['normalized']:
+            if data['datatype'] == 'enumeration' and \
+                        val not in data['display']['enum_values']:
+                print 'attempt to set enum to', val
+                return None
             if not append or not data['is_multiple']:
                 self.conn.execute('DELETE FROM %s WHERE book=?'%lt, (id_,))
                 self.conn.execute(

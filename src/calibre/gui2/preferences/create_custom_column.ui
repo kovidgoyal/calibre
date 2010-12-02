@@ -158,7 +158,7 @@
             </sizepolicy>
            </property>
            <property name="toolTip">
-            <string>&lt;p&gt;Field template. Uses the same syntax as save templates.</string>
+            <string>Field template. Uses the same syntax as save templates.</string>
            </property>
           </widget>
          </item>
@@ -202,12 +202,18 @@
          <property name="text">
           <string>Values</string>
          </property>
+         <property name="buddy">
+          <cstring>enum_box</cstring>
+         </property>
         </widget>
        </item>
        <item row="6" column="2">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QLineEdit" name="enum_box">
+           <property name="toolTip">
+            <string>A comma-separated list of valid values.</string>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
              <horstretch>0</horstretch>

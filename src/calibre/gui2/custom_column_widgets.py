@@ -316,7 +316,6 @@ class Enumeration(Base):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QComboBox(parent)]
         w = self.widgets[1]
-        print self.col_metadata['display']
         vals = self.col_metadata['display']['enum_values']
         w.addItem('')
         for v in vals:
@@ -598,7 +597,6 @@ class BulkEnumeration(BulkBase, Enumeration):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QComboBox(parent)]
         w = self.widgets[1]
-        print self.col_metadata['display']
         vals = self.col_metadata['display']['enum_values']
         w.addItem('Do Not Change')
         w.addItem('')
