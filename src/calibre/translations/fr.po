@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-27 20:21+0000\n"
-"PO-Revision-Date: 2010-11-29 05:41+0000\n"
-"Last-Translator: Vincent C. <Unknown>\n"
+"PO-Revision-Date: 2010-12-02 02:39+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-30 04:45+0000\n"
+"X-Launchpad-Export-Date: 2010-12-02 04:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -837,7 +837,7 @@ msgstr "Communiquer avec le lecteur  PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602 reader."
-msgstr ""
+msgstr "Communiquer avec le lecteur PocketBook 602."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1052,7 +1052,7 @@ msgstr "Communiquer avec le GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:180
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Communiquer avec l'Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -6529,6 +6529,14 @@ msgid ""
 "enter the full path to the file after a <code>>></code>.  For example:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 msgstr ""
+"<p>Entrer une liste d'ISBNs dans la boite à gauche, une par ligne. Calibre "
+"va automatiquement créer des entrées pour ces livres à partir de l'ISBN et "
+"télécharger les métadonnées et la couverture correspondantes.</p>\n"
+"<p>Tous les ISBNs invalides de la liste seront ignorés.</p>\n"
+"<p>Vous pouvez aussi spécifier un fichier qui sera ajouté avec chaque ISBN. "
+"Pour faire celà, entrez le chemin complet du fichier après <code>>></code>.  "
+"Par exemple :</p>\n"
+"<p><code>9788842915232 >> %s</code></p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:53
 msgid "&Paste from clipboard"
@@ -8451,7 +8459,7 @@ msgstr "News :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:189
 msgid "Attached is the %s periodical downloaded by calibre."
-msgstr ""
+msgstr "Trouvez en pièce jointe le périodique %s téléchargé par Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:242
 msgid "E-book:"
@@ -8489,7 +8497,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:303
 msgid "Failed to email book"
-msgstr ""
+msgstr "Echec de l'envoi du livre par mél"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:306
 msgid "sent"
@@ -11549,6 +11557,8 @@ msgstr "&SSL"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
 msgstr ""
+"ATTENTION : Ne pas utiliser de système d'encryptage présente un fort risque "
+"au niveau de la sécurité"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
