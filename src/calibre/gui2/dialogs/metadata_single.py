@@ -31,7 +31,7 @@ from calibre.gui2.preferences.social import SocialMetadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre import strftime
 
-class CoverFetcher(QThread):
+class CoverFetcher(QThread): # {{{
 
     def __init__(self, username, password, isbn, timeout, title, author):
         self.username = username.strip() if username else username
@@ -74,9 +74,9 @@ class CoverFetcher(QThread):
             self.traceback = traceback.format_exc()
             print self.traceback
 
+# }}}
 
-
-class Format(QListWidgetItem):
+class Format(QListWidgetItem): # {{{
 
     def __init__(self, parent, ext, size, path=None, timestamp=None):
         self.path = path
@@ -92,11 +92,59 @@ class Format(QListWidgetItem):
             self.setToolTip(text)
             self.setStatusTip(text)
 
+# }}}
+
 
 class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     COVER_FETCH_TIMEOUT = 240 # seconds
     view_format = pyqtSignal(object)
+
+    # Cover processing {{{
+
+    def set_cover(self):
+        mi, ext = self.get_selected_format_metadata()
+        if mi is None:
+            return
+        cdata = None
+        if mi.cover and os.access(mi.cover, os.R_OK):
+            cdata = open(mi.cover).read()
+        elif mi.cover_data[1] is not None:
+            cdata = mi.cover_data[1]
+        if cdata is None:
+            error_dialog(self, _('Could not read cover'),
+                         _('Could not read cover from %s format')%ext).exec_()
+            return
+        pix = QPixmap()
+        pix.loadFromData(cdata)
+        if pix.isNull():
+            error_dialog(self, _('Could not read cover'),
+                         _('The cover in the %s format is invalid')%ext).exec_()
+            return
+        self.cover.setPixmap(pix)
+        self.update_cover_tooltip()
+        self.cover_changed = True
+        self.cpixmap = pix
+        self.cover_data = cdata
+
+    def trim_cover(self, *args):
+        from calibre.utils.magick import Image
+        cdata = self.cover_data
+        if not cdata:
+            return
+        im = Image()
+        im.load(cdata)
+        im.trim(10)
+        cdata = im.export('png')
+        pix = QPixmap()
+        pix.loadFromData(cdata)
+        self.cover.setPixmap(pix)
+        self.update_cover_tooltip()
+        self.cover_changed = True
+        self.cpixmap = pix
+        self.cover_data = cdata
+
+
 
     def update_cover_tooltip(self):
         p = self.cover.pixmap()
@@ -173,6 +221,76 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cover_changed = True
         self.cpixmap = pix
 
+    def cover_dropped(self, cover_data):
+        self.cover_changed = True
+        self.cover_data = cover_data
+        self.update_cover_tooltip()
+
+    def fetch_cover(self):
+        isbn   = re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())).strip()
+        self.fetch_cover_button.setEnabled(False)
+        self.setCursor(Qt.WaitCursor)
+        title, author = map(unicode, (self.title.text(), self.authors.text()))
+        self.cover_fetcher = CoverFetcher(None, None, isbn,
+                                            self.timeout, title, author)
+        self.cover_fetcher.start()
+        self._hangcheck = QTimer(self)
+        self.connect(self._hangcheck, SIGNAL('timeout()'), self.hangcheck)
+        self.cf_start_time = time.time()
+        self.pi.start(_('Downloading cover...'))
+        self._hangcheck.start(100)
+
+    def hangcheck(self):
+        if not self.cover_fetcher.isFinished() and \
+            time.time()-self.cf_start_time < self.COVER_FETCH_TIMEOUT:
+            return
+
+        self._hangcheck.stop()
+        try:
+            if self.cover_fetcher.isRunning():
+                self.cover_fetcher.terminate()
+                error_dialog(self, _('Cannot fetch cover'),
+                    _('<b>Could not fetch cover.</b><br/>')+
+                    _('The download timed out.')).exec_()
+                return
+            if self.cover_fetcher.needs_isbn:
+                error_dialog(self, _('Cannot fetch cover'),
+                    _('Could not find cover for this book. Try '
+                      'specifying the ISBN first.')).exec_()
+                return
+            if self.cover_fetcher.exception is not None:
+                err = self.cover_fetcher.exception
+                error_dialog(self, _('Cannot fetch cover'),
+                    _('<b>Could not fetch cover.</b><br/>')+unicode(err)).exec_()
+                return
+            if self.cover_fetcher.errors and self.cover_fetcher.cover_data is None:
+                details = u'\n\n'.join([e[-1] + ': ' + e[1] for e in self.cover_fetcher.errors])
+                error_dialog(self, _('Cannot fetch cover'),
+                    _('<b>Could not fetch cover.</b><br/>') +
+                    _('For the error message from each cover source, '
+                      'click Show details below.'), det_msg=details, show=True)
+                return
+
+            pix = QPixmap()
+            pix.loadFromData(self.cover_fetcher.cover_data)
+            if pix.isNull():
+                error_dialog(self, _('Bad cover'),
+                             _('The cover is not a valid picture')).exec_()
+            else:
+                self.cover.setPixmap(pix)
+                self.update_cover_tooltip()
+                self.cover_changed = True
+                self.cpixmap = pix
+                self.cover_data = self.cover_fetcher.cover_data
+        finally:
+            self.fetch_cover_button.setEnabled(True)
+            self.unsetCursor()
+            self.pi.stop()
+
+
+    # }}}
+
+    # Formats processing {{{
     def add_format(self, x):
         files = choose_files(self, 'add formats dialog',
                              _("Choose formats for ") + unicode((self.title.text())),
@@ -285,50 +403,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.comments.setPlainText(mi.comments)
 
 
-    def set_cover(self):
-        mi, ext = self.get_selected_format_metadata()
-        if mi is None:
-            return
-        cdata = None
-        if mi.cover and os.access(mi.cover, os.R_OK):
-            cdata = open(mi.cover).read()
-        elif mi.cover_data[1] is not None:
-            cdata = mi.cover_data[1]
-        if cdata is None:
-            error_dialog(self, _('Could not read cover'),
-                         _('Could not read cover from %s format')%ext).exec_()
-            return
-        pix = QPixmap()
-        pix.loadFromData(cdata)
-        if pix.isNull():
-            error_dialog(self, _('Could not read cover'),
-                         _('The cover in the %s format is invalid')%ext).exec_()
-            return
-        self.cover.setPixmap(pix)
-        self.update_cover_tooltip()
-        self.cover_changed = True
-        self.cpixmap = pix
-        self.cover_data = cdata
-
-    def trim_cover(self, *args):
-        from calibre.utils.magick import Image
-        cdata = self.cover_data
-        if not cdata:
-            return
-        im = Image()
-        im.load(cdata)
-        im.trim(10)
-        cdata = im.export('png')
-        pix = QPixmap()
-        pix.loadFromData(cdata)
-        self.cover.setPixmap(pix)
-        self.update_cover_tooltip()
-        self.cover_changed = True
-        self.cpixmap = pix
-        self.cover_data = cdata
-
-
-
     def sync_formats(self):
         old_extensions, new_extensions, paths = set(), set(), {}
         for row in range(self.formats.count()):
@@ -348,6 +422,12 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         for ext in db_extensions:
             if ext not in extensions:
                 self.db.remove_format(self.row, ext, notify=False)
+
+    def show_format(self, item, *args):
+        fmt = item.ext
+        self.view_format.emit(fmt)
+
+    # }}}
 
     def do_cancel_all(self):
         self.cancel_all = True
@@ -543,10 +623,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.isbn.setStyleSheet('QLineEdit { background-color: rgba(255,0,0,20%) }')
             self.isbn.setToolTip(_('This ISBN number is invalid'))
 
-    def show_format(self, item, *args):
-        fmt = item.ext
-        self.view_format.emit(fmt)
-
     def deduce_author_sort(self):
         au = unicode(self.authors.text())
         au = re.sub(r'\s+et al\.$', '', au)
@@ -559,9 +635,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.authors.setText(title)
         self.author_sort.setText('')
 
-    def cover_dropped(self, cover_data):
-        self.cover_changed = True
-        self.cover_data = cover_data
 
     def initialize_combos(self):
         self.initalize_authors()
@@ -636,67 +709,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
             self.tags.update_tags_cache(self.db.all_tags())
-
-    def fetch_cover(self):
-        isbn   = re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())).strip()
-        self.fetch_cover_button.setEnabled(False)
-        self.setCursor(Qt.WaitCursor)
-        title, author = map(unicode, (self.title.text(), self.authors.text()))
-        self.cover_fetcher = CoverFetcher(None, None, isbn,
-                                            self.timeout, title, author)
-        self.cover_fetcher.start()
-        self._hangcheck = QTimer(self)
-        self.connect(self._hangcheck, SIGNAL('timeout()'), self.hangcheck)
-        self.cf_start_time = time.time()
-        self.pi.start(_('Downloading cover...'))
-        self._hangcheck.start(100)
-
-    def hangcheck(self):
-        if not self.cover_fetcher.isFinished() and \
-            time.time()-self.cf_start_time < self.COVER_FETCH_TIMEOUT:
-            return
-
-        self._hangcheck.stop()
-        try:
-            if self.cover_fetcher.isRunning():
-                self.cover_fetcher.terminate()
-                error_dialog(self, _('Cannot fetch cover'),
-                    _('<b>Could not fetch cover.</b><br/>')+
-                    _('The download timed out.')).exec_()
-                return
-            if self.cover_fetcher.needs_isbn:
-                error_dialog(self, _('Cannot fetch cover'),
-                    _('Could not find cover for this book. Try '
-                      'specifying the ISBN first.')).exec_()
-                return
-            if self.cover_fetcher.exception is not None:
-                err = self.cover_fetcher.exception
-                error_dialog(self, _('Cannot fetch cover'),
-                    _('<b>Could not fetch cover.</b><br/>')+unicode(err)).exec_()
-                return
-            if self.cover_fetcher.errors and self.cover_fetcher.cover_data is None:
-                details = u'\n\n'.join([e[-1] + ': ' + e[1] for e in self.cover_fetcher.errors])
-                error_dialog(self, _('Cannot fetch cover'),
-                    _('<b>Could not fetch cover.</b><br/>') +
-                    _('For the error message from each cover source, '
-                      'click Show details below.'), det_msg=details, show=True)
-                return
-
-            pix = QPixmap()
-            pix.loadFromData(self.cover_fetcher.cover_data)
-            if pix.isNull():
-                error_dialog(self, _('Bad cover'),
-                             _('The cover is not a valid picture')).exec_()
-            else:
-                self.cover.setPixmap(pix)
-                self.update_cover_tooltip()
-                self.cover_changed = True
-                self.cpixmap = pix
-                self.cover_data = self.cover_fetcher.cover_data
-        finally:
-            self.fetch_cover_button.setEnabled(True)
-            self.unsetCursor()
-            self.pi.stop()
 
 
     def fetch_metadata(self):
