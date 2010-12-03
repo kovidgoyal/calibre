@@ -14,6 +14,7 @@ class MainichiDailyITNews(BasicNewsRecipe):
 
     remove_tags_before = {'class':"NewsTitle"}
     remove_tags = [{'class':"RelatedArticle"}]
+    remove_tags_after = {'class':"Credit"}
 
     def parse_feeds(self):
 
@@ -29,4 +30,4 @@ class MainichiDailyITNews(BasicNewsRecipe):
                     index = curfeed.articles.index(d)
                     curfeed.articles[index:index+1] = []
 
-        return feeds   remove_tags_after = {'class':"Credit"}
+        return feeds
