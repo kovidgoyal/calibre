@@ -172,6 +172,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.iterator          = None
         self.current_page      = None
         self.pending_search    = None
+        self.pending_search_dir= None
         self.pending_anchor    = None
         self.pending_reference = None
         self.pending_bookmark  = None
@@ -435,7 +436,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if not text:
             self.view.search('')
             return self.search.search_done(False)
-        if self.view.search(text):
+        if self.view.search(text, backwards=backwards):
             self.scrolled(self.view.scroll_fraction)
             return self.search.search_done(True)
         index = self.iterator.search(text, self.current_index,
@@ -449,11 +450,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                     return self.search.search_done(True)
             return self.search.search_done(True)
         self.pending_search = text
+        self.pending_search_dir = 'backwards' if backwards else 'forwards'
         self.load_path(self.iterator.spine[index])
 
-    def do_search(self, text):
+    def do_search(self, text, backwards):
         self.pending_search = None
-        if self.view.search(text):
+        self.pending_search_dir = None
+        if self.view.search(text, backwards=backwards):
             self.scrolled(self.view.scroll_fraction)
 
     def keyPressEvent(self, event):
@@ -499,8 +502,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.current_index = index
         self.set_page_number(self.view.scroll_fraction)
         if self.pending_search is not None:
-            self.do_search(self.pending_search)
+            self.do_search(self.pending_search,
+                    self.pending_search_dir=='backwards')
             self.pending_search = None
+            self.pending_search_dir = None
         if self.pending_anchor is not None:
             self.view.scroll_to(self.pending_anchor)
             self.pending_anchor = None
