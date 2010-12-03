@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 
 '''
 www.nzz.ch
@@ -20,6 +20,19 @@ class Nzz(BasicNewsRecipe):
     encoding              = 'utf-8'
     use_embedded_content  = False
     language              = 'de'
+    extra_css             = """
+                               body{font-family: Georgia,"Times New Roman",Times,serif }
+                               .artikel h3,.artikel h4,.bildLegende,.question,.autor{font-family: Arial,Verdana,Helvetica,sans-serif}
+                               .bildLegende{font-size: small}
+                               .autor{font-size: 0.9375em; color: #666666}
+                               .quote{font-size: large !important; 
+                                      font-style: italic; 
+                                      font-weight: normal !important; 
+                                      border-bottom: 1px dotted #BFBFBF; 
+                                      border-top: 1px dotted #BFBFBF; 
+                                      line-height: 1.25em}
+                                .quelle{color: #666666; font-style: italic; white-space: nowrap}
+                            """
 
     conversion_options = {
                              'comments'  : description
@@ -28,12 +41,14 @@ class Nzz(BasicNewsRecipe):
                             ,'publisher' : publisher
                          }
 
-    keep_only_tags = [dict(name='div', attrs={'class':'article'})]
-
+    keep_only_tags = [dict(name='div', attrs={'class':'zone'})]
+    remove_tags_before = dict(name='p', attrs={'class':'dachzeile'})
+    remove_tags_after=dict(name='p', attrs={'class':'fussnote'})
+    remove_attributes=['width','height','lang']
     remove_tags = [
-                     dict(name=['object','link','base'])
-                    ,dict(name='div',attrs={'class':['more','teaser','advXertXoriXals','legal']})
-                    ,dict(name='div',attrs={'id':['popup-src','readercomments','google-ad','advXertXoriXals']})
+                     dict(name=['object','link','base','meta','iframe'])
+                    ,dict(attrs={'id':'content_rectangle_1'})
+                    ,dict(attrs={'class':['weiterfuehrendeLinks','fussnote','video']})                    
                   ]
 
     feeds = [
@@ -50,7 +65,7 @@ class Nzz(BasicNewsRecipe):
               ,(u'Reisen'        , u'http://www.nzz.ch/magazin/reisen?rss=true')
             ]
 
-    def print_version(self, url):
-        return url + '?printview=true'
-
-
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return self.adeify_images(soup)
