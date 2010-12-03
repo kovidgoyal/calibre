@@ -18,7 +18,7 @@ from calibre.utils.date import parse_date
 class CustomColumns(object):
 
     CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
-        'int', 'float', 'bool', 'series', 'composite'])
+        'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
     def custom_table_names(self, num):
         return 'custom_column_%d'%num, 'books_custom_column_%d_link'%num
@@ -144,7 +144,8 @@ class CustomColumns(object):
                 'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
                 'datetime' : adapt_datetime,
                 'text':adapt_text,
-                'series':adapt_text
+                'series':adapt_text,
+                'enumeration': adapt_text
         }
 
         # Create Tag Browser categories for custom columns
@@ -176,6 +177,8 @@ class CustomColumns(object):
             ans = ans.split('|') if ans else []
             if data['display'].get('sort_alpha', False):
                 ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+        elif data['datatype'] == 'enumeration' and ans is None:
+            ans = data['display']['enum_values'][0]
         return ans
 
     def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
@@ -439,6 +442,9 @@ class CustomColumns(object):
         val = self.custom_data_adapters[data['datatype']](val, data)
 
         if data['normalized']:
+            if data['datatype'] == 'enumeration' and \
+                        val not in data['display']['enum_values']:
+                return None
             if not append or not data['is_multiple']:
                 self.conn.execute('DELETE FROM %s WHERE book=?'%lt, (id_,))
                 self.conn.execute(
@@ -558,7 +564,7 @@ class CustomColumns(object):
 
         if datatype in ('rating', 'int'):
             dt = 'INT'
-        elif datatype in ('text', 'comments', 'series', 'composite'):
+        elif datatype in ('text', 'comments', 'series', 'composite', 'enumeration'):
             dt = 'TEXT'
         elif datatype in ('float',):
             dt = 'REAL'

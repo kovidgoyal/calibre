@@ -115,7 +115,6 @@ def pynocase(one, two, encoding='utf-8'):
             pass
     return cmp(one.lower(), two.lower())
 
-
 def load_c_extensions(conn, debug=DEBUG):
     try:
         conn.enable_load_extension(True)
