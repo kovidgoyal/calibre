@@ -1,0 +1,46 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class globaltimes(BasicNewsRecipe):
+    title          = u'Global Times'
+    __author__ = 'malfi'
+    language = 'zh'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    cover_url = 'http://enhimg2.huanqiu.com/images/logo.png'
+    language = 'en'
+    keep_only_tags = []
+    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'content'}))
+    remove_tags = []
+    remove_tags.append(dict(name = 'div', attrs = {'class': 'location'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class': 'contentpage'}))
+    remove_tags.append(dict(name = 'li', attrs = {'id': 'pl'}))
+
+    extra_css = '''
+        h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+        h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+        p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+        body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+        '''
+    def parse_index(self):
+        catnames = {}
+        catnames["http://china.globaltimes.cn/chinanews/"] = "China Politics"
+        catnames["http://china.globaltimes.cn/diplomacy/"] = "China Diplomacy"
+        catnames["http://military.globaltimes.cn/china/"] = "China Military"
+        catnames["http://business.globaltimes.cn/china-economy/"] = "China Economy"
+        catnames["http://world.globaltimes.cn/asia-pacific/"] = "Asia Pacific"
+        feeds = []
+
+        for cat in catnames.keys():
+            articles = []
+            soup = self.index_to_soup(cat)
+            for a in soup.findAll('a',attrs={'href' : re.compile(cat+"201[0-9]-[0-1][0-9]/[0-9][0-9][0-9][0-9][0-9][0-9].html")}):
+                url = a['href'].strip()
+                myarticle=({'title':self.tag_to_string(a), 'url':url, 'description':'', 'date':''})
+                self.log("found %s" % url)
+                articles.append(myarticle)
+                self.log("Adding URL %s\n" %url)
+            if articles:
+                feeds.append((catnames[cat], articles))
+        return feeds
