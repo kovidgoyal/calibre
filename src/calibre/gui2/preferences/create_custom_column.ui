@@ -152,7 +152,7 @@
          <item>
           <widget class="QLineEdit" name="composite_box">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -211,26 +211,26 @@
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QLineEdit" name="enum_box">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="toolTip">
             <string>A comma-separated list of permitted values. The empty value is always
 included, and is the default. For example, the list 'one,two,three' has
 four values, the first of them being the empty value.</string>
            </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
           </widget>
          </item>
          <item>
           <widget class="QLabel" name="enum_default_label">
-           <property name="text">
-            <string>Default: (nothing)</string>
-           </property>
            <property name="toolTip">
             <string>The empty string is always the first value</string>
+           </property>
+           <property name="text">
+            <string>Default: (nothing)</string>
            </property>
           </widget>
          </item>
