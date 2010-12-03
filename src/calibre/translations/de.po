@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-27 20:21+0000\n"
-"PO-Revision-Date: 2010-11-28 12:13+0000\n"
-"Last-Translator: Manichean <Unknown>\n"
+"PO-Revision-Date: 2010-12-02 13:54+0000\n"
+"Last-Translator: miwie <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-29 04:48+0000\n"
+"X-Launchpad-Export-Date: 2010-12-03 05:02+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -13333,7 +13333,7 @@ msgstr "Feeds der Index-Seite erhalten"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
 msgid "Trying to download cover..."
-msgstr "Umschlagbild versuchen heruterzuladen ..."
+msgstr "Umschlagbild versuchen herunterzuladen ..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:871
 msgid "Generating masthead..."
