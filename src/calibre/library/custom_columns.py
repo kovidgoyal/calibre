@@ -136,6 +136,12 @@ class CustomColumns(object):
                 x = bool(int(x))
             return x
 
+        def adapt_enum(x, d):
+            v = adapt_text(x, d)
+            if not v:
+                v = None
+            return v
+
         self.custom_data_adapters = {
                 'float': lambda x,d : x if x is None else float(x),
                 'int':   lambda x,d : x if x is None else int(x),
@@ -145,7 +151,7 @@ class CustomColumns(object):
                 'datetime' : adapt_datetime,
                 'text':adapt_text,
                 'series':adapt_text,
-                'enumeration': adapt_text
+                'enumeration': adapt_enum
         }
 
         # Create Tag Browser categories for custom columns
@@ -177,8 +183,6 @@ class CustomColumns(object):
             ans = ans.split('|') if ans else []
             if data['display'].get('sort_alpha', False):
                 ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
-        elif data['datatype'] == 'enumeration' and ans is None:
-            ans = data['display']['enum_values'][0]
         return ans
 
     def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
@@ -442,8 +446,8 @@ class CustomColumns(object):
         val = self.custom_data_adapters[data['datatype']](val, data)
 
         if data['normalized']:
-            if data['datatype'] == 'enumeration' and \
-                        val not in data['display']['enum_values']:
+            if data['datatype'] == 'enumeration' and (
+                    val and val not in data['display']['enum_values']):
                 return None
             if not append or not data['is_multiple']:
                 self.conn.execute('DELETE FROM %s WHERE book=?'%lt, (id_,))

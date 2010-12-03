@@ -318,16 +318,14 @@ class Enumeration(Base):
                 QComboBox(parent)]
         w = self.widgets[1]
         vals = self.col_metadata['display']['enum_values']
+        w.addItem('')
         for v in vals:
             w.addItem(v)
 
     def initialize(self, book_id):
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
-        if val is None:
-            # This really shouldn't happen
-            val = self.col_metadata['display']['enum_values'][0]
-        self.initial_val = val
         val = self.normalize_db_val(val)
+        self.initial_val = val
         idx = self.widgets[1].findText(val)
         if idx < 0:
             error_dialog(self.parent, '',
@@ -340,12 +338,20 @@ class Enumeration(Base):
         self.widgets[1].setCurrentIndex(idx)
 
     def setter(self, val):
-        if val is None:
-            val = ''
         self.widgets[1].setCurrentIndex(self.widgets[1].findText(val))
 
     def getter(self):
         return unicode(self.widgets[1].currentText())
+
+    def normalize_db_val(self, val):
+        if val is None:
+            val = ''
+        return val
+
+    def normalize_ui_val(self, val):
+        if not val:
+            val = None
+        return val
 
 widgets = {
         'bool' : Bool,
@@ -597,7 +603,7 @@ class BulkEnumeration(BulkBase, Enumeration):
         dialog_shown = False
         for book_id in book_ids:
             val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
-            if val not in self.col_metadata['display']['enum_values']:
+            if val and val not in self.col_metadata['display']['enum_values']:
                 if not dialog_shown:
                     error_dialog(self.parent, '',
                             _('The enumeration "{0}" contains invalid values '
@@ -620,6 +626,7 @@ class BulkEnumeration(BulkBase, Enumeration):
         w = self.widgets[1]
         vals = self.col_metadata['display']['enum_values']
         w.addItem('Do Not Change')
+        w.addItem('')
         for v in vals:
             w.addItem(v)
 
@@ -632,19 +639,16 @@ class BulkEnumeration(BulkBase, Enumeration):
         if val == ' nochange ':
             self.widgets[1].setCurrentIndex(0)
         else:
-            self.widgets[1].setCurrentIndex(self.widgets[1].findText(val))
+            if val is None:
+                self.widgets[1].setCurrentIndex(1)
+            else:
+                self.widgets[1].setCurrentIndex(self.widgets[1].findText(val))
 
     def commit(self, book_ids, notify=False):
         val = self.gui_val
         val = self.normalize_ui_val(val)
         if val != self.initial_val and val != ' nochange ':
             self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
-
-    def normalize_db_val(self, val):
-        if val is None:
-            # this really shouldn't happen
-            val = self.col_metadata['display']['enum_values'][0]
-        return val
 
 class RemoveTags(QWidget):
 
