@@ -254,12 +254,6 @@ class ResultCache(SearchQueryParser): # {{{
             if field_metadata[key]['datatype'] == 'composite':
                 self.composites.append((key, field_metadata[key]['rec_index']))
 
-        self.enumerations = []
-        for key in field_metadata:
-            if field_metadata[key]['datatype'] == 'enumeration':
-                self.enumerations.append((field_metadata[key]['display']['enum_values'][0],
-                                          field_metadata[key]['rec_index']))
-
     def __getitem__(self, row):
         return self._data[self._map_filtered[row]]
 
@@ -697,10 +691,6 @@ class ResultCache(SearchQueryParser): # {{{
                     mi = db.get_metadata(id, index_is_id=True)
                     for k,c in self.composites:
                         self._data[id][c] = mi.get(k, None)
-                if len(self.enumerations) > 0:
-                    for v,c in self.enumerations:
-                        if self._data[id][c] is None:
-                            self._data[id][c] = v
             except IndexError:
                 return None
         try:
@@ -721,10 +711,6 @@ class ResultCache(SearchQueryParser): # {{{
                 mi = db.get_metadata(id, index_is_id=True)
                 for k,c in self.composites:
                     self._data[id][c] = mi.get(k)
-            if len(self.enumerations) > 0:
-                for v,c in self.self._data[id][c]:
-                    if self._data[id][c] is None:
-                        self._data[id][c] =  v
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -754,10 +740,6 @@ class ResultCache(SearchQueryParser): # {{{
                     mi = db.get_metadata(item[0], index_is_id=True)
                     for k,c in self.composites:
                         item[c] = mi.get(k)
-                if len(self.enumerations) > 0:
-                    for v,c in self.enumerations:
-                        if item[c] is None:
-                            item[c] = v
 
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:

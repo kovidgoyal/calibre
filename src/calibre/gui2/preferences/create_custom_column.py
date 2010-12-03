@@ -167,6 +167,10 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 return self.simple_error('', _('You must enter at least one'
                     ' value for enumeration columns'))
             l = [v.strip() for v in unicode(self.enum_box.text()).split(',')]
+            for v in l:
+                if not v:
+                    return self.simple_error('', _('You cannot provide the empty '
+                    'value, as it is included by default'))
             for i in range(0, len(l)-1):
                 if l[i] in l[i+1:]:
                     return self.simple_error('', _('The value "{0}" is in the '

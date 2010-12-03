@@ -263,28 +263,22 @@ class CcEnumDelegate(QStyledItemDelegate): # {{{
         m = index.model()
         col = m.column_map[index.column()]
         editor = QComboBox(parent)
+        editor.addItem('')
         for v in m.custom_columns[col]['display']['enum_values']:
             editor.addItem(v)
         return editor
 
     def setModelData(self, editor, model, index):
         val = unicode(editor.currentText())
-        m = index.model()
-        col = m.column_map[index.column()]
-        if val not in m.custom_columns[col]['display']['enum_values']:
-            # This shouldn't happen ...
-            print 'shouldnt happen'
-            val = m.custom_columns[col]['display']['enum_values'][0]
+        if not val:
+            val = None
         model.setData(index, QVariant(val), Qt.EditRole)
 
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
         if val is None:
-            # This shouldn't happen
-            m = index.model()
-            col = m.column_map[index.column()]
-            val = m.custom_columns[col]['display']['enum_values'][0]
+            val = ''
         idx = editor.findText(val)
         if idx < 0:
             editor.setCurrentIndex(0)

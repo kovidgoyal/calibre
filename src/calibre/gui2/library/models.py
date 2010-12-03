@@ -724,6 +724,8 @@ class BooksModel(QAbstractTableModel): # {{{
             val = val if val else None
         elif typ == 'enumeration':
             val = unicode(value.toString()).strip()
+            if not val:
+                val = None
         elif typ == 'bool':
             val = value.toPyObject()
         elif typ == 'rating':
@@ -732,7 +734,7 @@ class BooksModel(QAbstractTableModel): # {{{
             val *= 2
         elif typ in ('int', 'float'):
             val = unicode(value.toString()).strip()
-            if val is None or not val:
+            if not val:
                 val = None
         elif typ == 'datetime':
             val = value.toDate()

@@ -106,10 +106,13 @@ class TagsView(QTreeView): # {{{
             self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
             self.sort_by.currentIndexChanged.connect(self.sort_changed)
             self.made_connections = True
+        self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
 
     def database_changed(self, event, ids):
-        self.refresh_required.emit()
+        if self.refresh_signal_processed:
+            self.refresh_signal_processed = False
+            self.refresh_required.emit()
 
     @property
     def match_all(self):
@@ -295,6 +298,7 @@ class TagsView(QTreeView): # {{{
         return self.isExpanded(idx)
 
     def recount(self, *args):
+        self.refresh_signal_processed = True
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
@@ -937,7 +941,9 @@ class TagBrowserMixin(object): # {{{
                 if old_author != new_author:
                     # The id might change if the new author already exists
                     id = db.rename_author(id, new_author)
-                db.set_sort_field_for_author(id, unicode(new_sort))
+                db.set_sort_field_for_author(id, unicode(new_sort),
+                                             commit=False, notify=False)
+            db.commit()
             self.library_view.model().refresh()
             self.tags_view.recount()
 
