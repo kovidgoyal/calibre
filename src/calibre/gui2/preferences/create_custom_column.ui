@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>528</width>
-    <height>199</height>
+    <height>212</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,7 +24,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0">
+    <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0">
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
@@ -56,7 +56,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
+       <item row="0" column="2">
         <widget class="QLineEdit" name="column_name_box">
          <property name="minimumSize">
           <size>
@@ -69,7 +69,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="1" column="2">
         <widget class="QLineEdit" name="column_heading_box">
          <property name="toolTip">
           <string>Column heading in the library view and category name in the tag browser</string>
@@ -86,7 +86,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="2" column="2">
         <widget class="QComboBox" name="column_type_box">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -105,7 +105,7 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
+       <item row="4" column="2">
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
           <widget class="QLineEdit" name="date_format_box">
@@ -147,7 +147,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="5" column="2">
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
           <widget class="QLineEdit" name="composite_box">
@@ -158,7 +158,7 @@
             </sizepolicy>
            </property>
            <property name="toolTip">
-            <string>&lt;p&gt;Field template. Uses the same syntax as save templates.</string>
+            <string>Field template. Uses the same syntax as save templates.</string>
            </property>
           </widget>
          </item>
@@ -184,7 +184,7 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="0" colspan="3">
+       <item row="11" column="0" colspan="4">
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -196,6 +196,45 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="enum_label">
+         <property name="text">
+          <string>Values</string>
+         </property>
+         <property name="buddy">
+          <cstring>enum_box</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="enum_box">
+           <property name="toolTip">
+            <string>A comma-separated list of permitted values. The empty value is always
+included, and is the default. For example, the list 'one,two,three' has
+four values, the first of them being the empty value.</string>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="enum_default_label">
+           <property name="text">
+            <string>Default: (nothing)</string>
+           </property>
+           <property name="toolTip">
+            <string>The empty string is always the first value</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>

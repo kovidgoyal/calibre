@@ -634,7 +634,7 @@ class BooksModel(QAbstractTableModel): # {{{
         for col in self.custom_columns:
             idx = self.custom_columns[col]['rec_index']
             datatype = self.custom_columns[col]['datatype']
-            if datatype in ('text', 'comments', 'composite'):
+            if datatype in ('text', 'comments', 'composite', 'enumeration'):
                 self.dc[col] = functools.partial(text_type, idx=idx,
                                                  mult=self.custom_columns[col]['is_multiple'])
             elif datatype in ('int', 'float'):
@@ -722,7 +722,11 @@ class BooksModel(QAbstractTableModel): # {{{
         if typ in ('text', 'comments'):
             val = unicode(value.toString()).strip()
             val = val if val else None
-        if typ == 'bool':
+        elif typ == 'enumeration':
+            val = unicode(value.toString()).strip()
+            if not val:
+                val = None
+        elif typ == 'bool':
             val = value.toPyObject()
         elif typ == 'rating':
             val = value.toInt()[0]
@@ -730,7 +734,7 @@ class BooksModel(QAbstractTableModel): # {{{
             val *= 2
         elif typ in ('int', 'float'):
             val = unicode(value.toString()).strip()
-            if val is None or not val:
+            if not val:
                 val = None
         elif typ == 'datetime':
             val = value.toDate()

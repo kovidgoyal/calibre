@@ -15,12 +15,13 @@ from calibre.library.comments import comments_to_html
 
 class BookInfo(QDialog, Ui_BookInfo):
 
-    def __init__(self, parent, view, row):
+    def __init__(self, parent, view, row, view_func):
         QDialog.__init__(self, parent)
         Ui_BookInfo.__init__(self)
         self.setupUi(self)
         self.cover_pixmap = None
         self.comments.sizeHint = self.comments_size_hint
+        self.view_func = view_func
 
         desktop = QCoreApplication.instance().desktop()
         screen_height = desktop.availableGeometry().height() - 100
@@ -58,10 +59,7 @@ class BookInfo(QDialog, Ui_BookInfo):
         if os.sep in path:
             open_local_file(path)
         else:
-            path = self.view.model().db.format_abspath(self.current_row, path)
-            if path is not None:
-                open_local_file(path)
-
+            self.view_func(self.view.model().id(self.current_row), path)
 
     def next(self):
         row = self.view.currentIndex().row()

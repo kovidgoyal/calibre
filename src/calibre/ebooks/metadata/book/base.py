@@ -531,6 +531,8 @@ class Metadata(object):
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
+            elif datatype == 'rating':
+                res = res/2
             return (name, unicode(res), orig_res, cmeta)
 
         # Translate aliases into the standard field name

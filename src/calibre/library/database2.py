@@ -1639,15 +1639,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return []
         return result
 
-    def set_sort_field_for_author(self, old_id, new_sort):
+    def set_sort_field_for_author(self, old_id, new_sort, commit=True, notify=False):
         self.conn.execute('UPDATE authors SET sort=? WHERE id=?', \
                               (new_sort.strip(), old_id))
-        self.conn.commit()
+        if commit:
+            self.conn.commit()
         # Now change all the author_sort fields in books by this author
         bks = self.conn.get('SELECT book from books_authors_link WHERE author=?', (old_id,))
         for (book_id,) in bks:
             ss = self.author_sort_from_book(book_id, index_is_id=True)
-            self.set_author_sort(book_id, ss)
+            self.set_author_sort(book_id, ss, notify=notify, commit=commit)
 
     def rename_author(self, old_id, new_name):
         # Make sure that any commas in new_name are changed to '|'!

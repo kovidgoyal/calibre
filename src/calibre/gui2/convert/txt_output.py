@@ -21,7 +21,7 @@ class PluginWidget(Widget, Ui_Form):
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
         ['newline', 'max_line_length', 'force_max_line_length',
-        'inline_toc'])
+        'inline_toc', 'markdown_format', 'keep_links', 'keep_image_references'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
 
