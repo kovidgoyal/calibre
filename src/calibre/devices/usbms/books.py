@@ -216,14 +216,17 @@ class CollectionsBookList(BookList):
                     elif is_series:
                         if doing_dc:
                             collections[cat_name][lpath] = \
-                                (book, book.get('series_index', sys.maxint), '')
+                                (book, book.get('series_index', sys.maxint),
+                                 book.get('title_sort', 'zzzz'))
                         else:
                             collections[cat_name][lpath] = \
-                                (book, book.get(attr+'_index', sys.maxint), '')
+                                (book, book.get(attr+'_index', sys.maxint),
+                                 book.get('title_sort', 'zzzz'))
                     else:
                         if lpath not in collections[cat_name]:
                             collections[cat_name][lpath] = \
-                                (book, book.get('title_sort', 'zzzz'), '')
+                                (book, book.get('title_sort', 'zzzz'),
+                                 book.get('title_sort', 'zzzz'))
         # Sort collections
         result = {}
 
@@ -237,7 +240,7 @@ class CollectionsBookList(BookList):
                 return 1
             if y is None:
                 return -1
-            if isinstance(x, unicode):
+            if isinstance(x, (unicode, str)):
                 c = cmp(sort_key(x), sort_key(y))
             else:
                 c = cmp(x, y)
