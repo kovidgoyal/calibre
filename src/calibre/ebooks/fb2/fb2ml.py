@@ -82,8 +82,10 @@ class FB2MLizer(object):
         output.append(self.fb2mlize_images())
         output.append(self.fb2_footer())
         output = self.clean_text(u''.join(output))
-        #return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
-        return u'<?xml version="1.0" encoding="UTF-8"?>' + output
+        if self.opts.pretty_print:
+            return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
+        else:
+            return u'<?xml version="1.0" encoding="UTF-8"?>' + output
 
     def clean_text(self, text):
         text = re.sub(r'(?miu)<section>\s*</section>', '', text)
