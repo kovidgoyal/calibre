@@ -32,7 +32,6 @@ TAG_MAP = {
     'p' : 'p',
     'li' : 'p',
     'div': 'p',
-    'br' : 'empty-line',
 }
 
 TAG_SPACE = []
@@ -126,7 +125,7 @@ class FB2MLizer(object):
                         '<annotation><p/></annotation>' \
                     '</title-info>' \
                     '<document-info>' \
-                        '<program-used>%s - %s</program-used>' \
+                        '<program-used>%s %s</program-used>' \
                     '</document-info>' \
                 '</description><body>' % tuple(map(prepare_string_for_xml, (author_first, author_middle, author_last,
                         self.oeb_book.metadata.title[0].value, __appname__, __version__)))
@@ -180,6 +179,24 @@ class FB2MLizer(object):
             self.in_p = True
             return ['<p>'], ['p']
         
+    def insert_empty_line(self, tags):
+        if self.in_p:
+            text = ['']
+            closed_tags = []
+            tags.reverse()
+            for t in tags:
+                text.append('</%s>' % t)
+                closed_tags.append(t)
+                if t == 'p':
+                    break
+            text.append('<empty-line />')
+            closed_tags.reverse()
+            for t in closed_tags:
+                text.append('<%s>' % t)
+            return text
+        else:
+            return ['<empty-line />']
+
     def close_open_p(self, tags):
         text = ['']
         added_p = False
@@ -230,6 +247,8 @@ class FB2MLizer(object):
         if tag == 'h1' and self.opts.h1_to_title or tag == 'h2' and self.opts.h2_to_title or tag == 'h3' and self.opts.h3_to_title:
             fb2_text.append('<title>')
             tags.append('title')
+        if tag == 'br':
+            fb2_text += self.insert_empty_line(tag_stack+tags)
 
         fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag == 'p':
