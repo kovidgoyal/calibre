@@ -237,7 +237,10 @@ class CollectionsBookList(BookList):
                 return 1
             if y is None:
                 return -1
-            c = cmp(sort_key(x), sort_key(y))
+            if isinstance(x, unicode):
+                c = cmp(sort_key(x), sort_key(y))
+            else:
+                c = cmp(x, y)
             if c != 0:
                 return c
             # same as above -- no sort_key needed here
