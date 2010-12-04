@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="6" column="0">
+   <item row="3" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -28,41 +28,20 @@
     </spacer>
    </item>
    <item row="0" column="0">
-    <widget class="QCheckBox" name="opt_inline_toc">
-     <property name="text">
-      <string>&amp;Inline TOC</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="opt_sectionize_chapters">
-     <property name="text">
-      <string>Sectionize Chapters (Use with care!)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="opt_sectionize_chapters_using_file_structure">
-     <property name="text">
-      <string>Sectionize Chapters using file structure</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
     <widget class="QCheckBox" name="opt_h1_to_title">
      <property name="text">
       <string>Wrap h1 tags with &lt;title&gt; elements</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="1" column="0">
     <widget class="QCheckBox" name="opt_h2_to_title">
      <property name="text">
       <string>Wrap h2 tags with &lt;title&gt; elements</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="2" column="0">
     <widget class="QCheckBox" name="opt_h3_to_title">
      <property name="text">
       <string>Wrap h3 tags with &lt;title&gt; elements</string>

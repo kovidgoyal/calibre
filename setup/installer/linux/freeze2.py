@@ -14,7 +14,8 @@ from setup import Command, modules, basenames, functions, __version__, \
 
 SITE_PACKAGES = ['IPython', 'PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
         'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
-        'sipconfig.py', 'xdg']
+        'sipconfig.py', 'xdg', 'dbus', '_dbus_bindings.so', 'dbus_bindings.py',
+        '_dbus_glib_bindings.so']
 
 QTDIR          = '/usr/lib/qt4'
 QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 'QtDBus')
@@ -49,6 +50,10 @@ binary_includes = [
                 '/lib/libreadline.so.6',
                 '/usr/lib/libchm.so.0',
                 '/usr/lib/liblcms2.so.2',
+                '/usr/lib/libicudata.so.46',
+                '/usr/lib/libicui18n.so.46',
+                '/usr/lib/libicuuc.so.46',
+                '/usr/lib/libicuio.so.46',
                 ]
 binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]
 
