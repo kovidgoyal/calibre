@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from calibre.constants import plugins
+from calibre.utils.config import tweaks
 
 _icu = _collator = None
 _locale = None
