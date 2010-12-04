@@ -77,19 +77,26 @@ load_icu()
 load_collator()
 _icu_not_ok = _icu is None or _collator is None
 
+
+################# The string functions ########################################
 sort_key = py_sort_key if _icu_not_ok else partial(icu_sort_key, _collator)
+
 strcmp = py_strcmp if _icu_not_ok else partial(icu_strcmp, _collator)
+
 case_sensitive_sort_key = py_case_sensitive_sort_key if _icu_not_ok else \
         icu_case_sensitive_sort_key
+
 case_sensitive_strcmp = cmp if _icu_not_ok else icu_case_sensitive_strcmp
 
 upper = (lambda s: s.upper()) if _icu_not_ok else \
     partial(_icu.upper, get_locale())
+
 lower = (lambda s: s.lower()) if _icu_not_ok else \
     partial(_icu.lower, get_locale())
+
 title_case = (lambda s: s.title()) if _icu_not_ok else \
     partial(_icu.title, get_locale())
-
+################################################################################
 
 def test(): # {{{
     # Data {{{
