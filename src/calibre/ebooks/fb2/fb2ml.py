@@ -32,7 +32,6 @@ TAG_MAP = {
     'p' : 'p',
     'li' : 'p',
     'div': 'p',
-    'br' : 'p',
 }
 
 TAG_SPACE = []
@@ -42,7 +41,6 @@ TAG_IMAGES = [
 ]
 
 TAG_LINKS = [
-    'a',
 ]
 
 BLOCK = [
@@ -56,9 +54,8 @@ STYLES = [
 
 class FB2MLizer(object):
     '''
-    Todo: * Ensure all style tags are inside of the p tags.
-          * Include more FB2 specific tags in the conversion.
-          * Handle reopening of a tag properly.
+    Todo: * Include more FB2 specific tags in the conversion.
+          * Handle a tags.
           * Figure out some way to turn oeb_book.toc items into <section><title>
             <p> to allow for readers to generate toc from the document.
     '''
@@ -66,7 +63,8 @@ class FB2MLizer(object):
     def __init__(self, log):
         self.log = log
         self.image_hrefs = {}
-        self.link_hrefs = {}
+        # Used to ensure text and tags are always within <p> and </p>
+        self.in_p = False
 
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to FB2 markup...')
@@ -78,17 +76,15 @@ class FB2MLizer(object):
         self.image_hrefs = {}
         self.link_hrefs = {}
         output = [self.fb2_header()]
-        output.append(self.get_cover_page())
-        output.append(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk')
         output.append(self.get_text())
         output.append(self.fb2_body_footer())
         output.append(self.fb2mlize_images())
         output.append(self.fb2_footer())
-        output = ''.join(output).replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
-        output = self.clean_text(output)
-        if self.opts.sectionize_chapters:
-            output = self.sectionize_chapters(output)
-        return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
+        output = self.clean_text(u''.join(output))
+        if self.opts.pretty_print:
+            return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
+        else:
+            return u'<?xml version="1.0" encoding="UTF-8"?>' + output
 
     def clean_text(self, text):
         text = re.sub(r'(?miu)<section>\s*</section>', '', text)
@@ -116,87 +112,39 @@ class FB2MLizer(object):
             author_middle = ' '.join(author_parts[1:-2])
             author_last = author_parts[-1]
 
-        return u'<FictionBook xmlns:xlink="http://www.w3.org/1999/xlink" ' \
-        'xmlns="http://www.gribuser.ru/xml/fictionbook/2.0">\n' \
-        '<description>\n<title-info>\n ' \
-        '<author>\n<first-name>%s</first-name>\n<middle-name>%s' \
-        '</middle-name>\n<last-name>%s</last-name>\n</author>\n' \
-        '<book-title>%s</book-title> ' \
-        '</title-info><document-info> ' \
-        '<program-used>%s - %s</program-used></document-info>\n' \
-        '</description>\n<body>\n<section>' % tuple(map(prepare_string_for_xml,
-            (author_first, author_middle,
-            author_last, self.oeb_book.metadata.title[0].value,
-            __appname__, __version__)))
-
-    def get_cover_page(self):
-        output = u''
-        if 'cover' in self.oeb_book.guide:
-            output += '<image xlink:href="#cover.jpg" />'
-            self.image_hrefs[self.oeb_book.guide['cover'].href] = 'cover.jpg'
-        if 'titlepage' in self.oeb_book.guide:
-            self.log.debug('Generating cover page...')
-            href = self.oeb_book.guide['titlepage'].href
-            item = self.oeb_book.manifest.hrefs[href]
-            if item.spine_position is None:
-                stylizer = Stylizer(item.data, item.href, self.oeb_book,
-                        self.opts, self.opts.output_profile)
-                output += ''.join(self.dump_text(item.data.find(XHTML('body')), stylizer, item))
-        return output
-
-    def get_toc(self):
-        toc = []
-        if self.opts.inline_toc:
-            self.log.debug('Generating table of contents...')
-            toc.append(u'<p>%s</p>' % _('Table of Contents:'))
-            for item in self.oeb_book.toc:
-                if item.href in self.link_hrefs.keys():
-                    toc.append('<p><a xlink:href="#%s">%s</a></p>\n' % (self.link_hrefs[item.href], item.title))
-                else:
-                    self.oeb.warn('Ignoring toc item: %s not found in document.' % item)
-        return ''.join(toc)
-
-    def sectionize_chapters(self, text):
-        def remove_p(t):
-            t = t.replace('<p>', '')
-            t = t.replace('</p>', '')
-            return t
-        text = re.sub(r'(?imsu)(<p>)\s*(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(</p>)\s*(<p>)\s*(?P<strong><strong>.+?</strong>)\s*(</p>)', lambda mo: '</section><section>%s<title><p>%s</p></title>' % (mo.group('anchor'), remove_p(mo.group('strong'))), text)
-        text = re.sub(r'(?imsu)(<p>)\s*(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(</p>)\s*(?P<strong><strong>.+?</strong>)', lambda mo: '</section><section>%s<title><p>%s</p></title>' % (mo.group('anchor'), remove_p(mo.group('strong'))), text)
-        text = re.sub(r'(?imsu)(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(<p>)\s*(?P<strong><strong>.+?</strong>)\s*(</p>)', lambda mo: '</section><section>%s<title><p>%s</p></title>' % (mo.group('anchor'), remove_p(mo.group('strong'))), text)
-        text = re.sub(r'(?imsu)(<p>)\s*(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(?P<strong><strong>.+?</strong>)\s*(</p>)', lambda mo: '</section><section>%s<title><p>%s</p></title>' % (mo.group('anchor'), remove_p(mo.group('strong'))), text)
-        text = re.sub(r'(?imsu)(?P<anchor><a\s+id="calibre_link-\d+"\s*/>)\s*(?P<strong><strong>.+?</strong>)', lambda mo: '</section><section>%s<title><p>%s</p></title>' % (mo.group('anchor'), remove_p(mo.group('strong'))), text)
-        return text
+        return u'<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">' \
+                '<description>' \
+                    '<title-info>' \
+                        '<genre></genre>' \
+                        '<author>' \
+                            '<first-name>%s</first-name>' \
+                            '<middle-name>%s</middle-name>' \
+                            '<last-name>%s</last-name>' \
+                        '</author>' \
+                        '<book-title>%s</book-title>' \
+                        '<annotation><p/></annotation>' \
+                    '</title-info>' \
+                    '<document-info>' \
+                        '<program-used>%s %s</program-used>' \
+                    '</document-info>' \
+                '</description><body>' % tuple(map(prepare_string_for_xml, (author_first, author_middle, author_last,
+                        self.oeb_book.metadata.title[0].value, __appname__, __version__)))
 
     def get_text(self):
         text = []
-        for i, item in enumerate(self.oeb_book.spine):
-            if self.opts.sectionize_chapters_using_file_structure and i is not 0:
-                text.append('<section>')
+        for item in self.oeb_book.spine:            
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
-            text.append(self.add_page_anchor(item))
+            text.append('<section>')
             text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
-            if self.opts.sectionize_chapters_using_file_structure and i is not len(self.oeb_book.spine) - 1:
-                text.append('</section>')
+            text.append('</section>')
         return ''.join(text)
 
     def fb2_body_footer(self):
-        return u'\n</section>\n</body>'
+        return u'</body>'
 
     def fb2_footer(self):
         return u'</FictionBook>'
-
-    def add_page_anchor(self, page):
-        return self.get_anchor(page, '')
-
-    def get_anchor(self, page, aid):
-        aid = prepare_string_for_xml(aid)
-        aid = '%s#%s' % (page.href, aid)
-        if aid not in self.link_hrefs.keys():
-            self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
-        aid = self.link_hrefs[aid]
-        return '<a id="%s" />' % aid
 
     def fb2mlize_images(self):
         images = []
@@ -218,11 +166,59 @@ class FB2MLizer(object):
                             col = 1
                         col += 1
                         data += char
-                    images.append('<binary id="%s" content-type="%s">%s\n</binary>' % (self.image_hrefs.get(item.href, '0000.JPEG'), item.media_type, data))
+                    images.append('<binary id="%s" content-type="%s">%s\n</binary>' % (self.image_hrefs.get(item.href, '_0000.JPEG'), item.media_type, data))
                 except Exception as e:
-                    self.log.error('Error: Could not include file %s becuase ' \
+                    self.log.error('Error: Could not include file %s because ' \
                         '%s.' % (item.href, e))
         return ''.join(images)
+
+    def ensure_p(self):
+        if self.in_p:
+            return [], []
+        else:
+            self.in_p = True
+            return ['<p>'], ['p']
+        
+    def insert_empty_line(self, tags):
+        if self.in_p:
+            text = ['']
+            closed_tags = []
+            tags.reverse()
+            for t in tags:
+                text.append('</%s>' % t)
+                closed_tags.append(t)
+                if t == 'p':
+                    break
+            text.append('<empty-line />')
+            closed_tags.reverse()
+            for t in closed_tags:
+                text.append('<%s>' % t)
+            return text
+        else:
+            return ['<empty-line />']
+
+    def close_open_p(self, tags):
+        text = ['']
+        added_p = False
+        
+        if self.in_p:
+            # Close all up to p. Close p. Reopen all closed tags including p.
+            closed_tags = []
+            tags.reverse()
+            for t in tags:
+                text.append('</%s>' % t)
+                closed_tags.append(t)
+                if t == 'p':
+                    break
+            closed_tags.reverse()
+            for t in closed_tags:
+                text.append('<%s>' % t)
+        else:
+            text.append('<p>')
+            added_p = True
+            self.in_p = True
+        
+        return text, added_p
 
     def dump_text(self, elem, stylizer, page, tag_stack=[]):
         if not isinstance(elem.tag, basestring) \
@@ -242,53 +238,28 @@ class FB2MLizer(object):
         if tag in TAG_IMAGES:
             if elem.attrib.get('src', None):
                 if page.abshref(elem.attrib['src']) not in self.image_hrefs.keys():
-                    self.image_hrefs[page.abshref(elem.attrib['src'])] = '%s.jpg' % len(self.image_hrefs.keys())
+                    self.image_hrefs[page.abshref(elem.attrib['src'])] = '_%s.jpg' % len(self.image_hrefs.keys())
+                p_txt, p_tag = self.ensure_p()
+                fb2_text += p_txt
+                tags += p_tag
                 fb2_text.append('<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem.attrib['src'])])
-
-        if tag in TAG_LINKS:
-            href = elem.get('href')
-            if href:
-                href = prepare_string_for_xml(page.abshref(href))
-                href = href.replace('"', '&quot;')
-                if '://' in href:
-                    fb2_text.append('<a xlink:href="%s">' % href)
-                else:
-                    if href.startswith('#'):
-                        href = href[1:]
-                    if href not in self.link_hrefs.keys():
-                        self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
-                    href = self.link_hrefs[href]
-                    fb2_text.append('<a xlink:href="#%s">' % href)
-                tags.append('a')
-
-        # Anchor ids
-        id_name = elem.get('id')
-        if id_name:
-            fb2_text.append(self.get_anchor(page, id_name))
 
         if tag == 'h1' and self.opts.h1_to_title or tag == 'h2' and self.opts.h2_to_title or tag == 'h3' and self.opts.h3_to_title:
             fb2_text.append('<title>')
             tags.append('title')
+        if tag == 'br':
+            fb2_text += self.insert_empty_line(tag_stack+tags)
 
         fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag == 'p':
-            if 'p' in tag_stack+tags:
-                # Close all up to p. Close p. Reopen all closed tags including p.
-                all_tags = tag_stack+tags
-                closed_tags = []
-                all_tags.reverse()
-                for t in all_tags:
-                    fb2_text.append('</%s>' % t)
-                    closed_tags.append(t)
-                    if t == 'p':
-                        break
-                closed_tags.reverse()
-                for t in closed_tags:
-                    fb2_text.append('<%s>' % t)
-            else:
-                fb2_text.append('<p>')
+            p_text, added_p = self.close_open_p(tag_stack+tags)
+            fb2_text += p_text
+            if added_p:
                 tags.append('p')
         elif fb2_tag and fb2_tag not in tag_stack+tags:
+            p_text, p_tags = self.ensure_p()
+            fb2_text += p_text
+            tags += p_tags
             fb2_text.append('<%s>' % fb2_tag)
             tags.append(fb2_tag)
 
@@ -296,18 +267,21 @@ class FB2MLizer(object):
         for s in STYLES:
             style_tag = s[1].get(style[s[0]], None)
             if style_tag and style_tag not in tag_stack+tags:
+                p_text, p_tags = self.ensure_p()
+                fb2_text += p_text
+                tags += p_tags
                 fb2_text.append('<%s>' % style_tag)
                 tags.append(style_tag)
 
         if tag in TAG_SPACE:
-            if not fb2_text or fb2_text[-1] != ' ' or not fb2_text[-1].endswith(' '):
-                fb2_text.append(' ')
+            fb2_text.append(' ')
 
         if hasattr(elem, 'text') and elem.text:
-            if 'p' not in tag_stack+tags:
-                fb2_text.append('<p>%s</p>' % prepare_string_for_xml(elem.text))
-            else:
-                fb2_text.append(prepare_string_for_xml(elem.text))
+            if not self.in_p:
+                fb2_text.append('<p>')
+            fb2_text.append(prepare_string_for_xml(elem.text))
+            if not self.in_p:
+                fb2_text.append('</p>')
 
         for item in elem:
             fb2_text += self.dump_text(item, stylizer, page, tag_stack+tags)
@@ -316,10 +290,11 @@ class FB2MLizer(object):
         fb2_text += self.close_tags(tags)
 
         if hasattr(elem, 'tail') and elem.tail:
-            if 'p' not in tag_stack:
-                fb2_text.append('<p>%s</p>' % prepare_string_for_xml(elem.tail))
-            else:
-                fb2_text.append(prepare_string_for_xml(elem.tail))
+            if not self.in_p:
+                fb2_text.append('<p>')
+            fb2_text.append(prepare_string_for_xml(elem.tail))
+            if not self.in_p:
+                fb2_text.append('</p>')
 
         return fb2_text
 
@@ -327,5 +302,7 @@ class FB2MLizer(object):
         text = []
         for tag in tags:
             text.append('</%s>' % tag)
+            if tag == 'p':
+                self.in_p = False
 
         return text
