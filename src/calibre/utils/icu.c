@@ -105,13 +105,25 @@ icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     if (buf == NULL) return PyErr_NoMemory();
 
     u_strFromUTF8(buf, sz*4 + 1, &key_size, input, sz, &status);
+    PyMem_Free(input);
 
     if (U_SUCCESS(status)) {
-        key_size = ucol_getSortKey(self->collator, buf, -1, NULL, 0);
-        buf2 = (uint8_t*)calloc(key_size + 1, sizeof(uint8_t));
+        buf2 = (uint8_t*)calloc(7*sz+1, sizeof(uint8_t));
         if (buf2 == NULL) return PyErr_NoMemory();
-        ucol_getSortKey(self->collator, buf, -1, buf2, key_size+1);
-        ans = PyBytes_FromString((char *)buf2);
+
+        key_size = ucol_getSortKey(self->collator, buf, -1, buf2, 7*sz+1);
+
+        if (key_size == 0) {
+            ans = PyBytes_FromString("");
+        } else {
+            if (key_size >= 7*sz+1) {
+                free(buf2);
+                buf2 = (uint8_t*)calloc(key_size+1, sizeof(uint8_t));
+                if (buf2 == NULL) return PyErr_NoMemory();
+                ucol_getSortKey(self->collator, buf, -1, buf2, key_size+1);
+            }
+            ans = PyBytes_FromString((char *)buf2);
+        }
         free(buf2);
     } else ans = PyBytes_FromString("");
 
@@ -119,11 +131,48 @@ icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     if (ans == NULL) return PyErr_NoMemory();
 
     return ans;
-}
+} // }}}
+
+// Collator.strcmp {{{
+static PyObject *
+icu_Collator_strcmp(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+    char *a_, *b_;
+    size_t asz, bsz;
+    UChar *a, *b;
+    UErrorCode status = U_ZERO_ERROR;
+    UCollationResult res = UCOL_EQUAL;
+  
+    if (!PyArg_ParseTuple(args, "eses", "UTF-8", &a_, "UTF-8", &b_)) return NULL;
+    
+    asz = strlen(a_); bsz = strlen(b_);
+
+    a = (UChar*)calloc(asz*4 + 1, sizeof(UChar));
+    b = (UChar*)calloc(bsz*4 + 1, sizeof(UChar));
+
+
+    if (a == NULL || b == NULL) return PyErr_NoMemory();
+
+    u_strFromUTF8(a, asz*4 + 1, NULL, a_, asz, &status);
+    u_strFromUTF8(b, bsz*4 + 1, NULL, b_, bsz, &status);
+    PyMem_Free(a_); PyMem_Free(b_);
+
+    if (U_SUCCESS(status))
+        res = ucol_strcoll(self->collator, a, -1, b, -1);
+
+    free(a); free(b);
+
+    return Py_BuildValue("i", res);
+} // }}}
+
+
 
 static PyMethodDef icu_Collator_methods[] = {
     {"sort_key", (PyCFunction)icu_Collator_sort_key, METH_VARARGS,
      "sort_key(unicode object) -> Return a sort key for the given object as a bytestring. The idea is that these bytestring will sort using the builtin cmp function, just like the original unicode strings would sort in the current locale with ICU."
+    },
+
+    {"strcmp", (PyCFunction)icu_Collator_strcmp, METH_VARARGS,
+     "strcmp(unicode object, unicode object) -> strcmp(a, b) <=> cmp(sorty_key(a), sort_key(b)), but faster."
     },
 
     {NULL}  /* Sentinel */
@@ -194,7 +243,156 @@ static PyTypeObject icu_CollatorType = { // {{{
 
 // Module initialization {{{
 
+// upper {{{
+static PyObject *
+icu_upper(PyObject *self, PyObject *args) {
+    char *input, *ans, *buf3 = NULL;
+    const char *loc;
+    size_t sz;
+    UChar *buf, *buf2;
+    PyObject *ret;
+    UErrorCode status = U_ZERO_ERROR;
+  
+
+    if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
+    
+    sz = strlen(input);
+
+    buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
+    buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));
+
+
+    if (buf == NULL || buf2 == NULL) return PyErr_NoMemory();
+
+    u_strFromUTF8(buf, sz*4, NULL, input, sz, &status);
+    u_strToUpper(buf2, sz*8, buf, -1, loc, &status);
+
+    ans = input;
+    sz = u_strlen(buf2);
+    free(buf);
+
+    if (U_SUCCESS(status) && sz > 0) {
+        buf3 = (char*)calloc(sz*5+1, sizeof(char));
+        if (buf3 == NULL) return PyErr_NoMemory();
+        u_strToUTF8(buf3, sz*5, NULL, buf2, -1, &status);
+        if (U_SUCCESS(status)) ans = buf3;
+    }
+
+    ret = PyUnicode_DecodeUTF8(ans, strlen(ans), "replace");
+    if (ret == NULL) return PyErr_NoMemory();
+
+    free(buf2);
+    if (buf3 != NULL) free(buf3);
+    PyMem_Free(input);
+
+    return ret;
+}
+
+// lower {{{
+static PyObject *
+icu_lower(PyObject *self, PyObject *args) {
+    char *input, *ans, *buf3 = NULL;
+    const char *loc;
+    size_t sz;
+    UChar *buf, *buf2;
+    PyObject *ret;
+    UErrorCode status = U_ZERO_ERROR;
+  
+
+    if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
+    
+    sz = strlen(input);
+
+    buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
+    buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));
+
+
+    if (buf == NULL || buf2 == NULL) return PyErr_NoMemory();
+
+    u_strFromUTF8(buf, sz*4, NULL, input, sz, &status);
+    u_strToLower(buf2, sz*8, buf, -1, loc, &status);
+
+    ans = input;
+    sz = u_strlen(buf2);
+    free(buf);
+
+    if (U_SUCCESS(status) && sz > 0) {
+        buf3 = (char*)calloc(sz*5+1, sizeof(char));
+        if (buf3 == NULL) return PyErr_NoMemory();
+        u_strToUTF8(buf3, sz*5, NULL, buf2, -1, &status);
+        if (U_SUCCESS(status)) ans = buf3;
+    }
+
+    ret = PyUnicode_DecodeUTF8(ans, strlen(ans), "replace");
+    if (ret == NULL) return PyErr_NoMemory();
+
+    free(buf2);
+    if (buf3 != NULL) free(buf3);
+    PyMem_Free(input);
+
+    return ret;
+}
+
+// title {{{
+static PyObject *
+icu_title(PyObject *self, PyObject *args) {
+    char *input, *ans, *buf3 = NULL;
+    const char *loc;
+    size_t sz;
+    UChar *buf, *buf2;
+    PyObject *ret;
+    UErrorCode status = U_ZERO_ERROR;
+  
+
+    if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
+    
+    sz = strlen(input);
+
+    buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
+    buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));
+
+
+    if (buf == NULL || buf2 == NULL) return PyErr_NoMemory();
+
+    u_strFromUTF8(buf, sz*4, NULL, input, sz, &status);
+    u_strToTitle(buf2, sz*8, buf, -1, NULL, loc, &status);
+
+    ans = input;
+    sz = u_strlen(buf2);
+    free(buf);
+
+    if (U_SUCCESS(status) && sz > 0) {
+        buf3 = (char*)calloc(sz*5+1, sizeof(char));
+        if (buf3 == NULL) return PyErr_NoMemory();
+        u_strToUTF8(buf3, sz*5, NULL, buf2, -1, &status);
+        if (U_SUCCESS(status)) ans = buf3;
+    }
+
+    ret = PyUnicode_DecodeUTF8(ans, strlen(ans), "replace");
+    if (ret == NULL) return PyErr_NoMemory();
+
+    free(buf2);
+    if (buf3 != NULL) free(buf3);
+    PyMem_Free(input);
+
+    return ret;
+}
+
+
+
 static PyMethodDef icu_methods[] = {
+    {"upper", icu_upper, METH_VARARGS,
+        "upper(locale, unicode object) -> upper cased unicode object using locale rules."
+    },
+
+    {"lower", icu_lower, METH_VARARGS,
+        "lower(locale, unicode object) -> lower cased unicode object using locale rules."
+    },
+
+    {"title", icu_title, METH_VARARGS,
+        "title(locale, unicode object) -> Title cased unicode object using locale rules."
+    },
+
     {NULL}  /* Sentinel */
 };
 
