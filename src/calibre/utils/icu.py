@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from calibre.constants import plugins
+from calibre.utils.config import tweaks
 
 _icu = _collator = None
 
@@ -32,7 +33,10 @@ def load_collator():
     if _collator is None:
         icu = load_icu()
         if icu is not None:
-            _collator = icu.Collator(get_lang())
+            if tweaks['locale_for_sorting']:
+                _collator = icu.Collator(tweaks['locale_for_sorting'])
+            else:
+                _collator = icu.Collator(get_lang())
     return _collator
 
 
