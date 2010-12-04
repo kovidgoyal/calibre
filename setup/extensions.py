@@ -18,7 +18,8 @@ from setup.build_environment import fc_inc, fc_lib, chmlib_inc_dirs, \
         QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, win_ddk, \
         magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
         magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, \
-        jpg_lib_dirs, chmlib_lib_dirs, sqlite_inc_dirs
+        jpg_lib_dirs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs, \
+        icu_lib_dirs
 MT
 isunix = islinux or isosx or isfreebsd
 
@@ -56,7 +57,18 @@ pdfreflow_libs = []
 if iswindows:
     pdfreflow_libs = ['advapi32', 'User32', 'Gdi32', 'zlib']
 
+icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
+if iswindows:
+    icu_libs = ['icudt', 'icuin', 'icuuc', 'icuio']
+
 extensions = [
+
+    Extension('icu',
+        ['calibre/utils/icu.c'],
+        libraries=icu_libs,
+        lib_dirs=icu_lib_dirs,
+        inc_dirs=icu_inc_dirs,
+        ),
 
     Extension('sqlite_custom',
         ['calibre/library/sqlite_custom.c'],

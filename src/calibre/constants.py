@@ -67,7 +67,8 @@ if plugins is None:
                 'pdfreflow',
                 'progress_indicator',
                 'chmlib',
-                'chm_extra'
+                'chm_extra',
+                'icu',
             ] + \
                     (['winutil'] if iswindows else []) + \
                     (['usbobserver'] if isosx else []):

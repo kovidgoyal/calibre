@@ -77,6 +77,15 @@ Test it on the target system with
 
 calibre-debug -c "import _imaging, _imagingmath, _imagingft, _imagingcms"
 
+ICU
+-------
+
+Download the win32 msvc9 binary from http://www.icu-project.org/download/4.4.html
+
+Note that 4.4 is the last version of ICU that can be compiled (is precompiled) with msvc9
+
+Put the dlls into sw/bin and the unicode dir into sw/include and the contents of lib int sw/lib
+
 Libunrar
 ----------
 
