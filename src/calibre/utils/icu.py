@@ -154,7 +154,7 @@ pêché'''
     for x in fs:
         print '\t', x.encode('utf-8')
     if fs != create(french_good):
-        print 'French failed'
+        print 'French failed (note that French fails with icu < 4.6 i.e. on windows and OS X)'
         return
 # }}}
 
