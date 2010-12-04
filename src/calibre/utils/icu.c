@@ -105,6 +105,7 @@ icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     if (buf == NULL) return PyErr_NoMemory();
 
     u_strFromUTF8(buf, sz*4 + 1, &key_size, input, sz, &status);
+    PyMem_Free(input);
 
     if (U_SUCCESS(status)) {
         key_size = ucol_getSortKey(self->collator, buf, -1, NULL, 0);
