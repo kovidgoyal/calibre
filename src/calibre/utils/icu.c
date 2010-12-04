@@ -131,7 +131,7 @@ icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     if (ans == NULL) return PyErr_NoMemory();
 
     return ans;
-}
+} // }}}
 
 // Collator.strcmp {{{
 static PyObject *
@@ -162,7 +162,8 @@ icu_Collator_strcmp(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     free(a); free(b);
 
     return Py_BuildValue("i", res);
-}
+} // }}}
+
 
 
 static PyMethodDef icu_Collator_methods[] = {
@@ -242,7 +243,156 @@ static PyTypeObject icu_CollatorType = { // {{{
 
 // Module initialization {{{
 
+// upper {{{
+static PyObject *
+icu_upper(PyObject *self, PyObject *args) {
+    char *input, *ans, *buf3 = NULL;
+    const char *loc;
+    size_t sz;
+    UChar *buf, *buf2;
+    PyObject *ret;
+    UErrorCode status = U_ZERO_ERROR;
+  
+
+    if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
+    
+    sz = strlen(input);
+
+    buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
+    buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));
+
+
+    if (buf == NULL || buf2 == NULL) return PyErr_NoMemory();
+
+    u_strFromUTF8(buf, sz*4, NULL, input, sz, &status);
+    u_strToUpper(buf2, sz*8, buf, -1, loc, &status);
+
+    ans = input;
+    sz = u_strlen(buf2);
+    free(buf);
+
+    if (U_SUCCESS(status) && sz > 0) {
+        buf3 = (char*)calloc(sz*5+1, sizeof(char));
+        if (buf3 == NULL) return PyErr_NoMemory();
+        u_strToUTF8(buf3, sz*5, NULL, buf2, -1, &status);
+        if (U_SUCCESS(status)) ans = buf3;
+    }
+
+    ret = PyUnicode_DecodeUTF8(ans, strlen(ans), "replace");
+    if (ret == NULL) return PyErr_NoMemory();
+
+    free(buf2);
+    if (buf3 != NULL) free(buf3);
+    PyMem_Free(input);
+
+    return ret;
+}
+
+// lower {{{
+static PyObject *
+icu_lower(PyObject *self, PyObject *args) {
+    char *input, *ans, *buf3 = NULL;
+    const char *loc;
+    size_t sz;
+    UChar *buf, *buf2;
+    PyObject *ret;
+    UErrorCode status = U_ZERO_ERROR;
+  
+
+    if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
+    
+    sz = strlen(input);
+
+    buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
+    buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));
+
+
+    if (buf == NULL || buf2 == NULL) return PyErr_NoMemory();
+
+    u_strFromUTF8(buf, sz*4, NULL, input, sz, &status);
+    u_strToLower(buf2, sz*8, buf, -1, loc, &status);
+
+    ans = input;
+    sz = u_strlen(buf2);
+    free(buf);
+
+    if (U_SUCCESS(status) && sz > 0) {
+        buf3 = (char*)calloc(sz*5+1, sizeof(char));
+        if (buf3 == NULL) return PyErr_NoMemory();
+        u_strToUTF8(buf3, sz*5, NULL, buf2, -1, &status);
+        if (U_SUCCESS(status)) ans = buf3;
+    }
+
+    ret = PyUnicode_DecodeUTF8(ans, strlen(ans), "replace");
+    if (ret == NULL) return PyErr_NoMemory();
+
+    free(buf2);
+    if (buf3 != NULL) free(buf3);
+    PyMem_Free(input);
+
+    return ret;
+}
+
+// title {{{
+static PyObject *
+icu_title(PyObject *self, PyObject *args) {
+    char *input, *ans, *buf3 = NULL;
+    const char *loc;
+    size_t sz;
+    UChar *buf, *buf2;
+    PyObject *ret;
+    UErrorCode status = U_ZERO_ERROR;
+  
+
+    if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
+    
+    sz = strlen(input);
+
+    buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
+    buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));
+
+
+    if (buf == NULL || buf2 == NULL) return PyErr_NoMemory();
+
+    u_strFromUTF8(buf, sz*4, NULL, input, sz, &status);
+    u_strToTitle(buf2, sz*8, buf, -1, NULL, loc, &status);
+
+    ans = input;
+    sz = u_strlen(buf2);
+    free(buf);
+
+    if (U_SUCCESS(status) && sz > 0) {
+        buf3 = (char*)calloc(sz*5+1, sizeof(char));
+        if (buf3 == NULL) return PyErr_NoMemory();
+        u_strToUTF8(buf3, sz*5, NULL, buf2, -1, &status);
+        if (U_SUCCESS(status)) ans = buf3;
+    }
+
+    ret = PyUnicode_DecodeUTF8(ans, strlen(ans), "replace");
+    if (ret == NULL) return PyErr_NoMemory();
+
+    free(buf2);
+    if (buf3 != NULL) free(buf3);
+    PyMem_Free(input);
+
+    return ret;
+}
+
+
+
 static PyMethodDef icu_methods[] = {
+    {"upper", icu_upper, METH_VARARGS,
+        "upper(locale, unicode object) -> upper cased unicode object using locale rules."
+    },
+
+    {"lower", icu_lower, METH_VARARGS,
+        "lower(locale, unicode object) -> lower cased unicode object using locale rules."
+    },
+
+    {"title", icu_title, METH_VARARGS,
+        "title(locale, unicode object) -> Title cased unicode object using locale rules."
+    },
+
     {NULL}  /* Sentinel */
 };
 

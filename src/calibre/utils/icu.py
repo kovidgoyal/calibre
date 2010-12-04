@@ -10,9 +10,17 @@ from functools import partial
 from calibre.constants import plugins
 
 _icu = _collator = None
+_locale = None
 
 _none = u''
 _none2 = b''
+
+def get_locale():
+    global _locale
+    if _locale is None:
+        from calibre.utils.localization import get_lang
+        _locale = get_lang()
+    return _locale
 
 def load_icu():
     global _icu
@@ -28,11 +36,10 @@ def load_icu():
 
 def load_collator():
     global _collator
-    from calibre.utils.localization import get_lang
     if _collator is None:
         icu = load_icu()
         if icu is not None:
-            _collator = icu.Collator(get_lang())
+            _collator = icu.Collator(get_locale())
     return _collator
 
 
@@ -75,6 +82,13 @@ strcmp = py_strcmp if _icu_not_ok else partial(icu_strcmp, _collator)
 case_sensitive_sort_key = py_case_sensitive_sort_key if _icu_not_ok else \
         icu_case_sensitive_sort_key
 case_sensitive_strcmp = cmp if _icu_not_ok else icu_case_sensitive_strcmp
+
+upper = (lambda s: s.upper()) if _icu_not_ok else \
+    partial(_icu.upper, get_locale())
+lower = (lambda s: s.lower()) if _icu_not_ok else \
+    partial(_icu.lower, get_locale())
+title_case = (lambda s: s.title()) if _icu_not_ok else \
+    partial(_icu.title, get_locale())
 
 
 def test(): # {{{
@@ -188,5 +202,13 @@ pêché'''
         print 'French failed (note that French fails with icu < 4.6 i.e. on windows and OS X)'
         return
     test_strcmp(german + french)
+
+    print '\nTesting case transforms in current locale'
+    for x in ('a', 'Alice\'s code'):
+        print 'Upper:', x, '->', 'py:', x.upper().encode('utf-8'), 'icu:', upper(x).encode('utf-8')
+        print 'Lower:', x, '->', 'py:', x.lower().encode('utf-8'), 'icu:', lower(x).encode('utf-8')
+        print 'Title:', x, '->', 'py:', x.title().encode('utf-8'), 'icu:', title_case(x).encode('utf-8')
+        print
+
 # }}}
 
