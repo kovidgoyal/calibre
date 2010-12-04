@@ -366,11 +366,10 @@ widgets = {
         'enumeration': Enumeration
 }
 
-def field_sort(y, z, x=None):
-    m1, m2 = x[y], x[z]
+def field_sort_key(y, x=None):
+    m1 = x[y]
     n1 = 'zzzzz' if m1['datatype'] == 'comments' else m1['name']
-    n2 = 'zzzzz' if m2['datatype'] == 'comments' else m2['name']
-    return cmp(sort_key(n1), sort_key(n2))
+    return sort_key(n1)
 
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
     def widget_factory(type, col):
@@ -382,7 +381,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         return w
     x = db.custom_column_num_map
     cols = list(x)
-    cols.sort(cmp=partial(field_sort, x=x))
+    cols.sort(key=partial(field_sort_key, x=x))
     count_non_comment = len([c for c in cols if x[c]['datatype'] != 'comments'])
 
     layout.setColumnStretch(1, 10)
