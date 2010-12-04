@@ -205,7 +205,7 @@ class SearchBox2(QComboBox): # {{{
         self.blockSignals(yes)
         self.line_edit.blockSignals(yes)
 
-    def set_search_string(self, txt, store_in_history=False):
+    def set_search_string(self, txt, store_in_history=False, emit_changed=True):
         self.setFocus(Qt.OtherFocusReason)
         if not txt:
             self.clear()
@@ -213,7 +213,8 @@ class SearchBox2(QComboBox): # {{{
             self.normalize_state()
             self.setEditText(txt)
             self.line_edit.end(False)
-            self.changed.emit()
+            if emit_changed:
+                self.changed.emit()
             self._do_search(store_in_history=store_in_history)
         self.focus_to_library.emit()
 
@@ -293,7 +294,7 @@ class SavedSearchBox(QComboBox): # {{{
             self.search_box.clear()
             self.setEditText(qname)
             return
-        self.search_box.set_search_string(u'search:"%s"' % qname)
+        self.search_box.set_search_string(u'search:"%s"' % qname, emit_changed=False)
         self.setEditText(qname)
         self.setToolTip(saved_searches().lookup(qname))
 
