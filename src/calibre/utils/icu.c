@@ -133,9 +133,45 @@ icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     return ans;
 }
 
+// Collator.strcmp {{{
+static PyObject *
+icu_Collator_strcmp(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+    char *a_, *b_;
+    size_t asz, bsz;
+    UChar *a, *b;
+    UErrorCode status = U_ZERO_ERROR;
+    UCollationResult res = UCOL_EQUAL;
+  
+    if (!PyArg_ParseTuple(args, "eses", "UTF-8", &a_, "UTF-8", &b_)) return NULL;
+    
+    asz = strlen(a_); bsz = strlen(b_);
+
+    a = (UChar*)calloc(asz*4 + 1, sizeof(UChar));
+    b = (UChar*)calloc(bsz*4 + 1, sizeof(UChar));
+
+
+    if (a == NULL || b == NULL) return PyErr_NoMemory();
+
+    u_strFromUTF8(a, asz*4 + 1, NULL, a_, asz, &status);
+    u_strFromUTF8(b, bsz*4 + 1, NULL, b_, bsz, &status);
+    PyMem_Free(a_); PyMem_Free(b_);
+
+    if (U_SUCCESS(status))
+        res = ucol_strcoll(self->collator, a, -1, b, -1);
+
+    free(a); free(b);
+
+    return Py_BuildValue("i", res);
+}
+
+
 static PyMethodDef icu_Collator_methods[] = {
     {"sort_key", (PyCFunction)icu_Collator_sort_key, METH_VARARGS,
      "sort_key(unicode object) -> Return a sort key for the given object as a bytestring. The idea is that these bytestring will sort using the builtin cmp function, just like the original unicode strings would sort in the current locale with ICU."
+    },
+
+    {"strcmp", (PyCFunction)icu_Collator_strcmp, METH_VARARGS,
+     "strcmp(unicode object, unicode object) -> strcmp(a, b) <=> cmp(sorty_key(a), sort_key(b)), but faster."
     },
 
     {NULL}  /* Sentinel */

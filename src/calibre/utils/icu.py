@@ -46,10 +46,35 @@ def icu_sort_key(collator, obj):
         return _none2
     return collator.sort_key(obj.lower())
 
+def py_case_sensitive_sort_key(obj):
+    if not obj:
+        return _none
+    return obj
+
+def icu_case_sensitive_sort_key(collator, obj):
+    if not obj:
+        return _none2
+    return collator.sort_key(obj)
+
+def icu_strcmp(collator, a, b):
+    return collator.strcmp(a.lower(), b.lower())
+
+def py_strcmp(a, b):
+    return cmp(a.lower(), b.lower())
+
+def icu_case_sensitive_strcmp(collator, a, b):
+    return collator.strcmp(a, b)
+
+
 load_icu()
 load_collator()
-sort_key = py_sort_key if _icu is None or _collator is None else \
-        partial(icu_sort_key, _collator)
+_icu_not_ok = _icu is None or _collator is None
+
+sort_key = py_sort_key if _icu_not_ok else partial(icu_sort_key, _collator)
+strcmp = py_strcmp if _icu_not_ok else partial(icu_strcmp, _collator)
+case_sensitive_sort_key = py_case_sensitive_sort_key if _icu_not_ok else \
+        icu_case_sensitive_sort_key
+case_sensitive_strcmp = cmp if _icu_not_ok else icu_case_sensitive_strcmp
 
 
 def test(): # {{{
@@ -137,6 +162,12 @@ pêché'''
         l = l.decode('utf-8').splitlines()
         return [x.strip() for x in l if x.strip()]
 
+    def test_strcmp(entries):
+        for x in entries:
+            for y in entries:
+                if strcmp(x, y) != cmp(sort_key(x), sort_key(y)):
+                    print 'strcmp failed for %r, %r'%(x, y)
+
     german = create(german)
     c = _icu.Collator('de')
     print 'Sorted german:: (%s)'%c.actual_locale
@@ -156,5 +187,6 @@ pêché'''
     if fs != create(french_good):
         print 'French failed (note that French fails with icu < 4.6 i.e. on windows and OS X)'
         return
+    test_strcmp(german + french)
 # }}}
 
