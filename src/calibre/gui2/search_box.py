@@ -17,6 +17,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.search_query_parser import saved_searches
+from calibre.utils.icu import sort_key
 
 class SearchLineEdit(QLineEdit): # {{{
     key_pressed = pyqtSignal(object)
@@ -417,7 +418,7 @@ class SavedSearchBoxMixin(object): # {{{
             b.setStatusTip(b.toolTip())
 
     def saved_searches_changed(self):
-        p = sorted(saved_searches().names(), cmp=lambda x,y: cmp(x.lower(), y.lower()))
+        p = sorted(saved_searches().names(), key=sort_key)
         t = unicode(self.search_restriction.currentText())
         # rebuild the restrictions combobox using current saved searches
         self.search_restriction.clear()

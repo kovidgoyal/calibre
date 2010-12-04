@@ -17,6 +17,7 @@ from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.utils.config import tweaks
+from calibre.utils.icu import sort_key
 
 class Base(object):
 
@@ -207,7 +208,7 @@ class Text(Base):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
             w = TagsLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
@@ -256,7 +257,7 @@ class Series(Base):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         w = EnComboBox(parent)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
@@ -369,7 +370,7 @@ def field_sort(y, z, x=None):
     m1, m2 = x[y], x[z]
     n1 = 'zzzzz' if m1['datatype'] == 'comments' else m1['name']
     n2 = 'zzzzz' if m2['datatype'] == 'comments' else m2['name']
-    return cmp(n1.lower(), n2.lower())
+    return cmp(sort_key(n1), sort_key(n2))
 
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
     def widget_factory(type, col):
@@ -526,7 +527,7 @@ class BulkSeries(BulkBase):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         w = EnComboBox(parent)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
@@ -678,7 +679,7 @@ class BulkText(BulkBase):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
             w = TagsLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)

@@ -20,6 +20,7 @@ from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import format_tag_string, Offsets
 from calibre import guess_type
+from calibre.utils.icu import sort_key
 from calibre.utils.ordered_dict import OrderedDict
 
 BASE_HREFS = {
@@ -279,8 +280,7 @@ class AcquisitionFeed(NavFeed):
         NavFeed.__init__(self, id_, updated, version, offsets, page_url, up_url)
         CFM = db.field_metadata
         CKEYS = [key for key in sorted(custom_fields_to_display(db),
-                 cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
-                                     CFM[y]['name'].lower()))]
+                                       key=lambda x: sort_key(CFM[x]['name']))]
         for item in items:
             self.root.append(ACQUISITION_ENTRY(item, version, db, updated,
                                                CFM, CKEYS, prefix))
@@ -492,7 +492,7 @@ class OPDSServer(object):
                     val = 'A'
                 starts.add(val[0].upper())
             category_groups = OrderedDict()
-            for x in sorted(starts, cmp=lambda x,y:cmp(x.lower(), y.lower())):
+            for x in sorted(starts, key=sort_key):
                 category_groups[x] = len([y for y in items if
                     getattr(y, 'sort', y.name).startswith(x)])
             items = [Group(x, y) for x, y in category_groups.items()]
@@ -571,8 +571,7 @@ class OPDSServer(object):
                 ]
         def getter(x):
             return category_meta[x]['name'].lower()
-        for category in sorted(categories,
-                               cmp=lambda x,y: cmp(getter(x), getter(y))):
+        for category in sorted(categories, key=lambda x: sort_key(getter(x))):
             if len(categories[category]) == 0:
                 continue
             if category == 'formats':

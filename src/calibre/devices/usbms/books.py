@@ -13,6 +13,7 @@ from calibre.devices.interface import BookList as _BookList
 from calibre.constants import preferred_encoding
 from calibre import isbytestring
 from calibre.utils.config import prefs, tweaks
+from calibre.utils.icu import sort_key
 
 class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -230,14 +231,16 @@ class CollectionsBookList(BookList):
             x = xx[1]
             y = yy[1]
             if x is None and y is None:
+                # No sort_key needed here, because defaults are ascii
                 return cmp(xx[2], yy[2])
             if x is None:
                 return 1
             if y is None:
                 return -1
-            c = cmp(x, y)
+            c = cmp(sort_key(x), sort_key(y))
             if c != 0:
                 return c
+            # same as above -- no sort_key needed here
             return cmp(xx[2], yy[2])
 
         for category, lpaths in collections.items():
