@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+# Setup code {{{
 from functools import partial
 
 from calibre.constants import plugins
@@ -77,8 +78,10 @@ load_icu()
 load_collator()
 _icu_not_ok = _icu is None or _collator is None
 
+# }}}
 
 ################# The string functions ########################################
+
 sort_key = py_sort_key if _icu_not_ok else partial(icu_sort_key, _collator)
 
 strcmp = py_strcmp if _icu_not_ok else partial(icu_strcmp, _collator)
@@ -96,6 +99,7 @@ lower = (lambda s: s.lower()) if _icu_not_ok else \
 
 title_case = (lambda s: s.title()) if _icu_not_ok else \
     partial(_icu.title, get_locale())
+
 ################################################################################
 
 def test(): # {{{
