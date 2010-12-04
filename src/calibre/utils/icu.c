@@ -108,11 +108,22 @@ icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     PyMem_Free(input);
 
     if (U_SUCCESS(status)) {
-        key_size = ucol_getSortKey(self->collator, buf, -1, NULL, 0);
-        buf2 = (uint8_t*)calloc(key_size + 1, sizeof(uint8_t));
+        buf2 = (uint8_t*)calloc(7*sz+1, sizeof(uint8_t));
         if (buf2 == NULL) return PyErr_NoMemory();
-        ucol_getSortKey(self->collator, buf, -1, buf2, key_size+1);
-        ans = PyBytes_FromString((char *)buf2);
+
+        key_size = ucol_getSortKey(self->collator, buf, -1, buf2, 7*sz+1);
+
+        if (key_size == 0) {
+            ans = PyBytes_FromString("");
+        } else {
+            if (key_size >= 7*sz+1) {
+                free(buf2);
+                buf2 = (uint8_t*)calloc(key_size+1, sizeof(uint8_t));
+                if (buf2 == NULL) return PyErr_NoMemory();
+                ucol_getSortKey(self->collator, buf, -1, buf2, key_size+1);
+            }
+            ans = PyBytes_FromString((char *)buf2);
+        }
         free(buf2);
     } else ans = PyBytes_FromString("");
 
