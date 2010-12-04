@@ -58,8 +58,13 @@ if iswindows:
     pdfreflow_libs = ['advapi32', 'User32', 'Gdi32', 'zlib']
 
 icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
+icu_cflags = []
 if iswindows:
     icu_libs = ['icudt', 'icuin', 'icuuc', 'icuio']
+if isosx:
+    icu_libs = ['icucore']
+    icu_cflags = ['-DU_DISABLE_RENAMING'] # Needed to use system libicucore.dylib
+
 
 extensions = [
 
@@ -68,6 +73,7 @@ extensions = [
         libraries=icu_libs,
         lib_dirs=icu_lib_dirs,
         inc_dirs=icu_inc_dirs,
+        cflags=icu_cflags
         ),
 
     Extension('sqlite_custom',

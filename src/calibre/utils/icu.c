@@ -88,32 +88,34 @@ icu_Collator_actual_locale(icu_Collator *self, void *closure) {
 // Collator.sort_key {{{
 static PyObject *
 icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
-    PyObject *o;
+    char *input;
     Py_ssize_t sz;
-    wchar_t *buf;
-    UChar *buf2;
-    uint8_t *buf3;
+    UChar *buf;
+    uint8_t *buf2;
     PyObject *ans;
+    int32_t key_size;
     UErrorCode status = U_ZERO_ERROR;
-   
-    if (!PyArg_ParseTuple(args, "U", &o)) return NULL;
+  
+    if (!PyArg_ParseTuple(args, "es", "UTF-8", &input)) return NULL;
 
-    sz = PyUnicode_GetSize(o);
+    sz = strlen(input);
 
-    buf = (wchar_t*)calloc(sz*2 + 1, sizeof(wchar_t));
-    buf2 = (UChar*)calloc(sz*2 + 1, sizeof(UChar));
-    buf3 = (uint8_t*)calloc(sz*4 + 1, sizeof(uint8_t));
+    buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
 
-    if (buf == NULL || buf2 == NULL || buf3 == NULL) return PyErr_NoMemory();
+    if (buf == NULL) return PyErr_NoMemory();
 
-    PyUnicode_AsWideChar((PyUnicodeObject *)o, buf, sz);
+    u_strFromUTF8(buf, sz*4 + 1, &key_size, input, sz, &status);
 
-    u_strFromWCS(buf2, 2*sz+1, NULL, buf, -1, &status);
-    if (U_SUCCESS(status))
-        ucol_getSortKey(self->collator, buf2, -1, buf3, sz*4+1);
+    if (U_SUCCESS(status)) {
+        key_size = ucol_getSortKey(self->collator, buf, -1, NULL, 0);
+        buf2 = (uint8_t*)calloc(key_size + 1, sizeof(uint8_t));
+        if (buf2 == NULL) return PyErr_NoMemory();
+        ucol_getSortKey(self->collator, buf, -1, buf2, key_size+1);
+        ans = PyBytes_FromString((char *)buf2);
+        free(buf2);
+    } else ans = PyBytes_FromString("");
 
-    ans = PyBytes_FromString((char *)buf3);
-    free(buf3); free(buf); free(buf2);
+    free(buf);
     if (ans == NULL) return PyErr_NoMemory();
 
     return ans;
@@ -188,6 +190,7 @@ static PyTypeObject icu_CollatorType = { // {{{
 
 // }}}
 
+// }}}
 
 // Module initialization {{{
 
