@@ -8,6 +8,7 @@ from PyQt4.QtGui import QDialog
 
 from calibre.gui2.dialogs.saved_search_editor_ui import Ui_SavedSearchEditor
 from calibre.utils.search_query_parser import saved_searches
+from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.confirm_delete import confirm
 
 class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
@@ -34,7 +35,7 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
 
     def populate_search_list(self):
         self.search_name_box.clear()
-        for name in sorted(self.searches.keys()):
+        for name in sorted(self.searches.keys(), key=sort_key):
             self.search_name_box.addItem(name)
 
     def add_search(self):

@@ -13,6 +13,7 @@ import cherrypy
 from calibre import strftime as _strftime, prints, isbytestring
 from calibre.utils.date import now as nowf
 from calibre.utils.config import tweaks
+from calibre.utils.icu import sort_key
 
 class Offsets(object):
     'Calculate offsets for a paginated view'
@@ -73,7 +74,7 @@ def format_tag_string(tags, sep, ignore_max=False, no_tag_count=False):
         tlist = [t.strip() for t in tags.split(sep)]
     else:
         tlist = []
-    tlist.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+    tlist.sort(key=sort_key)
     if len(tlist) > MAX:
         tlist = tlist[:MAX]+['...']
     if no_tag_count:

@@ -29,5 +29,6 @@ class ShowBookDetailsAction(InterfaceAction):
             return
         index = self.gui.library_view.currentIndex()
         if index.isValid():
-            BookInfo(self.gui, self.gui.library_view, index).show()
+            BookInfo(self.gui, self.gui.library_view, index,
+                    self.gui.iactions['View'].view_format_by_id).show()
 

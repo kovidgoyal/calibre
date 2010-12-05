@@ -22,6 +22,7 @@ from calibre.utils.pyparsing import CaselessKeyword, Group, Forward, \
         CharsNotIn, Suppress, OneOrMore, MatchFirst, CaselessLiteral, \
         Optional, NoMatch, ParseException, QuotedString
 from calibre.constants import preferred_encoding
+from calibre.utils.icu import sort_key
 
 
 
@@ -65,8 +66,7 @@ class SavedSearchQueries(object):
         self.db.prefs[self.opt_name] = self.queries
 
     def names(self):
-        return sorted(self.queries.keys(),
-                cmp=lambda x,y: cmp(x.lower(), y.lower()))
+        return sorted(self.queries.keys(),key=sort_key)
 
 '''
 Create a global instance of the saved searches. It is global so that the searches

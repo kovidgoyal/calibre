@@ -115,6 +115,8 @@ def pynocase(one, two, encoding='utf-8'):
             pass
     return cmp(one.lower(), two.lower())
 
+def icu_collator(s1, s2, func=None):
+    return cmp(func(unicode(s1)), func(unicode(s2)))
 
 def load_c_extensions(conn, debug=DEBUG):
     try:
@@ -167,6 +169,8 @@ class DBThread(Thread):
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
         # Dummy functions for dynamically created filters
         self.conn.create_function('books_list_filter', 1, lambda x: 1)
+        from calibre.utils.icu import sort_key
+        self.conn.create_collation('icucollate', partial(icu_collator, func=sort_key))
 
     def run(self):
         try:

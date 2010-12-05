@@ -182,7 +182,7 @@ class SearchBar(QWidget): # {{{
         l.addWidget(self.search_button)
         self.search_button.setSizePolicy(QSizePolicy.Minimum,
                 QSizePolicy.Minimum)
-        self.search_button.clicked.connect(parent.search.do_search)
+        self.search_button.clicked.connect(parent.do_search_button)
         self.search_button.setToolTip(
             _('Do Quick Search (you can also press the Enter key)'))
 

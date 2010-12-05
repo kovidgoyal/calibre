@@ -10,9 +10,10 @@ import copy
 import re
 from lxml import etree
 from calibre.ebooks.oeb.base import namespace, barename
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, OEB_DOCS
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, OEB_DOCS, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
+from calibre.utils.magick.draw import identify_data
 
 MBP_NS = 'http://mobipocket.com/ns/mbp'
 def MBP(name): return '{%s}%s' % (MBP_NS, name)
@@ -121,6 +122,7 @@ class MobiMLizer(object):
             body = item.data.find(XHTML('body'))
             nroot = etree.Element(XHTML('html'), nsmap=MOBI_NSMAP)
             nbody = etree.SubElement(nroot, XHTML('body'))
+            self.current_spine_item = item
             self.mobimlize_elem(body, stylizer, BlockState(nbody),
                                 [FormatState()])
             item.data = nroot
@@ -357,8 +359,9 @@ class MobiMLizer(object):
         if tag == 'img' and 'src' in elem.attrib:
             istate.attrib['src'] = elem.attrib['src']
             istate.attrib['align'] = 'baseline'
+            cssdict = style.cssdict()
             for prop in ('width', 'height'):
-                if style[prop] != 'auto':
+                if cssdict[prop] != 'auto':
                     value = style[prop]
                     if value == getattr(self.profile, prop):
                         result = '100%'
@@ -371,8 +374,40 @@ class MobiMLizer(object):
                                 (72./self.profile.dpi)))
                         except:
                             continue
-                        result = "%d"%pixs
+                        result = str(pixs)
                     istate.attrib[prop] = result
+            if 'width' not in istate.attrib or 'height' not in istate.attrib:
+                href = self.current_spine_item.abshref(elem.attrib['src'])
+                try:
+                    item = self.oeb.manifest.hrefs[urlnormalize(href)]
+                except:
+                    self.oeb.logger.warn('Failed to find image:',
+                            href)
+                else:
+                    try:
+                        width, height = identify_data(item.data)[:2]
+                    except:
+                        self.oeb.logger.warn('Invalid image:', href)
+                    else:
+                        if 'width' not in istate.attrib and 'height' not in \
+                                    istate.attrib:
+                            istate.attrib['width'] = str(width)
+                            istate.attrib['height'] = str(height)
+                        else:
+                            ar = float(width)/float(height)
+                            if 'width' not in istate.attrib:
+                                try:
+                                    width = int(istate.attrib['height'])*ar
+                                except:
+                                    pass
+                                istate.attrib['width'] = str(int(width))
+                            else:
+                                try:
+                                    height = int(istate.attrib['width'])/ar
+                                except:
+                                    pass
+                                istate.attrib['height'] = str(int(height))
+                        item.unload_data_from_memory()
         elif tag == 'hr' and asfloat(style['width']) > 0:
             prop = style['width'] / self.profile.width
             istate.attrib['width'] = "%d%%" % int(round(prop * 100))

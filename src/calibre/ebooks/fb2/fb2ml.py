@@ -35,7 +35,7 @@ class FB2MLizer(object):
         self.log = log
         self.image_hrefs = {}
         self.reset_state()
-    
+
     def reset_state(self):
         # Used to ensure text and tags are always within <p> and </p>
         self.in_p = False
@@ -48,18 +48,18 @@ class FB2MLizer(object):
         self.log.info('Converting XHTML to FB2 markup...')
         self.oeb_book = oeb_book
         self.opts = opts
-        
+
         return self.fb2mlize_spine()
 
     def fb2mlize_spine(self):
         self.reset_state()
-        
+
         output = [self.fb2_header()]
         output.append(self.get_text())
         output.append(self.fb2mlize_images())
         output.append(self.fb2_footer())
         output = self.clean_text(u''.join(output))
-        
+
         if self.opts.pretty_print:
             return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
         else:
@@ -97,7 +97,7 @@ class FB2MLizer(object):
             metadata['author_first'] = author_parts[0]
             metadata['author_middle'] = ' '.join(author_parts[1:-2])
             metadata['author_last'] = author_parts[-1]
-            
+
         for key, value in metadata.items():
             metadata[key] = prepare_string_for_xml(value)
 
@@ -131,7 +131,7 @@ class FB2MLizer(object):
 
     def get_text(self):
         text = ['<body>']
-        for item in self.oeb_book.spine:            
+        for item in self.oeb_book.spine:
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             text.append('<section>')
@@ -181,7 +181,7 @@ class FB2MLizer(object):
     def close_open_p(self, tags):
         text = ['']
         added_p = False
-        
+
         if self.in_p:
             # Close all up to p. Close p. Reopen all closed tags including p.
             closed_tags = []
@@ -198,9 +198,9 @@ class FB2MLizer(object):
             text.append('<p>')
             added_p = True
             self.in_p = True
-        
+
         return text, added_p
-    
+
     def handle_simple_tag(self, tag, tags):
         s_out = []
         s_tags = []
@@ -216,14 +216,14 @@ class FB2MLizer(object):
         '''
         This function is intended to be used in a recursive manner. dump_text will
         run though all elements in the elem_tree and call itself on each element.
-        
+
         self.image_hrefs will be populated by calling this function.
-        
+
         @param elem_tree: etree representation of XHTML content to be transformed.
         @param stylizer: Used to track the style of elements within the tree.
         @param page: OEB page used to determine absolute urls.
         @param tag_stack: List of open FB2 tags to take into account.
-        
+
         @return: List of string representing the XHTML converted to FB2 markup.
         '''
         # Ensure what we are converting is not a string and that the fist tag is part of the XHTML namespace.
@@ -294,7 +294,7 @@ class FB2MLizer(object):
             s_out, s_tags = self.handle_simple_tag('strong', tag_stack+tags)
             fb2_out += s_out
             tags += s_tags
-        
+
         # Process element text.
         if hasattr(elem_tree, 'text') and elem_tree.text:
             if not self.in_p:

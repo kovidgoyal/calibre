@@ -13,6 +13,7 @@ from calibre.gui2 import error_dialog, question_dialog, open_url, \
                          choose_files, ResizableDialog, NONE
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.icu import sort_key
 
 class CustomRecipeModel(QAbstractListModel):
 
@@ -256,7 +257,7 @@ class %(classname)s(%(base_class)s):
     def add_builtin_recipe(self):
         from calibre.web.feeds.recipes.collection import \
             get_builtin_recipe_by_title, get_builtin_recipe_titles
-        items = sorted(get_builtin_recipe_titles())
+        items = sorted(get_builtin_recipe_titles(), key=sort_key)
 
 
         title, ok = QInputDialog.getItem(self, _('Pick recipe'), _('Pick the recipe to customize'),
