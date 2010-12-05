@@ -775,6 +775,7 @@ class Manifest(object):
             return u'Item(id=%r, href=%r, media_type=%r)' \
                 % (self.id, self.href, self.media_type)
 
+        # Parsing {{{
         def _parse_xml(self, data):
             data = xml_to_unicode(data, strip_encoding_pats=True,
                     assume_utf8=True, resolve_entities=True)[0]
@@ -1034,6 +1035,8 @@ class Manifest(object):
                 return (None, None)
             data = item.data.cssText
             return ('utf-8', data)
+
+        # }}}
 
         @dynamic_property
         def data(self):

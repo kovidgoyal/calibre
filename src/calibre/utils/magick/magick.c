@@ -414,7 +414,7 @@ magick_Image_load(magick_Image *self, PyObject *args, PyObject *kwargs) {
 
 // }}}
 
-// Image.load {{{
+// Image.open {{{
 static PyObject *
 magick_Image_read(magick_Image *self, PyObject *args, PyObject *kwargs) {
     const char *data;

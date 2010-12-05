@@ -199,7 +199,7 @@ class Win32Freeze(Command, WixMixIn):
         for pat in ('*.dll',):
             for f in glob.glob(os.path.join(bindir, pat)):
                 ok = True
-                for ex in ('expatw',):
+                for ex in ('expatw', 'testplug'):
                     if ex in f.lower():
                         ok = False
                 if not ok: continue

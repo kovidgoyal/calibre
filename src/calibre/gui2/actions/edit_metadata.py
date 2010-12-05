@@ -16,6 +16,7 @@ from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.actions import InterfaceAction
+from calibre.utils.icu import sort_key
 
 class EditMetadataAction(InterfaceAction):
 
@@ -363,8 +364,7 @@ class EditMetadataAction(InterfaceAction):
     def edit_device_collections(self, view, oncard=None):
         model = view.model()
         result = model.get_collections_with_ids()
-        compare = (lambda x,y:cmp(x.lower(), y.lower()))
-        d = TagListEditor(self.gui, tag_to_match=None, data=result, compare=compare)
+        d = TagListEditor(self.gui, tag_to_match=None, data=result, key=sort_key)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename # dict of new text to old ids
