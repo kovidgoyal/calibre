@@ -20,7 +20,7 @@ from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
-from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES, OPF
 from calibre.utils.magick import Image
 
 class FB2MLizer(object):
@@ -85,8 +85,8 @@ class FB2MLizer(object):
         metadata['version'] = __version__
         metadata['date'] = '%i.%i.%i' % (datetime.now().day, datetime.now().month, datetime.now().year)
         metadata['lang'] = u''.join(self.oeb_book.metadata.lang) if self.oeb_book.metadata.lang else 'en'
-        metadata['id'] = '%s' % uuid.uuid4() 
-        
+        metadata['id'] = None
+
         author_parts = self.oeb_book.metadata.creator[0].value.split(' ')
         if len(author_parts) == 1:
             metadata['author_last'] = author_parts[0]
@@ -97,6 +97,15 @@ class FB2MLizer(object):
             metadata['author_first'] = author_parts[0]
             metadata['author_middle'] = ' '.join(author_parts[1:-2])
             metadata['author_last'] = author_parts[-1]
+
+        identifiers = self.oeb_book.metadata['identifier']
+        for x in identifiers:
+            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode(x).startswith('urn:uuid:'):
+                metadata['id'] = unicode(x).split(':')[-1]
+                break
+        if metadata['id'] is None:
+            self.log.warn('No UUID identifier found')
+            metadata['id'] = str(uuid.uuid4()) 
 
         for key, value in metadata.items():
             metadata[key] = prepare_string_for_xml(value)
