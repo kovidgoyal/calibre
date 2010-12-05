@@ -28,6 +28,7 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import qt_to_dt, local_tz, utcfromtimestamp
+from calibre.utils.icu import sort_key
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.preferences.social import SocialMetadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
@@ -660,7 +661,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def initalize_authors(self):
         all_authors = self.db.all_authors()
-        all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        all_authors.sort(key=lambda x : sort_key(x[1]))
         for i in all_authors:
             id, name = i
             name = [name.strip().replace('|', ',') for n in name.split(',')]
@@ -675,7 +676,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def initialize_series(self):
         self.series.setSizeAdjustPolicy(self.series.AdjustToContentsOnFirstShow)
         all_series = self.db.all_series()
-        all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        all_series.sort(key=lambda x : sort_key(x[1]))
         series_id = self.db.series_id(self.row)
         idx, c = None, 0
         for i in all_series:
@@ -692,7 +693,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
-        all_publishers.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        all_publishers.sort(key=lambda x : sort_key(x[1]))
         publisher_id = self.db.publisher_id(self.row)
         idx, c = None, 0
         for i in all_publishers:

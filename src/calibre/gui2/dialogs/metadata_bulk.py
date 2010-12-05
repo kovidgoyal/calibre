@@ -17,6 +17,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic
 from calibre.utils.titlecase import titlecase
+from calibre.utils.icu import sort_key
 
 class MyBlockingBusy(QDialog):
 
@@ -594,7 +595,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def initalize_authors(self):
         all_authors = self.db.all_authors()
-        all_authors.sort(cmp=lambda x, y : cmp(x[1].lower(), y[1].lower()))
+        all_authors.sort(key=lambda x : sort_key(x[1]))
 
         for i in all_authors:
             id, name = i
@@ -604,7 +605,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def initialize_series(self):
         all_series = self.db.all_series()
-        all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        all_series.sort(key=lambda x : sort_key(x[1]))
 
         for i in all_series:
             id, name = i
@@ -613,7 +614,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
-        all_publishers.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        all_publishers.sort(key=lambda x : sort_key(x[1]))
 
         for i in all_publishers:
             id, name = i

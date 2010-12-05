@@ -796,11 +796,13 @@ class SortKey(object):
 class SortKeyGenerator(object):
 
     def __init__(self, fields, field_metadata, data):
+        from calibre.utils.icu import sort_key
         self.field_metadata = field_metadata
         self.orders = [-1 if x[1] else 1 for x in fields]
         self.entries = [(x[0], field_metadata[x[0]]) for x in fields]
         self.library_order = tweaks['title_series_sorting'] == 'library_order'
         self.data = data
+        self.string_sort_key = sort_key
 
     def __call__(self, record):
         values = tuple(self.itervals(self.data[record]))
@@ -821,17 +823,14 @@ class SortKeyGenerator(object):
                 if val is None:
                     val = ('', 1)
                 else:
-                    val = val.lower()
                     if self.library_order:
                         val = title_sort(val)
                     sidx_fm = self.field_metadata[name + '_index']
                     sidx = record[sidx_fm['rec_index']]
-                    val = (val, sidx)
+                    val = (self.string_sort_key(val), sidx)
 
             elif dt in ('text', 'comments', 'composite', 'enumeration'):
-                if val is None:
-                    val = ''
-                val = val.lower()
+                val = self.string_sort_key(val)
 
             elif dt == 'bool':
                 val = {True: 1, False: 2, None: 3}.get(val, 3)

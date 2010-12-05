@@ -91,11 +91,15 @@ podofo_inc = '/usr/include/podofo'
 podofo_lib = '/usr/lib'
 chmlib_inc_dirs = chmlib_lib_dirs = []
 sqlite_inc_dirs = []
+icu_inc_dirs = []
+icu_lib_dirs = []
 
 if iswindows:
     prefix  = r'C:\cygwin\home\kovid\sw'
     sw_inc_dir  = os.path.join(prefix, 'include')
     sw_lib_dir  = os.path.join(prefix, 'lib')
+    icu_inc_dirs = [sw_inc_dir]
+    icu_lib_dirs = [sw_lib_dir]
     sqlite_inc_dirs = [sw_inc_dir]
     fc_inc = os.path.join(sw_inc_dir, 'fontconfig')
     fc_lib = sw_lib_dir

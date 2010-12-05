@@ -18,6 +18,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
 from calibre.library.field_metadata import TagsIcons, category_icon_map
+from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -225,7 +226,7 @@ class TagsView(QTreeView): # {{{
                     partial(self.context_menu_handler, action='hide', category=category))
                 if self.hidden_categories:
                     m = self.context_menu.addMenu(_('Show category'))
-                    for col in sorted(self.hidden_categories, cmp=lambda x,y: cmp(x.lower(), y.lower())):
+                    for col in sorted(self.hidden_categories, key=sort_key):
                         m.addAction(col,
                             partial(self.context_menu_handler, action='show', category=col))
 
@@ -599,7 +600,8 @@ class TagsModel(QAbstractItemModel): # {{{
         # Reconstruct the user categories, putting them into metadata
         self.db.field_metadata.remove_dynamic_categories()
         tb_cats = self.db.field_metadata
-        for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys()):
+        for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys(),
+                               key=sort_key):
             cat_name = user_cat+':' # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
         if len(saved_searches().names()):
@@ -878,13 +880,13 @@ class TagBrowserMixin(object): # {{{
         db=self.library_view.model().db
         if category == 'tags':
             result = db.get_tags_with_ids()
-            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+            key = sort_key
         elif category == 'series':
             result = db.get_series_with_ids()
-            compare = (lambda x,y:cmp(title_sort(x).lower(), title_sort(y).lower()))
+            key = lambda x:sort_key(title_sort(x))
         elif category == 'publisher':
             result = db.get_publishers_with_ids()
-            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+            key = sort_key
         else: # should be a custom field
             cc_label = None
             if category in db.field_metadata:
@@ -892,9 +894,9 @@ class TagBrowserMixin(object): # {{{
                 result = db.get_custom_items_with_ids(label=cc_label)
             else:
                 result = []
-            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+            key = sort_key
 
-        d = TagListEditor(self, tag_to_match=tag, data=result, compare=compare)
+        d = TagListEditor(self, tag_to_match=tag, data=result, key=key)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename # dict of new text to old id

@@ -17,6 +17,7 @@ from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.utils.config import tweaks
+from calibre.utils.icu import sort_key
 
 class Base(object):
 
@@ -207,7 +208,7 @@ class Text(Base):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
             w = TagsLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
@@ -256,7 +257,7 @@ class Series(Base):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         w = EnComboBox(parent)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
@@ -365,11 +366,10 @@ widgets = {
         'enumeration': Enumeration
 }
 
-def field_sort(y, z, x=None):
-    m1, m2 = x[y], x[z]
+def field_sort_key(y, x=None):
+    m1 = x[y]
     n1 = 'zzzzz' if m1['datatype'] == 'comments' else m1['name']
-    n2 = 'zzzzz' if m2['datatype'] == 'comments' else m2['name']
-    return cmp(n1.lower(), n2.lower())
+    return sort_key(n1)
 
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
     def widget_factory(type, col):
@@ -381,7 +381,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         return w
     x = db.custom_column_num_map
     cols = list(x)
-    cols.sort(cmp=partial(field_sort, x=x))
+    cols.sort(key=partial(field_sort_key, x=x))
     count_non_comment = len([c for c in cols if x[c]['datatype'] != 'comments'])
 
     layout.setColumnStretch(1, 10)
@@ -526,7 +526,7 @@ class BulkSeries(BulkBase):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         w = EnComboBox(parent)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
@@ -678,7 +678,7 @@ class BulkText(BulkBase):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
             w = TagsLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)

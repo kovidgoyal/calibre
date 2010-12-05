@@ -179,8 +179,7 @@ class TXTMLizer(object):
                 text.append(u'\n\n')
 
         if tag in SPACE_TAGS:
-            if not end.endswith('u ') and hasattr(elem, 'text') and elem.text:
-                text.append(u' ')
+            text.append(u' ')
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
