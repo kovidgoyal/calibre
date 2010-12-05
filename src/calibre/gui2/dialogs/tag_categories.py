@@ -22,6 +22,15 @@ class Item:
         return 'name=%s, label=%s, index=%s, exists='%(self.name, self.label, self.index, self.exists)
 
 class TagCategories(QDialog, Ui_TagCategories):
+    '''
+    The structure of user_categories stored in preferences is
+      {cat_name: [ [name, category, v], [], []}, cat_name [ [name, cat, v] ...}
+    where name is the item name, category is where it came from (series, etc),
+    and v is a scratch area that this editor uses to keep track of categories.
+
+    If you add a category, it is permissible to set v to zero. If you delete
+    a category, ensure that both the name and the category match.
+    '''
     category_labels_orig =   ['', 'authors', 'series', 'publisher', 'tags']
 
     def __init__(self, window, db, on_category=None):

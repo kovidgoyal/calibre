@@ -2637,7 +2637,7 @@ class ITUNES(DriverBase):
                 lb_added.composer.set(metadata_x.uuid)
                 lb_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.enabled.set(True)
-                lb_added.sort_artist.set(metadata_x.author_sort.title())
+                lb_added.sort_artist.set(icu_title(metadata_x.author_sort))
                 lb_added.sort_name.set(metadata.title_sort)
 
 
@@ -2648,7 +2648,7 @@ class ITUNES(DriverBase):
                 db_added.composer.set(metadata_x.uuid)
                 db_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.enabled.set(True)
-                db_added.sort_artist.set(metadata_x.author_sort.title())
+                db_added.sort_artist.set(icu_title(metadata_x.author_sort))
                 db_added.sort_name.set(metadata.title_sort)
 
             if metadata_x.comments:
@@ -2729,7 +2729,7 @@ class ITUNES(DriverBase):
                 lb_added.Composer = metadata_x.uuid
                 lb_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.Enabled = True
-                lb_added.SortArtist = metadata_x.author_sort.title()
+                lb_added.SortArtist = icu_title(metadata_x.author_sort)
                 lb_added.SortName = metadata.title_sort
 
             if db_added:
@@ -2739,7 +2739,7 @@ class ITUNES(DriverBase):
                 db_added.Composer = metadata_x.uuid
                 db_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.Enabled = True
-                db_added.SortArtist = metadata_x.author_sort.title()
+                db_added.SortArtist = icu_title(metadata_x.author_sort)
                 db_added.SortName = metadata.title_sort
 
             if metadata_x.comments:

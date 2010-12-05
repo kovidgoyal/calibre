@@ -607,7 +607,7 @@ class Metadata(object):
                     key = barename(key)
                 attrib[key] = prefixname(value, nsrmap)
             if namespace(self.term) == DC11_NS:
-                name = DC(barename(self.term).title())
+                name = DC(icu_title(barename(self.term)))
                 elem = element(dcmeta, name, attrib=attrib)
                 elem.text = self.value
             else:
