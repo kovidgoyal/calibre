@@ -145,8 +145,14 @@ class FB2MLizer(object):
         return ''.join(text) + '</body>'
 
     def fb2mlize_images(self):
+        '''
+        This function uses the self.image_hrefs dictionary mapping. It is populated by the dump_text function.
+        '''
         images = []
         for item in self.oeb_book.manifest:
+            # Don't write the image if it's not referenced in the document's text.
+            if item.href not in self.image_hrefs:
+                continue
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
                     im = Image.open(cStringIO.StringIO(item.data)).convert('RGB')
@@ -164,7 +170,7 @@ class FB2MLizer(object):
                             col = 1
                         col += 1
                         data += char
-                    images.append('<binary id="%s" content-type="%s">%s\n</binary>' % (self.image_hrefs.get(item.href, '_0000.JPEG'), item.media_type, data))
+                    images.append('<binary id="%s" content-type="%s">%s\n</binary>' % (self.image_hrefs[item.href], item.media_type, data))
                 except Exception as e:
                     self.log.error('Error: Could not include file %s because ' \
                         '%s.' % (item.href, e))
@@ -245,14 +251,15 @@ class FB2MLizer(object):
             fb2_out.append('<title>')
             tags.append('title')
         if tag == 'img':
-            # TODO: Check that the image is in the manifest and only write the tag if it is.
             if elem_tree.attrib.get('src', None):
-                if page.abshref(elem_tree.attrib['src']) not in self.image_hrefs.keys():
-                    self.image_hrefs[page.abshref(elem_tree.attrib['src'])] = '_%s.jpg' % len(self.image_hrefs.keys())
-                p_txt, p_tag = self.ensure_p()
-                fb2_out += p_txt
-                tags += p_tag
-                fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem_tree.attrib['src'])])
+                # Only write the image tag if it is in the manifest.
+                if page.abshref(elem_tree.attrib['src']) in self.oeb_book.manifest.hrefs.keys():
+                    if page.abshref(elem_tree.attrib['src']) not in self.image_hrefs.keys():
+                        self.image_hrefs[page.abshref(elem_tree.attrib['src'])] = '_%s.jpg' % len(self.image_hrefs.keys())
+                    p_txt, p_tag = self.ensure_p()
+                    fb2_out += p_txt
+                    tags += p_tag
+                    fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem_tree.attrib['src'])])
         elif tag == 'br':
             if self.in_p:
                 closed_tags = []
