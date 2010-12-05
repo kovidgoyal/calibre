@@ -50,11 +50,11 @@ class CaseMangler(object):
 
     def text_transform(self, transform, text):
         if transform == 'capitalize':
-            return text.title()
+            return icu_title(text)
         elif transform == 'uppercase':
-            return text.upper()
+            return icu_upper(text)
         elif transform == 'lowercase':
-            return text.lower()
+            return icu_lower(text)
         return text
 
     def split_text(self, text):
