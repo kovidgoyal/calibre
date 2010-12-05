@@ -12,6 +12,7 @@ import cStringIO
 from base64 import b64encode
 from datetime import datetime
 import re
+import uuid
 
 try:
     from PIL import Image
@@ -88,7 +89,8 @@ class FB2MLizer(object):
         metadata['appname'] = __appname__
         metadata['version'] = __version__
         metadata['date'] = '%i.%i.%i' % (datetime.now().day, datetime.now().month, datetime.now().year)
-        metadata['lang'] = u''.join(self.oeb_book.metadata.lang) if self.oeb_book.metadata.lang else 'en' 
+        metadata['lang'] = u''.join(self.oeb_book.metadata.lang) if self.oeb_book.metadata.lang else 'en'
+        metadata['id'] = '%s' % uuid.uuid4() 
         
         author_parts = self.oeb_book.metadata.creator[0].value.split(' ')
         if len(author_parts) == 1:
@@ -124,7 +126,7 @@ class FB2MLizer(object):
                         '</author>' \
                         '<program-used>%(appname)s %(version)s</program-used>' \
                         '<date>%(date)s</date>' \
-                        '<id>1</id>' \
+                        '<id>%(id)s</id>' \
                         '<version>1.0</version>' \
                     '</document-info>' \
                 '</description>' % metadata
