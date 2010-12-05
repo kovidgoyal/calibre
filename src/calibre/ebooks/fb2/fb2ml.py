@@ -165,7 +165,7 @@ class FB2MLizer(object):
                             col = 1
                         col += 1
                         data += char
-                    images.append('<binary id="%s">%s\n</binary>' % (self.image_hrefs[item.href], data))
+                    images.append('<binary id="%s" content-type="image/jpeg">%s\n</binary>' % (self.image_hrefs[item.href], data))
                 except Exception as e:
                     self.log.error('Error: Could not include file %s because ' \
                         '%s.' % (item.href, e))
