@@ -41,7 +41,6 @@ def titlecase(text):
     """
 
     def capitalize(w):
-        print 'in capitalize'
         w = icu_lower(w)
         w = w.replace(w[0], icu_upper(w[0]))
         return w

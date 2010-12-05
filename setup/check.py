@@ -63,7 +63,8 @@ class Check(Command):
 
     description = 'Check for errors in the calibre source code'
 
-    BUILTINS = ['_', '__', 'dynamic_property', 'I', 'P', 'lopen']
+    BUILTINS = ['_', '__', 'dynamic_property', 'I', 'P', 'lopen', 'icu_lower',
+            'icu_upper', 'icu_title']
     CACHE = '.check-cache.pickle'
 
     def get_files(self, cache):
