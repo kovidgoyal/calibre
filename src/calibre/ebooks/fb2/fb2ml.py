@@ -10,6 +10,7 @@ Transform OEB content into FB2 markup
 
 import cStringIO
 from base64 import b64encode
+from datetime import datetime
 import re
 
 try:
@@ -79,38 +80,54 @@ class FB2MLizer(object):
         return text
 
     def fb2_header(self):
-        author_first = u''
-        author_middle = u''
-        author_last = u''
+        metadata = {}
+        metadata['author_first'] = u''
+        metadata['author_middle'] = u''
+        metadata['author_last'] = u''
+        metadata['title'] = self.oeb_book.metadata.title[0].value
+        metadata['appname'] = __appname__
+        metadata['version'] = __version__
+        metadata['date'] = '%i.%i.%i' % (datetime.now().day, datetime.now().month, datetime.now().year)
+        metadata['lang'] = u''.join(self.oeb_book.metadata.lang) if self.oeb_book.metadata.lang else 'en' 
+        
         author_parts = self.oeb_book.metadata.creator[0].value.split(' ')
-
         if len(author_parts) == 1:
-            author_last = author_parts[0]
+            metadata['author_last'] = author_parts[0]
         elif len(author_parts) == 2:
-            author_first = author_parts[0]
-            author_last = author_parts[1]
+            metadata['author_first'] = author_parts[0]
+            metadata['author_last'] = author_parts[1]
         else:
-            author_first = author_parts[0]
-            author_middle = ' '.join(author_parts[1:-2])
-            author_last = author_parts[-1]
+            metadata['author_first'] = author_parts[0]
+            metadata['author_middle'] = ' '.join(author_parts[1:-2])
+            metadata['author_last'] = author_parts[-1]
+            
+        for key, value in metadata.items():
+            metadata[key] = prepare_string_for_xml(value)
 
         return u'<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">' \
                 '<description>' \
                     '<title-info>' \
-                        '<genre></genre>' \
+                        '<genre>antique</genre>' \
                         '<author>' \
-                            '<first-name>%s</first-name>' \
-                            '<middle-name>%s</middle-name>' \
-                            '<last-name>%s</last-name>' \
+                            '<first-name>%(author_first)s</first-name>' \
+                            '<middle-name>%(author_middle)s</middle-name>' \
+                            '<last-name>%(author_last)s</last-name>' \
                         '</author>' \
-                        '<book-title>%s</book-title>' \
-                        '<annotation><p/></annotation>' \
+                        '<book-title>%(title)s</book-title>' \
+                        '<lang>%(lang)s</lang>' \
                     '</title-info>' \
                     '<document-info>' \
-                        '<program-used>%s %s</program-used>' \
+                        '<author>' \
+                            '<first-name></first-name>' \
+                            '<middle-name></middle-name>' \
+                            '<last-name></last-name>' \
+                        '</author>' \
+                        '<program-used>%(appname)s %(version)s</program-used>' \
+                        '<date>%(date)s</date>' \
+                        '<id>1</id>' \
+                        '<version>1.0</version>' \
                     '</document-info>' \
-                '</description>' % tuple(map(prepare_string_for_xml, (author_first, author_middle, author_last,
-                        self.oeb_book.metadata.title[0].value, __appname__, __version__)))
+                '</description>' % metadata
 
     def fb2_footer(self):
         return u'</FictionBook>'
