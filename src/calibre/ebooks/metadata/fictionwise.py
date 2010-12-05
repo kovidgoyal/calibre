@@ -3,12 +3,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import sys, textwrap, re
+import sys, textwrap, re, traceback, socket
 from urllib import urlencode
 
-from lxml import html, etree
-from lxml.html import soupparser
-from lxml.etree import tostring
+from lxml import html
+from lxml.html import soupparser, tostring
 
 from calibre import browser, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
@@ -18,6 +17,7 @@ from calibre.library.comments import sanitize_comments_html
 from calibre.ebooks.metadata.fetch import MetadataSource
 from calibre.utils.config import OptionParser
 from calibre.utils.date import parse_date, utcnow
+from calibre.utils.cleantext import clean_ascii_char
 
 class Fictionwise(MetadataSource): # {{{
 
@@ -37,10 +37,11 @@ class Fictionwise(MetadataSource): # {{{
 
     # }}}
 
+class FictionwiseError(Exception):
+    pass
 
 def report(verbose):
     if verbose:
-        import traceback
         traceback.print_exc()
 
 class Query(object):
@@ -86,18 +87,20 @@ class Query(object):
             q = q.encode('utf-8')
         self.urldata = urlencode(q)
 
-    def __call__(self, browser, verbose):
+    def __call__(self, browser, verbose, timeout = 5.):
         if verbose:
-            print 'Query:', self.BASE_URL+self.urldata
+            print _('Query: %s') % self.BASE_URL+self.urldata
         
         try:
-            raw = browser.open_novisit(self.BASE_URL, self.urldata).read()
+            raw = browser.open_novisit(self.BASE_URL, self.urldata, timeout=timeout).read()
         except Exception, e:
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return
-            raise
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+                raise FictionwiseError(_('Fictionwise timed out. Try again later.'))
+            raise FictionwiseError(_('Fictionwise encountered an error.'))
         if '<title>404 - ' in raw:
             return
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
@@ -105,7 +108,11 @@ class Query(object):
         try:
             feed = soupparser.fromstring(raw)
         except:
-            return
+            try:
+                #remove ASCII invalid chars
+                feed = soupparser.fromstring(clean_ascii_char(raw))
+            except:
+                return None
 
         # get list of results as links
         results = feed.xpath("//table[3]/tr/td[2]/table/tr/td/p/table[2]/tr[@valign]")
@@ -139,12 +146,41 @@ class ResultList(list):
         self.reisbn = re.compile(r'.*ISBN\s*:\s*', re.I)
 
     def strip_tags_etree(self, etreeobj, invalid_tags):
-        for itag in invalid_tags:
-            for elt in etreeobj.getiterator(itag):
-                elt.drop_tag()
-        return etreeobj
+        for (itag, rmv) in invalid_tags.iteritems():
+            if rmv:
+                for elts in etreeobj.getiterator(itag):
+                    elts.drop_tree()
+            else:
+                for elts in etreeobj.getiterator(itag):
+                    elts.drop_tag()
 
-    def clean_entry(self, entry, 
+    def clean_entry(self, entry, invalid_tags = {'script': True},
+                invalid_id = (), invalid_class=(), invalid_xpath = ()):
+        #invalid_tags: remove tag and keep content if False else remove
+        #remove tags
+        if invalid_tags:
+            self.strip_tags_etree(entry, invalid_tags)
+        #remove xpath
+        if invalid_xpath:
+            for eltid in invalid_xpath:
+                elt = entry.xpath(eltid)
+                for el in elt:
+                    el.drop_tree()
+        #remove id
+        if invalid_id:
+            for eltid in invalid_id:
+                elt = entry.get_element_by_id(eltid)
+                if elt is not None:
+                    elt.drop_tree()
+        #remove class
+        if invalid_class:
+            for eltclass in invalid_class:
+                elts = entry.find_class(eltclass)
+                if elts is not None:
+                    for elt in elts:
+                        elt.drop_tree()
+
+    def clean_entry_dffdfbdjbf(self, entry, 
             invalid_tags = ('font', 'strong', 'b', 'ul', 'span', 'a'),
                 remove_tags_trees = ('script',)):
         for it in entry[0].iterchildren(tag='table'):
@@ -170,7 +206,6 @@ class ResultList(list):
         authortext = entry.find('./br').tail
         if not self.rechkauth.search(authortext):
             return []
-            #TODO: parse all tag if necessary
         authortext = self.rechkauth.sub('', authortext)
         return [a.strip() for a in authortext.split('&')]
 
@@ -185,7 +220,7 @@ class ResultList(list):
                     float(image.get('height', default=0))) \
                         for image in entrytable.getiterator('img'))
         #ratings as x/5
-        return 1.25*sum(k*v for (k, v) in hval.iteritems())/sum(hval.itervalues())
+        return float(1.25*sum(k*v for (k, v) in hval.iteritems())/sum(hval.itervalues()))
 
     def get_description(self, entry):
         description = self.output_entry(entry.find('./p'),htmlrm="")
@@ -221,7 +256,6 @@ class ResultList(list):
             self.resplitbr.split(date))
         if not len(date):
             return None
-            #TODO: parse all tag if necessary
         try:
             d = self.redate.sub('', date[0])
             if d:
@@ -279,9 +313,14 @@ class ResultList(list):
         return feed.xpath("//table[3]/tr/td[2]/table[1]/tr/td/font/table/tr/td")
 
     def populate(self, entries, browser, verbose=False):
-        for x in entries:
+        inv_tags ={'script': True, 'a': False, 'font': False, 'strong': False, 'b': False,
+            'ul': False, 'span': False, 'table': True}
+        inv_xpath =('descendant-or-self::p[1]',)
+        #single entry
+        if len(entries) == 1 and not isinstance(entries[0], str):
             try:
-                entry = self.get_individual_metadata(browser, x, verbose)
+                entry = entries.xpath("//table[3]/tr/td[2]/table[1]/tr/td/font/table/tr/td")
+                self.clean_entry(entry, invalid_tags=inv_tags, invalid_xpath=inv_xpath)
                 entry = self.clean_entry(entry)
                 title = self.get_title(entry)
                 #ratings: get table for rating then drop
@@ -292,28 +331,29 @@ class ResultList(list):
                 authors = self.get_authors(entry)
             except Exception, e:
                 if verbose:
-                    print 'Failed to get all details for an entry'
+                    print _('Failed to get all details for an entry')
                     print e
-                continue
+                return
             self.append(self.fill_MI(entry, title, authors, ratings, verbose))
-
-    def populate_single(self, feed, verbose=False):
-        try:
-            entry = feed.xpath("//table[3]/tr/td[2]/table[1]/tr/td/font/table/tr/td")
-            entry = self.clean_entry(entry)
-            title = self.get_title(entry)
-            #ratings: get table for rating then drop
-            for elt in entry.getiterator('table'):
-                ratings =  self.get_rating(elt, verbose)
-                elt.getprevious().drop_tree()
-                elt.drop_tree()
-            authors = self.get_authors(entry)
-        except Exception, e:
-            if verbose:
-                print 'Failed to get all details for an entry'
-                print e
-            return
-        self.append(self.fill_MI(entry, title, authors, ratings, verbose))
+        else:
+            #multiple entries
+            for x in entries:
+                try:
+                    entry = self.get_individual_metadata(browser, x, verbose)
+                    self.clean_entry(entry, invalid_tags=inv_tags, invalid_xpath=inv_xpath)
+                    title = self.get_title(entry)
+                    #ratings: get table for rating then drop
+                    for elt in entry.getiterator('table'):
+                        ratings =  self.get_rating(elt, verbose)
+                        elt.getprevious().drop_tree()
+                        elt.drop_tree()
+                    authors = self.get_authors(entry)
+                except Exception, e:
+                    if verbose:
+                        print _('Failed to get all details for an entry')
+                        print e
+                    continue
+                self.append(self.fill_MI(entry, title, authors, ratings, verbose))
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
@@ -321,35 +361,32 @@ def search(title=None, author=None, publisher=None, isbn=None,
             keywords=None):
     br = browser()
     entries = Query(title=title, author=author, publisher=publisher,
-        keywords=keywords, max_results=max_results)(br, verbose)
+        keywords=keywords, max_results=max_results)(br, verbose, timeout = 10.)
     
     #List of entry
     ans = ResultList()
-    if len(entries) > 1:
-        ans.populate(entries, br, verbose)
-    else:
-        ans.populate_single(entries[0], verbose)
+    ans.populate(entries, br, verbose)
     return ans
 
 
 def option_parser():
     parser = OptionParser(textwrap.dedent(\
-    '''\
+    _('''\
         %prog [options]
 
         Fetch book metadata from Fictionwise. You must specify one of title, author,
         or keywords. No ISBN specification possible. Will fetch a maximum of 20 matches,
         so you should make your query as specific as possible.
-    '''
+    ''')
     ))
-    parser.add_option('-t', '--title', help='Book title')
-    parser.add_option('-a', '--author', help='Book author(s)')
-    parser.add_option('-p', '--publisher', help='Book publisher')
-    parser.add_option('-k', '--keywords', help='Keywords')
+    parser.add_option('-t', '--title', help=_('Book title'))
+    parser.add_option('-a', '--author', help=_('Book author(s)'))
+    parser.add_option('-p', '--publisher', help=_('Book publisher'))
+    parser.add_option('-k', '--keywords', help=_('Keywords'))
     parser.add_option('-m', '--max-results', default=20,
-                      help='Maximum number of results to fetch')
+                      help=_('Maximum number of results to fetch'))
     parser.add_option('-v', '--verbose', default=0, action='count',
-                      help='Be more verbose about errors')
+                      help=_('Be more verbose about errors'))
     return parser
 
 def main(args=sys.argv):
@@ -362,6 +399,9 @@ def main(args=sys.argv):
         report(True)
         parser.print_help()
         return 1
+    if results is None or len(results) == 0:
+        print _('No result found for this search!')
+        return 0
     for result in results:
         print unicode(result).encode(preferred_encoding, 'replace')
         print
