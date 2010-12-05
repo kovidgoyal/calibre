@@ -322,7 +322,7 @@ def iana2mobi(icode):
     while len(subtags) > 0:
         subtag = subtags.pop(0)
         if subtag not in langdict:
-            subtag = subtag.title()
+            subtag = icu_title(subtag)
         if subtag not in langdict:
             subtag = subtag.upper()
         if subtag in langdict:

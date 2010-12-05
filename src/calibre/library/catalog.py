@@ -1476,20 +1476,20 @@ class EPUB_MOBI(CatalogPlugin):
                         self.opts.log.warn(" '%s' != '%s'" % (author[1], current_author[1]))
 
                     # New author, save the previous author/sort/count
-                    unique_authors.append((current_author[0], current_author[1].title(),
+                    unique_authors.append((current_author[0], icu_title(current_author[1]),
                                            books_by_current_author))
                     current_author = author
                     books_by_current_author = 1
                 elif i==0 and len(authors) == 1:
                     # Allow for single-book lists
-                    unique_authors.append((current_author[0], current_author[1].title(),
+                    unique_authors.append((current_author[0], icu_title(current_author[1]),
                                            books_by_current_author))
                 else:
                     books_by_current_author += 1
             else:
                 # Add final author to list or single-author dataset
                 if (current_author == author and len(authors) > 1) or not multiple_authors:
-                    unique_authors.append((current_author[0], current_author[1].title(),
+                    unique_authors.append((current_author[0], icu_title(current_author[1]),
                                            books_by_current_author))
 
             if False and self.verbose:

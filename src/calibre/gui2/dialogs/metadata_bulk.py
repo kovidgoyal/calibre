@@ -184,8 +184,8 @@ class MyBlockingBusy(QDialog):
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     s_r_functions = {       ''              : lambda x: x,
-                            _('Lower Case') : lambda x: x.lower(),
-                            _('Upper Case') : lambda x: x.upper(),
+                            _('Lower Case') : lambda x: icu_lower(x),
+                            _('Upper Case') : lambda x: icu_upper(x),
                             _('Title Case') : lambda x: titlecase(x),
                     }
 
