@@ -19,6 +19,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.constants import preferred_encoding
 from calibre.library.comments import comments_to_html
 from calibre.gui2 import config, open_local_file
+from calibre.utils.icu import sort_key
 
 # render_rows(data) {{{
 WEIGHTS = collections.defaultdict(lambda : 100)
@@ -31,8 +32,8 @@ WEIGHTS[_('Tags')] = 4
 def render_rows(data):
     keys = data.keys()
     # First sort by name. The WEIGHTS sort will preserve this sub-order
-    keys.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
-    keys.sort(cmp=lambda x, y: cmp(WEIGHTS[x], WEIGHTS[y]))
+    keys.sort(key=sort_key)
+    keys.sort(key=lambda x: WEIGHTS[x])
     rows = []
     for key in keys:
         txt = data[key]

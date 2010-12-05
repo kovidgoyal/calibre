@@ -14,6 +14,7 @@ from operator import itemgetter
 
 from PyQt4.QtGui import QImage
 
+
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.database import LibraryDatabase
@@ -33,6 +34,7 @@ from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs, tweaks
+from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
@@ -287,7 +289,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # Assumption is that someone else will fix them if they change.
         self.field_metadata.remove_dynamic_categories()
         tb_cats = self.field_metadata
-        for user_cat in sorted(self.prefs.get('user_categories', {}).keys()):
+        for user_cat in sorted(self.prefs.get('user_categories', {}).keys(), key=sort_key):
             cat_name = user_cat+':' # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
         if len(saved_searches().names()):
@@ -1065,7 +1067,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if sort == 'popularity':
                 query += ' ORDER BY count DESC, sort ASC'
             elif sort == 'name':
-                query += ' ORDER BY sort ASC'
+                query += ' ORDER BY sort COLLATE icucollate'
             else:
                 query += ' ORDER BY avg_rating DESC, sort ASC'
             data = self.conn.get(query)
@@ -1137,6 +1139,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if sort == 'popularity':
             categories['formats'].sort(key=lambda x: x.count, reverse=True)
         else: # no ratings exist to sort on
+            # No need for ICU here.
             categories['formats'].sort(key = lambda x:x.name)
 
         #### Now do the user-defined categories. ####
@@ -1151,7 +1154,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for c in categories.keys():
             taglist[c] = dict(map(lambda t:(t.name, t), categories[c]))
 
-        for user_cat in sorted(user_categories.keys()):
+        for user_cat in sorted(user_categories.keys(), key=sort_key):
             items = []
             for (name,label,ign) in user_categories[user_cat]:
                 if label in taglist and name in taglist[label]:
@@ -1167,7 +1170,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         sorted(items, key=lambda x: x.count, reverse=True)
                 elif sort == 'name':
                     categories[cat_name] = \
-                        sorted(items, key=lambda x: x.sort.lower())
+                        sorted(items, key=lambda x: sort_key(x.sort))
                 else:
                     categories[cat_name] = \
                         sorted(items, key=lambda x:x.avg_rating, reverse=True)

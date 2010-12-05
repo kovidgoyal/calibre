@@ -17,6 +17,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.search_query_parser import saved_searches
+from calibre.utils.icu import sort_key
 
 class SearchLineEdit(QLineEdit): # {{{
     key_pressed = pyqtSignal(object)
@@ -204,7 +205,7 @@ class SearchBox2(QComboBox): # {{{
         self.blockSignals(yes)
         self.line_edit.blockSignals(yes)
 
-    def set_search_string(self, txt, store_in_history=False):
+    def set_search_string(self, txt, store_in_history=False, emit_changed=True):
         self.setFocus(Qt.OtherFocusReason)
         if not txt:
             self.clear()
@@ -212,7 +213,8 @@ class SearchBox2(QComboBox): # {{{
             self.normalize_state()
             self.setEditText(txt)
             self.line_edit.end(False)
-            self.changed.emit()
+            if emit_changed:
+                self.changed.emit()
             self._do_search(store_in_history=store_in_history)
         self.focus_to_library.emit()
 
@@ -292,7 +294,7 @@ class SavedSearchBox(QComboBox): # {{{
             self.search_box.clear()
             self.setEditText(qname)
             return
-        self.search_box.set_search_string(u'search:"%s"' % qname)
+        self.search_box.set_search_string(u'search:"%s"' % qname, emit_changed=False)
         self.setEditText(qname)
         self.setToolTip(saved_searches().lookup(qname))
 
@@ -417,7 +419,7 @@ class SavedSearchBoxMixin(object): # {{{
             b.setStatusTip(b.toolTip())
 
     def saved_searches_changed(self):
-        p = sorted(saved_searches().names(), cmp=lambda x,y: cmp(x.lower(), y.lower()))
+        p = sorted(saved_searches().names(), key=sort_key)
         t = unicode(self.search_restriction.currentText())
         # rebuild the restrictions combobox using current saved searches
         self.search_restriction.clear()

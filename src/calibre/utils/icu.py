@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from calibre.constants import plugins
+from calibre.utils.config import tweaks
 
 _icu = _collator = None
 _locale = None
@@ -20,7 +21,10 @@ def get_locale():
     global _locale
     if _locale is None:
         from calibre.utils.localization import get_lang
-        _locale = get_lang()
+        if tweaks['locale_for_sorting']:
+            _locale = tweaks['locale_for_sorting']
+        else:
+            _locale = get_lang()
     return _locale
 
 def load_icu():

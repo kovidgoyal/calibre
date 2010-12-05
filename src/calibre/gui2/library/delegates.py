@@ -20,6 +20,7 @@ from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.utils.date import now, format_date
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
+from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 
 class RatingDelegate(QStyledItemDelegate): # {{{
@@ -173,7 +174,8 @@ class TagsDelegate(QStyledItemDelegate): # {{{
                 editor = TagsLineEdit(parent, self.db.all_tags())
             else:
                 editor = TagsLineEdit(parent,
-                        sorted(list(self.db.all_custom(label=self.db.field_metadata.key_to_label(col)))))
+                        sorted(list(self.db.all_custom(label=self.db.field_metadata.key_to_label(col))),
+                               key=sort_key))
                 return editor
         else:
             editor = EnLineEdit(parent)
@@ -245,7 +247,8 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
             editor.setDecimals(2)
         else:
             editor = EnLineEdit(parent)
-            complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))))
+            complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))),
+                                    key=sort_key)
             completer = QCompleter(complete_items, self)
             completer.setCaseSensitivity(Qt.CaseInsensitive)
             completer.setCompletionMode(QCompleter.PopupCompletion)

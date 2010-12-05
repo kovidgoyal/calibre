@@ -8,6 +8,7 @@ from PyQt4.QtGui import QDialog, QDialogButtonBox
 from calibre.gui2.dialogs.search_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 from calibre.gui2 import gprefs
+from calibre.utils.icu import sort_key
 
 box_values = {}
 
@@ -18,8 +19,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
         self.mc = ''
         searchables = sorted(db.field_metadata.searchable_fields(),
-                             lambda x, y: cmp(x if x[0] != '#' else x[1:],
-                                              y if y[0] != '#' else y[1:]))
+                             key=lambda x: sort_key(x if x[0] != '#' else x[1:]))
         self.general_combo.addItems(searchables)
 
         self.box_last_values = copy.deepcopy(box_values)
