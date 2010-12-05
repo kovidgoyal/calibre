@@ -8,17 +8,11 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into FB2 markup
 '''
 
-import cStringIO
 from base64 import b64encode
 from datetime import datetime
+from mimetypes import types_map
 import re
 import uuid
-
-try:
-    from PIL import Image
-    Image
-except ImportError:
-    import Image
 
 from lxml import etree
 
@@ -27,6 +21,7 @@ from calibre.constants import __appname__, __version__
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+from calibre.utils.magick import Image
 
 class FB2MLizer(object):
     '''
@@ -155,11 +150,11 @@ class FB2MLizer(object):
                 continue
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
-                    im = Image.open(cStringIO.StringIO(item.data)).convert('RGB')
-                    data = cStringIO.StringIO()
-                    im.save(data, 'JPEG')
-                    data = data.getvalue()
-
+                    if not item.media_type == types_map['.jpeg'] or not item.media_type == types_map['.jpg']:
+                        im = Image()
+                        im.load(item.data)
+                        im.set_compression_quality(70)
+                        data = im.export('jpg')
                     raw_data = b64encode(data)
                     # Don't put the encoded image on a single line.
                     data = ''
