@@ -10,7 +10,9 @@ Transform OEB content into FB2 markup
 
 from base64 import b64encode
 from datetime import datetime
+from mimetypes import types_map
 import re
+import uuid
 
 from lxml import etree
 
@@ -19,7 +21,7 @@ from calibre.constants import __appname__, __version__
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
-from calibre.utils.magick.draw import save_cover_data_to
+from calibre.utils.magick import Image
 
 class FB2MLizer(object):
     '''
@@ -83,7 +85,8 @@ class FB2MLizer(object):
         metadata['version'] = __version__
         metadata['date'] = '%i.%i.%i' % (datetime.now().day, datetime.now().month, datetime.now().year)
         metadata['lang'] = u''.join(self.oeb_book.metadata.lang) if self.oeb_book.metadata.lang else 'en'
-
+        metadata['id'] = '%s' % uuid.uuid4() 
+        
         author_parts = self.oeb_book.metadata.creator[0].value.split(' ')
         if len(author_parts) == 1:
             metadata['author_last'] = author_parts[0]
@@ -118,7 +121,7 @@ class FB2MLizer(object):
                         '</author>' \
                         '<program-used>%(appname)s %(version)s</program-used>' \
                         '<date>%(date)s</date>' \
-                        '<id>1</id>' \
+                        '<id>%(id)s</id>' \
                         '<version>1.0</version>' \
                     '</document-info>' \
                 '</description>' % metadata
@@ -137,12 +140,21 @@ class FB2MLizer(object):
         return ''.join(text) + '</body>'
 
     def fb2mlize_images(self):
+        '''
+        This function uses the self.image_hrefs dictionary mapping. It is populated by the dump_text function.
+        '''
         images = []
         for item in self.oeb_book.manifest:
+            # Don't write the image if it's not referenced in the document's text.
+            if item.href not in self.image_hrefs:
+                continue
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
-                    data = save_cover_data_to(item.data, None,
-                            return_data=True)
+                    if not item.media_type == types_map['.jpeg'] or not item.media_type == types_map['.jpg']:
+                        im = Image()
+                        im.load(item.data)
+                        im.set_compression_quality(70)
+                        data = im.export('jpg')
                     raw_data = b64encode(data)
                     # Don't put the encoded image on a single line.
                     data = ''
@@ -153,7 +165,7 @@ class FB2MLizer(object):
                             col = 1
                         col += 1
                         data += char
-                    images.append('<binary id="%s" content-type="%s">%s\n</binary>' % (self.image_hrefs.get(item.href, '_0000.JPEG'), item.media_type, data))
+                    images.append('<binary id="%s" content-type="image/jpeg">%s\n</binary>' % (self.image_hrefs[item.href], data))
                 except Exception as e:
                     self.log.error('Error: Could not include file %s because ' \
                         '%s.' % (item.href, e))
@@ -234,14 +246,15 @@ class FB2MLizer(object):
             fb2_out.append('<title>')
             tags.append('title')
         if tag == 'img':
-            # TODO: Check that the image is in the manifest and only write the tag if it is.
             if elem_tree.attrib.get('src', None):
-                if page.abshref(elem_tree.attrib['src']) not in self.image_hrefs.keys():
-                    self.image_hrefs[page.abshref(elem_tree.attrib['src'])] = '_%s.jpg' % len(self.image_hrefs.keys())
-                p_txt, p_tag = self.ensure_p()
-                fb2_out += p_txt
-                tags += p_tag
-                fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem_tree.attrib['src'])])
+                # Only write the image tag if it is in the manifest.
+                if page.abshref(elem_tree.attrib['src']) in self.oeb_book.manifest.hrefs.keys():
+                    if page.abshref(elem_tree.attrib['src']) not in self.image_hrefs.keys():
+                        self.image_hrefs[page.abshref(elem_tree.attrib['src'])] = '_%s.jpg' % len(self.image_hrefs.keys())
+                    p_txt, p_tag = self.ensure_p()
+                    fb2_out += p_txt
+                    tags += p_tag
+                    fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem_tree.attrib['src'])])
         elif tag == 'br':
             if self.in_p:
                 closed_tags = []
