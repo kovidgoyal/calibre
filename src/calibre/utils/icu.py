@@ -114,27 +114,27 @@ Montag
 Dienstag
 Januar
 Februar
-MÃ¤rz
-FuÃŸe
-FluÃŸe
+März
+Fuße
+Fluße
 Flusse
 flusse
-fluÃŸe
-flÃ¼ÃŸe
-flÃ¼sse
+fluße
+flüße
+flüsse
 '''
     german_good = '''
     Dienstag
 Februar
 flusse
 Flusse
-fluÃŸe
-FluÃŸe
-flÃ¼sse
-flÃ¼ÃŸe
-FuÃŸe
+fluße
+Fluße
+flüsse
+flüße
+Fuße
 Januar
-MÃ¤rz
+März
 Montag
 Sonntag'''
     french = '''
@@ -142,49 +142,49 @@ dimanche
 lundi
 mardi
 janvier
-fÃ©vrier
+février
 mars
-dÃ©jÃ 
+déjà
 Meme
 deja
-mÃªme
-dejÃ 
+même
+dejà
 bpef
-bÅ“g
+bœg
 Boef
-MÃ©mÃ©
-bÅ“f
+Mémé
+bœf
 boef
 bnef
-pÃªche
-pÃ¨chÃ©
-pÃªchÃ©
-pÃªche
-pÃªchÃ©'''
+pêche
+pèché
+pêché
+pêche
+pêché'''
     french_good = '''
             bnef
         boef
         Boef
-        bÅ“f
-        bÅ“g
+        bœf
+        bœg
         bpef
         deja
-        dejÃ 
-        dÃ©jÃ 
+        dejà
+        déjà
         dimanche
-        fÃ©vrier
+        février
         janvier
         lundi
         mardi
         mars
         Meme
-        MÃ©mÃ©
-        mÃªme
-        pÃ¨chÃ©
-        pÃªche
-        pÃªche
-        pÃªchÃ©
-        pÃªchÃ©'''
+        Mémé
+        même
+        pèché
+        pêche
+        pêche
+        pêché
+        pêché'''
     # }}}
 
     def create(l):

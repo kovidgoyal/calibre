@@ -29,6 +29,14 @@ class FB2Output(OutputFormatPlugin):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.ebooks.oeb.transforms.jacket import linearize_jacket
+        from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
+        
+        try:
+            rasterizer = SVGRasterizer()
+            rasterizer(oeb_book, opts)
+        except Unavailable:
+            self.log.warn('SVG rasterizer unavailable, SVG will not be converted')
+
         linearize_jacket(oeb_book)
 
         fb2mlizer = FB2MLizer(log)
