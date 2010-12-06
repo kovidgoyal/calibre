@@ -239,8 +239,6 @@ static PyTypeObject icu_CollatorType = { // {{{
 
 // }}}
 
-// }}}
-
 // Module initialization {{{
 
 // upper {{{
