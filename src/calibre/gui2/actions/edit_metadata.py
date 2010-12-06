@@ -147,8 +147,13 @@ class EditMetadataAction(InterfaceAction):
 
             d = MetadataSingleDialog(self.gui, row_list[current_row], db,
                     prev=prev, next_=next_)
+            d.view_format.connect(lambda
+                    fmt:self.gui.iactions['View'].view_format(row_list[current_row],
+                        fmt))
             if d.exec_() != d.Accepted:
+                d.view_format.disconnect()
                 break
+            d.view_format.disconnect()
             changed.add(d.id)
             if d.row_delta == 0:
                 break

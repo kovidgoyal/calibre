@@ -18,9 +18,10 @@ def extract_alphanumeric(in_str=None):
     """
     # I'm sure this is really inefficient and
     # could be done with a lambda/map()
-    #x.strip().title().replace(' ', "")
+    #x.strip(). title().replace(' ', "")
     out_str=[]
-    for x in in_str.title():
+    for x in in_str:
+        x = icu_title(x)
         if x.isalnum(): out_str.append(x)
     return ''.join(out_str)
 

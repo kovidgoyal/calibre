@@ -223,7 +223,7 @@ EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
 def _match(query, value, matchkind):
     for t in value:
-        t = t.lower()
+        t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
             if ((matchkind == EQUALS_MATCH and query == t) or
                 (matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
@@ -505,7 +505,7 @@ class ResultCache(SearchQueryParser): # {{{
                     query = query[1:]
             if matchkind != REGEXP_MATCH:
                 # leave case in regexps because it can be significant e.g. \S \W \D
-                query = query.lower()
+                query = icu_lower(query)
 
             if not isinstance(query, unicode):
                 query = query.decode('utf-8')
