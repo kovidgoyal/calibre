@@ -239,8 +239,6 @@ static PyTypeObject icu_CollatorType = { // {{{
 
 // }}}
 
-// }}}
-
 // Module initialization {{{
 
 // upper {{{
@@ -286,7 +284,7 @@ icu_upper(PyObject *self, PyObject *args) {
     PyMem_Free(input);
 
     return ret;
-}
+} // }}}
 
 // lower {{{
 static PyObject *
