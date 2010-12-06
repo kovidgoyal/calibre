@@ -215,10 +215,8 @@ class SaveWorker(Thread):
                 if isbytestring(cpath):
                     cpath = cpath.decode(filesystem_encoding)
             formats = {}
-            fmts = self.db.formats(i, index_is_id=True, verify_formats=False)
-            if fmts:
-                fmts = fmts.split(',')
-                for fmt in fmts:
+            if mi.formats:
+                for fmt in mi.formats:
                     fpath = self.db.format_abspath(i, fmt, index_is_id=True)
                     if fpath is not None:
                         if isbytestring(fpath):
