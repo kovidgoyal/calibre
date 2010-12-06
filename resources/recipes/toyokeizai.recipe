@@ -8,13 +8,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
 class Toyokeizai(BasicNewsRecipe):
-    title          = u'ToyoKeizai'
+    title          = u'ToyoKeizai News'
     __author__     = 'Hiroshi Miura'
     oldest_article = 1
     max_articles_per_feed = 50
-    description    = 'Japanese traditional financial and business magazine'
+    description    = 'Japanese traditional economy and business magazine, only for advanced subscribers supported'
     publisher      = 'Toyokeizai Shinbun Sha'
-    category       = 'news, japan'
+    category       = 'economy, magazine, japan'
     language       = 'ja'
     encoding       = 'euc-jp'
     index          = 'http://www.toyokeizai.net/news/'
@@ -40,7 +40,7 @@ class Toyokeizai(BasicNewsRecipe):
                 itemd = itt.find('span')
                 newsarticles.append({
                                       'title'      :itema.string
-                                     ,'date'       :re.compile(r"\- ").sub(" ",itemd.string)
+                                     ,'date'       :re.compile(r"\- ").sub("",itemd.string)
                                      ,'url'        :'http://www.toyokeizai.net' + itema['href']
                                     # ,'description':itema['title']
                                     ,'description':''
@@ -57,5 +57,10 @@ class Toyokeizai(BasicNewsRecipe):
             br['password'] = self.password
             res = br.submit()
         return br
+
+    def is_link_wanted(url,tag):
+        if  re.compile(r'page//[0-9]+//$').search(url):
+            return True
+        return False
 
 
