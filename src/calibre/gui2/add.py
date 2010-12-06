@@ -436,6 +436,10 @@ class Saver(QObject): # {{{
                         self.ids.remove(i)
                     break
             if not self.callback_called:
+                try:
+                    self.worker.join(1.5)
+                except:
+                    pass # The worker was not yet started
                 self.callback(self.worker.path, self.failures, self.worker.error)
                 self.callback_called = True
             return
