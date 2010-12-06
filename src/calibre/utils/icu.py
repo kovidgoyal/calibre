@@ -69,7 +69,7 @@ def icu_case_sensitive_sort_key(collator, obj):
     return collator.sort_key(obj)
 
 def icu_strcmp(collator, a, b):
-    return collator.strcmp(a.lower(), b.lower())
+    return collator.strcmp(lower(a), lower(b))
 
 def py_strcmp(a, b):
     return cmp(a.lower(), b.lower())
@@ -103,6 +103,13 @@ lower = (lambda s: s.lower()) if _icu_not_ok else \
 
 title_case = (lambda s: s.title()) if _icu_not_ok else \
     partial(_icu.title, get_locale())
+
+def icu_capitalize(s):
+    s = lower(s)
+    return s.replace(s[0], upper(s[0]))
+
+capitalize = (lambda s: s.capitalize()) if _icu_not_ok else \
+    (lambda s: icu_capitalize(s))
 
 ################################################################################
 
@@ -215,14 +222,15 @@ pêché'''
         print '\t', x.encode('utf-8')
     if fs != create(french_good):
         print 'French failed (note that French fails with icu < 4.6 i.e. on windows and OS X)'
-        return
+        # return
     test_strcmp(german + french)
 
     print '\nTesting case transforms in current locale'
     for x in ('a', 'Alice\'s code'):
-        print 'Upper:', x, '->', 'py:', x.upper().encode('utf-8'), 'icu:', upper(x).encode('utf-8')
-        print 'Lower:', x, '->', 'py:', x.lower().encode('utf-8'), 'icu:', lower(x).encode('utf-8')
-        print 'Title:', x, '->', 'py:', x.title().encode('utf-8'), 'icu:', title_case(x).encode('utf-8')
+        print 'Upper:     ', x, '->', 'py:', x.upper().encode('utf-8'), 'icu:', upper(x).encode('utf-8')
+        print 'Lower:     ', x, '->', 'py:', x.lower().encode('utf-8'), 'icu:', lower(x).encode('utf-8')
+        print 'Title:     ', x, '->', 'py:', x.title().encode('utf-8'), 'icu:', title_case(x).encode('utf-8')
+        print 'Capitalize:', x, '->', 'py:', x.capitalize().encode('utf-8'), 'icu:', capitalize(x).encode('utf-8')
         print
 
 # }}}
