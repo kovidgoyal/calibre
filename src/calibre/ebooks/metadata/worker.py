@@ -271,6 +271,8 @@ class SaveWorker(Thread):
                 break
 
         for job in jobs:
+            if not job.result:
+                continue
             for id_, title, ok, tb in job.result:
                 if id_ in ids:
                     self.result_queue.put((id_, title, ok, tb))
