@@ -8,6 +8,7 @@ import re, string, traceback
 
 from calibre.constants import DEBUG
 from calibre.utils.titlecase import titlecase
+from calibre.utils.icu import capitalize
 
 class TemplateFormatter(string.Formatter):
     '''
@@ -86,7 +87,7 @@ class TemplateFormatter(string.Formatter):
                     'uppercase'     : (0, lambda s,x: x.upper()),
                     'lowercase'     : (0, lambda s,x: x.lower()),
                     'titlecase'     : (0, lambda s,x: titlecase(x)),
-                    'capitalize'    : (0, lambda s,x: x.capitalize()),
+                    'capitalize'    : (0, lambda s,x: capitalize(x)),
                     'contains'      : (3, _contains),
                     'ifempty'       : (1, _ifempty),
                     'lookup'        : (-1, _lookup),

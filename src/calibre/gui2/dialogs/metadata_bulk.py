@@ -17,7 +17,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic
 from calibre.utils.titlecase import titlecase
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, capitalize
 
 class MyBlockingBusy(QDialog):
 
@@ -187,6 +187,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                             _('Lower Case') : lambda x: icu_lower(x),
                             _('Upper Case') : lambda x: icu_upper(x),
                             _('Title Case') : lambda x: titlecase(x),
+                            _('Capitalize') : lambda x: capitalize(x),
                     }
 
     s_r_match_modes = [     _('Character match'),
