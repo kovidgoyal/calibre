@@ -13,7 +13,7 @@ from calibre.devices.interface import BookList as _BookList
 from calibre.constants import preferred_encoding
 from calibre import isbytestring
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, strcmp as icu_strcmp
 
 class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -241,7 +241,7 @@ class CollectionsBookList(BookList):
             if y is None:
                 return -1
             if isinstance(x, (unicode, str)):
-                c = cmp(sort_key(x), sort_key(y))
+                c = strcmp(x, y)
             else:
                 c = cmp(x, y)
             if c != 0:
