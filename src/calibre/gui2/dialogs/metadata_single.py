@@ -760,8 +760,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         if book.publisher: self.publisher.setEditText(book.publisher)
                         if book.isbn: self.isbn.setText(book.isbn)
                         if book.pubdate:
-                            d = book.pubdate
-                            self.pubdate.setDate(QDate(d.year, d.month, d.day))
+                            dt = book.pubdate
+                            self.pubdate.setDate(QDate(dt.year, dt.month, dt.day))
                         summ = book.comments
                         if summ:
                             prefix = unicode(self.comments.toPlainText())
@@ -777,8 +777,11 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                                 self.series.setText(book.series)
                                 if book.series_index is not None:
                                     self.series_index.setValue(book.series_index)
-                        # Needed because of Qt focus bug on OS X
-                        self.fetch_cover_button.setFocus(Qt.OtherFocusReason)
+                        if book.has_cover:
+                            if d.opt_auto_download_cover.isChecked() and book.has_cover:
+                                self.fetch_cover()
+                            else:
+                                self.fetch_cover_button.setFocus(Qt.OtherFocusReason)
         else:
             error_dialog(self, _('Cannot fetch metadata'),
                          _('You must specify at least one of ISBN, Title, '
