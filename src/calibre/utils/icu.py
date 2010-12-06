@@ -56,7 +56,7 @@ def py_sort_key(obj):
 def icu_sort_key(collator, obj):
     if not obj:
         return _none2
-    return collator.sort_key(obj.lower())
+    return collator.sort_key(lower(obj))
 
 def py_case_sensitive_sort_key(obj):
     if not obj:
