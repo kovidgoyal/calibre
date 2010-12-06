@@ -53,7 +53,6 @@ class Query(object):
         assert (max_results < 21)
 
         self.max_results = int(max_results)
-        
         q = {   'template' : 'searchresults_adv.htm' ,
                 'searchtitle' : '',
                 'searchauthor' : '',
@@ -131,12 +130,11 @@ class ResultList(list):
     def __init__(self):
         self.retitle = re.compile(r'\[[^\[\]]+\]')
         self.rechkauth = re.compile(r'.*book\s*by', re.I)
-        self.redesc = re.compile(r'book\s*description\s*:\s*(<br[^>]+>)*(?P<desc>.*)' \
-            + '<br[^>]+>.{,15}publisher\s*:', re.I)
+        self.redesc = re.compile(r'book\s*description\s*:\s*(<br[^>]+>)*(?P<desc>.*)<br[^>]*>.{,15}publisher\s*:', re.I)
         self.repub = re.compile(r'.*publisher\s*:\s*', re.I)
         self.redate = re.compile(r'.*release\s*date\s*:\s*', re.I)
         self.retag = re.compile(r'.*book\s*category\s*:\s*', re.I)
-        self.resplitbr = re.compile(r'<br[^>]+>', re.I)
+        self.resplitbr = re.compile(r'<br[^>]*>', re.I)
         self.recomment = re.compile(r'(?s)<!--.*?-->')
         self.reimg = re.compile(r'<img[^>]*>', re.I)
         self.resanitize = re.compile(r'\[HTML_REMOVED\]\s*', re.I)
@@ -180,21 +178,9 @@ class ResultList(list):
                     for elt in elts:
                         elt.drop_tree()
 
-    def clean_entry_dffdfbdjbf(self, entry, 
-            invalid_tags = ('font', 'strong', 'b', 'ul', 'span', 'a'),
-                remove_tags_trees = ('script',)):
-        for it in entry[0].iterchildren(tag='table'):
-            entry[0].remove(it)
-        entry[0].remove(entry[0].xpath( 'descendant-or-self::p[1]')[0])
-        entry = entry[0]
-        cleantree = self.strip_tags_etree(entry, invalid_tags)
-        for itag in remove_tags_trees:
-            for elts in cleantree.getiterator(itag):
-                    elts.drop_tree()
-        return cleantree
-
     def output_entry(self, entry, prettyout = True, htmlrm="\d+"):
         out = tostring(entry, pretty_print=prettyout)
+        #try to work around tostring to remove this encoding for exemle
         reclean = re.compile('(\n+|\t+|\r+|&#'+htmlrm+';)')
         return reclean.sub('', out)
 
@@ -223,18 +209,18 @@ class ResultList(list):
         return float(1.25*sum(k*v for (k, v) in hval.iteritems())/sum(hval.itervalues()))
 
     def get_description(self, entry):
-        description = self.output_entry(entry.find('./p'),htmlrm="")
+        description = self.output_entry(entry.xpath('./p')[1],htmlrm="")
         description = self.redesc.search(description)
-        if not description and not description.group("desc"):
+        if not description or not description.group("desc"):
             return None
         #remove invalid tags
         description = self.reimg.sub('', description.group("desc"))
         description = self.recomment.sub('', description)
         description = self.resanitize.sub('', sanitize_comments_html(description))
-        return 'SUMMARY:\n' + re.sub(r'\n\s+</p>','\n</p>', description)
+        return _('SUMMARY:\n %s') % re.sub(r'\n\s+</p>','\n</p>', description)
 
     def get_publisher(self, entry):
-        publisher = self.output_entry(entry.find('./p'))
+        publisher = self.output_entry(entry.xpath('./p')[1])
         publisher = filter(lambda x: self.repub.search(x) is not None,
             self.resplitbr.split(publisher))
         if not len(publisher):
@@ -243,7 +229,7 @@ class ResultList(list):
         return publisher.split(',')[0].strip()
 
     def get_tags(self, entry):
-        tag = self.output_entry(entry.find('./p'))
+        tag = self.output_entry(entry.xpath('./p')[1])
         tag = filter(lambda x: self.retag.search(x) is not None,
             self.resplitbr.split(tag))
         if not len(tag):
@@ -251,7 +237,7 @@ class ResultList(list):
         return map(lambda x: x.strip(), self.retag.sub('', tag[0]).split('/'))
 
     def get_date(self, entry, verbose):
-        date = self.output_entry(entry.find('./p'))
+        date = self.output_entry(entry.xpath('./p')[1])
         date = filter(lambda x: self.redate.search(x) is not None,
             self.resplitbr.split(date))
         if not len(date):
@@ -269,12 +255,11 @@ class ResultList(list):
         return d
 
     def get_ISBN(self, entry):
-        isbns = self.output_entry(entry.getchildren()[2])
+        isbns = self.output_entry(entry.xpath('./p')[2])
         isbns = filter(lambda x: self.reisbn.search(x) is not None,
             self.resplitbrdiv.split(isbns))
         if not len(isbns):
             return None
-            #TODO: parse all tag if necessary
         isbns = [self.reisbn.sub('', x) for x in isbns if check_isbn(self.reisbn.sub('', x))]
         return sorted(isbns, cmp=lambda x,y:cmp(len(x), len(y)))[-1]
 
@@ -287,7 +272,6 @@ class ResultList(list):
         mi.pubdate = self.get_date(entry, verbose)
         mi.isbn = self.get_ISBN(entry)
         mi.author_sort = authors_to_sort_string(authors)
-        # mi.language = self.get_language(x, verbose)
         return mi
 
     def get_individual_metadata(self, browser, linkdata, verbose):
@@ -298,36 +282,35 @@ class ResultList(list):
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return
-            raise
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+                raise FictionwiseError(_('Fictionwise timed out. Try again later.'))
+            raise FictionwiseError(_('Fictionwise encountered an error.'))
         if '<title>404 - ' in raw:
             report(verbose)
             return
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
         try:
-            feed = soupparser.fromstring(raw)
+            return soupparser.fromstring(raw)
         except:
-            return
-
-        # get results
-        return feed.xpath("//table[3]/tr/td[2]/table[1]/tr/td/font/table/tr/td")
+            try:
+                #remove ASCII invalid chars
+                return soupparser.fromstring(clean_ascii_char(raw))
+            except:
+                return None
 
     def populate(self, entries, browser, verbose=False):
         inv_tags ={'script': True, 'a': False, 'font': False, 'strong': False, 'b': False,
-            'ul': False, 'span': False, 'table': True}
-        inv_xpath =('descendant-or-self::p[1]',)
+            'ul': False, 'span': False}
+        inv_xpath =('./table',)
         #single entry
         if len(entries) == 1 and not isinstance(entries[0], str):
             try:
                 entry = entries.xpath("//table[3]/tr/td[2]/table[1]/tr/td/font/table/tr/td")
                 self.clean_entry(entry, invalid_tags=inv_tags, invalid_xpath=inv_xpath)
-                entry = self.clean_entry(entry)
                 title = self.get_title(entry)
-                #ratings: get table for rating then drop
-                for elt in entry.getiterator('table'):
-                    ratings =  self.get_rating(elt, verbose)
-                    elt.getprevious().drop_tree()
-                    elt.drop_tree()
+                #maybe strenghten the search
+                ratings =  self.get_rating(entry.xpath("./p/table")[1], verbose)
                 authors = self.get_authors(entry)
             except Exception, e:
                 if verbose:
@@ -340,13 +323,11 @@ class ResultList(list):
             for x in entries:
                 try:
                     entry = self.get_individual_metadata(browser, x, verbose)
+                    entry = entry.xpath("//table[3]/tr/td[2]/table[1]/tr/td/font/table/tr/td")[0]
                     self.clean_entry(entry, invalid_tags=inv_tags, invalid_xpath=inv_xpath)
                     title = self.get_title(entry)
-                    #ratings: get table for rating then drop
-                    for elt in entry.getiterator('table'):
-                        ratings =  self.get_rating(elt, verbose)
-                        elt.getprevious().drop_tree()
-                        elt.drop_tree()
+                    #maybe strenghten the search
+                    ratings =  self.get_rating(entry.xpath("./p/table")[1], verbose)
                     authors = self.get_authors(entry)
                 except Exception, e:
                     if verbose:
@@ -361,7 +342,7 @@ def search(title=None, author=None, publisher=None, isbn=None,
             keywords=None):
     br = browser()
     entries = Query(title=title, author=author, publisher=publisher,
-        keywords=keywords, max_results=max_results)(br, verbose, timeout = 10.)
+        keywords=keywords, max_results=max_results)(br, verbose, timeout = 15.)
     
     #List of entry
     ans = ResultList()
