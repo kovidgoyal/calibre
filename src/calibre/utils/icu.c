@@ -284,7 +284,7 @@ icu_upper(PyObject *self, PyObject *args) {
     PyMem_Free(input);
 
     return ret;
-}
+} // }}}
 
 // lower {{{
 static PyObject *
