@@ -26,7 +26,6 @@ class ViewAction(InterfaceAction):
 
     def genesis(self):
         self.persistent_files = []
-        self.metadata_view_id = None
         self.qaction.triggered.connect(self.view_book)
         self.view_menu = QMenu()
         self.view_menu.addAction(_('View'), partial(self.view_book, False))
@@ -50,14 +49,6 @@ class ViewAction(InterfaceAction):
                 index_is_id=True)
         if fmt_path:
             self._view_file(fmt_path)
-
-    def metadata_view_format(self, fmt):
-        fmt_path = self.gui.library_view.model().db.\
-                format_abspath(self.metadata_view_id,
-                        fmt, index_is_id=True)
-        if fmt_path:
-            self._view_file(fmt_path)
-
 
     def book_downloaded_for_viewing(self, job):
         if job.failed:
