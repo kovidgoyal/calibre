@@ -1,0 +1,61 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+www.toyokeizai.net
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class Toyokeizai(BasicNewsRecipe):
+    title          = u'ToyoKeizai'
+    __author__     = 'Hiroshi Miura'
+    oldest_article = 1
+    max_articles_per_feed = 50
+    description    = 'Japanese traditional financial and business magazine'
+    publisher      = 'Toyokeizai Shinbun Sha'
+    category       = 'news, japan'
+    language       = 'ja'
+    encoding       = 'euc-jp'
+    index          = 'http://www.toyokeizai.net/news/'
+    remove_javascript = True
+    no_stylesheet = True
+    masthead_title = u'TOYOKEIZAI'
+    needs_subscription = True
+    timefmt = '[%y/%m/%d]'
+
+    keep_only_tags = [dict(name='div', attrs={'class':['news']}),
+                      dict(name='div', attrs={'class':["news_con"]})
+                     ]
+    remove_tags = [{'class':"mt35 mgz"}]
+
+    def parse_index(self):
+        feeds = []
+        soup   = self.index_to_soup(self.index)
+        topstories = soup.find('ul',attrs={'class':'list6'})
+        if topstories:
+           newsarticles = []
+           for itt in topstories.findAll('li'):
+                itema = itt.find('a',href=True)
+                itemd = itt.find('span')
+                newsarticles.append({
+                                      'title'      :itema.string
+                                     ,'date'       :re.compile(r"\- ").sub(" ",itemd.string)
+                                     ,'url'        :'http://www.toyokeizai.net' + itema['href']
+                                    # ,'description':itema['title']
+                                    ,'description':''
+                                    })
+           feeds.append(('news', newsarticles))
+        return feeds
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://member.toyokeizai.net/norights/form/')
+            br.select_form(nr=0)
+            br['kaiin_id']   = self.username
+            br['password'] = self.password
+            res = br.submit()
+        return br
+
+
