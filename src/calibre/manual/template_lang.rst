@@ -46,7 +46,6 @@ and if a book does not have a series::
 
 (|app| automatically removes multiple slashes and leading or trailing spaces).
 
-
 Advanced formatting
 ----------------------
 
@@ -80,6 +79,9 @@ For trailing zeros, use::
 
    {series_index:0<3s} - Three digits with trailing zeros
 
+If you use series indices with sub values (e.g., 1.1), you might want to ensure that the decimal points line up. For example, you might want the indices 1 and 2.5 to appear as 01.00 and 02.50 so that they will sort correctly. To do this, use::
+
+   {series_index:0<5.2f} - Five characters, consisting of two digits with leading zeros, a decimal point, then 2 digits after the decimal point
 
 If you want only the first two letters of the data, use::
 
@@ -115,15 +117,15 @@ The functions available are:
     * ``lowercase()``	-- return value of the field in lower case.
     * ``uppercase()``	-- return the value of the field in upper case.
     * ``titlecase()``	-- return the value of the field in title case.
-    * ``capitalize()``	-- return the value as capitalized.
-    * ``ifempty(text)``	-- if the field is not empty, return the value of the field. Otherwise return `text`.
-    * ``test(text if not empty, text if empty)`` -- return `text if not empty` if the field is not empty, otherwise return `text if empty`.
+    * ``capitalize()``	-- return the value with the first letter upper case and the rest lower case.
     * ``contains(pattern, text if match, text if not match`` -- checks if field contains matches for the regular expression `pattern`. Returns `text if match` if matches are found, otherwise it returns `text if no match`.
     * ``count(separator)`` -- interprets the value as a list of items separated by `separator`, returning the number of items in the list. Most lists use a comma as the separator, but authors uses an ampersand. Examples: `{tags:count(,)}`, `{authors:count(&)}`
+    * ``ifempty(text)``	-- if the field is not empty, return the value of the field. Otherwise return `text`.
     * ``lookup(pattern, field, pattern, field, ..., else_field)`` -- like switch, except the arguments are field (metadata) names, not text. The value of the appropriate field will be fetched and used. Note that because composite columns are fields, you can use this function in one composite field to use the value of some other composite field. This is extremely useful when constructing variable save paths (more later).
     * ``re(pattern, replacement)`` -- return the field after applying the regular expression. All instances of `pattern` are replaced with `replacement`. As in all of |app|, these are python-compatible regular expressions.
     * ``shorten(left chars, middle text, right chars)`` -- Return a shortened version of the field, consisting of `left chars` characters from the beginning of the field, followed by `middle text`, followed by `right chars` characters from the end of the string. `Left chars` and `right chars` must be integers. For example, assume the title of the book is `Ancient English Laws in the Times of Ivanhoe`, and you want it to fit in a space of at most 15 characters. If you use ``{title:shorten(9,-,5)}``, the result will be `Ancient E-nhoe`. If the field's length is less than ``left chars`` + ``right chars`` + the length of ``middle text``, then the field will be used intact. For example, the title `The Dome` would not be changed.
     * ``switch(pattern, value, pattern, value, ..., else_value)`` -- for each ``pattern, value`` pair, checks if the field matches the regular expression ``pattern`` and if so, returns that ``value``. If no ``pattern`` matches, then ``else_value`` is returned. You can have as many ``pattern, value`` pairs as you want.
+    * ``test(text if not empty, text if empty)`` -- return `text if not empty` if the field is not empty, otherwise return `text if empty`.
 
 
 Now, about using functions and formatting in the same field. Suppose you have an integer custom column called ``#myint`` that you want to see with leading zeros, as in ``003``. To do this, you would use a format of ``0>3s``. However, by default, if a number (integer or float) equals zero then the field produces the empty value, so zero values will produce nothing, not ``000``. If you really want to see ``000`` values, then you use both the format string and the ``ifempty`` function to change the empty value back to a zero. The field reference would be::
