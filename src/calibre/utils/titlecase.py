@@ -9,6 +9,8 @@ License: http://www.opensource.org/licenses/mit-license.php
 
 import re
 
+from calibre.utils.icu import capitalize
+
 __all__ = ['titlecase']
 __version__ = '0.5'
 
@@ -39,11 +41,6 @@ def titlecase(text):
     the New York Times Manual of Style, plus 'vs' and 'v'.
 
     """
-
-    def capitalize(w):
-        w = icu_lower(w)
-        w = w.replace(w[0], icu_upper(w[0]))
-        return w
 
     all_caps = ALL_CAPS.match(text)
 

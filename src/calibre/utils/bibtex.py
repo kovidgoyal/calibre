@@ -64,10 +64,6 @@ __author__  = 'sengian <sengian1 at gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re, string
-from UserDict import UserDict
-
-from calibre.constants import preferred_encoding
-from calibre.utils.mreplace import MReplace
 
 from calibre.constants import preferred_encoding
 from calibre.utils.mreplace import MReplace

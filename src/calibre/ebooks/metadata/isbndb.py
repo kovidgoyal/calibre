@@ -137,7 +137,7 @@ def create_books(opts, args, timeout=5.):
 
     if opts.verbose:
         print ('ISBNDB query: '+url)
-    
+
     tans = [ISBNDBMetadata(book) for book in fetch_metadata(url, timeout=timeout)]
     #remove duplicates ISBN
     return list(dict((book.isbn, book) for book in tans).values())

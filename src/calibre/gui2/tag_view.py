@@ -73,6 +73,7 @@ class TagsView(QTreeView): # {{{
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
         self.tag_match = None
+        self.disable_recounting = False
         self.setUniformRowHeights(True)
         self.setCursor(Qt.PointingHandCursor)
         self.setIconSize(QSize(30, 30))
@@ -299,6 +300,8 @@ class TagsView(QTreeView): # {{{
         return self.isExpanded(idx)
 
     def recount(self, *args):
+        if self.disable_recounting:
+            return
         self.refresh_signal_processed = True
         ci = self.currentIndex()
         if not ci.isValid():

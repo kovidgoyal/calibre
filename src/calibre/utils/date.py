@@ -152,7 +152,7 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
     format = re.sub('M{1,4}', format_month, format)
     return re.sub('yyyy|yy', format_year, format)
 
-def replace_months(datez, clang):
+def replace_months(datestr, clang):
     # Replace months by english equivalent for parse_date
     frtoen = {
         u'[jJ]anvier': u'jan',
@@ -180,15 +180,16 @@ def replace_months(datez, clang):
         u'[Oo]ktober': u'oct',
         u'[nN]ovember': u'nov',
         u'[dD]ezember': u'dec' }
-        
+
     if clang == 'fr':
         dictoen = frtoen
     elif clang == 'de':
         dictoen = detoen
     else:
-        return datez
-    
+        return datestr
+
     for k in dictoen.iterkeys():
-        tmp = re.sub(k, dictoen[k], datez)
-        if tmp != datez: break
+        tmp = re.sub(k, dictoen[k], datestr)
+        if tmp != datestr: break
     return tmp
+

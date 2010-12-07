@@ -10,7 +10,7 @@ from lxml import html
 from lxml.html import soupparser
 
 from calibre.utils.date import parse_date, utcnow, replace_months
-from calibre.utils.cleantext import clean_ascii_char
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre import browser, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn, \
@@ -22,8 +22,8 @@ from calibre.library.comments import sanitize_comments_html
 
 class AmazonFr(MetadataSource):
 
-    name = 'Amazon french'
-    description = _('Downloads social metadata from amazon.fr')
+    name = 'Amazon French'
+    description = _('Downloads metadata from amazon.fr')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Sengian'
     version = (1, 0, 0)
@@ -39,8 +39,8 @@ class AmazonFr(MetadataSource):
 
 class AmazonEs(MetadataSource):
 
-    name = 'Amazon spanish'
-    description = _('Downloads social metadata from amazon.com in spanish')
+    name = 'Amazon Spanish'
+    description = _('Downloads metadata from amazon.com in spanish')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Sengian'
     version = (1, 0, 0)
@@ -56,8 +56,8 @@ class AmazonEs(MetadataSource):
 
 class AmazonEn(MetadataSource):
 
-    name = 'Amazon english'
-    description = _('Downloads social metadata from amazon.com in english')
+    name = 'Amazon English'
+    description = _('Downloads metadata from amazon.com in english')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Sengian'
     version = (1, 0, 0)
@@ -73,8 +73,8 @@ class AmazonEn(MetadataSource):
 
 class AmazonDe(MetadataSource):
 
-    name = 'Amazon german'
-    description = _('Downloads social metadata from amazon.de')
+    name = 'Amazon German'
+    description = _('Downloads metadata from amazon.de')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Sengian'
     version = (1, 0, 0)
@@ -91,7 +91,7 @@ class AmazonDe(MetadataSource):
 class Amazon(MetadataSource):
 
     name = 'Amazon'
-    description = _('Downloads social metadata from amazon.com')
+    description = _('Downloads metadata from amazon.com')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Kovid Goyal & Sengian'
     version = (1, 1, 0)
@@ -106,7 +106,7 @@ class Amazon(MetadataSource):
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
-    
+
     # @property
     # def string_customization_help(self):
         # return _('You can select here the language for metadata search with amazon.com')
@@ -130,8 +130,8 @@ class Query(object):
         assert (max_results < 21)
 
         self.max_results = int(max_results)
-        self.renbres = re.compile(u'\s*(\d+)\s*') 
-        
+        self.renbres = re.compile(u'\s*(\d+)\s*')
+
         q = {   'search-alias' : 'stripbooks' ,
                 'unfiltered' : '1',
                 'field-keywords' : '',
@@ -151,7 +151,7 @@ class Query(object):
                 # 'field-collection' : '',
                 #many options available
             }
-        
+
         if rlang =='all':
             q['sort'] = 'relevanceexprank'
             self.urldata = self.BASE_URL_ALL
@@ -170,7 +170,7 @@ class Query(object):
             q['sort'] = 'relevancerank'
             self.urldata = self.BASE_URL_DE
         self.baseurl = self.urldata
-        
+
         if isbn is not None:
             q['field-isbn'] = isbn.replace('-', '')
         else:
@@ -184,13 +184,13 @@ class Query(object):
                 q['field-keywords'] = keywords
 
         if isinstance(q, unicode):
-            q = q.encode('utf-8') 
+            q = q.encode('utf-8')
         self.urldata += '/gp/search/ref=sr_adv_b/?' + urlencode(q)
 
     def __call__(self, browser, verbose, timeout = 5.):
         if verbose:
             print 'Query:', self.urldata
-        
+
         try:
             raw = browser.open_novisit(self.urldata, timeout=timeout).read()
         except Exception, e:
@@ -203,22 +203,22 @@ class Query(object):
             return
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
-        
+
         try:
             feed = soupparser.fromstring(raw)
         except:
             try:
                 #remove ASCII invalid chars
-                return soupparser.fromstring(clean_ascii_char(raw))
+                return soupparser.fromstring(clean_ascii_chars(raw))
             except:
                 return None, self.urldata
-        
+
         #nb of page
         try:
             nbresults = self.renbres.findall(feed.xpath("//*[@class='resultCount']")[0].text)
         except:
             return None, self.urldata
-        
+
         pages =[feed]
         if len(nbresults) > 1:
             nbpagetoquery = int(ceil(float(min(int(nbresults[2]), self.max_results))/ int(nbresults[1])))
@@ -237,11 +237,11 @@ class Query(object):
                 except:
                     try:
                         #remove ASCII invalid chars
-                        return soupparser.fromstring(clean_ascii_char(raw))
+                        return soupparser.fromstring(clean_ascii_chars(raw))
                     except:
                         continue
                 pages.append(feed)
-        
+
         results = []
         for x in pages:
             results.extend([i.getparent().get('href') \
@@ -429,7 +429,7 @@ class ResultList(list):
         except:
             try:
                 #remove ASCII invalid chars
-                return soupparser.fromstring(clean_ascii_char(raw))
+                return soupparser.fromstring(clean_ascii_chars(raw))
             except:
                 report(verbose)
                 return
@@ -438,7 +438,7 @@ class ResultList(list):
         for x in entries:
             try:
                 entry = self.get_individual_metadata(browser, x, verbose)
-                # clean results 
+                # clean results
                 # inv_ids = ('divsinglecolumnminwidth', 'sims.purchase', 'AutoBuyXGetY', 'A9AdsMiddleBoxTop')
                 # inv_class = ('buyingDetailsGrid', 'productImageGrid')
                 # inv_tags ={'script': True, 'style': True, 'form': False}
@@ -460,10 +460,10 @@ def search(title=None, author=None, publisher=None, isbn=None,
     br = browser()
     entries, baseurl = Query(title=title, author=author, isbn=isbn, publisher=publisher,
         keywords=keywords, max_results=max_results,rlang=lang)(br, verbose)
-    
+
     if entries is None or len(entries) == 0:
         return
-    
+
     #List of entry
     ans = ResultList(baseurl, lang)
     ans.populate(entries, br, verbose)

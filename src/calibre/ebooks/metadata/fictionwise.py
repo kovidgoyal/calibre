@@ -6,7 +6,6 @@ __docformat__ = 'restructuredtext en'
 import sys, textwrap, re, traceback, socket
 from urllib import urlencode
 
-from lxml import html
 from lxml.html import soupparser, tostring
 
 from calibre import browser, preferred_encoding
@@ -17,7 +16,7 @@ from calibre.library.comments import sanitize_comments_html
 from calibre.ebooks.metadata.fetch import MetadataSource
 from calibre.utils.config import OptionParser
 from calibre.utils.date import parse_date, utcnow
-from calibre.utils.cleantext import clean_ascii_char
+from calibre.utils.cleantext import clean_ascii_chars
 
 class Fictionwise(MetadataSource): # {{{
 
@@ -89,7 +88,7 @@ class Query(object):
     def __call__(self, browser, verbose, timeout = 5.):
         if verbose:
             print _('Query: %s') % self.BASE_URL+self.urldata
-        
+
         try:
             raw = browser.open_novisit(self.BASE_URL, self.urldata, timeout=timeout).read()
         except Exception, e:
@@ -109,7 +108,7 @@ class Query(object):
         except:
             try:
                 #remove ASCII invalid chars
-                feed = soupparser.fromstring(clean_ascii_char(raw))
+                feed = soupparser.fromstring(clean_ascii_chars(raw))
             except:
                 return None
 
@@ -123,10 +122,10 @@ class Query(object):
         return results
 
 class ResultList(list):
-    
+
     BASE_URL = 'http://www.fictionwise.com'
     COLOR_VALUES = {'BLUE': 4, 'GREEN': 3, 'YELLOW': 2, 'RED': 1, 'NA': 0}
- 
+
     def __init__(self):
         self.retitle = re.compile(r'\[[^\[\]]+\]')
         self.rechkauth = re.compile(r'.*book\s*by', re.I)
@@ -202,7 +201,7 @@ class ResultList(list):
         except:
             report(verbose)
             return None
-        hval = dict((self.COLOR_VALUES[self.recolor.search(image.get('src', default='NA.gif')).group("ncolor")], 
+        hval = dict((self.COLOR_VALUES[self.recolor.search(image.get('src', default='NA.gif')).group("ncolor")],
                     float(image.get('height', default=0))) \
                         for image in entrytable.getiterator('img'))
         #ratings as x/5
@@ -295,7 +294,7 @@ class ResultList(list):
         except:
             try:
                 #remove ASCII invalid chars
-                return soupparser.fromstring(clean_ascii_char(raw))
+                return soupparser.fromstring(clean_ascii_chars(raw))
             except:
                 return None
 
@@ -343,7 +342,7 @@ def search(title=None, author=None, publisher=None, isbn=None,
     br = browser()
     entries = Query(title=title, author=author, publisher=publisher,
         keywords=keywords, max_results=max_results)(br, verbose, timeout = 15.)
-    
+
     #List of entry
     ans = ResultList()
     ans.populate(entries, br, verbose)

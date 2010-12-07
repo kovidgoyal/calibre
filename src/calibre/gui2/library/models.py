@@ -1023,8 +1023,7 @@ class DeviceBooksModel(BooksModel): # {{{
                     x = ''
                 if y == None:
                     y = ''
-                x, y = icu_lower(x.strip()), icu_lower(y.strip())
-                return icu_strcmp(x, y)
+                return icu_strcmp(x.strip(), y.strip())
             return _strcmp
         def datecmp(x, y):
             x = self.db[x].datetime

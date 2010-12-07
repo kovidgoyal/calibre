@@ -9,7 +9,7 @@ from threading import Thread
 
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QVariant, pyqtSignal, \
                          QAbstractTableModel, QCoreApplication, QTimer
-from PyQt4.QtGui import QDialog, QItemSelectionModel
+from PyQt4.QtGui import QDialog, QItemSelectionModel, QIcon
 
 from calibre.gui2.dialogs.fetch_metadata_ui import Ui_FetchMetadata
 from calibre.gui2 import error_dialog, NONE, info_dialog, config
@@ -42,6 +42,7 @@ class Matches(QAbstractTableModel):
 
     def __init__(self, matches):
         self.matches = matches
+        self.yes_icon = QVariant(QIcon(I('ok.png')))
         QAbstractTableModel.__init__(self)
 
     def rowCount(self, *args):
@@ -61,8 +62,8 @@ class Matches(QAbstractTableModel):
             elif section == 3: text = _("Publisher")
             elif section == 4: text = _("ISBN")
             elif section == 5: text = _("Published")
-            elif section == 6: text = _("Cover?")
-            elif section == 7: text = _("Summary?")
+            elif section == 6: text = _("Has Cover")
+            elif section == 7: text = _("Has Summary")
 
             return QVariant(text)
         else:
@@ -73,8 +74,8 @@ class Matches(QAbstractTableModel):
 
     def data(self, index, role):
         row, col = index.row(), index.column()
+        book = self.matches[row]
         if role == Qt.DisplayRole:
-            book = self.matches[row]
             res = None
             if col == 0:
                 res = book.title
@@ -89,13 +90,14 @@ class Matches(QAbstractTableModel):
             elif col == 5:
                 if hasattr(book.pubdate, 'timetuple'):
                     res = strftime('%b %Y', book.pubdate.timetuple())
-            elif col == 6 and book.has_cover:
-                res = 'OK'
-            elif col == 7 and book.comments:
-                res = 'OK'
             if not res:
                 return NONE
             return QVariant(res)
+        elif role == Qt.DecorationRole:
+            if col == 6 and book.has_cover:
+                return self.yes_icon
+            if col == 7 and book.comments:
+                return self.yes_icon
         return NONE
 
 class FetchMetadata(QDialog, Ui_FetchMetadata):
@@ -137,8 +139,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.fetch_metadata()
         self.opt_get_social_metadata.setChecked(config['get_social_metadata'])
         self.opt_overwrite_author_title_metadata.setChecked(config['overwrite_author_title_metadata'])
-        self.opt_overwrite_cover_image.setChecked(config['overwrite_cover_image'])
-
+        self.opt_auto_download_cover.setChecked(config['auto_download_cover'])
 
     def show_summary(self, current, *args):
         row  = current.row()
@@ -220,13 +221,12 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
             _hung_fetchers.add(self.fetcher)
         if hasattr(self, '_hangcheck') and self._hangcheck.isActive():
             self._hangcheck.stop()
-        #option configure
-        if self.opt_get_social_metadata.isChecked() != config['get_social_metadata']:
-           config.set('get_social_metadata', self.opt_get_social_metadata.isChecked())
-        if self.opt_overwrite_author_title_metadata.isChecked() != config['overwrite_author_title_metadata']:
-           config.set('overwrite_author_title_metadata', self.opt_overwrite_author_title_metadata.isChecked())
-        if self.opt_overwrite_cover_image.isChecked() != config['overwrite_cover_image']:
-           config.set('overwrite_cover_image', self.opt_overwrite_cover_image.isChecked())
+        # Save value of auto_download_cover, since this is the only place it can
+        # be set. The values of the other options can be set in
+        # Preferences->Behavior and should not be set here as they affect bulk
+        # downloading as well.
+        if self.opt_auto_download_cover.isChecked() != config['auto_download_cover']:
+           config.set('auto_download_cover', self.opt_auto_download_cover.isChecked())
 
     def __enter__(self, *args):
         return self

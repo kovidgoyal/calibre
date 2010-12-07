@@ -61,6 +61,7 @@ class AddAction(InterfaceAction):
         self._adder = Adder(self.gui,
                 self.gui.library_view.model().db,
                 self.Dispatcher(self._files_added), spare_server=self.gui.spare_server)
+        self.gui.tags_view.disable_recounting = True
         self._adder.add_recursive(root, single)
 
     def add_recursive_single(self, *args):
@@ -201,9 +202,11 @@ class AddAction(InterfaceAction):
         self._adder = Adder(self.gui,
                 None if to_device else self.gui.library_view.model().db,
                 self.Dispatcher(self.__adder_func), spare_server=self.gui.spare_server)
+        self.gui.tags_view.disable_recounting = True
         self._adder.add(paths)
 
     def _files_added(self, paths=[], names=[], infos=[], on_card=None):
+        self.gui.tags_view.disable_recounting = False
         if paths:
             self.gui.upload_books(paths,
                                 list(map(ascii_filename, names)),
@@ -214,6 +217,7 @@ class AddAction(InterfaceAction):
             self.gui.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self.gui, 'db_images'):
                 self.gui.db_images.reset()
+            self.gui.tags_view.recount()
         if getattr(self._adder, 'merged_books', False):
             books = u'\n'.join([x if isinstance(x, unicode) else
                     x.decode(preferred_encoding, 'replace') for x in

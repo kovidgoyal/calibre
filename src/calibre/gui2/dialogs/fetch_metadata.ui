@@ -124,9 +124,9 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="opt_overwrite_cover_image">
+    <widget class="QCheckBox" name="opt_auto_download_cover">
      <property name="text">
-      <string>Overwrite cover image with downloaded cover if available for the selected book</string>
+      <string>Automatically download the cover, if available</string>
      </property>
     </widget>
    </item>

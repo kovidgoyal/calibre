@@ -11,9 +11,9 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.interface import BookList as _BookList
 from calibre.constants import preferred_encoding
-from calibre import isbytestring
+from calibre import isbytestring, force_unicode
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.icu import sort_key, strcmp as icu_strcmp
+from calibre.utils.icu import strcmp
 
 class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -241,7 +241,7 @@ class CollectionsBookList(BookList):
             if y is None:
                 return -1
             if isinstance(x, (unicode, str)):
-                c = strcmp(x, y)
+                c = strcmp(force_unicode(x), force_unicode(y))
             else:
                 c = cmp(x, y)
             if c != 0:

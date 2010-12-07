@@ -11,7 +11,7 @@ from copy import deepcopy
 from lxml.html import soupparser
 
 from calibre.utils.date import parse_date, utcnow, replace_months
-from calibre.utils.cleantext import clean_ascii_char
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre import browser, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn, \
@@ -126,7 +126,7 @@ class Query(object):
         except:
             try:
                 #remove ASCII invalid chars
-                feed = soupparser.fromstring(clean_ascii_char(raw))
+                feed = soupparser.fromstring(clean_ascii_chars(raw))
             except:
                 return None
 
@@ -155,7 +155,7 @@ class Query(object):
                 except:
                     try:
                         #remove ASCII invalid chars
-                        feed = soupparser.fromstring(clean_ascii_char(raw))
+                        feed = soupparser.fromstring(clean_ascii_chars(raw))
                     except:
                         continue
                 pages.append(feed)
@@ -251,7 +251,7 @@ class ResultList(list):
         except:
             try:
                 #remove ASCII invalid chars
-                feed = soupparser.fromstring(clean_ascii_char(raw))
+                feed = soupparser.fromstring(clean_ascii_chars(raw))
             except:
                 return None
 
