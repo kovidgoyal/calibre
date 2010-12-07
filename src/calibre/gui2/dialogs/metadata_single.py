@@ -8,8 +8,9 @@ add/remove formats
 
 import os, re, time, traceback, textwrap
 from functools import partial
+from threading import Thread
 
-from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QThread, QDate, \
+from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QDate, \
     QPixmap, QListWidgetItem, QDialog, pyqtSignal, QMessageBox, QIcon, \
     QPushButton
 
@@ -34,9 +35,12 @@ from calibre.gui2.preferences.social import SocialMetadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre import strftime
 
-class CoverFetcher(QThread): # {{{
+class CoverFetcher(Thread): # {{{
 
     def __init__(self, username, password, isbn, timeout, title, author):
+        Thread.__init__(self)
+        self.daemon = True
+
         self.username = username.strip() if username else username
         self.password = password.strip() if password else password
         self.timeout = timeout
@@ -44,8 +48,7 @@ class CoverFetcher(QThread): # {{{
         self.title = title
         self.needs_isbn = False
         self.author = author
-        QThread.__init__(self)
-        self.exception = self.traceback = self.cover_data = None
+        self.exception = self.traceback = self.cover_data = self.errors = None
 
     def run(self):
         try:
@@ -238,20 +241,20 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                                             self.timeout, title, author)
         self.cover_fetcher.start()
         self._hangcheck = QTimer(self)
-        self.connect(self._hangcheck, SIGNAL('timeout()'), self.hangcheck)
+        self._hangcheck.timeout.connect(self.hangcheck,
+                type=Qt.QueuedConnection)
         self.cf_start_time = time.time()
         self.pi.start(_('Downloading cover...'))
         self._hangcheck.start(100)
 
     def hangcheck(self):
-        if not self.cover_fetcher.isFinished() and \
+        if self.cover_fetcher.is_alive() and \
             time.time()-self.cf_start_time < self.COVER_FETCH_TIMEOUT:
             return
 
         self._hangcheck.stop()
         try:
-            if self.cover_fetcher.isRunning():
-                self.cover_fetcher.terminate()
+            if self.cover_fetcher.is_alive():
                 error_dialog(self, _('Cannot fetch cover'),
                     _('<b>Could not fetch cover.</b><br/>')+
                     _('The download timed out.')).exec_()
