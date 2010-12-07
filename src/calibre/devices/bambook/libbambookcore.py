@@ -9,7 +9,7 @@ Sanda library wrapper
 '''
 
 import ctypes, uuid, hashlib
-from threading import Event, Thread, Lock
+from threading import Event, Lock
 from calibre.constants import iswindows, islinux
 
 try:
@@ -137,7 +137,7 @@ def BambookDisconnect(handle):
 # extern "C" const char * BambookGetErrorString(BB_RESULT nCode)
 def BambookGetErrorString(code):
     func = lib_handle.BambookGetErrorString
-    func.restype = c_char_p
+    func.restype = ctypes.c_char_p
     return func(code)
     
 

@@ -153,7 +153,6 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
         booklist = self.booklist_class(oncard, prefix, self.settings)
         need_sync = self.parse_metadata_cache(booklist)
 
-        from calibre.ebooks.metadata.book.base import Metadata
         devicebooks = self.bambook.GetBookList()
         books = []
         for book in devicebooks:
@@ -242,7 +241,6 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
                  to :meth:`add_books_to_metadata`.
         '''
         self.report_progress(0, _('Transferring books to device...'))
-        booklist = [] 
         paths = []
         if self.bambook:
             for (i, f) in enumerate(files):
