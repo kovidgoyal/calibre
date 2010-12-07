@@ -81,7 +81,7 @@ For trailing zeros, use::
 
 If you use series indices with sub values (e.g., 1.1), you might want to ensure that the decimal points line up. For example, you might want the indices 1 and 2.5 to appear as 01.00 and 02.50 so that they will sort correctly. To do this, use::
 
-   {series_index:0<5.2f} - Five characters, consisting of two digits with leading zeros, a decimal point, then 2 digits after the decimal point
+   {series_index:0>5.2f} - Five characters, consisting of two digits with leading zeros, a decimal point, then 2 digits after the decimal point
 
 If you want only the first two letters of the data, use::
 
