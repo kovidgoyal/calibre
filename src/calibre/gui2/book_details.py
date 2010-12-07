@@ -19,6 +19,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.constants import preferred_encoding
 from calibre.library.comments import comments_to_html
 from calibre.gui2 import config, open_local_file
+from calibre.utils.icu import sort_key
 
 # render_rows(data) {{{
 WEIGHTS = collections.defaultdict(lambda : 100)
@@ -31,8 +32,8 @@ WEIGHTS[_('Tags')] = 4
 def render_rows(data):
     keys = data.keys()
     # First sort by name. The WEIGHTS sort will preserve this sub-order
-    keys.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
-    keys.sort(cmp=lambda x, y: cmp(WEIGHTS[x], WEIGHTS[y]))
+    keys.sort(key=sort_key)
+    keys.sort(key=lambda x: WEIGHTS[x])
     rows = []
     for key in keys:
         txt = data[key]
@@ -190,6 +191,10 @@ class BookInfo(QWebView):
         self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
         self.linkClicked.connect(self.link_activated)
         self._link_clicked = False
+        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        palette = self.palette()
+        palette.setBrush(QPalette.Base, Qt.transparent)
+        self.page().setPalette(palette)
 
     def link_activated(self, link):
         self._link_clicked = True
@@ -204,22 +209,30 @@ class BookInfo(QWebView):
         rows = u'\n'.join([u'<tr><td valign="top"><b>%s:</b></td><td valign="top">%s</td></tr>'%(k,t) for
             k, t in rows])
         comments = data.get(_('Comments'), '')
-        if comments and comments != u'None':
-            self.renderer.queue.put((rows, comments))
+        if not comments or comments == u'None':
+            comments = ''
+        self.renderer.queue.put((rows, comments))
         self._show_data(rows, '')
 
 
     def _show_data(self, rows, comments):
+
+        def color_to_string(col):
+            ans = '#000000'
+            if col.isValid():
+                col = col.toRgb()
+                if col.isValid():
+                    ans = unicode(col.name())
+            return ans
+
         f = QFontInfo(QApplication.font(self.parent())).pixelSize()
-        p = unicode(QApplication.palette().color(QPalette.Normal,
-            QPalette.Window).name())
-        c = unicode(QApplication.palette().color(QPalette.Normal,
-                        QPalette.WindowText).name())
+        c = color_to_string(QApplication.palette().color(QPalette.Normal,
+                        QPalette.WindowText))
         templ = u'''\
         <html>
             <head>
             <style type="text/css">
-                body, td {background-color: %s; font-size: %dpx; color: %s }
+                body, td {background-color: transparent; font-size: %dpx; color: %s }
                 a { text-decoration: none; color: blue }
             </style>
             </head>
@@ -227,7 +240,7 @@ class BookInfo(QWebView):
             %%s
             </body>
         <html>
-        '''%(p, f, c)
+        '''%(f, c)
         if self.vertical:
             if comments:
                 rows += u'<tr><td colspan="2">%s</td></tr>'%comments

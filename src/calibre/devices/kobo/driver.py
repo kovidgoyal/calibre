@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Timothy Legge <timlegge at gmail.com> and Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time
+import os
 import sqlite3 as sqlite
 
 from calibre.devices.usbms.books import BookList
@@ -25,6 +25,8 @@ class KOBO(USBMS):
     version = (1, 0, 7)
 
     dbversion = 0
+    fwversion = 0
+    has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -75,6 +77,14 @@ class KOBO(USBMS):
                  self._card_b_prefix if oncard == 'cardb' \
                  else self._main_prefix
 
+        # Determine the firmware version
+        f = open(self.normalize_path(self._main_prefix + '.kobo/version'), 'r')
+        self.fwversion = f.readline().split(',')[2]
+        f.close()
+        if self.fwversion != '1.0' and self.fwversion != '1.4':
+            self.has_kepubs = True
+        debug_print('Version of firmware: ', self.fwversion, 'Has kepubs:', self.has_kepubs)
+
         self.booklist_class.rebuild_collections = self.rebuild_collections
 
         # get the metadata cache
@@ -93,7 +103,7 @@ class KOBO(USBMS):
                 lpath = path.partition(self.normalize_path(prefix))[2]
                 if lpath.startswith(os.sep):
                     lpath = lpath[len(os.sep):]
-                    lpath = lpath.replace('\\', '/')
+                lpath = lpath.replace('\\', '/')
                 # debug_print("LPATH: ", lpath, "  - Title:  " , title)
 
                 playlist_map = {}
@@ -114,7 +124,7 @@ class KOBO(USBMS):
                         #print "Image name Normalized: " + imagename
                         if imagename is not None:
                             bl[idx].thumbnail = ImageWrapper(imagename)
-                    if (ContentType != '6'and self.dbversion < 8) or (self.dbversion >= 8):
+                    if (ContentType != '6'and self.has_kepubs == False) or (self.has_kepubs == True):
                         if self.update_metadata_item(bl[idx]):
                             # print 'update_metadata_item returned true'
                             changed = True
@@ -122,7 +132,7 @@ class KOBO(USBMS):
                         playlist_map[lpath] not in bl[idx].device_collections:
                             bl[idx].device_collections.append(playlist_map[lpath])
                 else:
-                    if ContentType == '6' and self.dbversion < 8:
+                    if ContentType == '6' and self.has_kepubs == False:
                         book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
                     else:
                         try:
@@ -142,7 +152,7 @@ class KOBO(USBMS):
                 traceback.print_exc()
             return changed
 
-        connection = sqlite.connect(self._main_prefix + '.kobo/KoboReader.sqlite')
+        connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
         cursor = connection.cursor()
 
         #query = 'select count(distinct volumeId) from volume_shortcovers'
@@ -151,8 +161,8 @@ class KOBO(USBMS):
         #    numrows = row[0]
         #cursor.close()
 
-        # Determine the database version 
-        # 4 - Bluetooth Kobo Rev 2 (1.4) 
+        # Determine the database version
+        # 4 - Bluetooth Kobo Rev 2 (1.4)
         # 8 - WIFI KOBO Rev 1
         cursor.execute('select version from dbversion')
         result = cursor.fetchone()
@@ -210,7 +220,8 @@ class KOBO(USBMS):
         #    2) volume_shorcover
         #    2) content
 
-        connection = sqlite.connect(self._main_prefix + '.kobo/KoboReader.sqlite')
+        debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType) 
+        connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
         cursor = connection.cursor()
         t = (ContentID,)
         cursor.execute('select ImageID from content where ContentID = ?', t)
@@ -228,6 +239,10 @@ class KOBO(USBMS):
 
         #Delete the volume_shortcovers second
         cursor.execute('delete from volume_shortcovers where volumeid = ?', t)
+
+        # Delete the rows from content_keys
+        if self.dbversion >= 8:
+            cursor.execute('delete from content_keys where volumeid = ?', t)
 
         # Delete the chapters associated with the book next
         t = (ContentID,ContentID,)
@@ -348,13 +363,13 @@ class KOBO(USBMS):
 
     def contentid_from_path(self, path, ContentType):
         if ContentType == 6:
-            if self.dbversion < 8:
+            if self.has_kepubs == False:
                 ContentID = os.path.splitext(path)[0]
                 # Remove the prefix on the file.  it could be either
                 ContentID = ContentID.replace(self._main_prefix, '')
             else:
                 ContentID = path
-                ContentID = ContentID.replace(self._main_prefix + '.kobo/kepub/', '')
+                ContentID = ContentID.replace(self._main_prefix + self.normalize_path('.kobo/kepub/'), '')
 
             if self._card_a_prefix is not None:
                 ContentID = ContentID.replace(self._card_a_prefix, '')
@@ -386,6 +401,12 @@ class KOBO(USBMS):
         elif extension == '.pdf' or extension == '.epub':
             # print "ePub or pdf"
             ContentType = 16
+        elif extension == '.rtf' or extension == '.txt' or extension == '.htm' or extension == '.html':
+            # print "txt"
+            if self.fwversion == '1.0' or self.fwversion == '1.4' or self.fwversion == '1.7.4':
+                ContentType = 999
+            else:
+                ContentType = 901
         else: # if extension == '.html' or extension == '.txt':
             ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
         return ContentType
@@ -399,13 +420,13 @@ class KOBO(USBMS):
             path = path.replace("file:///mnt/sd/", self._card_a_prefix)
             # print "SD Card: " + path
         else:
-            if ContentType == "6" and self.dbversion < 8:
+            if ContentType == "6" and self.has_kepubs == False:
                 # This is a hack as the kobo files do not exist
                 # but the path is required to make a unique id
                 # for calibre's reference
                 path = self._main_prefix + path + '.kobo'
                 # print "Path: " + path
-            elif (ContentType == "6" or ContentType == "10") and self.dbversion >= 8:
+            elif (ContentType == "6" or ContentType == "10") and self.has_kepubs == True:
                 path = self._main_prefix + '.kobo/kepub/' + path
                 # print "Internal: " + path
             else:
@@ -472,7 +493,7 @@ class KOBO(USBMS):
         # Needs to be outside books collection as in the case of removing
         # the last book from the collection the list of books is empty
         # and the removal of the last book would not occur
-        connection = sqlite.connect(self._main_prefix + '.kobo/KoboReader.sqlite')
+        connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
         cursor = connection.cursor()
 
 
@@ -507,7 +528,10 @@ class KOBO(USBMS):
                         t = (ContentID,)
                         cursor.execute('select DateLastRead from Content where BookID is Null and ContentID = ?', t)
                         result = cursor.fetchone()
-                        datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00' 
+                        if result is None:
+                            datelastread = '1970-01-01T00:00:00'
+                        else:
+                            datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00' 
 
                         t = (datelastread,ContentID,)
 

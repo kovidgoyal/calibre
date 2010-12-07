@@ -1,0 +1,70 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1282093204(BasicNewsRecipe):
+    title          = u'St Louis Post-Dispatch'
+    __author__ = 'cisaak'
+    language = 'en'
+
+    oldest_article = 1
+    max_articles_per_feed = 15
+    masthead_url = 'http://farm5.static.flickr.com/4118/4929686950_0e22e2c88a.jpg'
+
+    feeds          = [
+         (u'News-Bill McClellan', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2fcolumns%2Fbill-mclellan&f=rss&t=article'),
+         (u'News-Columns', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2Fcolumns*&l=50&f=rss&t=article'),
+         (u'News-Crime & Courtshttp://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2Fcrime-and-courts&l=50&f=rss&t=article'),
+         (u'News-Deb Peterson', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2fcolumns%2Fdeb-peterson&f=rss&t=article'),
+         (u'News-Education', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2feducation&f=rss&t=article'),
+         (u'News-Government & Politics', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2fgovt-and-politics&f=rss&t=article'),
+         (u'News-Local', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal&f=rss&t=article'),
+         (u'News-Metro', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2fmetro&f=rss&t=article'),
+         (u'News-Metro East', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2fillinois&f=rss&t=article'),
+         (u'News-Missouri Out State', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Fstate-and-regional%2FMissouri&l=50&f=rss&t=article'),
+         (u'Opinion-Colleen Carroll Campbell', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Fopinion%2fcolumns%2Fcolleen-carroll-campbell&f=rss&t=article'),
+         (u'Opinion-Editorial', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Fopinion%2feditorial&f=rss&t=article'),
+         (u'Opinion-Kevin Horrigan', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Fopinion%2fcolumns%2Fkevin-horrigan&f=rss&t=article'),
+         (u'Opinion-Mailbag', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Fopinion%2fmailbag&f=rss&t=article'),
+         (u'Business Columns-Savvy Consumer', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=business%2Fcolumns%2Fsavvy-consumer&l=100&f=rss&t=article'),
+         (u'Business Columns-Lager Heads', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=business%2Fcolumns%2Flager-heads&l=100&f=rss&t=article'),
+         (u'Business Columns-Job Watch', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=business%2Fcolumns%2Fjob-watch&l=100&f=rss&t=article'),
+         (u'Business Columns-Steve Geigerich', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=business%2Fcolumns%2Fsteve-giegerich&l=100&f=rss&t=article'),
+         (u'Business Columns-David Nicklaus', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=business%2Fcolumns%2Fdavid-nicklaus&l=100&f=rss&t=article'),
+         (u'Business Columns-Jim Gallagher', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=business%2Fcolumns%2Fjim-gallagher&l=100&f=rss&t=article'),
+         (u'Business Columns-Building Blocks', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=business%2Fcolumns%2Fbuilding-blocks&l=100&f=rss&t=article'),
+         (u'Business', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=business*l&l=100&f=rss&t=article'),
+         (u'Business-Technology', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=business%2Ftechnology&l=50&f=rss&t=article'),
+         (u'Business-National', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=business%2Fnational-and-international&l=50&f=rss&t=article'),
+         (u'Travel', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=travel*&l=100&f=rss&t=article'),
+         (u'Sports', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=sports*&f=rss&t=article'),
+         (u'Sports-Baseball', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=sports%2Fbaseball%2Fprofessional&l=100&f=rss&t=article'),
+         (u'Sports-Bernie Miklasz', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=sports%2Fcolumns%2Fbernie-miklasz&l=50&f=rss&t=article'),
+         (u'Sports-Bryan Burwell', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=sports%2Fcolumns%2Fbryan-burwell&l=50&f=rss&t=article'),
+         (u'Sports-College', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=sports%2Fcollege*&l=100&f=rss&t=article'),
+         (u'Sports-Dan Caesar', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=sports%2Fcolumns%2Fdan-caesar&l=50&f=rss&t=article'),
+         (u'Sports-Football', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=sports%2Ffootball%2Fprofessional&l=100&f=rss&t=article'),
+         (u'Sports-Hockey', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=sports%2Fhockey%2Fprofessional&l=100&f=rss&t=article'),
+         (u'Sports-Illini', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=sports%2Fcollege%2Fillini&l=100&f=rss&t=article'),
+         (u'Sports-Jeff Gordon', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=sports%2Fcolumns%2Fjeff-gordon&l=100&f=rss&t=article'),
+         (u'Life & Style', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=lifestyles&l=100&f=rss&t=article'),
+         (u'Life & Style-Debra Bass', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=lifestyles%2Ffashion-and-style%2Fdebra-bass&l=100&f=rss&t=article'),
+         (u'Life & Style-Food and Cooking', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=lifestyles%2Ffood-and-cooking&l=100&f=rss&t=article'),
+         (u'Life & Style-Health/Medicine/Fitness', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=lifestyles%2Fhealth-med-fit&l=100&f=rss&t=article'),
+         (u'Life & Style-Joe Holleman', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=lifestyles%2Fcolumns%2Fjoe-holleman&l=100&f=rss&t=article'),
+         (u'Life & Style-Steals-and-Deals', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=lifestyles%2Fcolumns%2Fsteals-and-deals&l=100&f=rss&t=article'),
+         (u'Life & Style-Tim Townsend', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=lifestyles%2Ffaith-and-values%2Ftim-townsend&l=100&f=rss&t=article'),
+         (u'Entertainment', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=entertainment&l=100&f=rss&t=article'),
+         (u'Entertainment-Arts & Theatre', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=entertainment%2Farts-and-theatre&l=100&f=rss&t=article'),
+         (u'Entertainment-Books & Literature', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=entertainment%2Fbooks-and-literature&l=100&f=rss&t=article'),
+         (u'Entertainment-Dining', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=sports%2Fhockey%2Fprofessional&l=100&f=rss&t=article'),
+         (u'Entertainment-Events Calendar', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=entertainment%2Fevents-calendar&l=100&f=rss&t=article'),
+         (u'Entertainment-Gail Pennington', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=entertainment%2Ftelevision%2Fgail-pennington&l=100&f=rss&t=article'),
+         (u'Entertainment-Hip Hops', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=entertainment%2Fdining%2Fbars-and-clubs-other%2Fhip-hops&l=100&f=rss&t=article'),
+         (u'Entertainment-House-O-Fun', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=entertainment%2Fhouse-o-fun&l=100&f=rss&t=article'),
+         (u'Entertainment-Kevin C. Johnson', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=entertainment%2Fmusic%2Fkevin-johnson&l=100&f=rss&t=article')
+         ]
+    remove_empty_feeds = True
+    remove_tags = [dict(name='div', attrs={'id':'blox-logo'}),dict(name='a')]
+    keep_only_tags = [dict(name='h1'), dict(name='p', attrs={'class':'byline'}), dict(name="div", attrs={'id':'blox-story-text'})]
+    extra_css = 'p {text-align: left;}'
+
+

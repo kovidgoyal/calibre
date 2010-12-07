@@ -370,6 +370,15 @@ class InterfaceActionBase(Plugin): # {{{
     can_be_disabled = False
 
     actual_plugin = None
+
+    def load_actual_plugin(self, gui):
+        '''
+        This method must return the actual interface action plugin object.
+        '''
+        mod, cls = self.actual_plugin.split(':')
+        return getattr(__import__(mod, fromlist=['1'], level=0), cls)(gui,
+                self.site_customization)
+
 # }}}
 
 class PreferencesPlugin(Plugin): # {{{

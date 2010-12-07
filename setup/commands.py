@@ -18,8 +18,8 @@ __all__ = [
         'pypi_register', 'pypi_upload', 'upload_to_server',
         'upload_user_manual', 'upload_to_mobileread', 'upload_demo',
         'upload_to_sourceforge', 'upload_to_google_code',
-        'linux32', 'linux64', 'linux', 'linux_freeze', 'linux_freeze2',
-        'osx32_freeze', 'osx32', 'osx', 'rsync', 'push',
+        'linux32', 'linux64', 'linux', 'linux_freeze',
+        'osx32_freeze', 'osx', 'rsync', 'push',
         'win32_freeze', 'win32', 'win',
         'stage1', 'stage2', 'stage3', 'stage4', 'publish'
         ]
@@ -79,14 +79,11 @@ from setup.installer.linux import Linux, Linux32, Linux64
 linux = Linux()
 linux32 = Linux32()
 linux64 = Linux64()
-from setup.installer.linux.freeze import LinuxFreeze
+from setup.installer.linux.freeze2 import LinuxFreeze
 linux_freeze = LinuxFreeze()
-from setup.installer.linux.freeze2 import LinuxFreeze2
-linux_freeze2 = LinuxFreeze2()
 
-from setup.installer.osx import OSX, OSX32
+from setup.installer.osx import OSX
 osx = OSX()
-osx32 = OSX32()
 from setup.installer.osx.app.main import OSX32_Freeze
 osx32_freeze = OSX32_Freeze()
 

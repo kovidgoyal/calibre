@@ -9,6 +9,8 @@ License: http://www.opensource.org/licenses/mit-license.php
 
 import re
 
+from calibre.utils.icu import capitalize
+
 __all__ = ['titlecase']
 __version__ = '0.5'
 
@@ -50,29 +52,29 @@ def titlecase(text):
                 line.append(word)
                 continue
             else:
-                word = word.lower()
+                word = icu_lower(word)
 
         if APOS_SECOND.match(word):
-            word = word.replace(word[0], word[0].upper())
-            word = word.replace(word[2], word[2].upper())
+            word = word.replace(word[0], icu_upper(word[0]))
+            word = word.replace(word[2], icu_upper(word[2]))
             line.append(word)
             continue
         if INLINE_PERIOD.search(word) or UC_ELSEWHERE.match(word):
             line.append(word)
             continue
         if SMALL_WORDS.match(word):
-            line.append(word.lower())
+            line.append(icu_lower(word))
             continue
 
         match = MAC_MC.match(word)
         if match:
-            line.append("%s%s" % (match.group(1).capitalize(),
-                                  match.group(2).capitalize()))
+            line.append("%s%s" % (capitalize(match.group(1)),
+                                  capitalize(match.group(2))))
             continue
 
         hyphenated = []
         for item in word.split('-'):
-            hyphenated.append(CAPFIRST.sub(lambda m: m.group(0).upper(), item))
+            hyphenated.append(CAPFIRST.sub(lambda m: icu_upper(m.group(0)), item))
         line.append("-".join(hyphenated))
 
 
@@ -80,14 +82,14 @@ def titlecase(text):
 
     result = SMALL_FIRST.sub(lambda m: '%s%s' % (
         m.group(1),
-        m.group(2).capitalize()
+        capitalize(m.group(2))
     ), result)
 
-    result = SMALL_LAST.sub(lambda m: m.group(0).capitalize(), result)
+    result = SMALL_LAST.sub(lambda m: capitalize(m.group(0)), result)
 
     result = SUBPHRASE.sub(lambda m: '%s%s' % (
         m.group(1),
-        m.group(2).capitalize()
+        capitalize(m.group(2))
     ), result)
 
     return result

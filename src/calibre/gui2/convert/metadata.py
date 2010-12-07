@@ -17,6 +17,7 @@ from calibre.ebooks.metadata import authors_to_string, string_to_authors, \
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.convert import Widget
+from calibre.utils.icu import sort_key
 
 def create_opf_file(db, book_id):
     mi = db.get_metadata(book_id, index_is_id=True)
@@ -102,7 +103,7 @@ class MetadataWidget(Widget, Ui_Form):
 
     def initalize_authors(self):
         all_authors = self.db.all_authors()
-        all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        all_authors.sort(key=lambda x : sort_key(x[1]))
 
         for i in all_authors:
             id, name = i
@@ -117,7 +118,7 @@ class MetadataWidget(Widget, Ui_Form):
 
     def initialize_series(self):
         all_series = self.db.all_series()
-        all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        all_series.sort(key=lambda x : sort_key(x[1]))
 
         for i in all_series:
             id, name = i
@@ -126,7 +127,7 @@ class MetadataWidget(Widget, Ui_Form):
 
     def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
-        all_publishers.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        all_publishers.sort(key=lambda x : sort_key(x[1]))
 
         for i in all_publishers:
             id, name = i

@@ -142,6 +142,9 @@ class EPUBOutput(OutputFormatPlugin):
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
 
+        #from calibre.ebooks.oeb.transforms.filenames import UniqueFilenames
+        #UniqueFilenames()(oeb, opts)
+
         self.workaround_ade_quirks()
         self.workaround_webkit_quirks()
         self.upshift_markup()
@@ -241,9 +244,12 @@ class EPUBOutput(OutputFormatPlugin):
                 self.log.debug('Encrypting font:', uri)
                 with open(path, 'r+b') as f:
                     data = f.read(1024)
-                    f.seek(0)
-                    for i in range(1024):
-                        f.write(chr(ord(data[i]) ^ key[i%16]))
+                    if len(data) >= 1024:
+                        f.seek(0)
+                        for i in range(1024):
+                            f.write(chr(ord(data[i]) ^ key[i%16]))
+                    else:
+                        self.log.warn('Font', path, 'is invalid, ignoring')
                 if not isinstance(uri, unicode):
                     uri = uri.decode('utf-8')
                 fonts.append(u'''

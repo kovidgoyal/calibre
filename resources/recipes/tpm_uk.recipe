@@ -1,0 +1,72 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.philosophypress.co.uk
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TPM_uk(BasicNewsRecipe):
+    title                 = "The Philosophers' Magazine"
+    __author__            = 'Darko Miletic'
+    description           = 'Title says it all'
+    publisher             = "The Philosophers' Magazine"
+    category              = 'philosophy, news'
+    oldest_article        = 25
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'en_GB'
+    remove_empty_feeds    = True
+    publication_type      = 'magazine'
+    masthead_url          = 'http://www.philosophypress.co.uk/wp-content/themes/masterplan/tma/images/bg/sitelogo.png'
+    extra_css             = """
+                               body{font-family: Helvetica,Arial,"Lucida Grande",Verdana,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [
+                     dict(name=['meta','link','base','iframe','embed','object','img'])
+                    ,dict(attrs={'id':['respond','sharethis_0']})
+                    ,dict(attrs={'class':'wp-caption-text'})
+                  ]
+    keep_only_tags=[
+                     dict(attrs={'class':['post_cat','post_name','post_meta','post_text']})
+                    ,dict(attrs={'id':'comments'})
+                   ]
+    remove_attributes=['lang','width','height']
+
+
+    feeds = [
+              (u'Columns'       , u'http://www.philosophypress.co.uk/?feed=rss2&cat=15' )
+             ,(u'Essays'        , u'http://www.philosophypress.co.uk/?feed=rss2&cat=19' )
+             ,(u"21'st Century" , u'http://www.philosophypress.co.uk/?feed=rss2&cat=101')
+             ,(u'Interviews'    , u'http://www.philosophypress.co.uk/?feed=rss2&cat=9'  )
+             ,(u'News'          , u'http://www.philosophypress.co.uk/?feed=rss2&cat=28' )
+             ,(u'Profiles'      , u'http://www.philosophypress.co.uk/?feed=rss2&cat=59' )
+             ,(u'Reviews'       , u'http://www.philosophypress.co.uk/?feed=rss2&cat=12' )
+            ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.philosophypress.co.uk/')
+        for image in soup.findAll('img',title=True):
+           if image['title'].startswith('Click to Subscribe'):
+              return image['src']
+        return None
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for alink in soup.findAll('a', rel=True):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+        return soup

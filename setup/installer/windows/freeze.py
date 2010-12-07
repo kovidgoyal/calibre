@@ -108,8 +108,7 @@ class Win32Freeze(Command, WixMixIn):
             for f in x[-1]:
                 if f.lower().endswith('.dll'):
                     f = self.j(x[0], f)
-                    if 'py2exe' not in f:
-                        shutil.copy2(f, self.dll_dir)
+                    shutil.copy2(f, self.dll_dir)
         shutil.copy2(
             r'C:\Python%(v)s\Lib\site-packages\pywin32_system32\pywintypes%(v)s.dll'
             % dict(v=self.py_ver), self.dll_dir)
@@ -118,7 +117,7 @@ class Win32Freeze(Command, WixMixIn):
             ans = []
             for x in items:
                 ext = os.path.splitext(x)[1]
-                if (not ext and (x in ('demos', 'tests') or 'py2exe' in x)) or \
+                if (not ext and (x in ('demos', 'tests'))) or \
                     (ext in ('.dll', '.chm', '.htm', '.txt')):
                     ans.append(x)
             return ans
@@ -132,7 +131,7 @@ class Win32Freeze(Command, WixMixIn):
         shutil.copytree(self.j(comext, 'shell'), self.j(sp_dir, 'win32com', 'shell'))
         shutil.rmtree(comext)
 
-        for pat in (r'numpy', r'PyQt4\uic\port_v3'):
+        for pat in (r'PyQt4\uic\port_v3', ):
             x = glob.glob(self.j(self.lib_dir, 'site-packages', pat))[0]
             shutil.rmtree(x)
 
@@ -200,7 +199,7 @@ class Win32Freeze(Command, WixMixIn):
         for pat in ('*.dll',):
             for f in glob.glob(os.path.join(bindir, pat)):
                 ok = True
-                for ex in ('expatw',):
+                for ex in ('expatw', 'testplug'):
                     if ex in f.lower():
                         ok = False
                 if not ok: continue

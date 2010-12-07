@@ -26,13 +26,15 @@ from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
 from calibre.customize.ui import interface_actions
 from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
-        gprefs, max_available_height, config, info_dialog, Dispatcher
+        gprefs, max_available_height, config, info_dialog, Dispatcher, \
+        question_dialog
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.update import UpdateMixin
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.layout import MainWindowMixin
 from calibre.gui2.device import DeviceMixin
+from calibre.gui2.email import EmailMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
@@ -87,7 +89,7 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 # }}}
 
-class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
+class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin
         ):
@@ -100,9 +102,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.device_connected = None
         acmap = OrderedDict()
         for action in interface_actions():
-            mod, cls = action.actual_plugin.split(':')
-            ac = getattr(__import__(mod, fromlist=['1'], level=0), cls)(self,
-                    action.site_customization)
+            ac = action.load_actual_plugin(self)
             if ac.name in acmap:
                 if ac.priority >= acmap[ac.name].priority:
                     acmap[ac.name] = ac
@@ -140,6 +140,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         # }}}
 
         LayoutMixin.__init__(self)
+        EmailMixin.__init__(self)
         DeviceMixin.__init__(self)
 
         self.restriction_count_of_books_in_view = 0
@@ -181,9 +182,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
         self.connect(self.restore_action, SIGNAL('triggered()'),
                         self.show_windows)
-        self.connect(self.system_tray_icon,
-                     SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
-                     self.system_tray_icon_activated)
+        self.system_tray_icon.activated.connect(
+            self.system_tray_icon_activated)
 
 
         ####################### Start spare job server ########################
@@ -250,7 +250,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
-
         self.read_settings()
         self.finalize_layout()
         if self.tool_bar.showing_donate:
@@ -300,6 +299,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
                 self.hide_windows()
             else:
                 self.show_windows()
+
+    @property
+    def is_minimized_to_tray(self):
+        return getattr(self, '__systray_minimized', False)
+
+    def ask_a_yes_no_question(self, title, msg, **kwargs):
+        awu = kwargs.pop('ans_when_user_unavailable', True)
+        if self.is_minimized_to_tray:
+            return awu
+        return question_dialog(self, title, msg, **kwargs)
 
     def hide_windows(self):
         for window in QApplication.topLevelWidgets():
@@ -374,8 +383,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
         self.tags_view.set_database(db, self.tag_match, self.sort_by)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clear_message()
-        self.search.clear_to_help()
-        self.saved_search.clear_to_help()
+        self.search.clear()
+        self.saved_search.clear()
         self.book_details.reset_info()
         self.library_view.model().count_changed()
         prefs['library_path'] = self.library_path
@@ -425,34 +434,37 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
 
 
 
-    def job_exception(self, job):
+    def job_exception(self, job, dialog_title=_('Conversion Error')):
         if not hasattr(self, '_modeless_dialogs'):
             self._modeless_dialogs = []
+        minz = self.is_minimized_to_tray
         if self.isVisible():
             for x in list(self._modeless_dialogs):
                 if not x.isVisible():
                     self._modeless_dialogs.remove(x)
         try:
             if 'calibre.ebooks.DRMError' in job.details:
-                d = error_dialog(self, _('Conversion Error'),
-                    _('<p>Could not convert: %s<p>It is a '
-                      '<a href="%s">DRM</a>ed book. You must first remove the '
-                      'DRM using third party tools.')%\
-                        (job.description.split(':')[-1],
-                            'http://bugs.calibre-ebook.com/wiki/DRM'))
-                d.setModal(False)
-                d.show()
-                self._modeless_dialogs.append(d)
+                if not minz:
+                    d = error_dialog(self, _('Conversion Error'),
+                        _('<p>Could not convert: %s<p>It is a '
+                        '<a href="%s">DRM</a>ed book. You must first remove the '
+                        'DRM using third party tools.')%\
+                            (job.description.split(':')[-1],
+                                'http://bugs.calibre-ebook.com/wiki/DRM'))
+                    d.setModal(False)
+                    d.show()
+                    self._modeless_dialogs.append(d)
                 return
             if 'calibre.web.feeds.input.RecipeDisabled' in job.details:
-                msg = job.details
-                msg = msg[msg.find('calibre.web.feeds.input.RecipeDisabled:'):]
-                msg = msg.partition(':')[-1]
-                d = error_dialog(self, _('Recipe Disabled'),
-                    '<p>%s</p>'%msg)
-                d.setModal(False)
-                d.show()
-                self._modeless_dialogs.append(d)
+                if not minz:
+                    msg = job.details
+                    msg = msg[msg.find('calibre.web.feeds.input.RecipeDisabled:'):]
+                    msg = msg.partition(':')[-1]
+                    d = error_dialog(self, _('Recipe Disabled'),
+                        '<p>%s</p>'%msg)
+                    d.setModal(False)
+                    d.show()
+                    self._modeless_dialogs.append(d)
                 return
         except:
             pass
@@ -462,12 +474,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, # {{{
             prints(job.details, file=sys.stderr)
         except:
             pass
-        d = error_dialog(self, _('Conversion Error'),
-                _('<b>Failed</b>')+': '+unicode(job.description),
-                det_msg=job.details)
-        d.setModal(False)
-        d.show()
-        self._modeless_dialogs.append(d)
+        if not minz:
+            d = error_dialog(self, dialog_title,
+                    _('<b>Failed</b>')+': '+unicode(job.description),
+                    det_msg=job.details)
+            d.setModal(False)
+            d.show()
+            self._modeless_dialogs.append(d)
 
     def read_settings(self):
         geometry = config['main_window_geometry']

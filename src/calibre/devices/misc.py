@@ -174,3 +174,33 @@ class GEMEI(USBMS):
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = True
 
+class LUMIREAD(USBMS):
+    name           = 'Acer Lumiread Device Interface'
+    gui_name       = 'Lumiread'
+    description    = _('Communicate with the Acer Lumiread')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'pdf', 'mobi', 'chm', 'txt', 'doc', 'docx', 'rtf']
+
+    VENDOR_ID   = [0x1025]
+    PRODUCT_ID  = [0x048d]
+    BCD         = [0x323]
+
+    EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'books'
+    SUPPORTS_SUB_DIRS = True
+
+    THUMBNAIL_HEIGHT = 200
+
+    def upload_cover(self, path, filename, metadata, filepath):
+        if metadata.thumbnail and metadata.thumbnail[-1]:
+            cfilepath = filepath.replace('/', os.sep)
+            cfilepath = cfilepath.replace(os.sep+'books'+os.sep,
+                    os.sep+'covers'+os.sep, 1)
+            pdir = os.path.dirname(cfilepath)
+            if not os.exists(pdir):
+                os.makedirs(pdir)
+            with open(cfilepath+'.jpg', 'wb') as f:
+                f.write(metadata.thumbnail[-1])
+

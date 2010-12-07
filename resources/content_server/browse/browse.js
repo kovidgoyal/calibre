@@ -202,6 +202,23 @@ function previous_page() {
     else last_page();
 }
 
+function gp_internal(id) {
+    var gp = $('#goto_page_dialog');
+    gp.dialog('close');
+    var elem = $("#booklist #" + id);
+    load_page(elem);
+}
+
+function goto_page() {
+    var gp = $('#goto_page_dialog');
+    var pl = $('#booklist > #pagelist');
+    gp.html(pl.html());
+    gp.dialog('option', 'title', pl.attr('title'));
+    gp.dialog('option', 'height', $(window).height() - 100);
+    gp.dialog('open');
+
+}
+
 function load_page(elem) {
     if (elem.is(":visible")) return;
     var ld = elem.find('.load_data');
@@ -251,6 +268,12 @@ function booklist(hide_sort) {
         modal: true,
         show: 'slide'
     });
+    $("#goto_page_dialog").dialog({
+        autoOpen: false,
+        modal: true,
+        show: 'slide'
+    });
+
     first_page(); 
 }
 

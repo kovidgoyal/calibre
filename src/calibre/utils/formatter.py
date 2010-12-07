@@ -8,11 +8,14 @@ import re, string, traceback
 
 from calibre.constants import DEBUG
 from calibre.utils.titlecase import titlecase
+from calibre.utils.icu import capitalize
 
 class TemplateFormatter(string.Formatter):
     '''
     Provides a format function that substitutes '' for any missing value
     '''
+
+    _validation_string = 'This Is Some Text THAT SHOULD be LONG Enough.%^&*'
 
     # Dict to do recursion detection. It is up the the individual get_value
     # method to use it. It is cleared when starting to format a template
@@ -79,11 +82,14 @@ class TemplateFormatter(string.Formatter):
         else:
             return val
 
+    def _count(self, val, sep):
+        return unicode(len(val.split(sep)))
+
     functions = {
                     'uppercase'     : (0, lambda s,x: x.upper()),
                     'lowercase'     : (0, lambda s,x: x.lower()),
                     'titlecase'     : (0, lambda s,x: titlecase(x)),
-                    'capitalize'    : (0, lambda s,x: x.capitalize()),
+                    'capitalize'    : (0, lambda s,x: capitalize(x)),
                     'contains'      : (3, _contains),
                     'ifempty'       : (1, _ifempty),
                     'lookup'        : (-1, _lookup),
@@ -91,21 +97,32 @@ class TemplateFormatter(string.Formatter):
                     'shorten'       : (3, _shorten),
                     'switch'        : (-1, _switch),
                     'test'          : (2, _test),
+                    'count'         : (1, _count),
         }
 
-    format_string_re = re.compile(r'^(.*)\|(.*)\|(.*)$')
-    compress_spaces = re.compile(r'\s+')
-    backslash_comma_to_comma = re.compile(r'\\,')
-
-    arg_parser = re.Scanner([
-                (r',', lambda x,t: ''),
-                (r'.*?((?<!\\),)', lambda x,t: t[:-1]),
-                (r'.*?\)', lambda x,t: t[:-1]),
-        ])
-
-    def get_value(self, key, args, kwargs):
-        raise Exception('get_value must be implemented in the subclass')
-
+    def _do_format(self, val, fmt):
+        if not fmt or not val:
+            return val
+        if val == self._validation_string:
+            val = '0'
+        typ = fmt[-1]
+        if typ == 's':
+            pass
+        elif 'bcdoxXn'.find(typ) >= 0:
+            try:
+                val = int(val)
+            except:
+                raise ValueError(
+                    _('format: type {0} requires an integer value, got {1}').format(typ, val))
+        elif 'eEfFgGn%'.find(typ) >= 0:
+            try:
+                val = float(val)
+            except:
+                raise ValueError(
+                    _('format: type {0} requires a decimal (float) value, got {1}').format(typ, val))
+        else:
+            raise ValueError(_('format: unknown format type letter {0}').format(typ))
+        return unicode(('{0:'+fmt+'}').format(val))
 
     def _explode_format_string(self, fmt):
         try:
@@ -117,6 +134,21 @@ class TemplateFormatter(string.Formatter):
             if DEBUG:
                 traceback.print_exc()
             return fmt, '', ''
+
+    format_string_re = re.compile(r'^(.*)\|(.*)\|(.*)$')
+    compress_spaces = re.compile(r'\s+')
+    backslash_comma_to_comma = re.compile(r'\\,')
+
+    arg_parser = re.Scanner([
+                (r',', lambda x,t: ''),
+                (r'.*?((?<!\\),)', lambda x,t: t[:-1]),
+                (r'.*?\)', lambda x,t: t[:-1]),
+        ])
+
+    ################## Override parent classes methods #####################
+
+    def get_value(self, key, args, kwargs):
+        raise Exception('get_value must be implemented in the subclass')
 
     def format_field(self, val, fmt):
         # Handle conditional text
@@ -136,8 +168,13 @@ class TemplateFormatter(string.Formatter):
             if fmt[colon:p] in self.functions:
                 field = fmt[colon:p]
                 func = self.functions[field]
-                args = self.arg_parser.scan(fmt[p+1:])[0]
-                args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
+                if func[0] == 1:
+                    # only one arg expected. Don't bother to scan. Avoids need
+                    # for escaping characters
+                    args = [fmt[p+1:-1]]
+                else:
+                    args = self.arg_parser.scan(fmt[p+1:])[0]
+                    args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
                 if (func[0] == 0 and (len(args) != 1 or args[0])) or \
                         (func[0] > 0 and func[0] != len(args)):
                     raise ValueError('Incorrect number of arguments for function '+ fmt[0:p])
@@ -146,7 +183,7 @@ class TemplateFormatter(string.Formatter):
                 else:
                     val = func[1](self, val, *args).strip()
         if val:
-            val = string.Formatter.format_field(self, val, dispfmt)
+            val = self._do_format(val, dispfmt)
         if not val:
             return ''
         return prefix + val + suffix
@@ -154,6 +191,8 @@ class TemplateFormatter(string.Formatter):
     def vformat(self, fmt, args, kwargs):
         ans = string.Formatter.vformat(self, fmt, args, kwargs)
         return self.compress_spaces.sub(' ', ans).strip()
+
+    ########## a formatter guaranteed not to throw and exception ############
 
     def safe_format(self, fmt, kwargs, error_value, book):
         self.kwargs = kwargs
@@ -172,7 +211,7 @@ class ValidateFormat(TemplateFormatter):
     Provides a format function that substitutes '' for any missing value
     '''
     def get_value(self, key, args, kwargs):
-        return 'this is some text that should be long enough'
+        return self._validation_string
 
     def validate(self, x):
         return self.vformat(x, [], {})

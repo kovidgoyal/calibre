@@ -1,0 +1,110 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = 'Copyright 2010 Starson17'
+'''
+www.arcamax.com
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Arcamax(BasicNewsRecipe):
+    title               = 'Arcamax'
+    __author__          = 'Starson17'
+    __version__         = '1.03'
+    __date__            = '25 November 2010'
+    description         = u'Family Friendly Comics - Customize for more days/comics: Defaults to 7 days, 25 comics - 20 general, 5 editorial.'
+    category            = 'news, comics'
+    language            = 'en'
+    use_embedded_content= False
+    no_stylesheets      = True
+    remove_javascript   = True
+    cover_url           = 'http://www.arcamax.com/images/pub/amuse/leftcol/zits.jpg'
+
+    ####### USER PREFERENCES - SET COMICS AND NUMBER OF COMICS TO RETRIEVE ########
+    num_comics_to_get = 7
+    # CHOOSE COMIC STRIPS BELOW - REMOVE COMMENT '# ' FROM IN FRONT OF DESIRED STRIPS
+
+    conversion_options = {'linearize_tables'  : True
+                        , 'comment'           : description
+                        , 'tags'              : category
+                        , 'language'          : language
+                        }
+
+    keep_only_tags     = [dict(name='div', attrs={'class':['toon']}),
+                          ]
+
+    def parse_index(self):
+        feeds = []
+        for title, url in [
+                            ######## COMICS - GENERAL ########
+                            #(u"9 Chickweed Lane", u"http://www.arcamax.com/ninechickweedlane"),
+                            #(u"Agnes", u"http://www.arcamax.com/agnes"),
+                            #(u"Andy Capp", u"http://www.arcamax.com/andycapp"),
+                            (u"BC", u"http://www.arcamax.com/bc"),
+                            #(u"Baby Blues", u"http://www.arcamax.com/babyblues"),
+                            #(u"Beetle Bailey", u"http://www.arcamax.com/beetlebailey"),
+                            (u"Blondie", u"http://www.arcamax.com/blondie"),
+                            #u"Boondocks", u"http://www.arcamax.com/boondocks"),
+                            #(u"Cathy", u"http://www.arcamax.com/cathy"),
+                            #(u"Daddys Home", u"http://www.arcamax.com/daddyshome"),
+                            (u"Dilbert", u"http://www.arcamax.com/dilbert"),
+                            #(u"Dinette Set", u"http://www.arcamax.com/thedinetteset"),
+                            (u"Dog Eat Doug", u"http://www.arcamax.com/dogeatdoug"),
+                            (u"Doonesbury", u"http://www.arcamax.com/doonesbury"),
+                            #(u"Dustin", u"http://www.arcamax.com/dustin"),
+                            (u"Family Circus", u"http://www.arcamax.com/familycircus"),
+                            (u"Garfield", u"http://www.arcamax.com/garfield"),
+                            #(u"Get Fuzzy", u"http://www.arcamax.com/getfuzzy"),
+                            #(u"Girls and Sports", u"http://www.arcamax.com/girlsandsports"),
+                            #(u"Hagar the Horrible", u"http://www.arcamax.com/hagarthehorrible"),
+                            #(u"Heathcliff", u"http://www.arcamax.com/heathcliff"),
+                            #(u"Jerry King Cartoons", u"http://www.arcamax.com/humorcartoon"),
+                            #(u"Luann", u"http://www.arcamax.com/luann"),
+                            #(u"Momma", u"http://www.arcamax.com/momma"),
+                            #(u"Mother Goose and Grimm", u"http://www.arcamax.com/mothergooseandgrimm"),
+                            (u"Mutts", u"http://www.arcamax.com/mutts"),
+                            #(u"Non Sequitur", u"http://www.arcamax.com/nonsequitur"),
+                            #(u"Pearls Before Swine", u"http://www.arcamax.com/pearlsbeforeswine"),
+                            #(u"Pickles", u"http://www.arcamax.com/pickles"),
+                            #(u"Red and Rover", u"http://www.arcamax.com/redandrover"),
+                            #(u"Rubes", u"http://www.arcamax.com/rubes"),
+                            #(u"Rugrats", u"http://www.arcamax.com/rugrats"),
+                            (u"Speed Bump", u"http://www.arcamax.com/speedbump"),
+                            (u"Wizard of Id", u"http://www.arcamax.com/wizardofid"),
+                            (u"Dilbert", u"http://www.arcamax.com/dilbert"),
+                            (u"Zits", u"http://www.arcamax.com/zits"),
+                             ]:
+            articles = self.make_links(url)
+            if articles:
+                feeds.append((title, articles))
+        return feeds
+
+    def make_links(self, url):
+        title = 'Temp'
+        current_articles = []
+        pages = range(1, self.num_comics_to_get+1)
+        for page in pages:
+            page_soup = self.index_to_soup(url)
+            if page_soup:
+                title = page_soup.find(name='div', attrs={'class':'toon'}).p.img['alt']
+                page_url = url
+                prev_page_url = 'http://www.arcamax.com' + page_soup.find('a', attrs={'class':'next'}, text='Previous').parent['href']
+            current_articles.append({'title': title, 'url': page_url, 'description':'', 'date':''})
+            url = prev_page_url
+        current_articles.reverse()
+        return current_articles
+
+    def preprocess_html(self, soup):
+        main_comic = soup.find('p',attrs={'class':'m0'})
+        if main_comic.a['target'] == '_blank':
+            main_comic.a.img['id'] = 'main_comic'
+        return soup
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    img#main_comic {max-width:100%; min-width:100%;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		'''
+

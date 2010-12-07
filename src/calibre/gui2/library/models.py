@@ -18,6 +18,7 @@ from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_autho
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
+from calibre.utils.icu import sort_key, strcmp as icu_strcmp
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
@@ -305,9 +306,10 @@ class BooksModel(QAbstractTableModel): # {{{
         cdata = self.cover(idx)
         if cdata:
             data['cover'] = cdata
-        tags = self.db.tags(idx)
+        tags = list(self.db.get_tags(self.db.id(idx)))
         if tags:
-            tags = tags.replace(',', ', ')
+            tags.sort(key=sort_key)
+            tags = ', '.join(tags)
         else:
             tags = _('None')
         data[_('Tags')] = tags
@@ -544,7 +546,7 @@ class BooksModel(QAbstractTableModel): # {{{
         def tags(r, idx=-1):
             tags = self.db.data[r][idx]
             if tags:
-                return QVariant(', '.join(sorted(tags.split(','))))
+                return QVariant(', '.join(sorted(tags.split(','), key=sort_key)))
             return None
 
         def series_type(r, idx=-1, siix=-1):
@@ -595,7 +597,7 @@ class BooksModel(QAbstractTableModel): # {{{
         def text_type(r, mult=False, idx=-1):
             text = self.db.data[r][idx]
             if text and mult:
-                return QVariant(', '.join(sorted(text.split('|'))))
+                return QVariant(', '.join(sorted(text.split('|'),key=sort_key)))
             return QVariant(text)
 
         def number_type(r, idx=-1):
@@ -634,7 +636,7 @@ class BooksModel(QAbstractTableModel): # {{{
         for col in self.custom_columns:
             idx = self.custom_columns[col]['rec_index']
             datatype = self.custom_columns[col]['datatype']
-            if datatype in ('text', 'comments', 'composite'):
+            if datatype in ('text', 'comments', 'composite', 'enumeration'):
                 self.dc[col] = functools.partial(text_type, idx=idx,
                                                  mult=self.custom_columns[col]['is_multiple'])
             elif datatype in ('int', 'float'):
@@ -722,7 +724,11 @@ class BooksModel(QAbstractTableModel): # {{{
         if typ in ('text', 'comments'):
             val = unicode(value.toString()).strip()
             val = val if val else None
-        if typ == 'bool':
+        elif typ == 'enumeration':
+            val = unicode(value.toString()).strip()
+            if not val:
+                val = None
+        elif typ == 'bool':
             val = value.toPyObject()
         elif typ == 'rating':
             val = value.toInt()[0]
@@ -730,7 +736,7 @@ class BooksModel(QAbstractTableModel): # {{{
             val *= 2
         elif typ in ('int', 'float'):
             val = unicode(value.toString()).strip()
-            if val is None or not val:
+            if not val:
                 val = None
         elif typ == 'datetime':
             val = value.toDate()
@@ -1017,8 +1023,7 @@ class DeviceBooksModel(BooksModel): # {{{
                     x = ''
                 if y == None:
                     y = ''
-                x, y = x.strip().lower(), y.strip().lower()
-                return cmp(x, y)
+                return icu_strcmp(x.strip(), y.strip())
             return _strcmp
         def datecmp(x, y):
             x = self.db[x].datetime
@@ -1029,8 +1034,8 @@ class DeviceBooksModel(BooksModel): # {{{
             x, y = int(self.db[x].size), int(self.db[y].size)
             return cmp(x, y)
         def tagscmp(x, y):
-            x = ','.join(sorted(getattr(self.db[x], 'device_collections', []))).lower()
-            y = ','.join(sorted(getattr(self.db[y], 'device_collections', []))).lower()
+            x = ','.join(sorted(getattr(self.db[x], 'device_collections', []),key=sort_key))
+            y = ','.join(sorted(getattr(self.db[y], 'device_collections', []),key=sort_key))
             return cmp(x, y)
         def libcmp(x, y):
             x, y = self.db[x].in_library, self.db[y].in_library
@@ -1207,7 +1212,7 @@ class DeviceBooksModel(BooksModel): # {{{
             elif cname == 'collections':
                 tags = self.db[self.map[row]].device_collections
                 if tags:
-                    tags.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
+                    tags.sort(key=sort_key)
                     return QVariant(', '.join(tags))
             elif DEBUG and cname == 'inlibrary':
                 return QVariant(self.db[self.map[row]].in_library)

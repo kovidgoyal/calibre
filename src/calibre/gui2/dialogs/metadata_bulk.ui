@@ -308,6 +308,9 @@ from the value in the box</string>
              <property name="minimum">
               <number>1</number>
              </property>
+             <property name="maximum">
+              <number>990000</number>
+             </property>
              <property name="value">
               <number>1</number>
              </property>
@@ -660,8 +663,8 @@ nothing should be put between the original text and the inserted text</string>
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>726</width>
-              <height>334</height>
+              <width>122</width>
+              <height>38</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="testgrid">
@@ -707,7 +710,7 @@ nothing should be put between the original text and the inserted text</string>
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>

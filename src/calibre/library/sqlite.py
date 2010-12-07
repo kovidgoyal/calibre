@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Wrapper for multi-threaded access to a single sqlite database connection. Serializes
 all calls.
 '''
-import sqlite3 as sqlite, traceback, time, uuid
+import sqlite3 as sqlite, traceback, time, uuid, sys, os
 from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
 from Queue import Queue
@@ -18,7 +18,9 @@ from functools import partial
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, isoformat
-from calibre import isbytestring
+from calibre import isbytestring, force_unicode
+from calibre.constants import iswindows, DEBUG
+from calibre.utils.icu import strcmp
 
 global_lock = RLock()
 
@@ -34,10 +36,11 @@ sqlite.register_adapter(datetime, adapt_datetime)
 sqlite.register_converter('timestamp', convert_timestamp)
 
 def convert_bool(val):
-    return bool(int(val))
+    return val != '0'
 
 sqlite.register_adapter(bool, lambda x : 1 if x else 0)
 sqlite.register_converter('bool', convert_bool)
+sqlite.register_converter('BOOL', convert_bool)
 
 class DynamicFilter(object):
 
@@ -113,6 +116,24 @@ def pynocase(one, two, encoding='utf-8'):
             pass
     return cmp(one.lower(), two.lower())
 
+def icu_collator(s1, s2):
+    return strcmp(force_unicode(s1, 'utf-8'), force_unicode(s2, 'utf-8'))
+
+def load_c_extensions(conn, debug=DEBUG):
+    try:
+        conn.enable_load_extension(True)
+        ext_path = os.path.join(sys.extensions_location, 'sqlite_custom.'+
+                ('pyd' if iswindows else 'so'))
+        conn.load_extension(ext_path)
+        conn.enable_load_extension(False)
+        return True
+    except Exception, e:
+        if debug:
+            print 'Failed to load high performance sqlite C extension'
+            print e
+    return False
+
+
 class DBThread(Thread):
 
     CLOSE = '-------close---------'
@@ -130,11 +151,14 @@ class DBThread(Thread):
     def connect(self):
         self.conn = sqlite.connect(self.path, factory=Connection,
                                    detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
+        self.conn.execute('pragma cache_size=5000')
         encoding = self.conn.execute('pragma encoding').fetchone()[0]
+        c_ext_loaded = load_c_extensions(self.conn)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
-        self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
-        self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
+        if not c_ext_loaded:
+            self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
+            self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
         self.conn.create_collation('PYNOCASE', partial(pynocase,
             encoding=encoding))
         if tweaks['title_series_sorting'] == 'strictly_alphabetic':
@@ -146,6 +170,7 @@ class DBThread(Thread):
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
         # Dummy functions for dynamically created filters
         self.conn.create_function('books_list_filter', 1, lambda x: 1)
+        self.conn.create_collation('icucollate', icu_collator)
 
     def run(self):
         try:
@@ -262,3 +287,9 @@ def connect(dbpath, row_factory=None):
     if conn.proxy.unhandled_error[0] is not None:
         raise DatabaseException(*conn.proxy.unhandled_error)
     return conn
+
+def test():
+    c = sqlite.connect(':memory:')
+    if load_c_extensions(c, True):
+        print 'Loaded C extension successfully'
+

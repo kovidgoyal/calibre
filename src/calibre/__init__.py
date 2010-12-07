@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import uuid, sys, os, re, logging, time, mimetypes, \
+import uuid, sys, os, re, logging, time, \
        __builtin__, warnings, multiprocessing
 from urllib import getproxies
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
@@ -19,36 +19,18 @@ from calibre.constants import iswindows, isosx, islinux, isfreebsd, isfrozen, \
                               __appname__, __version__, __author__, \
                               win32event, win32api, winerror, fcntl, \
                               filesystem_encoding, plugins, config_dir
-from calibre.startup import winutil, winutilerror
+from calibre.startup import winutil, winutilerror, guess_type
 
-uuid.uuid4() # Imported before PyQt4 to workaround PyQt4 util-linux conflict on gentoo
+if islinux and not getattr(sys, 'frozen', False):
+    # Imported before PyQt4 to workaround PyQt4 util-linux conflict on gentoo
+    uuid.uuid4()
 
 if False:
+    # Prevent pyflakes from complaining
     winutil, winutilerror, __appname__, islinux, __version__
     fcntl, win32event, isfrozen, __author__, terminal_controller
-    winerror, win32api, isfreebsd
+    winerror, win32api, isfreebsd, guess_type
 
-mimetypes.add_type('application/epub+zip',                '.epub')
-mimetypes.add_type('text/x-sony-bbeb+xml',                '.lrs')
-mimetypes.add_type('application/xhtml+xml',               '.xhtml')
-mimetypes.add_type('image/svg+xml',                       '.svg')
-mimetypes.add_type('text/fb2+xml',                        '.fb2')
-mimetypes.add_type('application/x-sony-bbeb',             '.lrf')
-mimetypes.add_type('application/x-sony-bbeb',             '.lrx')
-mimetypes.add_type('application/x-dtbncx+xml',            '.ncx')
-mimetypes.add_type('application/adobe-page-template+xml', '.xpgt')
-mimetypes.add_type('application/x-font-opentype',         '.otf')
-mimetypes.add_type('application/x-font-truetype',         '.ttf')
-mimetypes.add_type('application/oebps-package+xml',       '.opf')
-mimetypes.add_type('application/vnd.palm',                '.pdb')
-mimetypes.add_type('application/x-mobipocket-ebook',      '.mobi')
-mimetypes.add_type('application/x-mobipocket-ebook',      '.prc')
-mimetypes.add_type('application/x-mobipocket-ebook',      '.azw')
-mimetypes.add_type('application/x-cbz',                   '.cbz')
-mimetypes.add_type('application/x-cbr',                   '.cbr')
-mimetypes.add_type('application/x-koboreader-ebook',      '.kobo')
-mimetypes.add_type('image/wmf',                           '.wmf')
-guess_type = mimetypes.guess_type
 import cssutils
 cssutils.log.setLevel(logging.WARN)
 
@@ -362,6 +344,8 @@ def walk(dir):
 def strftime(fmt, t=None):
     ''' A version of strftime that returns unicode strings and tries to handle dates
     before 1900 '''
+    if not fmt:
+        return u''
     if t is None:
         t = time.localtime()
     if hasattr(t, 'timetuple'):
@@ -378,7 +362,8 @@ def strftime(fmt, t=None):
         if isinstance(fmt, unicode):
             fmt = fmt.encode('mbcs')
         ans = plugins['winutil'][0].strftime(fmt, t)
-    ans = time.strftime(fmt, t).decode(preferred_encoding, 'replace')
+    else:
+        ans = time.strftime(fmt, t).decode(preferred_encoding, 'replace')
     if early_year:
         ans = ans.replace('_early year hack##', str(orig_year))
     return ans

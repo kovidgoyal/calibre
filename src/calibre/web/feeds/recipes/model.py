@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, copy
 
 from PyQt4.Qt import QAbstractItemModel, QVariant, Qt, QColor, QFont, QIcon, \
-        QModelIndex, SIGNAL, QMetaObject, pyqtSlot
+        QModelIndex, QMetaObject, pyqtSlot, pyqtSignal
 
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.gui2 import NONE
@@ -120,6 +120,7 @@ class NewsItem(NewsTreeItem):
 class RecipeModel(QAbstractItemModel, SearchQueryParser):
 
     LOCATIONS = ['all']
+    searched = pyqtSignal(object)
 
     def __init__(self, db, *args):
         QAbstractItemModel.__init__(self, *args)
@@ -254,14 +255,17 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         return results
 
     def search(self, query):
+        results = []
         try:
-            results = self.parse(unicode(query))
-            if not results:
-                results = None
+            query = unicode(query).strip()
+            if query:
+                results = self.parse(query)
+                if not results:
+                    results = None
         except ParseException:
             results = []
         self.do_refresh(restrict_to_urns=results)
-        self.emit(SIGNAL('searched(PyQt_PyObject)'), True)
+        self.searched.emit(True)
 
     def columnCount(self, parent):
         return 1

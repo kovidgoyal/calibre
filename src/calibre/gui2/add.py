@@ -427,11 +427,27 @@ class Saver(QObject): # {{{
         if not self.ids or not self.worker.is_alive():
             self.timer.stop()
             self.pd.hide()
+            while self.ids:
+                before = len(self.ids)
+                self.get_result()
+                if before == len(self.ids):
+                    for i in list(self.ids):
+                        self.failures.add(('id:%d'%i, 'Unknown error'))
+                        self.ids.remove(i)
+                    break
             if not self.callback_called:
+                try:
+                    self.worker.join(1.5)
+                except:
+                    pass # The worker was not yet started
                 self.callback(self.worker.path, self.failures, self.worker.error)
                 self.callback_called = True
             return
 
+        self.get_result()
+
+
+    def get_result(self):
         try:
             id, title, ok, tb = self.rq.get_nowait()
         except Empty:
@@ -441,6 +457,7 @@ class Saver(QObject): # {{{
         if not isinstance(title, unicode):
             title = str(title).decode(preferred_encoding, 'replace')
         self.pd.set_msg(_('Saved')+' '+title)
+
         if not ok:
             self.failures.add((title, tb))
 # }}}

@@ -1,0 +1,31 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+www.jiji.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class JijiDotCom(BasicNewsRecipe):
+    title          = u'\u6642\u4e8b\u901a\u4fe1'
+    __author__     = 'Hiroshi Miura'
+    description    = 'World News from Jiji Press'
+    publisher      = 'Jiji Press Ltd.'
+    category       = 'news'
+    oldest_article = 6
+    max_articles_per_feed = 100
+    encoding       = 'euc_jisx0213'
+    language       = 'ja'
+    masthead_url   = 'http://jen.jiji.com/images/logo_jijipress.gif'
+    top_url        = 'http://www.jiji.com/'
+
+    feeds          = [(u'\u30cb\u30e5\u30fc\u30b9', u'http://www.jiji.com/rss/ranking.rdf')]
+    remove_tags_after = dict(id="ad_google")
+
+    def get_cover_url(self):
+        cover_url       = 'http://www.jiji.com/img/top_header_logo2.gif'
+        soup = self.index_to_soup(self.top_url)
+        cover_item = soup.find('div', attrs={'class':'top-pad-photos'})
+        if cover_item:
+            cover_url = self.top_url + cover_item.img['src']
+        return cover_url

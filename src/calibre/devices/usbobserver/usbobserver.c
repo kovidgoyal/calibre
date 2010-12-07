@@ -53,8 +53,8 @@
 
 #define NUKE(x) Py_XDECREF(x); x = NULL;
 
-/* This function only works on 10.5 and later
-static PyObject* send2trash(PyObject *self, PyObject *args)
+/* This function only works on 10.5 and later. Pass in a unicode object as path */
+static PyObject* usbobserver_send2trash(PyObject *self, PyObject *args)
 {
     UInt8 *utf8_chars;
     FSRef fp;
@@ -73,7 +73,7 @@ static PyObject* send2trash(PyObject *self, PyObject *args)
     }
     Py_RETURN_NONE;
 }
-*/
+
 
 static PyObject*
 usbobserver_get_iokit_string_property(io_service_t dev, CFStringRef prop) {
@@ -322,6 +322,9 @@ static PyMethodDef usbobserver_methods[] = {
     },
     {"get_mounted_filesystems", usbobserver_get_mounted_filesystems, METH_VARARGS, 
      "Get mapping of mounted filesystems. Mapping is from BSD name to mount point."
+    },
+    {"send2trash", usbobserver_send2trash, METH_VARARGS, 
+     "send2trash(unicode object) -> Send specified file/dir to trash"
     },
 
     {NULL, NULL, 0, NULL}

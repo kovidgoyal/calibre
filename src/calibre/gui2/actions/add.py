@@ -18,6 +18,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
+from calibre.gui2 import config
 
 class AddAction(InterfaceAction):
 
@@ -89,15 +90,24 @@ class AddAction(InterfaceAction):
                 self.gui.library_view.model().db.import_book(MetaInformation(None), [])
             self.gui.library_view.model().books_added(num)
 
-    def add_isbns(self, isbns):
+    def add_isbns(self, books):
         from calibre.ebooks.metadata import MetaInformation
         ids = set([])
-        for x in isbns:
+        for x in books:
             mi = MetaInformation(None)
-            mi.isbn = x
-            ids.add(self.gui.library_view.model().db.import_book(mi, []))
-        self.gui.library_view.model().books_added(len(isbns))
-        self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
+            mi.isbn = x['isbn']
+            db = self.gui.library_view.model().db
+            if x['path'] is not None:
+                ids.add(db.import_book(mi, [x['path']]))
+            else:
+                ids.add(db.import_book(mi, []))
+        self.gui.library_view.model().books_added(len(books))
+        orig = config['overwrite_author_title_metadata']
+        config['overwrite_author_title_metadata'] = True
+        try:
+            self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
+        finally:
+            config['overwrite_author_title_metadata'] = orig
 
 
     def files_dropped(self, paths):
@@ -150,7 +160,7 @@ class AddAction(InterfaceAction):
         from calibre.gui2.dialogs.add_from_isbn import AddFromISBN
         d = AddFromISBN(self.gui)
         if d.exec_() == d.Accepted:
-            self.add_isbns(d.isbns)
+            self.add_isbns(d.books)
 
     def add_books(self, *args):
         '''

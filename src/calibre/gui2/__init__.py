@@ -123,6 +123,8 @@ def _config():
             help=_('Download social metadata (tags/rating/etc.)'))
     c.add_opt('overwrite_author_title_metadata', default=True,
             help=_('Overwrite author and title with new metadata'))
+    c.add_opt('auto_download_cover', default=False,
+            help=_('Automatically download the cover, if available'))
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
     c.add_opt('tag_browser_hidden_categories', default=set(),
@@ -644,7 +646,7 @@ def open_url(qurl):
                 '').split(os.pathsep)
     paths = [x for x in paths if x]
     if isfrozen and islinux and paths:
-        npaths = [x for x in paths if x != sys.frozen_path]
+        npaths = [x for x in paths if x != sys.frozen_path+'/lib']
         os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
     QDesktopServices.openUrl(qurl)
     if isfrozen and islinux and paths:

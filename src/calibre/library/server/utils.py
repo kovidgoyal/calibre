@@ -6,12 +6,14 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import time, sys
+from urllib import quote as quote_, unquote as unquote_
 
 import cherrypy
 
-from calibre import strftime as _strftime, prints
+from calibre import strftime as _strftime, prints, isbytestring
 from calibre.utils.date import now as nowf
 from calibre.utils.config import tweaks
+from calibre.utils.icu import sort_key
 
 class Offsets(object):
     'Calculate offsets for a paginated view'
@@ -72,7 +74,7 @@ def format_tag_string(tags, sep, ignore_max=False, no_tag_count=False):
         tlist = [t.strip() for t in tags.split(sep)]
     else:
         tlist = []
-    tlist.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+    tlist.sort(key=sort_key)
     if len(tlist) > MAX:
         tlist = tlist[:MAX]+['...']
     if no_tag_count:
@@ -80,4 +82,15 @@ def format_tag_string(tags, sep, ignore_max=False, no_tag_count=False):
     else:
         return u'%s:&:%s'%(tweaks['max_content_server_tags_shown'],
                      ', '.join(tlist)) if tlist else ''
+
+def quote(s):
+    if isinstance(s, unicode):
+        s = s.encode('utf-8')
+    return quote_(s)
+
+def unquote(s):
+    ans = unquote_(s)
+    if isbytestring(ans):
+        ans = ans.decode('utf-8')
+    return ans
 

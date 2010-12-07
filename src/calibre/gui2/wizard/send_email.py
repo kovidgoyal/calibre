@@ -73,7 +73,7 @@ class SendEmail(QWidget, Ui_Form):
         if opts.relay_password:
             self.relay_password.setText(unhexlify(opts.relay_password))
         self.relay_password.textChanged.connect(self.changed)
-        (self.relay_tls if opts.encryption == 'TLS' else self.relay_ssl).setChecked(True)
+        getattr(self, 'relay_'+opts.encryption.lower()).setChecked(True)
         self.relay_tls.toggled.connect(self.changed)
 
         for x in ('gmail', 'hotmail'):
@@ -125,6 +125,7 @@ class SendEmail(QWidget, Ui_Form):
                     'port': 587,
                     'username': '@gmail.com',
                     'url': 'www.gmail.com',
+                    'extra': ''
                 },
                 'hotmail': {
                     'name': 'Hotmail',
@@ -132,6 +133,9 @@ class SendEmail(QWidget, Ui_Form):
                     'port': 587,
                     'username': '',
                     'url': 'www.hotmail.com',
+                    'extra': _('If you are setting up a new'
+                        ' hotmail account, you must log in to it '
+                        ' once before you will be able to send mails.'),
                 }
         }[service]
         d = QDialog(self)
@@ -141,7 +145,7 @@ class SendEmail(QWidget, Ui_Form):
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
         d.tl = QLabel('<p>'+_('You can sign up for a free {name} email '
-            'account at <a href="http://{url}">http://{url}</a>.').format(
+            'account at <a href="http://{url}">http://{url}</a>. {extra}').format(
                 **service))
         l.addWidget(d.tl, 0, 0, 3, 0)
         d.tl.setWordWrap(True)
@@ -206,7 +210,8 @@ class SendEmail(QWidget, Ui_Form):
         conf.set('relay_port', self.relay_port.value())
         conf.set('relay_username', username if username else None)
         conf.set('relay_password', hexlify(password))
-        conf.set('encryption', 'TLS' if self.relay_tls.isChecked() else 'SSL')
+        conf.set('encryption', 'TLS' if self.relay_tls.isChecked() else 'SSL'
+                if self.relay_ssl.isChecked() else 'NONE')
         return True
 
 

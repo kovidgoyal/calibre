@@ -18,7 +18,8 @@ from setup.build_environment import fc_inc, fc_lib, chmlib_inc_dirs, \
         QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, win_ddk, \
         magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
         magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, \
-        jpg_lib_dirs, chmlib_lib_dirs
+        jpg_lib_dirs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs, \
+        icu_lib_dirs
 MT
 isunix = islinux or isosx or isfreebsd
 
@@ -56,7 +57,29 @@ pdfreflow_libs = []
 if iswindows:
     pdfreflow_libs = ['advapi32', 'User32', 'Gdi32', 'zlib']
 
+icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
+icu_cflags = []
+if iswindows:
+    icu_libs = ['icudt', 'icuin', 'icuuc', 'icuio']
+if isosx:
+    icu_libs = ['icucore']
+    icu_cflags = ['-DU_DISABLE_RENAMING'] # Needed to use system libicucore.dylib
+
+
 extensions = [
+
+    Extension('icu',
+        ['calibre/utils/icu.c'],
+        libraries=icu_libs,
+        lib_dirs=icu_lib_dirs,
+        inc_dirs=icu_inc_dirs,
+        cflags=icu_cflags
+        ),
+
+    Extension('sqlite_custom',
+        ['calibre/library/sqlite_custom.c'],
+        inc_dirs=sqlite_inc_dirs
+        ),
 
     Extension('chmlib',
             ['calibre/utils/chm/swig_chm.c'],
@@ -186,7 +209,7 @@ if isfreebsd:
 
 
 if isosx:
-    x, p = ('i386', 'ppc')
+    x, p = ('i386', 'x86_64')
     archs = ['-arch', x, '-arch', p, '-isysroot',
                 OSX_SDK]
     cflags.append('-D_OSX')
@@ -339,7 +362,7 @@ class Build(Command):
         obj_pat = 'release\\*.obj' if iswindows else '*.o'
         objects = glob.glob(obj_pat)
         if not objects or self.newer(objects, ext.sources+ext.headers):
-            archs = 'x86 ppc'
+            archs = 'x86 x86_64'
             pro = textwrap.dedent('''\
                 TARGET   = %s
                 TEMPLATE = lib

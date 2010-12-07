@@ -457,7 +457,7 @@ from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK, ORIZON
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK, \
-                BOOQ, ELONEX, POCKETBOOK301, MENTOR
+                BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
@@ -476,7 +476,7 @@ from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
         SOVOS, PICO
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
-        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600
+        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600, LUMIREAD
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
@@ -484,6 +484,7 @@ from calibre.devices.bambook.driver import BAMBOOK
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
     LibraryThing
 from calibre.ebooks.metadata.douban import DoubanBooks
+from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
 from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
         LibraryThingCovers, DoubanCovers
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
@@ -491,8 +492,9 @@ from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        LibraryThing, DoubanBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
-        Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers]
+        LibraryThing, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers,
+        NiceBooksCovers]
 plugins += [
     ComicInput,
     EPUBInput,
@@ -546,6 +548,7 @@ plugins += [
     SHINEBOOK,
     POCKETBOOK360,
     POCKETBOOK301,
+    POCKETBOOK602,
     KINDLE,
     KINDLE2,
     KINDLE_DX,
@@ -598,6 +601,7 @@ plugins += [
     GEMEI,
     VELOCITYMICRO,
     PDNOVEL_KOBO,
+    LUMIREAD,
     ITUNES,
     BAMBOOK,
 ]

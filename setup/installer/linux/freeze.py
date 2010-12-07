@@ -46,7 +46,6 @@ class LinuxFreeze(Command):
                         '/usr/lib/libunrar.so',
                         '/usr/lib/libchm.so.0',
                         '/usr/lib/libsqlite3.so.0',
-                        '/usr/lib/libsqlite3.so.0',
                         '/usr/lib/libmng.so.1',
                         '/usr/lib/libpodofo.so.0.8.2',
                         '/lib/libz.so.1',

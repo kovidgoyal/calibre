@@ -19,7 +19,7 @@ from calibre.customize.ui import catalog_plugins
 class Catalog(QDialog, Ui_Dialog):
     ''' Catalog Dialog builder'''
 
-    def __init__(self, parent, dbspec, ids):
+    def __init__(self, parent, dbspec, ids, db):
         import re, cStringIO
         from calibre import prints as info
         from PyQt4.uic import compileUi
@@ -51,7 +51,7 @@ class Catalog(QDialog, Ui_Dialog):
                     catalog_widget = __import__('calibre.gui2.catalog.'+name,
                             fromlist=[1])
                     pw = catalog_widget.PluginWidget()
-                    pw.initialize(name)
+                    pw.initialize(name, db)
                     pw.ICON = I('forward.png')
                     self.widgets.append(pw)
                     [self.fmts.append([file_type.upper(), pw.sync_enabled,pw]) for file_type in plugin.file_types]

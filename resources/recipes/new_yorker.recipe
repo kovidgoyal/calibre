@@ -22,8 +22,19 @@ class NewYorker(BasicNewsRecipe):
     masthead_url          = 'http://www.newyorker.com/css/i/hed/logo.gif'
     extra_css             = """
                                 body {font-family: "Times New Roman",Times,serif}
-                                .articleauthor{color: #9F9F9F; font-family: Arial, sans-serif; font-size: small; text-transform: uppercase}
-                                .rubric{color: #CD0021; font-family: Arial, sans-serif; font-size: small; text-transform: uppercase}
+                                .articleauthor{color: #9F9F9F; 
+                                               font-family: Arial, sans-serif;
+                                               font-size: small; 
+                                               text-transform: uppercase}
+                                .rubric,.dd,h6#credit{color: #CD0021;
+                                        font-family: Arial, sans-serif;
+                                        font-size: small;
+                                        text-transform: uppercase}
+                                .descender:first-letter{display: inline; font-size: xx-large; font-weight: bold}
+                                .dd,h6#credit{color: gray}
+                                .c{display: block}
+                                .caption,h2#articleintro{font-style: italic}
+                                .caption{font-size: small}
                             """
 
     conversion_options = {
@@ -32,15 +43,15 @@ class NewYorker(BasicNewsRecipe):
                         , 'publisher' : publisher
                         , 'language'  : language
                         }
-    
+
     keep_only_tags = [
                         dict(name='div', attrs={'class':'headers'})
                        ,dict(name='div', attrs={'id':['articleheads','items-container','articleRail','articletext','photocredits']})
                      ]
     remove_tags    = [
                          dict(name=['meta','iframe','base','link','embed','object'])
-                        ,dict(attrs={'class':['utils','articleRailLinks','icons'] })                        
-                        ,dict(attrs={'id':['show-header','show-footer'] })                        
+                        ,dict(attrs={'class':['utils','socialUtils','articleRailLinks','icons'] })
+                        ,dict(attrs={'id':['show-header','show-footer'] })
                      ]
     remove_attributes = ['lang']
     feeds             = [(u'The New Yorker', u'http://feeds.newyorker.com/services/rss/feeds/everything.xml')]
@@ -58,4 +69,14 @@ class NewYorker(BasicNewsRecipe):
         if cover_item:
            cover_url = 'http://www.newyorker.com' + cover_item['src'].strip()
         return cover_url
-        
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        auth = soup.find(attrs={'id':'articleauthor'})
+        if auth:
+           alink = auth.find('a')
+           if alink and alink.string is not None:
+              txt = alink.string
+              alink.replaceWith(txt)
+        return soup

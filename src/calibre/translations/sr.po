@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-11-10 14:27+0000\n"
-"PO-Revision-Date: 2010-11-10 17:40+0000\n"
+"POT-Creation-Date: 2010-11-27 20:21+0000\n"
+"PO-Revision-Date: 2010-11-27 10:24+0000\n"
 "Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-11 04:41+0000\n"
+"X-Launchpad-Export-Date: 2010-11-28 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -27,11 +27,11 @@ msgstr "Ne radi baš ništa"
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:76
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/books.py:24
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:444
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:448
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:71
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/books.py:267
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:643
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:657
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:401
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:97
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:100
@@ -40,8 +40,8 @@ msgstr "Ne radi baš ništa"
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:124
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:93
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:95
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:343
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:346
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:338
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:341
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1894
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1896
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
@@ -55,7 +55,7 @@ msgstr "Ne radi baš ništa"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:50
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:354
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:357
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:64
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:66
@@ -74,14 +74,14 @@ msgstr "Ne radi baš ništa"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:78
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:119
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:153
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:616
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:822
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:824
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:627
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:833
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:835
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:51
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:911
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:916
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:982
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:913
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:918
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:984
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:143
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:150
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:64
@@ -89,7 +89,7 @@ msgstr "Ne radi baš ništa"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:118
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:173
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:174
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:39
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:40
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/palmdoc/writer.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ztxt/writer.py:27
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:82
@@ -109,10 +109,10 @@ msgstr "Ne radi baš ništa"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:82
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:97
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:98
-#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:239
-#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:241
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:356
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:363
+#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:304
+#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:306
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:362
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:282
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:137
@@ -121,15 +121,15 @@ msgstr "Ne radi baš ništa"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:927
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:936
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1243
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1246
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1039
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1042
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:571
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:235
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:244
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:395
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:918
@@ -137,14 +137,14 @@ msgstr "Ne radi baš ništa"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:189
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:215
-#: /home/kovid/work/calibre/src/calibre/library/database.py:913
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:399
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:411
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1283
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1387
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2161
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2163
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2295
+#: /home/kovid/work/calibre/src/calibre/library/database.py:914
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:375
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:387
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1254
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2151
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2153
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2284
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:229
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:139
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:142
@@ -185,14 +185,14 @@ msgstr "Akcije korisničkog interfejsa"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:386
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:22
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:187
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:251
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:273
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:261
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:283
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
 msgstr "Podešavanja"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:17
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:15
 msgid ""
 "Follow all local links in an HTML file and create a ZIP file containing all "
 "linked files. This plugin is run every time you add an HTML file to the "
@@ -202,7 +202,7 @@ msgstr ""
 "fajlove. Ovaj dodatak se pokreće svaki put kada dodate HTML fajl u "
 "biblioteku."
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:53
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:51
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
@@ -210,7 +210,7 @@ msgstr ""
 "Kodni raspored za ulazne HTML fajlove. Najčešće korišćeni kodni rasporedi "
 "su: Windows-1252 (CP1252), Latin-1, ISO-8859 i UTF-8."
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:60
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:58
 msgid ""
 "Create a PMLZ archive containing the PML file and all images in the "
 "directory pmlname_img or images. This plugin is run every time you add a PML "
@@ -220,7 +220,7 @@ msgstr ""
 "plmname_img i images. Ovaj dodatak se pokreće svaki put kada dodate PML fajl "
 "u biblioteku."
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:94
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:92
 msgid "Extract cover from comic files"
 msgstr "Uzmi omot iz fajla sa stripom"
 
@@ -267,43 +267,43 @@ msgstr "Upiši metapodatke u %s fajlova"
 msgid "Set metadata from %s files"
 msgstr "Učitaj metapodatke iz %s fajlova"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:711
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:717
 msgid "Look and Feel"
 msgstr "Izgled i ponašanje"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:713
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:725
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:736
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:747
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:719
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:731
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:742
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:753
 msgid "Interface"
 msgstr "Interfejs"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:717
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:723
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
 msgstr "Prilagodite izgled i ponašanje calibrea da odgovara vašem ukusu"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:723
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 msgid "Behavior"
 msgstr "Ponašanje"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Change the way calibre behaves"
 msgstr "Promenite način ponašanja calibrea"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:734
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:208
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:209
 msgid "Add your own columns"
 msgstr "Dodajte sopstvene kolone"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:746
 msgid "Add/remove your own columns to the calibre book list"
 msgstr "Dodajte/uklonite sopstvene kolone za calibre spisak knjiga"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
 msgid "Customize the toolbar"
 msgstr "Prilagodite traku sa alatima"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:757
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
@@ -311,57 +311,57 @@ msgstr ""
 "Prilagodite traku sa alatima i kontekstno osetljive menije menjajući akcije "
 "koje su na raspolaganju u svakom od njih"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:757
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:763
 msgid "Input Options"
 msgstr "Ulazna podešavanja"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:759
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:776
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:787
 msgid "Conversion"
 msgstr "Konverzija"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:763
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:769
 msgid "Set conversion options specific to each input format"
 msgstr "Postavite opcije za konverziju za svaki od ulaznih formata"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:768
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:774
 msgid "Common Options"
 msgstr "Uobičajene opcije"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:774
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Set conversion options common to all formats"
 msgstr "Postavite opcije za konverziju za sve formate"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:779
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Output Options"
 msgstr "Izlazne opcije"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Set conversion options specific to each output format"
 msgstr "Postavite opcije za konverziju specifične za svaki izlazni format"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid "Adding books"
 msgstr "Dodajem knjige"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:804
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:816
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:798
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:834
 msgid "Import/Export"
 msgstr "Uvoz/izvoz"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
 "Kontrolišite kako calibre čita metapodatke iz fajlova kada dodaje knjige"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:808
 msgid "Saving books to disk"
 msgstr "Snimam kjige na disk"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:808
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:814
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
@@ -369,32 +369,32 @@ msgstr ""
 "Kontrolišite kako calibre izvozi fajlove iz baze podataka na disk kada se "
 "koristi opcija Snimi na disk"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:814
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:820
 msgid "Sending books to devices"
 msgstr "Šaljem knjige na uređaj"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:820
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:826
 msgid "Control how calibre transfers files to your ebook reader"
 msgstr "Kontrolišite kako calibre šalje fajlove na vaš čitač"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:826
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:832
 msgid "Metadata plugboards"
 msgstr "Priključci za metapodatke"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:832
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Change metadata fields before saving/sending"
 msgstr "Izmeni metapodatke pre snimanja/slanja"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:837
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid "Sharing books by email"
 msgstr "Šaljem knjige elektronskom poštom"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:839
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:851
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:845
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid "Sharing"
 msgstr "Razmena"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
@@ -402,11 +402,11 @@ msgstr ""
 "Podesite razmenu knjiga elektronskom poštom. Ovo se može koristiti i za "
 "automatsko slanje preuzetih vesti na vaš uređaj"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:855
 msgid "Sharing over the net"
 msgstr "Razmena preko Interneta"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:855
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:861
 msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
@@ -414,33 +414,33 @@ msgstr ""
 "Podesite calibre server sadržaja koji će omogućiti pristup vašoj calibre "
 "biblioteci s bilo koje lokacije, bilo kog uređaja, a preko Interneta"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:862
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Plugins"
 msgstr "Dodaci"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:876
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:887
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:870
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:882
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:893
 msgid "Advanced"
 msgstr "Napredno"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr "Dodaj/ukloni/podesi različite elemente ponašanja calibrea"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:880
 msgid "Tweaks"
 msgstr "Fina podešavanja"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:880
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:886
 msgid "Fine tune how calibre behaves in various contexts"
 msgstr "Fino podesite kako se calibre ponaša u različitim situacijama"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
 msgid "Miscellaneous"
 msgstr "Razno"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:897
 msgid "Miscellaneous advanced configuration"
 msgstr "Razna napredna podešavanja"
 
@@ -485,7 +485,7 @@ msgstr ""
 "je ako ne znate ništa o ulaznom dokumentu."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:59
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:436
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:444
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
@@ -496,62 +496,62 @@ msgid "This profile is intended for the SONY PRS 300."
 msgstr "Ovaj profil je namenjen za SONY PRS 300 čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:80
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:476
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the SONY PRS-900."
 msgstr "Ovaj profil je namenjen za SONY PRS-900 čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:88
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:506
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:513
 msgid "This profile is intended for the Microsoft Reader."
 msgstr "Ovaj profil je namenjen za Microsoft Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:99
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:517
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:524
 msgid "This profile is intended for the Mobipocket books."
 msgstr "Ovaj profil je namenjen za Mobipocket knjige."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:112
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:530
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:537
 msgid "This profile is intended for the Hanlin V3 and its clones."
 msgstr "Ovaj profil je namenjen za Hanlin V3 čitače i klonove."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:124
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:542
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:549
 msgid "This profile is intended for the Hanlin V5 and its clones."
 msgstr "Ovaj profil je namenjen za Hanlin V5 čitače i klonove."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:134
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:550
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:557
 msgid "This profile is intended for the Cybook G3."
 msgstr "Ovaj profil je namenjen za Cybook G3 čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:147
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:563
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:570
 msgid "This profile is intended for the Cybook Opus."
 msgstr "Ovaj profil je namenjen za Cybook Opus čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:159
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:576
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:583
 msgid "This profile is intended for the Amazon Kindle."
 msgstr "Ovaj profil je namenjen za Amazon Kindle čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:171
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:617
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:631
 msgid "This profile is intended for the Irex Illiad."
 msgstr "Ovaj profil je namenjen za Irex Illiad čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:183
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:630
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:644
 msgid "This profile is intended for the IRex Digital Reader 1000."
 msgstr "Ovaj profil je namenjen za IRex Digital Reader 1000 čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:196
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:644
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:658
 msgid "This profile is intended for the IRex Digital Reader 800."
 msgstr "Ovaj profil je namenjen za IRex Digital Reader 800 čitače."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:208
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:658
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the B&N Nook."
 msgstr "Ovaj profil je namenjen za B&N Nook čitače."
 
@@ -569,28 +569,28 @@ msgstr ""
 "je ako želite da proizvedete dokument koji može da se čita kako na računaru, "
 "tako i na raznim drugim uređajima."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:273
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:276
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr "Namenjeno za iPad i slične uređaje s rezolucijom 768x1024"
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:427
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:435
 msgid "Intended for generic tablet devices, does no resizing of images"
 msgstr "Namenjeno generičkim tablet uređajima, ne menja veličinu slika"
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:454
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:462
 msgid "This profile is intended for the Kobo Reader."
 msgstr "Ovaj profil je namenjen za Kobo čitače"
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:467
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:475
 msgid "This profile is intended for the SONY PRS-300."
 msgstr "Ovaj profil je namenjen za SONY PRS-300 čitače."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:485
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:493
 msgid "This profile is intended for the 5-inch JetBook."
 msgstr "Ovaj profil je namenjen za 5-inčne JetBook čitače."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:494
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
@@ -598,11 +598,15 @@ msgstr ""
 "Ovaj profil je namenjen SONY PRS liniji čitača, za modele 500/505/700 itd, u "
 "horizontalnom položaju. Uglavnom je koristan za stripove."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:597
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:609
 msgid "This profile is intended for the Amazon Kindle DX."
 msgstr "Ovaj profil je namenjen za Amazon Kindle DX čitače."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:684
+msgid "This profile is intended for the B&N Nook Color."
+msgstr "Ovaj profil je namenjen B&N Nook Color čitaču."
+
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:695
 msgid "This profile is intended for the Sanda Bambook."
 msgstr "Ovaj profil je namenjen Sanda Bambook čitaču."
 
@@ -678,7 +682,7 @@ msgstr "Isključi navedeni dodatak"
 msgid "Communicate with Android phones."
 msgstr "Uspastavi vezu sa Android telefonima."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:53
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:56
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -686,7 +690,7 @@ msgstr ""
 "Zarezima razdvojen spisak direktorijuma na uređaju u koje će se slati "
 "knjige. Koristiće se prvi postojeći."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:95
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:98
 msgid "Communicate with S60 phones."
 msgstr "Uspostavi vezu sa S60 telefonima."
 
@@ -763,18 +767,18 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:888
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:918
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:257
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:212
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:225
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2021
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:187
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:200
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2015
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:149
 msgid "News"
 msgstr "Vesti"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2554
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:20
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:556
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1984
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2002
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:560
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1978
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1996
 msgid "Catalog"
 msgstr "Katalog"
 
@@ -800,6 +804,10 @@ msgstr "Kovid Goyal"
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
 msgstr "Uspostavi vezu s Cybook Gen 3/Opus čitačem."
 
+#: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
+msgid "Communicate with the Cybook Orizon eBook reader."
+msgstr "Uspostavi vezu s Cybook Orizon čitačem"
+
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
 msgstr "Uspostavi vezu sa EB600 čitačem."
@@ -811,6 +819,10 @@ msgstr "Uspostavi vezu sa Astak Mentor EB600 čitačem."
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
 msgstr "Uspstavi vezu s PocketBook 301 čitačem."
+
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
+msgid "Communicate with the PocketBook 602 reader."
+msgstr "Uspostavi vezu s PocketBook 602 čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -872,8 +884,8 @@ msgstr "Uspostavi vezu sa SpringDesign Alex čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:102
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:113
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:264
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:296
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:268
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:300
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:256
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:274
 msgid "Removing books from device..."
@@ -962,26 +974,26 @@ msgstr ""
 msgid "Getting list of books on device..."
 msgstr "Preuzimam spisak knjiga sa uređaja..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:300
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:307
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:304
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:311
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:281
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:286
 msgid "Removing books from device metadata listing..."
 msgstr "Uklanjam knjiga sa spiska metapodataka na uređaju..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:312
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:347
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:316
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:351
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:219
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:250
 msgid "Adding books to device metadata listing..."
 msgstr "Dodajem knjige na spisak metapodataka na uređaju..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:424
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:258
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:428
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:262
 msgid "Not Implemented"
 msgstr "Nije dovršeno"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:425
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:429
 msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
@@ -1022,6 +1034,10 @@ msgstr "Uspostavi vezu s VelocityMicro čitačem"
 msgid "Communicate with the GM2000"
 msgstr "Uspostavi komunikaciju s GM2000"
 
+#: /home/kovid/work/calibre/src/calibre/devices/misc.py:180
+msgid "Communicate with the Acer Lumiread"
+msgstr "Uspostavi vezu sa Acer Lumiread čitačem"
+
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
 msgstr "Uspostavi vezu s Nokia 770 uređajem."
@@ -1041,6 +1057,14 @@ msgstr "Nook"
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
 msgstr "Uspostavi vezu s Nook čitačem."
+
+#: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
+msgid "Nook Color"
+msgstr "Nook Color"
+
+#: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
+msgid "Communicate with the Nook Color eBook reader."
+msgstr "Uspostavi vezu s Nook Color čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -2089,14 +2113,6 @@ msgstr ""
 "hijerarhiju direktorijuma. Koristite ovu opciju samo ako znate šta radite, "
 "jer može proizvesti brojne neženjene efekte u nastavku konverzije."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:273
-msgid ""
-"Average line length for line breaking if the HTML is from a previous partial "
-"conversion of a PDF file. Default is %default which disables this."
-msgstr ""
-"Srednja dužina reda za prelom ako je HTML fajl rezultat prethodne konverzije "
-"iz PDF fajla. Podrazumeva se %default i ta vrednost isključuje ovu opciju."
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:33
 msgid "CSS file used for the output instead of the default file"
 msgstr "Korišćen je CSS umesto podrazumevanog fajla za kreiranje izlaza"
@@ -2258,7 +2274,7 @@ msgid "Path to output file"
 msgstr "Putanja do izlaznog fajla"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:290
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:128
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:126
 msgid "Verbose processing"
 msgstr "Detaljni izveštaj o obradi"
 
@@ -2489,7 +2505,7 @@ msgstr "Komentari"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:313
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1127
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:160
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:623
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:655
 msgid "Tags"
 msgstr "Etikete"
 
@@ -2638,6 +2654,7 @@ msgid "No cover found"
 msgstr "Nije nađena nijedna naslovna strana"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:28
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:44
 msgid "Cover download"
 msgstr "Omot preuzet"
 
@@ -2705,19 +2722,19 @@ msgstr "opis/prikazi"
 msgid "Download %s from %s"
 msgstr "Preuzmi %s sa %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:149
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:150
 msgid "Convert comments downloaded from %s to plain text"
 msgstr "Pretvori komentare preuzete sa %s u običan tekst"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:175
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:178
 msgid "Downloads metadata from Google Books"
 msgstr "Preuzmi metapodatke s Google Books"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:192
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:195
 msgid "Downloads metadata from isbndb.com"
 msgstr "Preuzmi metapodatke s isbndb.com"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:220
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:223
 msgid ""
 "To use isbndb.com you must sign up for a %sfree account%s and enter your "
 "access key below."
@@ -2725,15 +2742,15 @@ msgstr ""
 "Da biste koristili isbndb.com morate se prijaviti za %sbesplatan nalog%s i "
 "uneti vaš pristupni ključ."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:230
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:233
 msgid "Downloads social metadata from amazon.com"
 msgstr "Preuzmi društvene metapodatke s amazon.com"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:251
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:254
 msgid "Downloads series/tags/rating information from librarything.com"
 msgstr "Preuzima informacije o seriji/etiketi/oceni sa librarything.com"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:109
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:107
 msgid ""
 "\n"
 "%prog [options] key\n"
@@ -2757,23 +2774,24 @@ msgstr ""
 "besplatan nalog na isbndb.com.\n"
 "\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:120
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:118
 msgid "The ISBN ID of the book you want metadata for."
 msgstr "ISBN broj knjige za koju želite metapodatke."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:122
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:120
 msgid "The author whose book to search for."
 msgstr "Autor čije knjige želite da pronađete."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:124
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:122
 msgid "The title of the book to search for."
 msgstr "Naslov knjige koju želite da pronađete."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:126
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:124
 msgid "The publisher of the book to search for."
 msgstr "Izdavač knjige koju želite da pronađete."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:77
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:336
 msgid " not found."
 msgstr " nije pronađen(a)."
 
@@ -2791,8 +2809,24 @@ msgstr ""
 "Preuzmi omot i metapodatke za knjigu identifikovanu ISBN brojem sa "
 "LibraryThing.com\n"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:25
+msgid "Downloads metadata from french Nicebooks"
+msgstr "Preuzima metapodatke s francuskog Nicebooks"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:41
+msgid "Downloads covers from french Nicebooks"
+msgstr "Preuzima naslovne strane s francuskog Nicebooks"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:332
+msgid "Nicebooks timed out. Try again later."
+msgstr "Nicebooks nije odgovorio na vreme. Molim vas probajte kasnije."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:337
+msgid "An errror occured with Nicebooks cover fetcher"
+msgstr "Greška u preuzimanju naslovnih strana s Nicebooks"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1308
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1399
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1401
 msgid "Cover"
 msgstr "Naslovna strana"
 
@@ -2835,70 +2869,70 @@ msgstr "Svi članci"
 msgid "This is an Amazon Topaz book. It cannot be processed."
 msgstr "Ovo je Amazon Topaz knjiga. Nju nije moguće obraditi."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1400
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1402
 msgid "Title Page"
 msgstr "Naslovna strana"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1401
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1403
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:199
 msgid "Table of Contents"
 msgstr "Sadržaj"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1402
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1404
 msgid "Index"
 msgstr "Indeks"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1403
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1405
 msgid "Glossary"
 msgstr "Pojmovnik"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1404
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1406
 msgid "Acknowledgements"
 msgstr "Zahvalnosti"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1405
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1407
 msgid "Bibliography"
 msgstr "Bibliografija"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1406
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1408
 msgid "Colophon"
 msgstr "Impresum"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1407
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1409
 msgid "Copyright"
 msgstr "Autorska prava"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1408
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1410
 msgid "Dedication"
 msgstr "Posveta"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1409
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1411
 msgid "Epigraph"
 msgstr "Epigraf"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1410
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1412
 msgid "Foreword"
 msgstr "Predgovor"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1411
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1413
 msgid "List of Illustrations"
 msgstr "Spisak ilustracija"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1412
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1414
 msgid "List of Tables"
 msgstr "Spisak tabela"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1413
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1415
 msgid "Notes"
 msgstr "Beleške"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1414
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1416
 msgid "Preface"
 msgstr "Predgovor"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1415
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1417
 msgid "Main Text"
 msgstr "Glavni tekst"
 
@@ -2906,7 +2940,7 @@ msgstr "Glavni tekst"
 msgid "%s format books are not supported"
 msgstr "Knjige u formatu %s nisu podržane"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:103
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:156
 msgid "Book %s of %s"
 msgstr "Knjiga %s od %s"
@@ -2917,7 +2951,7 @@ msgstr "Opcije za generisanje HTML Sadržaja"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:71
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:621
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:653
 msgid "Rating"
 msgstr "Ocena"
 
@@ -2948,7 +2982,7 @@ msgstr "Fusnote"
 msgid "Sidebar"
 msgstr "Bočna traka"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:22
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:23
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:23
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:24
 msgid ""
@@ -2958,7 +2992,7 @@ msgstr ""
 "Calibre obično tretira prazne redove kao granicu pasusa. Uključivanjem ove "
 "opcije podrazumevaće se da svaki red predstavlja jedan pasus."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:27
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:27
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:28
 msgid ""
@@ -3278,7 +3312,7 @@ msgid ""
 "Specify the character encoding of the output document. The default is cp1252."
 msgstr "Navedi kodni raspored za izlazni dokument. Podrazumeva se cp1252."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:196
+#: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:256
 msgid ""
 "This RTF file has a feature calibre does not support. Convert it to HTML "
 "first and then try it.\n"
@@ -3507,7 +3541,7 @@ msgid "Disable UI animations"
 msgstr "Onemogući animacije u korisničkom interfejsu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:183
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:494
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:509
 msgid "Copied"
 msgstr "Kopirano"
 
@@ -3519,7 +3553,7 @@ msgstr "Kopiraj"
 msgid "Copy to Clipboard"
 msgstr "Kopiraj u memoriju"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:467
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:466
 msgid "Choose Files"
 msgstr "Izaberi fajlove"
 
@@ -3572,89 +3606,89 @@ msgstr "Koliko praznih knjiga?"
 msgid "How many empty books should be added?"
 msgstr "Koliko praznih knjiga treba da se doda?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:143
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:147
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:206
 msgid "Uploading books to device."
 msgstr "Prenosim knjige na uređaj."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:160
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:164
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:170
 msgid "Books"
 msgstr "Knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:165
 msgid "EPUB Books"
 msgstr "EPUB knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:166
 msgid "LRF Books"
 msgstr "LRF knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:163
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:167
 msgid "HTML Books"
 msgstr "HTML knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:164
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:168
 msgid "LIT Books"
 msgstr "LIT knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:165
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:169
 msgid "MOBI Books"
 msgstr "MOBI knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:166
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:170
 msgid "Topaz books"
 msgstr "Topaz knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:171
 msgid "Text books"
 msgstr "Knijge u tekst formatu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:172
 msgid "PDF Books"
 msgstr "PDF knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:173
 msgid "SNB Books"
 msgstr "SNB knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:174
 msgid "Comics"
 msgstr "Stripovi"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:171
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:175
 msgid "Archives"
 msgstr "Arhive"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:179
 msgid "Supported books"
 msgstr "Podržane knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:215
 msgid "Merged some books"
 msgstr "Dodao sam neke knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:216
 msgid ""
 "Some duplicates were found and merged into the following existing books:"
 msgstr ""
 "Pronađeni su neki duplikati i dodati sledećim već postojećim knjigama:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:225
 msgid "Failed to read metadata"
 msgstr "Nisam uspeo da pročitam metapodatke"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:222
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:226
 msgid "Failed to read metadata from the following"
 msgstr "Nisam upseo da pročitam metapodatke iz"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:241
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:246
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:265
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:245
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:250
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:269
 msgid "Add to library"
 msgstr "Dodaj u biblioteku"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:246
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:250
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:94
@@ -3662,12 +3696,12 @@ msgstr "Dodaj u biblioteku"
 msgid "No book selected"
 msgstr "Nije izabrana nijedna knjiga"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:259
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:263
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
 msgstr "Ove knjige su virtuelne i ne mogu biti dodate u calibre biblioteku:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:265
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:269
 msgid "No book files found"
 msgstr "Nisu pronađeni fajlovi s knjigama"
 
@@ -3680,7 +3714,7 @@ msgid "Add books to your calibre library from the connected device"
 msgstr "Dodaj knjige u calibre biblioteku s priključenog uređaja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:548
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:542
 msgid "Fetch annotations (experimental)"
 msgstr "Preuzmi beleške (eksperimentalno)"
 
@@ -3777,7 +3811,7 @@ msgid "Checking database integrity"
 msgstr "Proveravam integritet baze podataka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:657
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:41
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Error"
@@ -3793,19 +3827,19 @@ msgstr "Pronađene su neke nedoslednosti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:135
 msgid ""
-"The following books had formats listed in the database that are not actually "
-"available. The entries for the formats have been removed. You should check "
-"them manually. This can happen if you manipulate the files in the library "
-"folder directly."
+"The following books had formats or covers listed in the database that are "
+"not actually available. The entries for the formats/covers have been "
+"removed. You should check them manually. This can happen if you manipulate "
+"the files in the library folder directly."
 msgstr ""
-"Sledeće knjige imaju formate navedene u bazi podataka koji u stvari ne "
-"postoje. Informacije o ovim formatima su uklonjene. Preporučujem da ove "
-"formate proverite i ručno. Do ove greške može doći ako ručno baratate "
-"direktorijumom koji sadrži vašu biblioteku."
+"Sledeće knjige su imale formate ili naslovne strane navedene u bazi podataka "
+"koje u stvari nisu bile dostupne. Stavke za formate/naslovne strane su "
+"uklonjene. Molim vas da ih ručno proverite. Ovo može da se dogodi ako je "
+"bilo direktne manipulacije fajlovima u direktorijumima biblioteke."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:140
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:162
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:112
 msgid "%d books"
 msgstr "%d knjiga"
@@ -3954,7 +3988,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:101
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:741
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:742
 msgid "Not allowed"
 msgstr "Nije dozvoljeno"
 
@@ -3985,6 +4019,10 @@ msgstr "Ne mogu da konvertujem"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:115
 msgid "Starting conversion of %d book(s)"
 msgstr "Počinjem konverziju %d knjiga."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:170
+msgid "Empty output file, probably the conversion process crashed"
+msgstr "Prazan izlazni fajl - proces konverzije verovatno nije uspeo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:83
 msgid "Copy to library"
@@ -4020,9 +4058,9 @@ msgid "Could not copy books: "
 msgstr "Nisam uspeo da prekopiram knjige: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:147
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:720
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:685
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:664
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:687
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:190
 msgid "Failed"
 msgstr "Nije uspelo"
 
@@ -4083,14 +4121,14 @@ msgid "Main memory"
 msgstr "Osnovna memorija"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:116
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:473
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:482
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:467
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:476
 msgid "Storage Card A"
 msgstr "Memorijska kartica A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:117
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:475
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:484
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:469
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:478
 msgid "Storage Card B"
 msgstr "Memorijska kartica B"
 
@@ -4235,7 +4273,7 @@ msgid "covers"
 msgstr "naslovne strane"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:96
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:224
 msgid "metadata"
 msgstr "metapodaci"
 
@@ -4335,6 +4373,7 @@ msgid "Ctrl+P"
 msgstr "Ctrl+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:23
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:200
 msgid "Run welcome wizard"
 msgstr "Pokrenite čarobnjaka za dobrodošlicu"
 
@@ -4423,7 +4462,7 @@ msgid "Click the show details button to see which ones."
 msgstr "Kliknite na dugme za više detalja da vidite koje."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:628
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:660
 msgid "Show book details"
 msgstr "Prikaži detalje o knjizi"
 
@@ -4567,7 +4606,7 @@ msgid "The specified directory could not be processed."
 msgstr "Nisam mogao da obradim navedeni direktorijum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:229
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:869
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:813
 msgid "No books"
 msgstr "Nema knjiga"
 
@@ -4864,7 +4903,7 @@ msgstr "izlaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:42
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:76
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:54
@@ -4907,7 +4946,7 @@ msgstr "izlaz"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:49
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:123
 msgid "Form"
 msgstr "Obrazac"
 
@@ -4994,24 +5033,24 @@ msgstr "CSV/XML opcije"
 msgid "E-book options"
 msgstr "Opcije za e-knjigu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:77
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:83
 msgid "'Don't include this book' tag:"
 msgstr "Etiketa 'ne uključuj ovu knjigu':"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:78
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:84
 msgid "'Mark this book as read' tag:"
 msgstr "Etiketa 'obeleži ovu knjigu kao pročitanu':"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:79
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:85
 msgid "Additional note tag prefix:"
 msgstr "Dodatni prefiks za etiketu 'beleška':"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:80
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:86
 msgid "Regex pattern describing tags to exclude as genres:"
 msgstr ""
 "Regularni izraz koji opisuje etikete koje će biti ignorisane kao žanrovi:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:81
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
 msgid ""
 "Regex tips:\n"
 "- The default regex - \\[.+\\] - excludes genre tags of the form [tag], "
@@ -5025,21 +5064,25 @@ msgstr ""
 "- Regularni izraz koji je samo jedna tačka isključuje sve etikete za žanr i "
 "ne generiše Sekciju žanrova"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:90
 msgid "Include 'Titles' Section"
 msgstr "Uključi odeljak 'Naslovi'"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:85
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:91
 msgid "Include 'Recently Added' Section"
 msgstr "Uključi odeljak 'Nedavno dodato'"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:86
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:92
 msgid "Sort numbers as text"
 msgstr "Sortiraj brojeve kao da su napisani slovima"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:87
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:93
 msgid "Include 'Series' Section"
 msgstr "Uključi odeljak \"Serija\""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:94
+msgid "Wishlist tag:"
+msgstr "Etiketa za spisak želja:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -5068,11 +5111,11 @@ msgstr ""
 "sačuvane od prethodne konverzije (ako postoje), umesto korišćenja "
 "podrazumevanih vrednosti u Podešavanjima"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:68
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:70
 msgid "Bulk Convert"
 msgstr "Masovna konverzija"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:81
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:185
 msgid "Options specific to the output format."
 msgstr "Opcije koje zavise od izlaznog formata."
@@ -5545,7 +5588,7 @@ msgid "Change the title of this book"
 msgstr "Promeni naslov ove knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:179
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:335
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:336
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:377
 msgid "&Author(s): "
 msgstr "&Autor: "
@@ -5562,7 +5605,7 @@ msgstr ""
 "Promeni autore za ovu knjigu. Ako autora ima više razdvojte imena zarezima"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:182
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:344
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:345
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:388
 msgid "&Publisher: "
 msgstr "&Izdavač: "
@@ -5573,7 +5616,7 @@ msgid "Ta&gs: "
 msgstr "&Etikete: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:184
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:346
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:347
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:390
 msgid ""
 "Tags categorize the book. This is particularly useful while searching. "
@@ -5583,7 +5626,7 @@ msgstr ""
 "pretraživanja. <br><br>One mogu biti reči ili fraze, razdvojene zarezima."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:185
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:353
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:354
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:393
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:214
 msgid "&Series:"
@@ -5591,8 +5634,8 @@ msgstr "&Serija:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:187
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:354
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:356
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:394
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:395
 msgid "List of known series. You can add new series."
@@ -6110,7 +6153,7 @@ msgid "Automatically number books"
 msgstr "Automatski numeriši knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:499
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:366
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:367
 msgid "Force numbers to start with "
 msgstr "Brojanje mora početi od "
 
@@ -6126,97 +6169,103 @@ msgstr "etikete za dodavanje"
 msgid "tags to remove"
 msgstr "etikete za uklanjanje"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:44
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:136
 msgid "No details available."
 msgstr "Nema detaljnih podataka."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:183
 msgid "Device no longer connected."
 msgstr "Uređaj više nije priključen."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:307
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:301
 msgid "Get device information"
 msgstr "Prikupi informacije o uređaju"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:318
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:312
 msgid "Get list of books on device"
 msgstr "Preuzmi spisak knjiga sa uređaja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:328
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:322
 msgid "Get annotations from device"
 msgstr "Preuzmi beleške sa uređaja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:340
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:334
 msgid "Send metadata to device"
 msgstr "Pošalji metapodatke na uređaj"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:339
 msgid "Send collections to device"
 msgstr "Pošalji kolekciju na uređaj"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:380
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:374
 msgid "Upload %d books to device"
 msgstr "Prenesi %d knjiga na uređaj"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:395
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:389
 msgid "Delete books from device"
 msgstr "Izbriši kjnige sa uređaja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:412
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:406
 msgid "Download books from device"
 msgstr "Preuzmi knjige sa uređaja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:416
 msgid "View book on device"
 msgstr "Pregledaj knjige na uređaju"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:456
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:450
 msgid "Set default send to device action"
 msgstr "Postavi podrazumevanu akciju pri prenošenju na uređaj"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:462
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:456
 msgid "Send to main memory"
 msgstr "Pošalji u osnovnu memoriju"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:464
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:458
 msgid "Send to storage card A"
 msgstr "Pošalji na memorijsku karticu A"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:466
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:460
 msgid "Send to storage card B"
 msgstr "Pošalji na memorijsku karticu B"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:471
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:480
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:465
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:474
 msgid "Main Memory"
 msgstr "Osnovna memorija"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:492
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:486
 msgid "Send specific format to"
 msgstr "Pošalji određeni format na"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:493
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:487
 msgid "Send and delete from library"
 msgstr "Pošalji i izbriši iz biblioteke"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:536
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:530
 msgid "Eject device"
 msgstr "Isključi uređaj"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:658
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:594
 msgid "Error communicating with device"
 msgstr "Greška u komunikaciji sa uređajem"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:679
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:605
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1089
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:296
+msgid "No suitable formats"
+msgstr "Nema odgovarajućih formata"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:623
 msgid "Select folder to open as device"
 msgstr "Izaberite direktorijum koji će biti korišćen kao uređaj"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:726
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:670
 msgid "Error talking to device"
 msgstr "Greška u komunikaciji sa uređajem"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:727
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:671
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -6224,123 +6273,59 @@ msgstr ""
 "Došlo je do privremene greške u komunikaciji sa uređajem. Molim vas da "
 "isključite uređaj i/ili ponovo pokrenete računar."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:770
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:714
 msgid "Device: "
 msgstr "Uređaj: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:772
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:716
 msgid " detected."
 msgstr " detektovan."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:870
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:814
 msgid "selected to send"
 msgstr "izabrane za slanje"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:875
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:819
 msgid "Choose format to send to device"
 msgstr "Izaberi format za slanje na uređaj"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:884
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:828
 msgid "No device"
 msgstr "Nema uređaja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:885
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:829
 msgid "Cannot send: No device is connected"
 msgstr "Ne mogu da pošaljem: Nije priključen nijedan uređaj"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:888
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:892
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:832
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:836
 msgid "No card"
 msgstr "Nema memorijske kartice"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:889
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:893
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:833
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:837
 msgid "Cannot send: Device has no storage card"
 msgstr "Ne mogu da pošaljem: Uređaj nema memorijsku karticu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:934
-msgid "E-book:"
-msgstr "E-knjiga:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:937
-msgid "Attached, you will find the e-book"
-msgstr "E-knjigu ćete pronaći priključenu uz ovu poruku"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:938
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:107
-msgid "by"
-msgstr "od"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:939
-msgid "in the %s format."
-msgstr "u formatu %s."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:952
-msgid "Sending email to"
-msgstr "Šaljem poruku za"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:982
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:990
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:883
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:966
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1083
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1168
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1287
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1295
-msgid "No suitable formats"
-msgstr "Nema odgovarajućih formata"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:983
-msgid "Auto convert the following books before sending via email?"
-msgstr "Automatski konvertuj ove knjige pre slanja elektronskom poštom?"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:991
-msgid ""
-"Could not email the following books as no suitable formats were found:"
-msgstr ""
-"Nisam uspeo da pošaljem ove knjige, jer nisu pronađeni odgovarajući formati:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1009
-msgid "Failed to email books"
-msgstr "Nisam uspeo da pošaljem knjige"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1010
-msgid "Failed to email the following books:"
-msgstr "Nisam uspeo da pošaljem sledeće knjige:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1014
-msgid "Sent by email:"
-msgstr "Poslato elektronskom poštom:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1042
-msgid "News:"
-msgstr "Vesti:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1043
-msgid "Attached is the"
-msgstr "Priključeno je"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1054
-msgid "Sent news to"
-msgstr "Poslao vesti za"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1084
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1169
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1288
 msgid "Auto convert the following books before uploading to the device?"
 msgstr "Automatski konvertuj sledeće knjige pre slanja na uređaj?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1114
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:912
 msgid "Sending catalogs to device."
 msgstr "Šaljem katalog na uređaj."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1201
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:997
 msgid "Sending news to device."
 msgstr "Šaljem vesti na uređaj."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1254
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1050
 msgid "Sending books to device."
 msgstr "Šaljem knjige na uređaj."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1296
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1090
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
@@ -6349,11 +6334,11 @@ msgstr ""
 "odgovarajući formati. Morate prvo konvertovati knjige u format koji vaš "
 "uređaj podržava."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1360
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1154
 msgid "No space on device"
 msgstr "Na uređaju nema dovoljno mesta"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1361
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1155
 msgid ""
 "<p>Cannot upload books to device there is no more free space available "
 msgstr ""
@@ -6397,15 +6382,22 @@ msgstr "Dodaj knjige po ISBNu"
 msgid ""
 "<p>Enter a list of ISBNs in the box to the left, one per line. calibre will "
 "automatically create entries for books based on the ISBN and download "
-"metadata and covers for them.<p>Any invalid ISBNs in the list will be "
-"ignored."
+"metadata and covers for them.</p>\n"
+"<p>Any invalid ISBNs in the list will be ignored.</p>\n"
+"<p>You can also specify a file that will be added with each ISBN. To do this "
+"enter the full path to the file after a <code>>></code>.  For example:</p>\n"
+"<p><code>9788842915232 >> %s</code></p>"
 msgstr ""
 "<p>Unesite listu ISBN brojeva u polje s leve strane, jedan broj po redu. "
-"calibre će automatski kreirati stavke za knjige na osnovu ovih ISBN brojeva "
-"i za njih preuzeti metapodatke i omote. <p>Svi nevažeći ISBn brojevi će biti "
-"ignorisani."
+"calibre će automatski napraviti stavke za knjige zasnovane na ovim ISBN "
+"brojevima i za njih preuzeti metapodatke i naslovne strane.</p>\n"
+"<p>Neispravni ISBN brojevi će biti ignorisani.</p>\n"
+"<p>Možete navesti i fajl koji će se priključiti svakom ISBN broju. Da biste "
+"ovo uradili dodajte punu putanju do fajla iza <code>>></code>.  Na "
+"primer:</p>\n"
+"<p><code>9788842915232 >> %s</code></p>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:53
 msgid "&Paste from clipboard"
 msgstr "&Prenesi iz memorije"
 
@@ -6493,7 +6485,7 @@ msgstr "Putanja iz biblioteke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:119
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:89
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:226
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
 msgid "Name"
 msgstr "Ime"
 
@@ -6547,7 +6539,7 @@ msgid "No location selected"
 msgstr "Nije izabrana nijedna lokacija"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:84
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:635
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:654
 msgid "Bad location"
 msgstr "Neispravna lokacija"
 
@@ -6648,12 +6640,12 @@ msgid "Author sort"
 msgstr "Sortiranje po autoru"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:115
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:590
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:597
 msgid "Invalid author name"
 msgstr "Neispravno ime autora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:116
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:591
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:598
 msgid "Author names cannot contain & characters."
 msgstr "Imena autora ne mogu sadržati znak &."
 
@@ -6807,50 +6799,50 @@ msgstr "Traži/Zameni"
 msgid "Working"
 msgstr "Radim"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:386
 msgid "Lower Case"
 msgstr "Mala slova"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:185
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:385
 msgid "Upper Case"
 msgstr "Velika slova"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:388
 msgid "Title Case"
 msgstr "Veličina slova za naslov"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:191
 msgid "Character match"
 msgstr "Odgovarajući znaci"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:192
 msgid "Regular Expression"
 msgstr "Regularni izraz"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:193
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:195
 msgid "Replace field"
 msgstr "Polje za izmenu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:194
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:196
 msgid "Prepend to field"
 msgstr "Dodaj na početak polja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:197
 msgid "Append to field"
 msgstr "Dodaj na kraj polja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:208
 msgid "Editing meta information for <b>%d books</b>"
 msgstr "Promeni meta informacije za <b>%d knjiga</b>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:259
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:261
 msgid "Book %d:"
 msgstr "Knjiga %d:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:274
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:276
 msgid ""
 "<b>You can destroy your library using this feature.</b> Changes are "
 "permanent. There is no undo function. You are strongly encouraged to back up "
@@ -6863,7 +6855,7 @@ msgstr ""
 "i zamena u tekstualnim poljima korišćenjem regularnih izraza, ili prostog "
 "poređenja. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:282
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:284
 msgid ""
 "In character mode, the field is searched for the entered search text. The "
 "text is replaced by the specified replacement text everywhere it is found in "
@@ -6879,7 +6871,7 @@ msgstr ""
 "pronađeni tekst mora biti identičani po veličini slova. Ako ovba opcija nije "
 "izabrana tekst će biti pronađen bez obzira na veličinu slova"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:293
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:295
 msgid ""
 "In regular expression mode, the search text is an arbitrary python-"
 "compatible regular expression. The replacement text can contain "
@@ -6904,30 +6896,30 @@ msgstr ""
 "izrazima u programskom jeziku python, a posebno informacije o funkciji 'sub' "
 "vidite <a href=\"http://docs.python.org/library/re.html\">ovo uputstvo</a>."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:438
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:440
 msgid "You must specify a destination when source is a composite field"
 msgstr "Morate navesti i ciljno polje ako je izvor složeno polje"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:530
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:538
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:633
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:635
 msgid "Search/replace invalid"
 msgstr "Neispravna pretraga/zamena"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:533
 msgid ""
 "Authors cannot be set to the empty string. Book title %s not processed"
 msgstr "Autori ne mogu da budu prayni. Knjiga s naslovom %s nije obrađena"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:539
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:541
 msgid "Title cannot be set to the empty string. Book title %s not processed"
 msgstr "Naslov ne može biti prazan. Knjiga s naslovom %s nije obrađena"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:634
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:636
 msgid "Search pattern is invalid: %s"
 msgstr "Neispravan izraz za pretraživanje: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:671
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:673
 msgid ""
 "Applying changes to %d books.\n"
 "Phase {0} {1}%%."
@@ -6935,19 +6927,19 @@ msgstr ""
 "Primenjujem izmene na %d knjiga.\n"
 "Faza{0} {1}%%."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:334
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:335
 msgid "Edit Meta information"
 msgstr "Popravi metapodatke"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:336
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:337
 msgid "A&utomatically set author sort"
 msgstr "A&utomatski izaberi polje za sortiranje po imenu autora"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:337
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:338
 msgid "Author s&ort: "
 msgstr "S&ortiranje po imenu autora: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:338
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:339
 msgid ""
 "Specify how the author(s) of this book should be sorted. For example Charles "
 "Dickens should be sorted as Dickens, Charles."
@@ -6955,64 +6947,64 @@ msgstr ""
 "Odredi kako će imena autora ove knjige biti korišćena za sortiranje. Na "
 "primer, Vuk Karadžić će biti sortiran kao Karadžić, Vuk."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:339
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:340
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:384
 msgid "&Rating:"
 msgstr "&Ocena:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:340
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:341
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:342
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:385
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:386
 msgid "Rating of this book. 0-5 stars"
 msgstr "Ocena za ovu knjigu. 0-5 zvezdica"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:342
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:343
 msgid "No change"
 msgstr "Bez promene"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:343
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:344
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:387
 msgid " stars"
 msgstr " zvezdica"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:346
 msgid "Add ta&gs: "
 msgstr "Dodaj &etikete: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:347
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:348
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:349
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:392
 msgid "Open Tag Editor"
 msgstr "Otvori uređivač za etikete"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:349
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:350
 msgid "&Remove tags:"
 msgstr "&Izbriši etikete"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:350
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:351
 msgid "Comma separated list of tags to remove from the books. "
 msgstr ""
 "Lista etiketa razdvojenih zarezima koja će biti uklonjena sa knjiga. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:351
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:352
 msgid "Check this box to remove all tags from the books."
 msgstr "Izaberite ovu opciju da uklonite sve etikete s knjiga"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:352
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:353
 msgid "Remove all"
 msgstr "Ukloni sve"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:356
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:357
 msgid "If checked, the series will be cleared"
 msgstr "Ako je označeno, serija će biti izbrisana"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:357
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:358
 msgid "Clear series"
 msgstr "Izbriši seriju"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:358
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:359
 msgid ""
 "If not checked, the series number for the books will be set to 1.\n"
 "If checked, selected books will be automatically numbered, in the order\n"
@@ -7025,11 +7017,11 @@ msgstr ""
 "kojim ste ih izabrali. Tako, ako izaberete Knjigu A, a zatim Knjigu B,\n"
 "Knjiga A će imati broj 1 u seriji, a Knjiga B broj 2."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:362
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:363
 msgid "Automatically number books in this series"
 msgstr "Automatski odredi brojeve knjiga u ovoj seriji"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:363
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:364
 msgid ""
 "Series will normally be renumbered from the highest number in the database\n"
 "for that series. Checking this box will tell calibre to start numbering\n"
@@ -7039,15 +7031,15 @@ msgstr ""
 "u bazi podataka. Ako izaberete ovu opciju calibre će numerisanje\n"
 "početi od broja navedenog u ovom polju"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:367
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:368
 msgid "Remove &format:"
 msgstr "Ukloni &format:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:368
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:369
 msgid "&Swap title and author"
 msgstr "&Zameni mesta imenima autora i naslovu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:369
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:370
 msgid ""
 "Force the title to be in title case. If both this and swap authors are "
 "checked,\n"
@@ -7058,11 +7050,11 @@ msgstr ""
 "da se izmene mesta autoru i naslovu, veličina slova će biti promenjena posle "
 "izmene."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:371
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:372
 msgid "Change title to title case"
 msgstr "Promeni svako početno slovo u veliko"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:373
 msgid ""
 "Remove stored conversion settings for the selected books.\n"
 "\n"
@@ -7072,33 +7064,33 @@ msgstr ""
 "\n"
 "Naredne konverzije ovih knjiga će koristiti podrazumevane vrednosti."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:375
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:376
 msgid "Remove &stored conversion settings for the selected books"
 msgstr "Ukloni &sačuvana podešavanja za konverziju izabranih knjiga"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:376
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:377
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:424
 msgid "&Basic metadata"
 msgstr "&Osnovni metapodaci"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:377
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:378
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:425
 msgid "&Custom metadata"
 msgstr "&Korisnički metapodaci"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:378
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:379
 msgid "Search &field:"
 msgstr "Pretraži po&lje:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:379
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:380
 msgid "The name of the field that you want to search"
 msgstr "Naziv polja koje želite da pretražujete"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:380
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:381
 msgid "Search mode:"
 msgstr "Način pretraživanja:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:381
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:382
 msgid ""
 "Choose whether to use basic text matching or advanced regular expression "
 "matching"
@@ -7106,11 +7098,11 @@ msgstr ""
 "Izaberite da li ćete koristiti jednostavno traženje teksta, ili regularne "
 "izraze"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:382
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:383
 msgid "&Search for:"
 msgstr "&Traži:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:383
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:384
 msgid ""
 "Enter the what you are looking for, either plain text or a regular "
 "expression, depending on the mode"
@@ -7118,7 +7110,7 @@ msgstr ""
 "Unesite izraz za pretražiavnje, bilo običan tekst bilo regularni izraz, u "
 "zavisnosti od izabranog načina pretraživanja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:384
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:385
 msgid ""
 "Check this box if the search string must match exactly upper and lower case. "
 "Uncheck it if case is to be ignored"
@@ -7126,25 +7118,25 @@ msgstr ""
 "Izaberite ovu opciju ako tekst za pretraživanje mora odgovarati i po "
 "veličini slova. Ako opcija nije izabrana veličina slova neće biti bitna"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:385
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:386
 msgid "Case sensitive"
 msgstr "Razlikuj veličinu slova"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:386
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:387
 msgid "&Replace with:"
 msgstr "&Zameni sa:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:387
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:388
 msgid ""
 "The replacement text. The matched search text will be replaced with this "
 "string"
 msgstr "Tekst za zaemnu. Pronađeni tekst će biti zamenjen ovim"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:388
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:389
 msgid "Apply function after replace:"
 msgstr "Primeni sledeću funkciju posle zamene:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:389
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:390
 msgid ""
 "Specify how the text is to be processed after matching and replacement. In "
 "character mode, the entire\n"
@@ -7156,11 +7148,11 @@ msgstr ""
 "biće obrađeno celo polje. U načinu rada s regularnim izrazima biće obrađen "
 "samo pronađeni tekst."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:392
 msgid "&Destination field:"
 msgstr "&Ciljno polje:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:392
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:393
 msgid ""
 "The field that the text will be put into after all replacements. If blank, "
 "the source field is used."
@@ -7168,15 +7160,15 @@ msgstr ""
 "Polje u koje će tekst biti smešten posle zamene. Ako je prazno biće "
 "korišćeno izvorno polje."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:393
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:394
 msgid "Mode:"
 msgstr "Način rada:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:394
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:395
 msgid "Specify how the text should be copied into the destination."
 msgstr "Odredi kako će tekst biti kopiran u ciljno polje"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:395
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:396
 msgid ""
 "If the replace mode is prepend or append, then this box indicates whether a "
 "comma or\n"
@@ -7185,23 +7177,23 @@ msgstr ""
 "Ako je način izmene dodavanje ispred, ili iza, ovo polje označava da li će "
 "između originalnog i umetnutog teksta biti ubačen zarez, ili ništa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:397
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:398
 msgid "use comma"
 msgstr "koristi zarez"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:398
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:399
 msgid "Test &text"
 msgstr "Test &tekst"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:399
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:400
 msgid "Test re&sult"
 msgstr "Test re&zultat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:400
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:401
 msgid "Your test:"
 msgstr "Vaš test:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:401
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:402
 msgid "&Search and replace"
 msgstr "&Traži i zameni"
 
@@ -7490,20 +7482,21 @@ msgstr "Potrebna je lozinka"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:217
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:125
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:133
 msgid "&Username:"
 msgstr "&Korisničko ime:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:218
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:126
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:135
 msgid "&Password:"
 msgstr "&Lozinka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:130
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:167
 msgid "&Show password"
 msgstr "&Prikaži lozinku"
 
@@ -7745,45 +7738,48 @@ msgid "Advanced Search"
 msgstr "Napredna pretraga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:199
-msgid "Find entries that have..."
-msgstr "Pronađi stavke koje sadrže..."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
-msgid "&All these words:"
-msgstr "&Sve ove reči:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
-msgid "This exact &phrase:"
-msgstr "Ovu &frazu:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
-msgid "&One or more of these words:"
-msgstr "&Jednu ili više ovih reči:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
-msgid "But dont show entries that have..."
-msgstr "Ali ne prikazuj stavke koje sadrže..."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:204
-msgid "Any of these &unwanted words:"
-msgstr "Bilo koje od ovih &neželjenih reči:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:205
 msgid "What kind of match to use:"
 msgstr "Koju vrstu pogodaka da koristim:"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
+msgid "Contains: the word or phrase matches anywhere in the metadata field"
+msgstr "Sadrži: reč, ili fraza se nalaze bilo gde u polju s metapodacima"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
+msgid "Equals: the word or phrase must match the entire metadata field"
+msgstr ""
+"Jednako: reč, ili fraza moraju odgovarati kompletnom sadržaju polja s "
+"metapodacima"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
+msgid ""
+"Regular expression: the expression must match anywhere in the metadata field"
+msgstr ""
+"Regularni izraz: izraz mora odgovarati bilo kom delu polja s metapodacima"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
+msgid "Find entries that have..."
+msgstr "Pronađi stavke koje sadrže..."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:204
+msgid "&All these words:"
+msgstr "&Sve ove reči:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:205
+msgid "This exact &phrase:"
+msgstr "Ovu &frazu:"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:206
-msgid "Contains: the word or phrase matches anywhere in the metadata"
-msgstr "Sadrži: reči ili fraze bilo gde među metapodacima"
+msgid "&One or more of these words:"
+msgstr "&Jednu ili više ovih reči:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:207
-msgid "Equals: the word or phrase must match an entire metadata field"
-msgstr "Jednaki: rečima ili frazama koje odgovaraju celom polju metapodataka"
+msgid "But dont show entries that have..."
+msgstr "Ali ne prikazuj stavke koje sadrže..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:208
-msgid ""
-"Regular expression: the expression must match anywhere in the metadata"
-msgstr "Regularni izraz: izraz mora biti pronađen bilo gde među metapodacima"
+msgid "Any of these &unwanted words:"
+msgstr "Bilo koje od ovih &neželjenih reči:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:209
 msgid ""
@@ -7973,12 +7969,12 @@ msgid "%s (was %s)"
 msgstr "%s (bilo %s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:74
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:580
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:587
 msgid "Item is blank"
 msgstr "Ova stavka je prazna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:75
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:581
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:588
 msgid "An item cannot be set to nothing. Delete it instead."
 msgstr "Stavka ne može da bude prazna. Izbrišite je."
 
@@ -8061,7 +8057,7 @@ msgid "Discard changes"
 msgstr "Odbaci izmene"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:225
 msgid "&Cancel"
 msgstr "&Odustani"
 
@@ -8269,6 +8265,61 @@ msgstr ""
 msgid "Recipe source code (python)"
 msgstr "Izvorni kod recepta (python)"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:145
+msgid "Email %s to %s"
+msgstr "Pošalji %s na %s"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:187
+msgid "News:"
+msgstr "Vesti:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:189
+msgid "Attached is the %s periodical downloaded by calibre."
+msgstr "Priključen je magazin %s koji je calibre preuzeo za vas."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:242
+msgid "E-book:"
+msgstr "E-knjiga:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:245
+msgid "Attached, you will find the e-book"
+msgstr "E-knjigu ćete pronaći priključenu uz ovu poruku"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:246
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:107
+msgid "by"
+msgstr "od"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:247
+msgid "in the %s format."
+msgstr "u formatu %s."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:260
+msgid "Sending email to"
+msgstr "Šaljem poruku za"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:290
+msgid "Auto convert the following books before sending via email?"
+msgstr "Automatski konvertuj ove knjige pre slanja elektronskom poštom?"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:297
+msgid ""
+"Could not email the following books as no suitable formats were found:"
+msgstr ""
+"Nisam uspeo da pošaljem ove knjige, jer nisu pronađeni odgovarajući formati:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:303
+msgid "Failed to email book"
+msgstr "Nisam uspeo da pošaljem knjigu elektronskom poštom"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:306
+msgid "sent"
+msgstr "poslato"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:329
+msgid "Sent news to"
+msgstr "Poslao vesti za"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:112
 msgid ""
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
@@ -8465,23 +8516,23 @@ msgstr "Ne mogu da prekinem posao koji komunicira sa uređajem"
 msgid "Job has already run"
 msgstr "Posao je već završen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:251
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:262
 msgid "Unavailable"
 msgstr "Nedostupan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:283
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:294
 msgid "Jobs:"
 msgstr "Poslovi:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:296
 msgid "Shift+Alt+J"
 msgstr "Shift+Alt+J"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:313
 msgid "Click to see list of jobs"
 msgstr "Kliknite da vidite spisak poslova"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:371
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:382
 msgid " - Jobs"
 msgstr " - Poslova"
 
@@ -8507,7 +8558,7 @@ msgid "Show books in the main memory of the device"
 msgstr "Prikaži knjige u osnovnoj memoriji uređaja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:67
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:848
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:820
 msgid "Card A"
 msgstr "Kartica A"
 
@@ -8516,7 +8567,7 @@ msgid "Show books in storage card A"
 msgstr "Prikaži knjige na memorijskoj kartici A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:69
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:850
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:822
 msgid "Card B"
 msgstr "Kartica B"
 
@@ -8598,7 +8649,7 @@ msgstr "Knjiga %s od %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:693
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1236
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:407
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:414
 msgid "The lookup/search name is \"{0}\""
 msgstr "Ime za pretragu je \"{0}\""
 
@@ -8627,47 +8678,47 @@ msgstr "Izabrano za brisanje"
 msgid "Double click to <b>edit</b> me<br><br>"
 msgstr "Kliknite dva puta da me <b>promenite</b><br><br>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:147
 msgid "Hide column %s"
 msgstr "Sakrij kolonu %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:151
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:152
 msgid "Sort on %s"
 msgstr "Sortiraj po koloni %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:152
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:153
 msgid "Ascending"
 msgstr "Rastući redosled"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:156
 msgid "Descending"
 msgstr "Opadajući redosled"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:168
 msgid "Change text alignment for %s"
 msgstr "Promeni poravnanje za %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:170
 msgid "Left"
 msgstr "Levo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:170
 msgid "Right"
 msgstr "Desno"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:171
 msgid "Center"
 msgstr "Centrirano"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:190
 msgid "Show column"
 msgstr "Prikaži kolonu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:202
 msgid "Restore default layout"
 msgstr "Vrati podrazumevani izgled"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:742
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:743
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
@@ -8701,7 +8752,7 @@ msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
 msgstr "<b>Ništa nije pronađeno</b> za upit <i>%s</i>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:443
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:446
 msgid "No matches found"
 msgstr "Ništa nije pronađeno"
 
@@ -8718,12 +8769,12 @@ msgid "LRF Viewer toolbar"
 msgstr "Traka sa alatkama za LRF čitač"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:487
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:503
 msgid "Next Page"
 msgstr "Sledeća strana"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:488
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:504
 msgid "Previous Page"
 msgstr "Prethodna strana"
 
@@ -8767,7 +8818,7 @@ msgid "Do not check for updates"
 msgstr "Ne proveravaj postojanje novije verzije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:643
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:662
 msgid "Calibre Library"
 msgstr "Calibre biblioteka"
 
@@ -8904,37 +8955,37 @@ msgstr "Knjiga nema ni naslov ni ISBN broj"
 msgid "No matches found for this book"
 msgstr "Nema rezultata za ovu knjigu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:191
 msgid "Failed to download metadata"
 msgstr "Nisam uspeo da preuzmem metapodatke"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:224
 msgid "cover"
 msgstr "omot"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:225
 msgid "Downloaded"
 msgstr "Preuzeto"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:225
 msgid "Failed to get"
 msgstr "Nisam uspeo da preuzmem"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:225
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:229
 msgid "%s %s for: %s"
 msgstr "%s %s za: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:284
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:288
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:162
 msgid "Done"
 msgstr "Gotovo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:289
 msgid "Successfully downloaded metadata for %d out of %d books"
 msgstr "Uspešno preuzeo metapodatke za %d od %d knjiga"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:287
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:627
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:291
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:659
 msgid "Details"
 msgstr "Detalji"
 
@@ -9481,27 +9532,27 @@ msgstr "Prikaži &tekst ispod ikona:"
 msgid "&Split the toolbar into two toolbars"
 msgstr "Podeli traku &sa alatima na dve"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:215
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:222
 msgid "&Apply"
 msgstr "&Primeni"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:222
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:229
 msgid "Restore &defaults"
 msgstr "Vrati po&drazumevane vrednosti"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:230
 msgid "Save changes"
 msgstr "Sačuvaj izmene"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:231
 msgid "Cancel and return to overview"
 msgstr "Odustani i vrati se na pregled"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:259
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:269
 msgid "Restoring to defaults not supported for"
 msgstr "Vraćanje na podrazumevane vrednosti nije podržano za"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:294
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:304
 msgid ""
 "Some of the changes you made require a restart. Please restart calibre as "
 "soon as possible."
@@ -9509,7 +9560,7 @@ msgstr ""
 "Neke od izmena koje ste napravili zahtevaju ponovo pokretanje programa. "
 "Molim vas da što pre ponovo pokrenete calibre."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:297
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:307
 msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed set any more preferences, until you restart."
@@ -9517,7 +9568,7 @@ msgstr ""
 "Izmene koje ste uneli zahtevaju da odmah ponovo pokrenete calibre. Dok to ne "
 "uradite neće biti moguće menjati ostala podešavanja."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:312
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
 msgid "Restart needed"
 msgstr "Potrebno je ponovno pokretanje"
@@ -9872,7 +9923,7 @@ msgstr ""
 "uređaje podešavanjem dodatka za uređaj u meniju Podešavanja->Napredna->Dodaci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:75
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:320
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:331
 msgid "Failed to start content server"
 msgstr "Nisam uspeo da pokrenem server sadržaja"
 
@@ -10091,7 +10142,7 @@ msgstr "&Trenutno aktivna podešavanja"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:270
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:574
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:250
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:272
 msgid "Search"
 msgstr "Traži"
 
@@ -10188,25 +10239,21 @@ msgstr "Obriši"
 msgid "&Alternate shortcut:"
 msgstr "&Alternativna prečica:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:200
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:202
 msgid "Rename '%s'"
 msgstr "Preimenuj '%s'"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:204
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:206
 msgid "Edit sort for '%s'"
 msgstr "Izmeni način sortiranja za '%s'"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:211
 msgid "Hide category %s"
 msgstr "Sakrij kategoriju %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:214
 msgid "Show category"
 msgstr "Prikaži kategoriju"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:216
-msgid "Show all categories"
-msgstr "Prikaži sve kategorije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:223
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:227
@@ -10222,65 +10269,69 @@ msgstr "Uredi sačuvane pretrage"
 msgid "Manage User Categories"
 msgstr "Uredi korisničke kategorije"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:451
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:248
+msgid "Show all categories"
+msgstr "Prikaži sve kategorije"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:458
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
 msgstr "Promena autora za više knjiga može potrajati. Da li ste sigurni?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:456
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:463
 msgid ""
 "Changing the metadata for that many books can take a while. Are you sure?"
 msgstr ""
 "Izmena metapodataka za ovoliko knjiga može potrajati. Da li ste sigurni?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:512
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:320
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:519
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:296
 msgid "Searches"
 msgstr "Pretrage"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:595
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:602
 msgid "Duplicate search name"
 msgstr "Naziv pretrage već postoji"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:596
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:603
 msgid "The saved search name %s is already used."
 msgstr "Naziv sačuvane pretrage %s je već u upotrebi."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:871
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:878
 msgid "Sort by name"
 msgstr "Sortiraj po imenu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:871
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:878
 msgid "Sort by popularity"
 msgstr "Sortiraj po popularnosti"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:872
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:879
 msgid "Sort by average rating"
 msgstr "Sortiraj po srednjoj oceni"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:875
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:882
 msgid "Set the sort order for entries in the Tag Browser"
 msgstr "Odredite način sortiranja u Izlogu etiketa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:881
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:888
 msgid "Match all"
 msgstr "Moraju odgovarati svi"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:881
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:888
 msgid "Match any"
 msgstr "Odgovara bilo koji od"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:886
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:893
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
 "Kada je u Izlogu etiketa izabrano više stavki traži bilo koju od njih"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:890
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:897
 msgid "Manage &user categories"
 msgstr "&Uredi korisničke kategorije"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:893
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:900
 msgid "Add your own categories to the Tag Browser"
 msgstr "Dodajte sopstvene kategorije u Izlog etiketa"
 
@@ -10327,28 +10378,28 @@ msgstr ""
 "Ove knjige su već konvertovane u format %s. Da li želite da ih ponovo "
 "konvertujete?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:171
 msgid "&Restore"
 msgstr "V&rati na ekran"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:173
 msgid "&Donate to support calibre"
 msgstr "Pošaljite &donaciju da podržite razvoj calibre programa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:177
 msgid "&Eject connected device"
 msgstr "Isključi pov&ezani uređaj"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:216
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:218
 msgid "Calibre Quick Start Guide"
 msgstr "Kratko uputstvo za Calibre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:437
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:465
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:439
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:450
 msgid "Conversion Error"
 msgstr "Greška u konverziji"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:438
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:451
 msgid ""
 "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
 "first remove the DRM using third party tools."
@@ -10356,15 +10407,15 @@ msgstr ""
 "<p>Nisam uspeo da konvertujem: %s<p>Knjiga je zaštićena <a "
 "href=\"%s\">DRM</a>om. Prvo morate ukloniti DRM nezavisnim alatima."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:451
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:465
 msgid "Recipe Disabled"
 msgstr "Recept je isključen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:466
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:481
 msgid "<b>Failed</b>"
 msgstr "<b>Neuspelo</b>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:502
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:517
 msgid ""
 "is the result of the efforts of many volunteers from all over the world. If "
 "you find it useful, please consider donating to support its development. "
@@ -10374,12 +10425,12 @@ msgstr ""
 "koristi molim vas da razmislite o mogućnosti da napravite donaciju u korist "
 "daljeg razvoja. Vaše donacije pomažu da se razvoj calibrea nastavi."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:543
 msgid "There are active jobs. Are you sure you want to quit?"
 msgstr ""
 "Još uvek ima aktivnih poslova. Da li ste sigurni da želite da prekinete rad?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:546
 msgid ""
 " is communicating with the device!<br>\n"
 "                      Quitting may cause corruption on the device.<br>\n"
@@ -10390,11 +10441,11 @@ msgstr ""
 "uređaju.<br>\n"
 "                      Da li ste sigurni da želite da prekinete rad?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:550
 msgid "WARNING: Active jobs"
 msgstr "UPOZORENJE: Aktivni poslovi"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:613
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:628
 msgid ""
 "will keep running in the system tray. To close it, choose <b>Quit</b> in the "
 "context menu of the system tray."
@@ -10573,17 +10624,17 @@ msgstr "&Prečice"
 msgid "No results found for:"
 msgstr "Ništa nije pronađeno za:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:35
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:36
 msgid "Options to customize the ebook viewer"
 msgstr "Opcije za podešavanje čitača e-knjiga"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:42
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:708
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:43
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:711
 msgid "Remember last used window size"
 msgstr "Zapamti poslednje korišćenu veličinu prozora"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:44
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:81
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:45
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:82
 msgid ""
 "Set the user CSS stylesheet. This can be used to customize the look of all "
 "books."
@@ -10591,80 +10642,80 @@ msgstr ""
 "Postavi korisnički CSS stil. Ovu opciju možete koristiti da podesite izgled "
 "svih knjiga."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:46
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:47
 msgid "Maximum width of the viewer window, in pixels."
 msgstr "Maksimalna širina prozora, u pikselima."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:49
 msgid "Resize images larger than the viewer window to fit inside it"
 msgstr "Smanji velike slike kako bi stale u prozor"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:49
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:50
 msgid "Hyphenate text"
 msgstr "Hifeniraj tekst"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:51
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:52
 msgid "Default language for hyphenation rules"
 msgstr "Podrazumevani jezik za hifenaciona pravila"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:53
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:54
 msgid "Font options"
 msgstr "Opcije za vrstu slova"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:55
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:56
 msgid "The serif font family"
 msgstr "Familija serifnih slova"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:57
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:58
 msgid "The sans-serif font family"
 msgstr "Familija bez-serifnih slova"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:60
 msgid "The monospaced font family"
 msgstr "Familija štampanih slova"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:60
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:61
 msgid "The standard font size in px"
 msgstr "Standardna veličina slova u px"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:61
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:62
 msgid "The monospaced font size in px"
 msgstr "Veličina štampanih slova u px"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:62
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:63
 msgid "The standard font type"
 msgstr "Standardna vrsta slova"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:463
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:479
 msgid "&Lookup in dictionary"
 msgstr "&Pronađi u rečniku"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:466
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:482
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:138
 msgid "Go to..."
 msgstr "Idi na..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:478
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:494
 msgid "Next Section"
 msgstr "Sledeći odeljak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:479
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:495
 msgid "Previous Section"
 msgstr "Prethodni odeljak"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:481
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:497
 msgid "Document Start"
 msgstr "Početak dokumenta"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:482
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:498
 msgid "Document End"
 msgstr "Kraj dokumenta"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:484
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:500
 msgid "Section Start"
 msgstr "Početak odeljka"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:501
 msgid "Section End"
 msgstr "Kraj odeljka"
 
@@ -10734,88 +10785,88 @@ msgstr ""
 msgid "Search for text in book"
 msgstr "Traži tekst u knjizi"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:272
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:275
 msgid "Print Preview"
 msgstr "Pregled pred štampanje"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:309
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:312
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
 msgstr "Poveži se sa dict.org da pronađeš: <b>%s</b>&hellip;"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:410
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:413
 msgid "Choose ebook"
 msgstr "Izaberi e-knjigu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:411
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:414
 msgid "Ebooks"
 msgstr "E-knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:444
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:447
 msgid "No matches found for: %s"
 msgstr "Nije pronađeno ništa za: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:488
 msgid "Loading flow..."
 msgstr "Učitavam izlog..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:521
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:524
 msgid "Laying out %s"
 msgstr "Predstavljam %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:552
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:555
 msgid "Bookmark #%d"
 msgstr "Oznaka #%d"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:556
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:559
 msgid "Add bookmark"
 msgstr "Dodaj oznaku"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:557
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:560
 msgid "Enter title for bookmark:"
 msgstr "Unesi naziv za oznaku"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:567
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:570
 msgid "Manage Bookmarks"
 msgstr "Uredi oznake"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:604
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:607
 msgid "Loading ebook..."
 msgstr "Učitavam e-knjigu..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:612
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:615
 msgid "DRM Error"
 msgstr "DRM greška"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:613
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:616
 msgid "<p>This book is protected by <a href=\"%s\">DRM</a>"
 msgstr "<p>Ova knjiga je zaštićena<a href=\"%s\">DRM</a>om"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:617
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:620
 msgid "Could not open ebook"
 msgstr "Nisam uspeo da otvorim e-knjigu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:695
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:698
 msgid "Options to control the ebook viewer"
 msgstr "Opcije za kontrolu čitača e-knjiga"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:702
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:705
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
 "Ako je naveden, prozor čitača će pokušati da pri pokretanju dođe u prvi plan."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:705
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:708
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
 "Ako je navedeno, prozor za čitanje će se pri pokretanju otvoriti preko celog "
 "ekrana."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:710
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:713
 msgid "Print javascript alert and console messages to the console"
 msgstr "Prikaži javascript upozorenja i poruke na konzoli"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:716
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:719
 msgid ""
 "%prog [options] file\n"
 "\n"
@@ -10933,7 +10984,7 @@ msgstr "Sakrij"
 msgid "Toggle"
 msgstr "Prebaci"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:385
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:400
 msgid ""
 "If you use the WordPlayer e-book app on your Android phone, you can access "
 "your calibre book collection directly on the device. To do this you have to "
@@ -10943,14 +10994,14 @@ msgstr ""
 "telefonu, možete pristupiti vašoj calibre biblioteci direktno na uređaju. Da "
 "biste ovo postigli morate uključiti server sadržaja."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:389
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:404
 msgid ""
 "Remember to leave calibre running as the server only runs as long as calibre "
 "is running."
 msgstr ""
 "Ne zaboravite da ostavite calibre pokrenut, jer server inače neće raditi."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:406
 msgid ""
 "You have to add the URL http://myhostname:8080 as your calibre library in "
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
@@ -10960,20 +11011,20 @@ msgstr ""
 "WordPlayeru. Ovde mojhost treba da bude puno ime, ili IP adresa računara na "
 "kome ste pokrenuli calibre."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:468
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:483
 msgid "Moving library..."
 msgstr "Premeštam biblioteku..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:484
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:500
 msgid "Failed to move library"
 msgstr "Nisam uspeo da premestim biblioteku"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:539
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:554
 msgid "Invalid database"
 msgstr "Neispravna baza podataka"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:555
 msgid ""
 "<p>An invalid library already exists at %s, delete it before trying to move "
 "the existing library.<br>Error: %s"
@@ -10981,21 +11032,21 @@ msgstr ""
 "<p>U %s već postoji jedna neispravna biblioteka. Izbrišite je pre nego što "
 "premestite ovu biblioteku.<br>Greška: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:566
 msgid "Could not move library"
 msgstr "Nisam uspeo da premestim biblioteku"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:622
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:641
 msgid "Select location for books"
 msgstr "Izaberite putanju za knjige"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:636
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:655
 msgid ""
 "You must choose an empty folder for the calibre library. %s is not empty."
 msgstr ""
 "Morate izabrati prazan direktorijum za calibre biblioteku. %s nije prazan."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:710
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:729
 msgid "welcome wizard"
 msgstr "čarobnjak za dobrodošlicu"
 
@@ -11081,11 +11132,12 @@ msgstr "Izaberite &jezik:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:58
 msgid ""
-"Choose a location for your books. When you add books to calibre, they will "
-"be copied here:"
+"<p>Choose a location for your books. When you add books to calibre, they "
+"will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
-"Izaberite mesto za vaše knjige. Kada budete dodavali knjige u calibre one će "
-"biti kopirane ovde:"
+"<p>Izaberite lokaciju za vaše knjige. Kada budete dodavali knjige u calibre "
+"one će biti smeštene ovde. Izaberite <b>prazan direktorijum</b> za novu "
+"calibre biblioteku:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -11100,49 +11152,79 @@ msgstr ""
 "Ako već imate calibre biblioteku ona će biti kopirana na novo mesto. Ako "
 "tamo već postoji biblioteka calibre će nastaviti da je koristi."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:32
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 msgid "Using: %s:%s@%s:%s and %s encryption"
 msgstr "Koristim: %s:%s@%s:%s i %s način šifrovanja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:39
 msgid "Sending..."
 msgstr "Šaljem..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:44
 msgid "Mail successfully sent"
 msgstr "Pošta je uspešno poslata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:124
-msgid "Finish gmail setup"
-msgstr "Završi podešavanje gmaila"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:136
 msgid ""
-"Dont forget to enter your gmail username and password. You can sign up for a "
-"free gmail account at http://gmail.com"
+"If you are setting up a new hotmail account, you must log in to it  once "
+"before you will be able to send mails."
 msgstr ""
-"Ne zaboravite da unesete gmail korisničko ime i lozinku. Besplatan gmail "
-"nalog možete otvoriti na http://gmail.com"
+"Ako podešavate novi Hotmail nalog morate se prvo prijaviti na njega bar "
+"jednom pre nego što s njega možete da šaljete poštu."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:133
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:147
+msgid ""
+"You can sign up for a free {name} email account at <a "
+"href=\"http://{url}\">http://{url}</a>. {extra}"
+msgstr ""
+"Možete se projaviti za besplatan {name} nalog na <a "
+"href=\"http://{url}\">http://{url}</a>. {extra}"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
+msgid "Your %s &email address:"
+msgstr "Vaša %s &elektronska adresa"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:155
+msgid "Your %s &username:"
+msgstr "Vaše %s &korisničko ime:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:156
+msgid "Your %s &password:"
+msgstr "Vaša %s &lozinka:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:174
+msgid ""
+"If you plan to use email to send books to your Kindle, remember to add the "
+"your %s email address to the allowed email addresses in your Amazon.com "
+"Kindle management page."
+msgstr ""
+"Ako nameravate da korisite elektronsku poštu da šaljete knjige na vaš "
+"Kindle, ne zaboravite da dodate vašu %s elektronsku adresu na vašoj Amazon "
+"Kindle internet stranici"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:181
+msgid "Setup"
+msgstr "Podešavanje"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:203
 msgid "Bad configuration"
 msgstr "Loša konfiguracija"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:197
 msgid "You must set the From email address"
 msgstr "Morate postaviti elektronsku adresu pošiljaoca"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:204
 msgid "You must set the username and password for the mail server."
 msgstr ""
 "Morate postaviti korisničko ime i lozinku za server elektronske pošte."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:113
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"
 msgstr "&Pošiljalac:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:114
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:125
 msgid ""
 "<p>This is what will be present in the From: field of emails sent by "
 "calibre.<br> Set it to your email address"
@@ -11150,7 +11232,7 @@ msgstr ""
 "<p>Ovo će se naći u From: polju poruka koje će calibre slati.<br> Ovde "
 "navedite svoju elektronsku adresu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:126
 msgid ""
 "<p>A mail server is useful if the service you are sending mail to only "
 "accepts email from well know mail services."
@@ -11158,50 +11240,50 @@ msgstr ""
 "<p>Server za elektronsku poštu je koristan ako onaj kome šaljete poštu "
 "prihvata poruke samo sa dobro poznatih servisa elektronske pošte."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:116
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:127
 msgid "Mail &Server"
 msgstr "&Server elektronske pošte"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:117
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:128
 msgid "calibre can <b>optionally</b> use a server to send mail"
 msgstr ""
 "calibre može <b>opciono</b> da koristi server za slanje elektronskih poruka"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:118
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:129
 msgid "&Hostname:"
 msgstr "&Server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:119
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:130
 msgid "The hostname of your mail server. For e.g. smtp.gmail.com"
 msgstr "Naziv vašeg servera elektronske pošte. Na primer smtp.gmail.com"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:131
 msgid "&Port:"
 msgstr "&Port:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:121
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:132
 msgid ""
 "The port your mail server listens for connections on. The default is 25"
 msgstr ""
 "Port na kome vaš server elektronske pošte očekuje poruke. Podrazumeva se 25"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:123
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:134
 msgid "Your username on the mail server"
 msgstr "Vaše korisničko ime na serveru elektronske pošte"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:136
 msgid "Your password on the mail server"
 msgstr "Vaša lozinka na serveru elektronske pošte"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:137
 msgid "&Show"
 msgstr "&Prikaži"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:138
 msgid "&Encryption:"
 msgstr "Ši&frovanje:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:128
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:139
 msgid ""
 "Use TLS encryption when connecting to the mail server. This is the most "
 "common."
@@ -11209,23 +11291,35 @@ msgstr ""
 "Koristi TLS šifrovanje u komunikaciji sa serverom elektronske pošte. Ovo je "
 "najuobičajenija opcija."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:129
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:140
 msgid "&TLS"
 msgstr "&TLS"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:130
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:141
 msgid "Use SSL encryption when connecting to the mail server."
 msgstr "Koristi SSL šifrovanje u komunikaciji sa serverom elektronske pošte."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:142
 msgid "&SSL"
 msgstr "&SSL"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
+msgid "WARNING: Using no encryption is highly insecure"
+msgstr "UPOZORENJE: Nekorišćenje enkripcije je veoma nebezbedno"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
+msgid "&None"
+msgstr "&Nijedna"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:145
 msgid "Use Gmail"
 msgstr "Koristi Gmail"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:146
+msgid "Use Hotmail"
+msgstr "Koristi Hotmail"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:147
 msgid "&Test email"
 msgstr "&Probna poruka"
 
@@ -11292,7 +11386,7 @@ msgstr "prazno"
 msgid "empty"
 msgstr "prazno"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:48
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:50
 msgid ""
 "The fields to output when cataloging books in the database.  Should be a "
 "comma-separated list of fields.\n"
@@ -11306,7 +11400,7 @@ msgstr ""
 "Podrazumeva se: '%%default'\n"
 "Važi za: CSV, XML izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:58
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:60
 msgid ""
 "Output field to sort on.\n"
 "Available fields: author_sort, id, rating, size, timestamp, title.\n"
@@ -11318,7 +11412,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: CSV, XML izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:212
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:214
 msgid ""
 "The fields to output when cataloging books in the database.  Should be a "
 "comma-separated list of fields.\n"
@@ -11332,7 +11426,7 @@ msgstr ""
 "Podrazumeva se: '%%default'\n"
 "Važi za: BIBTEX izlazni format"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:222
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:224
 msgid ""
 "Output field to sort on.\n"
 "Available fields: author_sort, id, rating, size, timestamp, title.\n"
@@ -11344,7 +11438,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: BIBTEX izlazni format"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:231
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:233
 msgid ""
 "Create a citation for BibTeX entries.\n"
 "Boolean value: True, False\n"
@@ -11356,7 +11450,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: BIBTEX izlazni format"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:240
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:242
 msgid ""
 "The template for citation creation from database fields.\n"
 " Should be a template with {} enclosed fields.\n"
@@ -11370,7 +11464,7 @@ msgstr ""
 "Podrazumeva se: '%%default'\n"
 "Važi za: BIBTEX izlazni format"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:250
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:252
 msgid ""
 "BibTeX file encoding output.\n"
 "Available types: utf8, cp1252, ascii.\n"
@@ -11382,7 +11476,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: BIBTEX izlazni format"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:259
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:261
 msgid ""
 "BibTeX file encoding flag.\n"
 "Available types: strict, replace, ignore, backslashreplace.\n"
@@ -11394,7 +11488,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: BIBTEX izlazni form"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:268
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:270
 msgid ""
 "Entry type for BibTeX catalog.\n"
 "Available types: book, misc, mixed.\n"
@@ -11406,7 +11500,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: BIBTEX izlazni form"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:536
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:540
 msgid ""
 "Title of generated catalog used as title in metadata.\n"
 "Default: '%default'\n"
@@ -11416,7 +11510,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: ePub, MOBI izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:543
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:547
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
 "specified directory. Useful if you are unsure at which stage of the "
@@ -11429,7 +11523,7 @@ msgstr ""
 "Podrazumeva se: '%default'None\n"
 "Važi za: ePub, MOBI izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:553
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:557
 msgid ""
 "Regex describing tags to exclude as genres.\n"
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
@@ -11440,7 +11534,7 @@ msgstr ""
 "'[<etiketa>]'\n"
 "Važi za: ePub, MOBI izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:559
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:563
 msgid ""
 "Comma-separated list of tag words indicating book should be excluded from "
 "output.  Case-insensitive.\n"
@@ -11453,7 +11547,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: ePub, MOBI izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:567
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:571
 msgid ""
 "Include 'Titles' section in catalog.\n"
 "Default: '%default'\n"
@@ -11463,7 +11557,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: ePub, MOBI izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:574
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:578
 msgid ""
 "Include 'Series' section in catalog.\n"
 "Default: '%default'\n"
@@ -11473,7 +11567,7 @@ msgstr ""
 "Podrazumava se: '%default'\n"
 "Odnosi se na: ePub i MOBI izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:581
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:585
 msgid ""
 "Include 'Recently Added' section in catalog.\n"
 "Default: '%default'\n"
@@ -11483,7 +11577,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: ePub, MOBI izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:588
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:592
 msgid ""
 "Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
 "Default: '%default'\n"
@@ -11493,7 +11587,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: ePub, MOBI izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:595
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:599
 msgid ""
 "Sort titles with leading numbers as text, e.g.,\n"
 "'2001: A Space Odyssey' sorts as \n"
@@ -11507,7 +11601,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: ePub, MOBI izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:602
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:606
 msgid ""
 "Specifies the output profile.  In some cases, an output profile is required "
 "to optimize the catalog for the device.  For example, 'kindle' or "
@@ -11522,7 +11616,7 @@ msgstr ""
 "Podrazumeva se: '%default'\n"
 "Važi za: ePub, MOBI izlazne formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:609
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:613
 msgid ""
 "Tag indicating book has been read.\n"
 "Default: '%default'\n"
@@ -11531,6 +11625,16 @@ msgstr ""
 "Etiketa koja označava da je knjiga pročitana.\n"
 "Podrazumeva se: '%default'\n"
 "Važi za: ePub, MOBI izlazne formate"
+
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:619
+msgid ""
+"Tag indicating book to be displayed as wishlist item.\n"
+"Default: '%default'\n"
+"Applies to: ePub, MOBI output formats"
+msgstr ""
+"Etiketa koja određuje knjigu koja će biti prikazana u spisku želja.\n"
+"Podrazumeva se: '%default'\n"
+"Važi za: ePub i MOBI izlazne formate"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:17
 msgid "Invalid titles"
@@ -12241,36 +12345,36 @@ msgstr ""
 "Etiketa sme sadržati samo mala slova, cifre i donje crte, i mora početi "
 "slovom."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:82
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:57
 msgid "%sAverage rating is %3.1f"
 msgstr "%sSrednja ocena je %3.1f"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:846
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:818
 msgid "Main"
 msgstr "Osnovna"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2321
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2310
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 "<p>Prevodim staru bazu podataka u biblioteku e-knjiga u %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2350
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2339
 msgid "Copying <b>%s</b>"
 msgstr "Kopiram <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2367
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2356
 msgid "Compacting database"
 msgstr "Sažimam bazu podataka"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2460
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2449
 msgid "Checking SQL integrity..."
 msgstr "Proveravam ispravnost SQLa..."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2499
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2488
 msgid "Checking for missing files."
 msgstr "Tražim nepostojeće fajlove."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2521
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2516
 msgid "Checked id"
 msgstr "Proverio identifikator"
 
@@ -12495,128 +12599,129 @@ msgstr ""
 "Prefiks koji će biti dodat svim URLovima. Korisno za reverseproxying ka ovom "
 "serveru iz Apache/nginx/itd."
 
-#: /home/kovid/work/calibre/src/calibre/library/server/base.py:150
-msgid "Password to access your calibre library. Username is "
-msgstr "Lozinka za pristup vašoj calibre biblioteci. Korisničko ime je "
-
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:51
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:405
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:59
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:437
 msgid "Loading, please wait"
 msgstr "Učitavam. Molim sačekajte."
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:80
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:85
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
+msgid "Go to"
+msgstr "Idi na"
+
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:101
 msgid "First"
 msgstr "Prvi"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:80
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:101
 msgid "Last"
 msgstr "Poslednji"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:80
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:101
 msgid "Previous"
 msgstr "Prethodni"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:81
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:102
 msgid "Next"
 msgstr "Sledeći"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:83
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:104
 msgid "Browsing %d books"
 msgstr "Pregled %d knjiga"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:99
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:225
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:121
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:247
 msgid "Average rating"
 msgstr "Prosečna ocena"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:100
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:122
 msgid "%s: %.1f stars"
 msgstr "%s: %.1f zvezdica"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:133
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:155
 msgid "%d stars"
 msgstr "%d zvezdica"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:226
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
 msgid "Popularity"
 msgstr "Popularnost"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:245
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:267
 msgid "Sort by"
 msgstr "Sortiraj po"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:248
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:270
 msgid "library"
 msgstr "biblioteka"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:249
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:271
 msgid "home"
 msgstr "početna"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:310
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:516
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:332
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:548
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:569
 msgid "Newest"
 msgstr "Najnovije"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:311
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:517
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:333
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:549
 msgid "All books"
 msgstr "Sve knjige"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:344
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:366
 msgid "Browse books by"
 msgstr "Pregledaj knjige po"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:349
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:371
 msgid "Choose a category to browse by:"
 msgstr "Izaberi kategoriju po kojoj će se pregledati:"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:425
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:457
 msgid "Browsing by"
 msgstr "Pregled po"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:426
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:458
 msgid "Up"
 msgstr "Gore"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:547
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:579
 msgid "in"
 msgstr "u"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:550
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:582
 msgid "Books in"
 msgstr "Knjige u"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:602
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:634
 msgid "Other formats"
 msgstr "Drugi formati"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:609
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:641
 msgid "Read %s in the %s format"
 msgstr "Čitaj %s u formatu %s"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:614
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:646
 msgid "Get"
 msgstr "Preuzmi"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:629
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:661
 msgid "Permalink"
 msgstr "Trajni link"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:630
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:662
 msgid "A permanent link to this book"
 msgstr "Trajni link ka ovoj knjizi"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:641
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:673
 msgid "This book has been deleted"
 msgstr "Ova knjiga je obrisana"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:725
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:757
 msgid "in search"
 msgstr "u pretrazi"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:727
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:759
 msgid "Matching books"
 msgstr "Odgovarajuće knjige"
 
@@ -12957,7 +13062,7 @@ msgstr "Nisam uspeo da dogovorim SSH sesiju: "
 msgid "Failed to authenticate with server: %s"
 msgstr "Nije uspelo prijavljivanje na server: %s"
 
-#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:234
+#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:249
 msgid "Control email delivery"
 msgstr "Kontrola dostave elektronske pošte"
 
@@ -13213,6 +13318,13 @@ msgstr "Ne preuzimaj CSS stilove."
 #~ msgid "Communicate with the Teclast K3 reader."
 #~ msgstr "Uspostavi komunikaciju s Teclast K3 čitačem."
 
+#~ msgid ""
+#~ "Average line length for line breaking if the HTML is from a previous partial "
+#~ "conversion of a PDF file. Default is %default which disables this."
+#~ msgstr ""
+#~ "Srednja dužina reda za prelom ako je HTML fajl rezultat prethodne konverzije "
+#~ "iz PDF fajla. Podrazumeva se %default i ta vrednost isključuje ovu opciju."
+
 #~ msgid "EDITORIAL REVIEW"
 #~ msgstr "REČ UREDNIKA"
 
@@ -13265,6 +13377,12 @@ msgstr "Ne preuzimaj CSS stilove."
 
 #~ msgid "Send specific format to main memory"
 #~ msgstr "Pošalji određeni format u osnovnu memoriju"
+
+#~ msgid "Failed to email the following books:"
+#~ msgstr "Nisam uspeo da pošaljem sledeće knjige:"
+
+#~ msgid "Failed to email books"
+#~ msgstr "Nisam uspeo da pošaljem knjige"
 
 #~ msgid "Fit &cover to view"
 #~ msgstr "Prilagodi veličinu &naslovne strane"
@@ -13367,6 +13485,13 @@ msgstr "Ne preuzimaj CSS stilove."
 
 #~ msgid "Download &cover"
 #~ msgstr "Preuzmi &naslovnu stranu"
+
+#~ msgid "Contains: the word or phrase matches anywhere in the metadata"
+#~ msgstr "Sadrži: reči ili fraze bilo gde među metapodacima"
+
+#~ msgid ""
+#~ "Regular expression: the expression must match anywhere in the metadata"
+#~ msgstr "Regularni izraz: izraz mora biti pronađen bilo gde među metapodacima"
 
 #~ msgid ""
 #~ "For help with writing advanced news recipes, please visit <a "
@@ -13518,6 +13643,16 @@ msgstr "Ne preuzimaj CSS stilove."
 #~ "knjiga"
 
 #~ msgid ""
+#~ "Dont forget to enter your gmail username and password. You can sign up for a "
+#~ "free gmail account at http://gmail.com"
+#~ msgstr ""
+#~ "Ne zaboravite da unesete gmail korisničko ime i lozinku. Besplatan gmail "
+#~ "nalog možete otvoriti na http://gmail.com"
+
+#~ msgid "Finish gmail setup"
+#~ msgstr "Završi podešavanje gmaila"
+
+#~ msgid ""
 #~ "The format in which to output the data. Available choices: %s. Defaults is "
 #~ "text."
 #~ msgstr ""
@@ -13534,6 +13669,9 @@ msgstr "Ne preuzimaj CSS stilove."
 #~ msgstr ""
 #~ "Zarezima razdvojena lista formata u kojima će knjiga biti snimljena. "
 #~ "Podrazumeva se da će biti snimljeni svi raspoloživi formati."
+
+#~ msgid "Password to access your calibre library. Username is "
+#~ msgstr "Lozinka za pristup vašoj calibre biblioteci. Korisničko ime je "
 
 #~ msgid ""
 #~ "[options]\n"
@@ -13572,6 +13710,26 @@ msgstr "Ne preuzimaj CSS stilove."
 #~ msgid "Masthead font:"
 #~ msgstr "Vrsta slova za Impresum:"
 
+#~ msgid "Sent by email:"
+#~ msgstr "Poslato elektronskom poštom:"
+
+#~ msgid "Attached is the"
+#~ msgstr "Priključeno je"
+
+#~ msgid ""
+#~ "The following books had formats listed in the database that are not actually "
+#~ "available. The entries for the formats have been removed. You should check "
+#~ "them manually. This can happen if you manipulate the files in the library "
+#~ "folder directly."
+#~ msgstr ""
+#~ "Sledeće knjige imaju formate navedene u bazi podataka koji u stvari ne "
+#~ "postoje. Informacije o ovim formatima su uklonjene. Preporučujem da ove "
+#~ "formate proverite i ručno. Do ove greške može doći ako ručno baratate "
+#~ "direktorijumom koji sadrži vašu biblioteku."
+
+#~ msgid "Equals: the word or phrase must match an entire metadata field"
+#~ msgstr "Jednaki: rečima ili frazama koje odgovaraju celom polju metapodataka"
+
 #~ msgid "Click to turn off Cover Browsing"
 #~ msgstr "Kliknite da isključite traženje u Izlogu naslovnih strana"
 
@@ -13584,6 +13742,13 @@ msgstr "Ne preuzimaj CSS stilove."
 
 #~ msgid "Click to browse books by tags"
 #~ msgstr "Kliknite da tražite knjige po etiketama"
+
+#~ msgid ""
+#~ "Choose a location for your books. When you add books to calibre, they will "
+#~ "be copied here:"
+#~ msgstr ""
+#~ "Izaberite mesto za vaše knjige. Kada budete dodavali knjige u calibre one će "
+#~ "biti kopirane ovde:"
 
 #~ msgid ""
 #~ "\n"
@@ -13976,6 +14141,17 @@ msgstr "Ne preuzimaj CSS stilove."
 #~ msgid "Switch to library..."
 #~ msgstr "Pređi na bibilioteku..."
 
+#~ msgid ""
+#~ "<p>Enter a list of ISBNs in the box to the left, one per line. calibre will "
+#~ "automatically create entries for books based on the ISBN and download "
+#~ "metadata and covers for them.<p>Any invalid ISBNs in the list will be "
+#~ "ignored."
+#~ msgstr ""
+#~ "<p>Unesite listu ISBN brojeva u polje s leve strane, jedan broj po redu. "
+#~ "calibre će automatski kreirati stavke za knjige na osnovu ovih ISBN brojeva "
+#~ "i za njih preuzeti metapodatke i omote. <p>Svi nevažeći ISBn brojevi će biti "
+#~ "ignorisani."
+
 #~ msgid "You cannot change libraries when a device is connected."
 #~ msgstr "Ne možete da promenite biblioteku kada je uređaj već priključen."
 
@@ -14152,3 +14328,6 @@ msgstr "Ne preuzimaj CSS stilove."
 #~ "    UPOZORENJE: Ovo kreira potpuno novu bazu podataka. Izgubićete\n"
 #~ "    sve korisničke recepte i podešavanja konverzije za pojedančne knjige.\n"
 #~ "    "
+
+#~ msgid "No details available"
+#~ msgstr "Detalji nisu dostupni"
