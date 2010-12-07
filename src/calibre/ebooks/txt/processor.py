@@ -9,6 +9,7 @@ import os, re
 from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.markdown import markdown
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.utils.cleantext import clean_ascii_chars
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -31,10 +32,8 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     txt = re.sub('(?<=.)\s+$', '', txt)
     # Remove excessive line breaks.
     txt = re.sub('\n{3,}', '\n\n', txt)
-    #remove ASCII invalid chars : 0 to 8 and 11-14 to 24
-    chars = list(range(8)) + [0x0B, 0x0E, 0x0F] + list(range(0x10, 0x19))
-    illegal_chars = re.compile(u'|'.join(map(unichr, chars)))
-    txt = illegal_chars.sub('', txt)
+    #remove ASCII invalid chars
+    txt = clean_ascii_chars(txt)
     #Takes care if there is no point to split
     if epub_split_size_kb > 0:
         if isinstance(txt, unicode):
