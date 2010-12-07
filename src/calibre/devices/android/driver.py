@@ -21,7 +21,7 @@ class ANDROID(USBMS):
             # HTC
             0x0bb4 : { 0x0c02 : [0x100, 0x0227, 0x0226], 0x0c01 : [0x100, 0x0227], 0x0ff9
                 : [0x0100, 0x0227, 0x0226], 0x0c87: [0x0100, 0x0227, 0x0226],
-                0xc92 : [0x100]},
+                0xc92 : [0x100], 0xc97: [0x226]},
 
             # Eken
             0x040d : { 0x8510 : [0x0001] },
@@ -63,7 +63,7 @@ class ANDROID(USBMS):
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
-            'SCH-I500_CARD']
+            'SCH-I500_CARD', 'SPH-D700_CARD', 'MB810']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID']
 

@@ -10,7 +10,8 @@ from copy import deepcopy
 
 from lxml.html import soupparser
 
-from calibre.utils.date import parse_date, utcnow
+from calibre.utils.date import parse_date, utcnow, replace_months
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre import browser, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn, \
@@ -71,30 +72,15 @@ class NiceBooksCovers(CoverDownload):
                 traceback.format_exc(), self.name))
 
 
+class NiceBooksError(Exception):
+    pass
+
+class ISBNNotFound(NiceBooksError):
+    pass
+
 def report(verbose):
     if verbose:
-        import traceback
         traceback.print_exc()
-
-def replace_monthsfr(datefr):
-    # Replace french months by english equivalent for parse_date
-    frtoen = {
-        u'[jJ]anvier': u'jan',
-        u'[fF].vrier': u'feb',
-        u'[mM]ars': u'mar',
-        u'[aA]vril': u'apr',
-        u'[mM]ai': u'may',
-        u'[jJ]uin': u'jun',
-        u'[jJ]uillet': u'jul',
-        u'[aA]o.t': u'aug',
-        u'[sS]eptembre': u'sep',
-        u'[Oo]ctobre': u'oct',
-        u'[nN]ovembre': u'nov',
-        u'[dD].cembre': u'dec' }
-    for k in frtoen.iterkeys():
-        tmp = re.sub(k, frtoen[k], datefr)
-        if tmp <> datefr: break
-    return tmp
 
 class Query(object):
 
@@ -119,7 +105,7 @@ class Query(object):
 
     def __call__(self, browser, verbose, timeout = 5.):
         if verbose:
-            print 'Query:', self.BASE_URL+self.urldata
+            print _('Query: %s') % self.BASE_URL+self.urldata
 
         try:
             raw = browser.open_novisit(self.BASE_URL+self.urldata, timeout=timeout).read()
@@ -128,7 +114,9 @@ class Query(object):
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return
-            raise
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+                raise NiceBooksError(_('Nicebooks timed out. Try again later.'))
+            raise NiceBooksError(_('Nicebooks encountered an error.'))
         if '<title>404 - ' in raw:
             return
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
@@ -136,7 +124,11 @@ class Query(object):
         try:
             feed = soupparser.fromstring(raw)
         except:
-            return
+            try:
+                #remove ASCII invalid chars
+                feed = soupparser.fromstring(clean_ascii_chars(raw))
+            except:
+                return None
 
         #nb of page to call
         try:
@@ -161,7 +153,11 @@ class Query(object):
                 try:
                     feed = soupparser.fromstring(raw)
                 except:
-                    continue
+                    try:
+                        #remove ASCII invalid chars
+                        feed = soupparser.fromstring(clean_ascii_chars(raw))
+                    except:
+                        continue
                 pages.append(feed)
 
         results = []
@@ -180,14 +176,12 @@ class ResultList(list):
         self.reautclean = re.compile(u'\s*\(.*\)\s*')
 
     def get_title(self, entry):
-        # title = deepcopy(entry.find("div[@id='book-info']"))
         title = deepcopy(entry)
         title.remove(title.find("dl[@title='Informations sur le livre']"))
         title = ' '.join([i.text_content() for i in title.iterchildren()])
         return unicode(title.replace('\n', ''))
 
     def get_authors(self, entry):
-        # author = entry.find("div[@id='book-info']/dl[@title='Informations sur le livre']")
         author = entry.find("dl[@title='Informations sur le livre']")
         authortext = []
         for x in author.getiterator('dt'):
@@ -223,7 +217,7 @@ class ResultList(list):
                 d = x.getnext().text_content()
                 try:
                     default = utcnow().replace(day=15)
-                    d = replace_monthsfr(d)
+                    d = replace_months(d, 'fr')
                     d = parse_date(d, assume_utc=True, default=default)
                     mi.pubdate = d
                 except:
@@ -234,11 +228,6 @@ class ResultList(list):
         mi = MetaInformation(title, authors)
         mi.author_sort = authors_to_sort_string(authors)
         mi.comments = self.get_description(entry, verbose)
-        # entry = entry.find("dl[@title='Informations sur le livre']")
-        # mi.publisher = self.get_publisher(entry)
-        # mi.pubdate = self.get_date(entry, verbose)
-        # mi.isbn = self.get_ISBN(entry)
-        # mi.language = self.get_language(entry)
         return self.get_book_info(entry, mi, verbose)
 
     def get_individual_metadata(self, browser, linkdata, verbose):
@@ -249,7 +238,9 @@ class ResultList(list):
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return
-            raise
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+                raise NiceBooksError(_('Nicebooks timed out. Try again later.'))
+            raise NiceBooksError(_('Nicebooks encountered an error.'))
         if '<title>404 - ' in raw:
             report(verbose)
             return
@@ -258,7 +249,11 @@ class ResultList(list):
         try:
             feed = soupparser.fromstring(raw)
         except:
-            return
+            try:
+                #remove ASCII invalid chars
+                feed = soupparser.fromstring(clean_ascii_chars(raw))
+            except:
+                return None
 
         # get results
         return feed.xpath("//div[@id='container']")[0]
@@ -292,13 +287,6 @@ class ResultList(list):
                     continue
                 self.append(self.fill_MI(entry, title, authors, verbose))
 
-
-class NiceBooksError(Exception):
-    pass
-
-class ISBNNotFound(NiceBooksError):
-    pass
-
 class Covers(object):
 
     def __init__(self, isbn = None):
@@ -329,11 +317,10 @@ class Covers(object):
             return cover, ext if ext else 'jpg'
         except Exception, err:
             if isinstance(getattr(err, 'args', [None])[0], socket.timeout):
-                err = NiceBooksError(_('Nicebooks timed out. Try again later.'))
-                raise err
+                raise NiceBooksError(_('Nicebooks timed out. Try again later.'))
             if not len(self.urlimg):
                 if not self.isbnf:
-                    raise ISBNNotFound('ISBN: '+self.isbn+_(' not found.'))
+                    raise ISBNNotFound(_('ISBN: %s not found.') % self.isbn)
                 raise NiceBooksError(_('An errror occured with Nicebooks cover fetcher'))
 
 
@@ -341,10 +328,10 @@ def search(title=None, author=None, publisher=None, isbn=None,
            max_results=5, verbose=False, keywords=None):
     br = browser()
     entries = Query(title=title, author=author, isbn=isbn, publisher=publisher,
-        keywords=keywords, max_results=max_results)(br, verbose)
+        keywords=keywords, max_results=max_results)(br, verbose,timeout = 10.)
 
     if entries is None or len(entries) == 0:
-        return
+        return None
 
     #List of entry
     ans = ResultList()
@@ -364,28 +351,28 @@ def cover_from_isbn(isbn, timeout = 5.):
 
 def option_parser():
     parser = OptionParser(textwrap.dedent(\
-    '''\
+    _('''\
         %prog [options]
 
         Fetch book metadata from Nicebooks. You must specify one of title, author,
         ISBN, publisher or keywords. Will fetch a maximum of 20 matches,
         so you should make your query as specific as possible.
         It can also get covers if the option is activated.
-    '''
+    ''')
     ))
-    parser.add_option('-t', '--title', help='Book title')
-    parser.add_option('-a', '--author', help='Book author(s)')
-    parser.add_option('-p', '--publisher', help='Book publisher')
-    parser.add_option('-i', '--isbn', help='Book ISBN')
-    parser.add_option('-k', '--keywords', help='Keywords')
+    parser.add_option('-t', '--title', help=_('Book title'))
+    parser.add_option('-a', '--author', help=_('Book author(s)'))
+    parser.add_option('-p', '--publisher', help=_('Book publisher'))
+    parser.add_option('-i', '--isbn', help=_('Book ISBN'))
+    parser.add_option('-k', '--keywords', help=_('Keywords'))
     parser.add_option('-c', '--covers', default=0,
-                      help='Covers: 1-Check/ 2-Download')
+                      help=_('Covers: 1-Check/ 2-Download'))
     parser.add_option('-p', '--coverspath', default='',
-                      help='Covers files path')
+                      help=_('Covers files path'))
     parser.add_option('-m', '--max-results', default=20,
-                      help='Maximum number of results to fetch')
+                      help=_('Maximum number of results to fetch'))
     parser.add_option('-v', '--verbose', default=0, action='count',
-                      help='Be more verbose about errors')
+                      help=_('Be more verbose about errors'))
     return parser
 
 def main(args=sys.argv):
@@ -400,15 +387,15 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     if results is None or len(results) == 0:
-        print 'No result found for this search!'
+        print _('No result found for this search!')
         return 0
     for result in results:
         print unicode(result).encode(preferred_encoding, 'replace')
         covact = int(opts.covers)
         if  covact == 1:
-            textcover = 'No cover found!'
+            textcover = _('No cover found!')
             if check_for_cover(result.isbn):
-                textcover = 'A cover was found for this book'
+                textcover = _('A cover was found for this book')
             print textcover
         elif covact == 2:
             cover_data, ext = cover_from_isbn(result.isbn)
@@ -417,7 +404,7 @@ def main(args=sys.argv):
                 cpath = os.path.normpath(opts.coverspath + '/' + result.isbn)
             oname = os.path.abspath(cpath+'.'+ext)
             open(oname, 'wb').write(cover_data)
-            print 'Cover saved to file ', oname
+            print _('Cover saved to file '), oname
         print
 
 if __name__ == '__main__':

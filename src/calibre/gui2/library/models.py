@@ -18,7 +18,7 @@ from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_autho
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, strcmp as icu_strcmp
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
@@ -1023,8 +1023,7 @@ class DeviceBooksModel(BooksModel): # {{{
                     x = ''
                 if y == None:
                     y = ''
-                x, y = x.strip().lower(), y.strip().lower()
-                return cmp(x, y)
+                return icu_strcmp(x.strip(), y.strip())
             return _strcmp
         def datecmp(x, y):
             x = self.db[x].datetime

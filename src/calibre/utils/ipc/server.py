@@ -292,12 +292,12 @@ class Server(Thread):
         except:
             pass
         time.sleep(0.2)
-        for worker in self.workers:
+        for worker in list(self.workers):
             try:
                 worker.kill()
             except:
                 pass
-        for worker in self.pool:
+        for worker in list(self.pool):
             try:
                 worker.kill()
             except:

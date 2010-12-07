@@ -3,40 +3,54 @@ UI for adding books to the database and saving books to disk
 '''
 import os, shutil, time
 from Queue import Queue, Empty
-from threading import Thread
+from functools import partial
 
-from PyQt4.Qt import QThread, SIGNAL, QObject, QTimer, Qt, \
-        QProgressDialog
+from PyQt4.Qt import QThread, QObject, Qt, QProgressDialog, pyqtSignal, QTimer
 
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2 import question_dialog, error_dialog, info_dialog
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
-from calibre.constants import preferred_encoding, filesystem_encoding
+from calibre.constants import preferred_encoding, filesystem_encoding, DEBUG
 from calibre.utils.config import prefs
+from calibre import prints
 
-class DuplicatesAdder(QThread): # {{{
-    # Add duplicate books
+single_shot = partial(QTimer.singleShot, 75)
+
+class DuplicatesAdder(QObject): # {{{
+
+    added = pyqtSignal(object)
+    adding_done = pyqtSignal()
+
     def __init__(self, parent, db, duplicates, db_adder):
-        QThread.__init__(self, parent)
+        QObject.__init__(self, parent)
         self.db, self.db_adder = db, db_adder
-        self.duplicates = duplicates
+        self.duplicates = list(duplicates)
+        self.count = 0
+        single_shot(self.add_one)
 
-    def run(self):
-        count = 1
-        for mi, cover, formats in self.duplicates:
-            formats = [f for f in formats if not f.lower().endswith('.opf')]
-            id = self.db.create_book_entry(mi, cover=cover,
-                    add_duplicates=True)
-            # here we add all the formats for dupe book record created above
-            self.db_adder.add_formats(id, formats)
-            self.db_adder.number_of_books_added += 1
-            self.emit(SIGNAL('added(PyQt_PyObject)'), count)
-            count += 1
-        self.emit(SIGNAL('adding_done()'))
+    def add_one(self):
+        if not self.duplicates:
+            self.adding_done.emit()
+            return
+
+        mi, cover, formats = self.duplicates.pop()
+        formats = [f for f in formats if not f.lower().endswith('.opf')]
+        id = self.db.create_book_entry(mi, cover=cover,
+                add_duplicates=True)
+        # here we add all the formats for dupe book record created above
+        self.db_adder.add_formats(id, formats)
+        self.db_adder.number_of_books_added += 1
+        self.count += 1
+        self.added.emit(self.count)
+        single_shot(self.add_one)
+
 # }}}
 
 class RecursiveFind(QThread): # {{{
+
+    update = pyqtSignal(object)
+    found  = pyqtSignal(object)
 
     def __init__(self, parent, db, root, single):
         QThread.__init__(self, parent)
@@ -50,8 +64,8 @@ class RecursiveFind(QThread): # {{{
         for dirpath in os.walk(root):
             if self.canceled:
                 return
-            self.emit(SIGNAL('update(PyQt_PyObject)'),
-                        _('Searching in')+' '+dirpath[0])
+            self.update.emit(
+                    _('Searching in')+' '+dirpath[0])
             self.books += list(self.db.find_books_in_directory(dirpath[0],
                                             self.single_book_per_directory))
 
@@ -71,46 +85,55 @@ class RecursiveFind(QThread): # {{{
                     msg = unicode(err)
                 except:
                     msg = repr(err)
-                self.emit(SIGNAL('found(PyQt_PyObject)'), msg)
+                self.found.emit(msg)
                 return
 
         self.books = [formats for formats in self.books if formats]
 
         if not self.canceled:
-            self.emit(SIGNAL('found(PyQt_PyObject)'), self.books)
+            self.found.emit(self.books)
 
 # }}}
 
-class DBAdder(Thread): # {{{
+class DBAdder(QObject): # {{{
 
-    def __init__(self, db, ids, nmap):
+    def __init__(self, parent, db, ids, nmap):
+        QObject.__init__(self, parent)
+
         self.db, self.ids, self.nmap = db, dict(**ids), dict(**nmap)
-        self.end = False
         self.critical = {}
         self.number_of_books_added = 0
         self.duplicates = []
         self.names, self.paths, self.infos = [], [], []
-        Thread.__init__(self)
-        self.daemon = True
         self.input_queue = Queue()
         self.output_queue = Queue()
         self.merged_books = set([])
 
-    def run(self):
-        while not self.end:
-            try:
-                id, opf, cover = self.input_queue.get(True, 0.2)
-            except Empty:
-                continue
-            name = self.nmap.pop(id)
-            title = None
-            try:
-                title = self.add(id, opf, cover, name)
-            except:
-                import traceback
-                self.critical[name] = traceback.format_exc()
-                title = name
-            self.output_queue.put(title)
+    def end(self):
+        self.input_queue.put((None, None, None))
+
+    def start(self):
+        try:
+            id, opf, cover = self.input_queue.get_nowait()
+        except Empty:
+            single_shot(self.start)
+            return
+        if id is None and opf is None and cover is None:
+            return
+        name = self.nmap.pop(id)
+        title = None
+        if DEBUG:
+            st = time.time()
+        try:
+            title = self.add(id, opf, cover, name)
+        except:
+            import traceback
+            self.critical[name] = traceback.format_exc()
+            title = name
+        self.output_queue.put(title)
+        if DEBUG:
+            prints('Added', title, 'to db in:', time.time() - st, 'seconds')
+        single_shot(self.start)
 
     def process_formats(self, opf, formats):
         imp = opf[:-4]+'.import'
@@ -201,10 +224,10 @@ class Adder(QObject): # {{{
         self.pd.setModal(True)
         self.pd.show()
         self._parent = parent
-        self.rfind = self.worker = self.timer = None
+        self.rfind = self.worker = None
         self.callback = callback
         self.callback_called = False
-        self.connect(self.pd, SIGNAL('canceled()'), self.canceled)
+        self.pd.canceled_signal.connect(self.canceled)
 
     def add_recursive(self, root, single=True):
         self.path = root
@@ -213,10 +236,8 @@ class Adder(QObject): # {{{
         self.pd.set_max(0)
         self.pd.value = 0
         self.rfind = RecursiveFind(self, self.db, root, single)
-        self.connect(self.rfind, SIGNAL('update(PyQt_PyObject)'),
-                self.pd.set_msg, Qt.QueuedConnection)
-        self.connect(self.rfind, SIGNAL('found(PyQt_PyObject)'),
-                self.add, Qt.QueuedConnection)
+        self.rfind.update.connect(self.pd.set_msg, type=Qt.QueuedConnection)
+        self.rfind.found.connect(self.add, type=Qt.QueuedConnection)
         self.rfind.start()
 
     def add(self, books):
@@ -246,12 +267,12 @@ class Adder(QObject): # {{{
         self.pd.set_min(0)
         self.pd.set_max(len(self.ids))
         self.pd.value = 0
-        self.db_adder = DBAdder(self.db, self.ids, self.nmap)
+        self.db_adder = DBAdder(self, self.db, self.ids, self.nmap)
         self.db_adder.start()
         self.last_added_at = time.time()
         self.entry_count = len(self.ids)
         self.continue_updating = True
-        QTimer.singleShot(200, self.update)
+        single_shot(self.update)
 
     def canceled(self):
         self.continue_updating = False
@@ -260,14 +281,14 @@ class Adder(QObject): # {{{
         if self.worker is not None:
             self.worker.canceled = True
         if hasattr(self, 'db_adder'):
-            self.db_adder.end = True
+            self.db_adder.end()
         self.pd.hide()
         if not self.callback_called:
             self.callback(self.paths, self.names, self.infos)
             self.callback_called = True
 
     def duplicates_processed(self):
-        self.db_adder.end = True
+        self.db_adder.end()
         if not self.callback_called:
             self.callback(self.paths, self.names, self.infos)
             self.callback_called = True
@@ -300,7 +321,7 @@ class Adder(QObject): # {{{
         if (time.time() - self.last_added_at) > self.ADD_TIMEOUT:
             self.continue_updating = False
             self.pd.hide()
-            self.db_adder.end = True
+            self.db_adder.end()
             if not self.callback_called:
                 self.callback([], [], [])
                 self.callback_called = True
@@ -311,7 +332,7 @@ class Adder(QObject): # {{{
                         'find the problem book.'), show=True)
 
         if self.continue_updating:
-            QTimer.singleShot(200, self.update)
+            single_shot(self.update)
 
 
     def process_duplicates(self):
@@ -332,11 +353,8 @@ class Adder(QObject): # {{{
             self.__p_d = pd
             self.__d_a = DuplicatesAdder(self._parent, self.db, duplicates,
                     self.db_adder)
-            self.connect(self.__d_a, SIGNAL('added(PyQt_PyObject)'),
-                    pd.setValue)
-            self.connect(self.__d_a, SIGNAL('adding_done()'),
-                    self.duplicates_processed)
-            self.__d_a.start()
+            self.__d_a.added.connect(pd.setValue)
+            self.__d_a.adding_done.connect(self.duplicates_processed)
         else:
             return self.duplicates_processed()
 
@@ -407,14 +425,12 @@ class Saver(QObject): # {{{
         self.worker = SaveWorker(self.rq, db, self.ids, path, self.opts,
                 spare_server=self.spare_server)
         self.pd.canceled_signal.connect(self.canceled)
-        self.timer = QTimer(self)
-        self.connect(self.timer, SIGNAL('timeout()'), self.update)
-        self.timer.start(200)
+        self.continue_updating = True
+        single_shot(self.update)
 
 
     def canceled(self):
-        if self.timer is not None:
-            self.timer.stop()
+        self.continue_updating = False
         if self.worker is not None:
             self.worker.canceled = True
         self.pd.hide()
@@ -424,14 +440,38 @@ class Saver(QObject): # {{{
 
 
     def update(self):
-        if not self.ids or not self.worker.is_alive():
-            self.timer.stop()
+        if not self.continue_updating:
+            return
+        if not self.worker.is_alive():
+            # Check that all ids were processed
+            while self.ids:
+                # Get all queued results since worker is dead
+                before = len(self.ids)
+                self.get_result()
+                if before == len(self.ids):
+                    # No results available => worker died unexpectedly
+                    for i in list(self.ids):
+                        self.failures.add(('id:%d'%i, 'Unknown error'))
+                        self.ids.remove(i)
+
+        if not self.ids:
+            self.continue_updating = False
             self.pd.hide()
             if not self.callback_called:
-                self.callback(self.worker.path, self.failures, self.worker.error)
+                try:
+                    # Give the worker time to clean up and set worker.error
+                    self.worker.join(2)
+                except:
+                    pass # The worker was not yet started
                 self.callback_called = True
-            return
+                self.callback(self.worker.path, self.failures, self.worker.error)
 
+        if self.continue_updating:
+            self.get_result()
+            single_shot(self.update)
+
+
+    def get_result(self):
         try:
             id, title, ok, tb = self.rq.get_nowait()
         except Empty:
@@ -441,6 +481,7 @@ class Saver(QObject): # {{{
         if not isinstance(title, unicode):
             title = str(title).decode(preferred_encoding, 'replace')
         self.pd.set_msg(_('Saved')+' '+title)
+
         if not ok:
             self.failures.add((title, tb))
 # }}}
