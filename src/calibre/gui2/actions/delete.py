@@ -59,7 +59,7 @@ class MultiDeleter(QObject):
         self.gui.tags_view.recount()
         self.callback(self.deleted_ids)
         if self.failures:
-            msg = ['==>'+x[1]+'\n'+x[2] for x in self.failures]
+            msg = ['==> '+x[1]+'\n'+x[2] for x in self.failures]
             error_dialog(self.gui, _('Failed to delete'),
                     _('Failed to delete some books, click the Show Details button'
                     ' for details.'), det_msg='\n\n'.join(msg), show=True)
