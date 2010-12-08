@@ -1265,3 +1265,4 @@ initmagick(void)
     MagickWandGenesis();
 }
 // }}}
+
