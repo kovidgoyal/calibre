@@ -1,0 +1,68 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+www.toyokeizai.net
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class Toyokeizai(BasicNewsRecipe):
+    title          = u'ToyoKeizai News'
+    __author__     = 'Hiroshi Miura'
+    oldest_article = 1
+    max_articles_per_feed = 50
+    description    = 'Japanese traditional economy and business magazine, only for advanced subscribers supported'
+    publisher      = 'Toyokeizai Shinbun Sha'
+    category       = 'economy, magazine, japan'
+    language       = 'ja'
+    encoding       = 'euc-jp'
+    index          = 'http://member.toyokeizai.net/news/'
+    remove_javascript = True
+    no_stylesheets = True
+    masthead_title = u'TOYOKEIZAI'
+    needs_subscription = True
+    timefmt = '[%y/%m/%d]'
+    recursions = 5
+    match_regexps =[ r'page/\d+']
+
+    keep_only_tags = [
+                      dict(name='div', attrs={'class':['news']}),
+                      dict(name='div', attrs={'class':["news_cont"]}),
+                      dict(name='div', attrs={'class':["news_con"]}),
+#                      dict(name='div', attrs={'class':["norightsMessage"]})
+                     ]
+    remove_tags = [{'class':"mt35 mgz"},
+                            {'class':"mt20 newzia"},
+                            {'class':"mt20 fontS"},
+                            {'class':"bk_btn_m"},
+                            dict(id='newzia_connect_member')
+                            ]
+
+    def parse_index(self):
+        feeds = []
+        soup   = self.index_to_soup(self.index)
+        topstories = soup.find('ul',attrs={'class':'list6'})
+        if topstories:
+            newsarticles = []
+            for itt in topstories.findAll('li'):
+                itema = itt.find('a',href=True)
+                itemd = itt.find('span')
+                newsarticles.append({
+                                      'title'      :itema.string
+                                     ,'date'       :re.compile(r"\- ").sub("",itemd.string)
+                                     ,'url'        :'http://member.toyokeizai.net' + itema['href']
+                                     ,'description':itema['title']
+                                    })
+            feeds.append(('news', newsarticles))
+        return feeds
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://member.toyokeizai.net/norights/form/')
+            br.select_form(nr=0)
+            br['kaiin_id']   = self.username
+            br['password'] = self.password
+            res = br.submit()
+        return br
