@@ -40,7 +40,9 @@ class MultiDeleter(QObject):
         id_ = self.ids.pop()
         title = 'id%d'%id_
         try:
-            title = self.model.db.title(id_, index_is_id=True)
+            title_ = self.model.db.title(id_, index_is_id=True)
+            if title_:
+                title = title
             self.model.db.delete_book(id_, notify=False, commit=False)
             self.deleted_ids.append(id_)
         except:
