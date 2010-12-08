@@ -17,35 +17,44 @@ class Toyokeizai(BasicNewsRecipe):
     category       = 'economy, magazine, japan'
     language       = 'ja'
     encoding       = 'euc-jp'
-    index          = 'http://www.toyokeizai.net/news/'
+    index          = 'http://member.toyokeizai.net/news/'
     remove_javascript = True
-    no_stylesheet = True
+    no_stylesheets = True
     masthead_title = u'TOYOKEIZAI'
     needs_subscription = True
     timefmt = '[%y/%m/%d]'
+    recursions = 5
+    match_regexps =[ r'page/\d+']
 
-    keep_only_tags = [dict(name='div', attrs={'class':['news']}),
-                      dict(name='div', attrs={'class':["news_con"]})
+    keep_only_tags = [
+                      dict(name='div', attrs={'class':['news']}),
+                      dict(name='div', attrs={'class':["news_cont"]}),
+                      dict(name='div', attrs={'class':["news_con"]}),
+#                      dict(name='div', attrs={'class':["norightsMessage"]})
                      ]
-    remove_tags = [{'class':"mt35 mgz"}]
+    remove_tags = [{'class':"mt35 mgz"},
+                            {'class':"mt20 newzia"},
+                            {'class':"mt20 fontS"},
+                            {'class':"bk_btn_m"},
+                            dict(id='newzia_connect_member')
+                            ]
 
     def parse_index(self):
         feeds = []
         soup   = self.index_to_soup(self.index)
         topstories = soup.find('ul',attrs={'class':'list6'})
         if topstories:
-           newsarticles = []
-           for itt in topstories.findAll('li'):
+            newsarticles = []
+            for itt in topstories.findAll('li'):
                 itema = itt.find('a',href=True)
                 itemd = itt.find('span')
                 newsarticles.append({
                                       'title'      :itema.string
                                      ,'date'       :re.compile(r"\- ").sub("",itemd.string)
-                                     ,'url'        :'http://www.toyokeizai.net' + itema['href']
-                                    # ,'description':itema['title']
-                                    ,'description':''
+                                     ,'url'        :'http://member.toyokeizai.net' + itema['href']
+                                     ,'description':itema['title']
                                     })
-           feeds.append(('news', newsarticles))
+            feeds.append(('news', newsarticles))
         return feeds
 
     def get_browser(self):
@@ -57,10 +66,3 @@ class Toyokeizai(BasicNewsRecipe):
             br['password'] = self.password
             res = br.submit()
         return br
-
-    def is_link_wanted(url,tag):
-        if  re.compile(r'page//[0-9]+//$').search(url):
-            return True
-        return False
-
-
