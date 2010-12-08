@@ -5,6 +5,9 @@
 
 #include "magick_constants.h"
 
+// Ensure that the underlying MagickWand has not been deleted
+#define NULL_CHECK(x) if(self->wand == NULL) {PyErr_SetString(PyExc_ValueError, "Underlying ImageMagick Wand has been destroyed"); return x; }
+
 // magick_set_exception {{{
 PyObject* magick_set_exception(MagickWand *wand) {
     ExceptionType ext;
@@ -54,6 +57,7 @@ magick_PixelWand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 magick_PixelWand_color_getter(magick_PixelWand *self, void *closure) {
     const char *fp;
+    NULL_CHECK(NULL);
     fp = PixelGetColorAsNormalizedString(self->wand);
     return Py_BuildValue("s", fp);
 }
@@ -61,6 +65,8 @@ magick_PixelWand_color_getter(magick_PixelWand *self, void *closure) {
 static int
 magick_PixelWand_color_setter(magick_PixelWand *self, PyObject *val, void *closure) {
     char *fmt;
+
+    NULL_CHECK(-1);
 
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete PixelWand color");
@@ -80,8 +86,21 @@ magick_PixelWand_color_setter(magick_PixelWand *self, PyObject *val, void *closu
 
 // }}}
 
+// PixelWand.destroy {{{
+
+static PyObject *
+magick_PixelWand_destroy(magick_PixelWand *self, PyObject *args, PyObject *kwargs) {
+    NULL_CHECK(NULL)
+    self->wand = DestroyPixelWand(self->wand);
+    Py_RETURN_NONE;
+}
+// }}}
+
 // PixelWand attr list {{{
 static PyMethodDef magick_PixelWand_methods[] = {
+    {"destroy", (PyCFunction)magick_PixelWand_destroy, METH_VARARGS,
+    "Destroy the underlying ImageMagick Wand. WARNING: After using this method, all methods on this object will raise an exception."},
+
     {NULL}  /* Sentinel */
 };
 
@@ -175,10 +194,21 @@ magick_DrawingWand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
+// DrawingWand.destroy {{{
+
+static PyObject *
+magick_DrawingWand_destroy(magick_DrawingWand *self, PyObject *args, PyObject *kwargs) {
+    NULL_CHECK(NULL)
+    self->wand = DestroyDrawingWand(self->wand);
+    Py_RETURN_NONE;
+}
+// }}}
+
 // DrawingWand.font {{{
 static PyObject *
 magick_DrawingWand_font_getter(magick_DrawingWand *self, void *closure) {
     const char *fp;
+    NULL_CHECK(NULL);
     fp = DrawGetFont(self->wand);
     return Py_BuildValue("s", fp);
 }
@@ -186,6 +216,7 @@ magick_DrawingWand_font_getter(magick_DrawingWand *self, void *closure) {
 static int
 magick_DrawingWand_font_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
     char *fmt;
+    NULL_CHECK(-1);
 
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand font");
@@ -208,11 +239,13 @@ magick_DrawingWand_font_setter(magick_DrawingWand *self, PyObject *val, void *cl
 // DrawingWand.font_size {{{
 static PyObject *
 magick_DrawingWand_fontsize_getter(magick_DrawingWand *self, void *closure) {
+    NULL_CHECK(NULL)
     return Py_BuildValue("d", DrawGetFontSize(self->wand));
 }
 
 static int
 magick_DrawingWand_fontsize_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
+    NULL_CHECK(-1)
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand fontsize");
         return -1;
@@ -233,12 +266,14 @@ magick_DrawingWand_fontsize_setter(magick_DrawingWand *self, PyObject *val, void
 // DrawingWand.text_antialias {{{
 static PyObject *
 magick_DrawingWand_textantialias_getter(magick_DrawingWand *self, void *closure) {
+    NULL_CHECK(NULL);
     if (DrawGetTextAntialias(self->wand)) Py_RETURN_TRUE;
     Py_RETURN_FALSE;
 }
 
 static int
 magick_DrawingWand_textantialias_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
+    NULL_CHECK(-1);
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand textantialias");
         return -1;
@@ -253,12 +288,15 @@ magick_DrawingWand_textantialias_setter(magick_DrawingWand *self, PyObject *val,
 // DrawingWand.gravity {{{
 static PyObject *
 magick_DrawingWand_gravity_getter(magick_DrawingWand *self, void *closure) {
+    NULL_CHECK(NULL);
     return Py_BuildValue("n", DrawGetGravity(self->wand));
 }
 
 static int
 magick_DrawingWand_gravity_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
     int grav;
+
+    NULL_CHECK(-1);
 
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand gravity");
@@ -281,6 +319,9 @@ magick_DrawingWand_gravity_setter(magick_DrawingWand *self, PyObject *val, void 
 
 // DrawingWand attr list {{{
 static PyMethodDef magick_DrawingWand_methods[] = {
+    {"destroy", (PyCFunction)magick_DrawingWand_destroy, METH_VARARGS,
+    "Destroy the underlying ImageMagick Wand. WARNING: After using this method, all methods on this object will raise an exception."},
+
     {NULL}  /* Sentinel */
 };
 
@@ -402,6 +443,7 @@ magick_Image_load(magick_Image *self, PyObject *args, PyObject *kwargs) {
 	Py_ssize_t dlen;
     MagickBooleanType res;
     
+    NULL_CHECK(NULL)
     if (!PyArg_ParseTuple(args, "s#", &data, &dlen)) return NULL;
 
     res = MagickReadImageBlob(self->wand, data, dlen);
@@ -420,7 +462,8 @@ magick_Image_read(magick_Image *self, PyObject *args, PyObject *kwargs) {
     const char *data;
     MagickBooleanType res;
     
-    if (!PyArg_ParseTuple(args, "s", &data)) return NULL;
+   NULL_CHECK(NULL)
+   if (!PyArg_ParseTuple(args, "s", &data)) return NULL;
 
     res = MagickReadImage(self->wand, data);
 
@@ -440,6 +483,8 @@ magick_Image_create_canvas(magick_Image *self, PyObject *args, PyObject *kwargs)
     char *bgcolor;
     PixelWand *pw;
     MagickBooleanType res = MagickFalse;
+
+    NULL_CHECK(NULL)
 
     if (!PyArg_ParseTuple(args, "nns", &width, &height, &bgcolor)) return NULL;
 
@@ -464,6 +509,8 @@ magick_Image_font_metrics(magick_Image *self, PyObject *args, PyObject *kwargs) 
     DrawingWand *dw;
     double *metrics;
     
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "O!s", &magick_DrawingWandType, &dw_, &text)) return NULL;
     dw = ((magick_DrawingWand*)dw_)->wand;
     if (!IsDrawingWand(dw)) { PyErr_SetString(PyExc_TypeError, "Invalid drawing wand"); return NULL; }
@@ -490,6 +537,8 @@ magick_Image_annotate(magick_Image *self, PyObject *args, PyObject *kwargs) {
     PyObject *dw_;
     DrawingWand *dw;
     double x, y, angle;
+
+    NULL_CHECK(NULL)
     
     if (!PyArg_ParseTuple(args, "O!ddds", &magick_DrawingWandType, &dw_, &x, &y, &angle, &text)) return NULL;
     dw = ((magick_DrawingWand*)dw_)->wand;
@@ -510,6 +559,8 @@ magick_Image_export(magick_Image *self, PyObject *args, PyObject *kwargs) {
     PyObject *ans;
     size_t len = 0;
     
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "s", &fmt)) return NULL;
 
     if (!MagickSetFormat(self->wand, fmt)) {
@@ -533,6 +584,8 @@ magick_Image_export(magick_Image *self, PyObject *args, PyObject *kwargs) {
 static PyObject *
 magick_Image_size_getter(magick_Image *self, void *closure) {
     size_t width, height;
+    NULL_CHECK(NULL)
+
     width = MagickGetImageWidth(self->wand);
     height = MagickGetImageHeight(self->wand);
     return Py_BuildValue("nn", width, height);
@@ -544,6 +597,9 @@ magick_Image_size_setter(magick_Image *self, PyObject *val, void *closure) {
     int filter;
     double blur;
     MagickBooleanType res;
+
+    NULL_CHECK(-1)
+
 
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete image size");
@@ -592,6 +648,8 @@ magick_Image_size_setter(magick_Image *self, PyObject *val, void *closure) {
 static PyObject *
 magick_Image_format_getter(magick_Image *self, void *closure) {
     const char *fmt;
+    NULL_CHECK(NULL)
+
     fmt = MagickGetImageFormat(self->wand);
     return Py_BuildValue("s", fmt);
 }
@@ -599,6 +657,8 @@ magick_Image_format_getter(magick_Image *self, void *closure) {
 static int
 magick_Image_format_setter(magick_Image *self, PyObject *val, void *closure) {
     char *fmt;
+    NULL_CHECK(-1)
+
 
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete image format");
@@ -628,6 +688,8 @@ magick_Image_distort(magick_Image *self, PyObject *args, PyObject *kwargs) {
     MagickBooleanType res;
     double *arguments = NULL;
    
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "iOO", &method, &argv, &bestfit)) return NULL;
 
     if (!PySequence_Check(argv)) { PyErr_SetString(PyExc_TypeError, "arguments must be a sequence"); return NULL; }
@@ -658,6 +720,8 @@ static PyObject *
 magick_Image_trim(magick_Image *self, PyObject *args, PyObject *kwargs) {
     double fuzz;
     
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "d", &fuzz)) return NULL;
 
     if (!MagickTrimImage(self->wand, fuzz)) return magick_set_exception(self->wand);
@@ -672,6 +736,8 @@ static PyObject *
 magick_Image_thumbnail(magick_Image *self, PyObject *args, PyObject *kwargs) {
     Py_ssize_t width, height;
     
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "nn", &width, &height)) return NULL;
 
     if (!MagickThumbnailImage(self->wand, width, height)) return magick_set_exception(self->wand);
@@ -686,6 +752,8 @@ static PyObject *
 magick_Image_crop(magick_Image *self, PyObject *args, PyObject *kwargs) {
     Py_ssize_t width, height, x, y;
     
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "nnnn", &width, &height, &x, &y)) return NULL;
 
     if (!MagickCropImage(self->wand, width, height, x, y)) return magick_set_exception(self->wand);
@@ -701,6 +769,8 @@ magick_Image_set_border_color(magick_Image *self, PyObject *args, PyObject *kwar
     PyObject *obj;
     magick_PixelWand *pw;
     
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "O!", &magick_PixelWandType, &obj)) return NULL;
     pw = (magick_PixelWand*)obj;
     if (!IsPixelWand(pw->wand)) { PyErr_SetString(PyExc_TypeError, "Invalid PixelWand"); return NULL; }
@@ -719,6 +789,8 @@ magick_Image_rotate(magick_Image *self, PyObject *args, PyObject *kwargs) {
     magick_PixelWand *pw;
     double degrees;
     
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "O!d", &magick_PixelWandType, &obj, &degrees)) return NULL;
     pw = (magick_PixelWand*)obj;
     if (!IsPixelWand(pw->wand)) { PyErr_SetString(PyExc_TypeError, "Invalid PixelWand"); return NULL; }
@@ -735,6 +807,8 @@ static PyObject *
 magick_Image_set_page(magick_Image *self, PyObject *args, PyObject *kwargs) {
     Py_ssize_t width, height, x, y;
     
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "nnnn", &width, &height, &x, &y)) return NULL;
 
     if (!MagickSetImagePage(self->wand, width, height, x, y)) return magick_set_exception(self->wand);
@@ -749,6 +823,8 @@ static PyObject *
 magick_Image_set_compression_quality(magick_Image *self, PyObject *args, PyObject *kwargs) {
     Py_ssize_t quality;
     
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "n", &quality)) return NULL;
 
     if (!MagickSetImageCompressionQuality(self->wand, quality)) return magick_set_exception(self->wand);
@@ -766,6 +842,8 @@ magick_Image_has_transparent_pixels(magick_Image *self, PyObject *args, PyObject
     int found = 0;
     size_t r, c, width, height;
     double alpha;
+
+    NULL_CHECK(NULL)
 
     height = MagickGetImageHeight(self->wand);
     pi = NewPixelIterator(self->wand);
@@ -790,6 +868,8 @@ magick_Image_has_transparent_pixels(magick_Image *self, PyObject *args, PyObject
 
 static PyObject *
 magick_Image_normalize(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    NULL_CHECK(NULL)
+
     if (!MagickNormalizeImage(self->wand)) return magick_set_exception(self->wand);
 
     Py_RETURN_NONE;
@@ -804,6 +884,8 @@ magick_Image_add_border(magick_Image *self, PyObject *args, PyObject *kwargs) {
     PyObject *obj;
     magick_PixelWand *pw;
    
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "O!nn", &magick_PixelWandType, &obj, &dx, &dy)) return NULL;
     pw = (magick_PixelWand*)obj;
     if (!IsPixelWand(pw->wand)) { PyErr_SetString(PyExc_TypeError, "Invalid PixelWand"); return NULL; }
@@ -820,6 +902,8 @@ static PyObject *
 magick_Image_sharpen(magick_Image *self, PyObject *args, PyObject *kwargs) {
     double radius, sigma;
    
+    NULL_CHECK(NULL)
+
     if (!PyArg_ParseTuple(args, "dd", &radius, &sigma)) return NULL;
 
     if (!MagickSharpenImage(self->wand, radius, sigma)) return magick_set_exception(self->wand);
@@ -835,6 +919,9 @@ magick_Image_quantize(magick_Image *self, PyObject *args, PyObject *kwargs) {
     Py_ssize_t number_colors, treedepth;
     int colorspace;
     PyObject *dither, *measure_error;
+
+    NULL_CHECK(NULL)
+
    
     if (!PyArg_ParseTuple(args, "ninOO", &number_colors, &colorspace, &treedepth, &dither, &measure_error)) return NULL;
 
@@ -848,6 +935,8 @@ magick_Image_quantize(magick_Image *self, PyObject *args, PyObject *kwargs) {
 
 static PyObject *
 magick_Image_despeckle(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    NULL_CHECK(NULL)
+
     if (!MagickDespeckleImage(self->wand)) return magick_set_exception(self->wand);
 
     Py_RETURN_NONE;
@@ -857,12 +946,16 @@ magick_Image_despeckle(magick_Image *self, PyObject *args, PyObject *kwargs) {
 // Image.type {{{
 static PyObject *
 magick_Image_type_getter(magick_Image *self, void *closure) {
+   NULL_CHECK(NULL)
+
     return Py_BuildValue("n", MagickGetImageType(self->wand));
 }
 
 static int
 magick_Image_type_setter(magick_Image *self, PyObject *val, void *closure) {
     int type;
+
+    NULL_CHECK(-1)
 
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete image type");
@@ -885,8 +978,21 @@ magick_Image_type_setter(magick_Image *self, PyObject *val, void *closure) {
 
 // }}}
 
+// Image.destroy {{{
+
+static PyObject *
+magick_Image_destroy(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    NULL_CHECK(NULL)
+    self->wand = DestroyMagickWand(self->wand);
+    Py_RETURN_NONE;
+}
+// }}}
+
 // Image attr list {{{
 static PyMethodDef magick_Image_methods[] = {
+    {"destroy", (PyCFunction)magick_Image_destroy, METH_VARARGS,
+    "Destroy the underlying ImageMagick Wand. WARNING: After using this method, all methods on this object will raise an exception."},
+
     {"load", (PyCFunction)magick_Image_load, METH_VARARGS,
      "Load an image from a byte buffer (string)"
     },
@@ -1001,6 +1107,7 @@ static PyGetSetDef  magick_Image_getsetters[] = {
 
 // }}}
 
+
 static PyTypeObject magick_ImageType = { // {{{
     PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
@@ -1053,6 +1160,9 @@ magick_Image_compose(magick_Image *self, PyObject *args, PyObject *kwargs)
     magick_Image *src;
     MagickBooleanType res = MagickFalse;
 
+    NULL_CHECK(NULL)
+
+
     if (!PyArg_ParseTuple(args, "O!nnO", &magick_ImageType, &img, &left, &top, &op_)) return NULL;
     src = (magick_Image*)img;
     if (!IsMagickWand(src->wand)) {PyErr_SetString(PyExc_TypeError, "Not a valid ImageMagick wand"); return NULL;}
@@ -1077,6 +1187,8 @@ magick_Image_copy(magick_Image *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *img;
     magick_Image *src;
+
+    NULL_CHECK(NULL)
 
     if (!PyArg_ParseTuple(args, "O!", &magick_ImageType, &img)) return NULL;
     src = (magick_Image*)img;
