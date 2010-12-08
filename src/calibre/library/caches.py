@@ -129,6 +129,7 @@ class CoverCache(Thread): # {{{
         self.keep_running = True
         self.cache = {}
         self.lock = RLock()
+        self.allowed_ids = frozenset([])
         self.null_image = QImage()
 
     def stop(self):
@@ -175,6 +176,9 @@ class CoverCache(Thread): # {{{
                 break
             for id_ in ids:
                 time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
+                with self.lock:
+                    if id_ not in self.allowed_ids:
+                        continue
                 try:
                     img = self._image_for_id(id_)
                 except:
@@ -193,6 +197,7 @@ class CoverCache(Thread): # {{{
 
     def set_cache(self, ids):
         with self.lock:
+            self.allowed_ids = frozenset(ids)
             already_loaded = set([])
             for id in self.cache.keys():
                 if id in ids:
