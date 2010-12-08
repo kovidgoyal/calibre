@@ -3,7 +3,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import sys, textwrap, re, traceback, socket, threading
+import sys, textwrap, re, traceback, socket
+from threading import Thread
 from Queue import Queue
 from urllib import urlencode
 from math import ceil
@@ -79,16 +80,16 @@ class NiceBooksError(Exception):
 class ISBNNotFound(NiceBooksError):
     pass
 
-class BrowserThread(threading.Thread):
+class BrowserThread(Thread):
 
     def __init__(self, url, verbose=False, timeout=10., ex=Exception, name='Meta'):
         self.url = url
         self.ex = ex
-        self.name = name
+        self.plugname = name
         self.verbose = verbose
         self.timeout = timeout
         self.result = None
-        threading.Thread.__init__(self)
+        Thread.__init__(self)
 
     def get_result(self):
         return self.result
@@ -102,8 +103,8 @@ class BrowserThread(threading.Thread):
                     e.getcode() == 404:
                 self.result = None
             if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
-                raise self.ex(_('%s timed out. Try again later.') % self.name)
-            raise self.ex(_('%s encountered an error.') % self.name)
+                raise self.ex(_('%s timed out. Try again later.') % self.plugname)
+            raise self.ex(_('%s encountered an error.') % self.plugname)
         if '<title>404 - ' in raw:
             report(self.verbose)
             self.result = None
@@ -292,10 +293,11 @@ class ResultList(list):
         while len(self) < total_entries:
             thread = q.get(True)
             thread.join()
-            mi, order = thread.get_result()
+            mi = thread.get_result()
             if mi is None:
                 self.append(None)
-            self.append(self.fill_MI(mi, verbose))
+            else:
+                self.append(self.fill_MI(mi, verbose))
 
     def populate(self, entries, verbose=False, brcall=3):
         if len(entries) == 1 and not isinstance(entries[0], str):
@@ -306,8 +308,8 @@ class ResultList(list):
         else:
             #multiple entries
             q = Queue(brcall)
-            prod_thread = threading.Thread(target=self.producer, args=(q, entries, verbose))
-            cons_thread = threading.Thread(target=self.consumer, args=(q, len(entries), verbose))
+            prod_thread = Thread(target=self.producer, args=(q, entries, verbose))
+            cons_thread = Thread(target=self.consumer, args=(q, len(entries), verbose))
             prod_thread.start()
             cons_thread.start()
             prod_thread.join()
@@ -362,7 +364,7 @@ def search(title=None, author=None, publisher=None, isbn=None,
     #List of entry
     ans = ResultList()
     ans.populate(entries, verbose)
-    return ans
+    return [x for x in ans if x]
 
 def check_for_cover(isbn):
     br = browser()

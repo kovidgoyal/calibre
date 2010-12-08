@@ -953,23 +953,24 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('metadata', [id])
         return True
 
-    def delete_book(self, id, notify=True):
+    def delete_book(self, id, notify=True, commit=True):
         '''
         Removes book from the result cache and the underlying database.
+        If you set commit to False, you must call clean() manually afterwards
         '''
         try:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         except:
             path = None
-        self.data.remove(id)
         if path and os.path.exists(path):
             self.rmtree(path)
             parent = os.path.dirname(path)
             if len(os.listdir(parent)) == 0:
                 self.rmtree(parent)
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
-        self.conn.commit()
-        self.clean()
+        if commit:
+            self.conn.commit()
+            self.clean()
         self.data.books_deleted([id])
         if notify:
             self.notify('delete', [id])

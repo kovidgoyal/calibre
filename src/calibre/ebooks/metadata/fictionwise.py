@@ -4,6 +4,7 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import sys, textwrap, re, traceback, socket
+from Queue import Queue
 from urllib import urlencode
 
 from lxml.html import soupparser, tostring
@@ -38,6 +39,8 @@ class Fictionwise(MetadataSource): # {{{
 
 class FictionwiseError(Exception):
     pass
+
+    
 
 def report(verbose):
     if verbose:
