@@ -129,14 +129,15 @@ class BrowserThread(Thread):
         self.verbose = verbose
         self.timeout = timeout
         self.result = None
+        self.br = browser()
         Thread.__init__(self)
 
     def get_result(self):
-        return self.result
+        return self.result, self.br
 
     def run(self):
         try:
-            raw = browser().open_novisit(self.url, timeout=self.timeout).read()
+            raw = self.br.open_novisit(self.url, timeout=self.timeout).read()
         except Exception, e:
             report(self.verbose)
             if callable(getattr(e, 'getcode', None)) and \
@@ -447,7 +448,7 @@ class ResultList(list):
                     mi.rating = float(ratings[0])/float(ratings[1]) * 5
         return mi
 
-    def fill_MI(self, entry, verbose):
+    def fill_MI(self, entry, br, verbose):
         try:
             title = self.get_title(entry)
             authors = self.get_authors(entry)
@@ -463,14 +464,14 @@ class ResultList(list):
         try:
             mi.comments = self.get_description(entry, verbose)
             mi = self.get_book_info(entry, mi, verbose)
-            mi.tags = self.get_tags(entry, verbose)
+            mi.tags = self.get_tags(entry, br, verbose)
         except:
             pass
         return mi
 
-    def get_individual_metadata(self, url, verbose):
+    def get_individual_metadata(self, url, br, verbose):
         try:
-            raw = browser().open_novisit(url).read()
+            raw = br.open_novisit(url).read()
         except Exception, e:
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
@@ -505,11 +506,11 @@ class ResultList(list):
         while len(self) < total_entries:
             thread = q.get(True)
             thread.join()
-            mi = thread.get_result()
+            mi, br = thread.get_result()
             if mi is None:
                 self.append(None)
             else:
-                self.append(self.fill_MI(mi, verbose))
+                self.append(self.fill_MI(mi, br, verbose))
 
     def populate(self, entries, verbose=False, brcall=5):
         #multiple entries
@@ -581,5 +582,8 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+    # import cProfile
+    # sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonfr; calibre.ebooks.metadata.amazonfr.main()"))
+    # sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonfr; calibre.ebooks.metadata.amazonfr.main()", "profile_tmp"))
 
 # calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\amazonfr.py" -m 5 -a gore -v>data.html
