@@ -176,6 +176,8 @@ class CoverCache(Thread): # {{{
                 break
             for id_ in ids:
                 time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
+                if not self.keep_running:
+                    return
                 with self.lock:
                     if id_ not in self.allowed_ids:
                         continue
@@ -218,8 +220,9 @@ class CoverCache(Thread): # {{{
     def refresh(self, ids):
         with self.lock:
             for id_ in ids:
-                self.cache.pop(id_, None)
-                self.load_queue.put(id_)
+                cover = self.cache.pop(id_, None)
+                if cover is not None:
+                    self.load_queue.put(id_)
 # }}}
 
 ### Global utility function for get_match here and in gui2/library.py
