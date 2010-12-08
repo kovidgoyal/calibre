@@ -35,7 +35,6 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
     CAN_SET_METADATA = False
     THUMBNAIL_HEIGHT = 155
 
-#    path_sep = "/"
     icon = I("devices/bambook.png")
 #    OPEN_FEEDBACK_MESSAGE = _(
 #        'Connecting to Bambook device, please wait ...')
@@ -91,7 +90,6 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
             deviceInfo = self.bambook.GetDeviceInfo()
             return (_("Bambook"), "SD928", deviceInfo.firmwareVersion, "MimeType")
             
-
     def card_prefix(self, end_session=True):
         '''
         Return a 2 element list of the prefix to paths on the cards.
@@ -148,11 +146,13 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
         # Bambook has no memroy card
         if oncard:
             return self.booklist_class(None, None, None)
-        
+
+        # Get metadata cache
         prefix = ''
         booklist = self.booklist_class(oncard, prefix, self.settings)
         need_sync = self.parse_metadata_cache(booklist)
 
+        # Get book list from device
         devicebooks = self.bambook.GetBookList()
         books = []
         for book in devicebooks:
@@ -163,7 +163,6 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
             b.authors = [ book.bookAuthor.decode(text_encoding) ] 
             b.size = 0
             b.datatime = time.gmtime()
-#            b.path = book.bookGuid
             b.lpath = book.bookGuid
             b.thumbnail = None
             b.tags = None
@@ -172,16 +171,15 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
 
         # make a dict cache of paths so the lookup in the loop below is faster.
         bl_cache = {}
-
         for idx, b in enumerate(booklist):
             bl_cache[b.lpath] = idx
 
         def update_booklist(book, prefix):
             changed = False
             try:
-                idx = bl_cache.get(book.path, None)
+                idx = bl_cache.get(book.lpath, None)
                 if idx is not None:
-                    bl_cache[book.path] = None
+                    bl_cache[book.lpath] = None
                     if self.update_metadata_item(book, booklist[idx]):
                         changed = True
                 else:
@@ -193,13 +191,15 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
                 traceback.print_exc()
             return changed
 
+        # Check each book on device whether it has a correspondig item
+        # in metadata cache. If not, add it to cache.
         for i, book in enumerate(books):
             self.report_progress(i/float(len(books)), _('Getting list of books on device...'))
             changed = update_booklist(book, prefix)
             if changed:
                 need_sync = True
 
-        # Remove books that are no longer in the filesystem. Cache contains
+        # Remove books that are no longer in the Bambook. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
         for idx in sorted(bl_cache.itervalues(), reverse=True):
@@ -361,13 +361,10 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
                 
             with TemporaryFile('.snb') as f:
                 if self.bambook.PackageSNB(f, tdir):
-                    t = open('/tmp/abcd.snb', 'wb')
-                    t2 = open(f, 'rb')
-                    t.write(t2.read())
-                    t.close()
-                    t2.close()
                     if not self.bambook.SendFile(f, self.METADATA_FILE_GUID):
                         print "Upload failed"
+                else:
+                    print "Package failed"
 
         # Clear the _new_book indication, as we are supposed to be done with
         # adding books at this point
@@ -388,11 +385,13 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
         '''
         if self.bambook:
             with TemporaryDirectory() as tdir:
-                self.bambook.GetFile(path, tdir)
-                filepath = os.path.join(tdir, path)
-                f = file(filepath, 'rb')
-                outfile.write(f.read())
-                f.close()
+                if self.bambook.GetFile(path, tdir):
+                    filepath = os.path.join(tdir, path)
+                    f = file(filepath, 'rb')
+                    outfile.write(f.read())
+                    f.close()
+                else:
+                    print "Unable to get file from Bambook:", path
 
     # @classmethod
     # def config_widget(cls):
@@ -418,7 +417,6 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
     #     raise NotImplementedError()
 
     def parse_metadata_cache(self, bl):
-        bl = []
         need_sync = True
         if not self.bambook:
             return need_sync
@@ -444,13 +442,17 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
 
     @classmethod
     def update_metadata_item(cls, book, blb):
-        changed = False
-        if book.bookName.decode(text_encoding) != blb.title:
-            changed = True
-        if book.bookAuthor.decode(text_encoding) != blb.authors[0]:
-            changed = True
-        if book.bookAbstract.decode(text_encoding) != blb.comments:
-            changed = True
+        # Currently, we do not have enough information
+        # from Bambook SDK to judge whether a book has
+        # been changed, we assume all books has been 
+        # changed.
+        changed = True
+        # if book.bookName.decode(text_encoding) != blb.title:
+        #     changed = True
+        # if book.bookAuthor.decode(text_encoding) != blb.authors[0]:
+        #     changed = True
+        # if book.bookAbstract.decode(text_encoding) != blb.comments:
+        #     changed = True
         return changed
 
     @staticmethod

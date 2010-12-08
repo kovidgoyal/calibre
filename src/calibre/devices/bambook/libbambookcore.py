@@ -108,6 +108,8 @@ class PrivBookInfo(ctypes.Structure):
 
 # extern "C"_declspec(dllexport) BB_RESULT BambookConnect(const char* lpszIP, int timeOut, BB_HANDLE* hConn);
 def BambookConnect(ip = DEFAULT_BAMBOOK_IP, timeout = 0):
+    if isinstance(ip, unicode):
+        ip = ip.encode('ascii')
     handle = ctypes.c_int(0)
     if lib_handle == None:
         raise Exception(_('Bambook SDK has not been installed.'))
@@ -187,6 +189,8 @@ def BambookGetNextPrivBookInfo(handle, bookInfo):
 
 # extern "C" BB_RESULT BambookDeletePrivBook(BB_HANDLE hConn, const char * lpszBookID);
 def BambookDeletePrivBook(handle, guid):
+    if isinstance(guid, unicode):
+        guid = guid.encode('ascii')
     ret = lib_handle.BambookDeletePrivBook(handle, guid)
     if ret == BR_SUCC:
         return True
@@ -210,8 +214,8 @@ class JobQueue:
         return maxid
 
     def FinishJob(self, jobID, status):
-        self.jobs[jobID][0].set()
         self.jobs[jobID] = (self.jobs[jobID][0], status)
+        self.jobs[jobID][0].set()
 
     def WaitJob(self, jobID):
         self.jobs[jobID][0].wait()
@@ -247,6 +251,8 @@ def BambookAddPrivBook(handle, filename, callback, userData):
 def BambookReplacePrivBook(handle, filename, bookID, callback, userData):
     if isinstance(filename, unicode):
         filename = filename.encode('ascii')
+    if isinstance(bookID, unicode):
+        bookID = bookID.encode('ascii')
     ret = lib_handle.BambookReplacePrivBook(handle, filename, bookID, callback, userData)
     if ret == BR_SUCC:
         return True
@@ -258,6 +264,8 @@ def BambookReplacePrivBook(handle, filename, bookID, callback, userData):
 def BambookFetchPrivBook(handle, bookID, filename, callback, userData):
     if isinstance(filename, unicode):
         filename = filename.encode('ascii')
+    if isinstance(bookID, unicode):
+        bookID = bookID.encode('ascii')
     ret = lib_handle.BambookFetchPrivBook(handle, bookID, filename, bambookTransferCallback, userData)
     if ret == BR_SUCC:
         return True
@@ -275,6 +283,10 @@ def BambookVerifySnbFile(filename):
 
 #  BB_RESULT BambookPackSnbFromDir ( const char * snbName,, const char * rootDir );
 def BambookPackSnbFromDir(snbFileName, rootDir):
+    if isinstance(snbFileName, unicode):
+        snbFileName = snbFileName.encode('ascii')
+    if isinstance(rootDir, unicode):
+        rootDir = rootDir.encode('ascii')
     ret = lib_handle.BambookPackSnbFromDir(snbFileName, rootDir)
     if ret == BR_SUCC:
         return True
@@ -283,6 +295,12 @@ def BambookPackSnbFromDir(snbFileName, rootDir):
 
 # BB_RESULT BambookUnpackFileFromSnb ( const char * snbName,, const char * relativePath, const char * outfname );
 def BambookUnpackFileFromSnb(snbFileName, relPath, outFileName):
+    if isinstance(snbFileName, unicode):
+        snbFileName = snbFileName.encode('ascii')
+    if isinstance(relPath, unicode):
+        relPath = relPath.encode('ascii')
+    if isinstance(outFileName, unicode):
+        outFileName = outFileName.encode('ascii')
     ret = lib_handle.BambookUnpackFileFromSnb(snbFileName, relPath, outFileName)
     if ret == BR_SUCC:
         return True
@@ -426,19 +444,20 @@ if __name__ == "__main__":
     else:
         failed()
         
-    print "Verify SNB File"
-    if bb.VerifySNB(u'/tmp/f2pioq3qf68h475.snb'):
+    print "Verify good SNB File"
+    if bb.VerifySNB(u'/tmp/f8268e6c1f4e78c.snb'):
         passed()
     else:
         failed()
 
+    print "Verify bad SNB File"
     if not bb.VerifySNB('./libwrapper.py'):
         passed()
     else:
         failed()
         
     print "Extract SNB File"
-    if bb.ExtractSNB('./test.snb', '/tmp'):
+    if bb.ExtractSNB('./test.snb', '/tmp/test'):
         passed()
     else:
         failed()
@@ -469,7 +488,10 @@ if __name__ == "__main__":
         failed()
 
     print "Send file"
-    bb.SendFile('./test.snb')
+    if bb.SendFile('/tmp/tmp.snb'):
+        passed()
+    else:
+        failed()
     
     print "Get book list"
     books = bb.GetBookList()
@@ -479,7 +501,7 @@ if __name__ == "__main__":
         failed()
 
     print "Get book"
-    if bb.GetFile('f2pioq3qf68h475.snb', '/tmp') and bb.VerifySNB('/tmp/f2pioq3qf68h475.snb'):
+    if bb.GetFile('f8268e6c1f4e78c.snb', '/tmp') and bb.VerifySNB('/tmp/f8268e6c1f4e78c.snb'):
         passed()
     else:
         failed()
