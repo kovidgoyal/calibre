@@ -279,8 +279,12 @@ class ResultList(list):
             return None
         mi = MetaInformation(title, authors)
         mi.author_sort = authors_to_sort_string(authors)
-        mi.comments = self.get_description(entry, verbose)
-        return self.get_book_info(entry, mi, verbose)
+        try:
+            mi.comments = self.get_description(entry, verbose)
+            mi = self.get_book_info(entry, mi, verbose)
+        except:
+            pass
+        return mi
 
     def producer(self, q, data, verbose=False):
         for x in data:

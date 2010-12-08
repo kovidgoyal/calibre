@@ -80,10 +80,10 @@ class BrowserThread(Thread):
             except:
                 self.result = None
 
-
 def report(verbose):
     if verbose:
         traceback.print_exc()
+
 
 class Query(object):
 
@@ -322,15 +322,18 @@ class ResultList(list):
                 print e
             return None
         mi = MetaInformation(title, authors)
-        ratings = entry.xpath("./p/table")
-        if len(ratings) >= 2:
-            mi.rating = self.get_rating(ratings[1], verbose)
-        mi.comments = self.get_description(entry)
-        mi.publisher = self.get_publisher(entry)
-        mi.tags = self.get_tags(entry)
-        mi.pubdate = self.get_date(entry, verbose)
-        mi.isbn = self.get_ISBN(entry)
         mi.author_sort = authors_to_sort_string(authors)
+        try:
+            ratings = entry.xpath("./p/table")
+            if len(ratings) >= 2:
+                mi.rating = self.get_rating(ratings[1], verbose)
+            mi.comments = self.get_description(entry)
+            mi.publisher = self.get_publisher(entry)
+            mi.tags = self.get_tags(entry)
+            mi.pubdate = self.get_date(entry, verbose)
+            mi.isbn = self.get_ISBN(entry)
+        except:
+            pass
         return mi
 
     def producer(self, q, data, verbose=False):

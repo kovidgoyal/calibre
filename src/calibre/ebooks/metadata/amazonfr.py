@@ -3,11 +3,12 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 
 import sys, textwrap, re, traceback
+from threading import Thread
+from Queue import Queue
 from urllib import urlencode
 from math import ceil
 
-from lxml import html
-from lxml.html import soupparser
+from lxml.html import soupparser, tostring
 
 from calibre.utils.date import parse_date, utcnow, replace_months
 from calibre.utils.cleantext import clean_ascii_chars
@@ -116,6 +117,48 @@ def report(verbose):
     if verbose:
         traceback.print_exc()
 
+class AmazonError(Exception):
+    pass
+
+class BrowserThread(Thread):
+
+    def __init__(self, url, verbose=False, timeout=10., ex=Exception, name='Meta'):
+        self.url = url
+        self.ex = ex
+        self.plugname = name
+        self.verbose = verbose
+        self.timeout = timeout
+        self.result = None
+        Thread.__init__(self)
+
+    def get_result(self):
+        return self.result
+
+    def run(self):
+        try:
+            raw = browser().open_novisit(self.url, timeout=self.timeout).read()
+        except Exception, e:
+            report(self.verbose)
+            if callable(getattr(e, 'getcode', None)) and \
+                    e.getcode() == 404:
+                self.result = None
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+                raise self.ex(_('%s timed out. Try again later.') % self.plugname)
+            raise self.ex(_('%s encountered an error.') % self.plugname)
+        if '<title>404 - ' in raw:
+            report(self.verbose)
+            self.result = None
+        raw = xml_to_unicode(raw, strip_encoding_pats=True,
+                resolve_entities=True)[0]
+        try:
+            self.result = soupparser.fromstring(raw)
+        except:
+            try:
+                #remove ASCII invalid chars
+                self.result = soupparser.fromstring(clean_ascii_chars(raw))
+            except:
+                self.result = None
+
 
 class Query(object):
 
@@ -189,7 +232,7 @@ class Query(object):
 
     def __call__(self, browser, verbose, timeout = 5.):
         if verbose:
-            print 'Query:', self.urldata
+            print _('Query: %s') % self.urldata
 
         try:
             raw = browser.open_novisit(self.urldata, timeout=timeout).read()
@@ -197,10 +240,12 @@ class Query(object):
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
-                return
-            raise
+                return None, self.urldata
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+                raise AmazonError(_('Amazon timed out. Try again later.'))
+            raise AmazonError(_('Amazon encountered an error.'))
         if '<title>404 - ' in raw:
-            return
+            return None, self.urldata
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
 
@@ -315,7 +360,7 @@ class ResultList(list):
             inv_class = ('seeAll', 'emptyClear')
             inv_tags ={'img': True, 'a': False}
             self.clean_entry(description, invalid_tags=inv_tags, invalid_class=inv_class)
-            description = html.tostring(description, method='html', encoding=unicode).strip()
+            description = tostring(description, method='html', encoding=unicode).strip()
             # remove all attributes from tags
             description = self.reattr.sub(r'<\1>', description)
             # Remove the notice about text referring to out of print editions
@@ -327,7 +372,7 @@ class ResultList(list):
             report(verbose)
             return None
 
-    def get_tags(self, entry, browser, verbose):
+    def get_tags(self, entry, verbose):
         try:
             tags = entry.get_element_by_id('tagContentHolder')
             testptag = tags.find_class('see-all')
@@ -338,7 +383,7 @@ class ResultList(list):
                         if alink[0].get('class') == 'tgJsActive':
                             continue
                         link = self.baseurl + alink[0].get('href')
-                        entry = self.get_individual_metadata(browser, link, verbose)
+                        entry = self.get_individual_metadata(link, verbose)
                         tags = entry.get_element_by_id('tagContentHolder')
                         break
             tags = [a.text for a in tags.getiterator('a') if a.get('rel') == 'tag']
@@ -402,26 +447,41 @@ class ResultList(list):
                     mi.rating = float(ratings[0])/float(ratings[1]) * 5
         return mi
 
-    def fill_MI(self, entry, title, authors, browser, verbose):
+    def fill_MI(self, entry, verbose):
+        try:
+            title = self.get_title(entry)
+            authors = self.get_authors(entry)
+        except Exception, e:
+            if verbose:
+                print _('Failed to get all details for an entry')
+                print e
+                print _('URL who failed: %s') % x
+                report(verbose)
+            return None
         mi = MetaInformation(title, authors)
         mi.author_sort = authors_to_sort_string(authors)
-        mi.comments = self.get_description(entry, verbose)
-        mi = self.get_book_info(entry, mi, verbose)
-        mi.tags = self.get_tags(entry, browser, verbose)
+        try:
+            mi.comments = self.get_description(entry, verbose)
+            mi = self.get_book_info(entry, mi, verbose)
+            mi.tags = self.get_tags(entry, verbose)
+        except:
+            pass
         return mi
 
-    def get_individual_metadata(self, browser, linkdata, verbose):
+    def get_individual_metadata(self, url, verbose):
         try:
-            raw = browser.open_novisit(linkdata).read()
+            raw = browser().open_novisit(url).read()
         except Exception, e:
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
-                return
-            raise
+                return None
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+                raise AmazonError(_('Amazon timed out. Try again later.'))
+            raise AmazonError(_('Amazon encountered an error.'))
         if '<title>404 - ' in raw:
             report(verbose)
-            return
+            return None
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
         try:
@@ -432,27 +492,34 @@ class ResultList(list):
                 return soupparser.fromstring(clean_ascii_chars(raw))
             except:
                 report(verbose)
-                return
+                return None
 
-    def populate(self, entries, browser, verbose=False):
-        for x in entries:
-            try:
-                entry = self.get_individual_metadata(browser, x, verbose)
-                # clean results
-                # inv_ids = ('divsinglecolumnminwidth', 'sims.purchase', 'AutoBuyXGetY', 'A9AdsMiddleBoxTop')
-                # inv_class = ('buyingDetailsGrid', 'productImageGrid')
-                # inv_tags ={'script': True, 'style': True, 'form': False}
-                # self.clean_entry(entry, invalid_id=inv_ids)
-                title = self.get_title(entry)
-                authors = self.get_authors(entry)
-            except Exception, e:
-                if verbose:
-                    print 'Failed to get all details for an entry'
-                    print e
-                    print 'URL who failed:', x
-                    report(verbose)
-                continue
-            self.append(self.fill_MI(entry, title, authors, browser, verbose))
+    def producer(self, q, data, verbose=False):
+        for x in data:
+            thread = BrowserThread(x, verbose=verbose, ex=AmazonError,
+                name='Amazon')
+            thread.start()
+            q.put(thread, True)
+
+    def consumer(self, q, total_entries, verbose=False):
+        while len(self) < total_entries:
+            thread = q.get(True)
+            thread.join()
+            mi = thread.get_result()
+            if mi is None:
+                self.append(None)
+            else:
+                self.append(self.fill_MI(mi, verbose))
+
+    def populate(self, entries, verbose=False, brcall=5):
+        #multiple entries
+        q = Queue(brcall)
+        prod_thread = Thread(target=self.producer, args=(q, entries, verbose))
+        cons_thread = Thread(target=self.consumer, args=(q, len(entries), verbose))
+        prod_thread.start()
+        cons_thread.start()
+        prod_thread.join()
+        cons_thread.join()
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
@@ -466,8 +533,8 @@ def search(title=None, author=None, publisher=None, isbn=None,
 
     #List of entry
     ans = ResultList(baseurl, lang)
-    ans.populate(entries, br, verbose)
-    return ans
+    ans.populate(entries, verbose)
+    return [x for x in ans if x is not None]
 
 def option_parser():
     parser = OptionParser(textwrap.dedent(\
@@ -506,7 +573,7 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     if results is None or len(results) == 0:
-        print 'No result found for this search!'
+        print _('No result found for this search!')
         return 0
     for result in results:
         print unicode(result).encode(preferred_encoding, 'replace')
@@ -514,3 +581,5 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+
+# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\amazonfr.py" -m 5 -a gore -v>data.html
