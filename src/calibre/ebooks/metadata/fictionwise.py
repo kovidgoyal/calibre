@@ -4,6 +4,7 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import sys, textwrap, re, traceback, socket
+from threading import Thread
 from Queue import Queue
 from urllib import urlencode
 
@@ -17,7 +18,7 @@ from calibre.library.comments import sanitize_comments_html
 from calibre.ebooks.metadata.fetch import MetadataSource
 from calibre.utils.config import OptionParser
 from calibre.utils.date import parse_date, utcnow
-from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.cleantext import clean_ascii_chars, unescape
 
 class Fictionwise(MetadataSource): # {{{
 
@@ -40,7 +41,45 @@ class Fictionwise(MetadataSource): # {{{
 class FictionwiseError(Exception):
     pass
 
-    
+class BrowserThread(Thread):
+
+    def __init__(self, url, verbose=False, timeout=10., ex=Exception, name='Meta'):
+        self.url = url
+        self.ex = ex
+        self.plugname = name
+        self.verbose = verbose
+        self.timeout = timeout
+        self.result = None
+        Thread.__init__(self)
+
+    def get_result(self):
+        return self.result
+
+    def run(self):
+        try:
+            raw = browser().open_novisit(self.url, timeout=self.timeout).read()
+        except Exception, e:
+            report(self.verbose)
+            if callable(getattr(e, 'getcode', None)) and \
+                    e.getcode() == 404:
+                self.result = None
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+                raise self.ex(_('%s timed out. Try again later.') % self.plugname)
+            raise self.ex(_('%s encountered an error.') % self.plugname)
+        if '<title>404 - ' in raw:
+            report(self.verbose)
+            self.result = None
+        raw = xml_to_unicode(raw, strip_encoding_pats=True,
+                resolve_entities=True)[0]
+        try:
+            self.result = soupparser.fromstring(raw)
+        except:
+            try:
+                #remove ASCII invalid chars
+                self.result = soupparser.fromstring(clean_ascii_chars(raw))
+            except:
+                self.result = None
+
 
 def report(verbose):
     if verbose:
@@ -180,10 +219,13 @@ class ResultList(list):
                     for elt in elts:
                         elt.drop_tree()
 
-    def output_entry(self, entry, prettyout = True, htmlrm="\d+"):
+    def output_entry(self, entry, prettyout = True, rmhtmlchar=True):
         out = tostring(entry, pretty_print=prettyout)
-        #try to work around tostring to remove this encoding for exemle
-        reclean = re.compile('(\n+|\t+|\r+|&#'+htmlrm+';)')
+        #remove html chars
+        if rmhtmlchar:
+            out = unescape(out, rm=True)
+        # Remove \n\t\r.
+        reclean = re.compile('(\n+|\t+|\r+)')
         return reclean.sub('', out)
 
     def get_title(self, entry):
@@ -211,7 +253,7 @@ class ResultList(list):
         return float(1.25*sum(k*v for (k, v) in hval.iteritems())/sum(hval.itervalues()))
 
     def get_description(self, entry):
-        description = self.output_entry(entry.xpath('./p')[1],htmlrm="")
+        description = self.output_entry(entry.xpath('./p')[1],rmhtmlchar=False)
         description = self.redesc.search(description)
         if not description or not description.group("desc"):
             return None
@@ -265,9 +307,24 @@ class ResultList(list):
         isbns = [self.reisbn.sub('', x) for x in isbns if check_isbn(self.reisbn.sub('', x))]
         return sorted(isbns, cmp=lambda x,y:cmp(len(x), len(y)))[-1]
 
-    def fill_MI(self, entry, title, authors, ratings, verbose):
+    def fill_MI(self, data, verbose):
+        inv_tags ={'script': True, 'a': False, 'font': False, 'strong': False, 'b': False,
+            'ul': False, 'span': False}
+        inv_xpath =('./table',)
+        try:
+            entry = data.xpath("//table[3]/tr/td[2]/table[1]/tr/td/font/table/tr/td")[0]
+            self.clean_entry(entry, invalid_tags=inv_tags, invalid_xpath=inv_xpath)
+            title = self.get_title(entry)
+            authors = self.get_authors(entry)
+        except Exception, e:
+            if verbose:
+                print _('Failed to get all details for an entry')
+                print e
+            return None
         mi = MetaInformation(title, authors)
-        mi.rating = ratings
+        ratings = entry.xpath("./p/table")
+        if len(ratings) >= 2:
+            mi.rating = self.get_rating(ratings[1], verbose)
         mi.comments = self.get_description(entry)
         mi.publisher = self.get_publisher(entry)
         mi.tags = self.get_tags(entry)
@@ -276,67 +333,36 @@ class ResultList(list):
         mi.author_sort = authors_to_sort_string(authors)
         return mi
 
-    def get_individual_metadata(self, browser, linkdata, verbose):
-        try:
-            raw = browser.open_novisit(self.BASE_URL + linkdata).read()
-        except Exception, e:
-            report(verbose)
-            if callable(getattr(e, 'getcode', None)) and \
-                    e.getcode() == 404:
-                return
-            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
-                raise FictionwiseError(_('Fictionwise timed out. Try again later.'))
-            raise FictionwiseError(_('Fictionwise encountered an error.'))
-        if '<title>404 - ' in raw:
-            report(verbose)
-            return
-        raw = xml_to_unicode(raw, strip_encoding_pats=True,
-                resolve_entities=True)[0]
-        try:
-            return soupparser.fromstring(raw)
-        except:
-            try:
-                #remove ASCII invalid chars
-                return soupparser.fromstring(clean_ascii_chars(raw))
-            except:
-                return None
+    def producer(self, q, data, verbose=False):
+        for x in data:
+            thread = BrowserThread(self.BASE_URL+x, verbose=verbose, ex=FictionwiseError,
+                name='Fictionwise')
+            thread.start()
+            q.put(thread, True)
 
-    def populate(self, entries, browser, verbose=False):
-        inv_tags ={'script': True, 'a': False, 'font': False, 'strong': False, 'b': False,
-            'ul': False, 'span': False}
-        inv_xpath =('./table',)
-        #single entry
+    def consumer(self, q, total_entries, verbose=False):
+        while len(self) < total_entries:
+            thread = q.get(True)
+            thread.join()
+            mi = thread.get_result()
+            if mi is None:
+                self.append(None)
+            else:
+                self.append(self.fill_MI(mi, verbose))
+
+    def populate(self, entries, verbose=False, brcall=3):
         if len(entries) == 1 and not isinstance(entries[0], str):
-            try:
-                entry = entries.xpath("//table[3]/tr/td[2]/table[1]/tr/td/font/table/tr/td")
-                self.clean_entry(entry, invalid_tags=inv_tags, invalid_xpath=inv_xpath)
-                title = self.get_title(entry)
-                #maybe strenghten the search
-                ratings =  self.get_rating(entry.xpath("./p/table")[1], verbose)
-                authors = self.get_authors(entry)
-            except Exception, e:
-                if verbose:
-                    print _('Failed to get all details for an entry')
-                    print e
-                return
-            self.append(self.fill_MI(entry, title, authors, ratings, verbose))
+            #single entry
+            self.append(self.fill_MI(entries[0], verbose))
         else:
             #multiple entries
-            for x in entries:
-                try:
-                    entry = self.get_individual_metadata(browser, x, verbose)
-                    entry = entry.xpath("//table[3]/tr/td[2]/table[1]/tr/td/font/table/tr/td")[0]
-                    self.clean_entry(entry, invalid_tags=inv_tags, invalid_xpath=inv_xpath)
-                    title = self.get_title(entry)
-                    #maybe strenghten the search
-                    ratings =  self.get_rating(entry.xpath("./p/table")[1], verbose)
-                    authors = self.get_authors(entry)
-                except Exception, e:
-                    if verbose:
-                        print _('Failed to get all details for an entry')
-                        print e
-                    continue
-                self.append(self.fill_MI(entry, title, authors, ratings, verbose))
+            q = Queue(brcall)
+            prod_thread = Thread(target=self.producer, args=(q, entries, verbose))
+            cons_thread = Thread(target=self.consumer, args=(q, len(entries), verbose))
+            prod_thread.start()
+            cons_thread.start()
+            prod_thread.join()
+            cons_thread.join()
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
@@ -349,7 +375,7 @@ def search(title=None, author=None, publisher=None, isbn=None,
     #List of entry
     ans = ResultList()
     ans.populate(entries, br, verbose)
-    return ans
+    return [x for x in ans if x is not None]
 
 
 def option_parser():
@@ -391,3 +417,5 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+
+# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\fictionwise.py" -m 5 -a gore -v>data.html

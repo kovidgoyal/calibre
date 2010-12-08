@@ -302,9 +302,7 @@ class ResultList(list):
     def populate(self, entries, verbose=False, brcall=3):
         if len(entries) == 1 and not isinstance(entries[0], str):
             #single entry
-            mi = self.fill_MI(entries[0], verbose)
-            if mi:
-                self.append(mi)
+            self.append(self.fill_MI(entries[0], verbose))
         else:
             #multiple entries
             q = Queue(brcall)
@@ -364,7 +362,7 @@ def search(title=None, author=None, publisher=None, isbn=None,
     #List of entry
     ans = ResultList()
     ans.populate(entries, verbose)
-    return [x for x in ans if x]
+    return [x for x in ans if x is not None]
 
 def check_for_cover(isbn):
     br = browser()
