@@ -3,7 +3,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import sys, textwrap, re, traceback, socket
+import sys, textwrap, re, traceback, socket, threading
+from Queue import Queue
 from urllib import urlencode
 from math import ceil
 from copy import deepcopy
@@ -23,7 +24,7 @@ from calibre.utils.config import OptionParser
 class NiceBooks(MetadataSource):
 
     name = 'Nicebooks'
-    description = _('Downloads metadata from french Nicebooks')
+    description = _('Downloads metadata from French Nicebooks')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Sengian'
     version             = (1, 0, 0)
@@ -78,9 +79,49 @@ class NiceBooksError(Exception):
 class ISBNNotFound(NiceBooksError):
     pass
 
+class BrowserThread(threading.Thread):
+
+    def __init__(self, url, verbose=False, timeout=10., ex=Exception, name='Meta'):
+        self.url = url
+        self.ex = ex
+        self.name = name
+        self.verbose = verbose
+        self.timeout = timeout
+        self.result = None
+        threading.Thread.__init__(self)
+
+    def get_result(self):
+        return self.result
+
+    def run(self):
+        try:
+            raw = browser().open_novisit(self.url, timeout=self.timeout).read()
+        except Exception, e:
+            report(self.verbose)
+            if callable(getattr(e, 'getcode', None)) and \
+                    e.getcode() == 404:
+                self.result = None
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+                raise self.ex(_('%s timed out. Try again later.') % self.name)
+            raise self.ex(_('%s encountered an error.') % self.name)
+        if '<title>404 - ' in raw:
+            report(self.verbose)
+            self.result = None
+        raw = xml_to_unicode(raw, strip_encoding_pats=True,
+                resolve_entities=True)[0]
+        try:
+            self.result = soupparser.fromstring(raw)
+        except:
+            try:
+                #remove ASCII invalid chars
+                self.result = soupparser.fromstring(clean_ascii_chars(raw))
+            except:
+                self.result = None
+
 def report(verbose):
     if verbose:
         traceback.print_exc()
+
 
 class Query(object):
 
@@ -224,68 +265,53 @@ class ResultList(list):
                     report(verbose)
         return mi
 
-    def fill_MI(self, entry, title, authors, verbose):
+    def fill_MI(self, data, verbose):
+        '''create and return an mi if possible, None otherwise'''
+        try:
+            entry = data.xpath("//div[@id='container']/div[@id='book-info']")[0]
+            title = self.get_title(entry)
+            authors = self.get_authors(entry)
+        except Exception, e:
+            if verbose:
+                print 'Failed to get all details for an entry'
+                print e
+            return None
         mi = MetaInformation(title, authors)
         mi.author_sort = authors_to_sort_string(authors)
         mi.comments = self.get_description(entry, verbose)
         return self.get_book_info(entry, mi, verbose)
 
-    def get_individual_metadata(self, browser, linkdata, verbose):
-        try:
-            raw = browser.open_novisit(self.BASE_URL + linkdata).read()
-        except Exception, e:
-            report(verbose)
-            if callable(getattr(e, 'getcode', None)) and \
-                    e.getcode() == 404:
-                return
-            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
-                raise NiceBooksError(_('Nicebooks timed out. Try again later.'))
-            raise NiceBooksError(_('Nicebooks encountered an error.'))
-        if '<title>404 - ' in raw:
-            report(verbose)
-            return
-        raw = xml_to_unicode(raw, strip_encoding_pats=True,
-                resolve_entities=True)[0]
-        try:
-            feed = soupparser.fromstring(raw)
-        except:
-            try:
-                #remove ASCII invalid chars
-                feed = soupparser.fromstring(clean_ascii_chars(raw))
-            except:
-                return None
+    def producer(self, q, data, verbose=False):
+        for x in data:
+            thread = BrowserThread(self.BASE_URL+x, verbose=verbose, ex=NiceBooksError,
+                name='Nicebooks')
+            thread.start()
+            q.put(thread, True)
 
-        # get results
-        return feed.xpath("//div[@id='container']")[0]
+    def consumer(self, q, total_entries, verbose=False):
+        while len(self) < total_entries:
+            thread = q.get(True)
+            thread.join()
+            mi, order = thread.get_result()
+            if mi is None:
+                self.append(None)
+            self.append(self.fill_MI(mi, verbose))
 
-    def populate(self, entries, browser, verbose=False):
-        #single entry
+    def populate(self, entries, verbose=False, brcall=3):
         if len(entries) == 1 and not isinstance(entries[0], str):
-            try:
-                entry = entries[0].xpath("//div[@id='container']")[0]
-                entry = entry.find("div[@id='book-info']")
-                title = self.get_title(entry)
-                authors = self.get_authors(entry)
-            except Exception, e:
-                if verbose:
-                    print 'Failed to get all details for an entry'
-                    print e
-                return
-            self.append(self.fill_MI(entry, title, authors, verbose))
+            #single entry
+            mi = self.fill_MI(entries[0], verbose)
+            if mi:
+                self.append(mi)
         else:
-        #multiple entries
-            for x in entries:
-                try:
-                    entry = self.get_individual_metadata(browser, x, verbose)
-                    entry = entry.find("div[@id='book-info']")
-                    title = self.get_title(entry)
-                    authors = self.get_authors(entry)
-                except Exception, e:
-                    if verbose:
-                        print 'Failed to get all details for an entry'
-                        print e
-                    continue
-                self.append(self.fill_MI(entry, title, authors, verbose))
+            #multiple entries
+            q = Queue(brcall)
+            prod_thread = threading.Thread(target=self.producer, args=(q, entries, verbose))
+            cons_thread = threading.Thread(target=self.consumer, args=(q, len(entries), verbose))
+            prod_thread.start()
+            cons_thread.start()
+            prod_thread.join()
+            cons_thread.join()
 
 class Covers(object):
 
@@ -328,14 +354,14 @@ def search(title=None, author=None, publisher=None, isbn=None,
            max_results=5, verbose=False, keywords=None):
     br = browser()
     entries = Query(title=title, author=author, isbn=isbn, publisher=publisher,
-        keywords=keywords, max_results=max_results)(br, verbose,timeout = 10.)
+        keywords=keywords, max_results=max_results)(br, verbose, timeout = 10.)
 
     if entries is None or len(entries) == 0:
         return None
 
     #List of entry
     ans = ResultList()
-    ans.populate(entries, br, verbose)
+    ans.populate(entries, verbose)
     return ans
 
 def check_for_cover(isbn):
@@ -409,3 +435,5 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+
+# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\nicebooks.py" -m 5 -a mankel >data.html
