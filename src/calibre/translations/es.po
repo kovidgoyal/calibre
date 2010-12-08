@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-03 18:42+0000\n"
-"PO-Revision-Date: 2010-12-05 03:28+0000\n"
-"Last-Translator: Fitoschido <Unknown>\n"
+"PO-Revision-Date: 2010-12-07 19:28+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-06 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-12-08 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:504
@@ -2122,18 +2122,21 @@ msgid ""
 "of the ebook. This works well for EPUB books that have been internally split "
 "by chapter."
 msgstr ""
+"Tratar de convertir los capítulos en secciones independientes usando la "
+"estructura interna del libro. Esto funciona bien para libros EPUB que están "
+"divididos por capítulos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:35
 msgid "Wrap all h1 tags with fb2 title elements."
-msgstr ""
+msgstr "Marcar todas las etiquetas h1 como elementos de título fb2."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:38
 msgid "Wrap all h2 tags with fb2 title elements."
-msgstr ""
+msgstr "Marcar todas las etiquetas h2 como elementos de título fb2."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:41
 msgid "Wrap all h3 tags with fb2 title elements."
-msgstr ""
+msgstr "Marcar todas las etiquetas h3 como elementos de título fb2."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:249
 msgid ""
@@ -3017,7 +3020,7 @@ msgstr "Opciones de generación del Índice HTML."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:130
 msgid "Unknown publisher"
-msgstr ""
+msgstr "Editorial desconocida"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:71
@@ -3387,6 +3390,9 @@ msgid ""
 "depth reduced by default to accommodate applications that can not convert "
 "images on their own such as Dropbook."
 msgstr ""
+"No reducir el tamaño o la profundidad de color de las imágenes. Normalmente "
+"el tamaño y profundidad de color de las imágenes se reduce para acomodarse a "
+"aplicaciones que no pueden convertir imágenes por sí mismas, como Dropbook."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:256
 msgid ""
@@ -3516,7 +3522,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:50
 msgid "Produce Markdown formatted text."
-msgstr ""
+msgstr "Producir texto con formato Markdown."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:53
 msgid ""
@@ -3524,6 +3530,9 @@ msgid ""
 "with the markdown-format option becauselinks are always removed with plain "
 "text output."
 msgstr ""
+"No eliminar enlaces en el documento. Esto sólo es útil cuando se usa con la "
+"opción de formato Markdown, porque los enlaces siempre se eliminan en el "
+"formato de salida de texto."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:58
 msgid ""
@@ -3531,6 +3540,9 @@ msgid ""
 "paired with the markdown-format option becauseimage references are always "
 "removed with plain text output."
 msgstr ""
+"No eliminar referencias a imágenes en el documento. Esto sólo es útil cuando "
+"se usa con la opción de formato Markdown, porque las referencias a imágenes "
+"siempre se eliminan en el formato de salida de texto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:67
 msgid "Send file to storage card instead of main memory by default"
@@ -4681,13 +4693,15 @@ msgstr "Elija el formato para visualizar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:116
 msgid "Format unavailable"
-msgstr ""
+msgstr "Formato no disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:117
 msgid ""
 "Not all the selected books were available in the %s format. You should "
 "convert them first."
 msgstr ""
+"No todos los libros seleccionados están disponibles en el formato %s. Debe "
+"convertirlos antes."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:124
 msgid "Multiple Books Selected"
@@ -5215,15 +5229,15 @@ msgstr "Etiqueta de deseado:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:107
 msgid "Source column for read book"
-msgstr ""
+msgstr "Columna de origen para libro leído"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:108
 msgid "Pattern for read book"
-msgstr ""
+msgstr "Patrón para libro leído"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:109
 msgid "Books marked as read:"
-msgstr ""
+msgstr "Libros marcados como leídos:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -5434,19 +5448,19 @@ msgstr "Sincronizar capítulos (¡úselo con precaución!)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:51
 msgid "Sectionize Chapters using file structure"
-msgstr ""
+msgstr "Marcar capítulos como secciones usando la estructura del fichero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:52
 msgid "Wrap h1 tags with <title> elements"
-msgstr ""
+msgstr "Marcar etiquetas h1 con elementos <title>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:53
 msgid "Wrap h2 tags with <title> elements"
-msgstr ""
+msgstr "Marcar etiquetas h2 con elementos <title>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:54
 msgid "Wrap h3 tags with <title> elements"
-msgstr ""
+msgstr "Marcar etiquetas h3 con elementos <title>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -5935,11 +5949,11 @@ msgstr "Mantener las &proporciones de la portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
-msgstr ""
+msgstr "Salida PMLZ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:38
 msgid "Do not reduce image size and depth"
-msgstr ""
+msgstr "No reducir el tamaño y profundidad de las imágenes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
@@ -6183,15 +6197,15 @@ msgstr "Forzar la longitud de línea máxima"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:64
 msgid "Apply Markdown formatting to text"
-msgstr ""
+msgstr "Aplicar formato Markdown al texto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:65
 msgid "Do not remove links (<a> tags) before processing"
-msgstr ""
+msgstr "No eliminar enlaces (etiquetas <a>) antes de procesar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:66
 msgid "Do not remove image references before processing"
-msgstr ""
+msgstr "No eliminar referencias a imágenes antes de procesar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:77
@@ -6334,10 +6348,12 @@ msgid ""
 "The enumeration \"{0}\" contains an invalid value that will be set to the "
 "default"
 msgstr ""
+"La enumeración \"{0}\" contiene un valor inválido que se cambiará al valor "
+"predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:492
 msgid "Do not change"
-msgstr ""
+msgstr "No cambiar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:541
 msgid "Remove series"
@@ -6357,6 +6373,8 @@ msgid ""
 "The enumeration \"{0}\" contains invalid values that will not appear in the "
 "list"
 msgstr ""
+"La enumeración \"{0}\" contiene un valor inválido que no aparecerá en la "
+"lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:665
 msgid "Remove all tags"
@@ -6665,11 +6683,11 @@ msgstr "Copiar al por&tapapeles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:45
 msgid "Delete marked files (checked subitems)"
-msgstr ""
+msgstr "Borrar ficheros marcados (subelementos marcados)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:51
 msgid "Fix marked sections (checked fixable items)"
-msgstr ""
+msgstr "Reparar secciones marcadas (elementos reparables marcados)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:61
 msgid "Names to ignore:"
@@ -6696,7 +6714,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:111
 msgid "(fixable)"
-msgstr ""
+msgstr "(reparable)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:134
 msgid "Path from library"
@@ -7064,6 +7082,8 @@ msgid ""
 "Immediately make all changes without closing the dialog. This operation "
 "cannot be canceled or undone"
 msgstr ""
+"Hacer todos los cambios inmediatamente sin cerrar el diálogo. Esta operación "
+"no se puede cancelar ni deshacer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:273
 msgid "Book %d:"
@@ -7455,7 +7475,7 @@ msgstr "La portada del formato %s no es válida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:153
 msgid "Cover size: %dx%d pixels"
-msgstr ""
+msgstr "Tamaño de portada: %d×%d píxeles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:190
 msgid "Not a valid picture"
@@ -7560,7 +7580,7 @@ msgstr "Anterior"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:452
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:460
 msgid "Save changes and edit the metadata of %s"
-msgstr ""
+msgstr "Guardar cambios y modificar los metadatos de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:457
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:102
@@ -9512,7 +9532,7 @@ msgstr "Columna de texto para información como la serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:31
 msgid "Text, but with a fixed set of permitted values"
-msgstr ""
+msgstr "Texto, pero con un conjunto fijo de valores permitidos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:35
 msgid "Floating point numbers"
@@ -9584,15 +9604,15 @@ msgstr "Debe introducir una plantilla para las columnas compuestas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:167
 msgid "You must enter at least one value for enumeration columns"
-msgstr ""
+msgstr "Debe introducir al menos un valor para las columnas de enumeración"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:172
 msgid "You cannot provide the empty value, as it is included by default"
-msgstr ""
+msgstr "No puede añadir el valor nulo, ya que se incluye por defecto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:176
 msgid "The value \"{0}\" is in the list more than once"
-msgstr ""
+msgstr "El valor \"{0}\" está en la lista más de una vez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:172
@@ -9663,6 +9683,8 @@ msgstr "Formato para &fechas"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:161
 msgid "Field template. Uses the same syntax as save templates."
 msgstr ""
+"Plantilla de campo. Se usa la misma sintaxis que para las plantillas de "
+"guardado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:162
 msgid "Similar to save templates. For example, {title} {isbn}"
@@ -9679,7 +9701,7 @@ msgstr "&Plantilla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:165
 msgid "Values"
-msgstr ""
+msgstr "Valores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:166
 msgid ""
@@ -9688,11 +9710,19 @@ msgid ""
 "',one,two,three' has 4 valid values, one of them empty. The first\n"
 "value in the list is the default."
 msgstr ""
+"Una lista de valores permitidos separados por comas. Puede especificar\n"
+"valores nulos introduciendo sólo la coma. Por ejemplo, la lista "
+"«,uno,dos,tres»\n"
+"tiene 4 valores válidos, uno de ellos nulo. El primer valor en la lista es "
+"el\n"
+"valor predeterminado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:171
 msgid ""
 "The first value entered will be the default value for this enumeration"
 msgstr ""
+"El primer valor introducido será el valor predeterminado para esta "
+"enumeración"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
@@ -11974,6 +12004,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"campo:patrón que indica que un libro ya está leído.\n"
+"Valor predeterminado: '%default'\n"
+"Se aplica a los formatos de salida ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:619
 msgid ""
@@ -12015,11 +12048,11 @@ msgstr "Ficheros desconocidos en libros"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers in books"
-msgstr ""
+msgstr "Faltan portadas en los libros"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Extra covers in books"
-msgstr ""
+msgstr "Sobran portadas en los libros"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
@@ -12356,6 +12389,10 @@ msgid ""
 "interpreted. This is a JSON  string. For enumeration columns, use --"
 "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 msgstr ""
+"Un diccionario de opciones para personalizar la manera en que se "
+"interpretarán los datos de esta columna. Se trata de una cadena JSON. Para "
+"las columnas de enumeración use --display='{\"enum_values\":[\"val1\", "
+"\"val2\"]}'"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:581
 msgid "You must specify label, name and datatype"
@@ -12371,6 +12408,14 @@ msgid ""
 "ouput.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog catalog /ruta/a/destino.(CSV|EPUB|MOBI|XML ...) [opciones]\n"
+"\n"
+"    Exportar un catálogo en el formato especificado por la extensión de "
+"/ruta/a/destino.\n"
+"    Las opciones controlan cómo se muestran las entradas en la salida del "
+"catálogo generado.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:656
 msgid ""

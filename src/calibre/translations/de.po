@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-03 18:42+0000\n"
-"PO-Revision-Date: 2010-12-03 20:51+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-12-08 03:38+0000\n"
+"Last-Translator: Thomas Schwiertz <thomas.schwiertz@googlemail.com>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-04 05:09+0000\n"
+"X-Launchpad-Export-Date: 2010-12-08 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2132,15 +2132,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:35
 msgid "Wrap all h1 tags with fb2 title elements."
-msgstr ""
+msgstr "Umschließe alle h1 Tags mit fb2 Titel Elementen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:38
 msgid "Wrap all h2 tags with fb2 title elements."
-msgstr ""
+msgstr "Umschließe alle h2 Tags mit fb2 Titel Elementen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:41
 msgid "Wrap all h3 tags with fb2 title elements."
-msgstr ""
+msgstr "Umschließe alle h3 Tags mit fb2 Titel Elementen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:249
 msgid ""
@@ -3028,7 +3028,7 @@ msgstr "Einstellungen zur Erstellung von HTML-Inhaltsverzeichnissen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:130
 msgid "Unknown publisher"
-msgstr ""
+msgstr "Unbekannter Herausgeber"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:71
@@ -4156,7 +4156,7 @@ msgstr "Starte Konvertierung von %d Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:170
 msgid "Empty output file, probably the conversion process crashed"
-msgstr ""
+msgstr "Leere Ausgabedatei, eventuell ist der Umwandlungsprozess abgestürzt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:83
 msgid "Copy to library"
@@ -4702,13 +4702,15 @@ msgstr "Format zur Vorschau wählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:116
 msgid "Format unavailable"
-msgstr ""
+msgstr "Format nicht verfügbar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:117
 msgid ""
 "Not all the selected books were available in the %s format. You should "
 "convert them first."
 msgstr ""
+"Nicht alle ausgewählten Bücher sind im %s Format verfügbar. Sie sollten "
+"diese zuerst umwandeln."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:124
 msgid "Multiple Books Selected"
@@ -5231,7 +5233,7 @@ msgstr "'Serien'- Abschnitt hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:106
 msgid "Wishlist tag:"
-msgstr ""
+msgstr "Wunschlisten Tag:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:107
 msgid "Source column for read book"
@@ -5243,7 +5245,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:109
 msgid "Books marked as read:"
-msgstr ""
+msgstr "Bücher markiert als gelesen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -5460,15 +5462,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:52
 msgid "Wrap h1 tags with <title> elements"
-msgstr ""
+msgstr "Umschließe h1 Tags mit <title> Elementen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:53
 msgid "Wrap h2 tags with <title> elements"
-msgstr ""
+msgstr "Umschließe h2 Tags mit <title> Elementen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:54
 msgid "Wrap h3 tags with <title> elements"
-msgstr ""
+msgstr "Umschließe h3 Tags mit <title> Elementen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -5960,11 +5962,11 @@ msgstr "Seitenverhältnis des Umschl&agbildes beibehalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
-msgstr ""
+msgstr "PMLZ Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:38
 msgid "Do not reduce image size and depth"
-msgstr ""
+msgstr "Bildgröße und Farbtiefe nicht reduzieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
@@ -6216,11 +6218,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:65
 msgid "Do not remove links (<a> tags) before processing"
-msgstr ""
+msgstr "Links (<a> Tags) nicht entfernen vor der Verarbeitung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:66
 msgid "Do not remove image references before processing"
-msgstr ""
+msgstr "Bildreferenzen vor der Verarbeitung nicht entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:77
@@ -6362,10 +6364,12 @@ msgid ""
 "The enumeration \"{0}\" contains an invalid value that will be set to the "
 "default"
 msgstr ""
+"Die Aufzählung \"{0}\" enthält einen ungültigen Wert. Dieser wird auf den "
+"Standard Wert gesetzt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:492
 msgid "Do not change"
-msgstr ""
+msgstr "Nicht ändern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:541
 msgid "Remove series"
@@ -6385,6 +6389,8 @@ msgid ""
 "The enumeration \"{0}\" contains invalid values that will not appear in the "
 "list"
 msgstr ""
+"Die Aufzählung \"{0}\" enthält einen ungültigen Wert, welcher nicht in der "
+"Liste angezeigt werden wird."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:665
 msgid "Remove all tags"
@@ -7082,6 +7088,8 @@ msgid ""
 "Immediately make all changes without closing the dialog. This operation "
 "cannot be canceled or undone"
 msgstr ""
+"Wende sofort alle Änderungen an, ohne den Dialog zu schließen. Diese "
+"Operation kann nicht unterbrochen werden oder rückgängig gemacht werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:273
 msgid "Book %d:"
@@ -7474,7 +7482,7 @@ msgstr "Das Umschlagbild im Format %s ist ungültig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:153
 msgid "Cover size: %dx%d pixels"
-msgstr ""
+msgstr "Umschlagbild Größe: %dx%d Pixel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:190
 msgid "Not a valid picture"
@@ -7581,7 +7589,7 @@ msgstr "Vorherige"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:452
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:460
 msgid "Save changes and edit the metadata of %s"
-msgstr ""
+msgstr "Speichere Änderungen und bearbeite die Metadaten von %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:457
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:102
@@ -8600,7 +8608,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:306
 msgid "sent"
-msgstr ""
+msgstr "versendet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:329
 msgid "Sent news to"
@@ -9594,7 +9602,7 @@ msgstr "Sie müssen eine Vorlage für zusammengesetzte Spalten eingeben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:167
 msgid "You must enter at least one value for enumeration columns"
-msgstr ""
+msgstr "Sie müssen mindestens einen Wert für die Aufzählungsspalten angeben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:172
 msgid "You cannot provide the empty value, as it is included by default"
@@ -9602,7 +9610,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:176
 msgid "The value \"{0}\" is in the list more than once"
-msgstr ""
+msgstr "Der Wert \"{0}\" ist in der Liste mehrfach vorhanden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:172
@@ -9689,7 +9697,7 @@ msgstr "&Vorlage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:165
 msgid "Values"
-msgstr ""
+msgstr "Werte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:166
 msgid ""
@@ -9703,6 +9711,8 @@ msgstr ""
 msgid ""
 "The first value entered will be the default value for this enumeration"
 msgstr ""
+"Der erste eingegebene Wert wird als Standard Wert für die Aufzählung "
+"verwendet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
@@ -11491,6 +11501,9 @@ msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
+"<p>Wählen Sie einen Ort für Ihre Bücher. Wenn Sie Bücher zu Calibre "
+"hinzufügen, werden diese hierher kopiert. Benutzen Sie einen <b>leeres "
+"Verzeichnis</b> für eine neue Calibre Bibliothek:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -11523,6 +11536,8 @@ msgid ""
 "If you are setting up a new hotmail account, you must log in to it  once "
 "before you will be able to send mails."
 msgstr ""
+"Wenn Sie einen neuen Hotmail Account anlegen, müssen Sie sich dort zuerst "
+"einmalig anmelden bevor Sie E-Mails versenden können."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:147
 msgid ""
@@ -11532,15 +11547,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
 msgid "Your %s &email address:"
-msgstr ""
+msgstr "Ihre %s &E-Mail Adresse:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:155
 msgid "Your %s &username:"
-msgstr ""
+msgstr "Ihr %s &Benutzername"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:156
 msgid "Your %s &password:"
-msgstr ""
+msgstr "Ihr %s &Passwort:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:174
 msgid ""
@@ -11654,7 +11669,7 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr ""
+msgstr "WARNUNG: Keine Verschlüsselung zu verwenden ist sehr unsicher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
@@ -11666,7 +11681,7 @@ msgstr "Googlemail verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:146
 msgid "Use Hotmail"
-msgstr ""
+msgstr "Benutze Hotmail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:147
 msgid "&Test email"
@@ -12015,11 +12030,11 @@ msgstr "Unbekannte Dateien bei Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers in books"
-msgstr ""
+msgstr "Fehlende Umschlagbilder in Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Extra covers in books"
-msgstr ""
+msgstr "Zusätsätzliche  Umschlagbilder in Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
@@ -12979,7 +12994,7 @@ msgstr "Lade, bitte warten"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:85
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "Go to"
-msgstr ""
+msgstr "Gehe zu"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:101
 msgid "First"

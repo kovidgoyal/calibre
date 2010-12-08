@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-03 18:42+0000\n"
-"PO-Revision-Date: 2010-12-03 21:04+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-12-07 18:56+0000\n"
+"Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-04 05:08+0000\n"
+"X-Launchpad-Export-Date: 2010-12-08 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2058,6 +2058,9 @@ msgid ""
 "of the ebook. This works well for EPUB books that have been internally split "
 "by chapter."
 msgstr ""
+"Zkusit změnit kapitoly do individuálních sekcí používajících vnitřní "
+"strukturu ebooku. Toto funguje pro EPUB knihy, které byly interně rozděleny "
+"po kapitolách."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:35
 msgid "Wrap all h1 tags with fb2 title elements."
@@ -3298,6 +3301,9 @@ msgid ""
 "depth reduced by default to accommodate applications that can not convert "
 "images on their own such as Dropbook."
 msgstr ""
+"Neredukovat velikost nebo bitovou hloubku obrázků. Obrázky mají svou "
+"velikost a hloubku standardně redukovanou pro přizpůsobení aplikacím, které "
+"nemohou konvertovat obrázky, např. Dropbook."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:256
 msgid ""
@@ -4575,6 +4581,8 @@ msgid ""
 "Not all the selected books were available in the %s format. You should "
 "convert them first."
 msgstr ""
+"Ne všechny označené knihy byly dostupné ve formátu %s. Musíte je nejprve "
+"zkonvertovat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:124
 msgid "Multiple Books Selected"
@@ -5317,11 +5325,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:52
 msgid "Wrap h1 tags with <title> elements"
-msgstr ""
+msgstr "Zabalit h1 tag elementem <title>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:53
 msgid "Wrap h2 tags with <title> elements"
-msgstr ""
+msgstr "Zabalit h2 tag elementem <title>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:54
 msgid "Wrap h3 tags with <title> elements"
@@ -5801,7 +5809,7 @@ msgstr "PMLZ výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:38
 msgid "Do not reduce image size and depth"
-msgstr ""
+msgstr "Neredukovat šířku a hloubku obrazu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
@@ -6041,15 +6049,15 @@ msgstr "Vynuť maximální délku řádku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:64
 msgid "Apply Markdown formatting to text"
-msgstr ""
+msgstr "Použít na text Markdown formátování"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:65
 msgid "Do not remove links (<a> tags) before processing"
-msgstr ""
+msgstr "Neodstraňovat odkazy (<a> tagy) před zpracováním"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:66
 msgid "Do not remove image references before processing"
-msgstr ""
+msgstr "Neodstraňovat odkazy na obrázky před zpracováním"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:77
@@ -6187,7 +6195,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:492
 msgid "Do not change"
-msgstr ""
+msgstr "Neměnit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:541
 msgid "Remove series"
@@ -6510,11 +6518,11 @@ msgstr "Kopírovat do schránky"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:45
 msgid "Delete marked files (checked subitems)"
-msgstr ""
+msgstr "Smazat označené soubory (zaškrtnuté podpoložky)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:51
 msgid "Fix marked sections (checked fixable items)"
-msgstr ""
+msgstr "Opravit označené sekce (označené položky)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:61
 msgid "Names to ignore:"
@@ -6539,7 +6547,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:111
 msgid "(fixable)"
-msgstr ""
+msgstr "(opravitelné)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:134
 msgid "Path from library"
@@ -7268,7 +7276,7 @@ msgstr "Obal ve %s formátu je neplatný"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:153
 msgid "Cover size: %dx%d pixels"
-msgstr ""
+msgstr "Velikost obálky: %dx%d pixelů"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:190
 msgid "Not a valid picture"
@@ -7370,7 +7378,7 @@ msgstr "Předchozí"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:452
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:460
 msgid "Save changes and edit the metadata of %s"
-msgstr ""
+msgstr "Uložit změny a změnit metadata %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:457
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:102
@@ -9260,7 +9268,7 @@ msgstr "Textový sloupec pro uchování informací o sériích"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:31
 msgid "Text, but with a fixed set of permitted values"
-msgstr ""
+msgstr "Text, ale s pevným seznamem dovolených hodnot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:35
 msgid "Floating point numbers"
@@ -9332,7 +9340,7 @@ msgstr "Musíte vložit šablonu pro kompozitní sloupce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:167
 msgid "You must enter at least one value for enumeration columns"
-msgstr ""
+msgstr "Musíte zadat nejméně jednu hodnotu pro výčtové sloupce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:172
 msgid "You cannot provide the empty value, as it is included by default"
@@ -9340,7 +9348,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:176
 msgid "The value \"{0}\" is in the list more than once"
-msgstr ""
+msgstr "Hodnota \"{0}\" je v seznamu více než jednou"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:172
@@ -9408,7 +9416,7 @@ msgstr "Formát &data"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:161
 msgid "Field template. Uses the same syntax as save templates."
-msgstr ""
+msgstr "Šablona pole. Používá stejnou syntaxi jako uložené šablony."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:162
 msgid "Similar to save templates. For example, {title} {isbn}"
@@ -9425,7 +9433,7 @@ msgstr "Šablona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:165
 msgid "Values"
-msgstr ""
+msgstr "Hodnoty"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:166
 msgid ""
@@ -9438,7 +9446,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:171
 msgid ""
 "The first value entered will be the default value for this enumeration"
-msgstr ""
+msgstr "První zadaná hodnota bude výchozí hodnota pro tento výčet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
@@ -11412,6 +11420,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Výstupní pole pro katalogizaci knih v databázi. Jde o čárkami oddělený "
+"seznam polí.\n"
+"Dostupná pole: %s.\n"
+"Výchozí: '%%default'\n"
+"Použije se na: CSV, XML výstupní formát"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:60
 msgid ""
@@ -11642,11 +11655,11 @@ msgstr "Neznámé soubory v knihách"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers in books"
-msgstr ""
+msgstr "Chybějící obálky v knihách"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Extra covers in books"
-msgstr ""
+msgstr "Extra obálky v knihách"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
@@ -12375,6 +12388,9 @@ msgid ""
 "subdirectory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
+"Šablona pro nastavení jména a adresářové struktury uložených souborů. "
+"Výchozí je \"%s\", která uloží knihy do podadresářů dle autora s názvem díla "
+"a autorem v názvu souboru. Dostupné volby jsou: {%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:79
 msgid ""
@@ -12383,6 +12399,9 @@ msgid ""
 "directory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
+"Šablona pro nastavení jména a adresářové struktury souborů posílaných do "
+"zařízení. Výchozí je \"%s\", která uloží knihy do podadresářů dle autora s "
+"názvem díla a autorem v názvu souboru. Dostupné volby jsou: {%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:86
 msgid ""
@@ -12929,6 +12948,8 @@ msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
+"Užitečné pro vývoj skriptů pro stahování zpráv. Vynutí max_articles_per_feed "
+"na 2 a stahování na 2 feedy."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:40
 msgid "Username for sites that require a login to access content."

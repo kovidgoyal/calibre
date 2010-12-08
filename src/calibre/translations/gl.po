@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-03 18:42+0000\n"
-"PO-Revision-Date: 2010-12-06 19:05+0000\n"
+"PO-Revision-Date: 2010-12-08 00:49+0000\n"
 "Last-Translator: Antón Méixome <meixome@gmail.com>\n"
 "Language-Team: Galician <gl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-07 04:55+0000\n"
+"X-Launchpad-Export-Date: 2010-12-08 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -6658,7 +6658,7 @@ msgstr "Copiar no por&tapapeis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:45
 msgid "Delete marked files (checked subitems)"
-msgstr ""
+msgstr "Eliminar os ficheiros marcados (subítems indicados)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:51
 msgid "Fix marked sections (checked fixable items)"
@@ -8865,7 +8865,7 @@ msgstr "&Vai!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:187
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr ""
+msgstr "Realizar unha busca rápida (tamén pode premer a tecla Intro)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 msgid "Reset Quick Search"
@@ -8903,7 +8903,7 @@ msgstr "Tamaño (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:331
 msgid "Book %s of %s."
-msgstr ""
+msgstr "Libro %s de %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:693
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1240
@@ -8914,7 +8914,7 @@ msgstr "O nome de busca é \"{0}\""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:699
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1242
 msgid "This book's UUID is \"{0}\""
-msgstr ""
+msgstr "O UUID deste libro é «{0}»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:926
 msgid "In Library"
@@ -9068,7 +9068,7 @@ msgstr "Iniciar minimizado na bandexa do sistema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:34
 msgid "Log debugging information to console"
-msgstr ""
+msgstr "Dirixir o rexistro de depuración á consola"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:36
 msgid "Do not check for updates"
@@ -9122,6 +9122,7 @@ msgstr "A localización da base de datos é incorrecta"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:194
 msgid "Bad database location %r. calibre will now quit."
 msgstr ""
+"Localización da base de datos %r errada. Calibre cerrarase a continuación."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:207
 msgid "Corrupted database"
@@ -9148,6 +9149,8 @@ msgstr ""
 msgid ""
 "Bad database location %r. Will start with  a new, empty calibre library"
 msgstr ""
+"Localización da base de datos %r errada. Comenzarase cunha biblioteca do "
+"Calibre nova e baleira"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:237
 msgid "Starting %s: Loading books..."
@@ -9155,7 +9158,7 @@ msgstr "Iniciando %s; cargando os libros..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:282
 msgid "If you are sure it is not running"
-msgstr ""
+msgstr "Se está seguro de que non está en execución"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:284
 msgid "Cannot Start "
@@ -9167,7 +9170,7 @@ msgstr "%s xa se está executando."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:288
 msgid "may be running in the system tray, in the"
-msgstr ""
+msgstr "pode estar en execución na bandexa do sistema, na"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:290
 msgid "upper right region of the screen."
@@ -9179,7 +9182,7 @@ msgstr "na área inferior dereita da pantalla."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:295
 msgid "try rebooting your computer."
-msgstr ""
+msgstr "ténteo de novo despois de reiniciar o equipo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:297
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:309
@@ -9240,18 +9243,20 @@ msgstr "Feito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:289
 msgid "Successfully downloaded metadata for %d out of %d books"
-msgstr ""
+msgstr "Descargáronse correctamente os metadatos para %d de %d libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:291
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:659
 msgid "Details"
-msgstr ""
+msgstr "Detalles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:36
 msgid ""
 "Restore settings to default values. You have to click Apply to actually save "
 "the default settings."
 msgstr ""
+"Restabelecer a configuración a valores predeterminados. Debe premer "
+"\"Aplicar\" para gardar a configuración."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:49
 msgid ""
@@ -9266,6 +9271,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:50
 msgid "Read metadata from &file contents rather than file name"
 msgstr ""
+"Ler os metadatos do contido do &ficheiro, en lugar do nome do ficheiro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:51
 msgid ""
@@ -9385,16 +9391,21 @@ msgid ""
 "used. Also applied when switching to this library. Note that this setting is "
 "per library. "
 msgstr ""
+"Aplicar esta restrición ao iniciar o Calibre se se está a usar a biblioteca "
+"actual. Tamén se aplica cando se selecciona esta biblioteca. Teña en conta "
+"que esta configuración é individual para cada biblioteca. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:152
 msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
 msgstr ""
+"Unha lista de etiquetas separadas por comas que se lle aplicarán aos libros "
+"que se lle engadan á biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:153
 msgid "Tags to apply when adding a book:"
-msgstr ""
+msgstr "Etiquetas que se aplicarán cando se engada un libro:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:154
 msgid "Reset all disabled &confirmation dialogs"
@@ -9428,6 +9439,9 @@ msgid ""
 "book list. You can hide columns by unchecking them. You can also create your "
 "own, custom columns."
 msgstr ""
+"Aquí pode redistribuír as columnas na lista da biblioteca do Calibre. Pode "
+"ocultar columnas desmarcándoas. Tamén pode crear as súas propias columnas "
+"personalizadas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:84
@@ -9447,13 +9461,15 @@ msgstr "Editar as configuracións dunha columna definida polo usuario"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:91
 msgid "Add &custom column"
-msgstr ""
+msgstr "Engadir columna &personalizada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/conversion.py:37
 msgid ""
 "Restore settings to default values. Only settings for the currently selected "
 "section are restored."
 msgstr ""
+"Restabelecer as configuracións a valores predeterminados. Soamente se "
+"modificará a configuracción da sección actualmente seleccionada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:19
 msgid "Text, column shown in the tag browser"
@@ -9476,7 +9492,7 @@ msgstr "Columna de texto para manter series como información"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:31
 msgid "Text, but with a fixed set of permitted values"
-msgstr ""
+msgstr "Texto, pero cun conxunto fixo de valores permitidos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:35
 msgid "Floating point numbers"
@@ -9631,15 +9647,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:163
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:170
 msgid "Default: (nothing)"
-msgstr ""
+msgstr "Valor predeterminado: (nada)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:164
 msgid "&Template"
-msgstr ""
+msgstr "&Modelo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:165
 msgid "Values"
-msgstr ""
+msgstr "Valores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:166
 msgid ""
@@ -9648,11 +9664,18 @@ msgid ""
 "',one,two,three' has 4 valid values, one of them empty. The first\n"
 "value in the list is the default."
 msgstr ""
+"Unha lista de valores permitidos separados por comas. Pode especificar\n"
+"valores nulos introducindo soamente a coma. Por exemplo, a lista "
+"«,un,dous,tres»\n"
+"ten 4 valores correctos, un deles nulo. O primeiro valor na lista é o\n"
+"valor predeterminado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:171
 msgid ""
 "The first value entered will be the default value for this enumeration"
 msgstr ""
+"O primeiro valor introducido será o valor predeterminado para esta "
+"enumeración"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
@@ -9786,11 +9809,11 @@ msgstr "Amosar a &pantalla de benvida ao comezar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:114
 msgid "Disable &notifications in system tray"
-msgstr ""
+msgstr "Desactivar &notificacións na bandexa do sistema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:115
 msgid "Use &Roman numerals for series"
-msgstr ""
+msgstr "Usar números &romanos para as series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:116
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -9815,44 +9838,49 @@ msgstr "Amosar &texto debaixo das iconas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:121
 msgid "&Split the toolbar into two toolbars"
-msgstr ""
+msgstr "&Dividir a barra de ferramentas en dous"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:222
 msgid "&Apply"
-msgstr ""
+msgstr "&Aplicar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:229
 msgid "Restore &defaults"
-msgstr ""
+msgstr "Restaurar opcións &predeterminadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:230
 msgid "Save changes"
-msgstr ""
+msgstr "Gardar os cambios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:231
 msgid "Cancel and return to overview"
-msgstr ""
+msgstr "Cancelar e volver á panorámica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:269
 msgid "Restoring to defaults not supported for"
-msgstr ""
+msgstr "A restauración das opcións predeterminadas non está soportada para"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:304
 msgid ""
 "Some of the changes you made require a restart. Please restart calibre as "
 "soon as possible."
 msgstr ""
+"Algúns cambios requiren que reinicie. Por favor, reinicie o Calibre canto "
+"antes."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:307
 msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed set any more preferences, until you restart."
 msgstr ""
+"Os cambios que realizou requiren reiniciar Calibre inmediatamente. Non "
+"poderá realizar ningún outro axuste nin podrá escoller as súas preferencias "
+"ata que a operación de reinicio conclúa."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:312
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
 msgid "Restart needed"
-msgstr ""
+msgstr "Requírese reiniciar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:42
 msgid "Failed to install command line tools."
@@ -9897,21 +9925,23 @@ msgstr "&Instalar as ferramentas da liña de ordes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:44
 msgid "Device currently connected: "
-msgstr ""
+msgstr "Dispositivo conectado actualmente: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:47
 msgid "Device currently connected: None"
-msgstr ""
+msgstr "Dispositivo conectado actualmente: Ningún"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:207
 msgid ""
 "That format and device already has a plugboard or conflicts with another "
 "plugboard."
 msgstr ""
+"Ese formato e dispositivo xa ten un control ou entra en conflito con outro "
+"control."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:240
 msgid "Invalid destination"
-msgstr ""
+msgstr "Destino incorrecto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:241
 msgid "The destination field cannot be blank"
