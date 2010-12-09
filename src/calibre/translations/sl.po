@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.17\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-03 18:42+0000\n"
-"PO-Revision-Date: 2010-12-07 17:38+0000\n"
+"PO-Revision-Date: 2010-12-08 18:54+0000\n"
 "Last-Translator: Stane Accetto <Unknown>\n"
 "Language-Team: sl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-08 04:46+0000\n"
+"X-Launchpad-Export-Date: 2010-12-09 04:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -643,6 +643,10 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
+"    %prog options\n"
+"\n"
+"    Prikrojitev calibre z naložitvijo zunanjih vtičnikov.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:547
 msgid "Add a plugin by specifying the path to the zip file containing it."
@@ -744,12 +748,17 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Ne najdem nekaterih knjig v iTunes bazi.\n"
+"Izbrišite uporabo iBooks aplikacijo.\n"
+"Kliknite  'Pokaži detajle' za seznam."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:911
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Kakšna umetniška naslovnica ne bo pretvorjena.\n"
+"Kliknite  'Pokaži detajle' za seznam."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2553
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:444
@@ -1152,12 +1161,12 @@ msgstr "Izbrana reža: %s ni podprta."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:848
 msgid "There is insufficient free space in main memory"
-msgstr ""
+msgstr "Ni dovolj prostega prostora v glavnem spominu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:850
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:852
 msgid "There is insufficient free space on the storage card"
-msgstr ""
+msgstr "Ni dovolj prostega prostora na spominski kartici"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:12
 msgid "Configure Device"
@@ -1165,37 +1174,37 @@ msgstr "Prilagodi napravo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:37
 msgid "settings for device drivers"
-msgstr ""
+msgstr "nastavitve gonilnikov naprave"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:39
 msgid "Ordered list of formats the device will accept"
-msgstr ""
+msgstr "Urejen seznam formatov,katere bo naprava sprejela"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:41
 msgid "Place files in sub directories if the device supports them"
-msgstr ""
+msgstr "Vstavite datoteke v podmape, če to naprava podpira"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:86
 msgid "Read metadata from files on device"
-msgstr ""
+msgstr "Branje metapodatkov iz datotek na napravi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:45
 msgid "Use author sort instead of author"
-msgstr ""
+msgstr "Uporabite avtorjevo razvrščanje namesto po avtorju"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:47
 msgid "Template to control how books are saved"
-msgstr ""
+msgstr "Predloga za nadzor kako so knjige shranjene"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:89
 msgid "Extra customization"
-msgstr ""
+msgstr "Posebna prilagoditev"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:41
 msgid "Communicate with an eBook reader."
-msgstr ""
+msgstr "Povezovanje z eBook bralnikom."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:57
 msgid "Get device information..."
@@ -1224,6 +1233,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Procesiranje stripa ni uspelo: \n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:258
 msgid ""
@@ -1231,6 +1243,9 @@ msgid ""
 "of less than 256 may result in blurred text on your device if you are "
 "creating your comics in EPUB format."
 msgstr ""
+"Število barv za pretvorbo v sivinsko sliko. Običajno: %default. Vrednosti "
+"manjše od 256  lahko povzročijo zamegljenost teksta na vaši napravi, če "
+"ustvarjate stripe v  EPUB format."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:262
 msgid ""
@@ -1253,6 +1268,8 @@ msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
 msgstr ""
+"Izključitev trimanja strani stripov. Pri nekaterih stripih lahko trimanje "
+"odstrani vsebino  tako kot robove."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:272
 msgid "Don't split landscape images into two portrait images"
@@ -1279,6 +1296,8 @@ msgid ""
 "Enable Despeckle. Reduces speckle noise. May greatly increase processing "
 "time."
 msgstr ""
+"Vključitev odstranjevanje pikic-madežov. Zmanjša pikčasti šum vendar znatno "
+"poveča čas procesiranja."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:284
 msgid ""
@@ -1294,14 +1313,17 @@ msgid ""
 "experiment to see which format gives you optimal size and look on your "
 "device."
 msgstr ""
+"Format v katerega bodo pretvorjene slike v ustvarjeni eknjigi. Lahko "
+"preizkušate, kateri format bo dal optimalno velikost in izgled na vaši "
+"napravi."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
 msgid "Apply no processing to the image"
-msgstr ""
+msgstr "Neprocesiranje slike"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:294
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr ""
+msgstr "Ne pretvorite sliko  v črno-belo"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:431
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:442
@@ -1333,26 +1355,47 @@ msgid ""
 "\n"
 "For full documentation of the conversion system see\n"
 msgstr ""
+"input_file output_file [opcije]\n"
+"\n"
+"Pretvorba eknjige iz enega formata v drugega.\n"
+"\n"
+"input_file je vhodna in output_file je izhodna datoteka. Obe morata biti "
+"določeni kot prva dva argumenta v ukazu.\n"
+"\n"
+"Izhodni format eknjige se določi na osnovi ekstenzije datoteke output_file. "
+"output_file ima lahko poseben formatc .EXT kjer je  EXT ekstenzija izhodne "
+"datoteke.V tem primeru izhaja ime izhodne datoteke iz vhodne datoteke. "
+"Vedite, da imena datotek ne smejo imeti vezaja na začetku. Končno, če "
+"izhodna datoteka nima ekstenzije, se smatra kot mapa in  \"open ebook - "
+"odprta eknjiga\" (OEB) se sestoji iz  HTML datotek v tej mapi. Te datoteke "
+"so datoteke, katere naj bi bile normalno procesirane z izhodnim vtičnikom.\n"
+"\n"
+"Po dočočitvi vhodne in izhodne datoteke lahko prilagodite pretvorbo z "
+"določitvijo različnih opcij. Veljavne opcije so odvisne od tipa vhodne in "
+"izhodne datoteke. Za pomoč o teh opcijah določite vhodno in izhodno datoteko "
+"in nato uporabite  -h opcijo.\n"
+"\n"
+"Za popolno dokumentacijo sistema pretvorbe poglejte\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
-msgstr ""
+msgstr "VHODNE OPCIJE"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:98
 msgid "Options to control the processing of the input %s file"
-msgstr ""
+msgstr "Opcije za nadzor procesiranja vhodne %s datoteke"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "OUTPUT OPTIONS"
-msgstr ""
+msgstr "IZHODNE OPCIJE"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
-msgstr ""
+msgstr "Opcije za nadzor procesiranja izhoda %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
-msgstr ""
+msgstr "Opcije za nadzor izgleda in zaznavanja izhoda"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:135
 msgid "Control auto-detection of document structure."
