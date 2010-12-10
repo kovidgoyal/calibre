@@ -103,7 +103,6 @@ class PreProcessor(object):
                     f.write(raw.encode('utf-8'))
 
     def get_word_count(self, html):
-        totalwords = 0
         word_count_text = re.sub(r'(?s)<head[^>]*>.*?</head>', '', html)
         word_count_text = re.sub(r'<[^>]*>', '', word_count_text)
         wordcount = get_wordcount_obj(word_count_text)
@@ -162,15 +161,13 @@ class PreProcessor(object):
                 chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
             else:
                 chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
-                chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
-                
+                chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)               
             html = chapdetect.sub(self.chapter_head, html)
 
         words_per_chptr = wordcount
         if words_per_chptr > 0 and self.html_preprocess_sections > 0:
             words_per_chptr = wordcount / self.html_preprocess_sections
         print "Total wordcount is: "+ str(wordcount)+", Average words per section is: "+str(words_per_chptr)+", Marked up "+str(self.html_preprocess_sections)+" chapters"            
-
         return html
 
 
@@ -180,10 +177,11 @@ class PreProcessor(object):
 
         # Count the words in the document to estimate how many chapters to look for and whether
         # other types of processing are attempted
+        totalwords = 0
         totalwords = self.get_word_count(html)
         
-        if totalwords < 10:
-            print "not enough text, not preprocessing"
+        if totalwords < 20:
+            self.log("not enough text, not preprocessing")
             return html
 
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
@@ -255,7 +253,7 @@ class PreProcessor(object):
         # detect chapters/sections to match xpath or splitting logic
         #
 
-        self.markup_chapters(html, totalwords, blanks_between_paragraphs)
+        html = self.markup_chapters(html, totalwords, blanks_between_paragraphs)
 
 
         ###### Unwrap lines ######
