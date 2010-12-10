@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
-from PyQt4.Qt import Qt, QDialog
+from PyQt4.Qt import Qt, QDialog, QDialogButtonBox
 from calibre.gui2.dialogs.comments_dialog_ui import Ui_CommentsDialog
 
 class CommentsDialog(QDialog, Ui_CommentsDialog):
@@ -20,3 +20,6 @@ class CommentsDialog(QDialog, Ui_CommentsDialog):
         if text is not None:
             self.textbox.setPlainText(text)
         self.textbox.setTabChangesFocus(True)
+        self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
+        self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
+
