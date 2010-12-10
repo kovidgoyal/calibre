@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from calibre.constants import __appname__, __version__
 from calibre import strftime, prepare_string_for_xml as xml
+from calibre.utils.date import parse_date
 
 SONY_METADATA = u'''\
 <?xml version="1.0" encoding="utf-8"?>
@@ -87,7 +88,8 @@ def sony_metadata(oeb):
         pass
 
     try:
-        date = unicode(m.date[0]).split('T')[0]
+        date = parse_date(unicode(m.date[0]),
+                as_utc=False).strftime('%Y-%m-%d')
     except:
         date = strftime('%Y-%m-%d')
     try:
