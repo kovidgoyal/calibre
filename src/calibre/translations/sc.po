@@ -1,4 +1,4 @@
-# Malayalam translation for calibre
+# Sardinian translation for calibre
 # Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the calibre package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-09 16:15+0000\n"
-"PO-Revision-Date: 2010-04-23 18:31+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
-"Language-Team: Malayalam <ml@li.org>\n"
+"PO-Revision-Date: 2010-12-04 20:52+0000\n"
+"Last-Translator: anzelu <Unknown>\n"
+"Language-Team: Sardinian <sc@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-10 04:53+0000\n"
+"X-Launchpad-Export-Date: 2010-12-10 04:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
-msgstr "ഒന്നും തന്നെ ചെയ്തില്ല"
+msgstr "Does absolutely nothing"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:87
@@ -156,15 +156,15 @@ msgstr "ഒന്നും തന്നെ ചെയ്തില്ല"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:55
 msgid "Unknown"
-msgstr "അജ്ഞാതം"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
-msgstr "അടിത്തറ"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:172
 msgid "File type"
-msgstr "ഫയല്‍ തരം"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:208
 msgid "Metadata reader"
@@ -198,10 +198,6 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"ഒരു HTML ഫയലില്‍ പ്രാദേശികമായി ഉള്ള എല്ലാ ലിങ്കുകളെയും അനുഗമിച്ച ശേഷം "
-"ബന്ധപെട്ടിടുള്ള എല്ലാ ഫയലുകളും ഉള്‍പ്പെട്ട ഒരു ZIP ഫയല്‍ നിര്‍മ്മിക്കുക. "
-"നിങ്ങള്‍ ഓരോ തവണയും ഗ്രന്ഥശേഖരത്തിലേക്ക് ഒരു HTML ഫയല്‍ "
-"ഉള്‍പ്പെടുത്തുമ്പോള്‍ ഈ പ്ലുഗിന്‍ പ്രവര്‍ത്തിക്കുന്നതായിരിക്കും."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:51
 msgid ""
@@ -219,7 +215,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:92
 msgid "Extract cover from comic files"
 msgstr ""
-"ഹാസ്യ വിഭാഗത്തിലെ(comic) ഫയലുകളില്‍ നിന്നും മുഖചിത്രം സ്വാംശീകരിക്കുക"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:121
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:132
@@ -241,17 +236,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:311
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:321
 msgid "Read metadata from %s files"
-msgstr "%s ഫയലുകളില്‍ നിന്നും മെറ്റാഡാറ്റ(metadata) വായിക്കുക"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:269
 msgid "Read metadata from ebooks in RAR archives"
 msgstr ""
-"RAR ശേഖരങ്ങളില്‍ ഉള്ള ഇ-ബുക്കുകളില്‍ നിന്നും മെറ്റാഡാറ്റ(metadata) വായിക്കുക"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:332
 msgid "Read metadata from ebooks in ZIP archives"
 msgstr ""
-"ZIP ശേഖരങ്ങളില്‍ ഉള്ള ഇ-ബുക്കുകളില്‍ നിന്നും മെറ്റാഡാറ്റ(metadata) വായിക്കുക"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:345
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:355
@@ -471,26 +464,25 @@ msgstr ""
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
-"ഈ പ്രൊഫൈല്‍ SONY PRS നിരകള്‍ക്കു വേണ്ടി ഉള്ളതാണ്. 500/505/600/700 മുതലായവ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:73
 msgid "This profile is intended for the SONY PRS 300."
-msgstr "ഈ പ്രൊഫൈല്‍ SONY PRS 300 നു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:82
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:486
 msgid "This profile is intended for the SONY PRS-900."
-msgstr "ഈ പ്രൊഫൈല്‍ SONY PRS-900 നു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:90
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:515
 msgid "This profile is intended for the Microsoft Reader."
-msgstr "ഈ പ്രൊഫൈല്‍ Microsoft Reader നു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:101
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:526
 msgid "This profile is intended for the Mobipocket books."
-msgstr "ഈ പ്രൊഫൈല്‍ Mobipocket ബുക്കുകള്‍ക്ക് വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:114
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:539
@@ -505,37 +497,37 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:136
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:559
 msgid "This profile is intended for the Cybook G3."
-msgstr "ഈ പ്രൊഫൈല്‍ Cybook G3 ക്കു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:149
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:572
 msgid "This profile is intended for the Cybook Opus."
-msgstr "ഈ പ്രൊഫൈല്‍ Cybook Opus നു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:161
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:585
 msgid "This profile is intended for the Amazon Kindle."
-msgstr "ഈ പ്രൊഫൈല്‍ Amazon Kindle നു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:173
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:633
 msgid "This profile is intended for the Irex Illiad."
-msgstr "ഈ പ്രൊഫൈല്‍ Irex Illiad നു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:185
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:646
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr "ഈ പ്രൊഫൈല്‍ IRex Digital Reader 1000 ത്തിനു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:198
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:660
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr "ഈ പ്രൊഫൈല്‍ IRex Digital Reader 800 നു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:210
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:674
 msgid "This profile is intended for the B&N Nook."
-msgstr "ഈ പ്രൊഫൈല്‍ B&N Nook നു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:232
 msgid "Output profile"
@@ -563,11 +555,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:477
 msgid "This profile is intended for the SONY PRS-300."
-msgstr "ഈ പ്രൊഫൈല്‍ SONY PRS-300 നു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:495
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr "ഈ പ്രൊഫൈല്‍ 5-inch JetBook നു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:504
 msgid ""
@@ -577,7 +569,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:611
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr "ഈ പ്രൊഫൈല്‍ Amazon Kindle DX നു വേണ്ടി ഉള്ളതാണ്."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:686
 msgid "This profile is intended for the B&N Nook Color."
@@ -589,7 +581,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Installed plugins"
-msgstr "ഇന്‍സ്റ്റോള്‍ ചെയ്തിട്ടുള്ള പ്ലുഗിനുകള്‍"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Mapping for filetype plugins"
@@ -601,7 +593,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:37
 msgid "Disabled plugins"
-msgstr "നിര്‍ജ്ജിവം ആക്കിയിരിക്കുന്ന പ്ലുഗിനുകള്‍"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:38
 msgid "Enabled plugins"
@@ -609,7 +601,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:93
 msgid "No valid plugin found in "
-msgstr "സാധുത ഉള്ള ഒരു പ്ലുഗിനുകള്‍ ഒന്നും കണ്ടെത്തിയില്ല "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:508
 msgid "Initialization of plugin %s failed with traceback:"
@@ -626,8 +618,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:547
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
-"ഒരു പ്ലുഗിന്‍ ഉള്‍പ്പെടുത്തുന്നതിനായി അത് അടങ്ങിയിരിക്കുന്ന zip "
-"ഫയലിലേക്കുള്ള വഴി വ്യക്തമാക്കുക."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:549
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -641,19 +631,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:553
 msgid "List all installed plugins"
-msgstr "ഇന്‍സ്റ്റോള്‍ ചെയ്തിട്ടുള്ള പ്ലുഗിനുകള്‍ എല്ലാം ലിസ്റ്റ് ചെയ്യുക"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:555
 msgid "Enable the named plugin"
-msgstr "സൂചിപ്പിച്ചിട്ടുള്ള പ്ലുഗിന്‍ പുന:ജ്ജിവിപ്പിക്കുക"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:557
 msgid "Disable the named plugin"
-msgstr "സൂചിപ്പിച്ചിട്ടുള്ള പ്ലുഗിന്‍ നിര്‍ജ്ജിവമാക്കുക"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr "ആന്‍ഡ്രോയിഡ് ഫോണുകളുമായി(Android phones) സംവതിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:56
 msgid ""
@@ -736,7 +726,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2026
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:150
 msgid "News"
-msgstr "വാര്‍ത്തകള്‍"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2554
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:21
@@ -752,22 +742,21 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr "Binatone Readme eBook reader വുമായി സംവതിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
 msgstr ""
-"ബ്ലാക്ക്ബെറി സ്മാര്‍ട്ട്‌ ഫോണുമായി(Blackberry smart phone) സംവതിക്കുക."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:90
 msgid "Kovid Goyal"
-msgstr "കോവിദ് ഗോയല്‍(Kovid Goyal)"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr "Cybook Gen 3 / Opus eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
@@ -775,7 +764,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
-msgstr "EB600 eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
@@ -791,15 +780,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr "Entourage Edge"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr "Entourage Edge ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr "ESlick eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
@@ -817,15 +806,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr "Hanlin V3 eBook readers ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:96
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr "Hanlin V5 eBook readers ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:115
 msgid "Communicate with the BOOX eBook reader."
-msgstr "BOOX eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:132
 msgid ""
@@ -835,7 +824,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:22
 msgid "Communicate with the Hanvon N520 eBook reader."
-msgstr "Hanvon N520 eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:47
 msgid "Communicate with The Book reader."
@@ -852,7 +841,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:256
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:274
 msgid "Removing books from device..."
-msgstr "പുസ്തകങ്ങള്‍ ഉപകരണത്തില്‍ നിന്നും നീക്കം ചെയ്യുന്നു..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:119
 msgid "Communicate with the Azbooka"
@@ -860,11 +849,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:138
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr "Elonex EB 511 eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
-msgstr "IRex Iliad eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
@@ -878,19 +867,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
-msgstr "IRex Digital Reader 1000 eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
-msgstr "IRex Digital Reader 800 ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:15
 msgid "Communicate with the Iriver Story reader."
-msgstr "Iriver Story reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:20
 msgid "Communicate with the JetBook eBook reader."
-msgstr "JetBook eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:88
 msgid "Communicate with the MiBuk Wolder reader."
@@ -902,7 +891,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:43
 msgid "Communicate with the Kindle eBook reader."
-msgstr "Kindle eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:170
 msgid "Communicate with the Kindle 2/3 eBook reader."
@@ -910,7 +899,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:211
 msgid "Communicate with the Kindle DX eBook reader."
-msgstr "Kindle DX eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:23
 msgid "Communicate with the Kobo Reader"
@@ -933,7 +922,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:143
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:166
 msgid "Getting list of books on device..."
-msgstr "ഉപകരണത്തില്‍ ഉള്ള പുസ്തകങ്ങളുടെ ലിസ്റ്റ് എടുക്കുന്നു..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:315
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:322
@@ -999,7 +988,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr "Nokia 770 internet tablet ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
@@ -1015,7 +1004,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
-msgstr "Nook eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Nook Color"
@@ -1027,11 +1016,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr "Nuut2 eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
-msgstr "Sony PRS-500 eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with all the Sony eBook readers."
@@ -1050,7 +1039,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
-msgstr "Samsung SNE eBook reader ആയി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3/K5 reader."
@@ -1158,20 +1147,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:41
 msgid "Communicate with an eBook reader."
-msgstr "ഇ-ബുക്ക്‌ റീഡരുമായി സംവദിക്കുക."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:57
 msgid "Get device information..."
-msgstr "ഉപകരണത്തിന്റെ വിവരങ്ങള്‍ നേടുക..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:195
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:197
 msgid "Transferring books to device..."
-msgstr "പുസ്തകങ്ങള്‍ ഉപകരണത്തിലേക്ക് കൈമാറുന്നു..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:316
 msgid "Sending metadata to device..."
-msgstr "മെറ്റാഡേറ്റ ഉപകരണത്തിലേക്ക് അയക്കുന്നു..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:182
 msgid "Rendered %s"
@@ -2015,7 +2004,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set the book title"
-msgstr "പുസ്തകത്തിന്റെ തലക്കെട്ട്‌ ഉറപ്പിക്കുക"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
@@ -2023,7 +2012,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set the author"
-msgstr "ഗ്രന്ഥ കര്‍ത്താവിനെ ഉറപ്പിക്കുക"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
@@ -12400,21 +12389,3 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
 msgstr ""
-
-#~ msgid "Communicate with the Kindle 2 eBook reader."
-#~ msgstr "Kindle 2 eBook reader ആയി സംവദിക്കുക."
-
-#~ msgid "Communicate with the Nokia 810 internet tablet."
-#~ msgstr "Nokia 810 internet tablet ആയി സംവദിക്കുക."
-
-#~ msgid "Communicate with the Sony PRS-300/505/500 eBook reader."
-#~ msgstr "Sony PRS-300/505/500 eBook reader ആയി സംവദിക്കുക."
-
-#~ msgid "Communicate with the Sony PRS-600/700/900 eBook reader."
-#~ msgstr "Sony PRS-600/700/900 eBook reader ആയി സംവദിക്കുക."
-
-#~ msgid "Communicate with the Teclast K3 reader."
-#~ msgstr "Teclast K3 reader ആയി സംവദിക്കുക."
-
-#~ msgid " "
-#~ msgstr " "
