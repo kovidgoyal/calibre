@@ -4,6 +4,78 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.33
+  date: 2010-12-10
+
+  new features:
+    - title: "Language sensitive sorting"
+      type: major
+      description: >
+        "calibre now sorts using language specific rules. The language used is the language of the calibre interface, which can be changed via Preferences->Look & Feel. There is also
+        a tweak that allows you to use a different language from the one used for the calibre interface."
+
+    - title: "Add an action to merge only formats and leave metadata alone (Shift+Alt+M)"
+      tickets: [7709]
+
+    - title: "Add a tweak to control which custom columns are displayed in the Book details panel."
+
+    - title: "Implement a more sophisticated 'functional programming' template language. See the User Manual for details."
+
+    - title: "Speed up deleting of large numbers of books and show progress while doing so"
+
+    - title: "Adding books: Dont refresh the Tag Browser while adding multiple books. Should speed up the adding of large numbers of books."
+
+    - title: "Edit metadata dialog: When trying to download metadata, if there are multiple matches indicate which matches have a cover and summary in the list. Also add an option to automatically download the cover of the selected match."
+
+    - title: "Drivers for the HTC Legend and Samsung Epic"
+
+    - title: "FB2 Output: Convert SVG images in the input document to raster images"
+
+    - title: "News download: Localize the navigation bars in the downloaded news to the language the user has selected for their calibre interface"
+
+  bug fixes:
+    - title: "Various fixes to the Title Case function"
+      tickets: [7846]
+
+    - title: "Content server: Fix --url-prefix being ignored for links at the Top level"
+
+    - title: "News download: When generating periodicals for the SONY use the local timezone in the SONY specific metadata"
+
+    - title: "Fix bug in cover cache that could cause it to keep a large number of covers in memory. Showed up when adding large numbers of books to calibre."
+      tickets: [7813]
+
+    - title: "Adding books: Run in the main thread to prevent unfortunate interactions with the metadata backup. Also fix regression that broke the Abort button."
+
+    - title: "Fix a crash on OS X if OK is clicked inthe edit metadata button while downloading a cover"
+      tickets: [7716]
+
+    - title: "E-book viewer: Fix a regression that prevented booksmarks from working with some EPUB files"
+      tickets: [7812]
+
+    - title: "Save to disk: Refactor to not open a database connection in the worker process. Also fix a bug that could lead to save failures not being reported."
+
+    - title: "Fix regression in 0.7.32 that broke opening formats in the ebook viewer from the edit metadata dialog"
+
+    - title: "FB2 Output: Generate output 100% compliant with the FB2 spec"
+
+    - title: "Fix Saved search dropdown box looses selected search"
+      tickets: [7787]
+
+    - title: "TXT Output: Fix an issue where the br to space conversion was not being handled properly."
+
+  improved recipes:
+    - Le Monde
+    - Ming Pao
+    - New Yorker
+
+  new recipes:
+    - title: "ToyoKeizai News and Nikkei Social News"
+      author: "Hiroshi Miura"
+      
+    - title: "St. Louis Post Dispatch"
+      author: "cisaak"
+
+
 - version: 0.7.32
   date: 2010-12-03
 
