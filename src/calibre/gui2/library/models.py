@@ -223,21 +223,22 @@ class BooksModel(QAbstractTableModel): # {{{
     def by_author(self):
         return self.sorted_on[0] == 'authors'
 
+    def books_deleted(self):
+        self.count_changed()
+        self.clear_caches()
+        self.reset()
+
     def delete_books(self, indices):
         ids = map(self.id, indices)
         for id in ids:
             self.db.delete_book(id, notify=False)
-        self.count_changed()
-        self.clear_caches()
-        self.reset()
+        self.books_deleted()
         return ids
 
     def delete_books_by_id(self, ids):
         for id in ids:
             self.db.delete_book(id)
-        self.count_changed()
-        self.clear_caches()
-        self.reset()
+        self.books_deleted()
 
     def books_added(self, num):
         if num > 0:
