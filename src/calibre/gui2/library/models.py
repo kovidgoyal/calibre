@@ -337,6 +337,11 @@ class BooksModel(QAbstractTableModel): # {{{
             name, val = mi.format_field(key)
             if val:
                 data[name] = val
+        cf_kt = {}
+        for key,mi in self.db.all_metadata().items():
+            if mi['is_custom']:
+                cf_kt[mi['name']] = key
+        data['__cf_kt__'] = cf_kt
         return data
 
     def set_cache(self, idx):
