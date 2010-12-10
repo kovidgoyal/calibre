@@ -303,6 +303,20 @@ class BooksModel(QAbstractTableModel): # {{{
         return self.rowCount(None)
 
     def get_book_display_info(self, idx):
+        def custom_keys_to_display():
+            ans = getattr(self, '_custom_fields_in_book_info', None)
+            if ans is None:
+                cfkeys = set(self.db.custom_field_keys())
+                yes_fields = set(tweaks['book_details_will_display'])
+                no_fields = set(tweaks['book_details_wont_display'])
+                if '*' in yes_fields:
+                    yes_fields = cfkeys
+                if '*' in no_fields:
+                    no_fields = cfkeys
+                ans = frozenset(yes_fields - no_fields)
+                setattr(self, '_custom_fields_in_book_info', ans)
+            return ans
+
         data = {}
         cdata = self.cover(idx)
         if cdata:
@@ -334,15 +348,13 @@ class BooksModel(QAbstractTableModel): # {{{
                 _('Book %s of %s.')%\
                     (sidx, prepare_string_for_xml(series))
         mi = self.db.get_metadata(idx)
+        cf_to_display = custom_keys_to_display()
         for key in mi.custom_field_keys():
+            if key not in cf_to_display:
+                continue
             name, val = mi.format_field(key)
             if val:
                 data[name] = val
-        cf_kt = {}
-        for key,mi in self.db.all_metadata().items():
-            if mi['is_custom']:
-                cf_kt[mi['name']] = key
-        data['__cf_kt__'] = cf_kt
         return data
 
     def set_cache(self, idx):

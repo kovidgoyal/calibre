@@ -20,7 +20,6 @@ from calibre.constants import preferred_encoding
 from calibre.library.comments import comments_to_html
 from calibre.gui2 import config, open_local_file
 from calibre.utils.icu import sort_key
-from calibre.utils.config import tweaks
 
 # render_rows(data) {{{
 WEIGHTS = collections.defaultdict(lambda : 100)
@@ -30,25 +29,8 @@ WEIGHTS[_('Collections')] = 2
 WEIGHTS[_('Series')] = 3
 WEIGHTS[_('Tags')] = 4
 
-def keys_to_display(data):
-    kt = data.get('__cf_kt__', None)
-    if kt is None:
-        return data.keys()
-    cfkeys = frozenset([k for k in kt.values()])
-    yes_fields = set(tweaks['book_details_will_display'])
-    no_fields = set(tweaks['book_details_wont_display'])
-    if '*' in yes_fields:
-        yes_fields = cfkeys
-    if '*' in no_fields:
-        no_fields = cfkeys
-    todisplay = frozenset(yes_fields - no_fields)
-    res = [k for k in data.keys()
-              if k not in kt or (kt[k] not in cfkeys or kt[k] in todisplay)]
-    res.remove('__cf_kt__')
-    return res
-
 def render_rows(data):
-    keys = keys_to_display(data)
+    keys = data.keys()
     # First sort by name. The WEIGHTS sort will preserve this sub-order
     keys.sort(key=sort_key)
     keys.sort(key=lambda x: WEIGHTS[x])
