@@ -12,7 +12,7 @@
       type: major
       description: >
         "calibre now sorts using language specific rules. The language used is the language of the calibre interface, which can be changed via Preferences->Look & Feel. There is also
-        a tweak that allows you to use a different language from the one used for the calibre interface."
+        a tweak that allows you to use a different language from the one used for the calibre interface. Powered by the ICU library."
 
     - title: "Add an action to merge only formats and leave metadata alone (Shift+Alt+M)"
       tickets: [7709]
@@ -74,6 +74,9 @@
       
     - title: "St. Louis Post Dispatch"
       author: "cisaak"
+
+    - title: "Heise Open and Technology Review"
+      author: "Anton Gillert"
 
 
 - version: 0.7.32
