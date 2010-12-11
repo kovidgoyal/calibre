@@ -20,5 +20,6 @@ class CommentsDialog(QDialog, Ui_CommentsDialog):
         if text is not None:
             self.textbox.setPlainText(text)
         self.textbox.setTabChangesFocus(True)
-        self.buttonBox.button(QDialogButtonBox.Ok).setText('&OK')
-        self.buttonBox.button(QDialogButtonBox.Cancel).setText('&Cancel')
+        self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
+        self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
+
