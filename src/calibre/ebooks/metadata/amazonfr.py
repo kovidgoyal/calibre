@@ -2,9 +2,7 @@ from __future__ import with_statement
 __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 
-import sys, textwrap, re, traceback
-from threading import Thread, Lock
-from Queue import Queue
+import sys, textwrap, re, traceback, socket
 from urllib import urlencode
 from math import ceil
 
@@ -108,10 +106,6 @@ class Amazon(MetadataSource):
             self.exception = e
             self.tb = traceback.format_exc()
 
-    # @property
-    # def string_customization_help(self):
-        # return _('You can select here the language for metadata search with amazon.com')
-
 
 def report(verbose):
     if verbose:
@@ -119,56 +113,6 @@ def report(verbose):
 
 class AmazonError(Exception):
     pass
-
-class BrowserThread(Thread):
-
-    def __init__(self, url, qbr, qsync, nb, verbose=False, timeout=10., ex=Exception, name='Meta'):
-        self.url = url
-        self.ex = ex
-        self.qbr = qbr
-        self.qsync = qsync
-        self.nb = nb
-        self.plugname = name
-        self.verbose = verbose
-        self.timeout = timeout
-        self.result = None
-        self.br = browser()
-        Thread.__init__(self)
-
-    def get_result(self):
-        return self.result
-
-    def run(self):
-        try:
-            browser = self.qbr.get(True)
-            raw = self.br.open_novisit(self.url, timeout=self.timeout).read()
-        except Exception, e:
-            report(self.verbose)
-            if callable(getattr(e, 'getcode', None)) and \
-                    e.getcode() == 404:
-                self.result = None
-            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
-                raise self.ex(_('%s timed out. Try again later.') % self.plugname)
-            raise self.ex(_('%s encountered an error.') % self.plugname)
-        finally:
-            self.qbr.put(browser, True)
-        
-        if '<title>404 - ' in raw:
-            report(self.verbose)
-            self.result = None
-            return None
-        raw = xml_to_unicode(raw, strip_encoding_pats=True,
-                resolve_entities=True)[0]
-        try:
-            self.result = soupparser.fromstring(raw)
-        except:
-            try:
-                #remove ASCII invalid chars
-                self.result = soupparser.fromstring(clean_ascii_chars(raw))
-            except:
-                self.result = None
-        finally:
-            self.qsync.put(self.nb, True)
 
 
 class Query(object):
@@ -305,14 +249,11 @@ class Query(object):
                 for i in x.xpath("//a/span[@class='srTitle']")])
         return results[:self.max_results], self.baseurl
 
-class ResultList(object):
+class ResultList(list):
 
     def __init__(self, baseurl, lang = 'all'):
         self.baseurl = baseurl
         self.lang = lang
-        self.thread = []
-        self.res = []
-        self.nbtag = 0
         self.repub = re.compile(u'\((.*)\)')
         self.rerat = re.compile(u'([0-9.]+)')
         self.reattr = re.compile(r'<([a-zA-Z0-9]+)\s[^>]+>')
@@ -482,61 +423,45 @@ class ResultList(object):
             pass
         return mi
 
-    def producer(self, sync, data, br, verbose=False):
-        for i in xrange(len(data)):
-            thread = BrowserThread(data[i], br, sync, i, verbose=verbose, ex=AmazonError,
-                name='Amazon')
-            thread.start()
-            self.thread.append(thread)
+    def get_individual_metadata(self, url, br, verbose):
+        try:
+            raw = br.open_novisit(url).read()
+        except Exception, e:
+            report(verbose)
+            if callable(getattr(e, 'getcode', None)) and \
+                    e.getcode() == 404:
+                return None
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+                raise AmazonError(_('Amazon timed out. Try again later.'))
+            raise AmazonError(_('Amazon encountered an error.'))
+        if '<title>404 - ' in raw:
+            report(verbose)
+            return None
+        raw = xml_to_unicode(raw, strip_encoding_pats=True,
+                resolve_entities=True)[0]
+        try:
+            return soupparser.fromstring(raw)
+        except:
+            try:
+                #remove ASCII invalid chars
+                return soupparser.fromstring(clean_ascii_chars(raw))
+            except:
+                report(verbose)
+                return None
 
-    def consumer(self, sync, syncbis, br, total_entries, verbose=False):
-        i=0
-        while i < total_entries:
-            nb = int(sync.get(True))
-            entry = self.thread[nb].get_result()
-            i+=1
+    def populate(self, entries, br, verbose=False):
+        #multiple entries
+        for x in entries:
+            entry = self.get_individual_metadata(x, br, verbose)
             if entry is not None:
                 mi = self.fill_MI(entry, verbose)
                 if mi is not None:
                     mi.tags, atag = self.get_tags(entry, verbose)
-                    self.res[nb] = mi
                     if atag:
-                        threadbis = BrowserThread(mi.tags, br, syncbis, nb, verbose=verbose, ex=AmazonError,
-                                        name='Amazon')
-                        self.thread[nb] = threadbis
-                        self.nbtag +=1
-                        threadbis.start()
-
-    def populate(self, entries, ibr, verbose=False, brcall=3):
-        #multiple entries
-        br = Queue(brcall)
-        cbr = Queue(brcall-1)
-        
-        syncp = Queue(1)
-        syncc = Queue(len(entries))
-        
-        for i in xrange(brcall-1):
-            br.put(browser(), True)
-            cbr.put(browser(), True)
-        br.put(ibr, True)
-        
-        self.res = [None]*len(entries)
-        
-        prod_thread = Thread(target=self.producer, args=(syncp, entries, br, verbose))
-        cons_thread = Thread(target=self.consumer, args=(syncp, syncc, cbr, len(entries), verbose))
-        prod_thread.start()
-        cons_thread.start()
-        prod_thread.join()
-        cons_thread.join()
-        
-        #finish processing
-        for i in xrange(self.nbtag):
-            nb = int(syncc.get(True))
-            tags = self.thread[nb].get_result()
-            if tags is not None:
-                self.res[nb].tags = self.get_tags(tags, verbose)[0]
-        
-        return self.res
+                        tags = self.get_individual_metadata(mi.tags, br, verbose)
+                        if tags is not None:
+                            mi.tags = self.get_tags(tags, verbose)[0]
+                    self.append(mi)
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
@@ -550,7 +475,8 @@ def search(title=None, author=None, publisher=None, isbn=None,
 
     #List of entry
     ans = ResultList(baseurl, lang)
-    return [x for x in ans.populate(entries, br, verbose) if x is not None]
+    ans.populate(entries, br, verbose)
+    return [x for x in ans if x is not None]
 
 def option_parser():
     parser = OptionParser(textwrap.dedent(\
@@ -599,6 +525,6 @@ if __name__ == '__main__':
     # sys.exit(main())
     import cProfile
     # sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonfr; calibre.ebooks.metadata.amazonfr.main()"))
-    sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonfr; calibre.ebooks.metadata.amazonfr.main()", "profile_tmp_threading_1"))
+    sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonfr; calibre.ebooks.metadata.amazonfr.main()", "profile_tmp_2"))
 
 # calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\amazonfr.py" -m 5 -a gore -v>data.html
