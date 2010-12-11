@@ -240,9 +240,8 @@ class CollectionsBookList(BookList):
                 return 1
             if y is None:
                 return -1
-            if isinstance(x, (unicode, str)):
-                c = strcmp(unicode(force_unicode(x)),
-                        unicode(force_unicode(y)))
+            if isinstance(x, basestring) and isinstance(y, basestring):
+                c = strcmp(force_unicode(x), force_unicode(y))
             else:
                 c = cmp(x, y)
             if c != 0:
