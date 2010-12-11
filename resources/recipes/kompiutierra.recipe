@@ -1,0 +1,36 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Vadim Dyadkin, dyadkin@gmail.com'
+__author__ = 'Vadim Dyadkin'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Computerra(BasicNewsRecipe):
+    title = u'\u041a\u043e\u043c\u043f\u044c\u044e\u0442\u0435\u0440\u0440\u0430'
+    recursion = 50
+    oldest_article = 100
+    __author__  = 'Vadim Dyadkin'
+    max_articles_per_feed = 100
+    use_embedded_content  = False
+    simultaneous_downloads = 5
+    language = 'ru'
+    description = u'\u041a\u043e\u043c\u043f\u044c\u044e\u0442\u0435\u0440\u044b, \u043e\u043a\u043e\u043b\u043e\u043d\u0430\u0443\u0447\u043d\u044b\u0435 \u0438 \u043e\u043a\u043e\u043b\u043e\u0444\u0438\u043b\u043e\u0441\u043e\u0444\u0441\u043a\u0438\u0435 \u0441\u0442\u0430\u0442\u044c\u0438, \u0433\u0430\u0434\u0436\u0435\u0442\u044b.'
+
+    keep_only_tags = [dict(name='div', attrs={'id': 'content'}),]
+
+
+    feeds = [(u'\u041a\u043e\u043c\u043f\u044c\u044e\u0442\u0435\u0440\u0440\u0430', 'http://feeds.feedburner.com/ct_news/'),]
+
+    remove_tags = [dict(name='div', attrs={'id': ['fin', 'idc-container', 'idc-noscript',]}),
+                   dict(name='ul', attrs={'class': "related_post"}),
+                   dict(name='p', attrs={'class': 'info'}),
+                   dict(name='a', attrs={'rel': 'tag', 'class': 'twitter-share-button', 'type': 'button_count'}),
+                   dict(name='h2', attrs={}),]
+
+    extra_css = 'body { text-align: justify; }'
+
+    def get_article_url(self, article):
+        return article.get('feedburner:origLink', article.get('guid'))
+

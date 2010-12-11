@@ -614,7 +614,7 @@ class DocumentView(QWebView):
 
     def search(self, text, backwards=False):
         if backwards:
-            return self.findText(text, self.document.FindBackwards)
+            return self.findText(text, self.document.FindBackward)
         return self.findText(text)
 
     def path(self):

@@ -18,8 +18,9 @@ from functools import partial
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, isoformat
-from calibre import isbytestring
+from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG
+from calibre.utils.icu import strcmp
 
 global_lock = RLock()
 
@@ -115,6 +116,8 @@ def pynocase(one, two, encoding='utf-8'):
             pass
     return cmp(one.lower(), two.lower())
 
+def icu_collator(s1, s2):
+    return strcmp(force_unicode(s1, 'utf-8'), force_unicode(s2, 'utf-8'))
 
 def load_c_extensions(conn, debug=DEBUG):
     try:
@@ -167,6 +170,7 @@ class DBThread(Thread):
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
         # Dummy functions for dynamically created filters
         self.conn.create_function('books_list_filter', 1, lambda x: 1)
+        self.conn.create_collation('icucollate', icu_collator)
 
     def run(self):
         try:

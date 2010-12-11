@@ -43,6 +43,9 @@ class DispatchController(object): # {{{
         kwargs['action'] = 'f_%d'%len(self.funcs)
         if route != '/':
             route = self.prefix + route
+        elif self.prefix:
+            self.dispatcher.connect(name+'prefix_extra', self.prefix, self,
+                    **kwargs)
         self.dispatcher.connect(name, route, self, **kwargs)
         self.funcs.append(expose(func))
 

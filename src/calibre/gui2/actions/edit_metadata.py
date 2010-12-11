@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import Qt, QMenu
+from PyQt4.Qt import Qt, QMenu, QModelIndex
 
 from calibre.gui2 import error_dialog, config
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
@@ -16,6 +16,7 @@ from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.actions import InterfaceAction
+from calibre.utils.icu import sort_key
 
 class EditMetadataAction(InterfaceAction):
 
@@ -53,6 +54,10 @@ class EditMetadataAction(InterfaceAction):
         mb.addAction(_('Merge into first selected book - keep others'),
                 partial(self.merge_books, safe_merge=True),
                 Qt.AltModifier+Qt.Key_M)
+        mb.addSeparator()
+        mb.addAction(_('Merge only formats into first selected book - delete others'),
+                partial(self.merge_books, merge_only_formats=True),
+                Qt.AltModifier+Qt.ShiftModifier+Qt.Key_M)
         self.merge_menu = mb
         self.action_merge.setMenu(mb)
         md.addSeparator()
@@ -126,20 +131,40 @@ class EditMetadataAction(InterfaceAction):
         if bulk or (bulk is None and len(rows) > 1):
             return self.edit_bulk_metadata(checked)
 
-        def accepted(id):
-            self.gui.library_view.model().refresh_ids([id])
+        row_list = [r.row() for r in rows]
+        current_row = 0
+        changed = set([])
+        db = self.gui.library_view.model().db
 
-        for row in rows:
-            self.gui.iactions['View'].metadata_view_id = self.gui.library_view.model().db.id(row.row())
-            d = MetadataSingleDialog(self.gui, row.row(),
-                                    self.gui.library_view.model().db,
-                                    accepted_callback=accepted,
-                                    cancel_all=rows.index(row) < len(rows)-1)
-            d.view_format.connect(self.gui.iactions['View'].metadata_view_format)
-            d.exec_()
-            if d.cancel_all:
+        if len(row_list) == 1:
+            cr = row_list[0]
+            row_list = \
+                list(range(self.gui.library_view.model().rowCount(QModelIndex())))
+            current_row = row_list.index(cr)
+
+        while True:
+            prev = next_ = None
+            if current_row > 0:
+                prev = db.title(row_list[current_row-1])
+            if current_row < len(row_list) - 1:
+                next_ = db.title(row_list[current_row+1])
+
+            d = MetadataSingleDialog(self.gui, row_list[current_row], db,
+                    prev=prev, next_=next_)
+            d.view_format.connect(lambda
+                    fmt:self.gui.iactions['View'].view_format(row_list[current_row],
+                        fmt))
+            if d.exec_() != d.Accepted:
+                d.view_format.disconnect()
                 break
-        if rows:
+            d.view_format.disconnect()
+            changed.add(d.id)
+            if d.row_delta == 0:
+                break
+            current_row += d.row_delta
+
+        if changed:
+            self.gui.library_view.model().refresh_ids(list(changed))
             current = self.gui.library_view.currentIndex()
             m = self.gui.library_view.model()
             if self.gui.cover_flow:
@@ -185,7 +210,7 @@ class EditMetadataAction(InterfaceAction):
             self.gui.library_view.select_rows(ids)
 
     # Merge books {{{
-    def merge_books(self, safe_merge=False):
+    def merge_books(self, safe_merge=False, merge_only_formats=False):
         '''
         Merge selected books in library.
         '''
@@ -199,6 +224,12 @@ class EditMetadataAction(InterfaceAction):
             return error_dialog(self.gui, _('Cannot merge books'),
                         _('At least two books must be selected for merging'),
                         show=True)
+        if len(rows) > 5:
+            if not confirm('<p>'+_('You are about to merge more than 5 books.  '
+                                    'Are you <b>sure</b> you want to proceed?')
+                                +'</p>', 'merge_too_many_books', self.gui):
+                return
+
         dest_id, src_books, src_ids = self.books_to_merge(rows)
         title = self.gui.library_view.model().db.title(dest_id, index_is_id=True)
         if safe_merge:
@@ -213,6 +244,22 @@ class EditMetadataAction(InterfaceAction):
                 return
             self.add_formats(dest_id, src_books)
             self.merge_metadata(dest_id, src_ids)
+        elif merge_only_formats:
+            if not confirm('<p>'+_(
+                'Book formats from the selected books will be merged '
+                'into the <b>first selected book</b> (%s). '
+                'Metadata in the first selected book will not be changed.'
+                'Author, Title, ISBN and all other metadata will <i>not</i> be merged.<br><br>'
+                'After merger the second and subsequently '
+                'selected books, with any metadata they have will be <b>deleted</b>. <br><br>'
+                'All book formats of the first selected book will be kept '
+                'and any duplicate formats in the second and subsequently selected books '
+                'will be permanently <b>deleted</b> from your calibre library.<br><br>  '
+                'Are you <b>sure</b> you want to proceed?')%title
+            +'</p>', 'merge_only_formats', self.gui):
+                return
+            self.add_formats(dest_id, src_books)
+            self.delete_books_after_merge(src_ids)
         else:
             if not confirm('<p>'+_(
                 'Book formats and metadata from the selected books will be merged '
@@ -222,15 +269,10 @@ class EditMetadataAction(InterfaceAction):
                 'subsequently selected books will be <b>deleted</b>. <br><br>'
                 'All book formats of the first selected book will be kept '
                 'and any duplicate formats in the second and subsequently selected books '
-                'will be permanently <b>deleted</b> from your computer.<br><br>  '
+                'will be permanently <b>deleted</b> from your calibre library.<br><br>  '
                 'Are you <b>sure</b> you want to proceed?')%title
             +'</p>', 'merge_books', self.gui):
                 return
-            if len(rows)>5:
-                if not confirm('<p>'+_('You are about to merge more than 5 books.  '
-                                        'Are you <b>sure</b> you want to proceed?')
-                                    +'</p>', 'merge_too_many_books', self.gui):
-                    return
             self.add_formats(dest_id, src_books)
             self.merge_metadata(dest_id, src_ids)
             self.delete_books_after_merge(src_ids)
@@ -348,8 +390,7 @@ class EditMetadataAction(InterfaceAction):
     def edit_device_collections(self, view, oncard=None):
         model = view.model()
         result = model.get_collections_with_ids()
-        compare = (lambda x,y:cmp(x.lower(), y.lower()))
-        d = TagListEditor(self.gui, tag_to_match=None, data=result, compare=compare)
+        d = TagListEditor(self.gui, tag_to_match=None, data=result, key=sort_key)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename # dict of new text to old ids

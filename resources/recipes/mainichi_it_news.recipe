@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 class MainichiDailyITNews(BasicNewsRecipe):
     title          = u'\u6bce\u65e5\u65b0\u805e(IT&\u5bb6\u96fb)'
@@ -16,3 +17,18 @@ class MainichiDailyITNews(BasicNewsRecipe):
     remove_tags = [{'class':"RelatedArticle"}]
     remove_tags_after = {'class':"Credit"}
 
+    def parse_feeds(self):
+
+        feeds = BasicNewsRecipe.parse_feeds(self)
+
+        for curfeed in feeds:
+            delList = []
+            for a,curarticle in enumerate(curfeed.articles):
+                if re.search(r'pheedo.jp', curarticle.url):
+                    delList.append(curarticle)
+            if len(delList)>0:
+                for d in delList:
+                    index = curfeed.articles.index(d)
+                    curfeed.articles[index:index+1] = []
+
+        return feeds
