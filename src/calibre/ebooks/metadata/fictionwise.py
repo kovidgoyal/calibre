@@ -337,6 +337,7 @@ def search(title=None, author=None, publisher=None, isbn=None,
            min_viewability='none', verbose=False, max_results=5,
             keywords=None):
     br = browser()
+    islink = False
     entries, islink = Query(title=title, author=author, publisher=publisher,
         keywords=keywords, max_results=max_results)(br, verbose, timeout = 15.)
 

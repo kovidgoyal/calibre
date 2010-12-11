@@ -80,46 +80,6 @@ class NiceBooksError(Exception):
 class ISBNNotFound(NiceBooksError):
     pass
 
-class BrowserThread(Thread):
-
-    def __init__(self, url, verbose=False, timeout=10., ex=Exception, name='Meta'):
-        self.url = url
-        self.ex = ex
-        self.plugname = name
-        self.verbose = verbose
-        self.timeout = timeout
-        self.result = None
-        Thread.__init__(self)
-
-    def get_result(self):
-        return self.result
-
-    def run(self):
-        try:
-            raw = browser().open_novisit(self.url, timeout=self.timeout).read()
-        except Exception, e:
-            report(self.verbose)
-            if callable(getattr(e, 'getcode', None)) and \
-                    e.getcode() == 404:
-                self.result = None
-            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
-                raise self.ex(_('%s timed out. Try again later.') % self.plugname)
-            raise self.ex(_('%s encountered an error.') % self.plugname)
-        if '<title>404 - ' in raw:
-            report(self.verbose)
-            self.result = None
-            return None
-        raw = xml_to_unicode(raw, strip_encoding_pats=True,
-                resolve_entities=True)[0]
-        try:
-            self.result = soupparser.fromstring(raw)
-        except:
-            try:
-                #remove ASCII invalid chars
-                self.result = soupparser.fromstring(clean_ascii_chars(raw))
-            except:
-                self.result = None
-
 def report(verbose):
     if verbose:
         traceback.print_exc()
@@ -156,7 +116,7 @@ class Query(object):
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
-                return
+                return None
             if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
                 raise NiceBooksError(_('Nicebooks timed out. Try again later.'))
             raise NiceBooksError(_('Nicebooks encountered an error.'))
@@ -178,7 +138,7 @@ class Query(object):
             nbresults = int(feed.xpath("//div[@id='topbar']/b")[0].text)
         except:
             #direct hit
-            return [feed]
+            return [feed], False
 
         nbpagetoquery = int(ceil(float(min(nbresults, self.max_results))/10))
         pages =[feed]
@@ -207,13 +167,14 @@ class Query(object):
         for x in pages:
             results.extend([i.find_class('title')[0].get('href') \
                 for i in x.xpath("//ul[@id='results']/li")])
-        return results[:self.max_results]
+        return results[:self.max_results], True
 
 class ResultList(list):
 
     BASE_URL = 'http://fr.nicebooks.com'
 
-    def __init__(self):
+    def __init__(self, islink):
+        self.islink = islink
         self.repub = re.compile(u'\s*.diteur\s*', re.I)
         self.reauteur = re.compile(u'\s*auteur.*', re.I)
         self.reautclean = re.compile(u'\s*\(.*\)\s*')
@@ -287,36 +248,42 @@ class ResultList(list):
             pass
         return mi
 
-    def producer(self, q, data, verbose=False):
-        for x in data:
-            thread = BrowserThread(self.BASE_URL+x, verbose=verbose, ex=NiceBooksError,
-                name='Nicebooks')
-            thread.start()
-            q.put(thread, True)
+    def get_individual_metadata(self, url, br, verbose):
+        try:
+            raw = br.open_novisit(url).read()
+        except Exception, e:
+            report(verbose)
+            if callable(getattr(e, 'getcode', None)) and \
+                    e.getcode() == 404:
+                return None
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+                raise NiceBooksError(_('NiceBooks timed out. Try again later.'))
+            raise NiceBooksError(_('NiceBooks encountered an error.'))
+        if '<title>404 - ' in raw:
+            report(verbose)
+            return None
+        raw = xml_to_unicode(raw, strip_encoding_pats=True,
+                resolve_entities=True)[0]
+        try:
+            return soupparser.fromstring(raw)
+        except:
+            try:
+                #remove ASCII invalid chars
+                return soupparser.fromstring(clean_ascii_chars(raw))
+            except:
+                report(verbose)
+                return None
 
-    def consumer(self, q, total_entries, verbose=False):
-        while len(self) < total_entries:
-            thread = q.get(True)
-            thread.join()
-            mi = thread.get_result()
-            if mi is None:
-                self.append(None)
-            else:
-                self.append(self.fill_MI(mi, verbose))
-
-    def populate(self, entries, verbose=False, brcall=3):
-        if len(entries) == 1 and not isinstance(entries[0], str):
+    def populate(self, entries, br, verbose=False):
+        if not self.islink:
             #single entry
             self.append(self.fill_MI(entries[0], verbose))
         else:
             #multiple entries
-            q = Queue(brcall)
-            prod_thread = Thread(target=self.producer, args=(q, entries, verbose))
-            cons_thread = Thread(target=self.consumer, args=(q, len(entries), verbose))
-            prod_thread.start()
-            cons_thread.start()
-            prod_thread.join()
-            cons_thread.join()
+            for x in entries:
+                entry = self.get_individual_metadata(self.BASE_URL+x, br, verbose)
+                if entry is not None:
+                    self.append(self.fill_MI(entry, verbose))
 
 class Covers(object):
 
@@ -358,15 +325,16 @@ class Covers(object):
 def search(title=None, author=None, publisher=None, isbn=None,
            max_results=5, verbose=False, keywords=None):
     br = browser()
-    entries = Query(title=title, author=author, isbn=isbn, publisher=publisher,
+    islink = False
+    entries, islink = Query(title=title, author=author, isbn=isbn, publisher=publisher,
         keywords=keywords, max_results=max_results)(br, verbose, timeout = 10.)
 
     if entries is None or len(entries) == 0:
         return None
 
     #List of entry
-    ans = ResultList()
-    ans.populate(entries, verbose)
+    ans = ResultList(islink)
+    ans.populate(entries, br, verbose)
     return [x for x in ans if x is not None]
 
 def check_for_cover(isbn):
