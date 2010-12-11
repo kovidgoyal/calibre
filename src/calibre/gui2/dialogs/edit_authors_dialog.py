@@ -8,7 +8,7 @@ from PyQt4.Qt import Qt, QDialog, QTableWidgetItem, QAbstractItemView
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, strcmp
 
 class tableItem(QTableWidgetItem):
     def __ge__(self, other):
