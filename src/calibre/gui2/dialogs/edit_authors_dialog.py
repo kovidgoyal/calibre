@@ -8,13 +8,14 @@ from PyQt4.Qt import Qt, QDialog, QTableWidgetItem, QAbstractItemView
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
+from calibre.utils.icu import sort_key
 
 class tableItem(QTableWidgetItem):
     def __ge__(self, other):
-        return unicode(self.text()).lower() >= unicode(other.text()).lower()
+        return sort_key(unicode(self.text())) >= sort_key(unicode(other.text()))
 
     def __lt__(self, other):
-        return unicode(self.text()).lower() < unicode(other.text()).lower()
+        return sort_key(unicode(self.text())) < sort_key(unicode(other.text()))
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
@@ -36,6 +37,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.authors = {}
         auts = db.get_authors_with_ids()
         self.table.setRowCount(len(auts))
+        setattr(self.table, '__lt__', lambda x, y: True if strcmp(x, y) < 0 else False)
         select_item = None
         for row, (id, author, sort) in enumerate(auts):
             author = author.replace('|', ',')
