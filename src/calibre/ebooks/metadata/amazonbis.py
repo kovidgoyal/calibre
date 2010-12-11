@@ -98,9 +98,11 @@ class AmazonSocial(MetadataSource):
     has_html_comments = True
 
     def fetch(self):
+        if not self.isbn:
+            return
         try:
-            self.results = search(self.title, self.book_author, self.publisher,
-                                  self.isbn, max_results=5, verbose=self.verbose, lang='all')
+            self.results = get_social_metadata(self.title, self.book_author, self.publisher,
+                                  self.isbn, verbose=self.verbose, lang='all')[0]
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
