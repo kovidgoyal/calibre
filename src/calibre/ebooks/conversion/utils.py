@@ -227,6 +227,8 @@ class PreProcessor(object):
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
         html = re.sub(r"\s*<[ibu][^>]*>\s*(<[ibu][^>]*>\s*</[ibu]>\s*){0,2}\s*</[ibu]>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
+        # ADE doesn't render <br />, change to empty paragraphs
+        html = re.sub('<br[^>]*>', u'<p>\u00a0</p>', html)
 
         # If more than 40% of the lines are empty paragraphs and the user has enabled remove
         # paragraph spacing then delete blank lines to clean up spacing
