@@ -19,73 +19,56 @@ from calibre.utils.config import OptionParser
 from calibre.library.comments import sanitize_comments_html
 
 
-class AmazonFr(MetadataSource):
+# class AmazonFr(MetadataSource):
 
-    name = 'Amazon French'
-    description = _('Downloads metadata from amazon.fr')
-    supported_platforms = ['windows', 'osx', 'linux']
-    author = 'Sengian'
-    version = (1, 0, 0)
-    has_html_comments = True
+    # name = 'Amazon French'
+    # description = _('Downloads metadata from amazon.fr')
+    # supported_platforms = ['windows', 'osx', 'linux']
+    # author = 'Sengian'
+    # version = (1, 0, 0)
+    # has_html_comments = True
 
-    def fetch(self):
-        try:
-            self.results = search(self.title, self.book_author, self.publisher,
-                                  self.isbn, max_results=10, verbose=self.verbose, lang='fr')
-        except Exception, e:
-            self.exception = e
-            self.tb = traceback.format_exc()
+    # def fetch(self):
+        # try:
+            # self.results = search(self.title, self.book_author, self.publisher,
+                                  # self.isbn, max_results=10, verbose=self.verbose, lang='fr')
+        # except Exception, e:
+            # self.exception = e
+            # self.tb = traceback.format_exc()
 
-class AmazonEs(MetadataSource):
+# class AmazonEs(MetadataSource):
 
-    name = 'Amazon Spanish'
-    description = _('Downloads metadata from amazon.com in spanish')
-    supported_platforms = ['windows', 'osx', 'linux']
-    author = 'Sengian'
-    version = (1, 0, 0)
-    has_html_comments = True
+    # name = 'Amazon Spanish'
+    # description = _('Downloads metadata from amazon.com in spanish')
+    # supported_platforms = ['windows', 'osx', 'linux']
+    # author = 'Sengian'
+    # version = (1, 0, 0)
+    # has_html_comments = True
 
-    def fetch(self):
-        try:
-            self.results = search(self.title, self.book_author, self.publisher,
-                                  self.isbn, max_results=10, verbose=self.verbose, lang='es')
-        except Exception, e:
-            self.exception = e
-            self.tb = traceback.format_exc()
+    # def fetch(self):
+        # try:
+            # self.results = search(self.title, self.book_author, self.publisher,
+                                  # self.isbn, max_results=10, verbose=self.verbose, lang='es')
+        # except Exception, e:
+            # self.exception = e
+            # self.tb = traceback.format_exc()
 
-class AmazonEn(MetadataSource):
+# class AmazonDe(MetadataSource):
 
-    name = 'Amazon English'
-    description = _('Downloads metadata from amazon.com in english')
-    supported_platforms = ['windows', 'osx', 'linux']
-    author = 'Sengian'
-    version = (1, 0, 0)
-    has_html_comments = True
+    # name = 'Amazon German'
+    # description = _('Downloads metadata from amazon.de')
+    # supported_platforms = ['windows', 'osx', 'linux']
+    # author = 'Sengian'
+    # version = (1, 0, 0)
+    # has_html_comments = True
 
-    def fetch(self):
-        try:
-            self.results = search(self.title, self.book_author, self.publisher,
-                                  self.isbn, max_results=10, verbose=self.verbose, lang='en')
-        except Exception, e:
-            self.exception = e
-            self.tb = traceback.format_exc()
-
-class AmazonDe(MetadataSource):
-
-    name = 'Amazon German'
-    description = _('Downloads metadata from amazon.de')
-    supported_platforms = ['windows', 'osx', 'linux']
-    author = 'Sengian'
-    version = (1, 0, 0)
-    has_html_comments = True
-
-    def fetch(self):
-        try:
-            self.results = search(self.title, self.book_author, self.publisher,
-                                  self.isbn, max_results=10, verbose=self.verbose, lang='de')
-        except Exception, e:
-            self.exception = e
-            self.tb = traceback.format_exc()
+    # def fetch(self):
+        # try:
+            # self.results = search(self.title, self.book_author, self.publisher,
+                                  # self.isbn, max_results=10, verbose=self.verbose, lang='de')
+        # except Exception, e:
+            # self.exception = e
+            # self.tb = traceback.format_exc()
 
 class Amazon(MetadataSource):
 
@@ -93,15 +76,31 @@ class Amazon(MetadataSource):
     description = _('Downloads metadata from amazon.com')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Kovid Goyal & Sengian'
-    version = (1, 1, 0)
+    version = (1, 0, 0)
     has_html_comments = True
 
     def fetch(self):
-        # if not self.site_customization:
-            # return
         try:
             self.results = search(self.title, self.book_author, self.publisher,
-                                  self.isbn, max_results=10, verbose=self.verbose, lang='all')
+                                  self.isbn, max_results=5, verbose=self.verbose, lang='all')
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
+class AmazonSocial(MetadataSource):
+
+    name = 'AmazonSocial'
+    metadata_type = 'social'
+    description = _('Downloads social metadata from amazon.com')
+    supported_platforms = ['windows', 'osx', 'linux']
+    author = 'Kovid Goyal & Sengian'
+    version = (1, 0, 1)
+    has_html_comments = True
+
+    def fetch(self):
+        try:
+            self.results = search(self.title, self.book_author, self.publisher,
+                                  self.isbn, max_results=5, verbose=self.verbose, lang='all')
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
@@ -450,7 +449,6 @@ class ResultList(list):
                 return None
 
     def populate(self, entries, br, verbose=False):
-        #multiple entries
         for x in entries:
             entry = self.get_individual_metadata(x, br, verbose)
             if entry is not None:
@@ -471,12 +469,39 @@ def search(title=None, author=None, publisher=None, isbn=None,
         keywords=keywords, max_results=max_results,rlang=lang)(br, verbose)
 
     if entries is None or len(entries) == 0:
-        return
+        return None
 
     #List of entry
     ans = ResultList(baseurl, lang)
     ans.populate(entries, br, verbose)
     return [x for x in ans if x is not None]
+
+def get_social_metadata(title, authors, publisher, isbn, verbose=False,
+        max_results=1, lang='all'):
+    mi = MetaInformation(title, authors)
+    if not isbn or not check_isbn(isbn):
+        return [mi]
+
+    amazresults = search(isbn=isbn, verbose=verbose,
+                max_results=max_results, lang='all')
+    if amazresults is None or amazresults[0] is None:
+        from calibre.ebooks.metadata.xisbn import xisbn
+        for i in xisbn.get_associated_isbns(isbn):
+            amazresults = search(isbn=i, verbose=verbose,
+                max_results=max_results, lang='all')
+            if amazresults is not None and amazresults[0] is not None:
+                break
+    if amazresults is None or amazresults[0] is None:
+        return [mi]
+    
+    miaz = amazresults[0]
+    if miaz.rating is not None:
+        mi.rating = miaz.rating
+    if miaz.comments is not None:
+        mi.comments = miaz.comments
+    if miaz.tags is not None:
+        mi.tags = miaz.tags
+    return [mi]
 
 def option_parser():
     parser = OptionParser(textwrap.dedent(\
@@ -490,41 +515,59 @@ def option_parser():
         All & english & french & german & spanish
     '''
     )))
-    parser.add_option('-t', '--title', help='Book title')
-    parser.add_option('-a', '--author', help='Book author(s)')
-    parser.add_option('-p', '--publisher', help='Book publisher')
-    parser.add_option('-i', '--isbn', help='Book ISBN')
-    parser.add_option('-k', '--keywords', help='Keywords')
+    parser.add_option('-t', '--title', help=_('Book title'))
+    parser.add_option('-a', '--author', help=_('Book author(s)'))
+    parser.add_option('-p', '--publisher', help=_('Book publisher'))
+    parser.add_option('-i', '--isbn', help=_('Book ISBN'))
+    parser.add_option('-k', '--keywords', help=_('Keywords'))
+    parser.add_option('-s', '--social', default=0, action='count',
+                      help=_('Get social data only'))
     parser.add_option('-m', '--max-results', default=10,
-                      help='Maximum number of results to fetch')
+                      help=_('Maximum number of results to fetch'))
     parser.add_option('-l', '--lang', default='all',
-                      help='Chosen language for metadata search (all, en, fr, es, de)')
+                      help=_('Chosen language for metadata search (all, en, fr, es, de)'))
     parser.add_option('-v', '--verbose', default=0, action='count',
-                      help='Be more verbose about errors')
+                      help=_('Be more verbose about errors'))
     return parser
 
 def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     try:
-        results = search(opts.title, opts.author, isbn=opts.isbn, publisher=opts.publisher,
-            keywords=opts.keywords, verbose=opts.verbose, max_results=opts.max_results,
-                lang=opts.lang)
+        if opts.social:
+            results = get_social_metadata(opts.title, opts.author,
+                opts.publisher, opts.isbn, verbose=opts.verbose, lang=opts.lang)
+        else:
+            results = search(opts.title, opts.author, isbn=opts.isbn,
+                publisher=opts.publisher, keywords=opts.keywords, verbose=opts.verbose,
+                    max_results=opts.max_results, lang=opts.lang)
     except AssertionError:
         report(True)
         parser.print_help()
         return 1
-    if results is None or len(results) == 0:
+    if results is None and len(results) == 0:
         print _('No result found for this search!')
         return 0
     for result in results:
         print unicode(result).encode(preferred_encoding, 'replace')
         print
+    
+    #test social
+    # '''Test xisbn'''
+    # print get_social_metadata('Learning Python', None, None, '8324616489')[0]
+    # print
+    # '''Test sophisticated comment formatting'''
+    # print get_social_metadata('Angels & Demons', None, None, '9781416580829')[0]
+    # print
+    # '''Random tests'''
+    # print get_social_metadata('Star Trek: Destiny: Mere Mortals', None, None, '9781416551720')[0]
+    # print
+    # print get_social_metadata('The Great Gatsby', None, None, '0743273567')[0]
 
 if __name__ == '__main__':
-    # sys.exit(main())
-    import cProfile
-    # sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonfr; calibre.ebooks.metadata.amazonfr.main()"))
-    sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonfr; calibre.ebooks.metadata.amazonfr.main()", "profile_tmp_2"))
+    sys.exit(main())
+    # import cProfile
+    # sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonbis; calibre.ebooks.metadata.amazonbis.main()"))
+    # sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonbis; calibre.ebooks.metadata.amazonbis.main()", "profile_tmp_2"))
 
-# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\amazonfr.py" -m 5 -a gore -v>data.html
+# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\amazonbis.py" -m 5 -a gore -v>data.html
