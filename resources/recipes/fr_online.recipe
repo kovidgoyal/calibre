@@ -1,67 +1,61 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009, Justus Bisser <justus.bisser at gmail.com>'
+#!/usr/bin/env  python
+
+__license__            = 'GPL v3'
+__copyright__          = '2010, Christian Schmitt'
+
 '''
 fr-online.de
 '''
-import re
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
-class Spiegel_ger(BasicNewsRecipe):
-    title                 = 'Frankfurter Rundschau'
-    __author__            = 'Justus Bisser'
-    description           = "Dies ist die Online-Ausgabe der Frankfurter Rundschau. Um die abgerufenen individuell einzustellen bearbeiten sie die Liste im erweiterten Modus. Die Feeds findet man auf http://www.fr-online.de/verlagsservice/fr_newsreader/?em_cnt=574255"
-    publisher             = 'Druck- und Verlagshaus Frankfurt am Main GmbH'
-    category              = 'FR Online, Frankfurter Rundschau, Nachrichten, News,Dienste, RSS, RSS, Feedreader, Newsfeed, iGoogle, Netvibes, Widget'
-    oldest_article        = 7
-    max_articles_per_feed = 100
-    language              = 'de'
-    lang                  = 'de-DE'
-    no_stylesheets        = True
-    use_embedded_content  = False
-    #encoding              = 'cp1252'
+class FROnlineRecipe(BasicNewsRecipe):
+  title                  = 'Frankfurter Rundschau'
+  __author__             = 'maccs'
+  description            = 'Nachrichten aus D und aller Welt'
+  encoding               = 'utf-8'
+  masthead_url =  'http://www.fr-online.de/image/view/-/1474018/data/823552/-/logo.png'
+  publisher              = 'Druck- und Verlagshaus Frankfurt am Main GmbH'
+  category               = 'news, germany, world'
+  language               = 'de'
+  publication_type       = 'newspaper'
+  use_embedded_content   = False
+  remove_javascript      = True
+  no_stylesheets         = True
+  oldest_article         = 1   # Increase this number if you're interested in older articles
+  max_articles_per_feed  = 50  # Seems a reasonable number to me
+  extra_css              = '''
+                            body { font-family: "arial", "verdana", "geneva", sans-serif; font-size: 12px; margin: 0px; background-color: #ffffff;}
+                            .imgSubline{background-color: #f4f4f4; font-size: 0.8em;}
+                            .p--heading-1 {font-weight: bold;}
+                            .calibre_navbar {font-size: 0.8em; font-family: "arial", "verdana", "geneva", sans-serif;}
+                            '''
+  remove_tags            = [dict(name='div', attrs={'id':'Logo'})]
+  cover_url              = 'http://www.fr-online.de/image/view/-/1474018/data/823552/-/logo.png'
+  cover_margins          = (100, 150, '#ffffff')
 
-    conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : lang
-                        }
 
-    recursions = 0
-    max_articles_per_feed = 100
-    #keep_only_tags = [dict(name='div', attrs={'class':'text'})]
-    #tags_remove = [dict(name='div', attrs={'style':'text-align: left; margin: 4px 0px 0px 4px; width: 200px; float: right;'})]
-    remove_attributes = ['style']
-    feeds = []
-    #remove_tags_before = [dict(name='div', attrs={'style':'padding-left: 0px;'})]
-    #remove_tags_after = [dict(name='div', attrs={'class':'box_head_text'})]
+  feeds = []
+  feeds.append(('Startseite', u'http://www.fr-online.de/home/-/1472778/1472778/-/view/asFeed/-/index.xml'))
+  feeds.append(('Politik', u'http://www.fr-online.de/politik/-/1472596/1472596/-/view/asFeed/-/index.xml'))
+  feeds.append(('Meinung', u'http://www.fr-online.de/politik/meinung/-/1472602/1472602/-/view/asFeed/-/index.xml'))
+  feeds.append(('Wirtschaft', u'http://www.fr-online.de/wirtschaft/-/1472780/1472780/-/view/asFeed/-/index.xml'))
+  feeds.append(('Sport', u'http://www.fr-online.de/sport/-/1472784/1472784/-/view/asFeed/-/index.xml'))
+  feeds.append(('Eintracht Frankfurt', u'http://www.fr-online.de/sport/eintracht-frankfurt/-/1473446/1473446/-/view/asFeed/-/index.xml'))
+  feeds.append(('Kultur und Medien', u'http://www.fr-online.de/kultur/-/1472786/1472786/-/view/asFeed/-/index.xml'))
+  feeds.append(('Panorama', u'http://www.fr-online.de/panorama/-/1472782/1472782/-/view/asFeed/-/index.xml'))
+  feeds.append(('Frankfurt', u'http://www.fr-online.de/frankfurt/-/1472798/1472798/-/view/asFeed/-/index.xml'))
+  feeds.append(('Rhein-Main', u'http://www.fr-online.de/rhein-main/-/1472796/1472796/-/view/asFeed/-/index.xml'))
+  feeds.append(('Hanau', u'http://www.fr-online.de/rhein-main/hanau/-/1472866/1472866/-/view/asFeed/-/index.xml'))
+  feeds.append(('Darmstadt', u'http://www.fr-online.de/rhein-main/darmstadt/-/1472858/1472858/-/view/asFeed/-/index.xml'))
+  feeds.append(('Wiesbaden', u'http://www.fr-online.de/rhein-main/wiesbaden/-/1472860/1472860/-/view/asFeed/-/index.xml'))
+  feeds.append(('Offenbach', u'http://www.fr-online.de/rhein-main/offenbach/-/1472856/1472856/-/view/asFeed/-/index.xml'))
+  feeds.append(('Bad Homburg', u'http://www.fr-online.de/rhein-main/bad-homburg/-/1472864/1472864/-/view/asFeed/-/index.xml'))
+  feeds.append(('Digital', u'http://www.fr-online.de/digital/-/1472406/1472406/-/view/asFeed/-/index.xml'))
+  feeds.append(('Wissenschaft', u'http://www.fr-online.de/wissenschaft/-/1472788/1472788/-/view/asFeed/-/index.xml'))
 
-    # enable for all news
-    allNews = 0
-    if allNews:
-        feeds = [(u'Frankfurter Rundschau', u'http://www.fr-online.de/rss/sport/index.xml')]
-    else:
-        #select the feeds you like
-        feeds = [(u'Nachrichten', u'http://www.fr-online.de/rss/politik/index.xml')]
-        feeds.append((u'Kommentare und Analysen', u'http://www.fr-online.de/rss/meinung/index.xml'))
-        feeds.append((u'Dokumentationen', u'http://www.fr-online.de/rss/dokumentation/index.xml'))
-        feeds.append((u'Deutschlandtrend', u'http://www.fr-online.de/rss/deutschlandtrend/index.xml'))
-        feeds.append((u'Wirtschaft', u'http://www.fr-online.de/rss/wirtschaft/index.xml'))
-        feeds.append((u'Sport', u'http://www.fr-online.de/rss/sport/index.xml'))
-        feeds.append((u'Feuilleton', u'http://www.fr-online.de/rss/feuilleton/index.xml'))
-        feeds.append((u'Panorama', u'http://www.fr-online.de/rss/panorama/index.xml'))
-        feeds.append((u'Rhein Main und Hessen', u'http://www.fr-online.de/rss/hessen/index.xml'))
-        feeds.append((u'Fitness und Gesundheit', u'http://www.fr-online.de/rss/fit/index.xml'))
-        feeds.append((u'Multimedia', u'http://www.fr-online.de/rss/multimedia/index.xml'))
-        feeds.append((u'Wissen und Bildung', u'http://www.fr-online.de/rss/wissen/index.xml'))
 
-    def get_article_url(self, article):
-        url = article.link
-        regex = re.compile("0C[0-9]{6,8}0A?")
+  def print_version(self, url):
+    return url.replace('index.html', 'view/printVersion/-/index.html')
 
-        liste = regex.findall(url)
-        string = liste.pop(0)
-        string = string[2:len(string)-1]
-        return "http://www.fr-online.de/_em_cms/_globals/print.php?em_cnt=" + string
 

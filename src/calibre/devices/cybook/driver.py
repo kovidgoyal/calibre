@@ -65,8 +65,8 @@ class ORIZON(CYBOOK):
 
     BCD         = [0x319]
 
-    WINDOWS_MAIN_MEM = re.compile(r'CYBOOK_ORIZON__-FD')
-    WINDOWS_CARD_A_MEM = re.compile('CYBOOK_ORIZON__-SD')
+    WINDOWS_MAIN_MEM = re.compile(r'(CYBOOK_ORIZON__-FD)|(FILE-STOR_GADGET)')
+    WINDOWS_CARD_A_MEM = re.compile('(CYBOOK_ORIZON__-SD)|(FILE-STOR_GADGET)')
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Digital Editions'
 

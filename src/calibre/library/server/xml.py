@@ -17,6 +17,7 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import preferred_encoding
 from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.icu import sort_key
 
 E = ElementMaker()
 
@@ -101,8 +102,7 @@ class XMLServer(object):
 
             CFM = self.db.field_metadata
             CKEYS = [key for key in sorted(custom_fields_to_display(self.db),
-                 cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
-                                     CFM[y]['name'].lower()))]
+                                           key=lambda x: sort_key(CFM[x]['name']))]
             custcols = []
             for key in CKEYS:
                 def concat(name, val):

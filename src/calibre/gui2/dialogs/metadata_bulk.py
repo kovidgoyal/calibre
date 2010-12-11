@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
-                     pyqtSignal
+                     pyqtSignal, QDialogButtonBox
 from PyQt4 import QtGui
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
@@ -17,6 +17,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic
 from calibre.utils.titlecase import titlecase
+from calibre.utils.icu import sort_key, capitalize
 
 class MyBlockingBusy(QDialog):
 
@@ -183,9 +184,10 @@ class MyBlockingBusy(QDialog):
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     s_r_functions = {       ''              : lambda x: x,
-                            _('Lower Case') : lambda x: x.lower(),
-                            _('Upper Case') : lambda x: x.upper(),
+                            _('Lower Case') : lambda x: icu_lower(x),
+                            _('Upper Case') : lambda x: icu_upper(x),
                             _('Title Case') : lambda x: titlecase(x),
+                            _('Capitalize') : lambda x: capitalize(x),
                     }
 
     s_r_match_modes = [     _('Character match'),
@@ -197,7 +199,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                             _('Append to field'),
                         ]
 
-    def __init__(self, window, rows, model):
+    def __init__(self, window, rows, model, tab):
         QDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
         self.setupUi(self)
@@ -232,7 +234,19 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.create_custom_column_editors()
 
         self.prepare_search_and_replace()
+
+        self.button_box.clicked.connect(self.button_clicked)
+        self.button_box.button(QDialogButtonBox.Apply).setToolTip(_(
+            'Immediately make all changes without closing the dialog. '
+            'This operation cannot be canceled or undone'))
+        self.do_again = False
+        self.central_widget.setCurrentIndex(tab)
         self.exec_()
+
+    def button_clicked(self, which):
+        if which == self.button_box.button(QDialogButtonBox.Apply):
+            self.do_again = True
+            self.accept()
 
     def prepare_search_and_replace(self):
         self.search_for.initialize('bulk_edit_search_for')
@@ -243,7 +257,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         fm = self.db.field_metadata
         for f in fm:
             if (f in ['author_sort'] or
-                    (fm[f]['datatype'] in ['text', 'series']
+                    (fm[f]['datatype'] in ['text', 'series', 'enumeration']
                      and fm[f].get('search_terms', None)
                      and f not in ['formats', 'ondevice', 'sort'])):
                 self.all_fields.append(f)
@@ -582,7 +596,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def initalize_authors(self):
         all_authors = self.db.all_authors()
-        all_authors.sort(cmp=lambda x, y : cmp(x[1].lower(), y[1].lower()))
+        all_authors.sort(key=lambda x : sort_key(x[1]))
 
         for i in all_authors:
             id, name = i
@@ -592,7 +606,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def initialize_series(self):
         all_series = self.db.all_series()
-        all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        all_series.sort(key=lambda x : sort_key(x[1]))
 
         for i in all_series:
             id, name = i
@@ -601,7 +615,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
-        all_publishers.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        all_publishers.sort(key=lambda x : sort_key(x[1]))
 
         for i in all_publishers:
             id, name = i
@@ -691,7 +705,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         dynamic['s_r_search_mode'] = self.search_mode.currentIndex()
         self.db.clean()
         return QDialog.accept(self)
-
 
     def series_changed(self, *args):
         self.write_series = True

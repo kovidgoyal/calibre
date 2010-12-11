@@ -17,7 +17,7 @@ from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
-                         info_dialog, error_dialog, open_url
+                         info_dialog, error_dialog, open_url, available_height
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.constants import islinux, isfreebsd, isosx
@@ -172,6 +172,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.iterator          = None
         self.current_page      = None
         self.pending_search    = None
+        self.pending_search_dir= None
         self.pending_anchor    = None
         self.pending_reference = None
         self.pending_bookmark  = None
@@ -237,9 +238,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.action_previous_page, SIGNAL('triggered(bool)'),
                      lambda x:self.view.previous_page())
         self.connect(self.action_find_next, SIGNAL('triggered(bool)'),
-                     lambda x:self.find(self.search.smart_text, repeat=True))
+                     lambda x:self.find(unicode(self.search.text()), repeat=True))
         self.connect(self.action_find_previous, SIGNAL('triggered(bool)'),
-                     lambda x:self.find(self.search.smart_text,
+                     lambda x:self.find(unicode(self.search.text()),
                          repeat=True, backwards=True))
 
         self.connect(self.action_full_screen, SIGNAL('triggered(bool)'),
@@ -253,6 +254,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.vertical_scrollbar, SIGNAL('valueChanged(int)'),
                      lambda x: self.goto_page(x/100.))
         self.search.search.connect(self.find)
+        self.search.focus_to_library.connect(lambda: self.view.setFocus(Qt.OtherFocusReason))
         self.connect(self.toc, SIGNAL('clicked(QModelIndex)'), self.toc_clicked)
         self.connect(self.reference, SIGNAL('goto(PyQt_PyObject)'), self.goto)
 
@@ -434,7 +436,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if not text:
             self.view.search('')
             return self.search.search_done(False)
-        if self.view.search(text):
+        if self.view.search(text, backwards=backwards):
             self.scrolled(self.view.scroll_fraction)
             return self.search.search_done(True)
         index = self.iterator.search(text, self.current_index,
@@ -448,11 +450,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                     return self.search.search_done(True)
             return self.search.search_done(True)
         self.pending_search = text
+        self.pending_search_dir = 'backwards' if backwards else 'forwards'
         self.load_path(self.iterator.spine[index])
 
-    def do_search(self, text):
+    def do_search(self, text, backwards):
         self.pending_search = None
-        if self.view.search(text):
+        self.pending_search_dir = None
+        if self.view.search(text, backwards=backwards):
             self.scrolled(self.view.scroll_fraction)
 
     def keyPressEvent(self, event):
@@ -498,8 +502,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.current_index = index
         self.set_page_number(self.view.scroll_fraction)
         if self.pending_search is not None:
-            self.do_search(self.pending_search)
+            self.do_search(self.pending_search,
+                    self.pending_search_dir=='backwards')
             self.pending_search = None
+            self.pending_search_dir = None
         if self.pending_anchor is not None:
             self.view.scroll_to(self.pending_anchor)
             self.pending_anchor = None
@@ -693,6 +699,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             if ss is not None:
                 self.splitter.restoreState(ss)
             self.show_toc_on_open = dynamic.get('viewer_toc_isvisible', False)
+        av = available_height() - 30
+        if self.height() > av:
+            self.resize(self.width(), av)
 
 def config(defaults=None):
     desc = _('Options to control the ebook viewer')

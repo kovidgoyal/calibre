@@ -19,6 +19,7 @@ from calibre.utils.search_query_parser import saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
+from calibre.utils.icu import sort_key
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -45,8 +46,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = [(x.upper(), x) for x in output_formats]
         r('output_format', prefs, choices=choices)
 
-        restrictions = sorted(saved_searches().names(),
-                              cmp=lambda x,y: cmp(x.lower(), y.lower()))
+        restrictions = sorted(saved_searches().names(), key=sort_key)
         choices = [('', '')] + [(x, x) for x in restrictions]
         r('gui_restriction', db.prefs, choices=choices)
         r('new_book_tags', prefs, setting=CommaSeparatedList)

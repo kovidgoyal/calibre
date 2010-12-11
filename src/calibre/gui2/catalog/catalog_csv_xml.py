@@ -28,7 +28,7 @@ class PluginWidget(QWidget, Ui_Form):
                 self.all_fields.append(x)
                 QListWidgetItem(x, self.db_fields)
 
-    def initialize(self, name):
+    def initialize(self, name, db):
         self.name = name
         fields = gprefs.get(name+'_db_fields', self.all_fields)
         # Restore the activated fields from last use

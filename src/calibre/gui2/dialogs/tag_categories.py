@@ -9,6 +9,7 @@ from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.constants import islinux
+from calibre.utils.icu import sort_key
 
 class Item:
     def __init__(self, name, label, index, icon, exists):
@@ -21,6 +22,15 @@ class Item:
         return 'name=%s, label=%s, index=%s, exists='%(self.name, self.label, self.index, self.exists)
 
 class TagCategories(QDialog, Ui_TagCategories):
+    '''
+    The structure of user_categories stored in preferences is
+      {cat_name: [ [name, category, v], [], []}, cat_name [ [name, cat, v] ...}
+    where name is the item name, category is where it came from (series, etc),
+    and v is a scratch area that this editor uses to keep track of categories.
+
+    If you add a category, it is permissible to set v to zero. If you delete
+    a category, ensure that both the name and the category match.
+    '''
     category_labels_orig =   ['', 'authors', 'series', 'publisher', 'tags']
 
     def __init__(self, window, db, on_category=None):
@@ -85,7 +95,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                     # remove any references to a category that no longer exists
                     del self.categories[cat][item]
 
-        self.all_items_sorted = sorted(self.all_items, cmp=lambda x,y: cmp(x.name.lower(), y.name.lower()))
+        self.all_items_sorted = sorted(self.all_items, key=lambda x: sort_key(x.name))
         self.display_filtered_categories(0)
 
         for v in category_names:
@@ -135,7 +145,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             index = self.all_items[node.data(Qt.UserRole).toPyObject()].index
             if index not in self.applied_items:
                 self.applied_items.append(index)
-        self.applied_items.sort(cmp=lambda x, y:cmp(self.all_items[x].name.lower(), self.all_items[y].name.lower()))
+        self.applied_items.sort(key=lambda x:sort_key(self.all_items[x]))
         self.display_filtered_categories(None)
 
     def unapply_tags(self, node=None):
@@ -198,5 +208,5 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.categories[self.current_cat_name] = l
 
     def populate_category_list(self):
-        for n in sorted(self.categories.keys(), cmp=lambda x,y: cmp(x.lower(), y.lower())):
+        for n in sorted(self.categories.keys(), key=sort_key):
             self.category_box.addItem(n)

@@ -240,18 +240,29 @@ class Stylizer(object):
             else:
                 for elem in matches:
                     self.style(elem)._update_cssdict(cssdict)
-        for elem in xpath(tree, '//h:img[@width or @height]'):
-            base = elem.get('style', '').strip()
-            if base:
-                base += ';'
-            for prop in ('width', 'height'):
-                val = elem.get(prop, False)
-                if val:
-                    base += '%s: %s;'%(prop, val)
-                    del elem.attrib[prop]
-            elem.set('style', base)
         for elem in xpath(tree, '//h:*[@style]'):
             self.style(elem)._apply_style_attr()
+        num_pat = re.compile(r'\d+$')
+        for elem in xpath(tree, '//h:img[@width or @height]'):
+            style = self.style(elem)
+            # Check if either height or width is not default
+            is_styled = style._style.get('width', 'auto') != 'auto' or \
+                    style._style.get('height', 'auto') != 'auto'
+            if not is_styled:
+                # Update img style dimension using width and height
+                upd = {}
+                for prop in ('width', 'height'):
+                    val = elem.get(prop, '').strip()
+                    try:
+                        del elem.attrib[prop]
+                    except:
+                        pass
+                    if val:
+                        if num_pat.match(val) is not None:
+                            val += 'px'
+                        upd[prop] = val
+                if upd:
+                    style._update_cssdict(upd)
 
     def _fetch_css_file(self, path):
         hrefs = self.oeb.manifest.hrefs
@@ -564,7 +575,7 @@ class Style(object):
             if parent is not None:
                 base = parent.width
             else:
-                base = self._profile.width
+                base = self._profile.width_pts
             if 'width' in self._element.attrib:
                 width = self._element.attrib['width']
             elif 'width' in self._style:
@@ -576,6 +587,13 @@ class Style(object):
             if isinstance(result, (unicode, str, bytes)):
                 result = self._profile.width
             self._width = result
+            if 'max-width' in self._style:
+                result = self._unit_convert(self._style['max-width'], base=base)
+                if isinstance(result, (unicode, str, bytes)):
+                    result = self._width
+                if result < self._width:
+                    self._width = result
+
         return self._width
 
     @property
@@ -587,7 +605,7 @@ class Style(object):
             if parent is not None:
                 base = parent.height
             else:
-                base = self._profile.height
+                base = self._profile.height_pts
             if 'height' in self._element.attrib:
                 height = self._element.attrib['height']
             elif 'height' in self._style:
@@ -599,6 +617,13 @@ class Style(object):
             if isinstance(result, (unicode, str, bytes)):
                 result = self._profile.height
             self._height = result
+            if 'max-height' in self._style:
+                result = self._unit_convert(self._style['max-height'], base=base)
+                if isinstance(result, (unicode, str, bytes)):
+                    result = self._height
+                if result < self._height:
+                    self._height = result
+
         return self._height
 
     @property
