@@ -108,6 +108,7 @@ class BrowserThread(Thread):
         if '<title>404 - ' in raw:
             report(self.verbose)
             self.result = None
+            return None
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
         try:

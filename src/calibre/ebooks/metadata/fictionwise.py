@@ -69,6 +69,7 @@ class BrowserThread(Thread):
         if '<title>404 - ' in raw:
             report(self.verbose)
             self.result = None
+            return None
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
         try:
@@ -137,12 +138,12 @@ class Query(object):
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
-                return
+                return None
             if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
                 raise FictionwiseError(_('Fictionwise timed out. Try again later.'))
             raise FictionwiseError(_('Fictionwise encountered an error.'))
         if '<title>404 - ' in raw:
-            return
+            return None
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
         try:
