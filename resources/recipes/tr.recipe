@@ -1,0 +1,37 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Anton Gillert <atx at binaryninja.de>'
+
+'''
+Fetch Technology Review.
+'''
+from time import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class TechnologyReviewDe(BasicNewsRecipe):
+
+    title = 'Technology Review'
+    description = 'Technology news from Germany'
+    __author__ = 'Anton Gillert'
+    use_embedded_content   = False
+    language = 'de'
+    timefmt = ' [%d %b %Y]'
+    max_articles_per_feed = 40
+    no_stylesheets = True
+
+    feeds =  [ ('Technology Review', 'http://www.heise.de/tr/news-atom.xml') ]
+
+    def print_version(self, url):
+        return url + '?view=print'
+
+    remove_tags = [dict(id='navi_top'),
+		   dict(id='navi_bottom'),
+		   dict(name='div', attrs={'class':'navi_top_logo'}),
+		   dict(name='img', attrs={'src':'/tr/icons/tr_logo2006.gif'}),
+		   dict(name='p', attrs={'class':'size80'})]
+    remove_tags_after = [dict(name='p', attrs={'class':'size80'})]
+
+    def get_cover_url(self):
+        return 'http://www.heise-medien.de/presseinfo/bilder/tr/' + strftime("%y/tr%m%Y.jpg")
+
+

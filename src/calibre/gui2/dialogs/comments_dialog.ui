@@ -19,15 +19,6 @@
   <property name="windowTitle">
    <string>Edit Comments</string>
   </property>
-  <widget class="QWidget" name="verticalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>311</width>
-     <height>211</height>
-    </rect>
-   </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QPlainTextEdit" name="textbox"/>
@@ -43,7 +34,6 @@
      </widget>
     </item>
    </layout>
-  </widget>
  </widget>
  <resources/>
  <connections>

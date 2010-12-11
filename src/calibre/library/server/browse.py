@@ -359,7 +359,7 @@ class BrowseServer(object):
                 icon = 'blank.png'
             cats.append((meta['name'], category, icon))
 
-        cats = [(u'<li><a title="{2} {0}" href="/browse/category/{1}">&nbsp;</a>'
+        cats = [(u'<li><a title="{2} {0}" href="{3}/browse/category/{1}">&nbsp;</a>'
                  u'<img src="{3}{src}" alt="{0}" />'
                  u'<span class="label">{0}</span>'
                  u'</li>')
