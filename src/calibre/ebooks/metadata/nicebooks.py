@@ -4,8 +4,6 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import sys, textwrap, re, traceback, socket
-from threading import Thread
-from Queue import Queue
 from urllib import urlencode
 from math import ceil
 from copy import deepcopy
