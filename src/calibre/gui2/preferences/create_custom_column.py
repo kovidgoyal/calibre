@@ -27,18 +27,20 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     3:{'datatype':'series',
                         'text':_('Text column for keeping series-like information'),
                         'is_multiple':False},
-                    4:{'datatype':'datetime',
+                    4:{'datatype':'enumeration',
+                        'text':_('Text, but with a fixed set of permitted values'), 'is_multiple':False},
+                    5:{'datatype':'datetime',
                         'text':_('Date'), 'is_multiple':False},
-                    5:{'datatype':'float',
+                    6:{'datatype':'float',
                         'text':_('Floating point numbers'), 'is_multiple':False},
-                    6:{'datatype':'int',
+                    7:{'datatype':'int',
                         'text':_('Integers'), 'is_multiple':False},
-                    7:{'datatype':'rating',
+                    8:{'datatype':'rating',
                         'text':_('Ratings, shown with stars'),
                         'is_multiple':False},
-                    8:{'datatype':'bool',
+                    9:{'datatype':'bool',
                         'text':_('Yes/No'), 'is_multiple':False},
-                    9:{'datatype':'composite',
+                    10:{'datatype':'composite',
                         'text':_('Column built from other columns'), 'is_multiple':False},
                 }
 
@@ -59,6 +61,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.editing_col = editing
         self.standard_colheads = standard_colheads
         self.standard_colnames = standard_colnames
+        self.column_type_box.setMaxVisibleItems(len(self.column_types))
         for t in self.column_types:
             self.column_type_box.addItem(self.column_types[t]['text'])
         self.column_type_box.currentIndexChanged.connect(self.datatype_changed)
@@ -91,6 +94,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 self.date_format_box.setText(c['display'].get('date_format', ''))
         elif ct == 'composite':
             self.composite_box.setText(c['display'].get('composite_template', ''))
+        elif ct == 'enumeration':
+            self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
         self.datatype_changed()
         self.exec_()
 
@@ -103,7 +108,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             getattr(self, 'date_format_'+x).setVisible(col_type == 'datetime')
         for x in ('box', 'default_label', 'label'):
             getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
-
+        for x in ('box', 'default_label', 'label'):
+            getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
 
     def accept(self):
         col = unicode(self.column_name_box.text())
@@ -145,17 +151,31 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             return self.simple_error('', _('The heading %s is already used')%col_heading)
 
         display_dict = {}
+
         if col_type == 'datetime':
             if self.date_format_box.text():
                 display_dict = {'date_format':unicode(self.date_format_box.text())}
             else:
                 display_dict = {'date_format': None}
-
-        if col_type == 'composite':
+        elif col_type == 'composite':
             if not self.composite_box.text():
                 return self.simple_error('', _('You must enter a template for'
                     ' composite columns'))
             display_dict = {'composite_template':unicode(self.composite_box.text())}
+        elif col_type == 'enumeration':
+            if not self.enum_box.text():
+                return self.simple_error('', _('You must enter at least one'
+                    ' value for enumeration columns'))
+            l = [v.strip() for v in unicode(self.enum_box.text()).split(',')]
+            for v in l:
+                if not v:
+                    return self.simple_error('', _('You cannot provide the empty '
+                    'value, as it is included by default'))
+            for i in range(0, len(l)-1):
+                if l[i] in l[i+1:]:
+                    return self.simple_error('', _('The value "{0}" is in the '
+                    'list more than once').format(l[i]))
+            display_dict = {'enum_values': l}
 
         db = self.parent.gui.library_view.model().db
         key = db.field_metadata.custom_field_prefix+col

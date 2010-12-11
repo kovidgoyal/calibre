@@ -83,7 +83,7 @@ class FieldMetadata(dict):
     '''
 
     VALID_DATA_TYPES = frozenset([None, 'rating', 'text', 'comments', 'datetime',
-                                  'int', 'float', 'bool', 'series', 'composite'])
+                'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
     # Builtin metadata {{{
 
@@ -177,7 +177,7 @@ class FieldMetadata(dict):
                            'is_multiple':None,
                            'kind':'field',
                            'name':None,
-                           'search_terms':[],
+                           'search_terms':['author_sort'],
                            'is_custom':False,
                            'is_category':False}),
             ('comments',  {'table':None,

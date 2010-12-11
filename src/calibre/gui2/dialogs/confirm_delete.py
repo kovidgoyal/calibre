@@ -31,4 +31,5 @@ def confirm(msg, name, parent=None, pixmap='dialog_warning.png'):
     d = Dialog(msg, name, parent)
     d.label.setPixmap(QPixmap(I(pixmap)))
     d.setWindowIcon(QIcon(I(pixmap)))
+    d.resize(d.sizeHint())
     return d.exec_() == d.Accepted

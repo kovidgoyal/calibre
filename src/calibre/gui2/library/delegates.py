@@ -20,6 +20,7 @@ from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.utils.date import now, format_date
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
+from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 
 class RatingDelegate(QStyledItemDelegate): # {{{
@@ -173,7 +174,8 @@ class TagsDelegate(QStyledItemDelegate): # {{{
                 editor = TagsLineEdit(parent, self.db.all_tags())
             else:
                 editor = TagsLineEdit(parent,
-                        sorted(list(self.db.all_custom(label=self.db.field_metadata.key_to_label(col)))))
+                        sorted(list(self.db.all_custom(label=self.db.field_metadata.key_to_label(col))),
+                               key=sort_key))
                 return editor
         else:
             editor = EnLineEdit(parent)
@@ -245,13 +247,46 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
             editor.setDecimals(2)
         else:
             editor = EnLineEdit(parent)
-            complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))))
+            complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))),
+                                    key=sort_key)
             completer = QCompleter(complete_items, self)
             completer.setCaseSensitivity(Qt.CaseInsensitive)
             completer.setCompletionMode(QCompleter.PopupCompletion)
             editor.setCompleter(completer)
         return editor
 
+# }}}
+
+class CcEnumDelegate(QStyledItemDelegate): # {{{
+    '''
+    Delegate for text/int/float data.
+    '''
+
+    def createEditor(self, parent, option, index):
+        m = index.model()
+        col = m.column_map[index.column()]
+        editor = QComboBox(parent)
+        editor.addItem('')
+        for v in m.custom_columns[col]['display']['enum_values']:
+            editor.addItem(v)
+        return editor
+
+    def setModelData(self, editor, model, index):
+        val = unicode(editor.currentText())
+        if not val:
+            val = None
+        model.setData(index, QVariant(val), Qt.EditRole)
+
+    def setEditorData(self, editor, index):
+        m = index.model()
+        val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
+        if val is None:
+            val = ''
+        idx = editor.findText(val)
+        if idx < 0:
+            editor.setCurrentIndex(0)
+        else:
+            editor.setCurrentIndex(idx)
 # }}}
 
 class CcCommentsDelegate(QStyledItemDelegate): # {{{
@@ -314,10 +349,19 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
         QStyledItemDelegate.__init__(self, parent)
 
     def createEditor(self, parent, option, index):
-        return EnLineEdit(parent)
+        m = index.model()
+        text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
+        editor = CommentsDialog(parent, text)
+        editor.setWindowTitle(_("Edit template"))
+        editor.textbox.setTabChangesFocus(False)
+        editor.textbox.setTabStopWidth(20)
+        d = editor.exec_()
+        if d:
+            m.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
+        return None
 
     def setModelData(self, editor, model, index):
-        val = unicode(editor.text())
+        val = unicode(editor.textbox.toPlainText())
         try:
             validation_formatter.validate(val)
         except Exception, err:
@@ -329,7 +373,7 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
-        editor.setText(val)
+        editor.textbox.setPlainText(val)
 
 
 # }}}

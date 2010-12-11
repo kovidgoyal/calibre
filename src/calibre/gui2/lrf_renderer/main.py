@@ -127,7 +127,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.progress_label.setText('Parsing '+ self.file_name)
             self.renderer = RenderWorker(self, stream, self.logger, self.opts)
             QObject.connect(self.renderer, SIGNAL('finished()'), self.parsed, Qt.QueuedConnection)
-            self.search.clear_to_help()
+            self.search.clear()
             self.last_search = None
         else:
             self.stack.setCurrentIndex(0)

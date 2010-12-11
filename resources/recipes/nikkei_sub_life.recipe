@@ -32,12 +32,9 @@ class NikkeiNet_sub_life(BasicNewsRecipe):
     remove_tags_after = {'class':"cmn-pr_list"}
 
     feeds = [  (u'\u304f\u3089\u3057', 	u'http://www.zou3.net/php/rss/nikkei2rss.php?head=kurashi'),
-		 (u'\u30b9\u30dd\u30fc\u30c4', 	u'http://www.zou3.net/php/rss/nikkei2rss.php?head=sports'),
-		 (u'\u793e\u4f1a', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=shakai'),
 		 (u'\u30a8\u30b3', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=eco'),
 		 (u'\u5065\u5eb7', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=kenkou'),
-		 (u'\u7279\u96c6', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=special'),
-		 (u'\u30e9\u30f3\u30ad\u30f3\u30b0', u'http://www.zou3.net/php/rss/nikkei2rss.php?head=ranking')
+		 (u'\u7279\u96c6', 		u'http://www.zou3.net/php/rss/nikkei2rss.php?head=special')
         ]
 
     def get_browser(self):

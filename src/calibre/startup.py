@@ -199,6 +199,15 @@ if not _run_once:
 
     __builtin__.__dict__['lopen'] = local_open
 
+    from calibre.utils.icu import title_case, lower as icu_lower, upper as icu_upper
+    __builtin__.__dict__['icu_lower'] = icu_lower
+    __builtin__.__dict__['icu_upper'] = icu_upper
+    __builtin__.__dict__['icu_title'] = title_case
+
+    import mimetypes
+    mimetypes.init([P('mime.types')])
+    guess_type = mimetypes.guess_type
+
 def test_lopen():
     from calibre.ptempfile import TemporaryDirectory
     from calibre import CurrentDir

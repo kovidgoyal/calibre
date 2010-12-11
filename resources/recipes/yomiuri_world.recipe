@@ -21,7 +21,7 @@ class YOLNews(BasicNewsRecipe):
     remove_javascript = True
     masthead_title = u"YOMIURI ONLINE"
 
-    remove_tags_before = {'class':"article-def"}
+    keep_only_tags = [{'class':"article-def"}]
     remove_tags = [{'class':"RelatedArticle"},
                    {'class':"sbtns"}
                     ]

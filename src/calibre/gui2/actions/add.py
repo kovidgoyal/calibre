@@ -18,6 +18,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
+from calibre.gui2 import config
 
 class AddAction(InterfaceAction):
 
@@ -60,6 +61,7 @@ class AddAction(InterfaceAction):
         self._adder = Adder(self.gui,
                 self.gui.library_view.model().db,
                 self.Dispatcher(self._files_added), spare_server=self.gui.spare_server)
+        self.gui.tags_view.disable_recounting = True
         self._adder.add_recursive(root, single)
 
     def add_recursive_single(self, *args):
@@ -101,7 +103,12 @@ class AddAction(InterfaceAction):
             else:
                 ids.add(db.import_book(mi, []))
         self.gui.library_view.model().books_added(len(books))
-        self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
+        orig = config['overwrite_author_title_metadata']
+        config['overwrite_author_title_metadata'] = True
+        try:
+            self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
+        finally:
+            config['overwrite_author_title_metadata'] = orig
 
 
     def files_dropped(self, paths):
@@ -195,9 +202,11 @@ class AddAction(InterfaceAction):
         self._adder = Adder(self.gui,
                 None if to_device else self.gui.library_view.model().db,
                 self.Dispatcher(self.__adder_func), spare_server=self.gui.spare_server)
+        self.gui.tags_view.disable_recounting = True
         self._adder.add(paths)
 
     def _files_added(self, paths=[], names=[], infos=[], on_card=None):
+        self.gui.tags_view.disable_recounting = False
         if paths:
             self.gui.upload_books(paths,
                                 list(map(ascii_filename, names)),
@@ -208,6 +217,7 @@ class AddAction(InterfaceAction):
             self.gui.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self.gui, 'db_images'):
                 self.gui.db_images.reset()
+            self.gui.tags_view.recount()
         if getattr(self._adder, 'merged_books', False):
             books = u'\n'.join([x if isinstance(x, unicode) else
                     x.decode(preferred_encoding, 'replace') for x in

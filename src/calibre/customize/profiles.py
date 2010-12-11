@@ -37,6 +37,8 @@ class Plugin(_Plugin):
             self.fsizes.append((name, num, float(size)))
         self.fnames = dict((name, sz) for name, _, sz in self.fsizes if name)
         self.fnums = dict((num, sz) for _, num, sz in self.fsizes if num)
+        self.width_pts = self.width * 72./self.dpi
+        self.height_pts = self.height * 72./self.dpi
 
 # Input profiles {{{
 class InputProfile(Plugin):

@@ -1,8 +1,9 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, Eddie Lau'
 '''
-modified from Singtao Toronto calibre recipe by rty
 Change Log:
+2010/12/07: add entertainment section, use newspaper front page as ebook cover, suppress date display in section list
+            (to avoid wrong date display in case the user generates the ebook in a time zone different from HKT)
 2010/11/22: add English section, remove eco-news section which is not updated daily, correct
             ordering of articles
 2010/11/12: add news image and eco-news section
@@ -17,14 +18,15 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 from contextlib import nested
 
 
-from calibre import __appname__, strftime
+from calibre import __appname__
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
-from calibre.utils.date import now as nowf
 
 class MPHKRecipe(BasicNewsRecipe):
+    IsKindleUsed = True  # to avoid generating periodical in which CJK characters can't be displayed in section/article view
+
     title          = 'Ming Pao - Hong Kong'
     oldest_article = 1
     max_articles_per_feed = 100
@@ -39,13 +41,13 @@ class MPHKRecipe(BasicNewsRecipe):
     encoding = 'Big5-HKSCS'
     recursions = 0
     conversion_options = {'linearize_tables':True}
-    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;}'
-    #extra_css = 'img {float:right; margin:4px;}'
+    timefmt = ''
+    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;} font>b {font-size:200%; font-weight:bold;}'
     masthead_url = 'http://news.mingpao.com/image/portals_top_logo_news.gif'
     keep_only_tags = [dict(name='h1'),
-                      #dict(name='font', attrs={'style':['font-size:14pt; line-height:160%;']}), # for entertainment page
+                      dict(name='font', attrs={'style':['font-size:14pt; line-height:160%;']}), # for entertainment page title
                       dict(attrs={'class':['photo']}),
-                      dict(attrs={'id':['newscontent']}),
+                      dict(attrs={'id':['newscontent']}), # entertainment page content
                       dict(attrs={'id':['newscontent01','newscontent02']})]
     remove_tags = [dict(name='style'),
                    dict(attrs={'id':['newscontent135']})]  # for the finance page
@@ -55,51 +57,68 @@ class MPHKRecipe(BasicNewsRecipe):
                             lambda match: '<h1>'),
                             (re.compile(r'</h5>', re.DOTALL|re.IGNORECASE),
                             lambda match: '</h1>'),
+                            (re.compile(r'<p><a href=.+?</a></p>', re.DOTALL|re.IGNORECASE), # for entertainment page
+                            lambda match: '')
                          ]
 
     def image_url_processor(cls, baseurl, url):
         # trick: break the url at the first occurance of digit, add an additional
         # '_' at the front
         # not working, may need to move this to preprocess_html() method
-        #minIdx = 10000
-        #i0 = url.find('0')
-        #if i0 >= 0 and i0 < minIdx:
-        #   minIdx = i0
-        #i1 = url.find('1')
-        #if i1 >= 0 and i1 < minIdx:
-        #   minIdx = i1
-        #i2 = url.find('2')
-        #if i2 >= 0 and i2 < minIdx:
-        #   minIdx = i2
-        #i3 = url.find('3')
-        #if i3 >= 0 and i0 < minIdx:
-        #   minIdx = i3
-        #i4 = url.find('4')
-        #if i4 >= 0 and i4 < minIdx:
-        #   minIdx = i4
-        #i5 = url.find('5')
-        #if i5 >= 0 and i5 < minIdx:
-        #   minIdx = i5
-        #i6 = url.find('6')
-        #if i6 >= 0 and i6 < minIdx:
-        #   minIdx = i6
-        #i7 = url.find('7')
-        #if i7 >= 0 and i7 < minIdx:
-        #   minIdx = i7
-        #i8 = url.find('8')
-        #if i8 >= 0 and i8 < minIdx:
-        #   minIdx = i8
-        #i9 = url.find('9')
-        #if i9 >= 0 and i9 < minIdx:
-        #   minIdx = i9
-        #return url[0:minIdx] + '_' + url[minIdx+1:]
+#        minIdx = 10000
+#        i0 = url.find('0')
+#        if i0 >= 0 and i0 < minIdx:
+#           minIdx = i0
+#        i1 = url.find('1')
+#        if i1 >= 0 and i1 < minIdx:
+#           minIdx = i1
+#        i2 = url.find('2')
+#        if i2 >= 0 and i2 < minIdx:
+#           minIdx = i2
+#        i3 = url.find('3')
+#        if i3 >= 0 and i0 < minIdx:
+#           minIdx = i3
+#        i4 = url.find('4')
+#        if i4 >= 0 and i4 < minIdx:
+#           minIdx = i4
+#        i5 = url.find('5')
+#        if i5 >= 0 and i5 < minIdx:
+#           minIdx = i5
+#        i6 = url.find('6')
+#        if i6 >= 0 and i6 < minIdx:
+#           minIdx = i6
+#        i7 = url.find('7')
+#        if i7 >= 0 and i7 < minIdx:
+#           minIdx = i7
+#        i8 = url.find('8')
+#        if i8 >= 0 and i8 < minIdx:
+#           minIdx = i8
+#        i9 = url.find('9')
+#        if i9 >= 0 and i9 < minIdx:
+#           minIdx = i9
         return url
 
-    def get_fetchdate(self):
+    def get_dtlocal(self):
         dt_utc = datetime.datetime.utcnow()
         # convert UTC to local hk time - at around HKT 6.00am, all news are available
         dt_local = dt_utc - datetime.timedelta(-2.0/24)
-        return dt_local.strftime("%Y%m%d")
+        return dt_local
+
+    def get_fetchdate(self):
+        return self.get_dtlocal().strftime("%Y%m%d")
+
+    def get_fetchday(self):
+        # convert UTC to local hk time - at around HKT 6.00am, all news are available
+        return self.get_dtlocal().strftime("%d")
+
+    def get_cover_url(self):
+        cover = 'http://news.mingpao.com/' + self.get_fetchdate() + '/' + self.get_fetchdate() + '_' + self.get_fetchday() + 'gacov.jpg'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(cover)
+        except:
+            cover = None
+        return cover
 
     def parse_index(self):
             feeds = []
@@ -127,9 +146,9 @@ class MPHKRecipe(BasicNewsRecipe):
             # if eco_articles:
             #   feeds.append((u'\u74b0\u4fdd Eco News', eco_articles))
             # special - entertainment
-            #ent_articles = self.parse_ent_section('http://ol.mingpao.com/cfm/star1.cfm')
-            #if ent_articles:
-            #   feeds.append(('Entertainment', ent_articles))
+            ent_articles = self.parse_ent_section('http://ol.mingpao.com/cfm/star1.cfm')
+            if ent_articles:
+                feeds.append((u'\u5f71\u8996 Entertainment', ent_articles))
             return feeds
 
     def parse_section(self, url):
@@ -164,6 +183,7 @@ class MPHKRecipe(BasicNewsRecipe):
         return current_articles
 
     def parse_eco_section(self, url):
+        dateStr = self.get_fetchdate()
         soup = self.index_to_soup(url)
         divs = soup.findAll(attrs={'class': ['bullet']})
         current_articles = []
@@ -173,23 +193,25 @@ class MPHKRecipe(BasicNewsRecipe):
             title = self.tag_to_string(a)
             url = a.get('href', False)
             url = 'http://tssl.mingpao.com/htm/marketing/eco/cfm/' +url
-            if url not in included_urls and url.rfind('Redirect') == -1:
+            if url not in included_urls and url.rfind('Redirect') == -1 and not url.rfind('.txt') == -1 and not url.rfind(dateStr) == -1:
                 current_articles.append({'title': title, 'url': url, 'description':''})
                 included_urls.append(url)
         return current_articles
 
-    #def parse_ent_section(self, url):
-    #   dateStr = self.get_fetchdate()
-    #   soup = self.index_to_soup(url)
-    #   a = soup.findAll('a', href=True)
-    #   current_articles = []
-    #   included_urls = []
-    #   for i in a:
-    #       title = self.tag_to_string(i)
-    #       url = 'http://ol.mingpao.com/cfm/' + i.get('href', False)
-    #       if url not in included_urls and not url.rfind('.txt') == -1 and not url.rfind(dateStr) == -1 and not title == '':
-    #           current_articles.append({'title': title, 'url': url, 'description': ''})
-    #   return current_articles
+    def parse_ent_section(self, url):
+        soup = self.index_to_soup(url)
+        a = soup.findAll('a', href=True)
+        a.reverse()
+        current_articles = []
+        included_urls = []
+        for i in a:
+            title = self.tag_to_string(i)
+            url = 'http://ol.mingpao.com/cfm/' + i.get('href', False)
+            if (url not in included_urls) and (not url.rfind('.txt') == -1) and (not url.rfind('star') == -1):
+                current_articles.append({'title': title, 'url': url, 'description': ''})
+                included_urls.append(url)
+        current_articles.reverse()
+        return current_articles
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
@@ -201,21 +223,26 @@ class MPHKRecipe(BasicNewsRecipe):
         return soup
 
     def create_opf(self, feeds, dir=None):
-        #super(MPHKRecipe,self).create_opf(feeds, dir)
+        if self.IsKindleUsed == False:
+            super(MPHKRecipe,self).create_opf(feeds, dir)
+            return
         if dir is None:
             dir = self.output_dir
         title = self.short_title()
-        if self.output_profile.periodical_date_in_title:
-            title += strftime(self.timefmt)
+        title += ' ' + self.get_fetchdate()
+        #if self.output_profile.periodical_date_in_title:
+        #    title += strftime(self.timefmt)
         mi = MetaInformation(title, [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
         mi.publication_type = self.publication_type+':'+self.short_title()
-        mi.timestamp = nowf()
+        #mi.timestamp = nowf()
+        mi.timestamp = self.get_dtlocal()
         mi.comments = self.description
         if not isinstance(mi.comments, unicode):
             mi.comments = mi.comments.decode('utf-8', 'replace')
-        mi.pubdate = nowf()
+        #mi.pubdate = nowf()
+        mi.pubdate = self.get_dtlocal()
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
         opf = OPFCreator(dir, mi)

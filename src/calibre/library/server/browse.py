@@ -16,6 +16,7 @@ from calibre import isbytestring, force_unicode, fit_image, \
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs
+from calibre.utils.icu import sort_key
 from calibre.utils.magick import Image
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
@@ -273,7 +274,7 @@ class BrowseServer(object):
         opts = ['<option %svalue="%s">%s</option>' % (
             'selected="selected" ' if k==sort else '',
             xml(k), xml(n), ) for k, n in
-                sorted(sort_opts, key=operator.itemgetter(1)) if k and n]
+                sorted(sort_opts, key=lambda x: sort_key(operator.itemgetter(1)(x))) if k and n]
         ans = ans.replace('{sort_select_options}', ('\n'+' '*20).join(opts))
         lp = self.db.library_path
         if isbytestring(lp):
@@ -337,8 +338,7 @@ class BrowseServer(object):
             return category_meta[x]['name'].lower()
 
         displayed_custom_fields = custom_fields_to_display(self.db)
-        for category in sorted(categories,
-                    cmp=lambda x,y: cmp(getter(x), getter(y))):
+        for category in sorted(categories, key=lambda x: sort_key(getter(x))):
             if len(categories[category]) == 0:
                 continue
             if category == 'formats':
@@ -359,28 +359,23 @@ class BrowseServer(object):
                 icon = 'blank.png'
             cats.append((meta['name'], category, icon))
 
-        cats = [('<li><a title="{2} {0}" href="/browse/category/{1}">&nbsp;</a>'
-                 '<img src="{3}{src}" alt="{0}" />'
-                 '<span class="label">{0}</span>'
-                 '</li>')
+        cats = [(u'<li><a title="{2} {0}" href="{3}/browse/category/{1}">&nbsp;</a>'
+                 u'<img src="{3}{src}" alt="{0}" />'
+                 u'<span class="label">{0}</span>'
+                 u'</li>')
                 .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
                     self.opts.url_prefix, src='/browse/icon/'+z)
                 for x, y, z in cats]
 
-        main = '<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
-                .format(_('Choose a category to browse by:'), '\n\n'.join(cats))
+        main = u'<div class="toplevel"><h3>{0}</h3><ul>{1}</ul></div>'\
+                .format(_('Choose a category to browse by:'), u'\n\n'.join(cats))
         return self.browse_template('name').format(title='',
                     script='toplevel();', main=main)
 
     def browse_sort_categories(self, items, sort):
         if sort not in ('rating', 'name', 'popularity'):
             sort = 'name'
-        def sorter(x):
-            ans = getattr(x, 'sort', x.name)
-            if hasattr(ans, 'upper'):
-                ans = ans.upper()
-            return ans
-        items.sort(key=sorter)
+        items.sort(key=lambda x: sort_key(getattr(x, 'sort', x.name)))
         if sort == 'popularity':
             items.sort(key=operator.attrgetter('count'), reverse=True)
         elif sort == 'rating':
@@ -703,7 +698,7 @@ class BrowseServer(object):
                                 args[field]
                 fields.append((m['name'], r))
 
-            fields.sort(key=lambda x: x[0].lower())
+            fields.sort(key=lambda x: sort_key(x[0]))
             fields = [u'<div class="field">{0}</div>'.format(f[1]) for f in
                     fields]
             fields = u'<div class="fields">%s</div>'%('\n\n'.join(fields))

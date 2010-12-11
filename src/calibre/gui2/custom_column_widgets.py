@@ -15,8 +15,9 @@ from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
 
 from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
-from calibre.gui2 import UNDEFINED_QDATE
+from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.utils.config import tweaks
+from calibre.utils.icu import sort_key
 
 class Base(object):
 
@@ -207,7 +208,7 @@ class Text(Base):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
             w = TagsLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
@@ -256,7 +257,7 @@ class Series(Base):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         w = EnComboBox(parent)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
@@ -310,6 +311,49 @@ class Series(Base):
             self.db.set_custom(book_id, val, extra=s_index,
                                num=self.col_id, notify=notify, commit=False)
 
+class Enumeration(Base):
+
+    def setup_ui(self, parent):
+        self.parent = parent
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
+                QComboBox(parent)]
+        w = self.widgets[1]
+        vals = self.col_metadata['display']['enum_values']
+        w.addItem('')
+        for v in vals:
+            w.addItem(v)
+
+    def initialize(self, book_id):
+        val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+        val = self.normalize_db_val(val)
+        self.initial_val = val
+        idx = self.widgets[1].findText(val)
+        if idx < 0:
+            error_dialog(self.parent, '',
+                    _('The enumeration "{0}" contains an invalid value '
+                      'that will be set to the default').format(
+                                            self.col_metadata['name']),
+                    show=True, show_copy_button=False)
+
+            idx = 0
+        self.widgets[1].setCurrentIndex(idx)
+
+    def setter(self, val):
+        self.widgets[1].setCurrentIndex(self.widgets[1].findText(val))
+
+    def getter(self):
+        return unicode(self.widgets[1].currentText())
+
+    def normalize_db_val(self, val):
+        if val is None:
+            val = ''
+        return val
+
+    def normalize_ui_val(self, val):
+        if not val:
+            val = None
+        return val
+
 widgets = {
         'bool' : Bool,
         'rating' : Rating,
@@ -319,13 +363,13 @@ widgets = {
         'text' : Text,
         'comments': Comments,
         'series': Series,
+        'enumeration': Enumeration
 }
 
-def field_sort(y, z, x=None):
-    m1, m2 = x[y], x[z]
+def field_sort_key(y, x=None):
+    m1 = x[y]
     n1 = 'zzzzz' if m1['datatype'] == 'comments' else m1['name']
-    n2 = 'zzzzz' if m2['datatype'] == 'comments' else m2['name']
-    return cmp(n1.lower(), n2.lower())
+    return sort_key(n1)
 
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
     def widget_factory(type, col):
@@ -337,7 +381,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         return w
     x = db.custom_column_num_map
     cols = list(x)
-    cols.sort(cmp=partial(field_sort, x=x))
+    cols.sort(key=partial(field_sort_key, x=x))
     count_non_comment = len([c for c in cols if x[c]['datatype'] != 'comments'])
 
     layout.setColumnStretch(1, 10)
@@ -482,7 +526,7 @@ class BulkSeries(BulkBase):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         w = EnComboBox(parent)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
@@ -551,6 +595,61 @@ class BulkSeries(BulkBase):
             self.db.set_custom_bulk(book_ids, val, extras=extras,
                                    num=self.col_id, notify=notify)
 
+class BulkEnumeration(BulkBase, Enumeration):
+
+    def get_initial_value(self, book_ids):
+        value = None
+        ret_value = None
+        dialog_shown = False
+        for book_id in book_ids:
+            val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+            if val and val not in self.col_metadata['display']['enum_values']:
+                if not dialog_shown:
+                    error_dialog(self.parent, '',
+                            _('The enumeration "{0}" contains invalid values '
+                              'that will not appear in the list').format(
+                                                    self.col_metadata['name']),
+                            show=True, show_copy_button=False)
+                    dialog_shown = True
+                ret_value = ' nochange '
+            elif value is not None and value != val:
+                ret_value = ' nochange '
+            value = val
+        if ret_value is None:
+            return value
+        return ret_value
+
+    def setup_ui(self, parent):
+        self.parent = parent
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
+                QComboBox(parent)]
+        w = self.widgets[1]
+        vals = self.col_metadata['display']['enum_values']
+        w.addItem('Do Not Change')
+        w.addItem('')
+        for v in vals:
+            w.addItem(v)
+
+    def getter(self):
+        if self.widgets[1].currentIndex() == 0:
+            return ' nochange '
+        return unicode(self.widgets[1].currentText())
+
+    def setter(self, val):
+        if val == ' nochange ':
+            self.widgets[1].setCurrentIndex(0)
+        else:
+            if val is None:
+                self.widgets[1].setCurrentIndex(1)
+            else:
+                self.widgets[1].setCurrentIndex(self.widgets[1].findText(val))
+
+    def commit(self, book_ids, notify=False):
+        val = self.gui_val
+        val = self.normalize_ui_val(val)
+        if val != self.initial_val and val != ' nochange ':
+            self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
+
 class RemoveTags(QWidget):
 
     def __init__(self, parent, values):
@@ -579,7 +678,7 @@ class BulkText(BulkBase):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
             w = TagsLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
@@ -656,4 +755,5 @@ bulk_widgets = {
         'datetime': BulkDateTime,
         'text' : BulkText,
         'series': BulkSeries,
+        'enumeration': BulkEnumeration,
 }

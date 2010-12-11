@@ -504,6 +504,9 @@ class MobiReader(object):
             'x-large': '5',
             'xx-large': '6',
             }
+        def barename(x):
+            return x.rpartition(':')[-1]
+
         mobi_version = self.book_header.mobi_version
         for x in root.xpath('//ncx'):
             x.getparent().remove(x)
@@ -512,8 +515,9 @@ class MobiReader(object):
             for x in tag.attrib:
                 if ':' in x:
                     del tag.attrib[x]
-            if tag.tag in ('country-region', 'place', 'placetype', 'placename',
-                'state', 'city', 'street', 'address', 'content', 'form'):
+            if tag.tag and barename(tag.tag.lower()) in \
+                ('country-region', 'place', 'placetype', 'placename',
+                    'state', 'city', 'street', 'address', 'content', 'form'):
                 tag.tag = 'div' if tag.tag in ('content', 'form') else 'span'
                 for key in tag.attrib.keys():
                     tag.attrib.pop(key)

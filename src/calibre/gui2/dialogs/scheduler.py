@@ -10,7 +10,8 @@ Scheduler for automated recipe downloads
 from datetime import timedelta
 
 from PyQt4.Qt import QDialog, SIGNAL, Qt, QTime, QObject, QMenu, \
-        QAction, QIcon, QMutex, QTimer, pyqtSignal
+        QAction, QIcon, QMutex, QTimer, pyqtSignal, QWidget, QHBoxLayout, \
+        QLabel
 
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
 from calibre.gui2.search_box import SearchBox2
@@ -28,15 +29,21 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.recipe_model = recipe_model
         self.recipe_model.do_refresh()
 
+        self._cont = QWidget(self)
+        self._cont.l = QHBoxLayout()
+        self._cont.setLayout(self._cont.l)
+        self._cont.la = QLabel(_('&Search:'))
+        self._cont.l.addWidget(self._cont.la, 1)
         self.search = SearchBox2(self)
+        self._cont.l.addWidget(self.search, 100)
+        self._cont.la.setBuddy(self.search)
         self.search.setMinimumContentsLength(25)
         self.search.initialize('scheduler_search_history')
-        self.recipe_box.layout().insertWidget(0, self.search)
+        self.recipe_box.layout().insertWidget(0, self._cont)
         self.search.search.connect(self.recipe_model.search)
-        self.connect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),
-                self.search.search_done)
-        self.connect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),
-                self.search_done)
+        self.recipe_model.searched.connect(self.search.search_done,
+                type=Qt.QueuedConnection)
+        self.recipe_model.searched.connect(self.search_done)
         self.search.setFocus(Qt.OtherFocusReason)
         self.commit_on_change = True
 

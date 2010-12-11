@@ -11,8 +11,9 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.interface import BookList as _BookList
 from calibre.constants import preferred_encoding
-from calibre import isbytestring
+from calibre import isbytestring, force_unicode
 from calibre.utils.config import prefs, tweaks
+from calibre.utils.icu import strcmp
 
 class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -215,14 +216,17 @@ class CollectionsBookList(BookList):
                     elif is_series:
                         if doing_dc:
                             collections[cat_name][lpath] = \
-                                (book, book.get('series_index', sys.maxint), '')
+                                (book, book.get('series_index', sys.maxint),
+                                 book.get('title_sort', 'zzzz'))
                         else:
                             collections[cat_name][lpath] = \
-                                (book, book.get(attr+'_index', sys.maxint), '')
+                                (book, book.get(attr+'_index', sys.maxint),
+                                 book.get('title_sort', 'zzzz'))
                     else:
                         if lpath not in collections[cat_name]:
                             collections[cat_name][lpath] = \
-                                (book, book.get('title_sort', 'zzzz'), '')
+                                (book, book.get('title_sort', 'zzzz'),
+                                 book.get('title_sort', 'zzzz'))
         # Sort collections
         result = {}
 
@@ -230,14 +234,19 @@ class CollectionsBookList(BookList):
             x = xx[1]
             y = yy[1]
             if x is None and y is None:
+                # No sort_key needed here, because defaults are ascii
                 return cmp(xx[2], yy[2])
             if x is None:
                 return 1
             if y is None:
                 return -1
-            c = cmp(x, y)
+            if isinstance(x, basestring) and isinstance(y, basestring):
+                c = strcmp(force_unicode(x), force_unicode(y))
+            else:
+                c = cmp(x, y)
             if c != 0:
                 return c
+            # same as above -- no sort_key needed here
             return cmp(xx[2], yy[2])
 
         for category, lpaths in collections.items():

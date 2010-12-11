@@ -151,6 +151,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self._plugin_model.populate()
             self._plugin_model.reset()
             self.changed_signal.emit()
+            self.plugin_path.setText('')
         else:
             error_dialog(self, _('No valid plugin path'),
                          _('%s is not a valid plugin path')%path).exec_()

@@ -12,7 +12,7 @@ from PyQt4.Qt import Qt, QMenu
 
 from calibre.constants import isosx
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog, config, \
-        open_local_file
+        open_local_file, info_dialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile
@@ -26,7 +26,6 @@ class ViewAction(InterfaceAction):
 
     def genesis(self):
         self.persistent_files = []
-        self.metadata_view_id = None
         self.qaction.triggered.connect(self.view_book)
         self.view_menu = QMenu()
         self.view_menu.addAction(_('View'), partial(self.view_book, False))
@@ -50,14 +49,6 @@ class ViewAction(InterfaceAction):
                 index_is_id=True)
         if fmt_path:
             self._view_file(fmt_path)
-
-    def metadata_view_format(self, fmt):
-        fmt_path = self.gui.library_view.model().db.\
-                format_abspath(self.metadata_view_id,
-                        fmt, index_is_id=True)
-        if fmt_path:
-            self._view_file(fmt_path)
-
 
     def book_downloaded_for_viewing(self, job):
         if job.failed:
@@ -89,18 +80,34 @@ class ViewAction(InterfaceAction):
         self._launch_viewer(name, viewer, internal)
 
     def view_specific_format(self, triggered):
-        rows = self.gui.library_view.selectionModel().selectedRows()
+        rows = list(self.gui.library_view.selectionModel().selectedRows())
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot view'), _('No book selected'))
             d.exec_()
             return
 
-        row = rows[0].row()
-        formats = self.gui.library_view.model().db.formats(row).upper().split(',')
-        d = ChooseFormatDialog(self.gui, _('Choose the format to view'), formats)
+        db = self.gui.library_view.model().db
+        rows = [r.row() for r in rows]
+        formats = [db.formats(row) for row in rows]
+        formats = [list(f.upper().split(',')) if f else None for f in formats]
+        all_fmts = set([])
+        for x in formats:
+            for f in x: all_fmts.add(f)
+        d = ChooseFormatDialog(self.gui, _('Choose the format to view'),
+                list(sorted(all_fmts)))
         if d.exec_() == d.Accepted:
-            format = d.format()
-            self.view_format(row, format)
+            fmt = d.format()
+            orig_num = len(rows)
+            rows = [rows[i] for i in range(len(rows)) if formats[i] and fmt in
+                    formats[i]]
+            if self._view_check(len(rows)):
+                for row in rows:
+                    self.view_format(row, fmt)
+                if len(rows) < orig_num:
+                    info_dialog(self.gui, _('Format unavailable'),
+                            _('Not all the selected books were available in'
+                                ' the %s format. You should convert'
+                                ' them first.')%fmt, show=True)
 
     def _view_check(self, num, max_=3):
         if num <= max_:
