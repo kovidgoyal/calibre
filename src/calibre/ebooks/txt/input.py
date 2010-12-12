@@ -77,10 +77,14 @@ class TXTInput(InputFormatPlugin):
         base = os.getcwdu()
         if hasattr(stream, 'name'):
             base = os.path.dirname(stream.name)
-        htmlfile = open(os.path.join(base, 'index.html'),
-                'wb')
-        htmlfile.write(html.encode('utf-8'))
-        htmlfile.close()
+        fname = os.path.join(base, 'index.html')
+        c = 0
+        while os.path.exists(fname):
+            c += 1
+            fname = 'index%d.html'%c
+        htmlfile = open(fname, 'wb')
+        with htmlfile:
+            htmlfile.write(html.encode('utf-8'))
         cwd = os.getcwdu()
         odi = options.debug_pipeline
         options.debug_pipeline = None
