@@ -4,6 +4,7 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 
 import sys, textwrap, re, traceback, socket
 from threading import Thread
+from Queue import Queue
 from urllib import urlencode
 from math import ceil
 
@@ -21,57 +22,6 @@ from calibre.utils.config import OptionParser
 from calibre.library.comments import sanitize_comments_html
 
 
-# class AmazonFr(MetadataSource):
-
-    # name = 'Amazon French'
-    # description = _('Downloads metadata from amazon.fr')
-    # supported_platforms = ['windows', 'osx', 'linux']
-    # author = 'Sengian'
-    # version = (1, 0, 0)
-    # has_html_comments = True
-
-    # def fetch(self):
-        # try:
-            # self.results = search(self.title, self.book_author, self.publisher,
-                                  # self.isbn, max_results=10, verbose=self.verbose, lang='fr')
-        # except Exception, e:
-            # self.exception = e
-            # self.tb = traceback.format_exc()
-
-# class AmazonEs(MetadataSource):
-
-    # name = 'Amazon Spanish'
-    # description = _('Downloads metadata from amazon.com in spanish')
-    # supported_platforms = ['windows', 'osx', 'linux']
-    # author = 'Sengian'
-    # version = (1, 0, 0)
-    # has_html_comments = True
-
-    # def fetch(self):
-        # try:
-            # self.results = search(self.title, self.book_author, self.publisher,
-                                  # self.isbn, max_results=10, verbose=self.verbose, lang='es')
-        # except Exception, e:
-            # self.exception = e
-            # self.tb = traceback.format_exc()
-
-# class AmazonDe(MetadataSource):
-
-    # name = 'Amazon German'
-    # description = _('Downloads metadata from amazon.de')
-    # supported_platforms = ['windows', 'osx', 'linux']
-    # author = 'Sengian'
-    # version = (1, 0, 0)
-    # has_html_comments = True
-
-    # def fetch(self):
-        # try:
-            # self.results = search(self.title, self.book_author, self.publisher,
-                                  # self.isbn, max_results=10, verbose=self.verbose, lang='de')
-        # except Exception, e:
-            # self.exception = e
-            # self.tb = traceback.format_exc()
-
 class Amazon(MetadataSource):
 
     name = 'Amazon'
@@ -83,8 +33,33 @@ class Amazon(MetadataSource):
 
     def fetch(self):
         try:
-            self.results = search(self.title, self.book_author, self.publisher,
+            lang = get_lang()
+            lang = lang[:2] if re.match(r'(fr.*|de.*)', lang) else 'all'
+            if lang == 'all':
+                self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=5, verbose=self.verbose, lang='all')
+            else:
+                tmploc = ThreadwithResults(search, self.title, self.book_author, 
+                                self.publisher,self.isbn, max_results=5,
+                                    verbose=self.verbose, lang=lang)
+                tmpnoloc = ThreadwithResults(search, self.title, self.book_author,
+                                self.publisher, self.isbn, max_results=5,
+                                    verbose=self.verbose, lang='all')
+                tmploc.start()
+                tmpnoloc.start()
+                tmploc.join()
+                tmpnoloc.join()
+                tmploc= tmploc.get_result()
+                tmpnoloc= tmpnoloc.get_result()
+                
+                tempres = None
+                if tmpnoloc is not None:
+                    tempres = tmpnoloc
+                if tmploc is not None:
+                    tempres = tmploc
+                    if tmpnoloc is not None:
+                        tempres.extend(tmpnoloc)
+                self.results = tmpres
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
@@ -107,12 +82,12 @@ class AmazonSocial(MetadataSource):
             lang = lang[:2] if re.match(r'(fr.*|de.*)', lang) else 'all'
             if lang == 'all':
                 self.results = get_social_metadata(self.title, self.book_author, self.publisher,
-                                  self.isbn, verbose=self.verbose, lang='all')[0]
+                                    self.isbn, verbose=self.verbose, lang='all')[0]
             else:
-                tmploc = ThreadwithResults(AmazonError, self.verbose, get_social_metadata, self.title,
-                            self.book_author, self.publisher,self.isbn, verbose=self.verbose, lang=lang)
-                tmpnoloc = ThreadwithResults(AmazonError, self.verbose, get_social_metadata, self.title,
-                            self.book_author, self.publisher, self.isbn, verbose=self.verbose, lang='all')
+                tmploc = ThreadwithResults(get_social_metadata, self.title, self.book_author, 
+                                    self.publisher,self.isbn, verbose=self.verbose, lang=lang)
+                tmpnoloc = ThreadwithResults(get_social_metadata, self.title, self.book_author,
+                                    self.publisher, self.isbn, verbose=self.verbose, lang='all')
                 tmploc.start()
                 tmpnoloc.start()
                 tmploc.join()
@@ -123,15 +98,13 @@ class AmazonSocial(MetadataSource):
                 tmpnoloc= tmpnoloc.get_result()
                 if tmpnoloc is not None:
                     tmpnoloc = tmpnoloc[0]
-                print tmpnoloc
-                
-                if tmploc is not None and tmpnoloc is not None:
-                    if tmploc.rating is None:
-                        tmploc.rating = tmpnoloc.rating
-                    if tmploc.comments is not None:
-                        tmploc.comments = tmpnoloc.comments
-                    if tmploc.tags is None:
-                        tmploc.tags = tmpnoloc.tags
+                    if tmpnoloc is not None:
+                        if tmploc.rating is None:
+                            tmploc.rating = tmpnoloc.rating
+                        if tmploc.comments is not None:
+                            tmploc.comments = tmpnoloc.comments
+                        if tmploc.tags is None:
+                            tmploc.tags = tmpnoloc.tags
                 self.results = tmploc
         except Exception, e:
             self.exception = e
@@ -146,12 +119,10 @@ class AmazonError(Exception):
     pass
 
 class ThreadwithResults(Thread):
-    def __init__(self, error, verb, func, *args, **kargs):
+    def __init__(self, func, *args, **kargs):
         self.func = func
         self.args = args
         self.kargs = kargs
-        self.verbose = verb
-        self.ex = error
         self.result = None
         Thread.__init__(self)
 
@@ -159,11 +130,8 @@ class ThreadwithResults(Thread):
         return self.result
 
     def run(self):
-        try:
-            self.result = self.func(*self.args, **self.kargs)
-        except Exception, e:
-            report(self.verbose)
-            raise self.ex(_('An error was encountered in the function threading'))
+        self.result = self.func(*self.args, **self.kargs)
+
 
 class Query(object):
 
@@ -172,10 +140,10 @@ class Query(object):
     BASE_URL_DE = 'http://www.amazon.de'
 
     def __init__(self, title=None, author=None, publisher=None, isbn=None, keywords=None,
-        max_results=10, rlang='all'):
+        max_results=20, rlang='all'):
         assert not(title is None and author is None and publisher is None \
             and isbn is None and keywords is None)
-        assert (max_results < 11)
+        assert (max_results < 21)
 
         self.max_results = int(max_results)
         self.renbres = re.compile(u'\s*([0-9.,]+)\s*')
@@ -304,6 +272,9 @@ class ResultList(object):
     def __init__(self, baseurl, lang = 'all'):
         self.baseurl = baseurl
         self.lang = lang
+        self.thread = []
+        self.res = []
+        self.nbtag = 0
         self.repub = re.compile(u'\((.*)\)')
         self.rerat = re.compile(u'([0-9.]+)')
         self.reattr = re.compile(r'<([a-zA-Z0-9]+)\s[^>]+>')
@@ -499,20 +470,72 @@ class ResultList(object):
                 report(verbose)
                 return None
 
-    def populate(self, entries, br, verbose=False):
-        res = []
-        for x in entries:
-            entry = self.get_individual_metadata(x, br, verbose)
+    def fetchdatathread(self, qbr, qsync, nb, url, verbose):
+        try:
+            browser = qbr.get(True)
+            entry = self.get_individual_metadata(url, browser, verbose)
+        except:
+            report(verbose)
+            entry = None
+        finally:
+            qbr.put(browser, True)
+            qsync.put(nb, True)
+            return entry
+
+    def producer(self, sync, urls, br, verbose=False):
+        for i in xrange(len(urls)):
+            thread = ThreadwithResults(self.fetchdatathread, br, sync,
+                                            i, urls[i], verbose)
+            thread.start()
+            self.thread.append(thread)
+
+    def consumer(self, sync, syncbis, br, total_entries, verbose=False):
+        i=0
+        while i < total_entries:
+            nb = int(sync.get(True))
+            self.thread[nb].join()
+            entry = self.thread[nb].get_result()
+            i+=1
             if entry is not None:
                 mi = self.fill_MI(entry, verbose)
                 if mi is not None:
                     mi.tags, atag = self.get_tags(entry, verbose)
+                    self.res[nb] = mi
                     if atag:
-                        tags = self.get_individual_metadata(mi.tags, br, verbose)
-                        if tags is not None:
-                            mi.tags = self.get_tags(tags, verbose)[0]
-                    res.append(mi)
-        return res
+                        threadbis = ThreadwithResults(self.fetchdatathread,
+                                        br, syncbis, nb, mi.tags, verbose)
+                        self.thread[nb] = threadbis
+                        self.nbtag +=1
+                        threadbis.start()
+
+    def populate(self, entries, ibr, verbose=False, brcall=3):
+        br = Queue(brcall)
+        cbr = Queue(brcall-1)
+        
+        syncp = Queue(1)
+        syncc = Queue(len(entries))
+        
+        for i in xrange(brcall-1):
+            br.put(browser(), True)
+            cbr.put(browser(), True)
+        br.put(ibr, True)
+        
+        self.res = [None]*len(entries)
+        
+        prod_thread = Thread(target=self.producer, args=(syncp, entries, br, verbose))
+        cons_thread = Thread(target=self.consumer, args=(syncp, syncc, cbr, len(entries), verbose))
+        prod_thread.start()
+        cons_thread.start()
+        prod_thread.join()
+        cons_thread.join()
+        
+        #finish processing
+        for i in xrange(self.nbtag):
+            nb = int(syncc.get(True))
+            tags = self.thread[nb].get_result()
+            if tags is not None:
+                self.res[nb].tags = self.get_tags(tags, verbose)[0]
+        return self.res
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
@@ -561,7 +584,7 @@ def option_parser():
         %prog [options]
 
         Fetch book metadata from Amazon. You must specify one of title, author,
-        ISBN, publisher or keywords. Will fetch a maximum of 10 matches,
+        ISBN, publisher or keywords. Will fetch a maximum of 20 matches,
         so you should make your query as specific as possible.
         You can chose the language for metadata retrieval:
         english & french & german
