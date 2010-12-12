@@ -186,7 +186,12 @@ class Query(object):
             q['sort'] = 'relevancerank'
             self.urldata = self.BASE_URL_DE
         self.baseurl = self.urldata
-
+        
+        if title == _('Unknown'):
+            title=None
+        if author == _('Unknown'):
+            author=None
+        
         if isbn is not None:
             q['field-isbn'] = isbn.replace('-', '')
         else:

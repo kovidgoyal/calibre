@@ -4,6 +4,8 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import sys, textwrap, re, traceback, socket
+from threading import Thread
+from Queue import Queue
 from urllib import urlencode
 from math import ceil
 from copy import deepcopy
@@ -39,7 +41,7 @@ class NiceBooks(MetadataSource):
 class NiceBooksCovers(CoverDownload):
 
     name = 'Nicebooks covers'
-    description = _('Downloads covers from french Nicebooks')
+    description = _('Downloads covers from French Nicebooks')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Sengian'
     type = _('Cover download')
@@ -78,6 +80,20 @@ class NiceBooksError(Exception):
 class ISBNNotFound(NiceBooksError):
     pass
 
+class ThreadwithResults(Thread):
+    def __init__(self, func, *args, **kargs):
+        self.func = func
+        self.args = args
+        self.kargs = kargs
+        self.result = None
+        Thread.__init__(self)
+
+    def get_result(self):
+        return self.result
+
+    def run(self):
+        self.result = self.func(*self.args, **self.kargs)
+
 def report(verbose):
     if verbose:
         traceback.print_exc()
@@ -97,6 +113,10 @@ class Query(object):
         if isbn is not None:
             q = isbn
         else:
+            if title == _('Unknown'):
+                title=None
+            if author == _('Unknown'):
+                author=None
             q = ' '.join([i for i in (title, author, publisher, keywords) \
                 if i is not None])
 
@@ -173,6 +193,7 @@ class ResultList(list):
 
     def __init__(self, islink):
         self.islink = islink
+        self.thread = []
         self.repub = re.compile(u'\s*.diteur\s*', re.I)
         self.reauteur = re.compile(u'\s*auteur.*', re.I)
         self.reautclean = re.compile(u'\s*\(.*\)\s*')
@@ -227,7 +248,6 @@ class ResultList(list):
         return mi
 
     def fill_MI(self, data, verbose):
-        '''create and return an mi if possible, None otherwise'''
         try:
             entry = data.xpath("//div[@id='container']/div[@id='book-info']")[0]
             title = self.get_title(entry)
@@ -272,16 +292,58 @@ class ResultList(list):
                 report(verbose)
                 return None
 
-    def populate(self, entries, br, verbose=False):
+    def fetchdatathread(self, qbr, qsync, nb, url, verbose):
+        try:
+            browser = qbr.get(True)
+            entry = self.get_individual_metadata(url, browser, verbose)
+        except:
+            report(verbose)
+            entry = None
+        finally:
+            qbr.put(browser, True)
+            qsync.put(nb, True)
+            return entry
+
+    def producer(self, sync, urls, br, verbose=False):
+        for i in xrange(len(urls)):
+            thread = ThreadwithResults(self.fetchdatathread, br, sync,
+                                i, self.BASE_URL+urls[i], verbose)
+            thread.start()
+            self.thread.append(thread)
+
+    def consumer(self, sync, total_entries, verbose=False):
+        res=[None]*total_entries
+        i=0
+        while i < total_entries:
+            nb = int(sync.get(True))
+            self.thread[nb].join()
+            entry = self.thread[nb].get_result()
+            mi = None
+            i+=1
+            if entry is not None:
+                mi = self.fill_MI(entry, verbose)
+            res[nb]=mi
+        return res
+
+    def populate(self, entries, br, verbose=False, brcall=3):
         if not self.islink:
             #single entry
             self.append(self.fill_MI(entries[0], verbose))
         else:
             #multiple entries
-            for x in entries:
-                entry = self.get_individual_metadata(self.BASE_URL+x, br, verbose)
-                if entry is not None:
-                    self.append(self.fill_MI(entry, verbose))
+            pbr = Queue(brcall)
+            sync = Queue(1)
+            for i in xrange(brcall-1):
+                pbr.put(browser(), True)
+            pbr.put(br, True)
+            
+            prod_thread = Thread(target=self.producer, args=(sync, entries, pbr, verbose))
+            cons_thread = ThreadwithResults(self.consumer, sync, len(entries), verbose)
+            prod_thread.start()
+            cons_thread.start()
+            prod_thread.join()
+            cons_thread.join()
+            self.extend(cons_thread.get_result())
 
 class Covers(object):
 
@@ -321,7 +383,7 @@ class Covers(object):
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
-           max_results=5, verbose=False, keywords=None):
+           max_results=10, verbose=False, keywords=None):
     br = browser()
     islink = False
     entries, islink = Query(title=title, author=author, isbn=isbn, publisher=publisher,
@@ -407,4 +469,4 @@ def main(args=sys.argv):
 if __name__ == '__main__':
     sys.exit(main())
 
-# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\nicebooks.py" -m 5 -a mankel >data.html
+# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\nicebooks.py" -m 10 -a mankel >data.html
