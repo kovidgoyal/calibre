@@ -184,7 +184,7 @@ class MobiMLizer(object):
                     para.attrib['value'] = str(istates[-2].list_num)
             elif tag in NESTABLE_TAGS and istate.rendered:
                 para = wrapper = bstate.nested[-1]
-            elif left > 0 and indent >= 0:
+            elif not self.opts.mobi_ignore_margins and left > 0 and indent >= 0:
                 ems = self.profile.mobi_ems_per_blockquote
                 para = wrapper = etree.SubElement(parent, XHTML('blockquote'))
                 para = wrapper
