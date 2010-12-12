@@ -3,6 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 
 import sys, textwrap, re, traceback, socket
+from threading import Thread
 from urllib import urlencode
 from math import ceil
 
@@ -10,6 +11,7 @@ from lxml.html import soupparser, tostring
 
 from calibre.utils.date import parse_date, utcnow, replace_months
 from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.localization import get_lang
 from calibre import browser, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn, \
@@ -101,8 +103,36 @@ class AmazonSocial(MetadataSource):
         if not self.isbn:
             return
         try:
-            self.results = get_social_metadata(self.title, self.book_author, self.publisher,
+            lang = get_lang()
+            lang = lang[:2] if re.match(r'(fr.*|de.*)', lang) else 'all'
+            if lang == 'all':
+                self.results = get_social_metadata(self.title, self.book_author, self.publisher,
                                   self.isbn, verbose=self.verbose, lang='all')[0]
+            else:
+                tmploc = ThreadwithResults(AmazonError, self.verbose, get_social_metadata, self.title,
+                            self.book_author, self.publisher,self.isbn, verbose=self.verbose, lang=lang)
+                tmpnoloc = ThreadwithResults(AmazonError, self.verbose, get_social_metadata, self.title,
+                            self.book_author, self.publisher, self.isbn, verbose=self.verbose, lang='all')
+                tmploc.start()
+                tmpnoloc.start()
+                tmploc.join()
+                tmpnoloc.join()
+                tmploc= tmploc.get_result()
+                if tmploc is not None:
+                    tmploc = tmploc[0]
+                tmpnoloc= tmpnoloc.get_result()
+                if tmpnoloc is not None:
+                    tmpnoloc = tmpnoloc[0]
+                print tmpnoloc
+                
+                if tmploc is not None and tmpnoloc is not None:
+                    if tmploc.rating is None:
+                        tmploc.rating = tmpnoloc.rating
+                    if tmploc.comments is not None:
+                        tmploc.comments = tmpnoloc.comments
+                    if tmploc.tags is None:
+                        tmploc.tags = tmpnoloc.tags
+                self.results = tmploc
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
@@ -115,6 +145,25 @@ def report(verbose):
 class AmazonError(Exception):
     pass
 
+class ThreadwithResults(Thread):
+    def __init__(self, error, verb, func, *args, **kargs):
+        self.func = func
+        self.args = args
+        self.kargs = kargs
+        self.verbose = verb
+        self.ex = error
+        self.result = None
+        Thread.__init__(self)
+
+    def get_result(self):
+        return self.result
+
+    def run(self):
+        try:
+            self.result = self.func(*self.args, **self.kargs)
+        except Exception, e:
+            report(self.verbose)
+            raise self.ex(_('An error was encountered in the function threading'))
 
 class Query(object):
 
@@ -123,10 +172,10 @@ class Query(object):
     BASE_URL_DE = 'http://www.amazon.de'
 
     def __init__(self, title=None, author=None, publisher=None, isbn=None, keywords=None,
-        max_results=20, rlang='all'):
+        max_results=10, rlang='all'):
         assert not(title is None and author is None and publisher is None \
             and isbn is None and keywords is None)
-        assert (max_results < 21)
+        assert (max_results < 11)
 
         self.max_results = int(max_results)
         self.renbres = re.compile(u'\s*([0-9.,]+)\s*')
@@ -151,17 +200,17 @@ class Query(object):
                 #many options available
             }
 
-        if rlang =='all':
+        if rlang =='all' or rlang =='en':
             q['sort'] = 'relevanceexprank'
             self.urldata = self.BASE_URL_ALL
-        elif rlang =='es':
-            q['sort'] = 'relevanceexprank'
-            q['field-language'] = 'Spanish'
-            self.urldata = self.BASE_URL_ALL
-        elif rlang =='en':
-            q['sort'] = 'relevanceexprank'
-            q['field-language'] = 'English'
-            self.urldata = self.BASE_URL_ALL
+        # elif rlang =='es':
+            # q['sort'] = 'relevanceexprank'
+            # q['field-language'] = 'Spanish'
+            # self.urldata = self.BASE_URL_ALL
+        # elif rlang =='en':
+            # q['sort'] = 'relevanceexprank'
+            # q['field-language'] = 'English'
+            # self.urldata = self.BASE_URL_ALL
         elif rlang =='fr':
             q['sort'] = 'relevancerank'
             self.urldata = self.BASE_URL_FR
@@ -250,7 +299,7 @@ class Query(object):
                 for i in x.xpath("//a/span[@class='srTitle']")])
         return results[:self.max_results], self.baseurl
 
-class ResultList(list):
+class ResultList(object):
 
     def __init__(self, baseurl, lang = 'all'):
         self.baseurl = baseurl
@@ -451,6 +500,7 @@ class ResultList(list):
                 return None
 
     def populate(self, entries, br, verbose=False):
+        res = []
         for x in entries:
             entry = self.get_individual_metadata(x, br, verbose)
             if entry is not None:
@@ -461,7 +511,8 @@ class ResultList(list):
                         tags = self.get_individual_metadata(mi.tags, br, verbose)
                         if tags is not None:
                             mi.tags = self.get_tags(tags, verbose)[0]
-                    self.append(mi)
+                    res.append(mi)
+        return res
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
@@ -475,8 +526,7 @@ def search(title=None, author=None, publisher=None, isbn=None,
 
     #List of entry
     ans = ResultList(baseurl, lang)
-    ans.populate(entries, br, verbose)
-    return [x for x in ans if x is not None]
+    return [x for x in ans.populate(entries, br, verbose) if x is not None]
 
 def get_social_metadata(title, authors, publisher, isbn, verbose=False,
         max_results=1, lang='all'):
@@ -485,12 +535,12 @@ def get_social_metadata(title, authors, publisher, isbn, verbose=False,
         return [mi]
 
     amazresults = search(isbn=isbn, verbose=verbose,
-                max_results=max_results, lang='all')
+                max_results=max_results, lang=lang)
     if amazresults is None or amazresults[0] is None:
         from calibre.ebooks.metadata.xisbn import xisbn
         for i in xisbn.get_associated_isbns(isbn):
             amazresults = search(isbn=i, verbose=verbose,
-                max_results=max_results, lang='all')
+                max_results=max_results, lang=lang)
             if amazresults is not None and amazresults[0] is not None:
                 break
     if amazresults is None or amazresults[0] is None:
@@ -514,7 +564,7 @@ def option_parser():
         ISBN, publisher or keywords. Will fetch a maximum of 10 matches,
         so you should make your query as specific as possible.
         You can chose the language for metadata retrieval:
-        All & english & french & german & spanish
+        english & french & german
     '''
     )))
     parser.add_option('-t', '--title', help=_('Book title'))
@@ -527,7 +577,7 @@ def option_parser():
     parser.add_option('-m', '--max-results', default=10,
                       help=_('Maximum number of results to fetch'))
     parser.add_option('-l', '--lang', default='all',
-                      help=_('Chosen language for metadata search (all, en, fr, es, de)'))
+                      help=_('Chosen language for metadata search (en, fr, de)'))
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help=_('Be more verbose about errors'))
     return parser
