@@ -318,11 +318,9 @@ class ResultList(list):
             nb = int(sync.get(True))
             self.thread[nb].join()
             entry = self.thread[nb].get_result()
-            mi = None
             i+=1
             if entry is not None:
-                mi = self.fill_MI(entry, verbose)
-            res[nb]=mi
+                res[nb] = self.fill_MI(entry, verbose)
         return res
 
     def populate(self, entries, br, verbose=False, brcall=3):

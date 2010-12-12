@@ -4,6 +4,8 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import sys, textwrap, re, traceback, socket
+from threading import Thread
+from Queue import Queue
 from urllib import urlencode
 
 from lxml.html import soupparser, tostring
@@ -23,7 +25,6 @@ class Fictionwise(MetadataSource):
     author = 'Sengian'
     name = 'Fictionwise'
     description = _('Downloads metadata from Fictionwise')
-
     has_html_comments = True
 
     def fetch(self):
@@ -38,6 +39,20 @@ class Fictionwise(MetadataSource):
 class FictionwiseError(Exception):
     pass
 
+class ThreadwithResults(Thread):
+    def __init__(self, func, *args, **kargs):
+        self.func = func
+        self.args = args
+        self.kargs = kargs
+        self.result = None
+        Thread.__init__(self)
+
+    def get_result(self):
+        return self.result
+
+    def run(self):
+        self.result = self.func(*self.args, **self.kargs)
+
 def report(verbose):
     if verbose:
         traceback.print_exc()
@@ -50,8 +65,13 @@ class Query(object):
     def __init__(self, title=None, author=None, publisher=None, keywords=None, max_results=20):
         assert not(title is None and author is None and publisher is None and keywords is None)
         assert (max_results < 21)
-
+        
+        if title == _('Unknown'):
+            title=None
+        if author == _('Unknown'):
+            author=None
         self.max_results = int(max_results)
+        
         q = {   'template' : 'searchresults_adv.htm' ,
                 'searchtitle' : '',
                 'searchauthor' : '',
@@ -72,6 +92,7 @@ class Query(object):
                 #b.DateFirstPublished, b.FWPublishDate
                 'sortby' : 'b.SortTitle'
             }
+        
         if title is not None:
             q['searchtitle'] = title
         if author is not None:
@@ -128,6 +149,7 @@ class ResultList(list):
 
     def __init__(self, islink):
         self.islink = islink
+        self.thread = []
         self.retitle = re.compile(r'\[[^\[\]]+\]')
         self.rechkauth = re.compile(r'.*book\s*by', re.I)
         self.redesc = re.compile(r'book\s*description\s*:\s*(<br[^>]+>)*(?P<desc>.*)<br[^>]*>.{,15}publisher\s*:', re.I)
@@ -321,16 +343,56 @@ class ResultList(list):
                 report(verbose)
                 return None
 
-    def populate(self, entries, br, verbose=False):
+    def fetchdatathread(self, qbr, qsync, nb, url, verbose):
+        try:
+            browser = qbr.get(True)
+            entry = self.get_individual_metadata(url, browser, verbose)
+        except:
+            report(verbose)
+            entry = None
+        finally:
+            qbr.put(browser, True)
+            qsync.put(nb, True)
+            return entry
+
+    def producer(self, sync, urls, br, verbose=False):
+        for i in xrange(len(urls)):
+            thread = ThreadwithResults(self.fetchdatathread, br, sync,
+                                i, self.BASE_URL+urls[i], verbose)
+            thread.start()
+            self.thread.append(thread)
+
+    def consumer(self, sync, total_entries, verbose=False):
+        res=[None]*total_entries
+        i=0
+        while i < total_entries:
+            nb = int(sync.get(True))
+            self.thread[nb].join()
+            entry = self.thread[nb].get_result()
+            i+=1
+            if entry is not None:
+                res[nb] = self.fill_MI(entry, verbose)
+        return res
+
+    def populate(self, entries, br, verbose=False, brcall=3):
         if not self.islink:
             #single entry
             self.append(self.fill_MI(entries[0], verbose))
         else:
             #multiple entries
-            for x in entries:
-                entry = self.get_individual_metadata(self.BASE_URL+x, br, verbose)
-                if entry is not None:
-                    self.append(self.fill_MI(entry, verbose))
+            pbr = Queue(brcall)
+            sync = Queue(1)
+            for i in xrange(brcall-1):
+                pbr.put(browser(), True)
+            pbr.put(br, True)
+            
+            prod_thread = Thread(target=self.producer, args=(sync, entries, pbr, verbose))
+            cons_thread = ThreadwithResults(self.consumer, sync, len(entries), verbose)
+            prod_thread.start()
+            cons_thread.start()
+            prod_thread.join()
+            cons_thread.join()
+            self.extend(cons_thread.get_result())
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
