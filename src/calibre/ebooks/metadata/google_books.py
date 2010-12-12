@@ -3,7 +3,9 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, textwrap
+import sys, textwrap, traceback, socket
+from threading import Thread
+from Queue import Queue
 from urllib import urlencode
 from functools import partial
 
@@ -11,8 +13,10 @@ from lxml import etree
 
 from calibre import browser, preferred_encoding
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
 from calibre.utils.date import parse_date, utcnow
+from calibre.utils.cleantext import clean_ascii_chars
 
 NAMESPACES = {
               'openSearch':'http://a9.com/-/spec/opensearchrss/1.0/',
@@ -35,9 +39,25 @@ subject        = XPath('descendant::dc:subject')
 description    = XPath('descendant::dc:description')
 language       = XPath('descendant::dc:language')
 
+class GoogleBooksError(Exception):
+    pass
+
+class ThreadwithResults(Thread):
+    def __init__(self, func, *args, **kargs):
+        self.func = func
+        self.args = args
+        self.kargs = kargs
+        self.result = None
+        Thread.__init__(self)
+
+    def get_result(self):
+        return self.result
+
+    def run(self):
+        self.result = self.func(*self.args, **self.kargs)
+
 def report(verbose):
     if verbose:
-        import traceback
         traceback.print_exc()
 
 
@@ -46,48 +66,93 @@ class Query(object):
     BASE_URL = 'http://books.google.com/books/feeds/volumes?'
 
     def __init__(self, title=None, author=None, publisher=None, isbn=None,
-                 max_results=20, min_viewability='none', start_index=1):
+                 max_results=40, min_viewability='none', start_index=1):
         assert not(title is None and author is None and publisher is None and \
                    isbn is None)
-        assert (max_results < 21)
+        assert (max_results < 41)
         assert (min_viewability in ('none', 'partial', 'full'))
-        q = ''
+        if title == _('Unknown'):
+            title=None
+        if author == _('Unknown'):
+            author=None
+        self.sindex = str(start_index)
+        self.maxresults = int(max_results)
+        
+        q = []
         if isbn is not None:
-            q += 'isbn:'+isbn
+            q.append(('isbn:%s') % (isbn,))
         else:
             def build_term(prefix, parts):
-                return ' '.join('in'+prefix + ':' + x for x in parts)
+                return ' '.join(('in%s:%s') % (prefix, x) for x in parts)
             if title is not None:
-                q += build_term('title', title.split())
+                q.append(build_term('title', title.split()))
             if author is not None:
-                q += ('+' if q else '')+build_term('author', author.split())
+                q.append(build_term('author', author.split()))
             if publisher is not None:
-                q += ('+' if q else '')+build_term('publisher', publisher.split())
-
+                q.append(build_term('publisher', publisher.split()))
+        q='+'.join(q)
+        
         if isinstance(q, unicode):
             q = q.encode('utf-8')
-        self.url = self.BASE_URL+urlencode({
+        self.urlbase = self.BASE_URL+urlencode({
             'q':q,
             'max-results':max_results,
-            'start-index':start_index,
             'min-viewability':min_viewability,
-            })
+            })+'&start-index='
 
-    def __call__(self, browser, verbose):
+    def brcall(self, browser, url, verbose, timeout):
         if verbose:
-            print 'Query:', self.url
-        feed = etree.fromstring(browser.open(self.url).read())
-        #print etree.tostring(feed, pretty_print=True)
+            print _('Query: %s') % url
+        
+        try:
+            raw = browser.open_novisit(url, timeout=timeout).read()
+        except Exception, e:
+            report(verbose)
+            if callable(getattr(e, 'getcode', None)) and \
+                    e.getcode() == 404:
+                return None
+            attr = getattr(e, 'args', [None])
+            attr = attr if attr else [None]
+            if isinstance(attr[0], socket.timeout):
+                raise GoogleBooksError(_('GoogleBooks timed out. Try again later.'))
+            raise GoogleBooksError(_('GoogleBooks encountered an error.'))
+        if '<title>404 - ' in raw:
+            return None
+        raw = xml_to_unicode(raw, strip_encoding_pats=True,
+                resolve_entities=True)[0]
+        try:
+            return etree.fromstring(raw)
+        except:
+            try:
+                #remove ASCII invalid chars (normally not needed)
+                return etree.fromstring(clean_ascii_chars(raw))
+            except:
+                return None
+
+    def __call__(self, browser, verbose, timeout = 5.):
+        #get a feed
+        url = self.urlbase+self.sindex
+        feed = self.brcall(browser, url, verbose, timeout)
+        if feed is None:
+            return None
+        
+        # print etree.tostring(feed, pretty_print=True)
         total = int(total_results(feed)[0].text)
+        nbresultstoget = total if total<self.maxresults else self.maxresults
+        
         start = int(start_index(feed)[0].text)
         entries = entry(feed)
-        new_start = start + len(entries)
-        if new_start > total:
-            new_start = 0
-        return entries, new_start
-
+        while len(entries) < nbresultstoget:
+            url = self.urlbase+str(start+len(entries))
+            feed = self.brcall(browser, url, verbose, timeout)
+            if feed is None:
+                break
+            entries.extend(entry(feed))
+        return entries
 
 class ResultList(list):
+    def __init__(self):
+        self.thread = []
 
     def get_description(self, entry, verbose):
         try:
@@ -164,44 +229,114 @@ class ResultList(list):
             d = None
         return d
 
-    def populate(self, entries, browser, verbose=False):
-        for x in entries:
+    def fill_MI(self, entry, data, verbose):
+        x = entry
+        try:
+            title = self.get_title(entry)
+            x = entry(data)[0]
+        except Exception, e:
+            if verbose:
+                print _('Failed to get all details for an entry')
+                print e
+        authors = self.get_authors(x)
+        mi = MetaInformation(title, authors)
+        mi.author_sort = self.get_author_sort(x, verbose)
+        mi.comments = self.get_description(x, verbose)
+        self.get_identifiers(x, mi)
+        mi.tags = self.get_tags(x, verbose)
+        mi.publisher = self.get_publisher(x, verbose)
+        mi.pubdate = self.get_date(x, verbose)
+        mi.language = self.get_language(x, verbose)
+        return mi
+
+    def get_individual_metadata(self, url, br, verbose):
+        if url is None:
+            return None
+        try:
+            raw = br.open_novisit(url).read()
+        except Exception, e:
+            report(verbose)
+            if callable(getattr(e, 'getcode', None)) and \
+                    e.getcode() == 404:
+                return None
+            attr = getattr(e, 'args', [None])
+            attr = attr if attr else [None]
+            if isinstance(attr[0], socket.timeout):
+                raise GoogleBooksError(_('GoogleBooks timed out. Try again later.'))
+            raise GoogleBooksError(_('GoogleBooks encountered an error.'))
+        if '<title>404 - ' in raw:
+            report(verbose)
+            return None
+        raw = xml_to_unicode(raw, strip_encoding_pats=True,
+                resolve_entities=True)[0]
+        try:
+            return etree.fromstring(raw)
+        except:
             try:
-                id_url = entry_id(x)[0].text
-                title = self.get_title(x)
+                #remove ASCII invalid chars
+                return etree.fromstring(clean_ascii_chars(raw))
             except:
                 report(verbose)
-            mi = MetaInformation(title, self.get_authors(x))
+                return None
+
+    def fetchdatathread(self, qbr, qsync, nb, url, verbose):
+        try:
+            browser = qbr.get(True)
+            entry = self.get_individual_metadata(url, browser, verbose)
+        except:
+            report(verbose)
+            entry = None
+        finally:
+            qbr.put(browser, True)
+            qsync.put(nb, True)
+            return entry
+
+    def producer(self, sync, entries, br, verbose=False):
+        for i in xrange(len(entries)):
             try:
-                raw = browser.open(id_url).read()
-                feed = etree.fromstring(raw)
-                x = entry(feed)[0]
-            except Exception, e:
-                if verbose:
-                    print 'Failed to get all details for an entry'
-                    print e
-            mi.author_sort = self.get_author_sort(x, verbose)
-            mi.comments = self.get_description(x, verbose)
-            self.get_identifiers(x, mi)
-            mi.tags = self.get_tags(x, verbose)
-            mi.publisher = self.get_publisher(x, verbose)
-            mi.pubdate = self.get_date(x, verbose)
-            mi.language = self.get_language(x, verbose)
-            self.append(mi)
+                id_url = entry_id(entries[i])[0].text
+            except:
+                id_url = None
+                report(verbose)
+            thread = ThreadwithResults(self.fetchdatathread, br, sync,
+                                i, id_url, verbose)
+            thread.start()
+            self.thread.append(thread)
+
+    def consumer(self, entries, sync, total_entries, verbose=False):
+        res=[None]*total_entries #remove?
+        i=0
+        while i < total_entries:
+            nb = int(sync.get(True))
+            self.thread[nb].join()
+            data = self.thread[nb].get_result()
+            res[nb] = self.fill_MI(entries[nb], data, verbose)
+            i+=1
+        return res
+
+    def populate(self, entries, br, verbose=False, brcall=3):
+        #multiple entries
+        pbr = Queue(brcall)
+        sync = Queue(1)
+        for i in xrange(brcall-1):
+            pbr.put(browser(), True)
+        pbr.put(br, True)
+        
+        prod_thread = Thread(target=self.producer, args=(sync, entries, pbr, verbose))
+        cons_thread = ThreadwithResults(self.consumer, entries, sync, len(entries), verbose)
+        prod_thread.start()
+        cons_thread.start()
+        prod_thread.join()
+        cons_thread.join()
+        self.extend(cons_thread.get_result())
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
            min_viewability='none', verbose=False, max_results=40):
     br   = browser()
-    start, entries = 1, []
-    while start > 0 and len(entries) <= max_results:
-        new, start = Query(title=title, author=author, publisher=publisher,
-                       isbn=isbn, min_viewability=min_viewability)(br, verbose)
-        if not new:
-            break
-        entries.extend(new)
-
-    entries = entries[:max_results]
+    entries = Query(title=title, author=author, publisher=publisher,
+                        isbn=isbn, max_results=max_results,
+                            min_viewability=min_viewability)(br, verbose)
 
     ans = ResultList()
     ans.populate(entries, br, verbose)
@@ -214,7 +349,7 @@ def option_parser():
 
         Fetch book metadata from Google. You must specify one of title, author,
         publisher or ISBN. If you specify ISBN the others are ignored. Will
-        fetch a maximum of 100 matches, so you should make your query as
+        fetch a maximum of 20 matches, so you should make your query as
         specific as possible.
         '''
     ))
@@ -244,3 +379,5 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+
+# C:\Users\Pierre>calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\google_books.py" -m 5 -a gore -v>data.html
