@@ -1,0 +1,58 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+paperli
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import strftime
+import re, sys
+
+class paperli(BasicNewsRecipe):
+#-------------------please change here ----------------
+    paperli_tag = 'osm'
+    title          = u'The # osm Daily - paperli'
+#-------------------------------------------------------------
+    base_url     = 'http://paper.li'
+    index          = '/tag/'+paperli_tag+'/~list'
+
+    __author__     = 'Hiroshi Miura'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    description    = 'paper.li page'
+    publisher      = 'paper.li'
+    category       = 'paper.li'
+    language       = 'en'
+    encoding       = 'utf-8'
+    remove_javascript = True
+    timefmt        = '[%y/%m/%d]'
+
+    def parse_index(self):
+        feeds = []
+        newsarticles = []
+        topic = 'HEADLINE'
+
+        #for pages
+        page = self.index
+        while True:
+            soup = self.index_to_soup(''.join([self.base_url,page]))
+            for itt in soup.findAll('div',attrs={'class':'yui-u'}):
+                itema = itt.find('a',href=True,attrs={'class':'ts'})
+                if itema is not None:
+                    itemd = itt.find('div',text=True, attrs={'class':'text'})
+                    newsarticles.append({
+                                      'title'      :itema.string
+                                     ,'date'     :strftime(self.timefmt)
+                                     ,'url'        :itema['href']
+                                     ,'description':itemd.string
+                                    })
+
+            nextpage = soup.find('div',attrs={'class':'pagination_top'}).find('li', attrs={'class':'next'})
+            if nextpage is not None:
+                page = nextpage.find('a', href=True)['href']
+            else:
+                break
+
+        feeds.append((topic, newsarticles))
+        return feeds
+
