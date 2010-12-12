@@ -77,7 +77,7 @@ class TXTInput(InputFormatPlugin):
         base = os.getcwdu()
         if hasattr(stream, 'name'):
             base = os.path.dirname(stream.name)
-        htmlfile = open(os.path.join(base, 'temp_calibre_txt_input_to_html.html'),
+        htmlfile = open(os.path.join(base, 'index.html'),
                 'wb')
         htmlfile.write(html.encode('utf-8'))
         htmlfile.close()
