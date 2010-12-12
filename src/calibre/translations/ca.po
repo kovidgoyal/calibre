@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-12-11 02:31+0000\n"
+"PO-Revision-Date: 2010-12-11 15:53+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-11 04:34+0000\n"
+"X-Launchpad-Export-Date: 2010-12-12 04:34+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -272,7 +272,7 @@ msgstr "Estableix les metadades des dels fitxers %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:717
 msgid "Look and Feel"
-msgstr "Aspecte i comportament"
+msgstr "Aparença"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:719
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:731
@@ -284,8 +284,7 @@ msgstr "Interfície"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:723
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
 msgstr ""
-"Ajusta l'aspecte i el comportament de la interfície del calibre adaptar-lo "
-"al vostre gust"
+"Ajusta l'aparença de la interfície del calibre per adaptar-la al vostre gust"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 msgid "Behavior"
@@ -1419,7 +1418,7 @@ msgstr "Opcions per a controlar el processament de la sortida %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
-msgstr "Opcions per controlar l'aspecte de la sortida"
+msgstr "Opcions per controlar l'aparença de la sortida"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:135
 msgid "Control auto-detection of document structure."
@@ -3434,7 +3433,7 @@ msgstr ""
 "\n"
 "S'utilitzaran les metadades del primer PDF indicat.\n"
 "\n"
-"Uneix PDFs individuals.\n"
+"Fusiona PDFs individuals.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:56
 msgid "Merge Options:"
@@ -3958,13 +3957,13 @@ msgstr "Llibres compatibles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:225
 msgid "Merged some books"
-msgstr "S'han unit els llibres"
+msgstr "S'han fusionat els llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:226
 msgid ""
 "Some duplicates were found and merged into the following existing books:"
 msgstr ""
-"S'han trobat duplicats i s'han unit als següents llibres que ja existien:"
+"S'ha trobat duplicats i s'han fusionat en aquests llibres que ja existien:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:235
 msgid "Failed to read metadata"
@@ -4567,15 +4566,17 @@ msgstr "Descarrega només les metadades socials"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:51
 msgid "Merge into first selected book - delete others"
-msgstr "Fusiona al primer llibre seleccionat - esborra la resta"
+msgstr "Fusiona en el primer llibre seleccionat - suprimeix la resta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:54
 msgid "Merge into first selected book - keep others"
-msgstr "Fusiona al primer llibre seleccionat - conserva la resta"
+msgstr "Fusiona en el primer llibre seleccionat - conserva la resta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:58
 msgid "Merge only formats into first selected book - delete others"
 msgstr ""
+"Fusiona només els formats en el primer llibre seleccionat - suprimeix la "
+"resta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:79
 msgid "Cannot download metadata"
@@ -4643,6 +4644,15 @@ msgid ""
 "and subsequently selected books will be permanently <b>deleted</b> from your "
 "calibre library.<br><br>  Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"Es fusionarà els formats dels llibres seleccionats en el <b>primer llibre "
+"seleccionat</b> (%s). No es canviaran les metadades del primer llibre "
+"seleccionat. <i>No</i> es fusionaran l'autor, títol, ISBN i totes les altre "
+"metadades. Se <b>suprimiran</b> el segon i els següents llibres "
+"seleccionats, amb les seves metadades, després de la fusió. <br><br>Es "
+"conservaran tots els formats del primer llibre seleccionat i se "
+"<b>suprimiran</b> permanentment tots els formats duplicats del segon i del "
+"següents llibres seleccionats. <br><br>Esteu <b>segur</b> que voleu "
+"continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:264
 msgid ""
@@ -4654,6 +4664,13 @@ msgid ""
 "books will be permanently <b>deleted</b> from your calibre library.<br><br>  "
 "Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"Es fusionarà els formats i les metadades dels llibres seleccionats en el "
+"<b>primer llibre seleccionat</b> (%s). <i>No</i> es fusionarà l'ISBN. "
+"<br><br>Se <b>suprimiran</b> el segon i els següents llibres seleccionats "
+"després de la fusió. <br><br>Es conservaran tots els formats del primer "
+"llibre seleccionat i se <b>suprimiran</b> permanentment tots els formats "
+"duplicats del segon i del següents llibres seleccionats de la biblioteca del "
+"calibre. <br><br>Esteu <b>segur</b> que voleu continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:17
 msgid "F"
@@ -5726,7 +5743,7 @@ msgstr "Aparença"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
 msgid "Control the look and feel of the output"
-msgstr "Controleu l'aspecte de la sortida"
+msgstr "Controleu l'aparença de la sortida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:31
 msgid "Original"
@@ -7007,7 +7024,7 @@ msgstr "&Perfil:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:23
 msgid "&OK"
-msgstr ""
+msgstr "D'ac&ord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
@@ -9113,7 +9130,7 @@ msgstr "S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:355
 msgid "Edit template"
-msgstr ""
+msgstr "Edita la plantilla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:67
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:241
@@ -13466,31 +13483,32 @@ msgstr "Com i quan el calibre ha d'actualitzar les metadades del dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:77
 msgid "failed to scan program. Invalid input {0}"
-msgstr ""
+msgstr "no s'ha pogut analitzar el programa. Entrada no vàlida {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:82
 msgid " near "
-msgstr ""
+msgstr " a prop "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:124
 msgid "syntax error - program ends before EOF"
 msgstr ""
+"error de sintaxi - el programa s'acaba abans del senyal de final de fitxer"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:141
 msgid "unknown id "
-msgstr ""
+msgstr "identificador desconegut "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:146
 msgid "unknown function {0}"
-msgstr ""
+msgstr "funció desconeguda {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:165
 msgid "missing closing parenthesis"
-msgstr ""
+msgstr "falta el parèntesi de tancament"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:183
 msgid "expression is not function or constant"
-msgstr ""
+msgstr "l'expressió no és una funció ni una constant"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:210
 msgid "lookup requires either 2 or an odd number of arguments"

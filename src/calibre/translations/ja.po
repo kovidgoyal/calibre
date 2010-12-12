@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-10-28 02:22+0000\n"
+"PO-Revision-Date: 2010-12-11 09:41+0000\n"
 "Last-Translator: Hiroshi Miura <miurahr@linux.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-11 04:38+0000\n"
+"X-Launchpad-Export-Date: 2010-12-12 04:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -276,7 +276,7 @@ msgstr "インターフェース"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:723
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr ""
+msgstr "Calibreインターフェースのルック＆フィールをあなた湖のみに調整します"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 msgid "Behavior"
@@ -358,7 +358,7 @@ msgstr "ディクスへの書籍の保存"
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
-msgstr ""
+msgstr "ディスクへ保存を使って、データベースからディスクへcalibreがファイルをエキスポートする際の挙動を制御します"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:820
 msgid "Sending books to devices"
@@ -366,7 +366,7 @@ msgstr "デバイスへの書籍の転送"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:826
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr ""
+msgstr "calibreがファイルを電子書籍リーダーへ送信する挙動を制御します"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:832
 msgid "Metadata plugboards"
@@ -374,7 +374,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "保存・送信まえに書誌情報を変更します。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid "Sharing books by email"
@@ -429,7 +429,7 @@ msgstr "各種設定"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:897
 msgid "Miscellaneous advanced configuration"
-msgstr ""
+msgstr "その他の高度な設定"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -580,7 +580,7 @@ msgstr "Amazon Kindle DX用のプロファイルです。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:686
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "このプロファイル設定は、バーンズアンドノーブルのNookの色を意識しています"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:697
 msgid "This profile is intended for the Sanda Bambook."
@@ -770,7 +770,7 @@ msgstr "Cybook Gen 3/ Opus eBookリーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr ""
+msgstr "Cybook Orizon eBookリーダーと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
@@ -782,11 +782,11 @@ msgstr "Astak Mentor EB600と通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
-msgstr ""
+msgstr "PocketBook 301 と通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602 reader."
-msgstr ""
+msgstr "PocketBook 602リーダーと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -873,7 +873,7 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:44
 msgid "Cannot get files from this device"
-msgstr ""
+msgstr "この機器からファイルを取得できません"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -897,7 +897,7 @@ msgstr "MiBuk Wolderリーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:116
 msgid "Communicate with the JetBook Mini reader."
-msgstr ""
+msgstr "JetBookミニリーダーと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:43
 msgid "Communicate with the Kindle eBook reader."
@@ -973,7 +973,7 @@ msgstr "Sweex MM300と通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Digma Q600"
-msgstr ""
+msgstr "Digma Q600と通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:88
 msgid "Communicate with the Kogan"
@@ -986,15 +986,15 @@ msgstr "Pandigital Novelと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:142
 msgid "Communicate with the VelocityMicro"
-msgstr ""
+msgstr "VelocityMicroと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:160
 msgid "Communicate with the GM2000"
-msgstr ""
+msgstr "GM2000と通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:180
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Acer Lumireadと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1002,7 +1002,7 @@ msgstr "Nokia 770 電子書籍リーダ─と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr ""
+msgstr "Nokia 810/900インターネットタブレットと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
@@ -1018,11 +1018,11 @@ msgstr "Nook 電子書籍リーダ─と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Nook Color"
-msgstr ""
+msgstr "Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
 msgid "Communicate with the Nook Color eBook reader."
-msgstr ""
+msgstr "Nook Color eBookリーダーと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1061,7 +1061,7 @@ msgstr "Newsmy リーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Pico reader."
-msgstr ""
+msgstr "Picoリーダーと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the iPapyrus reader."
@@ -1069,7 +1069,7 @@ msgstr "iPapyrusリーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:68
 msgid "Communicate with the Sovos reader."
-msgstr ""
+msgstr "Sovosリーダーと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:258
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1204,7 +1204,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:265
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
-msgstr ""
+msgstr "画像のアスペクト比を管理する。既定はスクリーンに合わせる。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:267
 msgid "Disable sharpening."
