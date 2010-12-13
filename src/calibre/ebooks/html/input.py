@@ -314,6 +314,8 @@ class HTMLInput(InputFormatPlugin):
             rewrite_links, urlnormalize, urldefrag, BINARY_MIME, OEB_STYLES, \
             xpath
         from calibre import guess_type
+        from calibre.ebooks.oeb.transforms.metadata import \
+            meta_info_to_oeb_metadata
         import cssutils
         self.OEB_STYLES = OEB_STYLES
         oeb = create_oebbook(log, None, opts, self,
@@ -321,15 +323,7 @@ class HTMLInput(InputFormatPlugin):
         self.oeb = oeb
 
         metadata = oeb.metadata
-        if mi.title:
-            metadata.add('title', mi.title)
-        if mi.authors:
-            for a in mi.authors:
-                metadata.add('creator', a, attrib={'role':'aut'})
-        if mi.publisher:
-            metadata.add('publisher', mi.publisher)
-        if mi.isbn:
-            metadata.add('identifier', mi.isbn, attrib={'scheme':'ISBN'})
+        meta_info_to_oeb_metadata(mi, metadata, log)
         if not metadata.language:
             oeb.logger.warn(u'Language not specified')
             metadata.add('language', get_lang().replace('_', '-'))

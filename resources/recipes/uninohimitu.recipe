@@ -1,0 +1,36 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+http://ameblo.jp/sauta19/
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class UniNoHimituKichiBlog(BasicNewsRecipe):
+    title          = u'Uni secret base'
+    __author__     = 'Hiroshi Miura'
+    oldest_article = 2
+    publication_type = 'blog'
+    max_articles_per_feed = 20
+    description    = 'Japanese famous Cat blog'
+    publisher      = ''
+    category       = 'cat, pet, japan'
+    language       = 'ja'
+    encoding      = 'utf-8'
+
+    feeds          = [(u'blog', u'http://feedblog.ameba.jp/rss/ameblo/sauta19/rss20.xml')]
+
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for curfeed in feeds:
+            delList = []
+            for a,curarticle in enumerate(curfeed.articles):
+                if re.search(r'rssad.jp', curarticle.url):
+                    delList.append(curarticle)
+            if len(delList)>0:
+                for d in delList:
+                    index = curfeed.articles.index(d)
+                    curfeed.articles[index:index+1] = []
+        return feeds
+
