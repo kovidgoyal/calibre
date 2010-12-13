@@ -172,20 +172,20 @@ class MetadataSource(Plugin): # {{{
 
     # }}}
 
-class GoogleBooks(MetadataSource): # {{{
+# class GoogleBooks(MetadataSource): # {{{
 
-    name = 'Google Books'
-    description = _('Downloads metadata from Google Books')
+    # name = 'Google Books'
+    # description = _('Downloads metadata from Google Books')
 
-    def fetch(self):
-        from calibre.ebooks.metadata.google_books import search
-        try:
-            self.results = search(self.title, self.book_author, self.publisher,
-                                  self.isbn, max_results=10,
-                                  verbose=self.verbose)
-        except Exception, e:
-            self.exception = e
-            self.tb = traceback.format_exc()
+    # def fetch(self):
+        # from calibre.ebooks.metadata.google_books import search
+        # try:
+            # self.results = search(self.title, self.book_author, self.publisher,
+                                  # self.isbn, max_results=10,
+                                  # verbose=self.verbose)
+        # except Exception, e:
+            # self.exception = e
+            # self.tb = traceback.format_exc()
 
     # }}}
 

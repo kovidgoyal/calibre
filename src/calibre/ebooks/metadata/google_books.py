@@ -12,7 +12,9 @@ from functools import partial
 from lxml import etree
 
 from calibre import browser, preferred_encoding
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, check_isbn, \
+    authors_to_sort_string
+from calibre.ebooks.metadata.fetch import MetadataSource
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
 from calibre.utils.date import parse_date, utcnow
@@ -38,6 +40,22 @@ publisher      = XPath('descendant::dc:publisher')
 subject        = XPath('descendant::dc:subject')
 description    = XPath('descendant::dc:description')
 language       = XPath('descendant::dc:language')
+
+
+class GoogleBooks(MetadataSource):
+
+    name = 'Google Books'
+    description = _('Downloads metadata from Google Books')
+    version = (1, 0, 1)
+
+    def fetch(self):
+        try:
+            self.results = search(self.title, self.book_author, self.publisher,
+                                  self.isbn, max_results=10, verbose=self.verbose)
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
 
 class GoogleBooksError(Exception):
     pass
@@ -158,7 +176,7 @@ class ResultList(list):
         try:
             desc = description(entry)
             if desc:
-                return 'SUMMARY:\n'+desc[0].text
+                return _('SUMMARY:\n %s') % desc[0].text
         except:
             report(verbose)
 
@@ -171,29 +189,27 @@ class ResultList(list):
             report(verbose)
 
     def get_title(self, entry):
-        candidates = [x.text for x in title(entry)]
-        return ': '.join(candidates)
+        return ': '.join([x.text for x in title(entry)])
 
     def get_authors(self, entry):
         m = creator(entry)
-        if not m:
-            m = []
-        m = [x.text for x in m]
-        return m
+        return [x.text for x in m] if m else []
 
     def get_author_sort(self, entry, verbose):
         for x in creator(entry):
-            for key, val in x.attrib.items():
+            for key, val in x.attrib.iteritems():
                 if key.endswith('file-as'):
                     return val
 
     def get_identifiers(self, entry, mi):
-        isbns = []
-        for x in identifier(entry):
-            t = str(x.text).strip()
-            if t[:5].upper() in ('ISBN:', 'LCCN:', 'OCLC:'):
-                if t[:5].upper() == 'ISBN:':
-                    isbns.append(t[5:])
+        isbns = [str(x.text).strip() for x in identifier(entry)]
+        isbns = [t[5:] for t in isbns \
+                    if t[:5].upper() == 'ISBN:' and check_isbn(t[5:])]
+        # for x in identifier(entry):
+            # t = str(x.text).strip()
+            # if t[:5].upper() in ('ISBN:', 'LCCN:', 'OCLC:'):
+                # if t[:5].upper() == 'ISBN:':
+                    # isbns.append(t[5:])
         if isbns:
             mi.isbn = sorted(isbns, cmp=lambda x,y:cmp(len(x), len(y)))[-1]
 
@@ -211,28 +227,26 @@ class ResultList(list):
 
     def get_publisher(self, entry, verbose):
         try:
-            pub = publisher(entry)[0].text
+            return publisher(entry)[0].text
         except:
-            pub = None
-        return pub
+            return None
 
     def get_date(self, entry, verbose):
         try:
             d = date(entry)
             if d:
                 default = utcnow().replace(day=15)
-                d = parse_date(d[0].text, assume_utc=True, default=default)
+                return parse_date(d[0].text, assume_utc=True, default=default)
             else:
-                d = None
+                return None
         except:
             report(verbose)
-            d = None
-        return d
+            return None
 
-    def fill_MI(self, entry, data, verbose):
-        x = entry
+    def fill_MI(self, ent, data, verbose):
+        x = ent
         try:
-            title = self.get_title(entry)
+            title = self.get_title(x)
             x = entry(data)[0]
         except Exception, e:
             if verbose:
@@ -240,7 +254,9 @@ class ResultList(list):
                 print e
         authors = self.get_authors(x)
         mi = MetaInformation(title, authors)
-        mi.author_sort = self.get_author_sort(x, verbose)
+        tmpautsort = self.get_author_sort(x, verbose)
+        mi.author_sort = tmpautsort if tmpautsort \
+                            else authors_to_sort_string(authors)
         mi.comments = self.get_description(x, verbose)
         self.get_identifiers(x, mi)
         mi.tags = self.get_tags(x, verbose)
@@ -315,7 +331,6 @@ class ResultList(list):
         return res
 
     def populate(self, entries, br, verbose=False, brcall=3):
-        #multiple entries
         pbr = Queue(brcall)
         sync = Queue(1)
         for i in xrange(brcall-1):
@@ -344,23 +359,23 @@ def search(title=None, author=None, publisher=None, isbn=None,
 
 def option_parser():
     parser = OptionParser(textwrap.dedent(
-        '''\
+        _('''\
         %prog [options]
 
         Fetch book metadata from Google. You must specify one of title, author,
         publisher or ISBN. If you specify ISBN the others are ignored. Will
-        fetch a maximum of 20 matches, so you should make your query as
+        fetch a maximum of 40 matches, so you should make your query as
         specific as possible.
         '''
-    ))
-    parser.add_option('-t', '--title', help='Book title')
-    parser.add_option('-a', '--author', help='Book author(s)')
-    parser.add_option('-p', '--publisher', help='Book publisher')
-    parser.add_option('-i', '--isbn', help='Book ISBN')
+    )))
+    parser.add_option('-t', '--title', help=_('Book title'))
+    parser.add_option('-a', '--author', help=_('Book author(s)'))
+    parser.add_option('-p', '--publisher', help=_('Book publisher'))
+    parser.add_option('-i', '--isbn', help=_('Book ISBN'))
     parser.add_option('-m', '--max-results', default=10,
-                      help='Maximum number of results to fetch')
+                      help=_('Maximum number of results to fetch'))
     parser.add_option('-v', '--verbose', default=0, action='count',
-                      help='Be more verbose about errors')
+                      help=_('Be more verbose about errors'))
     return parser
 
 def main(args=sys.argv):
@@ -373,6 +388,9 @@ def main(args=sys.argv):
         report(True)
         parser.print_help()
         return 1
+    if results is None or len(results) == 0:
+        print _('No result found for this search!')
+        return 0
     for result in results:
         print unicode(result).encode(preferred_encoding)
         print
@@ -380,4 +398,4 @@ def main(args=sys.argv):
 if __name__ == '__main__':
     sys.exit(main())
 
-# C:\Users\Pierre>calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\google_books.py" -m 5 -a gore -v>data.html
+# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\google_books.py" -m 5 -a gore -v>data.html
