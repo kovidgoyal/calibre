@@ -119,10 +119,8 @@ class SafeFormat(TemplateFormatter):
             try:
                 b = self.book.get_user_metadata(key, False)
             except:
-                if DEBUG:
-                    traceback.print_exc()
+                traceback.print_exc()
                 b = None
-
             if b is not None and b['datatype'] == 'composite':
                 if key in self.composite_values:
                     return self.composite_values[key]
@@ -135,8 +133,7 @@ class SafeFormat(TemplateFormatter):
                 return val.replace('/', '_').replace('\\', '_')
             return ''
         except:
-            if DEBUG:
-                traceback.print_exc()
+            traceback.print_exc()
             return key
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
@@ -155,6 +152,8 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         format_args['tags'] = mi.format_tags()
         if format_args['tags'].startswith('/'):
             format_args['tags'] = format_args['tags'][1:]
+    else:
+        format_args['tags'] = ''
     if mi.series:
         format_args['series'] = tsfmt(mi.series)
         if mi.series_index is not None:
