@@ -240,37 +240,39 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cover_fetcher = CoverFetcher(None, None, isbn,
                                             self.timeout, title, author)
         self.cover_fetcher.start()
-        self._hangcheck = QTimer(self)
-        self._hangcheck.timeout.connect(self.hangcheck,
-                type=Qt.QueuedConnection)
         self.cf_start_time = time.time()
         self.pi.start(_('Downloading cover...'))
-        self._hangcheck.start(100)
+        QTimer.singleShot(100, self.hangcheck)
 
     def hangcheck(self):
-        if self.cover_fetcher.is_alive() and \
-            time.time()-self.cf_start_time < self.COVER_FETCH_TIMEOUT:
+        cf = self.cover_fetcher
+        if cf is None:
+            # Called after dialog closed
             return
 
-        self._hangcheck.stop()
+        if cf.is_alive() and \
+            time.time()-self.cf_start_time < self.COVER_FETCH_TIMEOUT:
+            QTimer.singleShot(100, self.hangcheck)
+            return
+
         try:
-            if self.cover_fetcher.is_alive():
+            if cf.is_alive():
                 error_dialog(self, _('Cannot fetch cover'),
                     _('<b>Could not fetch cover.</b><br/>')+
                     _('The download timed out.')).exec_()
                 return
-            if self.cover_fetcher.needs_isbn:
+            if cf.needs_isbn:
                 error_dialog(self, _('Cannot fetch cover'),
                     _('Could not find cover for this book. Try '
                       'specifying the ISBN first.')).exec_()
                 return
-            if self.cover_fetcher.exception is not None:
-                err = self.cover_fetcher.exception
+            if cf.exception is not None:
+                err = cf.exception
                 error_dialog(self, _('Cannot fetch cover'),
                     _('<b>Could not fetch cover.</b><br/>')+unicode(err)).exec_()
                 return
-            if self.cover_fetcher.errors and self.cover_fetcher.cover_data is None:
-                details = u'\n\n'.join([e[-1] + ': ' + e[1] for e in self.cover_fetcher.errors])
+            if cf.errors and cf.cover_data is None:
+                details = u'\n\n'.join([e[-1] + ': ' + e[1] for e in cf.errors])
                 error_dialog(self, _('Cannot fetch cover'),
                     _('<b>Could not fetch cover.</b><br/>') +
                     _('For the error message from each cover source, '
@@ -278,7 +280,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 return
 
             pix = QPixmap()
-            pix.loadFromData(self.cover_fetcher.cover_data)
+            pix.loadFromData(cf.cover_data)
             if pix.isNull():
                 error_dialog(self, _('Bad cover'),
                              _('The cover is not a valid picture')).exec_()
@@ -287,7 +289,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 self.update_cover_tooltip()
                 self.cover_changed = True
                 self.cpixmap = pix
-                self.cover_data = self.cover_fetcher.cover_data
+                self.cover_data = cf.cover_data
         finally:
             self.fetch_cover_button.setEnabled(True)
             self.unsetCursor()
@@ -438,6 +440,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def __init__(self, window, row, db, prev=None,
             next_=None):
         ResizableDialog.__init__(self, window)
+        self.cover_fetcher = None
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
         self.cancel_all = False
         base = unicode(self.author_sort.toolTip())
@@ -828,10 +831,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.accept()
 
     def accept(self):
-        cf = getattr(self, 'cover_fetcher', None)
-        if cf is not None and hasattr(cf, 'terminate'):
-            cf.terminate()
-            cf.wait()
         try:
             if self.formats_changed:
                 self.sync_formats()
@@ -888,14 +887,12 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         show=True)
             raise
         self.save_state()
+        self.cover_fetcher = None
         QDialog.accept(self)
 
     def reject(self, *args):
-        cf = getattr(self, 'cover_fetcher', None)
-        if cf is not None and hasattr(cf, 'terminate'):
-            cf.terminate()
-            cf.wait()
         self.save_state()
+        self.cover_fetcher = None
         QDialog.reject(self, *args)
 
     def read_state(self):
