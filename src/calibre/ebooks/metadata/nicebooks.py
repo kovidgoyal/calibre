@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import sys, textwrap, re, traceback, socket
+import sys, re
 from threading import Thread
 from Queue import Queue
 from urllib import urlencode
@@ -35,6 +35,7 @@ class NiceBooks(MetadataSource):
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10, verbose=self.verbose)
         except Exception, e:
+            import traceback
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -70,6 +71,7 @@ class NiceBooksCovers(CoverDownload):
                 ext = 'jpg'
             result_queue.put((True, cover_data, ext, self.name))
         except Exception, e:
+            import traceback
             result_queue.put((False, self.exception_to_string(e),
                 traceback.format_exc(), self.name))
 
@@ -96,6 +98,7 @@ class ThreadwithResults(Thread):
 
 def report(verbose):
     if verbose:
+        import traceback
         traceback.print_exc()
 
 
@@ -124,18 +127,21 @@ class Query(object):
             q = q.encode('utf-8')
         self.urldata = 'search?' + urlencode({'q':q,'s':'Rechercher'})
 
-    def __call__(self, browser, verbose, timeout = 5.):
+    def brcall(self, browser, url, verbose, timeout):
         if verbose:
-            print _('Query: %s') % self.BASE_URL+self.urldata
-
+            print _('Query: %s') % url
+        
         try:
-            raw = browser.open_novisit(self.BASE_URL+self.urldata, timeout=timeout).read()
+            raw = browser.open_novisit(url, timeout=timeout).read()
         except Exception, e:
+            import socket
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return None
-            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+            attr = getattr(e, 'args', [None])
+            attr = attr if attr else [None]
+            if isinstance(attr[0], socket.timeout):
                 raise NiceBooksError(_('Nicebooks timed out. Try again later.'))
             raise NiceBooksError(_('Nicebooks encountered an error.'))
         if '<title>404 - ' in raw:
@@ -143,13 +149,18 @@ class Query(object):
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
         try:
-            feed = soupparser.fromstring(raw)
+            return soupparser.fromstring(raw)
         except:
             try:
                 #remove ASCII invalid chars
-                feed = soupparser.fromstring(clean_ascii_chars(raw))
+                return soupparser.fromstring(clean_ascii_chars(raw))
             except:
                 return None
+
+    def __call__(self, browser, verbose, timeout = 5.):
+        feed = self.brcall(browser, self.BASE_URL+self.urldata, verbose, timeout)
+        if feed is None:
+            return None       
 
         #nb of page to call
         try:
@@ -162,23 +173,10 @@ class Query(object):
         pages =[feed]
         if nbpagetoquery > 1:
             for i in xrange(2, nbpagetoquery + 1):
-                try:
-                    urldata = self.urldata + '&p=' + str(i)
-                    raw = browser.open_novisit(self.BASE_URL+urldata, timeout=timeout).read()
-                except Exception, e:
+                urldata = self.urldata + '&p=' + str(i)
+                feed = self.brcall(browser, self.BASE_URL+urldata, verbose, timeout)
+                if feed is None:
                     continue
-                if '<title>404 - ' in raw:
-                    continue
-                raw = xml_to_unicode(raw, strip_encoding_pats=True,
-                        resolve_entities=True)[0]
-                try:
-                    feed = soupparser.fromstring(raw)
-                except:
-                    try:
-                        #remove ASCII invalid chars
-                        feed = soupparser.fromstring(clean_ascii_chars(raw))
-                    except:
-                        continue
                 pages.append(feed)
 
         results = []
@@ -270,11 +268,14 @@ class ResultList(list):
         try:
             raw = br.open_novisit(url).read()
         except Exception, e:
+            import socket
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return None
-            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+            attr = getattr(e, 'args', [None])
+            attr = attr if attr else [None]
+            if isinstance(attr[0], socket.timeout):
                 raise NiceBooksError(_('NiceBooks timed out. Try again later.'))
             raise NiceBooksError(_('NiceBooks encountered an error.'))
         if '<title>404 - ' in raw:
@@ -372,7 +373,10 @@ class Covers(object):
                 self.urlimg.rpartition('.')[-1]
             return cover, ext if ext else 'jpg'
         except Exception, err:
-            if isinstance(getattr(err, 'args', [None])[0], socket.timeout):
+            import socket
+            attr = getattr(e, 'args', [None])
+            attr = attr if attr else [None]
+            if isinstance(attr[0], socket.timeout):
                 raise NiceBooksError(_('Nicebooks timed out. Try again later.'))
             if not len(self.urlimg):
                 if not self.isbnf:
@@ -407,6 +411,7 @@ def cover_from_isbn(isbn, timeout = 5.):
 
 
 def option_parser():
+    import textwrap
     parser = OptionParser(textwrap.dedent(\
     _('''\
         %prog [options]

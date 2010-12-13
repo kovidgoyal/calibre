@@ -120,7 +120,9 @@ class Query(object):
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return None
-            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+            attr = getattr(e, 'args', [None])
+            attr = attr if attr else [None]
+            if isinstance(attr[0], socket.timeout):
                 raise FictionwiseError(_('Fictionwise timed out. Try again later.'))
             raise FictionwiseError(_('Fictionwise encountered an error.'))
         if '<title>404 - ' in raw:
@@ -329,7 +331,9 @@ class ResultList(list):
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return None
-            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+            attr = getattr(e, 'args', [None])
+            attr = attr if attr else [None]
+            if isinstance(attr[0], socket.timeout):
                 raise FictionwiseError(_('Fictionwise timed out. Try again later.'))
             raise FictionwiseError(_('Fictionwise encountered an error.'))
         if '<title>404 - ' in raw:
@@ -406,6 +410,9 @@ def search(title=None, author=None, publisher=None, isbn=None,
     islink = False
     entries, islink = Query(title=title, author=author, publisher=publisher,
         keywords=keywords, max_results=max_results)(br, verbose, timeout = 15.)
+
+    if entries is None or len(entries) == 0:
+        return None
 
     #List of entry
     ans = ResultList(islink)
