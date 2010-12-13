@@ -105,9 +105,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         if not question_dialog(self, _('Are your sure?'),
             '<p>'+_('Are you certain you want to delete the following items?')+'<br>'+ct):
             return
-
+        row = self.available_tags.row(deletes[0])
         for item in deletes:
             (id,ign) = item.data(Qt.UserRole).toInt()
             self.to_delete.append(id)
             self.available_tags.takeItem(self.available_tags.row(item))
 
+        if row >= self.available_tags.count():
+            row = self.available_tags.count() - 1
+        if row >= 0:
+            self.available_tags.scrollToItem(self.available_tags.item(row))
