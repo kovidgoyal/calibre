@@ -87,6 +87,13 @@ class TagsView(QTreeView): # {{{
         self.setDragDropMode(self.DropOnly)
         self.setDropIndicatorShown(True)
         self.setAutoExpandDelay(500)
+        self.pane_is_visible = False
+
+    def set_pane_is_visible(self, to_what):
+        pv = self.pane_is_visible
+        self.pane_is_visible = to_what
+        if to_what and not pv:
+            self.recount()
 
     def set_database(self, db, tag_match, sort_by):
         self.hidden_categories = config['tag_browser_hidden_categories']
@@ -300,7 +307,7 @@ class TagsView(QTreeView): # {{{
         return self.isExpanded(idx)
 
     def recount(self, *args):
-        if self.disable_recounting:
+        if self.disable_recounting or not self.pane_is_visible:
             return
         self.refresh_signal_processed = True
         ci = self.currentIndex()
@@ -969,6 +976,7 @@ class TagBrowserWidget(QWidget): # {{{
         self._layout.setContentsMargins(0,0,0,0)
 
         parent.tags_view = TagsView(parent)
+        self.tags_view = parent.tags_view
         self._layout.addWidget(parent.tags_view)
 
         parent.sort_by = QComboBox(parent)
@@ -997,6 +1005,9 @@ class TagBrowserWidget(QWidget): # {{{
         parent.edit_categories.setToolTip(
                 _('Add your own categories to the Tag Browser'))
         parent.edit_categories.setStatusTip(parent.edit_categories.toolTip())
+
+    def set_pane_is_visible(self, to_what):
+        self.tags_view.set_pane_is_visible(to_what)
 
 
 # }}}
