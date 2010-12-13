@@ -381,7 +381,7 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="15" column="0" colspan="3">
+         <item row="14" column="0" colspan="3">
           <spacer name="verticalSpacer_2">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -393,6 +393,39 @@ Future conversion of these books will use the default settings.</string>
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="13" column="0" colspan="3">
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Change &amp;cover</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QRadioButton" name="cover_no_change">
+              <property name="text">
+               <string>&amp;No change</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="cover_remove">
+              <property name="text">
+               <string>&amp;Remove cover</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="cover_generate">
+              <property name="text">
+               <string>&amp;Generate default cover</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
         </layout>
        </widget>
