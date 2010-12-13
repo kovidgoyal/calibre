@@ -73,6 +73,10 @@ class FB2MLizer(object):
         text = re.sub(r'(?miu)<p>\s*</p>', '', text)
         text = re.sub(r'(?miu)\s+</p>', '</p>', text)
         text = re.sub(r'(?miu)</p><p>', '</p>\n\n<p>', text)
+        
+        if self.opts.insert_blank_line:
+            text = re.sub(r'(?miu)</p>', '</p><empty-line />', text)
+        
         return text
 
     def fb2_header(self):
