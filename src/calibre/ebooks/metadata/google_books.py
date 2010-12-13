@@ -61,20 +61,6 @@ class GoogleBooks(MetadataSource):
 class GoogleBooksError(Exception):
     pass
 
-class ThreadwithResults(Thread):
-    def __init__(self, func, *args, **kargs):
-        self.func = func
-        self.args = args
-        self.kargs = kargs
-        self.result = None
-        Thread.__init__(self)
-
-    def get_result(self):
-        return self.result
-
-    def run(self):
-        self.result = self.func(*self.args, **self.kargs)
-
 def report(verbose):
     if verbose:
         import traceback
@@ -173,8 +159,6 @@ class Query(object):
         return entries
 
 class ResultList(list):
-    def __init__(self):
-        self.thread = []
 
     def get_description(self, entry, verbose):
         try:
@@ -206,8 +190,7 @@ class ResultList(list):
                     return val
 
     def get_identifiers(self, entry, mi):
-        isbns = [str(x.text).strip() for x in identifier(entry)]
-        isbns = [t[5:] for t in isbns \
+        isbns = [t[5:] for t in [str(x.text).strip() for x in identifier(entry)] \
                     if t[:5].upper() == 'ISBN:' and check_isbn(t[5:])]
         # for x in identifier(entry):
             # t = str(x.text).strip()
@@ -309,8 +292,7 @@ class ResultList(list):
             entry = None
         finally:
             qbr.put(browser, True)
-            qsync.put(nb, True)
-            return entry
+            qsync.put((nb, entry), True)
 
     def producer(self, sync, entries, br, verbose=False):
         for i in xrange(len(entries)):
@@ -319,21 +301,18 @@ class ResultList(list):
             except:
                 id_url = None
                 report(verbose)
-            thread = ThreadwithResults(self.fetchdatathread, br, sync,
-                                i, id_url, verbose)
+            thread = Thread(target=self.fetchdatathread, 
+                        args=(br, sync, i, id_url, verbose))
             thread.start()
-            self.thread.append(thread)
 
     def consumer(self, entries, sync, total_entries, verbose=False):
-        res=[None]*total_entries #remove?
+        self.extend([None]*total_entries)
         i=0
         while i < total_entries:
-            nb = int(sync.get(True))
-            self.thread[nb].join()
-            data = self.thread[nb].get_result()
-            res[nb] = self.fill_MI(entries[nb], data, verbose)
+            rq = sync.get(True)
+            nb = int(rq[0])
+            self[nb] = self.fill_MI(entries[nb], rq[1], verbose)
             i+=1
-        return res
 
     def populate(self, entries, br, verbose=False, brcall=3):
         pbr = Queue(brcall)
@@ -343,12 +322,11 @@ class ResultList(list):
         pbr.put(br, True)
         
         prod_thread = Thread(target=self.producer, args=(sync, entries, pbr, verbose))
-        cons_thread = ThreadwithResults(self.consumer, entries, sync, len(entries), verbose)
+        cons_thread = Thread(target=self.consumer, args=(entries, sync, len(entries), verbose))
         prod_thread.start()
         cons_thread.start()
         prod_thread.join()
         cons_thread.join()
-        self.extend(cons_thread.get_result())
 
 
 def search(title=None, author=None, publisher=None, isbn=None,

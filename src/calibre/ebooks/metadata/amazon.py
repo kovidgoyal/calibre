@@ -121,20 +121,6 @@ def report(verbose):
 class AmazonError(Exception):
     pass
 
-class ThreadwithResults(Thread):
-    def __init__(self, func, *args, **kargs):
-        self.func = func
-        self.args = args
-        self.kargs = kargs
-        self.result = None
-        Thread.__init__(self)
-
-    def get_result(self):
-        return self.result
-
-    def run(self):
-        self.result = self.func(*self.args, **self.kargs)
-
 
 class Query(object):
 
@@ -269,14 +255,11 @@ class Query(object):
                 for i in x.xpath("//a/span[@class='srTitle']")])
         return results[:self.max_results], self.baseurl
 
-class ResultList(object):
+class ResultList(list):
 
     def __init__(self, baseurl, lang = 'all'):
         self.baseurl = baseurl
         self.lang = lang
-        self.thread = []
-        self.res = []
-        self.nbtag = 0
         self.repub = re.compile(u'\((.*)\)')
         self.rerat = re.compile(u'([0-9.]+)')
         self.reattr = re.compile(r'<([a-zA-Z0-9]+)\s[^>]+>')
@@ -484,63 +467,65 @@ class ResultList(object):
             entry = None
         finally:
             qbr.put(browser, True)
-            qsync.put(nb, True)
-            return entry
+            qsync.put((nb, entry), True)
 
     def producer(self, sync, urls, br, verbose=False):
         for i in xrange(len(urls)):
-            thread = ThreadwithResults(self.fetchdatathread, br, sync,
-                                            i, urls[i], verbose)
+            thread = Thread(target=self.fetchdatathread, 
+                        args=(br, sync, i, urls[i], verbose))
             thread.start()
-            self.thread.append(thread)
 
     def consumer(self, sync, syncbis, br, total_entries, verbose=False):
         i=0
+        self.extend([None]*total_entries)
         while i < total_entries:
-            nb = int(sync.get(True))
-            self.thread[nb].join()
-            entry = self.thread[nb].get_result()
+            rq = sync.get(True)
+            nb = int(rq[0])
+            entry = rq[1]
             i+=1
             if entry is not None:
                 mi = self.fill_MI(entry, verbose)
                 if mi is not None:
                     mi.tags, atag = self.get_tags(entry, verbose)
-                    self.res[nb] = mi
+                    self[nb] = mi
                     if atag:
-                        threadbis = ThreadwithResults(self.fetchdatathread,
-                                        br, syncbis, nb, mi.tags, verbose)
-                        self.thread[nb] = threadbis
-                        self.nbtag +=1
-                        threadbis.start()
+                        thread = Thread(target=self.fetchdatathread, 
+                                args=(br, syncbis, nb, mi.tags, verbose))
+                        thread.start()
+                    else:
+                        syncbis.put((nb, None), True)
+
+    def final(self, sync, total_entries, verbose):
+        i=0
+        while i < total_entries:
+            rq = sync.get(True)
+            nb = int(rq[0])
+            tags = rq[1]
+            i+=1
+            if tags is not None:
+                self[nb].tags = self.get_tags(tags, verbose)[0]
 
     def populate(self, entries, ibr, verbose=False, brcall=3):
         br = Queue(brcall)
         cbr = Queue(brcall-1)
         
         syncp = Queue(1)
-        syncc = Queue(len(entries))
+        syncc = Queue(1)
         
         for i in xrange(brcall-1):
             br.put(browser(), True)
             cbr.put(browser(), True)
         br.put(ibr, True)
         
-        self.res = [None]*len(entries)
-        
         prod_thread = Thread(target=self.producer, args=(syncp, entries, br, verbose))
         cons_thread = Thread(target=self.consumer, args=(syncp, syncc, cbr, len(entries), verbose))
+        fin_thread = Thread(target=self.final, args=(syncc, len(entries), verbose))
         prod_thread.start()
         cons_thread.start()
+        fin_thread.start()
         prod_thread.join()
         cons_thread.join()
-        
-        #finish processing
-        for i in xrange(self.nbtag):
-            nb = int(syncc.get(True))
-            tags = self.thread[nb].get_result()
-            if tags is not None:
-                self.res[nb].tags = self.get_tags(tags, verbose)[0]
-        return self.res
+        fin_thread.join()
 
 
 def search(title=None, author=None, publisher=None, isbn=None,
@@ -554,7 +539,8 @@ def search(title=None, author=None, publisher=None, isbn=None,
 
     #List of entry
     ans = ResultList(baseurl, lang)
-    return [x for x in ans.populate(entries, br, verbose) if x is not None]
+    ans.populate(entries, br, verbose)
+    return [x for x in ans if x is not None]
 
 def get_social_metadata(title, authors, publisher, isbn, verbose=False,
         max_results=1, lang='all'):

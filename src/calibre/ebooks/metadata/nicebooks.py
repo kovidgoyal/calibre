@@ -82,20 +82,6 @@ class NiceBooksError(Exception):
 class ISBNNotFound(NiceBooksError):
     pass
 
-class ThreadwithResults(Thread):
-    def __init__(self, func, *args, **kargs):
-        self.func = func
-        self.args = args
-        self.kargs = kargs
-        self.result = None
-        Thread.__init__(self)
-
-    def get_result(self):
-        return self.result
-
-    def run(self):
-        self.result = self.func(*self.args, **self.kargs)
-
 def report(verbose):
     if verbose:
         import traceback
@@ -191,7 +177,6 @@ class ResultList(list):
 
     def __init__(self, islink):
         self.islink = islink
-        self.thread = []
         self.repub = re.compile(u'\s*.diteur\s*', re.I)
         self.reauteur = re.compile(u'\s*auteur.*', re.I)
         self.reautclean = re.compile(u'\s*\(.*\)\s*')
@@ -302,27 +287,21 @@ class ResultList(list):
             entry = None
         finally:
             qbr.put(browser, True)
-            qsync.put(nb, True)
-            return entry
+            qsync.put((nb, entry), True)
 
     def producer(self, sync, urls, br, verbose=False):
         for i in xrange(len(urls)):
-            thread = ThreadwithResults(self.fetchdatathread, br, sync,
-                                i, self.BASE_URL+urls[i], verbose)
+            thread = Thread(target=self.fetchdatathread, 
+                        args=(br, sync, i, self.BASE_URL+urls[i], verbose))
             thread.start()
-            self.thread.append(thread)
 
     def consumer(self, sync, total_entries, verbose=False):
-        res=[None]*total_entries
+        self.extend([None]*total_entries)
         i=0
         while i < total_entries:
-            nb = int(sync.get(True))
-            self.thread[nb].join()
-            entry = self.thread[nb].get_result()
+            rq = sync.get(True)
+            self[int(rq[0])] = self.fill_MI(rq[1], verbose)
             i+=1
-            if entry is not None:
-                res[nb] = self.fill_MI(entry, verbose)
-        return res
 
     def populate(self, entries, br, verbose=False, brcall=3):
         if not self.islink:
@@ -337,12 +316,11 @@ class ResultList(list):
             pbr.put(br, True)
             
             prod_thread = Thread(target=self.producer, args=(sync, entries, pbr, verbose))
-            cons_thread = ThreadwithResults(self.consumer, sync, len(entries), verbose)
+            cons_thread = Thread(target=self.consumer, args=(sync, len(entries), verbose))
             prod_thread.start()
             cons_thread.start()
             prod_thread.join()
             cons_thread.join()
-            self.extend(cons_thread.get_result())
 
 class Covers(object):
 
