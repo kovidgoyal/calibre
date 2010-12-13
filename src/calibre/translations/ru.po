@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-12-11 18:32+0000\n"
+"PO-Revision-Date: 2010-12-12 06:17+0000\n"
 "Last-Translator: Konstantin <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-12 04:37+0000\n"
+"X-Launchpad-Export-Date: 2010-12-13 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -8758,7 +8758,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:187
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr ""
+msgstr "Выполнить быстрый поиск (вы также можете нажать кнопку Enter)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 msgid "Reset Quick Search"
@@ -10409,7 +10409,7 @@ msgstr "Сортировать по средней оценке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:980
 msgid "Set the sort order for entries in the Tag Browser"
-msgstr ""
+msgstr "Устанавливает порядок сортировки для записей в Tag Browser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:986
 msgid "Match all"

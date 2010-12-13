@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-12-12 04:31+0000\n"
+"PO-Revision-Date: 2010-12-12 15:48+0000\n"
 "Last-Translator: Mircea Dochia <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-12 04:37+0000\n"
+"X-Launchpad-Export-Date: 2010-12-13 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1817,11 +1817,16 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"Pastreaza ligaturile in documentul de origine. O ligatura este o pereche de "
+"caractere precum oe, ae etc. Majoritatea cititoarelor nu suporta ligaturile "
+"si drept urmare este posibil sa nu le afiseze corect. In mod implicit "
+"Calibre va schimba o ligatura in perechea de litere normale corespunzatoare. "
+"Aceasta optiune va pastra ligaturile."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:449
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
 msgid "Set the title."
-msgstr ""
+msgstr "Introdu titlul"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:453
 msgid "Set the authors. Multiple authors should be separated by ampersands."

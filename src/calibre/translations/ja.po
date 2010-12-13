@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-12-11 09:41+0000\n"
+"PO-Revision-Date: 2010-12-12 12:28+0000\n"
 "Last-Translator: Hiroshi Miura <miurahr@linux.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-12 04:36+0000\n"
+"X-Launchpad-Export-Date: 2010-12-13 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1101,7 +1101,7 @@ msgstr "メインメモリをマウントできませんでした(エラーコ�
 msgid ""
 "The main memory of %s is read only. This usually happens because of file "
 "system errors."
-msgstr ""
+msgstr "%s の主メモリは、読み込み専用です。たいていの場合、ファイルシステムのエラーが原因でこれは発生します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:815
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:817
@@ -1131,11 +1131,11 @@ msgstr "デバイスドライバの設定"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:39
 msgid "Ordered list of formats the device will accept"
-msgstr ""
+msgstr "デバイスが受け付け可能なフォーマットの優先順リスト"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:41
 msgid "Place files in sub directories if the device supports them"
-msgstr ""
+msgstr "もし機器がサポートするならば、サブディレクトリにファイルを配置します"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:86
@@ -1144,11 +1144,11 @@ msgstr "デバイス上のファイルのメタデータを読み込む"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:45
 msgid "Use author sort instead of author"
-msgstr ""
+msgstr "著者のかわりに、著者ソート順を使います"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:47
 msgid "Template to control how books are saved"
-msgstr ""
+msgstr "書籍が保存される方法を制御するテンプレート"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:89
@@ -1196,11 +1196,13 @@ msgid ""
 "of less than 256 may result in blurred text on your device if you are "
 "creating your comics in EPUB format."
 msgstr ""
+"グレースケールの画像変換での色数。既定： %default.もし、EPUBフォーマットでコミックスを作成した場合、 "
+"256以下の値のときは、デバイス上の文字が見づらいかもしれません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:262
 msgid ""
 "Disable normalize (improve contrast) color range for pictures. Default: False"
-msgstr ""
+msgstr "写真の色域を正規化しない（コントラストを強化）。既定：無効"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:265
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
@@ -1208,23 +1210,23 @@ msgstr "画像のアスペクト比を管理する。既定はスクリーンに
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:267
 msgid "Disable sharpening."
-msgstr ""
+msgstr "コントラスト強調しない。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:269
 msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
-msgstr ""
+msgstr "コミックページのトリミングをしない。一部のコミックでは、トリミングによって境界線だけでなくて、コンテントまで取り去ることがあります。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:272
 msgid "Don't split landscape images into two portrait images"
-msgstr ""
+msgstr "横長イメージを二つの縦長イメージに分割しない。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:274
 msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
-msgstr ""
+msgstr "縦横比を維持し、画像幅をランドスケープモードでの幅にあわせてスクリーンの高さを使うことで、画像を拡大縮小する。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:277
 msgid ""
@@ -1236,20 +1238,20 @@ msgstr ""
 msgid ""
 "Enable Despeckle. Reduces speckle noise. May greatly increase processing "
 "time."
-msgstr ""
+msgstr "Despeckleを有効にする。speckleノイズを低減させる。処理時間は多大になるでしょう。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:284
 msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
-msgstr ""
+msgstr "コミックのファイルを名前でアルファベット順で並べ替えしない。その代わり、コミックに付与した順序を用いて行う。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
 msgid ""
 "The format that images in the created ebook are converted to. You can "
 "experiment to see which format gives you optimal size and look on your "
 "device."
-msgstr ""
+msgstr "作成した電子書籍中の画像が変換されるフォーマット。どのフォーマットが、あなたの機器で最適なサイズや見た目になるか、試すことができます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
 msgid "Apply no processing to the image"
@@ -1257,7 +1259,7 @@ msgstr "画像の処理をしない"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:294
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr ""
+msgstr "画像をグレースケール（白黒）に変換しない。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:431
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:442
@@ -1296,7 +1298,7 @@ msgstr "入力オプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:98
 msgid "Options to control the processing of the input %s file"
-msgstr ""
+msgstr "入力ファイル %s の処理制御オプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "OUTPUT OPTIONS"

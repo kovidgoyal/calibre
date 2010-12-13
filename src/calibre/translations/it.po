@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-12-11 16:29+0000\n"
-"Last-Translator: usa_getta <Unknown>\n"
+"PO-Revision-Date: 2010-12-12 08:58+0000\n"
+"Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-12 04:36+0000\n"
+"X-Launchpad-Export-Date: 2010-12-13 04:57+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -2822,7 +2822,7 @@ msgstr "Scarica i metadati da Fictionwise"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:90
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:108
 msgid "Query: %s"
-msgstr ""
+msgstr "Query: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:285
@@ -2839,11 +2839,13 @@ msgid ""
 "SUMMARY:\n"
 " %s"
 msgstr ""
+"RIASSUNTO:\n"
+" %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:316
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:333
 msgid "Failed to get all details for an entry"
-msgstr ""
+msgstr "Impossibile ottenere tutti i dettagli per l'elemento"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:354
 msgid ""
@@ -2880,12 +2882,12 @@ msgstr "Parole chiave (Keywords)"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:367
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:373
 msgid "Maximum number of results to fetch"
-msgstr ""
+msgstr "Numero massimo di risultati da ottenere"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:369
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:375
 msgid "Be more verbose about errors"
-msgstr ""
+msgstr "Aumenta dettagli per gli errori"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:383
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:390
@@ -3000,7 +3002,7 @@ msgstr "Copretine: 1-Controlla/ 2-Scarica"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:371
 msgid "Covers files path"
-msgstr ""
+msgstr "Percorso file copertine"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:396
 msgid "No cover found!"
@@ -4337,7 +4339,7 @@ msgstr "Copiati %d libri in %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:31
 msgid "Deleting..."
-msgstr ""
+msgstr "Eliminazione..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:53
 msgid "Deleted"
@@ -4549,6 +4551,7 @@ msgstr "Unisci nel primo libro selezionato - mantieni gli altri"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:58
 msgid "Merge only formats into first selected book - delete others"
 msgstr ""
+"Unisci solo i formati nel primo libro selezionato - elimina gli altri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:79
 msgid "Cannot download metadata"
@@ -5389,11 +5392,11 @@ msgstr "Tag della lista dei desideri:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:107
 msgid "Source column for read book"
-msgstr ""
+msgstr "Colonna sorgente per lettura libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:108
 msgid "Pattern for read book"
-msgstr ""
+msgstr "Pattern per lettura libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:109
 msgid "Books marked as read:"
@@ -5596,15 +5599,15 @@ msgstr "Output FB2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:40
 msgid "Wrap h1 tags with <title> elements"
-msgstr ""
+msgstr "Inserisci i tag h1 nei tag <title>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:41
 msgid "Wrap h2 tags with <title> elements"
-msgstr ""
+msgstr "Inserisci i tag h2 nei tag <title>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:42
 msgid "Wrap h3 tags with <title> elements"
-msgstr ""
+msgstr "Inserisci i tag h3 nei tag <title>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -6101,7 +6104,7 @@ msgstr "Mantieni le &proporzioni della copertina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
-msgstr ""
+msgstr "Output PMLZ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:38
 msgid "Do not reduce image size and depth"
@@ -6353,11 +6356,11 @@ msgstr "Applica la formattazione Markdown al testo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:65
 msgid "Do not remove links (<a> tags) before processing"
-msgstr ""
+msgstr "Non rimuovere i link (tag <a>) prima dell'elaborazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:66
 msgid "Do not remove image references before processing"
-msgstr ""
+msgstr "Non rimuovere riferimenti a immagini prima dell'elaborazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:77
@@ -6499,10 +6502,12 @@ msgid ""
 "The enumeration \"{0}\" contains an invalid value that will be set to the "
 "default"
 msgstr ""
+"L'enumerazione \"{0}\" contiene un valore non valido che verrà impostato a "
+"quello predefinito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:492
 msgid "Do not change"
-msgstr ""
+msgstr "Non cambiare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:541
 msgid "Remove series"
@@ -6522,6 +6527,8 @@ msgid ""
 "The enumeration \"{0}\" contains invalid values that will not appear in the "
 "list"
 msgstr ""
+"L'enumerazione \"{0}\" contiene un valore non valido che non appare nella "
+"lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:665
 msgid "Remove all tags"
@@ -6757,6 +6764,14 @@ msgid ""
 "enter the full path to the file after a <code>>></code>.  For example:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 msgstr ""
+"<p>Inserire una lista degli ISBN nella casella di sinistra, uno per riga. "
+"calibre creerà automaticamente le voci per i libri basandosi sugli ISBN e "
+"scaricherà i metadati e le copertine.</p>\n"
+"<p>Tutti gli ISBN della lista non validi saranno ignorati.</p>\n"
+"<p>È possibile specificare un file che verrà aggiunto con ogni ISBN. Per "
+"fare questo inserire il percorso completo del file dopo un <code>>></code>.  "
+"Ad esempio:</p>\n"
+"<p><code>9788842915232 >> %s</code></p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:53
 msgid "&Paste from clipboard"
