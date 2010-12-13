@@ -14,11 +14,12 @@ from calibre import browser, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn, \
     authors_to_sort_string
-from calibre.library.comments import sanitize_comments_html
 from calibre.ebooks.metadata.fetch import MetadataSource
+from calibre.library.comments import sanitize_comments_html
 from calibre.utils.config import OptionParser
-from calibre.utils.date import parse_date, utcnow
 from calibre.utils.cleantext import clean_ascii_chars, unescape
+from calibre.utils.date import parse_date, utcnow
+
 
 class Fictionwise(MetadataSource):
 

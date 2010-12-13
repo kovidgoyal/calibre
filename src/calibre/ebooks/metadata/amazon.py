@@ -2,7 +2,7 @@ from __future__ import with_statement
 __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 
-import sys, textwrap, re, traceback, socket
+import sys, re
 from threading import Thread
 from Queue import Queue
 from urllib import urlencode
@@ -61,6 +61,7 @@ class Amazon(MetadataSource):
                         tempres.extend(tmpnoloc)
                 self.results = tempres
         except Exception, e:
+            import traceback
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -107,12 +108,14 @@ class AmazonSocial(MetadataSource):
                             tmploc.tags = tmpnoloc.tags
                 self.results = tmploc
         except Exception, e:
+            import traceback
             self.exception = e
             self.tb = traceback.format_exc()
 
 
 def report(verbose):
     if verbose:
+        import traceback
         traceback.print_exc()
 
 class AmazonError(Exception):
@@ -208,33 +211,40 @@ class Query(object):
             q = q.encode('utf-8')
         self.urldata += '/gp/search/ref=sr_adv_b/?' + urlencode(q)
 
-    def __call__(self, browser, verbose, timeout = 5.):
+    def brcall(self, browser, url, verbose, timeout):
         if verbose:
-            print _('Query: %s') % self.urldata
-
+            print _('Query: %s') % url
+        
         try:
-            raw = browser.open_novisit(self.urldata, timeout=timeout).read()
+            raw = browser.open_novisit(url, timeout=timeout).read()
         except Exception, e:
+            import socket
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
-                return None, self.urldata
-            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
-                raise AmazonError(_('Amazon timed out. Try again later.'))
-            raise AmazonError(_('Amazon encountered an error.'))
+                return None
+            attr = getattr(e, 'args', [None])
+            attr = attr if attr else [None]
+            if isinstance(attr[0], socket.timeout):
+                raise NiceBooksError(_('Nicebooks timed out. Try again later.'))
+            raise NiceBooksError(_('Nicebooks encountered an error.'))
         if '<title>404 - ' in raw:
-            return None, self.urldata
+            return
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
-
         try:
-            feed = soupparser.fromstring(raw)
+            return soupparser.fromstring(raw)
         except:
             try:
                 #remove ASCII invalid chars
                 return soupparser.fromstring(clean_ascii_chars(raw))
             except:
-                return None, self.urldata
+                return None
+
+    def __call__(self, browser, verbose, timeout = 5.):
+        feed = self.brcall(browser, self.urldata, verbose, timeout)
+        if feed is None:
+            return None, self.urldata
 
         #nb of page
         try:
@@ -247,23 +257,10 @@ class Query(object):
         if len(nbresults) > 1:
             nbpagetoquery = int(ceil(float(min(int(nbresults[2]), self.max_results))/ int(nbresults[1])))
             for i in xrange(2, nbpagetoquery + 1):
-                try:
-                    urldata = self.urldata + '&page=' + str(i)
-                    raw = browser.open_novisit(urldata, timeout=timeout).read()
-                except Exception, e:
+                urldata = self.urldata + '&page=' + str(i)
+                feed = self.brcall(browser, urldata, verbose, timeout)
+                if feed is None:
                     continue
-                if '<title>404 - ' in raw:
-                    continue
-                raw = xml_to_unicode(raw, strip_encoding_pats=True,
-                        resolve_entities=True)[0]
-                try:
-                    feed = soupparser.fromstring(raw)
-                except:
-                    try:
-                        #remove ASCII invalid chars
-                        return soupparser.fromstring(clean_ascii_chars(raw))
-                    except:
-                        continue
                 pages.append(feed)
 
         results = []
@@ -453,11 +450,14 @@ class ResultList(object):
         try:
             raw = br.open_novisit(url).read()
         except Exception, e:
+            import socket
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return None
-            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
+            attr = getattr(e, 'args', [None])
+            attr = attr if attr else [None]
+            if isinstance(attr[0], socket.timeout):
                 raise AmazonError(_('Amazon timed out. Try again later.'))
             raise AmazonError(_('Amazon encountered an error.'))
         if '<title>404 - ' in raw:
@@ -584,6 +584,7 @@ def get_social_metadata(title, authors, publisher, isbn, verbose=False,
     return [mi]
 
 def option_parser():
+    import textwrap
     parser = OptionParser(textwrap.dedent(\
     _('''\
         %prog [options]
@@ -648,6 +649,6 @@ if __name__ == '__main__':
     sys.exit(main())
     # import cProfile
     # sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonbis; calibre.ebooks.metadata.amazonbis.main()"))
-    # sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonbis; calibre.ebooks.metadata.amazonbis.main()", "profile_tmp_2"))
+    # sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonbis; calibre.ebooks.metadata.amazonbis.main()", "profile"))
 
-# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\amazonbis.py" -m 5 -a gore -v>data.html
+# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\amazon.py" -m 5 -a gore -v>data.html

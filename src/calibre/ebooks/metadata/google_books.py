@@ -1,6 +1,6 @@
 from __future__ import with_statement
 __license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>, 2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import sys
@@ -12,13 +12,13 @@ from functools import partial
 from lxml import etree
 
 from calibre import browser, preferred_encoding
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn, \
     authors_to_sort_string
 from calibre.ebooks.metadata.fetch import MetadataSource
-from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
-from calibre.utils.date import parse_date, utcnow
 from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.date import parse_date, utcnow
 
 NAMESPACES = {
               'openSearch':'http://a9.com/-/spec/opensearchrss/1.0/',
