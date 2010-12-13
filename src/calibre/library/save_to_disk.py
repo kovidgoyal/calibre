@@ -253,6 +253,7 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
         if not os.path.exists(dirpath):
             raise
 
+    ocover = mi.cover
     if opts.save_cover and cover and os.access(cover, os.R_OK):
         with open(base_path+'.jpg', 'wb') as f:
             with open(cover, 'rb') as s:
@@ -265,6 +266,8 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
         opf = metadata_to_opf(mi)
         with open(base_path+'.opf', 'wb') as f:
             f.write(opf)
+
+    mi.cover = ocover
 
     written = False
     for fmt in formats:
