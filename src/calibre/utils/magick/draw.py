@@ -54,19 +54,23 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
         changed = True
     if not changed:
         changed = fmt != orig_fmt
+
+    ret = None
     if return_data:
+        ret = data
         if changed:
             if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
                 img.set_compression_quality(compression_quality)
-            return img.export(fmt)
-        return data
-    if changed:
-        if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
-            img.set_compression_quality(compression_quality)
-        img.save(path)
+            ret = img.export(fmt)
     else:
-        with lopen(path, 'wb') as f:
-            f.write(data)
+        if changed:
+            if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
+                img.set_compression_quality(compression_quality)
+            img.save(path)
+        else:
+            with lopen(path, 'wb') as f:
+                f.write(data)
+    return ret
 
 def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg'):
     img = Image()

@@ -223,21 +223,22 @@ class BooksModel(QAbstractTableModel): # {{{
     def by_author(self):
         return self.sorted_on[0] == 'authors'
 
+    def books_deleted(self):
+        self.count_changed()
+        self.clear_caches()
+        self.reset()
+
     def delete_books(self, indices):
         ids = map(self.id, indices)
         for id in ids:
             self.db.delete_book(id, notify=False)
-        self.count_changed()
-        self.clear_caches()
-        self.reset()
+        self.books_deleted()
         return ids
 
     def delete_books_by_id(self, ids):
         for id in ids:
             self.db.delete_book(id)
-        self.count_changed()
-        self.clear_caches()
-        self.reset()
+        self.books_deleted()
 
     def books_added(self, num):
         if num > 0:
@@ -302,6 +303,20 @@ class BooksModel(QAbstractTableModel): # {{{
         return self.rowCount(None)
 
     def get_book_display_info(self, idx):
+        def custom_keys_to_display():
+            ans = getattr(self, '_custom_fields_in_book_info', None)
+            if ans is None:
+                cfkeys = set(self.db.custom_field_keys())
+                yes_fields = set(tweaks['book_details_will_display'])
+                no_fields = set(tweaks['book_details_wont_display'])
+                if '*' in yes_fields:
+                    yes_fields = cfkeys
+                if '*' in no_fields:
+                    no_fields = cfkeys
+                ans = frozenset(yes_fields - no_fields)
+                setattr(self, '_custom_fields_in_book_info', ans)
+            return ans
+
         data = {}
         cdata = self.cover(idx)
         if cdata:
@@ -333,7 +348,10 @@ class BooksModel(QAbstractTableModel): # {{{
                 _('Book %s of %s.')%\
                     (sidx, prepare_string_for_xml(series))
         mi = self.db.get_metadata(idx)
+        cf_to_display = custom_keys_to_display()
         for key in mi.custom_field_keys():
+            if key not in cf_to_display:
+                continue
             name, val = mi.format_field(key)
             if val:
                 data[name] = val

@@ -181,19 +181,25 @@ max_content_server_tags_shown=5
 # content_server_will_display is a list of custom fields to be displayed.
 # content_server_wont_display is a list of custom fields not to be displayed.
 # wont_display has priority over will_display.
-# The special value '*' means all custom fields.
+# The special value '*' means all custom fields. The value [] means no entries.
 # Defaults:
 #    content_server_will_display = ['*']
-#    content_server_wont_display = ['']
+#    content_server_wont_display = []
 # Examples:
 # To display only the custom fields #mytags and #genre:
 #   content_server_will_display = ['#mytags', '#genre']
-#   content_server_wont_display = ['']
+#   content_server_wont_display = []
 # To display all fields except #mycomments:
 #   content_server_will_display = ['*']
 #   content_server_wont_display['#mycomments']
 content_server_will_display = ['*']
-content_server_wont_display = ['']
+content_server_wont_display = []
+
+# Same as above (content server) but for the book details pane. Same syntax.
+# As above, this tweak affects only display of custom fields. The standard
+# fields are not affected
+book_details_will_display = ['*']
+book_details_wont_display = []
 
 
 # Set the maximum number of sort 'levels' that calibre will use to resort the

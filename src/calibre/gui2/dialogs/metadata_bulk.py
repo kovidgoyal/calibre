@@ -102,7 +102,7 @@ class MyBlockingBusy(QDialog):
         remove_all, remove, add, au, aus, do_aus, rating, pub, do_series, \
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
-            series_start_value, do_title_case, clear_series = self.args
+            series_start_value, do_title_case, cover_action, clear_series = self.args
 
 
         # first loop: do author and title. These will commit at the end of each
@@ -129,6 +129,23 @@ class MyBlockingBusy(QDialog):
                 self.db.set_title(id, titlecase(title), notify=False)
             if au:
                 self.db.set_authors(id, string_to_authors(au), notify=False)
+            if cover_action == 'remove':
+                self.db.remove_cover(id)
+            elif cover_action == 'generate':
+                from calibre.ebooks import calibre_cover
+                from calibre.ebooks.metadata import fmt_sidx
+                from calibre.gui2 import config
+                mi = self.db.get_metadata(id, index_is_id=True)
+                series_string = None
+                if mi.series:
+                    series_string = _('Book %s of %s')%(
+                        fmt_sidx(mi.series_index,
+                        use_roman=config['use_roman_numerals_for_series_number']),
+                        mi.series)
+
+                cdata = calibre_cover(mi.title, mi.format_field('authors')[-1],
+                        series_string=series_string)
+                self.db.set_cover(id, cdata)
         elif self.current_phase == 2:
             # All of these just affect the DB, so we can tolerate a total rollback
             if do_auto_author:
@@ -678,11 +695,16 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         do_remove_conv = self.remove_conversion_settings.isChecked()
         do_auto_author = self.auto_author_sort.isChecked()
         do_title_case = self.change_title_to_title_case.isChecked()
+        cover_action = None
+        if self.cover_remove.isChecked():
+            cover_action = 'remove'
+        elif self.cover_generate.isChecked():
+            cover_action = 'generate'
 
         args = (remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
-                series_start_value, do_title_case, clear_series)
+                series_start_value, do_title_case, cover_action, clear_series)
 
         bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
                 %len(self.ids), args, self.db, self.ids,

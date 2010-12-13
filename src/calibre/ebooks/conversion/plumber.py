@@ -160,13 +160,30 @@ OptionRecommendation(name='disable_font_rescaling',
                    )
         ),
 
+OptionRecommendation(name='minimum_line_height',
+            recommended_value=120.0, level=OptionRecommendation.LOW,
+            help=_(
+            'The minimum line height, as a percentage of the element\'s '
+            'calculated font size. calibre will ensure that every element '
+            'has a line height of at least this setting, irrespective of '
+            'what the input document specifies. Set to zero to disable. '
+            'Default is 120%. Use this setting in preference to '
+            'the direct line height specification, unless you know what '
+            'you are doing. For example, you can achieve "double spaced" '
+            'text by setting this to 240.'
+            )
+        ),
+
 
 OptionRecommendation(name='line_height',
             recommended_value=0, level=OptionRecommendation.LOW,
-            help=_('The line height in pts. Controls spacing between consecutive '
-                   'lines of text. By default no line height manipulation is '
-                   'performed.'
-                   )
+            help=_(
+            'The line height in pts. Controls spacing between consecutive '
+            'lines of text. Only applies to elements that do not define '
+            'their own line height. In most cases, the minimum line height '
+            'option is more useful. '
+            'By default no line height manipulation is performed.'
+            )
         ),
 
 OptionRecommendation(name='linearize_tables',

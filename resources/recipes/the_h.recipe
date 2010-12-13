@@ -14,7 +14,7 @@ class TheHeiseOnline(BasicNewsRecipe):
     oldest_article = 3
     description    = 'In association with Heise Online'
     publisher      = 'Heise Media UK Ltd.'
-    category       = 'news, technology, security'
+    category       = 'news, technology, security, OSS, internet'
     max_articles_per_feed = 100
     language       = 'en'
     encoding       = 'utf-8'
@@ -27,6 +27,12 @@ class TheHeiseOnline(BasicNewsRecipe):
     feeds          = [
                       (u'The H News Feed', u'http://www.h-online.com/news/atom.xml')
                      ]
+    cover_url = 'http://www.h-online.com/icons/logo_theH.gif'
+
+    remove_tags = [
+                        dict(id="logo"),
+                        dict(id="footer")
+                        ]
 
     def print_version(self, url):
         return url + '?view=print'
