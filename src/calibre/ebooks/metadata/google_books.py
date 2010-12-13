@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, textwrap, traceback, socket
+import sys
 from threading import Thread
 from Queue import Queue
 from urllib import urlencode
@@ -53,6 +53,7 @@ class GoogleBooks(MetadataSource):
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10, verbose=self.verbose)
         except Exception, e:
+            import traceback
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -76,6 +77,7 @@ class ThreadwithResults(Thread):
 
 def report(verbose):
     if verbose:
+        import traceback
         traceback.print_exc()
 
 
@@ -89,6 +91,7 @@ class Query(object):
                    isbn is None)
         assert (max_results < 41)
         assert (min_viewability in ('none', 'partial', 'full'))
+        
         if title == _('Unknown'):
             title=None
         if author == _('Unknown'):
@@ -125,6 +128,7 @@ class Query(object):
         try:
             raw = browser.open_novisit(url, timeout=timeout).read()
         except Exception, e:
+            import socket
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
@@ -271,6 +275,7 @@ class ResultList(list):
         try:
             raw = br.open_novisit(url).read()
         except Exception, e:
+            import socket
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
@@ -352,12 +357,16 @@ def search(title=None, author=None, publisher=None, isbn=None,
     entries = Query(title=title, author=author, publisher=publisher,
                         isbn=isbn, max_results=max_results,
                             min_viewability=min_viewability)(br, verbose)
+    
+    if entries is None or len(entries) == 0:
+        return None
 
     ans = ResultList()
     ans.populate(entries, br, verbose)
     return ans
 
 def option_parser():
+    import textwrap
     parser = OptionParser(textwrap.dedent(
         _('''\
         %prog [options]
@@ -392,7 +401,7 @@ def main(args=sys.argv):
         print _('No result found for this search!')
         return 0
     for result in results:
-        print unicode(result).encode(preferred_encoding)
+        print unicode(result).encode(preferred_encoding, 'replace')
         print
 
 if __name__ == '__main__':

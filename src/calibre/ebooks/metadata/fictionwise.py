@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import sys, textwrap, re, traceback, socket
+import sys, re
 from threading import Thread
 from Queue import Queue
 from urllib import urlencode
@@ -32,6 +32,7 @@ class Fictionwise(MetadataSource):
             self.results = search(self.title, self.book_author, self.publisher,
                 self.isbn, max_results=10, verbose=self.verbose)
         except Exception, e:
+            import traceback
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -55,6 +56,7 @@ class ThreadwithResults(Thread):
 
 def report(verbose):
     if verbose:
+        import traceback
         traceback.print_exc()
 
 
@@ -108,11 +110,12 @@ class Query(object):
 
     def __call__(self, browser, verbose, timeout = 5.):
         if verbose:
-            print _('Query: %s') % self.BASE_URL+self.urldata
+            print _('Query: %s POST: %s') % (self.BASE_URL, self.urldata)
 
         try:
             raw = browser.open_novisit(self.BASE_URL, self.urldata, timeout=timeout).read()
         except Exception, e:
+            import socket
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
@@ -321,6 +324,7 @@ class ResultList(list):
         try:
             raw = br.open_novisit(url).read()
         except Exception, e:
+            import socket
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
@@ -410,6 +414,7 @@ def search(title=None, author=None, publisher=None, isbn=None,
 
 
 def option_parser():
+    import textwrap
     parser = OptionParser(textwrap.dedent(\
     _('''\
         %prog [options]

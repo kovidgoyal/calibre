@@ -172,23 +172,6 @@ class MetadataSource(Plugin): # {{{
 
     # }}}
 
-# class GoogleBooks(MetadataSource): # {{{
-
-    # name = 'Google Books'
-    # description = _('Downloads metadata from Google Books')
-
-    # def fetch(self):
-        # from calibre.ebooks.metadata.google_books import search
-        # try:
-            # self.results = search(self.title, self.book_author, self.publisher,
-                                  # self.isbn, max_results=10,
-                                  # verbose=self.verbose)
-        # except Exception, e:
-            # self.exception = e
-            # self.tb = traceback.format_exc()
-
-    # }}}
-
 class ISBNDB(MetadataSource): # {{{
 
     name = 'IsbnDB'
@@ -223,27 +206,6 @@ class ISBNDB(MetadataSource): # {{{
         ans = _('To use isbndb.com you must sign up for a %sfree account%s '
                 'and enter your access key below.')
         return '<p>'+ans%('<a href="http://www.isbndb.com">', '</a>')
-
-    # }}}
-
-# class Amazon(MetadataSource): # {{{
-
-    # name = 'Amazon'
-    # metadata_type = 'social'
-    # description = _('Downloads social metadata from amazon.com')
-
-    # has_html_comments = True
-
-    # def fetch(self):
-        # if not self.isbn:
-            # return
-        # from calibre.ebooks.metadata.amazon import get_social_metadata
-        # try:
-            # self.results = get_social_metadata(self.title, self.book_author,
-                    # self.publisher, self.isbn)
-        # except Exception, e:
-            # self.exception = e
-            # self.tb = traceback.format_exc()
 
     # }}}
 
