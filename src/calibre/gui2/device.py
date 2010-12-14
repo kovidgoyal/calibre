@@ -12,7 +12,7 @@ from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.errors import UserFeedback
+from calibre.devices.errors import UserFeedback, OpenFeedback
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
@@ -163,6 +163,9 @@ class DeviceManager(Thread): # {{{
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
                 dev.open()
+            except OpenFeedback, e:
+                self.open_feedback_slot(e.feedback_msg)
+                continue
             except:
                 tb = traceback.format_exc()
                 if DEBUG or tb not in self.reported_errors:
