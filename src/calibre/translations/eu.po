@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-12-12 06:47+0000\n"
+"PO-Revision-Date: 2010-12-13 12:15+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-13 04:56+0000\n"
+"X-Launchpad-Export-Date: 2010-12-14 04:50+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -4672,6 +4672,7 @@ msgstr "Bateratu hautatutako lehen liburuan - gorde besteak"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:58
 msgid "Merge only formats into first selected book - delete others"
 msgstr ""
+"Bateratu formatuak hautatutako lehen liburuak besterik ez - ezabatu besteak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:79
 msgid "Cannot download metadata"
@@ -5529,7 +5530,7 @@ msgstr "Zutabe sorburua liburua irakurtzeko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:108
 msgid "Pattern for read book"
-msgstr ""
+msgstr "Liburu bat irakurtzeko eredua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:109
 msgid "Books marked as read:"
@@ -6641,6 +6642,8 @@ msgid ""
 "The enumeration \"{0}\" contains an invalid value that will be set to the "
 "default"
 msgstr ""
+"\"{0}\" zerrendatzeak badu balio ez duen datu bat eta lehenetsitako baliora "
+"aldatuko da"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:492
 msgid "Do not change"
@@ -6664,6 +6667,8 @@ msgid ""
 "The enumeration \"{0}\" contains invalid values that will not appear in the "
 "list"
 msgstr ""
+"\"{0}\" zerrendatze horrek baditu balio ez duen daturik eta horrelakorik ez "
+"da zerrendan agertuko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:665
 msgid "Remove all tags"
@@ -6964,7 +6969,7 @@ msgstr "Ezabatu markatutako fitxategiak (berrikusitako batzuk)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:51
 msgid "Fix marked sections (checked fixable items)"
-msgstr ""
+msgstr "Konpondu markatutako atalak (konpontzeko moduko bilatu diren gauzak)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:61
 msgid "Names to ignore:"
@@ -7388,6 +7393,8 @@ msgid ""
 "Immediately make all changes without closing the dialog. This operation "
 "cannot be canceled or undone"
 msgstr ""
+"Egin itzazu aldaketa guztiak bat-batean elkarrizketa leihoa itxi gabe. "
+"Eragiketa hau ezin da bertan behera utzi edo atzera bota"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:275
 msgid "Book %d:"
@@ -8864,7 +8871,7 @@ msgstr "Albisteak:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:189
 msgid "Attached is the %s periodical downloaded by calibre."
-msgstr ""
+msgstr "Erantsita %s dago, calibrek periodikoki deskargatua."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:242
 msgid "E-book:"
@@ -9910,11 +9917,11 @@ msgstr "Gutxienez zerrendako zutabeetarako balio bat sartu beharko duzu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:172
 msgid "You cannot provide the empty value, as it is included by default"
-msgstr ""
+msgstr "Ezin duzu hutsa eman datu bezala, hori berez dago lehenetsita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:176
 msgid "The value \"{0}\" is in the list more than once"
-msgstr ""
+msgstr "\"{0}\" datua zerrendan dago behin baino gehiagotan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:171
@@ -9987,6 +9994,7 @@ msgstr "Formatuak &datak"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:161
 msgid "Field template. Uses the same syntax as save templates."
 msgstr ""
+"Eremu txantiloia. Txantiloiak gordetzerakoan bezalako sintaxia erabiltzen du."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:162
 msgid "Similar to save templates. For example, {title} {isbn}"
@@ -10014,7 +10022,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:169
 msgid "The empty string is always the first value"
-msgstr ""
+msgstr "Hutsik dagoen katea izaten da lehen datua betei"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
@@ -11995,7 +12003,7 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr ""
+msgstr "ABISUA: Zifratu gabe ibiltzea oso arriskutsua da"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
@@ -12359,11 +12367,11 @@ msgstr "Fitxategi ezezagunak liburuetan"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers in books"
-msgstr ""
+msgstr "Galdutako liburu-azalak"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Extra covers in books"
-msgstr ""
+msgstr "Aparteko liburu-azalak"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
@@ -13606,7 +13614,7 @@ msgstr "Nola eta noiz eguneratzen ditu calibrek metadatuak irakurgailuan."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:77
 msgid "failed to scan program. Invalid input {0}"
-msgstr ""
+msgstr "akatsa programa eskaneatzen. {0} sorburua ez da onartzen"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:82
 msgid " near "
@@ -13615,6 +13623,8 @@ msgstr " hurbil "
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:124
 msgid "syntax error - program ends before EOF"
 msgstr ""
+"sintaxi akatsa - programa EOF, fitxategiaren amaiera, baino lehenago "
+"amaituko da"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:141
 msgid "unknown id "
@@ -13626,11 +13636,11 @@ msgstr "funtzio ezezaguna {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:165
 msgid "missing closing parenthesis"
-msgstr ""
+msgstr "galdurik ixteko parentesia"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:183
 msgid "expression is not function or constant"
-msgstr ""
+msgstr "adierazpena ez da ez funtzio ez konstantea"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:210
 msgid "lookup requires either 2 or an odd number of arguments"
@@ -13642,15 +13652,15 @@ msgstr "aldizkatzeak argumentu kopuru bakoitia eskatzen du"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:290
 msgid "format: type {0} requires an integer value, got {1}"
-msgstr ""
+msgstr "formatua: {0} tipoak balio osoa behar du, hartu {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:296
 msgid "format: type {0} requires a decimal (float) value, got {1}"
-msgstr ""
+msgstr "formatua: {0} tipoak balio hamarrena behar du (aldakorra), hartu {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:298
 msgid "format: unknown format type letter {0}"
-msgstr ""
+msgstr "formatua: formatu ezezaguna makinaz idatzitako gutunarena {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."

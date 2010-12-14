@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-12-11 15:53+0000\n"
+"PO-Revision-Date: 2010-12-13 17:37+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-12 04:34+0000\n"
+"X-Launchpad-Export-Date: 2010-12-14 04:50+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2459,7 +2459,7 @@ msgstr "Descarrega les metadades des d'amazon.fr"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:43
 msgid "Downloads metadata from amazon.com in spanish"
-msgstr "Descarrega les metadades des d'amazon.com en castellà"
+msgstr "Descarrega les metadades des d'amazon.com en espanyol"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:60
 msgid "Downloads metadata from amazon.com in english"
@@ -2492,7 +2492,7 @@ msgstr ""
 "        títol, autor, ISBN, editorial o paraules clau. S'aconseguiran 10\n"
 "        coincidències com a màxim, per tant cal fer una consulta el màxim\n"
 "        d'específica. Podeu triar l'idioma que obtindreu les metadades:\n"
-"        Tots & anglès & francès & alemany & castellà\n"
+"        Tots & anglès & francès & alemany & espanyol\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/archive.py:41
