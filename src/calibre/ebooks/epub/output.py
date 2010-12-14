@@ -142,8 +142,8 @@ class EPUBOutput(OutputFormatPlugin):
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
 
-        #from calibre.ebooks.oeb.transforms.filenames import UniqueFilenames
-        #UniqueFilenames()(oeb, opts)
+        from calibre.ebooks.oeb.transforms.filenames import UniqueFilenames
+        UniqueFilenames()(oeb, opts)
 
         self.workaround_ade_quirks()
         self.workaround_webkit_quirks()
