@@ -293,7 +293,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         finally:
             self.fetch_cover_button.setEnabled(True)
             self.unsetCursor()
-            self.pi.stop()
+            if self.pi is not None:
+                self.pi.stop()
 
 
     # }}}
@@ -442,7 +443,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         ResizableDialog.__init__(self, window)
         self.cover_fetcher = None
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
-        self.cancel_all = False
         base = unicode(self.author_sort.toolTip())
         self.ok_aus_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
                             _(' The green color indicates that the current '
@@ -573,7 +573,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
         self.series.lineEdit().editingFinished.connect(self.increment_series_index)
 
-        self.show()
         pm = QPixmap()
         if cover:
             pm.loadFromData(cover)
@@ -592,6 +591,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
         self.original_author = unicode(self.authors.text()).strip()
         self.original_title = unicode(self.title.text()).strip()
+
+        self.show()
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
@@ -907,3 +908,48 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         dynamic.set('metasingle_window_geometry', bytes(self.saveGeometry()))
         dynamic.set('metasingle_splitter_state',
                 bytes(self.splitter.saveState()))
+
+    def break_cycles(self):
+        # Break any reference cycles that could prevent python
+        # from garbage collecting this dialog
+        def disconnect(signal):
+            try:
+                signal.disconnect()
+            except:
+                pass # Fails if view format was never connected
+        disconnect(self.view_format)
+        for b in ('next_button', 'prev_button'):
+            x = getattr(self, b, None)
+            if x is not None:
+                disconnect(x.clicked)
+
+if __name__ == '__main__':
+    from calibre.library import db
+    from PyQt4.Qt import QApplication
+    from calibre.utils.mem import memory
+    import gc
+
+
+    app = QApplication([])
+    db = db()
+
+    # Initialize all Qt Objects once
+    d = MetadataSingleDialog(None, 4, db)
+    d.break_cycles()
+    d.reject()
+    del d
+
+    for i in range(5):
+        gc.collect()
+    before = memory()
+
+    d = MetadataSingleDialog(None, 4, db)
+    d.reject()
+    d.break_cycles()
+    del d
+
+    for i in range(5):
+        gc.collect()
+    print 'Used memory:', memory(before)/1024.**2, 'MB'
+
+
