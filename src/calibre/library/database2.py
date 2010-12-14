@@ -10,7 +10,6 @@ import os, sys, shutil, cStringIO, glob, time, functools, traceback, re
 from itertools import repeat
 from math import floor
 from Queue import Queue
-from operator import itemgetter
 
 from PyQt4.QtGui import QImage
 
@@ -1068,7 +1067,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
 
     def get_categories(self, sort='name', ids=None, icon_map=None):
-        start = time.time()
+        start = last = time.time()
         if icon_map is not None and type(icon_map) != TagsIcons:
             raise TypeError('icon_map passed to get_categories must be of type TagIcons')
         if sort not in self.CATEGORY_SORTS:
@@ -1120,12 +1119,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # This saves iterating through field_metadata for each book
             md.append((category, cat['rec_index'], cat['is_multiple']))
 
-        print 'end phase "collection":', time.time() - start, 'seconds'
+        print 'end phase "collection":', time.time() - last, 'seconds'
+        last = time.time()
 
         # Now scan every book looking for category items.
         # Code below is duplicated because it shaves off 10% of the loop time
         id_dex = self.FIELD_MAP['id']
         rating_dex = self.FIELD_MAP['rating']
+        tag_class = LibraryDatabase2.TCat_Tag
         for book in self.data.iterall():
             if id_filter and book[id_dex] not in id_filter:
                 continue
@@ -1140,7 +1141,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         (item_id, sort_val) = tids[cat][val] # let exceptions fly
                         item = tcategories[cat].get(val, None)
                         if not item:
-                            item = LibraryDatabase2.TCat_Tag(val, sort_val)
+                            item = tag_class(val, sort_val)
                             tcategories[cat][val] = item
                         item.c += 1
                         item.id = item_id
@@ -1156,7 +1157,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             (item_id, sort_val) = tids[cat][val] # let exceptions fly
                             item = tcategories[cat].get(val, None)
                             if not item:
-                                item = LibraryDatabase2.TCat_Tag(val, sort_val)
+                                item = tag_class(val, sort_val)
                                 tcategories[cat][val] = item
                             item.c += 1
                             item.id = item_id
@@ -1166,7 +1167,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         except:
                             prints('get_categories: item', val, 'is not in', cat, 'list!')
 
-        print 'end phase "books":', time.time() - start, 'seconds'
+        print 'end phase "books":', time.time() - last, 'seconds'
+        last = time.time()
 
         # Now do news
         tcategories['news'] = {}
@@ -1186,11 +1188,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             item.set_all(c=r[2], rt=r[2]*r[3], rc=r[2], id=r[0])
             tcategories['news'][r[1]] = item
 
-        print 'end phase "news":', time.time() - start, 'seconds'
+        print 'end phase "news":', time.time() - last, 'seconds'
+        last = time.time()
 
         # Build the real category list by iterating over the temporary copy
         # and building the Tag instances.
         categories = {}
+        tag_class = Tag
         for category in tb_cats.keys():
             if category not in tcategories:
                 continue
@@ -1232,7 +1236,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
             # sort the list
             if sort == 'name':
-                kf = lambda x: sort_key(x.s) if isinstance(x.s, unicode) else x.s
+                def get_sort_key(x):
+                    sk = x.s
+                    if isinstance(sk, unicode):
+                        sk = sort_key(sk)
+                    return sk
+                kf = get_sort_key
                 reverse=False
             elif sort == 'popularity':
                 kf = lambda x: x.c
@@ -1242,12 +1251,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 reverse=True
             items.sort(key=kf, reverse=reverse)
 
-            categories[category] = [Tag(formatter(r.n), count=r.c, id=r.id,
+            categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s, icon=icon,
                                         tooltip=tooltip, category=category)
                                     for r in items]
 
-        print 'end phase "tags list":', time.time() - start, 'seconds'
+        print 'end phase "tags list":', time.time() - last, 'seconds'
+        last = time.time()
 
         # Needed for legacy databases that have multiple ratings that
         # map to n stars
@@ -1333,8 +1343,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 icon_map['search'] = icon_map['search']
             categories['search'] = items
 
-        t = time.time() - start
-        print 'get_categories ran in:', t, 'seconds'
+        print 'last phase ran in:', time.time() - last, 'seconds'
+        print 'get_categories ran in:', time.time() - start, 'seconds'
 
         return categories
 

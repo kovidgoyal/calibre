@@ -1,0 +1,42 @@
+#!/usr/bin/env  python
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+
+class SBM(BasicNewsRecipe):
+    title                 = 'Science Based Medicine'
+    __author__            = 'BuzzKill'
+    description           = 'Exploring issues and controversies in the relationship between science and medicine'
+    oldest_article        = 5
+    max_articles_per_feed = 15
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf-8'
+    publisher             = 'SBM'
+    category              = 'science, sbm, ebm, blog, pseudoscience'
+    language              = 'en'
+
+    lang                  = 'en-US'
+
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
+
+    keep_only_tags = [
+                      dict(name='a', attrs={'title':re.compile(r'Posts by.*', re.DOTALL|re.IGNORECASE)}),
+                      dict(name='div', attrs={'class':'entry'})
+                      ]
+
+    feeds = [(u'Science Based Medicine', u'http://www.sciencebasedmedicine.org/?feed=rss2')]
+
+    def preprocess_html(self, soup):
+        mtag = Tag(soup,'meta',[('http-equiv','Content-Type'),('context','text/html; charset=utf-8')])
+        soup.head.insert(0,mtag)
+        soup.html['lang'] = self.lang
+        return self.adeify_images(soup)
+
