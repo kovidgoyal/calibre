@@ -1067,7 +1067,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
 
     def get_categories(self, sort='name', ids=None, icon_map=None):
-        start = last = time.time()
+        start = last = time.clock()
         if icon_map is not None and type(icon_map) != TagsIcons:
             raise TypeError('icon_map passed to get_categories must be of type TagIcons')
         if sort not in self.CATEGORY_SORTS:
@@ -1119,8 +1119,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # This saves iterating through field_metadata for each book
             md.append((category, cat['rec_index'], cat['is_multiple']))
 
-        print 'end phase "collection":', time.time() - last, 'seconds'
-        last = time.time()
+        print 'end phase "collection":', time.clock() - last, 'seconds'
+        last = time.clock()
 
         # Now scan every book looking for category items.
         # Code below is duplicated because it shaves off 10% of the loop time
@@ -1167,8 +1167,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         except:
                             prints('get_categories: item', val, 'is not in', cat, 'list!')
 
-        print 'end phase "books":', time.time() - last, 'seconds'
-        last = time.time()
+        print 'end phase "books":', time.clock() - last, 'seconds'
+        last = time.clock()
 
         # Now do news
         tcategories['news'] = {}
@@ -1188,8 +1188,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             item.set_all(c=r[2], rt=r[2]*r[3], rc=r[2], id=r[0])
             tcategories['news'][r[1]] = item
 
-        print 'end phase "news":', time.time() - last, 'seconds'
-        last = time.time()
+        print 'end phase "news":', time.clock() - last, 'seconds'
+        last = time.clock()
 
         # Build the real category list by iterating over the temporary copy
         # and building the Tag instances.
@@ -1256,8 +1256,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         tooltip=tooltip, category=category)
                                     for r in items]
 
-        print 'end phase "tags list":', time.time() - last, 'seconds'
-        last = time.time()
+        print 'end phase "tags list":', time.clock() - last, 'seconds'
+        last = time.clock()
 
         # Needed for legacy databases that have multiple ratings that
         # map to n stars
@@ -1343,8 +1343,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 icon_map['search'] = icon_map['search']
             categories['search'] = items
 
-        print 'last phase ran in:', time.time() - last, 'seconds'
-        print 'get_categories ran in:', time.time() - start, 'seconds'
+        print 'last phase ran in:', time.clock() - last, 'seconds'
+        print 'get_categories ran in:', time.clock() - start, 'seconds'
 
         return categories
 
