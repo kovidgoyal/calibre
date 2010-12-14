@@ -554,8 +554,8 @@ class HTMLPreProcessor(object):
         html = smartyPants(html)
         html = html.replace(start, '<!--')
         html = html.replace(stop, '-->')
-        # convert ellipsis to entities to prevent unwrapping
-        html = re.sub('(?u)(?<=\w)(\.\s?){3}', '&hellip;', html)
-        html = re.sub('(?u)(?<=\w)\s(\.\s?){3}', '&nbsp;&hellip;', html)
+        # convert ellipsis to entities to prevent wrapping
+        html = re.sub('(?u)(?<=\w)\s?(\.\s?){2}\.', '&hellip;', html)
+        # nbsp gets changed to space: html = re.sub('(?u)(?<=\w)\s(\.\s?){2}\.', '&nbsp;&hellip;', html)
         return substitute_entites(html)
 
