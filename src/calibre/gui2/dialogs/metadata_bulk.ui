@@ -399,14 +399,11 @@ Future conversion of these books will use the default settings.</string>
            <property name="title">
             <string>Change &amp;cover</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
+           <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
-             <widget class="QRadioButton" name="cover_no_change">
+             <widget class="QRadioButton" name="cover_generate">
               <property name="text">
-               <string>&amp;No change</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
+               <string>&amp;Generate default cover</string>
               </property>
              </widget>
             </item>
@@ -414,13 +411,6 @@ Future conversion of these books will use the default settings.</string>
              <widget class="QRadioButton" name="cover_remove">
               <property name="text">
                <string>&amp;Remove cover</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="cover_generate">
-              <property name="text">
-               <string>&amp;Generate default cover</string>
               </property>
              </widget>
             </item>
