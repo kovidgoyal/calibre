@@ -61,7 +61,7 @@ class ZeitDe(BasicNewsRecipe):
             tag.name = 'div'
 
         soup.html['xml:lang'] = self.language.replace('_', '-')
-        soup.html['lang']     = self.lang
+        soup.html['lang']     = self.language.replace('_', '-')
         mtag = '<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '">'
         soup.head.insert(0,mtag)
         return soup
