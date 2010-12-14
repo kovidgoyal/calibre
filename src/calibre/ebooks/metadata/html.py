@@ -170,7 +170,27 @@ def get_metadata_(src, encoding=None):
         if match:
             series = match.group(1)
     if series:
+        pat = re.compile(r'\[([.0-9]+)\]')
+        match = pat.search(series)
+        series_index = None
+        if match is not None:
+            try:
+                series_index = float(match.group(1))
+            except:
+                pass
+            series = series.replace(match.group(), '').strip()
+
         mi.series = ent_pat.sub(entity_to_unicode, series)
+        if series_index is None:
+            pat = get_meta_regexp_("Seriesnumber")
+            match = pat.search(src)
+            if match:
+                try:
+                    series_index = float(match.group(1))
+                except:
+                    pass
+        if series_index is not None:
+            mi.series_index = series_index
 
     # RATING
     rating = None

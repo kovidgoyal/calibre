@@ -73,6 +73,10 @@ class FB2MLizer(object):
         text = re.sub(r'(?miu)<p>\s*</p>', '', text)
         text = re.sub(r'(?miu)\s+</p>', '</p>', text)
         text = re.sub(r'(?miu)</p><p>', '</p>\n\n<p>', text)
+        
+        if self.opts.insert_blank_line:
+            text = re.sub(r'(?miu)</p>', '</p><empty-line />', text)
+        
         return text
 
     def fb2_header(self):
@@ -293,6 +297,18 @@ class FB2MLizer(object):
             s_out, s_tags = self.handle_simple_tag('emphasis', tag_stack+tags)
             fb2_out += s_out
             tags += s_tags
+        elif tag in ('del', 'strike'):
+            s_out, s_tags = self.handle_simple_tag('strikethrough', tag_stack+tags)
+            fb2_out += s_out
+            tags += s_tags
+        elif tag == 'sub':
+            s_out, s_tags = self.handle_simple_tag('sub', tag_stack+tags)
+            fb2_out += s_out
+            tags += s_tags
+        elif tag == 'sup':
+            s_out, s_tags = self.handle_simple_tag('sup', tag_stack+tags)
+            fb2_out += s_out
+            tags += s_tags
 
         # Processes style information.
         if style['font-style'] == 'italic':
@@ -301,6 +317,10 @@ class FB2MLizer(object):
             tags += s_tags
         elif style['font-weight'] in ('bold', 'bolder'):
             s_out, s_tags = self.handle_simple_tag('strong', tag_stack+tags)
+            fb2_out += s_out
+            tags += s_tags
+        elif style['text-decoration'] == 'line-through':
+            s_out, s_tags = self.handle_simple_tag('strikethrough', tag_stack+tags)
             fb2_out += s_out
             tags += s_tags
 

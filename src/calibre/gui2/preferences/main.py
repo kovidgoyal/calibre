@@ -251,10 +251,28 @@ class Preferences(QMainWindow):
         self.close()
         self.run_wizard_requested.emit()
 
+    def set_tooltips_for_labels(self):
+
+        def process_child(child):
+            for g in child.children():
+                if isinstance(g, QLabel):
+                    buddy = g.buddy()
+                    if buddy is not None and hasattr(buddy, 'toolTip'):
+                        htext = unicode(buddy.toolTip()).strip()
+                        etext = unicode(g.toolTip()).strip()
+                        if htext and not etext:
+                            g.setToolTip(htext)
+                            g.setWhatsThis(htext)
+                else:
+                    process_child(g)
+
+        process_child(self.showing_widget)
+
     def show_plugin(self, plugin):
         self.showing_widget = plugin.create_widget(self.scroll_area)
         self.showing_widget.genesis(self.gui)
         self.showing_widget.initialize()
+        self.set_tooltips_for_labels()
         self.scroll_area.setWidget(self.showing_widget)
         self.stack.setCurrentIndex(1)
         self.showing_widget.show()
