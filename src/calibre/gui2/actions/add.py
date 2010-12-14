@@ -120,6 +120,7 @@ class AddAction(InterfaceAction):
         if self.gui.current_view() is not self.gui.library_view:
             return
         db = self.gui.library_view.model().db
+        cover_changed = False
         current_idx = self.gui.library_view.currentIndex()
         if not current_idx.isValid(): return
         cid = db.id(current_idx.row())
@@ -133,12 +134,16 @@ class AddAction(InterfaceAction):
                 if not pmap.isNull():
                     accept = True
                     db.set_cover(cid, pmap)
+                    cover_changed = True
             elif ext in BOOK_EXTENSIONS:
                 db.add_format_with_hooks(cid, ext, path, index_is_id=True)
                 accept = True
         if accept:
             event.accept()
             self.gui.library_view.model().current_changed(current_idx, current_idx)
+        if cover_changed:
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
 
     def __add_filesystem_book(self, paths, allow_device=True):
         if isinstance(paths, basestring):
