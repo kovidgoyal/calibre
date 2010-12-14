@@ -234,7 +234,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         ######################### Search Restriction ##########################
         SearchRestrictionMixin.__init__(self)
-        self.apply_named_search_restriction(db.prefs['gui_restriction'])
+        if db.prefs['gui_restriction']:
+            self.apply_named_search_restriction(db.prefs['gui_restriction'])
 
         ########################### Cover Flow ################################
 

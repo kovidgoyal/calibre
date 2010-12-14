@@ -101,6 +101,7 @@ class TagsView(QTreeView): # {{{
                                 hidden_categories=self.hidden_categories,
                                 search_restriction=None,
                                 drag_drop_finished=self.drag_drop_finished)
+        self.pane_is_visible = True # because TagsModel.init did a recount
         self.sort_by = sort_by
         self.tag_match = tag_match
         self.db = db
