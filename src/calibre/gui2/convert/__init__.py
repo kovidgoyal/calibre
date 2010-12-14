@@ -10,7 +10,7 @@ import textwrap
 from functools import partial
 
 from PyQt4.Qt import QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit, \
-    QCheckBox, QComboBox, Qt, QIcon, pyqtSignal
+    QCheckBox, QComboBox, Qt, QIcon, pyqtSignal, QLabel
 
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.conversion.config import load_defaults, \
@@ -80,6 +80,21 @@ class Widget(QWidget):
 
         self.apply_recommendations(defaults)
         self.setup_help(get_help)
+
+        def process_child(child):
+            for g in child.children():
+                if isinstance(g, QLabel):
+                    buddy = g.buddy()
+                    if buddy is not None and hasattr(buddy, '_help'):
+                        g._help = buddy._help
+                        htext = unicode(buddy.toolTip()).strip()
+                        g.setToolTip(htext)
+                        g.setWhatsThis(htext)
+                        g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
+                else:
+                    process_child(g)
+        process_child(self)
+
 
     def restore_defaults(self, get_option):
         defaults = GuiRecommendations()

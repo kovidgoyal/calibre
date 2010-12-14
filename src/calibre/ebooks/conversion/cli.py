@@ -120,7 +120,7 @@ def add_pipeline_options(parser, plumber):
                   [
                       'base_font_size', 'disable_font_rescaling',
                       'font_size_mapping',
-                      'line_height',
+                      'line_height', 'minimum_line_height',
                       'linearize_tables',
                       'extra_css', 'smarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',

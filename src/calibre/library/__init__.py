@@ -19,12 +19,15 @@ def generate_test_db(library_path,
         max_tags=10
         ):
     import random, string, os, sys, time
+    from calibre.constants import preferred_encoding
 
     if not os.path.exists(library_path):
         os.makedirs(library_path)
 
+    letters = string.letters.decode(preferred_encoding)
+
     def randstr(length):
-        return ''.join(random.choice(string.letters) for i in
+        return ''.join(random.choice(letters) for i in
                 xrange(length))
 
     all_tags = [randstr(tag_length) for j in xrange(num_of_tags)]

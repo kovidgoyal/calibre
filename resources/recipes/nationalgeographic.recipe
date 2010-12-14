@@ -1,0 +1,38 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+nationalgeographic.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class NationalGeographicNews(BasicNewsRecipe):
+    title          = u'National Geographic News'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_javascript = True
+    no_stylesheets = True
+    use_embedded_content = False
+
+    feeds          = [(u'news', u'http://feeds.nationalgeographic.com/ng/News/News_Main')]
+
+    remove_tags_before = dict(id='page_head')
+    remove_tags_after = [dict(id='social_buttons'),{'class':'aside'}]
+    remove_tags = [
+                       {'class':'hidden'}
+
+                     ]
+
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for curfeed in feeds:
+            delList = []
+            for a,curarticle in enumerate(curfeed.articles):
+                if re.search(r'ads\.pheedo\.com', curarticle.url):
+                    delList.append(curarticle)
+            if len(delList)>0:
+                for d in delList:
+                    index = curfeed.articles.index(d)
+                    curfeed.articles[index:index+1] = []
+        return feeds

@@ -245,6 +245,8 @@ class CSSFlattener(object):
             del node.attrib['bgcolor']
         if cssdict.get('font-weight', '').lower() == 'medium':
             cssdict['font-weight'] = 'normal' # ADE chokes on font-weight medium
+
+        fsize = font_size
         if not self.context.disable_font_rescaling:
             _sbase = self.sbase if self.sbase is not None else \
                 self.context.source.fbase
@@ -258,6 +260,14 @@ class CSSFlattener(object):
                 fsize = self.fmap[font_size]
                 cssdict['font-size'] = "%0.5fem" % (fsize / psize)
                 psize = fsize
+
+        try:
+            minlh = self.context.minimum_line_height / 100.
+            if style['line-height'] < minlh * fsize:
+                cssdict['line-height'] = str(minlh)
+        except:
+            self.oeb.logger.exception('Failed to set minimum line-height')
+
         if cssdict:
             if self.lineh and self.fbase and tag != 'body':
                 self.clean_edges(cssdict, style, psize)
@@ -289,6 +299,7 @@ class CSSFlattener(object):
         if self.lineh and 'line-height' not in cssdict:
             lineh = self.lineh / psize
             cssdict['line-height'] = "%0.5fem" % lineh
+
 
         if (self.context.remove_paragraph_spacing or
                 self.context.insert_blank_line) and tag in ('p', 'div'):
