@@ -10,11 +10,10 @@ import os, sys, shutil, cStringIO, glob, time, functools, traceback, re
 from itertools import repeat
 from math import floor
 from Queue import Queue
-from operator import itemgetter
 
 from PyQt4.QtGui import QImage
 
-
+from calibre import prints
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.database import LibraryDatabase
@@ -1039,43 +1038,175 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     tn=field['table'], col=field['link_column']), (id_,))
         return set(x[0] for x in ans)
 
+########## data structures for get_categories
+
     CATEGORY_SORTS = ('name', 'popularity', 'rating')
 
-    def get_categories(self, sort='name', ids=None, icon_map=None):
-        self.books_list_filter.change([] if not ids else ids)
+    class TCat_Tag(object):
 
-        categories = {}
+        def __init__(self, name, sort):
+            self.n = name
+            self.s = sort
+            self.c  = 0
+            self.rt = 0
+            self.rc = 0
+            self.id = None
+
+        def set_all(self, c, rt, rc, id):
+            self.c  = c
+            self.rt = rt
+            self.rc = rc
+            self.id = id
+
+        def __str__(self):
+            return unicode(self)
+
+        def __unicode__(self):
+            return 'n=%s s=%s c=%d rt=%d rc=%d id=%s'%\
+                            (self.n, self.s, self.c, self.rt, self.rc, self.id)
+
+
+    def get_categories(self, sort='name', ids=None, icon_map=None):
+        #start = last = time.clock()
         if icon_map is not None and type(icon_map) != TagsIcons:
             raise TypeError('icon_map passed to get_categories must be of type TagIcons')
+        if sort not in self.CATEGORY_SORTS:
+            raise ValueError('sort ' + sort + ' not a valid value')
+
+        self.books_list_filter.change([] if not ids else ids)
+        id_filter = None if not ids else frozenset(ids)
 
         tb_cats = self.field_metadata
-        #### First, build the standard and custom-column categories ####
+        tcategories = {}
+        tids = {}
+        md = []
+
+        # First, build the maps. We need a category->items map and an
+        # item -> (item_id, sort_val) map to use in the books loop
         for category in tb_cats.keys():
             cat = tb_cats[category]
-            if not cat['is_category'] or cat['kind'] in ['user', 'search']:
+            if not cat['is_category'] or cat['kind'] in ['user', 'search'] \
+                    or category in ['news', 'formats']:
                 continue
-            tn = cat['table']
-            categories[category] = []   #reserve the position in the ordered list
-            if tn is None:              # Nothing to do for the moment
+            # Get the ids for the item values
+            if not cat['is_custom']:
+                funcs = {
+                        'authors'  : self.get_authors_with_ids,
+                        'series'   : self.get_series_with_ids,
+                        'publisher': self.get_publishers_with_ids,
+                        'tags'     : self.get_tags_with_ids,
+                        'rating'   : self.get_ratings_with_ids,
+                    }
+                func = funcs.get(category, None)
+                if func:
+                    list = func()
+                else:
+                    raise ValueError(category + ' has no get with ids function')
+            else:
+                list = self.get_custom_items_with_ids(label=cat['label'])
+            tids[category] = {}
+            if category == 'authors':
+                for l in list:
+                    (id, val, sort_val) = (l[0], l[1], l[2])
+                    tids[category][val] = (id, sort_val)
+            else:
+                for l in list:
+                    (id, val) = (l[0], l[1])
+                    tids[category][val] = (id, val)
+            # add an empty category to the category map
+            tcategories[category] = {}
+            # create a list of category/field_index for the books scan to use.
+            # This saves iterating through field_metadata for each book
+            md.append((category, cat['rec_index'], cat['is_multiple']))
+
+        #print 'end phase "collection":', time.clock() - last, 'seconds'
+        #last = time.clock()
+
+        # Now scan every book looking for category items.
+        # Code below is duplicated because it shaves off 10% of the loop time
+        id_dex = self.FIELD_MAP['id']
+        rating_dex = self.FIELD_MAP['rating']
+        tag_class = LibraryDatabase2.TCat_Tag
+        for book in self.data.iterall():
+            if id_filter and book[id_dex] not in id_filter:
                 continue
-            cn = cat['column']
-            if ids is None:
-                query = '''SELECT id, {0}, count, avg_rating, sort
-                           FROM tag_browser_{1}'''.format(cn, tn)
-            else:
-                query = '''SELECT id, {0}, count, avg_rating, sort
-                           FROM tag_browser_filtered_{1}'''.format(cn, tn)
-            if sort == 'popularity':
-                query += ' ORDER BY count DESC, sort ASC'
-            elif sort == 'name':
-                query += ' ORDER BY sort COLLATE icucollate'
-            else:
-                query += ' ORDER BY avg_rating DESC, sort ASC'
-            data = self.conn.get(query)
+            rating = book[rating_dex]
+            # We kept track of all possible category field_map positions above
+            for (cat, dex, mult) in md:
+                if book[dex] is None:
+                    continue
+                if not mult:
+                    val = book[dex]
+                    try:
+                        (item_id, sort_val) = tids[cat][val] # let exceptions fly
+                        item = tcategories[cat].get(val, None)
+                        if not item:
+                            item = tag_class(val, sort_val)
+                            tcategories[cat][val] = item
+                        item.c += 1
+                        item.id = item_id
+                        if rating > 0:
+                            item.rt += rating
+                            item.rc += 1
+                    except:
+                        prints('get_categories: item', val, 'is not in', cat, 'list!')
+                else:
+                    vals = book[dex].split(mult)
+                    for val in vals:
+                        try:
+                            (item_id, sort_val) = tids[cat][val] # let exceptions fly
+                            item = tcategories[cat].get(val, None)
+                            if not item:
+                                item = tag_class(val, sort_val)
+                                tcategories[cat][val] = item
+                            item.c += 1
+                            item.id = item_id
+                            if rating > 0:
+                                item.rt += rating
+                                item.rc += 1
+                        except:
+                            prints('get_categories: item', val, 'is not in', cat, 'list!')
+
+        #print 'end phase "books":', time.clock() - last, 'seconds'
+        #last = time.clock()
+
+        # Now do news
+        tcategories['news'] = {}
+        cat = tb_cats['news']
+        tn = cat['table']
+        cn = cat['column']
+        if ids is None:
+            query = '''SELECT id, {0}, count, avg_rating, sort
+                       FROM tag_browser_{1}'''.format(cn, tn)
+        else:
+            query = '''SELECT id, {0}, count, avg_rating, sort
+                       FROM tag_browser_filtered_{1}'''.format(cn, tn)
+        # results will be sorted later
+        data = self.conn.get(query)
+        for r in data:
+            item = LibraryDatabase2.TCat_Tag(r[1], r[1])
+            item.set_all(c=r[2], rt=r[2]*r[3], rc=r[2], id=r[0])
+            tcategories['news'][r[1]] = item
+
+        #print 'end phase "news":', time.clock() - last, 'seconds'
+        #last = time.clock()
+
+        # Build the real category list by iterating over the temporary copy
+        # and building the Tag instances.
+        categories = {}
+        tag_class = Tag
+        for category in tb_cats.keys():
+            if category not in tcategories:
+                continue
+            cat = tb_cats[category]
+
+            # prepare the place where we will put the array of Tags
+            categories[category] = []
 
             # icon_map is not None if get_categories is to store an icon and
             # possibly a tooltip in the tag structure.
-            icon, tooltip = None, ''
+            icon = None
+            tooltip = ''
             label = tb_cats.key_to_label(category)
             if icon_map:
                 if not tb_cats.is_custom_field(category):
@@ -1087,23 +1218,46 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     tooltip = self.custom_column_label_map[label]['name']
 
             datatype = cat['datatype']
-            avgr = itemgetter(3)
-            item_not_zero_func = lambda x: x[2] > 0
+            avgr = lambda x: 0.0 if x.rc == 0 else x.rt/x.rc
+            # Duplicate the build of items below to avoid using a lambda func
+            # in the main Tag loop. Saves a few %
             if datatype == 'rating':
-                # eliminate the zero ratings line as well as count == 0
-                item_not_zero_func = (lambda x: x[1] > 0 and x[2] > 0)
                 formatter = (lambda x:u'\u2605'*int(x/2))
-                avgr = itemgetter(1)
+                avgr = lambda x : x.n
+                # eliminate the zero ratings line as well as count == 0
+                items = [v for v in tcategories[category].values() if v.c > 0 and v.n != 0]
             elif category == 'authors':
                 # Clean up the authors strings to human-readable form
                 formatter = (lambda x: x.replace('|', ','))
+                items = [v for v in tcategories[category].values() if v.c > 0]
             else:
                 formatter = (lambda x:unicode(x))
+                items = [v for v in tcategories[category].values() if v.c > 0]
 
-            categories[category] = [Tag(formatter(r[1]), count=r[2], id=r[0],
-                                        avg=avgr(r), sort=r[4], icon=icon,
+            # sort the list
+            if sort == 'name':
+                def get_sort_key(x):
+                    sk = x.s
+                    if isinstance(sk, unicode):
+                        sk = sort_key(sk)
+                    return sk
+                kf = get_sort_key
+                reverse=False
+            elif sort == 'popularity':
+                kf = lambda x: x.c
+                reverse=True
+            else:
+                kf = avgr
+                reverse=True
+            items.sort(key=kf, reverse=reverse)
+
+            categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
+                                        avg=avgr(r), sort=r.s, icon=icon,
                                         tooltip=tooltip, category=category)
-                                    for r in data if item_not_zero_func(r)]
+                                    for r in items]
+
+        #print 'end phase "tags list":', time.clock() - last, 'seconds'
+        #last = time.clock()
 
         # Needed for legacy databases that have multiple ratings that
         # map to n stars
@@ -1189,7 +1343,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 icon_map['search'] = icon_map['search']
             categories['search'] = items
 
+        #print 'last phase ran in:', time.clock() - last, 'seconds'
+        #print 'get_categories ran in:', time.clock() - start, 'seconds'
+
         return categories
+
+    ############# End get_categories
 
     def tags_older_than(self, tag, delta):
         tag = tag.lower().strip()
@@ -1485,6 +1644,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     # Convenience methods for tags_list_editor
     # Note: we generally do not need to refresh_ids because library_view will
     # refresh everything.
+
+    def get_ratings_with_ids(self):
+        result = self.conn.get('SELECT id,rating FROM ratings')
+        if not result:
+            return []
+        return result
 
     def dirty_books_referencing(self, field, id, commit=True):
         # Get the list of books to dirty -- all books that reference the item
