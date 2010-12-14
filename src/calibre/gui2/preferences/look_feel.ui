@@ -183,7 +183,7 @@
      </layout>
     </widget>
    </item>
-   <item row="8" column="0" colspan="2">
+   <item row="9" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -195,6 +195,20 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLineEdit" name="font_display">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QPushButton" name="change_font_button">
+     <property name="text">
+      <string>Change &amp;font (needs restart)</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
