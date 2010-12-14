@@ -23,10 +23,6 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.comments.sizeHint = self.comments_size_hint
         self.view_func = view_func
 
-        desktop = QCoreApplication.instance().desktop()
-        screen_height = desktop.availableGeometry().height() - 100
-        self.resize(self.size().width(), screen_height)
-
 
         self.view = view
         self.current_row = None
@@ -40,8 +36,13 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
         self.cover.resizeEvent = self.cover_view_resized
 
+        desktop = QCoreApplication.instance().desktop()
+        screen_height = desktop.availableGeometry().height() - 100
+        self.resize(self.size().width(), screen_height)
+
+
     def comments_size_hint(self):
-        return QSize(350, 350)
+        return QSize(350, 250)
 
     def toggle_cover_fit(self, state):
         dynamic.set('book_info_dialog_fit_cover', self.fit_cover.isChecked())
