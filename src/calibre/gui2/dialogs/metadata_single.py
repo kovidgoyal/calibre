@@ -910,14 +910,18 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 bytes(self.splitter.saveState()))
 
     def break_cycles(self):
-        try:
-            self.view_format.disconnect()
-        except:
-            pass # Fails if view format was never connected
-        self.view_format = None
-        self.db = None
-        self.pi = None
-        self.cover_data = self.cpixmap = None
+        # Break any reference cycles that could prevent python
+        # from garbage collecting this dialog
+        def disconnect(signal):
+            try:
+                signal.disconnect()
+            except:
+                pass # Fails if view format was never connected
+        disconnect(self.view_format)
+        for b in ('next_button', 'prev_button'):
+            x = getattr(self, b, None)
+            if x is not None:
+                disconnect(x.clicked)
 
 if __name__ == '__main__':
     from calibre.library import db
@@ -935,38 +939,17 @@ if __name__ == '__main__':
     d.reject()
     del d
 
-    for i in range(3):
+    for i in range(5):
         gc.collect()
     before = memory()
 
-    gc.collect()
     d = MetadataSingleDialog(None, 4, db)
-    d.break_cycles()
     d.reject()
+    d.break_cycles()
     del d
 
-    for i in range(3):
+    for i in range(5):
         gc.collect()
     print 'Used memory:', memory(before)/1024.**2, 'MB'
-    gc.collect()
 
-    '''
-    nmap, omap = {}, {}
-    for x in objects:
-        omap[id(x)] = x
-    for x in nobjects:
-        nmap[id(x)] = x
 
-    new_ids = set(nmap.keys()) - set(omap.keys())
-    print "New ids:", len(new_ids)
-    for i in new_ids:
-        o = nmap[i]
-        if o is objects:
-            continue
-        print repr(o)[:1050]
-        refs = gc.get_referrers(o)
-        for r in refs:
-            if r is objects or r is nobjects:
-                continue
-            print '\t', r
-    '''
