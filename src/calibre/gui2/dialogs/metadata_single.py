@@ -293,7 +293,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         finally:
             self.fetch_cover_button.setEnabled(True)
             self.unsetCursor()
-            self.pi.stop()
+            if self.pi is not None:
+                self.pi.stop()
 
 
     # }}}
@@ -442,7 +443,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         ResizableDialog.__init__(self, window)
         self.cover_fetcher = None
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
-        self.cancel_all = False
         base = unicode(self.author_sort.toolTip())
         self.ok_aus_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
                             _(' The green color indicates that the current '
@@ -573,7 +573,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
         self.series.lineEdit().editingFinished.connect(self.increment_series_index)
 
-        self.show()
         pm = QPixmap()
         if cover:
             pm.loadFromData(cover)
@@ -592,6 +591,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
         self.original_author = unicode(self.authors.text()).strip()
         self.original_title = unicode(self.title.text()).strip()
+
+        self.show()
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
@@ -907,3 +908,65 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         dynamic.set('metasingle_window_geometry', bytes(self.saveGeometry()))
         dynamic.set('metasingle_splitter_state',
                 bytes(self.splitter.saveState()))
+
+    def break_cycles(self):
+        try:
+            self.view_format.disconnect()
+        except:
+            pass # Fails if view format was never connected
+        self.view_format = None
+        self.db = None
+        self.pi = None
+        self.cover_data = self.cpixmap = None
+
+if __name__ == '__main__':
+    from calibre.library import db
+    from PyQt4.Qt import QApplication
+    from calibre.utils.mem import memory
+    import gc
+
+
+    app = QApplication([])
+    db = db()
+
+    # Initialize all Qt Objects once
+    d = MetadataSingleDialog(None, 4, db)
+    d.break_cycles()
+    d.reject()
+    del d
+
+    for i in range(3):
+        gc.collect()
+    before = memory()
+
+    gc.collect()
+    d = MetadataSingleDialog(None, 4, db)
+    d.break_cycles()
+    d.reject()
+    del d
+
+    for i in range(3):
+        gc.collect()
+    print 'Used memory:', memory(before)/1024.**2, 'MB'
+    gc.collect()
+
+    '''
+    nmap, omap = {}, {}
+    for x in objects:
+        omap[id(x)] = x
+    for x in nobjects:
+        nmap[id(x)] = x
+
+    new_ids = set(nmap.keys()) - set(omap.keys())
+    print "New ids:", len(new_ids)
+    for i in new_ids:
+        o = nmap[i]
+        if o is objects:
+            continue
+        print repr(o)[:1050]
+        refs = gc.get_referrers(o)
+        for r in refs:
+            if r is objects or r is nobjects:
+                continue
+            print '\t', r
+    '''
