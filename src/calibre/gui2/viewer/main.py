@@ -328,6 +328,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         c = config().parse()
         self.frame.setMaximumWidth(c.max_view_width)
 
+    def get_remember_current_page_opt(self):
+        from calibre.gui2.viewer.documentview import config
+        c = config().parse()
+        return c.remember_current_page
+
     def print_book(self, preview):
         Printing(self.iterator.spine, preview)
 
@@ -578,7 +583,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         current_page = None
         self.existing_bookmarks = []
         for bm in bookmarks:
-            if bm[0] == 'calibre_current_page_bookmark':
+            if bm[0] == 'calibre_current_page_bookmark' and \
+                                self.get_remember_current_page_opt():
                 current_page = bm
             else:
                 self.existing_bookmarks.append(bm[0])
@@ -598,6 +604,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.set_bookmarks(bookmarks)
 
     def save_current_position(self):
+        if not self.get_remember_current_page_opt():
+            return
         try:
             pos = self.view.bookmark()
             bookmark = '%d#%s'%(self.current_index, pos)

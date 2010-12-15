@@ -50,6 +50,8 @@ def config(defaults=None):
     c.add_opt('hyphenate', default=False, help=_('Hyphenate text'))
     c.add_opt('hyphenate_default_lang', default='en',
             help=_('Default language for hyphenation rules'))
+    c.add_opt('remember_current_page', default=True,
+            help=_('Save the current position in the documentwhen quitting'))
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -72,6 +74,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
 
         opts = config().parse()
         self.opt_remember_window_size.setChecked(opts.remember_window_size)
+        self.opt_remember_current_page.setChecked(opts.remember_current_page)
         self.serif_family.setCurrentFont(QFont(opts.serif_family))
         self.sans_family.setCurrentFont(QFont(opts.sans_family))
         self.mono_family.setCurrentFont(QFont(opts.mono_family))
@@ -118,6 +121,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('fit_images', self.opt_fit_images.isChecked())
         c.set('max_view_width', int(self.max_view_width.value()))
         c.set('hyphenate', self.hyphenate.isChecked())
+        c.set('remember_current_page', self.opt_remember_current_page.isChecked())
         idx = self.hyphenate_default_lang.currentIndex()
         c.set('hyphenate_default_lang',
                 str(self.hyphenate_default_lang.itemData(idx).toString()))
