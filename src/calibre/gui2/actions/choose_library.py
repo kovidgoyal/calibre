@@ -160,15 +160,17 @@ class ChooseLibraryAction(InterfaceAction):
         self.action_choose.triggered.connect(self.choose_library,
                 type=Qt.QueuedConnection)
         self.choose_menu = QMenu(self.gui)
-        self.choose_menu.addAction(self.action_choose)
         self.qaction.setMenu(self.choose_menu)
 
-        self.quick_menu = QMenu(_('Quick switch'))
-        self.quick_menu_action = self.choose_menu.addMenu(self.quick_menu)
-        self.rename_menu = QMenu(_('Rename library'))
-        self.rename_menu_action = self.choose_menu.addMenu(self.rename_menu)
-        self.delete_menu = QMenu(_('Delete library'))
-        self.delete_menu_action = self.choose_menu.addMenu(self.delete_menu)
+        if not os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
+            self.choose_menu.addAction(self.action_choose)
+
+            self.quick_menu = QMenu(_('Quick switch'))
+            self.quick_menu_action = self.choose_menu.addMenu(self.quick_menu)
+            self.rename_menu = QMenu(_('Rename library'))
+            self.rename_menu_action = self.choose_menu.addMenu(self.rename_menu)
+            self.delete_menu = QMenu(_('Delete library'))
+            self.delete_menu_action = self.choose_menu.addMenu(self.delete_menu)
 
         self.rename_separator = self.choose_menu.addSeparator()
 
@@ -223,6 +225,8 @@ class ChooseLibraryAction(InterfaceAction):
         self.library_changed(self.gui.library_view.model().db)
 
     def build_menus(self):
+        if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
+            return
         db = self.gui.library_view.model().db
         locations = list(self.stats.locations(db))
         for ac in self.switch_actions:
@@ -387,6 +391,11 @@ class ChooseLibraryAction(InterfaceAction):
         c.exec_()
 
     def change_library_allowed(self):
+        if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
+            warning_dialog(self.gui, _('Not allowed'),
+                    _('You cannot change libraries while using the environment'
+                        ' variable CALIBRE_OVERRIDE_DATABASE_PATH.'), show=True)
+            return False
         if self.gui.job_manager.has_jobs():
             warning_dialog(self.gui, _('Not allowed'),
                     _('You cannot change libraries while jobs'

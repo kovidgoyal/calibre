@@ -101,6 +101,13 @@ class EPUBOutput(OutputFormatPlugin):
             )
         ),
 
+        OptionRecommendation(name='epub_flatten', recommended_value=False,
+            help=_('This option is needed only if you intend to use the EPUB'
+                ' with FBReaderJ. It will flatten the file system inside the'
+                ' EPUB, putting all files into the top level.')
+        ),
+
+
         ])
 
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
@@ -142,8 +149,12 @@ class EPUBOutput(OutputFormatPlugin):
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
 
-        #from calibre.ebooks.oeb.transforms.filenames import UniqueFilenames
-        #UniqueFilenames()(oeb, opts)
+        if self.opts.epub_flatten:
+            from calibre.ebooks.oeb.transforms.filenames import FlatFilenames
+            FlatFilenames()(oeb, opts)
+        else:
+            from calibre.ebooks.oeb.transforms.filenames import UniqueFilenames
+            UniqueFilenames()(oeb, opts)
 
         self.workaround_ade_quirks()
         self.workaround_webkit_quirks()

@@ -12,7 +12,7 @@ from threading import Thread
 from PyQt4.Qt import QMenu, QToolButton
 
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2 import error_dialog, Dispatcher
+from calibre.gui2 import error_dialog, Dispatcher, warning_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.utils.config import prefs, tweaks
 
@@ -106,6 +106,9 @@ class CopyToLibraryAction(InterfaceAction):
 
     def build_menus(self):
         self.menu.clear()
+        if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
+            self.menu.addAction('disabled', self.cannot_do_dialog)
+            return
         db = self.gui.library_view.model().db
         locations = list(self.stats.locations(db))
         for name, loc in locations:
@@ -160,5 +163,9 @@ class CopyToLibraryAction(InterfaceAction):
                 self.gui.iactions['Remove Books'].library_ids_deleted(
                         self.worker.processed, row)
 
+    def cannot_do_dialog(self):
+        warning_dialog(self.gui, _('Not allowed'),
+                    _('You cannot use other libraries while using the environment'
+                      ' variable CALIBRE_OVERRIDE_DATABASE_PATH.'), show=True)
 
 
