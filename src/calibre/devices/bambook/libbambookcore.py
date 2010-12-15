@@ -38,6 +38,9 @@ elif islinux:
 elif isosx:
     text_encoding = 'utf-8'
 
+def is_bambook_lib_ready():
+    return lib_handle != None
+
 # Constant
 DEFAULT_BAMBOOK_IP = '192.168.250.2'
 BAMBOOK_SDK_VERSION = 0x00090000

@@ -12,11 +12,12 @@ import time, os, hashlib
 from itertools import cycle
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.deviceconfig import DeviceConfig
-from calibre.devices.bambook.libbambookcore import Bambook, text_encoding, CONN_CONNECTED
+from calibre.devices.bambook.libbambookcore import Bambook, text_encoding, CONN_CONNECTED, is_bambook_lib_ready
 from calibre.devices.usbms.books import Book, BookList
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
 from calibre.constants import __appname__, __version__
+from calibre.devices.errors import OpenFeedback
 
 class BAMBOOK(DeviceConfig, DevicePlugin):
     name           = 'Bambook Device Interface'
@@ -52,6 +53,9 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
         self.open()
     
     def open(self):
+        # Make sure the Bambook library is ready
+        if not is_bambook_lib_ready():
+            raise OpenFeedback(_("Unable to connect to Bambook, you need to install Bambook library first."))
         # Disconnect first if connected
         self.eject()
         # Connect
