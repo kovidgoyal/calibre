@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.17\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-12-11 01:57+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-12-14 10:17+0000\n"
+"Last-Translator: Stane Accetto <Unknown>\n"
 "Language-Team: sl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-12 04:37+0000\n"
+"X-Launchpad-Export-Date: 2010-12-15 04:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1548,6 +1548,8 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
+"Če izvorna datoteka že vsebuje Kazalo vsebine, se to običajno uporabi "
+"prednostno. Z vključitvijo te opcije, se vedno uporabi samodejno generiranje."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:217
 msgid "Don't add auto-detected chapters to the Table of Contents."
@@ -1558,6 +1560,8 @@ msgid ""
 "If fewer than this number of chapters is detected, then links are added to "
 "the Table of Contents. Default: %default"
 msgstr ""
+"Če je ugotovljenoštevilo poglavij manjše od te številke, se povezave dodajo "
+"v Kazalo vsebine- Privzeto: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:231
 msgid ""
@@ -1565,12 +1569,17 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
 msgstr ""
+"Največje število povezav za vnos v TOC. Nastavite 0 za izključitev. Privzeto "
+"je: %default. Povezave so dodane v TOC samo, če je ugotovljeno število "
+"poglavij  manjše od mejne vrednosti."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:239
 msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
 msgstr ""
+"Odstranitev  vnosov iz Kazala vsebine tistih naslovov, ki ustrezajo "
+"določenemu izrazu. Ustrezajoči vnosi in njihovi nasledniki so odstranjeni."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:250
 msgid ""
@@ -1581,6 +1590,10 @@ msgid ""
 "detection, use the expression \"/\". See the XPath Tutorial in the calibre "
 "User Manual for further help on using this feature."
 msgstr ""
+"XPath izraz za ugotavljanje naslovov poglavja. Privzeto se smatra oznaka "
+"<h1> ali <h2> , da vsebuje besede \"poglavje\",\"knjiga\",\"sekcija\" ali "
+"\"oddelek\" kot naslov poglavja prav  tako kot katerekoli oznake, ki imajo "
+"class=\"poglavje\". Uporabljen izraz mora upoštevati seznam elementov."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:264
 msgid ""
@@ -1589,6 +1602,10 @@ msgid ""
 "chapters. A value of \"none\" will disable chapter marking and a value of "
 "\"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
+"Določevanje označbe ugotovljenih poglavij. Vrednost \"prelom strani\" bo "
+"vstavila prelom pred poglavji. Vrednost \"ravnilo\" bo vstavila vrstico pred "
+"poglavji. Vrednost \"nič\" bo izključila označevanje poglavja in vrednost "
+"\"oboje\" bo uporabila prelom in vrstico za označbo poglavij."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:274
 msgid ""
@@ -1596,31 +1613,39 @@ msgid ""
 "the style rules from the source file, so it can be used to override those "
 "rules."
 msgstr ""
+"Ali pot k CSS oblikovanja strani ali osnovni CSS. Ta CSS bo dodan pravilom "
+"stila izvorne datoteke in ga lahko uporabimo za njihovo razveljavitev "
+"(izvorni stil)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:283
 msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements."
-msgstr ""
+msgstr "XPath izraz. Prelom strani je vstavljen pred specifičnimi elementi."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:289
 msgid ""
 "Set the top margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Nastavitev gornjega roba v pts. Privzeto je %default. Pozor: 72 pts je 1 inč."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:294
 msgid ""
 "Set the bottom margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Nastavitev spodnjega roba v pts. Privzeto je %default. Pozor: 72 pts je 1 "
+"inč."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:299
 msgid ""
 "Set the left margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Nastavitev levega roba v pts. Privzeto je %default. Pozor: 72 pts je 1 inč."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:304
 msgid ""
 "Set the right margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Nastavitev desnega roba v pts. Privzeto je %default. Pozor: 72 pts je 1 inč."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:310
 msgid ""
