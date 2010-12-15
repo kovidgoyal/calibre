@@ -8,9 +8,10 @@ class TimesOfIndia(BasicNewsRecipe):
     max_articles_per_feed = 25
 
     no_stylesheets = True
-    keep_only_tags = [dict(attrs={'class':'prttabl'})]
+    keep_only_tags = [dict(attrs={'class':'maintable12'})]
     remove_tags = [
-            dict(style=lambda x: x and 'float' in x)
+            dict(style=lambda x: x and 'float' in x),
+            dict(attrs={'class':'prvnxtbg'}),
     ]
 
     feeds          = [

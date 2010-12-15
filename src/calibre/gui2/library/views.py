@@ -105,7 +105,8 @@ class BooksView(QTableView): # {{{
         hv.setCursor(Qt.PointingHandCursor)
         self.selected_ids = []
         self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
-        self._model.sorting_done.connect(self.sorting_done)
+        self._model.sorting_done.connect(self.sorting_done,
+                type=Qt.QueuedConnection)
 
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
@@ -227,6 +228,7 @@ class BooksView(QTableView): # {{{
             sm = self.selectionModel()
             for idx in indices:
                 sm.select(idx, sm.Select|sm.Rows)
+            self.scroll_to_row(indices[0].row())
         self.selected_ids = []
     # }}}
 

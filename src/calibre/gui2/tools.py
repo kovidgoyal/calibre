@@ -236,6 +236,10 @@ def fetch_scheduled_recipe(arg):
         recs.append(('header', True, OptionRecommendation.HIGH))
         recs.append(('header_format', '%t', OptionRecommendation.HIGH))
 
+    epub = load_defaults('epub_output')
+    if epub.get('epub_flatten', False):
+        recs.append(('epub_flatten', True, OptionRecommendation.HIGH))
+
     args = [arg['recipe'], pt.name, recs]
     if arg['username'] is not None:
         recs.append(('username', arg['username'], OptionRecommendation.HIGH))
