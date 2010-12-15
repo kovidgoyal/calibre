@@ -397,12 +397,24 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
                 else:
                     print "Unable to get file from Bambook:", path
 
-    # @classmethod
-    # def config_widget(cls):
-    #     '''
-    #     Should return a QWidget. The QWidget contains the settings for the device interface
-    #     '''
-    #     raise NotImplementedError()
+    @classmethod
+    def config_widget(cls):
+        '''
+        Should return a QWidget. The QWidget contains the settings for the device interface
+        '''
+        from calibre.gui2.device_drivers.configwidget import ConfigWidget
+        cw = ConfigWidget(cls.settings(), cls.FORMATS, cls.SUPPORTS_SUB_DIRS,
+            cls.MUST_READ_METADATA, cls.SUPPORTS_USE_AUTHOR_SORT,
+            cls.EXTRA_CUSTOMIZATION_MESSAGE)
+        # Turn off the Save template
+        cw.opt_save_template.setVisible(False)
+        cw.label.setVisible(False)
+        # Repurpose the metadata checkbox
+        cw.opt_read_metadata.setVisible(False)
+        # Repurpose the use_subdirs checkbox
+        cw.opt_use_subdirs.setVisible(False)
+        return cw
+
 
     # @classmethod
     # def save_settings(cls, settings_widget):
