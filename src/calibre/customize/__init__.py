@@ -80,6 +80,34 @@ class Plugin(object): # {{{
         '''
         pass
 
+    def load_resources(self, names):
+        '''
+        If this plugin comes in a ZIP file (user added plugin), this method
+        will allow you to load resources from the ZIP file.
+
+        For example to load an image::
+
+            pixmap = QPixmap()
+            pixmap.loadFromData(self.load_resources(['images/icon.png']).itervalues().next())
+            icon = QIcon(pixmap)
+
+        :param names: List of paths to resources in the zip file using / as separator
+
+        :return: A dictionary of the form ``{name : file_contents}``. Any names
+                 that were not found in the zip file will not be present in the
+                 dictionary.
+
+        '''
+        if self.plugin_path is None:
+            raise ValueError('This plugin was not loaded from a ZIP file')
+        ans = {}
+        with zipfile.ZipFile(self.plugin_path, 'r') as zf:
+            for candidate in zf.namelist():
+                if candidate in names:
+                    ans[candidate] = zf.read(candidate)
+        return ans
+
+
     def customization_help(self, gui=False):
         '''
         Return a string giving help on how to customize this plugin.
