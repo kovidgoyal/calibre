@@ -171,6 +171,13 @@
               </property>
              </widget>
             </item>
+            <item row="8" column="0" colspan="2">
+             <widget class="QCheckBox" name="opt_remember_current_page">
+              <property name="text">
+               <string>Remember the &amp;current page when quitting</string>
+              </property>
+             </widget>
+            </item>
             <item row="3" column="1">
              <widget class="QSpinBox" name="max_view_width">
               <property name="suffix">
