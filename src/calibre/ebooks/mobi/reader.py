@@ -239,7 +239,7 @@ class MobiReader(object):
         self.base_css_rules = textwrap.dedent('''
                 blockquote { margin: 0em 0em 0em 2em; text-align: justify }
 
-                p { margin: 0em; text-align: justify }
+                p { margin: 0em; text-align: justify; text-indent: 1.5em }
 
                 .bold { font-weight: bold }
 
