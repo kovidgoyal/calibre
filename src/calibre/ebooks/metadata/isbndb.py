@@ -240,8 +240,8 @@ def option_parser():
         %prog [options] key
 
         Fetch metadata for books from isndb.com. You can specify either the
-        books ISBN ID or its title and author. If you specify the title and author,
-        then more than one book may be returned.
+        books ISBN ID or keywords or its title and author.
+        If you specify the title and author or keywords, then more than one book may be returned.
 
         key is the account key you generate after signing up for a free account from isbndb.com.
 
@@ -287,4 +287,4 @@ def main(args=sys.argv):
 if __name__ == '__main__':
     sys.exit(main())
 
-# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\isbndb-bis.py" -m 5 -a gore -v PWEK5WY4>data.html
+# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\isbndb.py" -m 5 -a gore -v HLLXQX2A>data.html

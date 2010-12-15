@@ -145,7 +145,7 @@ class MetadataSource(Plugin): # {{{
             setattr(w, '_'+x, cb)
             cb.setChecked(c.get(x, True))
             w._layout.addWidget(cb)
-        
+
         if self.has_html_comments:
             cb = QCheckBox(_('Convert comments downloaded from %s to plain text')%(self.name))
             setattr(w, '_textcomments', cb)
@@ -238,12 +238,13 @@ def result_index(source, result):
     return -1
 
 def merge_results(one, two):
-    for x in two:
-        idx = result_index(one, x)
-        if idx < 0:
-            one.append(x)
-        else:
-            one[idx].smart_update(x)
+    if two is not None and one is not None:
+        for x in two:
+            idx = result_index(one, x)
+            if idx < 0:
+                one.append(x)
+            else:
+                one[idx].smart_update(x)
 
 class MetadataSources(object):
 
@@ -299,7 +300,7 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
         manager(title, author, publisher, isbn, verbose)
         manager.join()
 
-    results = list(fetchers[0].results)
+    results = list(fetchers[0].results) if fetchers else []
     for fetcher in fetchers[1:]:
         merge_results(results, fetcher.results)
 
