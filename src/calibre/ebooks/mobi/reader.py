@@ -861,7 +861,10 @@ def get_metadata(stream):
         cover_index = mh.first_image_index + mh.exth.cover_offset
         data  = mh.section_data(int(cover_index))
     else:
-        data  = mh.section_data(mh.first_image_index)
+        try:
+            data  = mh.section_data(mh.first_image_index)
+        except:
+            data = ''
     buf = cStringIO.StringIO(data)
     try:
         im = PILImage.open(buf)
