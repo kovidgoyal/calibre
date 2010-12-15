@@ -368,6 +368,10 @@ class Adder(QObject): # {{{
                     shutil.rmtree(self.worker.tdir)
                 except:
                     pass
+        self._parent = None
+        if hasattr(self, 'db_adder'):
+            self.db_adder.setParent(None)
+
 
     @property
     def number_of_books_added(self):
