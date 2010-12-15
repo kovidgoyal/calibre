@@ -51,7 +51,7 @@ def config(defaults=None):
     c.add_opt('hyphenate_default_lang', default='en',
             help=_('Default language for hyphenation rules'))
     c.add_opt('remember_current_page', default=True,
-            help=_('Save the current position in the documentwhen quitting'))
+            help=_('Save the current position in the document, when quitting'))
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',

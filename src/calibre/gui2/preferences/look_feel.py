@@ -88,7 +88,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         name = unicode(fi.family())
 
         self.font_display.setFont(font)
-        self.font_display.setText(_('Current font:') + ' ' + name +
+        self.font_display.setText(name +
                 ' [%dpt]'%fi.pointSize())
 
     def change_font(self, *args):

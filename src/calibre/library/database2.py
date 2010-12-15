@@ -1153,6 +1153,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 else:
                     vals = book[dex].split(mult)
                     for val in vals:
+                        if not val: continue
                         try:
                             (item_id, sort_val) = tids[cat][val] # let exceptions fly
                             item = tcategories[cat].get(val, None)
