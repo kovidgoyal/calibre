@@ -5,115 +5,247 @@ Interface to isbndb.com. My key HLLXQX2A.
 '''
 
 import sys, re
-from urllib import quote
+from urllib import urlencode
 
+from lxml import etree
+
+from calibre import browser, preferred_encoding
+from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.metadata.fetch import MetadataSource
+from calibre.ebooks.metadata import MetaInformation, authors_to_sort_string
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.config import OptionParser
-from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
-from calibre import browser
 
-BASE_URL = 'http://isbndb.com/api/books.xml?access_key=%(key)s&page_number=1&results=subjects,authors,texts&'
+
+class ISBNDB(MetadataSource):
+
+    name = 'IsbnDB'
+    description = _('Downloads metadata from isbndb.com')
+    version = (1, 0, 1)
+
+    def fetch(self):
+        if not self.site_customization:
+            return
+        try:
+            self.results = search(self.title, self.book_author, self.publisher, self.isbn,
+                                   max_results=10, verbose=self.verbose, key=self.site_customization)
+        except Exception, e:
+            import traceback
+            self.exception = e
+            self.tb = traceback.format_exc()
+
+    @property
+    def string_customization_help(self):
+        ans = _('To use isbndb.com you must sign up for a %sfree account%s '
+                'and enter your access key below.')
+        return '<p>'+ans%('<a href="http://www.isbndb.com">', '</a>')
+
 
 class ISBNDBError(Exception):
     pass
 
-def fetch_metadata(url, max=100, timeout=5.):
-    books = []
-    page_number = 1
-    total_results = sys.maxint
-    br = browser()
-    while len(books) < total_results and max > 0:
+def report(verbose):
+    if verbose:
+        import traceback
+        traceback.print_exc()
+
+
+class Query(object):
+
+    BASE_URL = 'http://isbndb.com/api/books.xml?'
+
+    def __init__(self, key, title=None, author=None, publisher=None, isbn=None,
+                    keywords=None, max_results=40):
+        assert not(title is None and author is None and publisher is None and \
+                   isbn is None and keywords is None)
+        assert (max_results < 41)
+        
+        if title == _('Unknown'):
+            title=None
+        if author == _('Unknown'):
+            author=None
+        self.maxresults = int(max_results)
+        
+        if isbn is not None:
+            q = isbn
+            i = 'isbn'
+        elif keywords is not None:
+            q = ' '.join([e for e in (title, author, publisher, keywords) \
+                if e is not None ])
+            q = q.strip()
+            i = 'full'
+        else:
+            q = ' '.join([e for e in (title, author, publisher) \
+                if e is not None ])
+            q = q.strip()
+            if len(q) == 0:
+                raise ISBNDBError(_('You must specify at least one of author, title or publisher'))
+            i = 'combined'
+
+        if isinstance(q, unicode):
+            q = q.encode('utf-8')
+        self.url = self.BASE_URL+urlencode({
+            'value1':q,
+            'results':'subjects,authors,texts,details',
+            'access_key':key,
+            'index1':i,
+            })+'&page_number='
+
+    def brcall(self, browser, url, verbose, timeout):
+        if verbose:
+            print _('Query: %s') % url
+        
         try:
-            raw = br.open(url, timeout=timeout).read()
-        except Exception, err:
-            raise ISBNDBError('Could not fetch ISBNDB metadata. Error: '+str(err))
-        soup = BeautifulStoneSoup(raw,
-                convertEntities=BeautifulStoneSoup.XML_ENTITIES)
-        book_list = soup.find('booklist')
-        if book_list is None:
-            errmsg = soup.find('errormessage').string
-            raise ISBNDBError('Error fetching metadata: '+errmsg)
-        total_results = int(book_list['total_results'])
-        page_number += 1
-        np = '&page_number=%s&'%page_number
-        url = re.sub(r'\&page_number=\d+\&', np, url)
-        books.extend(book_list.findAll('bookdata'))
-        max -= 1
-    return books
-
-
-class ISBNDBMetadata(Metadata):
-
-    def __init__(self, book):
-        Metadata.__init__(self, None)
-
-        def tostring(e):
-            if not hasattr(e, 'string'):
+            raw = browser.open_novisit(url, timeout=timeout).read()
+        except Exception, e:
+            import socket
+            report(verbose)
+            if callable(getattr(e, 'getcode', None)) and \
+                    e.getcode() == 404:
                 return None
-            ans = e.string
-            if ans is not None:
-                ans = unicode(ans).strip()
-            if not ans:
-                ans = None
-            return ans
+            attr = getattr(e, 'args', [None])
+            attr = attr if attr else [None]
+            if isinstance(attr[0], socket.timeout):
+                raise ISBNDBError(_('ISBNDB timed out. Try again later.'))
+            raise ISBNDBError(_('ISBNDB encountered an error.'))
+        if '<title>404 - ' in raw:
+            return None
+        raw = xml_to_unicode(raw, strip_encoding_pats=True,
+                resolve_entities=True)[0]
+        try:
+            return etree.fromstring(raw)
+        except:
+            try:
+                #remove ASCII invalid chars (normally not needed)
+                return etree.fromstring(clean_ascii_chars(raw))
+            except:
+                return None
 
-        self.isbn = unicode(book.get('isbn13', book.get('isbn')))
-        title = tostring(book.find('titlelong'))
+    def __call__(self, browser, verbose, timeout = 5.):
+        url = self.url+str(1)
+        feed = self.brcall(browser, url, verbose, timeout)
+        if feed is None:
+            return None
+        
+        # print etree.tostring(feed, pretty_print=True)
+        total = int(feed.find('BookList').get('total_results'))
+        nbresultstoget = total if total < self.maxresults else self.maxresults
+        entries = feed.xpath("./BookList/BookData")
+        i=2
+        while len(entries) < nbresultstoget:
+            url = self.url+str(i)
+            feed = self.brcall(browser, url, verbose, timeout)
+            i+=1
+            if feed is None:
+                break
+            entries.extend(feed.xpath("./BookList/BookData"))
+        return entries[:nbresultstoget]
+
+class ResultList(list):
+
+    def get_description(self, entry, verbose):
+        try:
+            desc = entry.find('Summary')
+            if desc:
+                return _(u'SUMMARY:\n%s') % self.output_entry(desc)
+        except:
+            report(verbose)
+
+    def get_language(self, entry, verbose):
+        try:
+            return entry.find('Details').get('language')
+        except:
+            report(verbose)
+
+    def get_title(self, entry):
+        title = entry.find('TitleLong')
         if not title:
-            title = tostring(book.find('title'))
-        self.title = title
-        self.title = unicode(self.title).strip()
+            title = entry.find('Title')
+        return self.output_entry(title)
+
+    def get_authors(self, entry):
         authors = []
-        au = tostring(book.find('authorstext'))
-        if au:
-            au = au.strip()
-            temp = au.split(',')
+        au = entry.find('AuthorsText')
+        if au is not None:
+            au = self.output_entry(au)
+            temp = au.split(u',')
             for au in temp:
                 if not au: continue
-                authors.extend([a.strip() for a in au.split('&amp;')])
-        if authors:
-            self.authors = authors
+                authors.extend([a.strip() for a in au.split(u'&')])
+        return authors
+
+    def get_author_sort(self, entry, verbose):
         try:
-            self.author_sort = tostring(book.find('authors').find('person'))
-            if self.authors and self.author_sort == self.authors[0]:
-                self.author_sort = None
+            return self.output_entry(entry.find('Authors').find('Person'))
         except:
-            pass
-        self.publisher = tostring(book.find('publishertext'))
+            report(verbose)
+            return None
 
-        summ = tostring(book.find('summary'))
-        if summ:
-            self.comments = 'SUMMARY:\n'+summ
+    def get_isbn(self, entry, verbose):
+        try:
+            return unicode(entry.get('isbn13', entry.get('isbn')))
+        except:
+            report(verbose)
+
+    def get_publisher(self, entry, verbose):
+        try:
+            return self.output_entry(entry.find('PublisherText'))
+        except:
+            report(verbose)
+            return None
+    
+    def output_entry(self, entry):
+        out = etree.tostring(entry, encoding=unicode, method="text")
+        return out.strip()
+
+    def populate(self, entries, verbose):
+        for x in entries:
+            try:
+                title = self.get_title(x)
+                authors = self.get_authors(x)
+            except Exception, e:
+                if verbose:
+                    print _('Failed to get all details for an entry')
+                    print e
+                continue
+            mi = MetaInformation(title, authors)
+            tmpautsort = self.get_author_sort(x, verbose)
+            mi.author_sort = tmpautsort if tmpautsort is not None \
+                                else authors_to_sort_string(authors)
+            mi.comments = self.get_description(x, verbose)
+            mi.isbn = self.get_isbn(x, verbose)
+            mi.publisher = self.get_publisher(x, verbose)
+            mi.language = self.get_language(x, verbose)
+            self.append(mi)
 
 
-def build_isbn(base_url, opts):
-    return base_url + 'index1=isbn&value1='+opts.isbn
+def search(title=None, author=None, publisher=None, isbn=None,
+           max_results=10, verbose=False, keywords=None, key=None):
+    br = browser()
+    entries = Query(key, title=title, author=author, isbn=isbn, publisher=publisher,
+        keywords=keywords, max_results=max_results)(br, verbose, timeout = 10.)
 
-def build_combined(base_url, opts):
-    query = ' '.join([e for e in (opts.title, opts.author, opts.publisher) \
-        if e is not None ])
-    query = query.strip()
-    if len(query) == 0:
-        raise ISBNDBError('You must specify at least one of --author, --title or --publisher')
+    if entries is None or len(entries) == 0:
+        return None
 
-    query = re.sub(r'\s+', '+', query)
-    if isinstance(query, unicode):
-        query = query.encode('utf-8')
-    return base_url+'index1=combined&value1='+quote(query, '+')
-
+    #List of entry
+    ans = ResultList()
+    ans.populate(entries, verbose)
+    return list(dict((book.isbn, book) for book in ans).values())
 
 def option_parser():
-    parser = OptionParser(usage=\
-_('''
-%prog [options] key
+    import textwrap
+    parser = OptionParser(textwrap.dedent(\
+    _('''\
+        %prog [options] key
 
-Fetch metadata for books from isndb.com. You can specify either the
-books ISBN ID or its title and author. If you specify the title and author,
-then more than one book may be returned.
+        Fetch metadata for books from isndb.com. You can specify either the
+        books ISBN ID or its title and author. If you specify the title and author,
+        then more than one book may be returned.
 
-key is the account key you generate after signing up for a free account from isbndb.com.
+        key is the account key you generate after signing up for a free account from isbndb.com.
 
-'''))
+    ''')))
     parser.add_option('-i', '--isbn', default=None, dest='isbn',
                       help=_('The ISBN ID of the book you want metadata for.'))
     parser.add_option('-a', '--author', dest='author',
@@ -122,38 +254,37 @@ key is the account key you generate after signing up for a free account from isb
                       default=None, help=_('The title of the book to search for.'))
     parser.add_option('-p', '--publisher', default=None, dest='publisher',
                       help=_('The publisher of the book to search for.'))
-    parser.add_option('-v', '--verbose', default=False,
-                      action='store_true', help=_('Verbose processing'))
-
+    parser.add_option('-k', '--keywords', help=_('Keywords to search for.'))
+    parser.add_option('-m', '--max-results', default=10,
+                      help=_('Maximum number of results to fetch'))
+    parser.add_option('-v', '--verbose', default=0, action='count',
+                      help=_('Be more verbose about errors'))
     return parser
-
-
-def create_books(opts, args, timeout=5.):
-    base_url = BASE_URL%dict(key=args[1])
-    if opts.isbn is not None:
-        url = build_isbn(base_url, opts)
-    else:
-        url = build_combined(base_url, opts)
-
-    if opts.verbose:
-        print ('ISBNDB query: '+url)
-
-    tans = [ISBNDBMetadata(book) for book in fetch_metadata(url, timeout=timeout)]
-    #remove duplicates ISBN
-    return list(dict((book.isbn, book) for book in tans).values())
 
 def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if len(args) != 2:
         parser.print_help()
-        print ('You must supply the isbndb.com key')
+        print
+        print _('You must supply the isbndb.com key')
         return 1
-
-    for book in create_books(opts, args):
-        print unicode(book).encode('utf-8')
-
+    try:
+        results = search(opts.title, opts.author, opts.publisher, opts.isbn, key=args[1],
+            keywords=opts.keywords, verbose=opts.verbose, max_results=opts.max_results)
+    except AssertionError:
+        report(True)
+        parser.print_help()
+        return 1
+    if results is None or len(results) == 0:
+        print _('No result found for this search!')
+        return 0
+    for result in results:
+        print unicode(result).encode(preferred_encoding, 'replace')
+        print
     return 0
 
 if __name__ == '__main__':
     sys.exit(main())
+
+# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\isbndb-bis.py" -m 5 -a gore -v PWEK5WY4>data.html

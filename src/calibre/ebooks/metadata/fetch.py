@@ -172,40 +172,40 @@ class MetadataSource(Plugin): # {{{
 
     # }}}
 
-class ISBNDB(MetadataSource): # {{{
+# class ISBNDB(MetadataSource): # {{{
 
-    name = 'IsbnDB'
-    description = _('Downloads metadata from isbndb.com')
+    # name = 'IsbnDB'
+    # description = _('Downloads metadata from isbndb.com')
 
-    def fetch(self):
-        if not self.site_customization:
-            return
-        from calibre.ebooks.metadata.isbndb import option_parser, create_books
-        args = ['isbndb']
-        if self.isbn:
-            args.extend(['--isbn', self.isbn])
-        else:
-            if self.title:
-                args.extend(['--title', self.title])
-            if self.book_author:
-                args.extend(['--author', self.book_author])
-            if self.publisher:
-                args.extend(['--publisher', self.publisher])
-        if self.verbose:
-            args.extend(['--verbose'])
-        args.append(self.site_customization) # IsbnDb key
-        try:
-            opts, args = option_parser().parse_args(args)
-            self.results = create_books(opts, args)
-        except Exception, e:
-            self.exception = e
-            self.tb = traceback.format_exc()
+    # def fetch(self):
+        # if not self.site_customization:
+            # return
+        # from calibre.ebooks.metadata.isbndb import option_parser, create_books
+        # args = ['isbndb']
+        # if self.isbn:
+            # args.extend(['--isbn', self.isbn])
+        # else:
+            # if self.title:
+                # args.extend(['--title', self.title])
+            # if self.book_author:
+                # args.extend(['--author', self.book_author])
+            # if self.publisher:
+                # args.extend(['--publisher', self.publisher])
+        # if self.verbose:
+            # args.extend(['--verbose'])
+        # args.append(self.site_customization) # IsbnDb key
+        # try:
+            # opts, args = option_parser().parse_args(args)
+            # self.results = create_books(opts, args)
+        # except Exception, e:
+            # self.exception = e
+            # self.tb = traceback.format_exc()
 
-    @property
-    def string_customization_help(self):
-        ans = _('To use isbndb.com you must sign up for a %sfree account%s '
-                'and enter your access key below.')
-        return '<p>'+ans%('<a href="http://www.isbndb.com">', '</a>')
+    # @property
+    # def string_customization_help(self):
+        # ans = _('To use isbndb.com you must sign up for a %sfree account%s '
+                # 'and enter your access key below.')
+        # return '<p>'+ans%('<a href="http://www.isbndb.com">', '</a>')
 
     # }}}
 

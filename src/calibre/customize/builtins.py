@@ -480,7 +480,8 @@ from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 
-from calibre.ebooks.metadata.fetch import ISBNDB, LibraryThing
+from calibre.ebooks.metadata.fetch import LibraryThing
+from calibre.ebooks.metadata.isbndb import ISBNDB
 from calibre.ebooks.metadata.douban import DoubanBooks
 from calibre.ebooks.metadata.google_books import GoogleBooks
 from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
