@@ -243,7 +243,9 @@ class AddAction(InterfaceAction):
 
         if hasattr(self._adder, 'cleanup'):
             self._adder.cleanup()
-        self._adder = None
+            self._adder.setParent(None)
+            del self._adder
+            self._adder = None
 
     def _add_from_device_adder(self, paths=[], names=[], infos=[],
                                on_card=None, model=None):
