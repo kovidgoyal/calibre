@@ -61,6 +61,7 @@ class AddAction(InterfaceAction):
         self._adder = Adder(self.gui,
                 self.gui.library_view.model().db,
                 self.Dispatcher(self._files_added), spare_server=self.gui.spare_server)
+        self.gui.tags_view.disable_recounting = True
         self._adder.add_recursive(root, single)
 
     def add_recursive_single(self, *args):
@@ -119,6 +120,7 @@ class AddAction(InterfaceAction):
         if self.gui.current_view() is not self.gui.library_view:
             return
         db = self.gui.library_view.model().db
+        cover_changed = False
         current_idx = self.gui.library_view.currentIndex()
         if not current_idx.isValid(): return
         cid = db.id(current_idx.row())
@@ -132,12 +134,16 @@ class AddAction(InterfaceAction):
                 if not pmap.isNull():
                     accept = True
                     db.set_cover(cid, pmap)
+                    cover_changed = True
             elif ext in BOOK_EXTENSIONS:
                 db.add_format_with_hooks(cid, ext, path, index_is_id=True)
                 accept = True
         if accept:
             event.accept()
             self.gui.library_view.model().current_changed(current_idx, current_idx)
+        if cover_changed:
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
 
     def __add_filesystem_book(self, paths, allow_device=True):
         if isinstance(paths, basestring):
@@ -201,9 +207,11 @@ class AddAction(InterfaceAction):
         self._adder = Adder(self.gui,
                 None if to_device else self.gui.library_view.model().db,
                 self.Dispatcher(self.__adder_func), spare_server=self.gui.spare_server)
+        self.gui.tags_view.disable_recounting = True
         self._adder.add(paths)
 
     def _files_added(self, paths=[], names=[], infos=[], on_card=None):
+        self.gui.tags_view.disable_recounting = False
         if paths:
             self.gui.upload_books(paths,
                                 list(map(ascii_filename, names)),
@@ -214,6 +222,7 @@ class AddAction(InterfaceAction):
             self.gui.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self.gui, 'db_images'):
                 self.gui.db_images.reset()
+            self.gui.tags_view.recount()
         if getattr(self._adder, 'merged_books', False):
             books = u'\n'.join([x if isinstance(x, unicode) else
                     x.decode(preferred_encoding, 'replace') for x in

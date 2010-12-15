@@ -425,3 +425,7 @@ class SchemaUpgrade(object):
         ids = [(x[0],) for x in data if has_cover(x[1])]
         self.conn.executemany('UPDATE books SET has_cover=1 WHERE id=?', ids)
 
+    def upgrade_version_15(self):
+        'Remove commas from tags'
+        self.conn.execute("UPDATE tags SET name=REPLACE(name, ',', ';')")
+

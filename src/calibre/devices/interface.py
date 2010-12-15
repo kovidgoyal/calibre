@@ -216,6 +216,9 @@ class DevicePlugin(Plugin):
         an implementation of
         this function that should serve as a good example for USB Mass storage
         devices.
+
+        This method can raise an OpenFeedback exception to display a message to
+        the user.
         '''
         raise NotImplementedError()
 

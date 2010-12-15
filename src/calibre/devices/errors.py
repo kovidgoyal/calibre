@@ -36,6 +36,11 @@ class UserFeedback(DeviceError):
        self.details = details
        self.msg = msg
 
+class OpenFeedback(DeviceError):
+    def __init__(self, msg):
+        self.feedback_msg = msg
+        DeviceError.__init__(self, msg)
+
 class DeviceBusy(ProtocolError):
     """ Raised when device is busy """
     def __init__(self, uerr=""):

@@ -12,7 +12,7 @@ from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.errors import UserFeedback
+from calibre.devices.errors import UserFeedback, OpenFeedback
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
@@ -122,7 +122,8 @@ def device_name_for_plugboards(device_class):
 
 class DeviceManager(Thread): # {{{
 
-    def __init__(self, connected_slot, job_manager, open_feedback_slot, sleep_time=2):
+    def __init__(self, connected_slot, job_manager, open_feedback_slot,
+            open_feedback_msg, sleep_time=2):
         '''
         :sleep_time: Time to sleep between device probes in secs
         '''
@@ -143,6 +144,7 @@ class DeviceManager(Thread): # {{{
         self.ejected_devices  = set([])
         self.mount_connection_requests = Queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
+        self.open_feedback_msg = open_feedback_msg
 
     def report_progress(self, *args):
         pass
@@ -163,6 +165,9 @@ class DeviceManager(Thread): # {{{
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
                 dev.open()
+            except OpenFeedback, e:
+                self.open_feedback_msg(dev.get_gui_name(), e.feedback_msg)
+                continue
             except:
                 tb = traceback.format_exc()
                 if DEBUG or tb not in self.reported_errors:
@@ -594,10 +599,15 @@ class DeviceMixin(object): # {{{
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
-                self.job_manager, Dispatcher(self.status_bar.show_message))
+                self.job_manager, Dispatcher(self.status_bar.show_message),
+                Dispatcher(self.show_open_feedback))
         self.device_manager.start()
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
+
+    def show_open_feedback(self, devname, msg):
+        self.__of_dev_mem__ = d = info_dialog(self, devname, msg)
+        d.show()
 
     def auto_convert_question(self, msg, autos):
         autos = u'\n'.join(map(unicode, map(force_unicode, autos)))

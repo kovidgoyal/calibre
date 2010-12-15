@@ -72,3 +72,5 @@ Precautions
 --------------
 
 Portable media can occasionally fail so you should make periodic backups of you Calibre library.   This can be done by making a copy of the CalibreLibrary folder and all its contents.   There are many freely available tools around that can optimise such back processes, well known ones being RoboCopy and RichCopy.   However you can simply use a Windows copy facility if you cannot be bothered to use a specialised tools.
+
+Using the environment variable CALIBRE_OVERRIDE_DATABASE_PATH disables multiple-library support in |app|. Avoid setting this variable in calibre-portable.bat unless you really need it.

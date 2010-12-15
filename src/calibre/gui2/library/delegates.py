@@ -349,10 +349,19 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
         QStyledItemDelegate.__init__(self, parent)
 
     def createEditor(self, parent, option, index):
-        return EnLineEdit(parent)
+        m = index.model()
+        text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
+        editor = CommentsDialog(parent, text)
+        editor.setWindowTitle(_("Edit template"))
+        editor.textbox.setTabChangesFocus(False)
+        editor.textbox.setTabStopWidth(20)
+        d = editor.exec_()
+        if d:
+            m.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
+        return None
 
     def setModelData(self, editor, model, index):
-        val = unicode(editor.text())
+        val = unicode(editor.textbox.toPlainText())
         try:
             validation_formatter.validate(val)
         except Exception, err:
@@ -364,7 +373,7 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
-        editor.setText(val)
+        editor.textbox.setPlainText(val)
 
 
 # }}}

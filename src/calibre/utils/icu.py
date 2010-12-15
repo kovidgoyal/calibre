@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Setup code {{{
+import sys
 from functools import partial
 
 from calibre.constants import plugins
@@ -77,10 +78,19 @@ def py_strcmp(a, b):
 def icu_case_sensitive_strcmp(collator, a, b):
     return collator.strcmp(a, b)
 
+def icu_capitalize(s):
+    s = lower(s)
+    return s.replace(s[0], upper(s[0]), 1)
 
 load_icu()
 load_collator()
 _icu_not_ok = _icu is None or _collator is None
+
+try:
+    if sys.getdefaultencoding().lower() == 'ascii':
+        _icu.set_default_encoding('utf-8')
+except:
+    pass
 
 # }}}
 
@@ -103,10 +113,6 @@ lower = (lambda s: s.lower()) if _icu_not_ok else \
 
 title_case = (lambda s: s.title()) if _icu_not_ok else \
     partial(_icu.title, get_locale())
-
-def icu_capitalize(s):
-    s = lower(s)
-    return s.replace(s[0], upper(s[0]))
 
 capitalize = (lambda s: s.capitalize()) if _icu_not_ok else \
     (lambda s: icu_capitalize(s))
@@ -226,12 +232,16 @@ pêché'''
     test_strcmp(german + french)
 
     print '\nTesting case transforms in current locale'
-    for x in ('a', 'Alice\'s code'):
+    from calibre.utils.titlecase import titlecase
+    for x in ('a', 'Alice\'s code', 'macdonald\'s machine', '02 the wars'):
         print 'Upper:     ', x, '->', 'py:', x.upper().encode('utf-8'), 'icu:', upper(x).encode('utf-8')
         print 'Lower:     ', x, '->', 'py:', x.lower().encode('utf-8'), 'icu:', lower(x).encode('utf-8')
-        print 'Title:     ', x, '->', 'py:', x.title().encode('utf-8'), 'icu:', title_case(x).encode('utf-8')
+        print 'Title:     ', x, '->', 'py:', x.title().encode('utf-8'), 'icu:', title_case(x).encode('utf-8'), 'titlecase:', titlecase(x).encode('utf-8')
         print 'Capitalize:', x, '->', 'py:', x.capitalize().encode('utf-8'), 'icu:', capitalize(x).encode('utf-8')
         print
 
 # }}}
+
+if __name__ == '__main__':
+    test()
 
