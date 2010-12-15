@@ -29,6 +29,9 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.ebooks.metadata.toc import TOC
 
+class TopazError(ValueError):
+    pass
+
 class EXTHHeader(object):
 
     def __init__(self, raw, codec, title):
@@ -259,7 +262,7 @@ class MobiReader(object):
 
         raw = stream.read()
         if raw.startswith('TPZ'):
-            raise ValueError(_('This is an Amazon Topaz book. It cannot be processed.'))
+            raise TopazError(_('This is an Amazon Topaz book. It cannot be processed.'))
 
         self.header   = raw[0:72]
         self.name     = self.header[:32].replace('\x00', '')
@@ -832,6 +835,15 @@ class MobiReader(object):
             im.save(open(path, 'wb'), format='JPEG')
 
 def get_metadata(stream):
+    stream.seek(0)
+    try:
+        raw = stream.read(3)
+    except:
+        raw = ''
+    stream.seek(0)
+    if raw == 'TPZ':
+        from calibre.ebooks.metadata.topaz import get_metadata
+        return get_metadata(stream)
     from calibre.utils.logging import Log
     log = Log()
     mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
