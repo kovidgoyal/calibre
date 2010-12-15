@@ -8,19 +8,35 @@ __docformat__ = 'restructuredtext en'
 Sanda library wrapper 
 '''
 
-import ctypes, uuid, hashlib
+import ctypes, uuid, hashlib, os, sys
 from threading import Event, Lock
-from calibre.constants import iswindows, islinux
-
+from calibre.constants import iswindows, islinux, isosx
+from calibre import load_library
+ 
 try:
+    _lib_name = 'libBambookCore'
+    cdll = ctypes.cdll
     if iswindows:
-        text_encoding = 'mbcs'
-        lib_handle = ctypes.cdll.BambookCore
-    elif islinux:
-        text_encoding = 'utf-8'
-        lib_handle = ctypes.CDLL('libBambookCore.so')
+        _lib_name = 'BambookCore'
+        cdll = ctypes.windll
+    else:
+        if hasattr(sys, 'frozen') and iswindows:
+            lp = os.path.join(os.path.dirname(sys.executable), 'DLLs', 'BambookCore.dll')
+            lib_handle = cdll.LoadLibrary(lp)
+        elif hasattr(sys, 'frozen_path'):
+            lp = os.path.join(sys.frozen_path, 'lib', 'libBambookCore.so')
+            lib_handle = cdll.LoadLibrary(lp)
+        else:
+            lib_handle = load_library(_lib_name, cdll)
 except:
     lib_handle = None
+ 
+if iswindows:
+    text_encoding = 'mbcs'
+elif islinux:
+    text_encoding = 'utf-8'
+elif isosx:
+    text_encoding = 'utf-8'
 
 # Constant
 DEFAULT_BAMBOOK_IP = '192.168.250.2'

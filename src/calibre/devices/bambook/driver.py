@@ -22,7 +22,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
     name           = 'Bambook Device Interface'
     description    = _('Communicate with the Sanda Bambook eBook reader.')
     author         = _('Li Fanxi')
-    supported_platforms = ['windows', 'linux']
+    supported_platforms = ['windows', 'linux', 'osx']
     log_packets    = False
 
     booklist_class = BookList
