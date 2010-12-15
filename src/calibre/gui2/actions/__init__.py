@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
+from zipfile import ZipFile
 
 from PyQt4.Qt import QToolButton, QAction, QIcon, QObject
 
@@ -107,6 +108,30 @@ class InterfaceAction(QObject):
             action.setShortcut(shortcut)
         setattr(self, attr, action)
         return action
+
+    def load_resource(self, name):
+        '''
+        If this plugin comes in a ZIP file (user added plugin), this method
+        will allow you to load resources from the ZIP file.
+
+        For example to load an image::
+
+            pixmap = QPixmap()
+            pixmap.loadFromData(self.load_resource('images/icon.png'))
+            icon = QIcon(pixmap)
+
+        :param name: Path to resource in zip file using / as separator
+
+        '''
+        if self.plugin_path is None:
+            raise ValueError('This plugin was not loaded from a ZIP file')
+        with ZipFile(self.plugin_path, 'r') as zf:
+            for candidate in zf.namelist():
+                if candidate == name:
+                    return zf.read(name)
+        raise ValueError('The name %r was not found in the plugin zip'
+                ' file'%name)
+
 
     def genesis(self):
         '''
