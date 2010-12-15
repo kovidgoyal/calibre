@@ -233,7 +233,7 @@ class ResultList(list):
         description = self.reimg.sub('', description.group("desc"))
         description = self.recomment.sub('', description)
         description = self.resanitize.sub('', sanitize_comments_html(description))
-        return _('SUMMARY:\n %s') % re.sub(r'\n\s+</p>','\n</p>', description)
+        return _('SUMMARY:\n%s') % re.sub(r'\n\s+</p>','\n</p>', description)
 
     def get_publisher(self, entry):
         publisher = self.output_entry(entry.xpath('./p')[1])

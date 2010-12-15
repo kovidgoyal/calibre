@@ -146,7 +146,7 @@ class Query(object):
         
         # print etree.tostring(feed, pretty_print=True)
         total = int(total_results(feed)[0].text)
-        nbresultstoget = total if total<self.maxresults else self.maxresults
+        nbresultstoget = total if total < self.maxresults else self.maxresults
         
         start = int(start_index(feed)[0].text)
         entries = entry(feed)
@@ -156,7 +156,7 @@ class Query(object):
             if feed is None:
                 break
             entries.extend(entry(feed))
-        return entries
+        return entries[:nbresultstoget]
 
 class ResultList(list):
 
@@ -164,7 +164,7 @@ class ResultList(list):
         try:
             desc = description(entry)
             if desc:
-                return _('SUMMARY:\n %s') % desc[0].text
+                return _('SUMMARY:\n%s') % desc[0].text
         except:
             report(verbose)
 
@@ -183,7 +183,7 @@ class ResultList(list):
         m = creator(entry)
         return [x.text for x in m] if m else []
 
-    def get_author_sort(self, entry, verbose):
+    def get_author_sort(self, entry):
         for x in creator(entry):
             for key, val in x.attrib.iteritems():
                 if key.endswith('file-as'):
@@ -216,6 +216,7 @@ class ResultList(list):
         try:
             return publisher(entry)[0].text
         except:
+            report(verbose)
             return None
 
     def get_date(self, entry, verbose):
@@ -241,7 +242,7 @@ class ResultList(list):
                 print e
         authors = self.get_authors(x)
         mi = MetaInformation(title, authors)
-        tmpautsort = self.get_author_sort(x, verbose)
+        tmpautsort = self.get_author_sort(x)
         mi.author_sort = tmpautsort if tmpautsort \
                             else authors_to_sort_string(authors)
         mi.comments = self.get_description(x, verbose)

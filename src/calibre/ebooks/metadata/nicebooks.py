@@ -203,7 +203,7 @@ class ResultList(list):
 
     def get_description(self, entry, verbose):
         try:
-            return u'RESUME:\n' + unicode(entry.getparent().xpath("//p[@id='book-description']")[0].text)
+            return _(u'SUMMARY:\n%s') % unicode(entry.getparent().xpath("//p[@id='book-description']")[0].text)
         except:
             report(verbose)
             return None
