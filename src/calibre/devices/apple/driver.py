@@ -2775,10 +2775,19 @@ class ITUNES(DriverBase):
                 if lb_added:
                     lb_added.SortName = "%s %s" % (self.title_sorter(metadata_x.series), series_index)
                     lb_added.EpisodeID = metadata_x.series
+
+                    try:
+                        lb_added.TrackNumber = metadata_x.series_index
+                    except:
+                        if DEBUG:
+                            self.log.warning("  iTunes automation interface reported an error"
+                                             " setting TrackNumber in iTunes")
                     try:
                         lb_added.EpisodeNumber = metadata_x.series_index
                     except:
-                        pass
+                        if DEBUG:
+                            self.log.warning("  iTunes automation interface reported an error"
+                                             " setting EpisodeNumber in iTunes")
 
                     # If no plugboard transform applied to tags, change the Genre/Category to Series
                     if metadata.tags == metadata_x.tags:
@@ -2792,6 +2801,13 @@ class ITUNES(DriverBase):
                 if db_added:
                     db_added.SortName = "%s %s" % (self.title_sorter(metadata_x.series), series_index)
                     db_added.EpisodeID = metadata_x.series
+
+                    try:
+                        db_added.TrackNumber = metadata_x.series_index
+                    except:
+                        if DEBUG:
+                            self.log.warning("  iTunes automation interface reported an error"
+                                             " setting TrackNumber on iDevice")
                     try:
                         db_added.EpisodeNumber = metadata_x.series_index
                     except:
