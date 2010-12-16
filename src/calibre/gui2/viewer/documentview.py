@@ -462,6 +462,7 @@ class DocumentView(QWebView):
     def __init__(self, *args):
         QWebView.__init__(self, *args)
         self.flipper = SlideFlip(self)
+        self.is_auto_repeat_event = False
         self.debug_javascript = False
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
         self.self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
@@ -735,9 +736,9 @@ class DocumentView(QWebView):
         self.scroll_by(y=overlap)
 
     def previous_page(self):
-        if self.flipper.running:
+        if self.flipper.running and not self.is_auto_repeat_event:
             return
-        epf = self.document.enable_page_flip
+        epf = self.document.enable_page_flip and not self.is_auto_repeat_event
 
         delta_y = self.document.window_height - 25
         if self.document.at_top:
@@ -760,9 +761,9 @@ class DocumentView(QWebView):
                 self.manager.scrolled(self.scroll_fraction)
 
     def next_page(self):
-        if self.flipper.running:
+        if self.flipper.running and not self.is_auto_repeat_event:
             return
-        epf = self.document.enable_page_flip
+        epf = self.document.enable_page_flip and not self.is_auto_repeat_event
 
         window_height = self.document.window_height
         document_height = self.document.height
@@ -896,7 +897,11 @@ class DocumentView(QWebView):
         key = self.shortcuts.get_match(event)
         func = self.goto_location_actions.get(key, None)
         if func is not None:
-            func()
+            self.is_auto_repeat_event = event.isAutoRepeat()
+            try:
+                func()
+            finally:
+                self.is_auto_repeat_event = False
         elif key == 'Down':
             self.scroll_by(y=15)
         elif key == 'Up':
