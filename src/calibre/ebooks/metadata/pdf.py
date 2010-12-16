@@ -17,6 +17,7 @@ pdfreflow, pdfreflow_error = plugins['pdfreflow']
 def get_metadata(stream, cover=True):
     if pdfreflow is None:
         raise RuntimeError(pdfreflow_error)
+    stream.seek(0)
     raw = stream.read()
     #isbn = _isbn_pat.search(raw)
     #if isbn is not None:

@@ -18,6 +18,7 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.localization import get_language
 from calibre.gui2.viewer.config_ui import Ui_Dialog
+from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts, ShortcutConfig
 from calibre.constants import iswindows
 from calibre import prints, guess_type
@@ -52,6 +53,11 @@ def config(defaults=None):
             help=_('Default language for hyphenation rules'))
     c.add_opt('remember_current_page', default=True,
             help=_('Save the current position in the document, when quitting'))
+    c.add_opt('wheel_flips_pages', default=False,
+            help=_('Have the mouse wheel turn pages'))
+    c.add_opt('page_flip_duration', default=0.5,
+            help=_('The time, in seconds, for the page flip animation. Default'
+                ' is half a second.'))
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -75,6 +81,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         opts = config().parse()
         self.opt_remember_window_size.setChecked(opts.remember_window_size)
         self.opt_remember_current_page.setChecked(opts.remember_current_page)
+        self.opt_wheel_flips_pages.setChecked(opts.wheel_flips_pages)
+        self.opt_page_flip_duration.setValue(opts.page_flip_duration)
         self.serif_family.setCurrentFont(QFont(opts.serif_family))
         self.sans_family.setCurrentFont(QFont(opts.sans_family))
         self.mono_family.setCurrentFont(QFont(opts.mono_family))
@@ -122,6 +130,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('max_view_width', int(self.max_view_width.value()))
         c.set('hyphenate', self.hyphenate.isChecked())
         c.set('remember_current_page', self.opt_remember_current_page.isChecked())
+        c.set('wheel_flips_pages', self.opt_wheel_flips_pages.isChecked())
+        c.set('page_flip_duration', self.opt_page_flip_duration.value())
         idx = self.hyphenate_default_lang.currentIndex()
         c.set('hyphenate_default_lang',
                 str(self.hyphenate_default_lang.itemData(idx).toString()))
@@ -197,6 +207,9 @@ class Document(QWebPage):
         self.hyphenate = opts.hyphenate
         self.hyphenate_default_lang = opts.hyphenate_default_lang
         self.do_fit_images = opts.fit_images
+        self.page_flip_duration = opts.page_flip_duration
+        self.enable_page_flip = self.page_flip_duration > 0.1
+        self.wheel_flips_pages = opts.wheel_flips_pages
 
     def fit_images(self):
         if self.do_fit_images:
@@ -453,6 +466,8 @@ class DocumentView(QWebView):
 
     def __init__(self, *args):
         QWebView.__init__(self, *args)
+        self.flipper = SlideFlip(self)
+        self.is_auto_repeat_event = False
         self.debug_javascript = False
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
         self.self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
@@ -693,6 +708,13 @@ class DocumentView(QWebView):
                 self.manager.scrolled(self.document.scroll_fraction)
 
         self.turn_off_internal_scrollbars()
+        if self.flipper.isVisible():
+            if self.flipper.running:
+                self.flipper.setVisible(False)
+            else:
+                self.flipper(self.current_page_image(),
+                        duration=self.document.page_flip_duration)
+
 
     def turn_off_internal_scrollbars(self):
         self.document.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
@@ -708,12 +730,17 @@ class DocumentView(QWebView):
                 return False
         return True
 
-    def find_next_blank_line(self, overlap):
+    def current_page_image(self, overlap=-1):
+        if overlap < 0:
+            overlap = self.height()
         img = QImage(self.width(), overlap, QImage.Format_ARGB32)
         painter = QPainter(img)
-        # Render a region of width x overlap pixels atthe bottom of the current viewport
         self.document.mainFrame().render(painter, QRegion(0, 0, self.width(), overlap))
         painter.end()
+        return img
+
+    def find_next_blank_line(self, overlap):
+        img = self.current_page_image(overlap)
         for i in range(overlap-1, -1, -1):
             if self.test_line(img, i):
                 self.scroll_by(y=i, notify=False)
@@ -721,22 +748,42 @@ class DocumentView(QWebView):
         self.scroll_by(y=overlap)
 
     def previous_page(self):
+        if self.flipper.running and not self.is_auto_repeat_event:
+            return
+        if self.loading_url is not None:
+            return
+        epf = self.document.enable_page_flip and not self.is_auto_repeat_event
+
         delta_y = self.document.window_height - 25
         if self.document.at_top:
             if self.manager is not None:
                 self.to_bottom = True
-                self.manager.previous_document()
+                if epf:
+                    self.flipper.initialize(self.current_page_image(), False)
+                    self.manager.previous_document()
         else:
             opos = self.document.ypos
             upper_limit = opos - delta_y
             if upper_limit < 0:
                 upper_limit = 0
             if upper_limit < opos:
+                if epf:
+                    self.flipper.initialize(self.current_page_image(),
+                            forwards=False)
                 self.document.scroll_to(self.document.xpos, upper_limit)
+                if epf:
+                    self.flipper(self.current_page_image(),
+                            duration=self.document.page_flip_duration)
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
 
     def next_page(self):
+        if self.flipper.running and not self.is_auto_repeat_event:
+            return
+        if self.loading_url is not None:
+            return
+        epf = self.document.enable_page_flip and not self.is_auto_repeat_event
+
         window_height = self.document.window_height
         document_height = self.document.height
         ddelta = document_height - window_height
@@ -746,6 +793,8 @@ class DocumentView(QWebView):
         delta_y = window_height - 25
         if self.document.at_bottom or ddelta <= 0:
             if self.manager is not None:
+                if epf:
+                    self.flipper.initialize(self.current_page_image())
                 self.manager.next_document()
         elif ddelta < 25:
             self.scroll_by(y=ddelta)
@@ -758,6 +807,8 @@ class DocumentView(QWebView):
             #print 'After set padding=0:', self.document.ypos
             if opos < oopos:
                 if self.manager is not None:
+                    if epf:
+                        self.flipper.initialize(self.current_page_image())
                     self.manager.next_document()
                 return
             lower_limit = opos + delta_y # Max value of top y co-ord after scrolling
@@ -766,10 +817,14 @@ class DocumentView(QWebView):
                 padding = lower_limit - max_y
                 if padding == window_height:
                     if self.manager is not None:
+                        if epf:
+                            self.flipper.initialize(self.current_page_image())
                         self.manager.next_document()
                     return
                 #print 'Setting padding to:', lower_limit - max_y
                 self.document.set_bottom_padding(lower_limit - max_y)
+            if epf:
+                self.flipper.initialize(self.current_page_image())
             #print 'Document height:', self.document.height
             max_y = self.document.height - window_height
             lower_limit = min(max_y, lower_limit)
@@ -780,6 +835,9 @@ class DocumentView(QWebView):
             #print 'After scroll pos:', self.document.ypos
             self.find_next_blank_line(window_height - actually_scrolled)
             #print 'After blank line pos:', self.document.ypos
+            if epf:
+                self.flipper(self.current_page_image(),
+                        duration=self.document.page_flip_duration)
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
             #print 'After all:', self.document.ypos
@@ -833,6 +891,10 @@ class DocumentView(QWebView):
 
     def wheelEvent(self, event):
         if event.delta() < -14:
+            if self.document.wheel_flips_pages:
+                self.next_page()
+                event.accept()
+                return
             if self.document.at_bottom:
                 self.scroll_by(y=15) # at_bottom can lie on windows
                 if self.manager is not None:
@@ -840,6 +902,11 @@ class DocumentView(QWebView):
                     event.accept()
                     return
         elif event.delta() > 14:
+            if self.document.wheel_flips_pages:
+                self.previous_page()
+                event.accept()
+                return
+
             if self.document.at_top:
                 if self.manager is not None:
                     self.manager.previous_document()
@@ -862,7 +929,11 @@ class DocumentView(QWebView):
         key = self.shortcuts.get_match(event)
         func = self.goto_location_actions.get(key, None)
         if func is not None:
-            func()
+            self.is_auto_repeat_event = event.isAutoRepeat()
+            try:
+                func()
+            finally:
+                self.is_auto_repeat_event = False
         elif key == 'Down':
             self.scroll_by(y=15)
         elif key == 'Up':

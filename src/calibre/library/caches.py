@@ -9,10 +9,8 @@ __docformat__ = 'restructuredtext en'
 import re, itertools, time, traceback
 from itertools import repeat
 from datetime import timedelta
-from threading import Thread, RLock
-from Queue import Queue, Empty
-
-from PyQt4.Qt import QImage, Qt
+from threading import Thread
+from Queue import Empty
 
 from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
@@ -20,7 +18,7 @@ from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre import fit_image, prints
+from calibre import prints
 
 class MetadataBackup(Thread): # {{{
     '''
@@ -116,113 +114,6 @@ class MetadataBackup(Thread): # {{{
             f.write(raw)
 
 
-# }}}
-
-class CoverCache(Thread): # {{{
-
-    def __init__(self, db, cover_func):
-        Thread.__init__(self)
-        self.daemon = True
-        self.db = db
-        self.cover_func = cover_func
-        self.load_queue = Queue()
-        self.keep_running = True
-        self.cache = {}
-        self.lock = RLock()
-        self.allowed_ids = frozenset([])
-        self.null_image = QImage()
-
-    def stop(self):
-        self.keep_running = False
-
-    def _image_for_id(self, id_):
-        img = self.cover_func(id_, index_is_id=True, as_image=True)
-        if img is None:
-            img = QImage()
-        if not img.isNull():
-            scaled, nwidth, nheight = fit_image(img.width(),
-                    img.height(), 600, 800)
-            if scaled:
-                img = img.scaled(nwidth, nheight, Qt.KeepAspectRatio,
-                        Qt.SmoothTransformation)
-
-        return img
-
-    def run(self):
-        while self.keep_running:
-            try:
-                # The GUI puts the same ID into the queue many times. The code
-                # below emptys the queue, building a set of unique values. When
-                # the queue is empty, do the work
-                ids = set()
-                id_ = self.load_queue.get(True, 2)
-                ids.add(id_)
-                try:
-                    while True:
-                        # Give the gui some time to put values into the queue
-                        id_ = self.load_queue.get(True, 0.5)
-                        ids.add(id_)
-                except Empty:
-                    pass
-                except:
-                    # Happens during shutdown
-                    break
-            except Empty:
-                continue
-            except:
-                #Happens during interpreter shutdown
-                break
-            if not self.keep_running:
-                break
-            for id_ in ids:
-                time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
-                if not self.keep_running:
-                    return
-                with self.lock:
-                    if id_ not in self.allowed_ids:
-                        continue
-                try:
-                    img = self._image_for_id(id_)
-                except:
-                    try:
-                        traceback.print_exc()
-                    except:
-                        # happens during shutdown
-                        break
-                    continue
-                try:
-                    with self.lock:
-                        self.cache[id_] = img
-                except:
-                    # Happens during interpreter shutdown
-                    break
-
-    def set_cache(self, ids):
-        with self.lock:
-            self.allowed_ids = frozenset(ids)
-            already_loaded = set([])
-            for id in self.cache.keys():
-                if id in ids:
-                    already_loaded.add(id)
-                else:
-                    self.cache.pop(id)
-        for id_ in set(ids) - already_loaded:
-            self.load_queue.put(id_)
-
-    def cover(self, id_):
-        with self.lock:
-            return self.cache.get(id_, self.null_image)
-
-    def clear_cache(self):
-        with self.lock:
-            self.cache = {}
-
-    def refresh(self, ids):
-        with self.lock:
-            for id_ in ids:
-                cover = self.cache.pop(id_, None)
-                if cover is not None:
-                    self.load_queue.put(id_)
 # }}}
 
 ### Global utility function for get_match here and in gui2/library.py
