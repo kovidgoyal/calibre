@@ -12,6 +12,8 @@ class SlideFlip(QWidget):
 
     # API {{{
 
+    # In addition the isVisible() and setVisible() methods must be present
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
 
@@ -27,9 +29,19 @@ class SlideFlip(QWidget):
 
     @property
     def running(self):
+        'True iff animation is currently running'
         return self.animation.state() == self.animation.Running
 
     def initialize(self, image, forwards=True):
+        '''
+        Initialize the flipper, causes the flipper to show itself displaying
+        the full `image`.
+
+        :param image: The image to display as background
+        :param forwards: If True flipper will flip forwards, otherwise
+                         backwards
+
+        '''
         self.flip_forwards = forwards
         self.before_image = QPixmap.fromImage(image)
         self.after_image = None
@@ -37,6 +49,12 @@ class SlideFlip(QWidget):
         self.setVisible(True)
 
     def __call__(self, image, duration=0.5):
+        '''
+        Start the animation. You must have called :meth:`initialize` first.
+
+        :param duration: Animation duration in seconds.
+
+        '''
         if self.running:
             return
         self.after_image = QPixmap.fromImage(image)
