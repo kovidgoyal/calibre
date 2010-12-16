@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-12-14 07:43+0000\n"
+"PO-Revision-Date: 2010-12-16 02:50+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-15 04:36+0000\n"
+"X-Launchpad-Export-Date: 2010-12-16 04:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -4595,6 +4595,8 @@ msgstr "Fusionner dans le premier livre sélectionné - conserver les autres"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:58
 msgid "Merge only formats into first selected book - delete others"
 msgstr ""
+"Fusionner seulements les formats dans le premier livre sélectionné - "
+"supprimer les autres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:79
 msgid "Cannot download metadata"
@@ -4915,6 +4917,8 @@ msgid ""
 "Not all the selected books were available in the %s format. You should "
 "convert them first."
 msgstr ""
+"Les livres sélectionnés n'étaient pas tous disponibles dans le format %s. "
+"Vous devriez les convertir d'abord."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:115
 msgid "Multiple Books Selected"
@@ -6556,6 +6560,8 @@ msgid ""
 "The enumeration \"{0}\" contains an invalid value that will be set to the "
 "default"
 msgstr ""
+"L'énumération \"{0}\" contient une valeur non valide qui va être fixée à sa "
+"valeur par défaut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:492
 msgid "Do not change"
@@ -6579,6 +6585,8 @@ msgid ""
 "The enumeration \"{0}\" contains invalid values that will not appear in the "
 "list"
 msgstr ""
+"L'énumération \"{0}\" contient des valeurs non valides qui ne vont pas "
+"apparaître dans la liste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:665
 msgid "Remove all tags"
@@ -6887,11 +6895,11 @@ msgstr "Copier &dans le presse-papier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:45
 msgid "Delete marked files (checked subitems)"
-msgstr ""
+msgstr "Supprimer les fichiers marqués (sous-items cochés)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:51
 msgid "Fix marked sections (checked fixable items)"
-msgstr ""
+msgstr "Réparer les sections marquées (items à réparer cochés)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:61
 msgid "Names to ignore:"
@@ -6918,7 +6926,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:111
 msgid "(fixable)"
-msgstr ""
+msgstr "(réparable)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:134
 msgid "Path from library"
@@ -7312,6 +7320,8 @@ msgid ""
 "Immediately make all changes without closing the dialog. This operation "
 "cannot be canceled or undone"
 msgstr ""
+"Effectue immédatement tous les changements sans fermer la boite de dialogue. "
+"Cette opération ne peut pas être annulée ou défaite"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:275
 msgid "Book %d:"
@@ -9859,14 +9869,17 @@ msgstr "Vous devez entrer un modèle pour les colonnes mixtes"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:167
 msgid "You must enter at least one value for enumeration columns"
 msgstr ""
+"Vous devez entrer au moins une valeur pour les colonnes d'énumération"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:172
 msgid "You cannot provide the empty value, as it is included by default"
 msgstr ""
+"Vous ne pouvez pas fournir la valeur vide, en effet celle-ci est inclue par "
+"défaut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:176
 msgid "The value \"{0}\" is in the list more than once"
-msgstr ""
+msgstr "La valeur \"{0}\" figure dans la liste plus d'une fois"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:171
@@ -9936,7 +9949,7 @@ msgstr "Format des &dates"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:161
 msgid "Field template. Uses the same syntax as save templates."
-msgstr ""
+msgstr "Champ modéle. Utilise la même syntaxe que sauver les modéles."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:162
 msgid "Similar to save templates. For example, {title} {isbn}"
@@ -9961,6 +9974,11 @@ msgid ""
 "included, and is the default. For example, the list 'one,two,three' has\n"
 "four values, the first of them being the empty value."
 msgstr ""
+"Une liste séparée par des virgules de valeurs autorisées. La valeur vide est "
+"toujours\n"
+"incluse, et constitue la valeur par défaut. Par exemple, la liste 'un', "
+"'deux', 'trois' a\n"
+"quatre valeurs, la première d'entre elles étant la chaîne vide."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:169
 msgid "The empty string is always the first value"
@@ -10414,8 +10432,8 @@ msgstr "N'importe quel champ personnalisé"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "The lookup name of any custom field. These names begin with \"#\")"
 msgstr ""
-"The nom utilisé lors de la recherche de n'importe quel champ personnalisé. "
-"Ces nom commencent par \"#\")"
+"Le nom utilisé lors de la recherche de n'importe quel champ personnalisé. "
+"Ces noms commencent par \"#\")"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
@@ -12647,6 +12665,10 @@ msgid ""
 "interpreted. This is a JSON  string. For enumeration columns, use --"
 "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 msgstr ""
+"Un dictionnaire d'options pour personnaliser la manière dont les données "
+"dans cette colonne seront interprétées. Ceci est une chaîne JSON. Pour les "
+"colonnes d'énumération, utiliser --display='{\"enum_values\":[\"val1\", "
+"\"val2\"]}'"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:581
 msgid "You must specify label, name and datatype"
@@ -13549,7 +13571,7 @@ msgstr "Comment et quand calibre met à jour la métadonné sur l'appareil."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:77
 msgid "failed to scan program. Invalid input {0}"
-msgstr ""
+msgstr "Echec du scan du programme. Entrée {0} invalide"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:82
 msgid " near "
@@ -13585,15 +13607,16 @@ msgstr "le basculement nécessite un nombre pair d'arguments"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:290
 msgid "format: type {0} requires an integer value, got {1}"
-msgstr ""
+msgstr "format : le type {0} requiert une valeur entière, il a obtenu {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:296
 msgid "format: type {0} requires a decimal (float) value, got {1}"
 msgstr ""
+"format : le type {0} requiert une valeur décimale (float), il a obtenu {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:298
 msgid "format: unknown format type letter {0}"
-msgstr ""
+msgstr "format : type de lettre de formatage inconnu {0} inconnu"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."

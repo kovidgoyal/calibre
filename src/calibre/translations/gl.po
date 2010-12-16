@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-12-14 04:26+0000\n"
-"Last-Translator: Antón Méixome <meixome@gmail.com>\n"
+"PO-Revision-Date: 2010-12-15 12:01+0000\n"
+"Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>\n"
 "Language-Team: dev@gl.openoffice.org\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-15 04:36+0000\n"
+"X-Launchpad-Export-Date: 2010-12-16 04:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: gl\n"
 
@@ -1645,7 +1645,7 @@ msgid ""
 "the style rules from the source file, so it can be used to override those "
 "rules."
 msgstr ""
-"Tanto o camiño dunha folla de estilo CSS como CSS directo. Este CSS será "
+"Tanto a ruta dunha folla de estilo CSS como CSS directo. Este CSS será "
 "anexado ás regras de estilo do ficheiro orixinal, de modo que poida usarse "
 "para sobreescribir aquelas regras."
 
@@ -2336,13 +2336,13 @@ msgstr "Categoría a que pertence o libro. Por exemplo: historia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:600
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "Camiño ao ficheiro de imaxe que se utilizará como miniatura"
+msgstr "Ruta ao ficheiro de imaxe que se utilizará como miniatura"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:603
 msgid ""
 "Path to a txt file containing the comment to be stored in the lrf file."
 msgstr ""
-"Camiño ao ficheiro txt que contén o comentario para gardar no ficheiro LRF."
+"Ruta ao ficheiro txt que contén o comentario para gardar no ficheiro LRF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
 msgid "Extract thumbnail from LRF file"
@@ -3017,7 +3017,7 @@ msgstr "Cubertas: 1-Comprobar/2-Descargar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:371
 msgid "Covers files path"
-msgstr "Camiño aos ficheiros de cubertas"
+msgstr "Ruta aos ficheiros de cubertas"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:396
 msgid "No cover found!"
@@ -3299,7 +3299,7 @@ msgstr ""
 msgid ""
 "Path to output file. By default a file is created in the current directory."
 msgstr ""
-"Camiño ao ficheiro de saída. Por omisión, un ficheiro créase neste cartafol."
+"Ruta ao ficheiro de saída. Por omisión, un ficheiro créase neste cartafol."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
 msgid "Number of pixels to crop from the left most x (default is %s)"
@@ -3519,7 +3519,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
-msgstr "Non foi posíbel atopar «pdftohtml». Comprobe se está noseu «PATH»"
+msgstr "Non se puido atopar pdfahtml. Comprobe se está na súa ruta"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:33
 msgid ""
@@ -4938,7 +4938,7 @@ msgstr "Buscando en todos os cartafoles dependentes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:245
 msgid "Path error"
-msgstr "hai un erro no camiño"
+msgstr "Erro na ruta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:246
 msgid "The specified directory could not be processed."
@@ -6801,10 +6801,10 @@ msgid ""
 msgstr ""
 "<p>Introduza unha lista de ISBN no cadro da esquerda, un por liña. O Calibre "
 "creará automaticamente entradas para os libros baseándose no ISBN e "
-"descargará os seus metadatos e cuberta.</p>\n"
+"descargará os seus metadatos e portadas.</p>\n"
 "<p>Calquera ISBN incorrecto na lista omitirase.</p>\n"
 "<p>Tamén pode especificar un ficheiro para engadir con cada ISBN. Para iso "
-"introduza o camiño completo do ficheiro tras <code>>></code>. Por "
+"introduza a ruta completa do ficheiro tras <code>>></code>. Por "
 "exemplo:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 
@@ -6904,7 +6904,7 @@ msgstr "(arranxábel)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:134
 msgid "Path from library"
-msgstr "Camiño da biblioteca"
+msgstr "Ruta da biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:89
@@ -9295,7 +9295,7 @@ msgstr "Configurar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:30
 msgid "Use the library located at the specified path."
-msgstr "Usar da biblioteca localizada no camiño específico."
+msgstr "Usar a biblioteca localizada na ruta específico."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:32
 msgid "Start minimized to system tray."
@@ -10274,11 +10274,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:156
 msgid "No valid plugin path"
-msgstr "O camiño do engadido non é correcto"
+msgstr "A ruta do engadido non é correcto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:157
 msgid "%s is not a valid plugin path"
-msgstr "%s non é correcto como camiño do engadido"
+msgstr "%s non é correcta como ruta correcta do engadido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:160
 msgid "Choose plugin"
@@ -10399,7 +10399,7 @@ msgstr "Actualizar os &metadatos nas copias gardadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:72
 msgid "Change paths to &lowercase"
-msgstr "Cambiar os camiños por &minúsculas"
+msgstr "Cambiar as rutas por &minúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:76
@@ -12238,8 +12238,8 @@ msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
 msgstr ""
-"Camiño da biblioteca de Calibre. De modo predeterminado emprégase o camiño "
-"almacenado nas preferencias."
+"Ruta da biblioteca de Calibre. De modo predeterminado emprégase a ruta "
+"almacenada nas preferencias."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:122
 msgid ""
@@ -12308,8 +12308,8 @@ msgid ""
 "The prefix for all file paths. Default is the absolute path to the library "
 "folder."
 msgstr ""
-"O prefixo para todos os camiños de ficheiros. Por omisión é o camiño "
-"absoluto do cartafol da biblioteca."
+"O prefixo para todas as rutas de ficheiros. Por omisión é a ruta absoluta do "
+"cartafol da biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:167
 msgid "Invalid fields. Available fields:"
@@ -13396,7 +13396,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:697
 msgid "Path to the database in which books are stored"
-msgstr "Camiño da base de datos na que se almacenan os libros"
+msgstr "Ruta da base de datos na que se almacenan os libros"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:699
 msgid "Pattern to guess metadata from filenames"
@@ -13412,7 +13412,7 @@ msgstr "Tempo de espera predeterminado para operacións de rede (segundos)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:705
 msgid "Path to directory in which your library of books is stored"
-msgstr "Camiño ao cartafol no que está almacenada a biblioteca de libros"
+msgstr "Ruta ao cartafol no que está almacenada a biblioteca de libros"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:707
 msgid "The language in which to display the user interface"
