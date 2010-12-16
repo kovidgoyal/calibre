@@ -122,7 +122,11 @@ def render_html(path_to_html, width=590, height=750):
         renderer = HTMLRenderer(page, loop)
         page.connect(page, SIGNAL('loadFinished(bool)'), renderer,
                 Qt.QueuedConnection)
-        page.mainFrame().load(QUrl.fromLocalFile(path_to_html))
+        # Can't use load as if the extension of path is not xhtml
+        # then it won't render SVG correctly, so set mimetype
+        # explicitly
+        page.mainFrame().setContent(open(path_to_html, 'rb').read(),
+                'application/xhtml+xml', QUrl.fromLocalFile(path_to_html))
         loop.exec_()
     renderer.loop = renderer.page = None
     del page
