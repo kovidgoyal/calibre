@@ -468,6 +468,7 @@ class DocumentView(QWebView):
         QWebView.__init__(self, *args)
         self.flipper = SlideFlip(self)
         self.is_auto_repeat_event = False
+        self.load_flip_direction = None
         self.debug_javascript = False
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
         self.self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
@@ -646,6 +647,8 @@ class DocumentView(QWebView):
         return '<%s %s></%s>'%(match.group(1), match.group(2), match.group(1))
 
     def load_path(self, path, pos=0.0):
+        if self.load_flip_direction is not None:
+            self.flipper.initialize(self.current_page_image())
         self.initial_pos = pos
         mt = getattr(path, 'mime_type', None)
         if mt is None:
@@ -708,6 +711,11 @@ class DocumentView(QWebView):
                 self.manager.scrolled(self.document.scroll_fraction)
 
         self.turn_off_internal_scrollbars()
+        if self.load_flip_direction is not None:
+            self.flipper(self.current_page_image(),
+                    duration=self.document.page_flip_duration,
+                    forwards=self.load_flip_direction == 'next')
+            self.load_flip_direction = None
 
     def turn_off_internal_scrollbars(self):
         self.document.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
@@ -743,13 +751,19 @@ class DocumentView(QWebView):
     def previous_page(self):
         if self.flipper.running and not self.is_auto_repeat_event:
             return
+        if self.loading_url is not None:
+            return
         epf = self.document.enable_page_flip and not self.is_auto_repeat_event
 
         delta_y = self.document.window_height - 25
         if self.document.at_top:
             if self.manager is not None:
                 self.to_bottom = True
-                self.manager.previous_document()
+                self.load_flip_direction = 'previous' if epf else None
+                try:
+                    self.manager.previous_document()
+                finally:
+                    self.load_flip_direction = None
         else:
             opos = self.document.ypos
             upper_limit = opos - delta_y
@@ -768,6 +782,8 @@ class DocumentView(QWebView):
     def next_page(self):
         if self.flipper.running and not self.is_auto_repeat_event:
             return
+        if self.loading_url is not None:
+            return
         epf = self.document.enable_page_flip and not self.is_auto_repeat_event
 
         window_height = self.document.window_height
@@ -779,7 +795,11 @@ class DocumentView(QWebView):
         delta_y = window_height - 25
         if self.document.at_bottom or ddelta <= 0:
             if self.manager is not None:
-                self.manager.next_document()
+                self.load_flip_direction = 'next' if epf else None
+                try:
+                    self.manager.next_document()
+                finally:
+                    self.load_flip_direction = None
         elif ddelta < 25:
             self.scroll_by(y=ddelta)
             return
@@ -791,7 +811,11 @@ class DocumentView(QWebView):
             #print 'After set padding=0:', self.document.ypos
             if opos < oopos:
                 if self.manager is not None:
-                    self.manager.next_document()
+                    self.load_flip_direction = 'next' if epf else None
+                    try:
+                        self.manager.next_document()
+                    finally:
+                        self.load_flip_direction = None
                 return
             lower_limit = opos + delta_y # Max value of top y co-ord after scrolling
             max_y = self.document.height - window_height # The maximum possible top y co-ord
@@ -799,7 +823,11 @@ class DocumentView(QWebView):
                 padding = lower_limit - max_y
                 if padding == window_height:
                     if self.manager is not None:
-                        self.manager.next_document()
+                        self.load_flip_direction = 'next' if epf else None
+                        try:
+                            self.manager.next_document()
+                        finally:
+                            self.load_flip_direction = 'next'
                     return
                 #print 'Setting padding to:', lower_limit - max_y
                 self.document.set_bottom_padding(lower_limit - max_y)

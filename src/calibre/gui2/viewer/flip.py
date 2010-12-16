@@ -10,6 +10,8 @@ from PyQt4.Qt import QWidget, QPainter, QPropertyAnimation, QEasingCurve, \
 
 class SlideFlip(QWidget):
 
+    # API {{{
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
 
@@ -53,6 +55,8 @@ class SlideFlip(QWidget):
 
         self.animation.setDuration(duration * 1000)
         self.animation.start()
+
+    # }}}
 
     def finished(self):
         self.setVisible(False)
