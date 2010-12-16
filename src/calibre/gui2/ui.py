@@ -583,9 +583,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         while self.spare_servers:
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
-        cc = self.library_view.model().cover_cache
-        if cc is not None:
-            cc.stop()
         mb = self.library_view.model().metadata_backup
         if mb is not None:
             mb.stop()
