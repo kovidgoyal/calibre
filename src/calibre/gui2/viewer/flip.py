@@ -29,16 +29,16 @@ class SlideFlip(QWidget):
     def running(self):
         return self.animation.state() == self.animation.Running
 
-    def initialize(self, image):
+    def initialize(self, image, forwards=True):
+        self.flip_forwards = forwards
         self.before_image = QPixmap.fromImage(image)
         self.after_image = None
         self.setGeometry(0, 0, image.width(), image.height())
         self.setVisible(True)
 
-    def __call__(self, image, duration=0.5, forwards=True):
+    def __call__(self, image, duration=0.5):
         if self.running:
             return
-        self.flip_forwards = forwards
         self.after_image = QPixmap.fromImage(image)
 
         if self.flip_forwards:

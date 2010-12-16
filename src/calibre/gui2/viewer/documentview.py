@@ -648,7 +648,9 @@ class DocumentView(QWebView):
 
     def load_path(self, path, pos=0.0):
         if self.load_flip_direction is not None:
-            self.flipper.initialize(self.current_page_image())
+            self.flipper.initialize(self.current_page_image(),
+                    self.load_flip_direction=='next')
+            self.load_flip_direction = None
         self.initial_pos = pos
         mt = getattr(path, 'mime_type', None)
         if mt is None:
@@ -711,11 +713,13 @@ class DocumentView(QWebView):
                 self.manager.scrolled(self.document.scroll_fraction)
 
         self.turn_off_internal_scrollbars()
-        if self.load_flip_direction is not None:
-            self.flipper(self.current_page_image(),
-                    duration=self.document.page_flip_duration,
-                    forwards=self.load_flip_direction == 'next')
-            self.load_flip_direction = None
+        if self.flipper.isVisible():
+            if self.flipper.running:
+                self.flipper.setVisible(False)
+            else:
+                self.flipper(self.current_page_image(),
+                        duration=self.document.page_flip_duration)
+
 
     def turn_off_internal_scrollbars(self):
         self.document.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
@@ -771,10 +775,11 @@ class DocumentView(QWebView):
                 upper_limit = 0
             if upper_limit < opos:
                 if epf:
-                    self.flipper.initialize(self.current_page_image())
+                    self.flipper.initialize(self.current_page_image(),
+                            forwards=False)
                 self.document.scroll_to(self.document.xpos, upper_limit)
                 if epf:
-                    self.flipper(self.current_page_image(), forwards=False,
+                    self.flipper(self.current_page_image(),
                             duration=self.document.page_flip_duration)
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
@@ -831,10 +836,8 @@ class DocumentView(QWebView):
                     return
                 #print 'Setting padding to:', lower_limit - max_y
                 self.document.set_bottom_padding(lower_limit - max_y)
-            before_img = None
             if epf:
-                before_img = self.current_page_image()
-                self.flipper.initialize(before_img)
+                self.flipper.initialize(self.current_page_image())
             #print 'Document height:', self.document.height
             max_y = self.document.height - window_height
             lower_limit = min(max_y, lower_limit)
