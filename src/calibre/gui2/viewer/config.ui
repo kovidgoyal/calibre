@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>479</width>
-    <height>606</height>
+    <height>591</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Configure Ebook viewer</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/config.png</normaloff>:/images/config.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
@@ -164,14 +164,14 @@
               </item>
              </widget>
             </item>
-            <item row="7" column="0" colspan="2">
+            <item row="8" column="0" colspan="2">
              <widget class="QCheckBox" name="opt_remember_window_size">
               <property name="text">
                <string>Remember last used &amp;window size</string>
               </property>
              </widget>
             </item>
-            <item row="8" column="0" colspan="2">
+            <item row="9" column="0" colspan="2">
              <widget class="QCheckBox" name="opt_remember_current_page">
               <property name="text">
                <string>Remember the &amp;current page when quitting</string>
@@ -201,21 +201,21 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="0" colspan="2">
+            <item row="5" column="0" colspan="2">
              <widget class="QCheckBox" name="hyphenate">
               <property name="text">
                <string>H&amp;yphenate (break line in the middle of large words)</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="1">
+            <item row="6" column="1">
              <widget class="QComboBox" name="hyphenate_default_lang">
               <property name="toolTip">
                <string>The default language to use for hyphenation rules. If the book does not specify a language, this will be used.</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="0">
+            <item row="6" column="0">
              <widget class="QLabel" name="label_8">
               <property name="text">
                <string>Default &amp;language for hyphenation:</string>
@@ -225,29 +225,65 @@
               </property>
              </widget>
             </item>
-            <item row="6" column="0" colspan="2">
+            <item row="7" column="0" colspan="2">
              <widget class="QCheckBox" name="opt_fit_images">
               <property name="text">
                <string>&amp;Resize images larger than the viewer window (needs restart)</string>
               </property>
              </widget>
             </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Page flip &amp;duration:</string>
+              </property>
+              <property name="buddy">
+               <cstring>opt_page_flip_duration</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QDoubleSpinBox" name="opt_page_flip_duration">
+              <property name="specialValueText">
+               <string>disabled</string>
+              </property>
+              <property name="suffix">
+               <string> secs</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>3.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
            </layout>
-          </item>
-          <item row="3" column="0">
-           <widget class="QGroupBox" name="groupBox_2">
-            <property name="title">
-             <string>&amp;User stylesheet</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_5">
-             <item row="1" column="0">
-              <widget class="QPlainTextEdit" name="css"/>
-             </item>
-            </layout>
-           </widget>
           </item>
          </layout>
         </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -268,6 +304,29 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>User &amp;Stylesheet</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>&lt;p&gt;A CSS stylesheet that can be used to control the look and feel of books. For examples, click &lt;a href=&quot;http://www.mobileread.com/forums/showthread.php?t=51500&quot;&gt;here&lt;/a&gt;.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+         <property name="openExternalLinks">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="css"/>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -281,7 +340,6 @@
   <tabstop>standard_font</tabstop>
   <tabstop>max_view_width</tabstop>
   <tabstop>opt_remember_window_size</tabstop>
-  <tabstop>css</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
