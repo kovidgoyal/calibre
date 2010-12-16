@@ -593,7 +593,6 @@ class DeviceMenu(QMenu): # {{{
 
     # }}}
 
-
 class DeviceMixin(object): # {{{
 
     def __init__(self):
