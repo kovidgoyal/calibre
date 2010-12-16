@@ -53,6 +53,8 @@ def config(defaults=None):
             help=_('Default language for hyphenation rules'))
     c.add_opt('remember_current_page', default=True,
             help=_('Save the current position in the document, when quitting'))
+    c.add_opt('wheel_flips_pages', default=False,
+            help=_('Have the mouse wheel turn pages'))
     c.add_opt('page_flip_duration', default=0.5,
             help=_('The time, in seconds, for the page flip animation. Default'
                 ' is half a second.'))
@@ -79,6 +81,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         opts = config().parse()
         self.opt_remember_window_size.setChecked(opts.remember_window_size)
         self.opt_remember_current_page.setChecked(opts.remember_current_page)
+        self.opt_wheel_flips_pages.setChecked(opts.wheel_flips_pages)
         self.opt_page_flip_duration.setValue(opts.page_flip_duration)
         self.serif_family.setCurrentFont(QFont(opts.serif_family))
         self.sans_family.setCurrentFont(QFont(opts.sans_family))
@@ -127,6 +130,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('max_view_width', int(self.max_view_width.value()))
         c.set('hyphenate', self.hyphenate.isChecked())
         c.set('remember_current_page', self.opt_remember_current_page.isChecked())
+        c.set('wheel_flips_pages', self.opt_wheel_flips_pages.isChecked())
         c.set('page_flip_duration', self.opt_page_flip_duration.value())
         idx = self.hyphenate_default_lang.currentIndex()
         c.set('hyphenate_default_lang',
@@ -205,6 +209,7 @@ class Document(QWebPage):
         self.do_fit_images = opts.fit_images
         self.page_flip_duration = opts.page_flip_duration
         self.enable_page_flip = self.page_flip_duration > 0.1
+        self.wheel_flips_pages = opts.wheel_flips_pages
 
     def fit_images(self):
         if self.do_fit_images:
@@ -868,6 +873,10 @@ class DocumentView(QWebView):
 
     def wheelEvent(self, event):
         if event.delta() < -14:
+            if self.document.wheel_flips_pages:
+                self.next_page()
+                event.accept()
+                return
             if self.document.at_bottom:
                 self.scroll_by(y=15) # at_bottom can lie on windows
                 if self.manager is not None:
@@ -875,6 +884,11 @@ class DocumentView(QWebView):
                     event.accept()
                     return
         elif event.delta() > 14:
+            if self.document.wheel_flips_pages:
+                self.previous_page()
+                event.accept()
+                return
+
             if self.document.at_top:
                 if self.manager is not None:
                     self.manager.previous_document()
