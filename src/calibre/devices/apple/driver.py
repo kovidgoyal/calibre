@@ -688,7 +688,7 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info("ITUNES:get_device_information()")
 
-        return ('iDevice','hw v1.0','sw v1.0', 'mime type normally goes here')
+        return (self.sources['iPod'],'hw v1.0','sw v1.0', 'mime type normally goes here')
 
     def get_file(self, path, outfile, end_session=True):
         '''
