@@ -205,7 +205,10 @@ class Stylizer(object):
                     NameError, # thrown on OS X instead of SelectorSyntaxError
                     SelectorSyntaxError):
                 continue
-            matches = selector(tree)
+            try:
+                matches = selector(tree)
+            except etree.XPathEvalError:
+                continue
 
             if not matches:
                 ntext = capital_sel_pat.sub(lambda m: m.group().lower(), text)
