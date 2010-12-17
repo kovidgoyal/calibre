@@ -18,6 +18,9 @@ class PreProcessor(object):
         self.found_indents = 0
         self.extra_opts = extra_opts
 
+    def is_pdftohtml(self, src):
+        return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
+
     def chapter_head(self, match):
         chap = match.group('chap')
         title = match.group('title')
@@ -130,6 +133,15 @@ class PreProcessor(object):
         chapter_line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
         title_line_close = "(</(?P=inner6)>)?\s*(</(?P=inner5)>)?\s*(</(?P=inner4)>)?\s*</(?P=outer2)>"
 
+        is_pdftohtml = self.is_pdftohtml(html)
+        if is_pdftohtml:
+            print "this is a pdf"
+        chapter_line_open = "<(?P<outer>p)[^>]*>(\s*<[ibu][^>]*>)?\s*"
+        chapter_line_close = "\s*(</[ibu][^>]*>\s*)?</(?P=outer)>"
+        title_line_open = "<(?P<outer2>p)[^>]*>\s*"
+        title_line_close = "\s*</(?P=outer2)>"
+
+
         if blanks_between_paragraphs:
             blank_lines = "(\s*<p[^>]*>\s*</p>){0,2}\s*"
         else:
@@ -139,11 +151,13 @@ class PreProcessor(object):
         n_lookahead_open = "\s+(?!"
         n_lookahead_close = ")"
 
-        default_title = r"\s{0,3}([\w\'\"-]+\s{0,3}){1,5}?(?=<)"
+        default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\'\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
         
         chapter_types = [
             [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}", True, "Searching for common Chapter Headings"],
-            [r"[^'\"]?(\d+\.?|CHAPTER)\s*([\dA-Z\-\'\"\?\.!#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
+            [r"[^'\"]?(\d+(\.|:)|CHAPTER)\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
+            [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, "Searching for letter spaced headings"],  # Spaced Lettering
+            [r"[^'\"]?(\d+|CHAPTER)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, "Searching for simple numeric chapter headings"],  # Numeric Chapters, no dot or colon
             [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\w#\-*\s]+<)([\w#-*]+\s*){1,5}\s*)(</span>)?\s*</b>", True, "Searching for emphasized lines"], # Emphasized lines
             [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles"], # Numeric Titles
             [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters" ] # Uppercase Chapters
