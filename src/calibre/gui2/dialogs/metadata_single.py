@@ -616,8 +616,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         w = self.central_widget.widget(1)
         layout = w.layout()
         self.custom_column_widgets, self.__cc_spacers = \
-                    populate_metadata_page(layout, self.db, self.id,
-                                           parent=w, bulk=False, two_column=True)
+            populate_metadata_page(layout, self.db, self.id, parent=w, bulk=False,
+                two_column=tweaks['metadata_single_use_2_cols_for_custom_fields'])
         self.__custom_col_layouts = [layout]
         ans = self.custom_column_widgets
         for i in range(len(ans)-1):

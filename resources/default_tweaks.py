@@ -235,3 +235,9 @@ doubleclick_on_library_view = 'open_viewer'
 # Example: locale_for_sorting = 'fr' -- sort using French rules.
 # Example: locale_for_sorting = 'nb' -- sort using Norwegian rules.
 locale_for_sorting =  ''
+
+
+# Set whether to use one or two columns for custom metadata when editing
+# metadata  one book at a time. If True, then the fields are laid out using two
+# columns. If False, one column is used.
+metadata_single_use_2_cols_for_custom_fields = True
