@@ -137,13 +137,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # if we are to copy the prefs and structure from some other DB, then
         # we need to do it before we call initialize_dynamic
         if apply_default_prefs and default_prefs is not None:
-            prefs = DBPrefs(self)
+            dbprefs = DBPrefs(self)
             for key in default_prefs:
                 # be sure that prefs not to be copied are listed below
                 if key in ['news_to_be_synced']:
                     continue
                 try:
-                    prefs[key] = default_prefs[key]
+                    dbprefs[key] = default_prefs[key]
                 except:
                     pass # ignore options that don't exist anymore
             fmvals = [f for f in default_prefs['field_metadata'].values() if f['is_custom']]
@@ -1400,7 +1400,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 return float(tweaks['series_index_auto_increment'])
             return 1.0
         series_indices = [x[0] for x in series_indices]
-        print series_indices
         if tweaks['series_index_auto_increment'] == 'next':
             return series_indices[-1] + 1
         if tweaks['series_index_auto_increment'] == 'first_free':
@@ -1613,13 +1612,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('metadata', [id])
 
-    def set_title_sort(self, id, title_sort, notify=True, commit=True):
-        if not title_sort:
+    def set_title_sort(self, id, title_sort_, notify=True, commit=True):
+        if not title_sort_:
             return False
-        if isbytestring(title_sort):
-            title_sort = title_sort.decode(preferred_encoding, 'replace')
-        self.conn.execute('UPDATE books SET sort=? WHERE id=?', (title_sort, id))
-        self.data.set(id, self.FIELD_MAP['sort'], title_sort, row_is_id=True)
+        if isbytestring(title_sort_):
+            title_sort_ = title_sort_.decode(preferred_encoding, 'replace')
+        self.conn.execute('UPDATE books SET sort=? WHERE id=?', (title_sort_, id))
+        self.data.set(id, self.FIELD_MAP['sort'], title_sort_, row_is_id=True)
         self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()

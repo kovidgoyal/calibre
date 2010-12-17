@@ -691,8 +691,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         title = self.title.text()
         self.title.setText(self.authors.text())
         self.authors.setText(title)
-        self.author_sort.setText('')
-
+        self.deduce_author_sort()
+        self.deduce_title_sort()
 
     def initialize_combos(self):
         self.initalize_authors()

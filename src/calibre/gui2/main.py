@@ -266,6 +266,7 @@ def run_in_debug_mode(logpath=None):
         exe = base + '-debug' + ext
     print 'Starting debug executable:', exe
     subprocess.Popen([exe, '--gui-debug', logpath], stdout=fd, stderr=fd)
+    time.sleep(1) # Give subprocess a change to launch, before fd is closed
 
 def run_gui(opts, args, actions, listener, app, gui_debug=None):
     initialize_file_icon_provider()

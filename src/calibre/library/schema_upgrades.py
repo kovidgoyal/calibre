@@ -437,5 +437,5 @@ class SchemaUpgrade(object):
             BEGIN
             UPDATE books SET sort=title_sort(NEW.title)
                          WHERE id=NEW.id AND OLD.title <> NEW.title;
-        END;
+            END;
         ''')
