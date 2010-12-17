@@ -100,7 +100,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="2" rowspan="2">
+                  <item row="2" column="2">
                    <widget class="QToolButton" name="swap_button">
                     <property name="toolTip">
                      <string>Swap the author and title</string>
@@ -121,6 +121,41 @@
                    </widget>
                   </item>
                   <item row="1" column="0">
+                   <widget class="QLabel" name="label">
+                    <property name="text">
+                     <string>Title sort: </string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>title_sort</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="EnLineEdit" name="title_sort">
+                    <property name="toolTip">
+                       <string>Specify how this book should be sorted when by title. For example, The Exorcist might be sorted as Exorcist, The.</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QToolButton" name="auto_title_sort">
+                    <property name="toolTip">
+                     <string>Automatically create the title sort entry based on the current title entry.
+Using this button to create title sort will change title sort from red to green.</string>
+                    </property>
+                    <property name="text">
+                     <string>...</string>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="../../../../resources/images.qrc">
+                      <normaloff>:/images/auto_author_sort.png</normaloff>:/images/auto_author_sort.png</iconset>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
                    <widget class="QLabel" name="label_2">
                     <property name="text">
                      <string>&amp;Author(s): </string>
@@ -133,7 +168,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
+                  <item row="3" column="0">
                    <widget class="QLabel" name="label_8">
                     <property name="text">
                      <string>Author S&amp;ort: </string>
@@ -146,7 +181,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="1" colspan="2">
+                  <item row="3" column="1" colspan="2">
                    <layout class="QHBoxLayout" name="horizontalLayout">
                     <item>
                      <widget class="EnLineEdit" name="author_sort">
@@ -173,7 +208,7 @@ Using this button to create author sort will change author sort from red to gree
                     </item>
                    </layout>
                   </item>
-                  <item row="3" column="0">
+                  <item row="4" column="0">
                    <widget class="QLabel" name="label_6">
                     <property name="text">
                      <string>&amp;Rating:</string>
@@ -186,7 +221,7 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="1" colspan="2">
+                  <item row="4" column="1" colspan="2">
                    <widget class="QSpinBox" name="rating">
                     <property name="toolTip">
                      <string>Rating of this book. 0-5 stars</string>
@@ -205,7 +240,7 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="0">
+                  <item row="5" column="0">
                    <widget class="QLabel" name="label_3">
                     <property name="text">
                      <string>&amp;Publisher: </string>
@@ -218,7 +253,7 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="0">
+                  <item row="6" column="0">
                    <widget class="QLabel" name="label_4">
                     <property name="text">
                      <string>Ta&amp;gs: </string>
@@ -231,7 +266,7 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="1" colspan="2">
+                  <item row="6" column="1" colspan="2">
                    <layout class="QHBoxLayout" name="_2">
                     <item>
                      <widget class="TagsLineEdit" name="tags">
@@ -256,7 +291,7 @@ Using this button to create author sort will change author sort from red to gree
                     </item>
                    </layout>
                   </item>
-                  <item row="6" column="0">
+                  <item row="7" column="0">
                    <widget class="QLabel" name="label_7">
                     <property name="text">
                      <string>&amp;Series:</string>
@@ -272,7 +307,7 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="1" colspan="2">
+                  <item row="7" column="1" colspan="2">
                    <layout class="QHBoxLayout" name="_3">
                     <property name="spacing">
                      <number>5</number>
@@ -309,7 +344,7 @@ Using this button to create author sort will change author sort from red to gree
                     </item>
                    </layout>
                   </item>
-                  <item row="8" column="0">
+                  <item row="9" column="0">
                    <widget class="QLabel" name="label_9">
                     <property name="text">
                      <string>IS&amp;BN:</string>
@@ -322,10 +357,10 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="8" column="1" colspan="2">
+                  <item row="9" column="1" colspan="2">
                    <widget class="QLineEdit" name="isbn"/>
                   </item>
-                  <item row="10" column="0">
+                  <item row="11" column="0">
                    <widget class="QLabel" name="label_10">
                     <property name="text">
                      <string>Publishe&amp;d:</string>
@@ -338,14 +373,14 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="1" colspan="2">
+                  <item row="5" column="1" colspan="2">
                    <widget class="EnComboBox" name="publisher">
                     <property name="editable">
                      <bool>true</bool>
                     </property>
                    </widget>
                   </item>
-                  <item row="7" column="1" colspan="2">
+                  <item row="8" column="1" colspan="2">
                    <widget class="QDoubleSpinBox" name="series_index">
                     <property name="enabled">
                      <bool>false</bool>
@@ -358,7 +393,7 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="10" column="1" colspan="2">
+                  <item row="11" column="1" colspan="2">
                    <widget class="QDateEdit" name="pubdate">
                     <property name="displayFormat">
                      <string>MMM yyyy</string>
@@ -368,14 +403,14 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
+                  <item row="2" column="1">
                    <widget class="EnComboBox" name="authors">
                     <property name="editable">
                      <bool>true</bool>
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="1" colspan="2">
+                  <item row="10" column="1" colspan="2">
                    <widget class="QDateEdit" name="date">
                     <property name="displayFormat">
                      <string>dd MMM yyyy</string>
@@ -385,7 +420,7 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="0">
+                  <item row="10" column="0">
                    <widget class="QLabel" name="label_11">
                     <property name="text">
                      <string>&amp;Date:</string>
@@ -744,8 +779,11 @@ Using this button to create author sort will change author sort from red to gree
  </customwidgets>
  <tabstops>
   <tabstop>title</tabstop>
+  <tabstop>title_sort</tabstop>
+  <tabstop>auto_title_sort</tabstop>
   <tabstop>swap_button</tabstop>
   <tabstop>authors</tabstop>
+  <tabstop>swap_button</tabstop>
   <tabstop>author_sort</tabstop>
   <tabstop>auto_author_sort</tabstop>
   <tabstop>rating</tabstop>

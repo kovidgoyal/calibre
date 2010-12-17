@@ -1565,6 +1565,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('metadata', [id])
 
+    def set_title_sort(self, id, title_sort, notify=True, commit=True):
+        if not title_sort:
+            return False
+        if isbytestring(title_sort):
+            title_sort = title_sort.decode(preferred_encoding, 'replace')
+        self.conn.execute('UPDATE books SET sort=? WHERE id=?', (title_sort, id))
+        self.data.set(id, self.FIELD_MAP['sort'], title_sort, row_is_id=True)
+        self.dirtied([id], commit=False)
+        if commit:
+            self.conn.commit()
+        if notify:
+            self.notify('metadata', [id])
+        return True
+
     def _set_title(self, id, title):
         if not title:
             return False
