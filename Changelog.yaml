@@ -66,6 +66,8 @@
     - title: "MOBI Output: Add option to ignore margins in input document"
       tickets: [7877]
 
+    - title: "Kobo driver: Add support for 1.8.x firmware"
+
   bug fixes:
     - title: "Fix various memory leaks introduced in the last couple of releases"
 
