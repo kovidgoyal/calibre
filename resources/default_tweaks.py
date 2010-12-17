@@ -12,11 +12,22 @@ defaults.
 
 
 # The algorithm used to assign a new book in an existing series a series number.
+# New series numbers assigned using this tweak are always integer values, except
+# if a constant non-integer is specified.
 # Possible values are:
-# next - Next available number
+# next - First available integer larger than the largest existing number
+# first_free - First available integer larger than 0
+# next_free - First available integer larger than the smallest existing number
+# last_free - First available integer smaller than the largest existing number
+#             Return largest existing + 1 if no free number is found
 # const - Assign the number 1 always
+# a number - Assign that number always. The number is not in quotes. Note that
+#            0.0 can be used here.
+# Examples:
+# series_index_auto_increment = 'next'
+# series_index_auto_increment = 'next_free'
+# series_index_auto_increment = 16.5
 series_index_auto_increment = 'next'
-
 
 
 # The algorithm used to copy author to author_sort
@@ -235,3 +246,9 @@ doubleclick_on_library_view = 'open_viewer'
 # Example: locale_for_sorting = 'fr' -- sort using French rules.
 # Example: locale_for_sorting = 'nb' -- sort using Norwegian rules.
 locale_for_sorting =  ''
+
+
+# Set whether to use one or two columns for custom metadata when editing
+# metadata  one book at a time. If True, then the fields are laid out using two
+# columns. If False, one column is used.
+metadata_single_use_2_cols_for_custom_fields = True
