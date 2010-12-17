@@ -378,13 +378,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-    def library_moved(self, newloc):
+    def library_moved(self, newloc, copy_structure=False):
         if newloc is None: return
+        default_prefs = None
         try:
             olddb = self.library_view.model().db
+            if copy_structure:
+                default_prefs = olddb.prefs
         except:
             olddb = None
-        db = LibraryDatabase2(newloc)
+        db = LibraryDatabase2(newloc, default_prefs=default_prefs)
         if self.content_server is not None:
             self.content_server.set_database(db)
         self.library_path = newloc
