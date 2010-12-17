@@ -1,4 +1,4 @@
-# English (Australia) translation for calibre
+# Bosnian translation for calibre
 # Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the calibre package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-10 22:25+0000\n"
-"PO-Revision-Date: 2010-05-21 07:30+0000\n"
+"PO-Revision-Date: 2010-12-16 22:50+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
-"Language-Team: English (Australia) <en_AU@li.org>\n"
+"Language-Team: Bosnian <bs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-11 04:44+0000\n"
+"X-Launchpad-Export-Date: 2010-12-17 04:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -156,15 +156,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:55
 msgid "Unknown"
-msgstr ""
+msgstr "Nepoznato"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
-msgstr ""
+msgstr "Baza"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:172
 msgid "File type"
-msgstr ""
+msgstr "Vrsta datoteke"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:208
 msgid "Metadata reader"
@@ -190,7 +190,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:283
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr ""
+msgstr "Postavke"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:15
 msgid ""
@@ -261,14 +261,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:717
 msgid "Look and Feel"
-msgstr ""
+msgstr "Izgled i osjećaj"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:719
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:731
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:742
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:753
 msgid "Interface"
-msgstr ""
+msgstr "Interfejs"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:723
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
@@ -276,7 +276,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 msgid "Behavior"
-msgstr ""
+msgstr "Ponašanje"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Change the way calibre behaves"
@@ -293,7 +293,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
 msgid "Customize the toolbar"
-msgstr ""
+msgstr "Prilagodi traku s alatima"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:757
 msgid ""
@@ -309,7 +309,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:776
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:787
 msgid "Conversion"
-msgstr ""
+msgstr "Pretvaranje"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:769
 msgid "Set conversion options specific to each input format"
@@ -317,7 +317,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:774
 msgid "Common Options"
-msgstr ""
+msgstr "Uobičajene opcije"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Set conversion options common to all formats"
@@ -325,7 +325,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Output Options"
-msgstr ""
+msgstr "Izlazne opcije"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Set conversion options specific to each output format"
@@ -333,14 +333,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid "Adding books"
-msgstr ""
+msgstr "Dodajem knjige"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:798
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:834
 msgid "Import/Export"
-msgstr ""
+msgstr "Uvoz/Izvoz"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 msgid "Control how calibre reads metadata from files when adding books"
@@ -348,7 +348,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:808
 msgid "Saving books to disk"
-msgstr ""
+msgstr "Spremam knjige na disk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:814
 msgid ""
@@ -379,7 +379,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:845
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid "Sharing"
-msgstr ""
+msgstr "Razmjena"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid ""
@@ -399,13 +399,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Plugins"
-msgstr ""
+msgstr "Plugini"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:870
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:882
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:893
 msgid "Advanced"
-msgstr ""
+msgstr "Napredno"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Add/remove/customize various bits of calibre functionality"
@@ -421,11 +421,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Ostalo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:897
 msgid "Miscellaneous advanced configuration"
-msgstr ""
+msgstr "Ostala napredna podešavanja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -451,7 +451,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
-msgstr ""
+msgstr "Ulazni profil"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:53
 msgid ""
@@ -531,7 +531,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:232
 msgid "Output profile"
-msgstr ""
+msgstr "Izlazni profil"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:236
 msgid ""
@@ -657,7 +657,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:90
 msgid "Apple device"
-msgstr ""
+msgstr "Apple uređah"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:92
 msgid "Communicate with iTunes/iBooks."
@@ -691,7 +691,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:992
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3002
 msgid "finished"
-msgstr ""
+msgstr "završeno"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:560
 msgid "Use Series as Category in iTunes/iBooks"
@@ -726,7 +726,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2026
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:150
 msgid "News"
-msgstr ""
+msgstr "Vijesti"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2554
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:21
@@ -734,7 +734,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1989
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2007
 msgid "Catalog"
-msgstr ""
+msgstr "Katalog"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2860
 msgid "Communicate with iTunes."
@@ -841,7 +841,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:256
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:274
 msgid "Removing books from device..."
-msgstr ""
+msgstr "Uklanjam knjige sa uređaja..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:119
 msgid "Communicate with the Azbooka"
@@ -12442,6 +12442,3 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
 msgstr ""
-
-#~ msgid " "
-#~ msgstr " "

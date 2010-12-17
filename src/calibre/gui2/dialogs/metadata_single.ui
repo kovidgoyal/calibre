@@ -100,27 +100,27 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="2" rowspan="2">
-                   <widget class="QToolButton" name="swap_button">
-                    <property name="toolTip">
-                     <string>Swap the author and title</string>
-                    </property>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label">
                     <property name="text">
-                     <string>...</string>
+                     <string>Title &amp;sort: </string>
                     </property>
-                    <property name="icon">
-                     <iconset resource="../../../../resources/images.qrc">
-                      <normaloff>:/images/swap.png</normaloff>:/images/swap.png</iconset>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
-                    <property name="iconSize">
-                     <size>
-                      <width>16</width>
-                      <height>16</height>
-                     </size>
+                    <property name="buddy">
+                     <cstring>title_sort</cstring>
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="0">
+                  <item row="1" column="1">
+                   <widget class="EnLineEdit" name="title_sort">
+                    <property name="toolTip">
+                     <string>Specify how this book should be sorted when by title. For example, The Exorcist might be sorted as Exorcist, The.</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
                    <widget class="QLabel" name="label_2">
                     <property name="text">
                      <string>&amp;Author(s): </string>
@@ -133,7 +133,14 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
+                  <item row="2" column="1">
+                   <widget class="EnComboBox" name="authors">
+                    <property name="editable">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
                    <widget class="QLabel" name="label_8">
                     <property name="text">
                      <string>Author S&amp;ort: </string>
@@ -146,34 +153,15 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="1" colspan="2">
-                   <layout class="QHBoxLayout" name="horizontalLayout">
-                    <item>
-                     <widget class="EnLineEdit" name="author_sort">
-                      <property name="toolTip">
-                       <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.
+                  <item row="3" column="1">
+                   <widget class="EnLineEdit" name="author_sort">
+                    <property name="toolTip">
+                     <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.
 If the box is colored green, then text matches the individual author's sort strings. If it is colored red, then the authors and this text do not match.</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QToolButton" name="auto_author_sort">
-                      <property name="toolTip">
-                       <string>Automatically create the author sort entry based on the current author entry.
-Using this button to create author sort will change author sort from red to green.</string>
-                      </property>
-                      <property name="text">
-                       <string>...</string>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="../../../../resources/images.qrc">
-                        <normaloff>:/images/auto_author_sort.png</normaloff>:/images/auto_author_sort.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
+                    </property>
+                   </widget>
                   </item>
-                  <item row="3" column="0">
+                  <item row="4" column="0">
                    <widget class="QLabel" name="label_6">
                     <property name="text">
                      <string>&amp;Rating:</string>
@@ -186,7 +174,7 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="1" colspan="2">
+                  <item row="4" column="1" colspan="2">
                    <widget class="QSpinBox" name="rating">
                     <property name="toolTip">
                      <string>Rating of this book. 0-5 stars</string>
@@ -205,7 +193,7 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="0">
+                  <item row="5" column="0">
                    <widget class="QLabel" name="label_3">
                     <property name="text">
                      <string>&amp;Publisher: </string>
@@ -218,7 +206,14 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="0">
+                  <item row="5" column="1" colspan="2">
+                   <widget class="EnComboBox" name="publisher">
+                    <property name="editable">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="0">
                    <widget class="QLabel" name="label_4">
                     <property name="text">
                      <string>Ta&amp;gs: </string>
@@ -231,32 +226,7 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="1" colspan="2">
-                   <layout class="QHBoxLayout" name="_2">
-                    <item>
-                     <widget class="TagsLineEdit" name="tags">
-                      <property name="toolTip">
-                       <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QToolButton" name="tag_editor_button">
-                      <property name="toolTip">
-                       <string>Open Tag Editor</string>
-                      </property>
-                      <property name="text">
-                       <string>Open Tag Editor</string>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="../../../../resources/images.qrc">
-                        <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item row="6" column="0">
+                  <item row="7" column="0">
                    <widget class="QLabel" name="label_7">
                     <property name="text">
                      <string>&amp;Series:</string>
@@ -272,7 +242,7 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="1" colspan="2">
+                  <item row="7" column="1">
                    <layout class="QHBoxLayout" name="_3">
                     <property name="spacing">
                      <number>5</number>
@@ -293,59 +263,9 @@ Using this button to create author sort will change author sort from red to gree
                       </property>
                      </widget>
                     </item>
-                    <item>
-                     <widget class="QToolButton" name="remove_series_button">
-                      <property name="toolTip">
-                       <string>Remove unused series (Series that have no books)</string>
-                      </property>
-                      <property name="text">
-                       <string>...</string>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="../../../../resources/images.qrc">
-                        <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
                    </layout>
                   </item>
-                  <item row="8" column="0">
-                   <widget class="QLabel" name="label_9">
-                    <property name="text">
-                     <string>IS&amp;BN:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>isbn</cstring>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="8" column="1" colspan="2">
-                   <widget class="QLineEdit" name="isbn"/>
-                  </item>
-                  <item row="10" column="0">
-                   <widget class="QLabel" name="label_10">
-                    <property name="text">
-                     <string>Publishe&amp;d:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>pubdate</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="1" colspan="2">
-                   <widget class="EnComboBox" name="publisher">
-                    <property name="editable">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="1" colspan="2">
                    <widget class="QDoubleSpinBox" name="series_index">
                     <property name="enabled">
                      <bool>false</bool>
@@ -358,34 +278,23 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
-                  <item row="10" column="1" colspan="2">
-                   <widget class="QDateEdit" name="pubdate">
-                    <property name="displayFormat">
-                     <string>MMM yyyy</string>
+                  <item row="9" column="0">
+                   <widget class="QLabel" name="label_9">
+                    <property name="text">
+                     <string>IS&amp;BN:</string>
                     </property>
-                    <property name="calendarPopup">
-                     <bool>true</bool>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="EnComboBox" name="authors">
-                    <property name="editable">
-                     <bool>true</bool>
+                    <property name="buddy">
+                     <cstring>isbn</cstring>
                     </property>
                    </widget>
                   </item>
                   <item row="9" column="1" colspan="2">
-                   <widget class="QDateEdit" name="date">
-                    <property name="displayFormat">
-                     <string>dd MMM yyyy</string>
-                    </property>
-                    <property name="calendarPopup">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
+                   <widget class="QLineEdit" name="isbn"/>
                   </item>
-                  <item row="9" column="0">
+                  <item row="10" column="0">
                    <widget class="QLabel" name="label_11">
                     <property name="text">
                      <string>&amp;Date:</string>
@@ -398,7 +307,192 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
+                  <item row="10" column="1" colspan="2">
+                   <widget class="QDateEdit" name="date">
+                    <property name="displayFormat">
+                     <string>dd MMM yyyy</string>
+                    </property>
+                    <property name="calendarPopup">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="11" column="0">
+                   <widget class="QLabel" name="label_10">
+                    <property name="text">
+                     <string>Publishe&amp;d:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>pubdate</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="11" column="1" colspan="2">
+                   <widget class="QDateEdit" name="pubdate">
+                    <property name="displayFormat">
+                     <string>MMM yyyy</string>
+                    </property>
+                    <property name="calendarPopup">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2" rowspan="4">
+                   <layout class="QVBoxLayout" name="verticalLayout_7">
+                    <item>
+                     <spacer name="verticalSpacer_3">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>40</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QToolButton" name="auto_title_sort">
+                      <property name="toolTip">
+                       <string>Automatically create the title sort entry based on the current title entry.
+Using this button to create title sort will change title sort from red to green.</string>
+                      </property>
+                      <property name="text">
+                       <string>...</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../../../resources/images.qrc">
+                        <normaloff>:/images/auto_author_sort.png</normaloff>:/images/auto_author_sort.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="verticalSpacer">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>40</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QToolButton" name="swap_button">
+                      <property name="toolTip">
+                       <string>Swap the author and title</string>
+                      </property>
+                      <property name="text">
+                       <string>...</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../../../resources/images.qrc">
+                        <normaloff>:/images/swap.png</normaloff>:/images/swap.png</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>16</width>
+                        <height>16</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="verticalSpacer_2">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>40</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QToolButton" name="auto_author_sort">
+                      <property name="toolTip">
+                       <string>Automatically create the author sort entry based on the current author entry.
+Using this button to create author sort will change author sort from red to green.</string>
+                      </property>
+                      <property name="text">
+                       <string>...</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="../../../../resources/images.qrc">
+                        <normaloff>:/images/auto_author_sort.png</normaloff>:/images/auto_author_sort.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="verticalSpacer_4">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>40</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="6" column="1">
+                   <layout class="QHBoxLayout" name="_2">
+                    <item>
+                     <widget class="TagsLineEdit" name="tags">
+                      <property name="toolTip">
+                       <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="6" column="2">
+                   <widget class="QToolButton" name="tag_editor_button">
+                    <property name="toolTip">
+                     <string>Open Tag Editor</string>
+                    </property>
+                    <property name="text">
+                     <string>Open Tag Editor</string>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="../../../../resources/images.qrc">
+                      <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="2">
+                   <widget class="QToolButton" name="remove_series_button">
+                    <property name="toolTip">
+                     <string>Remove unused series (Series that have no books)</string>
+                    </property>
+                    <property name="text">
+                     <string>...</string>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="../../../../resources/images.qrc">
+                      <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="fetch_metadata_button">
+                 <property name="text">
+                  <string>&amp;Fetch metadata from server</string>
+                 </property>
                 </widget>
                </item>
                <item>
@@ -418,13 +512,6 @@ Using this button to create author sort will change author sort from red to gree
                    </widget>
                   </item>
                  </layout>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="fetch_metadata_button">
-                 <property name="text">
-                  <string>&amp;Fetch metadata from server</string>
-                 </property>
                 </widget>
                </item>
               </layout>
@@ -744,10 +831,12 @@ Using this button to create author sort will change author sort from red to gree
  </customwidgets>
  <tabstops>
   <tabstop>title</tabstop>
+  <tabstop>auto_title_sort</tabstop>
+  <tabstop>title_sort</tabstop>
   <tabstop>swap_button</tabstop>
   <tabstop>authors</tabstop>
-  <tabstop>author_sort</tabstop>
   <tabstop>auto_author_sort</tabstop>
+  <tabstop>author_sort</tabstop>
   <tabstop>rating</tabstop>
   <tabstop>publisher</tabstop>
   <tabstop>tags</tabstop>
@@ -758,20 +847,22 @@ Using this button to create author sort will change author sort from red to gree
   <tabstop>isbn</tabstop>
   <tabstop>date</tabstop>
   <tabstop>pubdate</tabstop>
-  <tabstop>comments</tabstop>
   <tabstop>fetch_metadata_button</tabstop>
-  <tabstop>add_format_button</tabstop>
-  <tabstop>remove_format_button</tabstop>
+  <tabstop>comments</tabstop>
   <tabstop>button_set_cover</tabstop>
   <tabstop>button_set_metadata</tabstop>
   <tabstop>formats</tabstop>
+  <tabstop>add_format_button</tabstop>
+  <tabstop>remove_format_button</tabstop>
   <tabstop>cover_path</tabstop>
+  <tabstop>cover_button</tabstop>
+  <tabstop>trim_cover_button</tabstop>
   <tabstop>reset_cover</tabstop>
   <tabstop>fetch_cover_button</tabstop>
   <tabstop>generate_cover_button</tabstop>
+  <tabstop>button_box</tabstop>
   <tabstop>scrollArea</tabstop>
   <tabstop>central_widget</tabstop>
-  <tabstop>button_box</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/images.qrc"/>
