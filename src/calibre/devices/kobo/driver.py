@@ -96,7 +96,7 @@ class KOBO(USBMS):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus):
+        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType):
             changed = False
             # if path_to_ext(path) in self.FORMATS:
             try:
@@ -124,7 +124,7 @@ class KOBO(USBMS):
                         #print "Image name Normalized: " + imagename
                         if imagename is not None:
                             bl[idx].thumbnail = ImageWrapper(imagename)
-                    if (ContentType != '6'and self.has_kepubs == False) or (self.has_kepubs == True):
+                    if (ContentType != '6' and MimeType != 'Shortcover'):
                         if self.update_metadata_item(bl[idx]):
                             # print 'update_metadata_item returned true'
                             changed = True
@@ -132,7 +132,7 @@ class KOBO(USBMS):
                         playlist_map[lpath] not in bl[idx].device_collections:
                             bl[idx].device_collections.append(playlist_map[lpath])
                 else:
-                    if ContentType == '6' and self.has_kepubs == False:
+                    if ContentType == '6' and MimeType == 'Shortcover':
                         book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
                     else:
                         try:
@@ -177,15 +177,15 @@ class KOBO(USBMS):
         for i, row in enumerate(cursor):
         #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
 
-            path = self.path_from_contentid(row[3], row[5], oncard)
+            path = self.path_from_contentid(row[3], row[5], row[4], oncard)
             mime = mime_type_ext(path_to_ext(path)) if path.find('kepub') == -1 else 'application/epub+zip'
             # debug_print("mime:", mime)
 
             if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7])
+                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4])
                 # print "shortbook: " + path
             elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7])
+                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4])
 
             if changed:
                 need_sync = True
@@ -363,7 +363,8 @@ class KOBO(USBMS):
 
     def contentid_from_path(self, path, ContentType):
         if ContentType == 6:
-            if self.has_kepubs == False:
+            extension =  os.path.splitext(path)[1]
+            if extension == '.kobo':
                 ContentID = os.path.splitext(path)[0]
                 # Remove the prefix on the file.  it could be either
                 ContentID = ContentID.replace(self._main_prefix, '')
@@ -411,7 +412,7 @@ class KOBO(USBMS):
             ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
         return ContentType
 
-    def path_from_contentid(self, ContentID, ContentType, oncard):
+    def path_from_contentid(self, ContentID, ContentType, MimeType, oncard):
         path = ContentID
 
         if oncard == 'cardb':
@@ -420,13 +421,13 @@ class KOBO(USBMS):
             path = path.replace("file:///mnt/sd/", self._card_a_prefix)
             # print "SD Card: " + path
         else:
-            if ContentType == "6" and self.has_kepubs == False:
+            if ContentType == "6" and MimeType == 'Shortcover':
                 # This is a hack as the kobo files do not exist
                 # but the path is required to make a unique id
                 # for calibre's reference
                 path = self._main_prefix + path + '.kobo'
                 # print "Path: " + path
-            elif (ContentType == "6" or ContentType == "10") and self.has_kepubs == True:
+            elif (ContentType == "6" or ContentType == "10") and MimeType == 'application/x-kobo-epub+zip':
                 path = self._main_prefix + '.kobo/kepub/' + path
                 # print "Internal: " + path
             else:

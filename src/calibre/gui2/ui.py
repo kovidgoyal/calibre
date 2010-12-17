@@ -96,10 +96,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     'The main GUI'
 
 
-    def __init__(self, opts, parent=None):
+    def __init__(self, opts, parent=None, gui_debug=None):
         MainWindow.__init__(self, opts, parent)
         self.opts = opts
         self.device_connected = None
+        self.gui_debug = gui_debug
         acmap = OrderedDict()
         for action in interface_actions():
             ac = action.load_actual_plugin(self)
@@ -261,6 +262,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         for ac in self.iactions.values():
             ac.initialization_complete()
 
+        if show_gui and self.gui_debug is not None:
+            info_dialog(self, _('Debug mode'), '<p>' +
+                    _('You have started calibre in debug mode. After you '
+                        'quit calibre, the debug log will be available in '
+                        'the file: %s<p>The '
+                        'log will be displayed automatically.')%self.gui_debug, show=True)
+
+
     def start_content_server(self):
         from calibre.library.server.main import start_threaded_server
         from calibre.library.server import server_config
@@ -369,13 +378,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-    def library_moved(self, newloc):
+    def library_moved(self, newloc, copy_structure=False):
         if newloc is None: return
+        default_prefs = None
         try:
             olddb = self.library_view.model().db
+            if copy_structure:
+                default_prefs = olddb.prefs
         except:
             olddb = None
-        db = LibraryDatabase2(newloc)
+        db = LibraryDatabase2(newloc, default_prefs=default_prefs)
         if self.content_server is not None:
             self.content_server.set_database(db)
         self.library_path = newloc
@@ -495,7 +507,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         dynamic.set('sort_history', self.library_view.model().sort_history)
         self.save_layout_state()
 
-    def quit(self, checked=True, restart=False):
+    def quit(self, checked=True, restart=False, debug_on_restart=False):
         if not self.confirm_quit():
             return
         try:
@@ -503,6 +515,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         except:
             pass
         self.restart_after_quit = restart
+        self.debug_on_restart = debug_on_restart
         QApplication.instance().quit()
 
     def donate(self, *args):

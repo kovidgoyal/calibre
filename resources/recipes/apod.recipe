@@ -11,6 +11,7 @@ class APOD(BasicNewsRecipe):
     remove_javascript = True
     recursions = 0
     oldest_article        = 14
+    remove_attributes = ['onmouseover', 'onmouseout']
 
     feeds = [
              (u'Astronomy Picture of the Day', u'http://apod.nasa.gov/apod.rss')
