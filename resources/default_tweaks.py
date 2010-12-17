@@ -12,11 +12,22 @@ defaults.
 
 
 # The algorithm used to assign a new book in an existing series a series number.
+# New series numbers assigned using this tweak are always integer values, except
+# if a constant non-integer is specified.
 # Possible values are:
-# next - Next available number
+# next - First available integer larger than the largest existing number
+# first_free - First available integer larger than 0
+# next_free - First available integer larger than the smallest existing number
+# last_free - First available integer smaller than the largest existing number
+#             Return largest existing + 1 if no free number is found
 # const - Assign the number 1 always
+# a number - Assign that number always. The number is not in quotes. Note that
+#            0.0 can be used here.
+# Examples:
+# series_index_auto_increment = 'next'
+# series_index_auto_increment = 'next_free'
+# series_index_auto_increment = 16.5
 series_index_auto_increment = 'next'
-
 
 
 # The algorithm used to copy author to author_sort

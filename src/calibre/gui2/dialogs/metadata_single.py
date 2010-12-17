@@ -839,7 +839,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 series = unicode(self.series.text()).strip()
                 if series and series != self.original_series_name:
                     ns = 1
-                    if tweaks['series_index_auto_increment'] == 'next':
+                    if tweaks['series_index_auto_increment'] != 'const':
                         ns = self.db.get_next_series_num_for(series)
                     self.series_index.setValue(ns)
                     self.original_series_name = series

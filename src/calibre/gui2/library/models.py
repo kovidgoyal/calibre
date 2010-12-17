@@ -772,7 +772,7 @@ class BooksModel(QAbstractTableModel): # {{{
                             self.db.set_series_index(id, float(match.group(1)))
                             val = pat.sub('', val).strip()
                         elif val:
-                            if tweaks['series_index_auto_increment'] == 'next':
+                            if tweaks['series_index_auto_increment'] != 'const':
                                 ni = self.db.get_next_series_num_for(val)
                                 if ni != 1:
                                     self.db.set_series_index(id, ni)

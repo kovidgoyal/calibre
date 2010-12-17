@@ -8,7 +8,7 @@ The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re
 from itertools import repeat
-from math import floor
+from math import ceil
 from Queue import Queue
 
 from PyQt4.QtGui import QImage
@@ -1365,14 +1365,43 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         series_id = self.conn.get('SELECT id from series WHERE name=?',
                 (series,), all=False)
         if series_id is None:
+            if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+                return float(tweaks['series_index_auto_increment'])
             return 1.0
-        series_num = self.conn.get(
-            ('SELECT MAX(series_index) FROM books WHERE id IN '
-            '(SELECT book FROM books_series_link where series=?)'),
-            (series_id,), all=False)
-        if series_num is None:
+        series_indices = self.conn.get(
+            ('SELECT series_index FROM books WHERE id IN '
+            '(SELECT book FROM books_series_link where series=?) '
+            'ORDER BY series_index'),
+            (series_id,))
+        return self._get_next_series_num_for_list(series_indices)
+
+    def _get_next_series_num_for_list(self, series_indices):
+        if not series_indices:
+            if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+                return float(tweaks['series_index_auto_increment'])
             return 1.0
-        return floor(series_num+1)
+        series_indices = [x[0] for x in series_indices]
+        print series_indices
+        if tweaks['series_index_auto_increment'] == 'next':
+            return series_indices[-1] + 1
+        if tweaks['series_index_auto_increment'] == 'first_free':
+            for i in range(1, 10000):
+                if i not in series_indices:
+                    return i
+            # really shouldn't get here.
+        if tweaks['series_index_auto_increment'] == 'next_free':
+            for i in range(int(ceil(series_indices[0])), 10000):
+                if i not in series_indices:
+                    return i
+            # really shouldn't get here.
+        if tweaks['series_index_auto_increment'] == 'last_free':
+            for i in range(int(ceil(series_indices[-1])), 0, -1):
+                if i not in series_indices:
+                    return i
+            return series_indices[-1] + 1
+        if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+            return float(tweaks['series_index_auto_increment'])
+        return 1.0
 
     def set(self, row, column, val):
         '''
@@ -1760,18 +1789,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                      FROM books, books_series_link as lt
                                      WHERE books.id = lt.book AND lt.series=?
                                      ORDER BY books.series_index''', (old_id,))
-            # Get the next series index
-            index = self.get_next_series_num_for(new_name)
             # Now update the link table
             self.conn.execute('''UPDATE books_series_link
                                  SET series=?
                                  WHERE series=?''',(new_id, old_id,))
             # Now set the indices
             for (book_id,) in books:
+                # Get the next series index
+                index = self.get_next_series_num_for(new_name)
                 self.conn.execute('''UPDATE books
                                      SET series_index=?
                                      WHERE id=?''',(index, book_id,))
-                index = index + 1
         self.dirty_books_referencing('series', new_id, commit=False)
         self.conn.commit()
 
