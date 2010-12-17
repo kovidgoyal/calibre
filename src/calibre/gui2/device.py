@@ -166,7 +166,9 @@ class DeviceManager(Thread): # {{{
                     report_progress=self.report_progress)
                 dev.open()
             except OpenFeedback, e:
-                self.open_feedback_msg(dev.get_gui_name(), e.feedback_msg)
+                if dev not in self.ejected_devices:
+                    self.open_feedback_msg(dev.get_gui_name(), e.feedback_msg)
+                    self.ejected_devices.add(dev)
                 continue
             except:
                 tb = traceback.format_exc()
@@ -590,7 +592,6 @@ class DeviceMenu(QMenu): # {{{
         self.annotation_action.setEnabled(annot_enable)
 
     # }}}
-
 
 class DeviceMixin(object): # {{{
 

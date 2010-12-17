@@ -13,14 +13,16 @@ class Radikal_tr(BasicNewsRecipe):
     description           = 'News from Turkey'
     publisher             = 'radikal'
     category              = 'news, politics, Turkey'
-    oldest_article        = 2
+    oldest_article        = 7
     max_articles_per_feed = 150
     no_stylesheets        = True
     encoding              = 'cp1254'
     use_embedded_content  = False
     masthead_url          = 'http://www.radikal.com.tr/D/i/1/V2/radikal_logo.jpg'
     language              = 'tr'
-    extra_css             = ' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .article_description,body{font-family: Arial,Verdana,Helvetica,sans1,sans-serif } '
+    extra_css             = """ @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                                .article_description,body{font-family: Arial,Verdana,Helvetica,sans1,sans-serif}
+                            """
 
     conversion_options = {
                           'comment'   : description
@@ -34,7 +36,13 @@ class Radikal_tr(BasicNewsRecipe):
     remove_tags_after = dict(attrs={'id':'haberDetayYazi'})
 
 
-    feeds = [(u'Yazarlar', u'http://www.radikal.com.tr/d/rss/RssYazarlar.xml')]
+    feeds = [
+               (u'Yazarlar'    , u'http://www.radikal.com.tr/d/rss/RssYazarlar.xml')
+              ,(u'Turkiye'     , u'http://www.radikal.com.tr/d/rss/Rss_97.xml'     )
+              ,(u'Politika'    , u'http://www.radikal.com.tr/d/rss/Rss_98.xml'     )
+              ,(u'Dis Haberler', u'http://www.radikal.com.tr/d/rss/Rss_100.xml'    )
+              ,(u'Ekonomi'     , u'http://www.radikal.com.tr/d/rss/Rss_101.xml'    )            
+            ]
 
     def print_version(self, url):
         articleid = url.rpartition('ArticleID=')[2]
