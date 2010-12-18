@@ -38,61 +38,50 @@ class NYTimes(BasicNewsRecipe):
 
     #TO GET ARTICLE TOC
     def nejm_get_index(self):
-            return self.index_to_soup('http://content.nejm.org/current.dtl')
+        return self.index_to_soup('http://content.nejm.org/current.dtl')
 
     # To parse artice toc
     def parse_index(self):
-            parse_soup = self.nejm_get_index()
+        parse_soup = self.nejm_get_index()
 
-            div = parse_soup.find(id='centerTOC')
+        feeds = []
 
-            current_section = None
-            current_articles = []
-            feeds = []
-            for x in div.findAll(True):
-                if x.name == 'img' and '/toc/' in x.get('src', '') and 'uarrow.gif' not in x.get('src', ''):
-                    # Section heading found
-                    if current_articles and current_section and 'Week in the' not in current_section:
-                        feeds.append((current_section, current_articles))
-                    current_section = x.get('alt')
-                    current_articles = []
-                    self.log('\tFound section:', current_section)
-                if current_section is not None and x.name == 'strong':
-                    title = self.tag_to_string(x)
-                    a = x.parent.find('a', href=lambda x: x and '/full/' in x)
-                    if a is None:
-                        continue
-                    url = a.get('href', False)
-                    if not url or not title:
-                        continue
-                    if url.startswith('/'):
-                         url = 'http://content.nejm.org'+url
-                    self.log('\t\tFound article:', title)
-                    self.log('\t\t\t', url)
-                    if url.startswith('/'):
-                        url = 'http://online.wsj.com'+url
-                    current_articles.append({'title': title, 'url':url,
-                        'description':'', 'date':''})
-
-            if current_articles and current_section:
-                feeds.append((current_section, current_articles))
-
-            return feeds
-
-    def preprocess_html(self, soup):
-        for a in soup.findAll(text=lambda x: x and '[in this window]' in x):
-            a = a.findParent('a')
-            url = a.get('href', None)
-            if not url:
+        div = parse_soup.find(attrs={'class':'tocContent'})
+        for group in div.findAll(attrs={'class':'articleGrouping'}):
+            feed_title = group.find(attrs={'class':'articleType'})
+            if feed_title is None:
                 continue
-            if url.startswith('/'):
-                url = 'http://content.nejm.org'+url
-            isoup = self.index_to_soup(url)
-            img = isoup.find('img', src=lambda x: x and
-                    x.startswith('/content/'))
-            if img is not None:
-                img.extract()
-                table = a.findParent('table')
-                table.replaceWith(img)
-        return soup
+            feed_title = self.tag_to_string(feed_title)
+            articles = []
+            self.log('Found section:', feed_title)
+            for art in group.findAll(attrs={'class':lambda x: x and 'articleEntry'
+                in x}):
+                link = art.find(attrs={'class':lambda x:x and 'articleLink' in
+                    x})
+                if link is None:
+                    continue
+                a = link.find('a', href=True)
+                if a is None:
+                    continue
+                url = a.get('href')
+                if url.startswith('/'):
+                    url = 'http://www.nejm.org'+url
+                title = self.tag_to_string(a)
+                self.log.info('\tFound article:', title, 'at', url)
+                article = {'title':title, 'url':url, 'date':''}
+                au = art.find(attrs={'class':'articleAuthors'})
+                if au is not None:
+                    article['author'] = self.tag_to_string(au)
+                desc = art.find(attrs={'class':'hover_text'})
+                if desc is not None:
+                    desc = self.tag_to_string(desc)
+                    if 'author' in article:
+                        desc = ' by ' + article['author'] + ' ' +desc
+                    article['description'] = desc
+                articles.append(article)
+            if articles:
+                feeds.append((feed_title, articles))
+
+        return feeds
+
 
