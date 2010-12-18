@@ -541,7 +541,9 @@ Use the options to remove headers and footers to mitigate this issue. If the hea
 removed from the text it can throw off the paragraph unwrapping.
 
 Some limitations of PDF input is complex, multi-column, and image based documents are not supported.
-Extraction of vector images and tables from within the document is also not supported.
+Extraction of vector images and tables from within the document is also not supported. Some PDFs use special glyphs to
+represent double ll or doubfle ff or fi,etc. Conversion of these may or may not work depending on jusy how they are 
+represented internally in the PDF.
 
 Comic Book Collections
 ~~~~~~~~~~~~~~~~~~~~~~~~~

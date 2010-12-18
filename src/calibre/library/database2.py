@@ -1128,6 +1128,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 for l in list:
                     (id, val, sort_val) = (l[0], l[1], l[2])
                     tids[category][val] = (id, sort_val)
+            elif cat['datatype'] == 'rating':
+                for l in list:
+                    (id, val) = (l[0], l[1])
+                    tids[category][val] = (id, '{0:05.2f}'.format(val))
             else:
                 for l in list:
                     (id, val) = (l[0], l[1])
@@ -1256,12 +1260,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
             # sort the list
             if sort == 'name':
-                def get_sort_key(x):
-                    sk = x.s
-                    if isinstance(sk, unicode):
-                        sk = sort_key(sk)
-                    return sk
-                kf = get_sort_key
+                kf = lambda x :sort_key(x.s)
                 reverse=False
             elif sort == 'popularity':
                 kf = lambda x: x.c
@@ -1967,7 +1966,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     @classmethod
     def cleanup_tags(cls, tags):
-        tags = [x.strip() for x in tags if x.strip()]
+        tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
         tags = [x.decode(preferred_encoding, 'replace') \
                     if isbytestring(x) else x for x in tags]
         tags = [u' '.join(x.split()) for x in tags]

@@ -11,7 +11,7 @@
     - title: "Page turn animations in the e-book viewer"
       type: major
       description: >
-        "Now when you use the Page Down/Page Up keys or the next/previous page buttons in the viewer, page turning will be animated. The duration of the animation can be controlled in the viewer preferences. Setting it to o disables the animation completely."
+        "Now when you use the Page Down/Page Up keys or the next/previous page buttons in the viewer, page turning will be animated. The duration of the animation can be controlled in the viewer preferences. Setting it to 0 disables the animation completely."
 
     - title: "Conversion pipeline: Add an option to set the minimum line height of all elemnts as a percentage of the computed font size. By default, calibre now sets the line height to 120% of the computed font size."
 

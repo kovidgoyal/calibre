@@ -427,7 +427,9 @@ class SchemaUpgrade(object):
 
     def upgrade_version_15(self):
         'Remove commas from tags'
-        self.conn.execute("UPDATE tags SET name=REPLACE(name, ',', ';')")
+        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';')")
+        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';;')")
+        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', '')")
 
     def upgrade_version_16(self):
         self.conn.executescript('''
