@@ -11,16 +11,7 @@ class NYTimes(BasicNewsRecipe):
     language = 'en'
 
     no_stylesheets = True
-    remove_tags_before = dict(name='div', attrs={'align':'center'})
-    remove_tags_after  = dict(name='ol', attrs={'compact':'COMPACT'})
-    remove_tags = [
-       dict(name='iframe'),
-       #dict(name='div', attrs={'class':'related-articles'}),
-       dict(name='div', attrs={'id':['sidebar']}),
-       #dict(name='form', attrs={'onsubmit':"return verifySearch(this.w,'Keyword, citation, or author')"}),
-       dict(name='table', attrs={'align':'RIGHT'}),
-    ]
-
+    keep_only_tags = dict(id='content')
 
 
     #TO LOGIN
