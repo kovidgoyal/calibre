@@ -1967,7 +1967,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     @classmethod
     def cleanup_tags(cls, tags):
-        tags = [x.strip() for x in tags if x.strip()]
+        tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
         tags = [x.decode(preferred_encoding, 'replace') \
                     if isbytestring(x) else x for x in tags]
         tags = [u' '.join(x.split()) for x in tags]

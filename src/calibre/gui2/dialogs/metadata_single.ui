@@ -358,8 +358,8 @@ If the box is colored green, then text matches the individual author's sort stri
                     <item>
                      <widget class="QToolButton" name="auto_title_sort">
                       <property name="toolTip">
-                       <string>Automatically create the author sort entry based on the current author entry.
-Using this button to create author sort will change author sort from red to green.</string>
+                       <string>Automatically create the title sort entry based on the current title entry.
+Using this button to create title sort will change title sort from red to green.</string>
                       </property>
                       <property name="text">
                        <string>...</string>
@@ -419,8 +419,8 @@ Using this button to create author sort will change author sort from red to gree
                     <item>
                      <widget class="QToolButton" name="auto_author_sort">
                       <property name="toolTip">
-                       <string>Automatically create the title sort entry based on the current title entry.
-Using this button to create title sort will change title sort from red to green.</string>
+                       <string>Automatically create the author sort entry based on the current author entry.
+Using this button to create author sort will change author sort from red to green.</string>
                       </property>
                       <property name="text">
                        <string>...</string>
