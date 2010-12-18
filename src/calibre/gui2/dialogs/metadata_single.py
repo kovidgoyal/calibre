@@ -23,7 +23,7 @@ from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import string_to_authors, \
-        authors_to_string, check_isbn
+        authors_to_string, check_isbn, title_sort
 from calibre.ebooks.metadata.covers import download_cover
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.metadata import MetaInformation
@@ -293,7 +293,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         finally:
             self.fetch_cover_button.setEnabled(True)
             self.unsetCursor()
-            self.pi.stop()
+            if self.pi is not None:
+                self.pi.stop()
 
 
     # }}}
@@ -442,15 +443,25 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         ResizableDialog.__init__(self, window)
         self.cover_fetcher = None
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
-        self.cancel_all = False
         base = unicode(self.author_sort.toolTip())
-        self.ok_aus_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
+        ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
                             _(' The green color indicates that the current '
                     'author sort matches the current author'))
-        self.bad_aus_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
+        bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
                 _(' The red color indicates that the current '
-                    'author sort does not match the current author'))
+                    'author sort does not match the current author. '
+                    'No action is required if this is what you want.'))
+        self.aus_tooltips = (ok_tooltip, bad_tooltip)
 
+        base = unicode(self.title_sort.toolTip())
+        ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
+                            _(' The green color indicates that the current '
+                              'title sort matches the current title'))
+        bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
+                _(' The red color warns that the current '
+                  'title sort does not match the current title. '
+                  'No action is required if this is what you want.'))
+        self.ts_tooltips = (ok_tooltip, bad_tooltip)
         self.row_delta = 0
         if prev:
             self.prev_button = QPushButton(QIcon(I('back.png')), _('Previous'),
@@ -506,7 +517,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         self.remove_unused_series)
         QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
                         self.deduce_author_sort)
+        QObject.connect(self.auto_title_sort, SIGNAL('clicked()'),
+                        self.deduce_title_sort)
         self.trim_cover_button.clicked.connect(self.trim_cover)
+        self.connect(self.title_sort, SIGNAL('textChanged(const QString&)'),
+                     self.title_sort_box_changed)
+        self.connect(self.title, SIGNAL('textChanged(const QString&)'),
+                     self.title_box_changed)
         self.connect(self.author_sort, SIGNAL('textChanged(const QString&)'),
                      self.author_sort_box_changed)
         self.connect(self.authors, SIGNAL('editTextChanged(const QString&)'),
@@ -523,6 +540,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
 
         self.title.setText(db.title(row))
+        self.title_sort.setText(db.title_sort(row))
         isbn = db.isbn(self.id, index_is_id=True)
         if not isbn:
             isbn = ''
@@ -573,7 +591,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
         self.series.lineEdit().editingFinished.connect(self.increment_series_index)
 
-        self.show()
         pm = QPixmap()
         if cover:
             pm.loadFromData(cover)
@@ -593,12 +610,14 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.original_author = unicode(self.authors.text()).strip()
         self.original_title = unicode(self.title.text()).strip()
 
+        self.show()
+
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
         layout = w.layout()
         self.custom_column_widgets, self.__cc_spacers = \
-                    populate_metadata_page(layout, self.db, self.id,
-                                           parent=w, bulk=False, two_column=True)
+            populate_metadata_page(layout, self.db, self.id, parent=w, bulk=False,
+                two_column=tweaks['metadata_single_use_2_cols_for_custom_fields'])
         self.__custom_col_layouts = [layout]
         ans = self.custom_column_widgets
         for i in range(len(ans)-1):
@@ -609,27 +628,40 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             for c in range(2, len(ans[i].widgets), 2):
                 w.setTabOrder(ans[i].widgets[c-1], ans[i].widgets[c+1])
 
+    def title_box_changed(self, txt):
+        ts = unicode(txt)
+        ts = title_sort(ts)
+        self.mark_box_as_ok(control = self.title_sort, tt=self.ts_tooltips,
+                            normal=(unicode(self.title_sort.text()) == ts))
+
+    def title_sort_box_changed(self, txt):
+        ts = unicode(txt)
+        self.mark_box_as_ok(control = self.title_sort, tt=self.ts_tooltips,
+                            normal=(title_sort(unicode(self.title.text())) == ts))
+
     def authors_box_changed(self, txt):
         aus = unicode(txt)
         aus = re.sub(r'\s+et al\.$', '', aus)
         aus = self.db.author_sort_from_authors(string_to_authors(aus))
-        self.mark_author_sort(normal=(unicode(self.author_sort.text()) == aus))
+        self.mark_box_as_ok(control = self.author_sort, tt=self.aus_tooltips,
+                            normal=(unicode(self.author_sort.text()) == aus))
 
     def author_sort_box_changed(self, txt):
         au = unicode(self.authors.text())
         au = re.sub(r'\s+et al\.$', '', au)
         au = self.db.author_sort_from_authors(string_to_authors(au))
-        self.mark_author_sort(normal=(au == txt))
+        self.mark_box_as_ok(control = self.author_sort, tt=self.aus_tooltips,
+                            normal=(au == txt))
 
-    def mark_author_sort(self, normal=True):
+    def mark_box_as_ok(self, control, tt, normal=True):
         if normal:
             col = 'rgb(0, 255, 0, 20%)'
         else:
             col = 'rgb(255, 0, 0, 20%)'
-        self.author_sort.setStyleSheet('QLineEdit { color: black; '
-                                       'background-color: %s; }'%col)
-        tt = self.ok_aus_tooltip if normal else self.bad_aus_tooltip
-        self.author_sort.setToolTip(tt)
+        control.setStyleSheet('QLineEdit { color: black; '
+                              'background-color: %s; }'%col)
+        tt = tt[0] if normal else tt[1]
+        control.setToolTip(tt)
 
     def validate_isbn(self, isbn):
         isbn = unicode(isbn).strip()
@@ -651,12 +683,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         authors = string_to_authors(au)
         self.author_sort.setText(self.db.author_sort_from_authors(authors))
 
+    def deduce_title_sort(self):
+        ts = unicode(self.title.text())
+        self.title_sort.setText(title_sort(ts))
+
     def swap_title_author(self):
         title = self.title.text()
         self.title.setText(self.authors.text())
         self.authors.setText(title)
-        self.author_sort.setText('')
-
+        self.deduce_author_sort()
+        self.deduce_title_sort()
 
     def initialize_combos(self):
         self.initalize_authors()
@@ -803,7 +839,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 series = unicode(self.series.text()).strip()
                 if series and series != self.original_series_name:
                     ns = 1
-                    if tweaks['series_index_auto_increment'] == 'next':
+                    if tweaks['series_index_auto_increment'] != 'const':
                         ns = self.db.get_next_series_num_for(series)
                     self.series_index.setValue(ns)
                     self.original_series_name = series
@@ -837,6 +873,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             title = unicode(self.title.text()).strip()
             if title != self.original_title:
                 self.db.set_title(self.id, title, notify=False)
+            # This must be after setting the title because of the DB update trigger
+            ts = unicode(self.title_sort.text()).strip()
+            if ts:
+                self.db.set_title_sort(self.id, ts, notify=False, commit=False)
             au = unicode(self.authors.text()).strip()
             if au and au != self.original_author:
                 self.db.set_authors(self.id, string_to_authors(au), notify=False)
@@ -907,3 +947,48 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         dynamic.set('metasingle_window_geometry', bytes(self.saveGeometry()))
         dynamic.set('metasingle_splitter_state',
                 bytes(self.splitter.saveState()))
+
+    def break_cycles(self):
+        # Break any reference cycles that could prevent python
+        # from garbage collecting this dialog
+        def disconnect(signal):
+            try:
+                signal.disconnect()
+            except:
+                pass # Fails if view format was never connected
+        disconnect(self.view_format)
+        for b in ('next_button', 'prev_button'):
+            x = getattr(self, b, None)
+            if x is not None:
+                disconnect(x.clicked)
+
+if __name__ == '__main__':
+    from calibre.library import db
+    from PyQt4.Qt import QApplication
+    from calibre.utils.mem import memory
+    import gc
+
+
+    app = QApplication([])
+    db = db()
+
+    # Initialize all Qt Objects once
+    d = MetadataSingleDialog(None, 4, db)
+    d.break_cycles()
+    d.reject()
+    del d
+
+    for i in range(5):
+        gc.collect()
+    before = memory()
+
+    d = MetadataSingleDialog(None, 4, db)
+    d.reject()
+    d.break_cycles()
+    del d
+
+    for i in range(5):
+        gc.collect()
+    print 'Used memory:', memory(before)/1024.**2, 'MB'
+
+

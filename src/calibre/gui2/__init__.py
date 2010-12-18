@@ -9,7 +9,7 @@ from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
                          QByteArray, QTranslator, QCoreApplication, QThread, \
                          QEvent, QTimer, pyqtSignal, QDate, QDesktopServices, \
                          QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                         QIcon, QApplication, QDialog, QPushButton, QUrl
+                         QIcon, QApplication, QDialog, QPushButton, QUrl, QFont
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
@@ -52,6 +52,7 @@ gprefs.defaults['show_splash_screen'] = True
 gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['toolbar_text'] = 'auto'
 gprefs.defaults['show_child_bar'] = False
+gprefs.defaults['font'] = None
 
 # }}}
 
@@ -539,6 +540,7 @@ def choose_dir(window, name, title, default_dir='~'):
             parent=window, name=name, mode=QFileDialog.Directory,
             default_dir=default_dir)
     dir = fd.get_files()
+    fd.setParent(None)
     if dir:
         return dir[0]
 
@@ -559,6 +561,7 @@ def choose_files(window, name, title,
     fd = FileDialog(title=title, name=name, filters=filters,
                     parent=window, add_all_files_filter=all_files, mode=mode,
                     )
+    fd.setParent(None)
     if fd.accepted:
         return fd.get_files()
     return None
@@ -569,6 +572,7 @@ def choose_images(window, name, title, select_only_single_file=True):
                     filters=[('Images', ['png', 'gif', 'jpeg', 'jpg', 'svg'])],
                     parent=window, add_all_files_filter=False, mode=mode,
                     )
+    fd.setParent(None)
     if fd.accepted:
         return fd.get_files()
     return None
@@ -613,6 +617,10 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
+        self.original_font = QFont(QApplication.font())
+        fi = gprefs['font']
+        if fi is not None:
+            QApplication.setFont(QFont(*fi))
 
     def _send_file_open_events(self):
         with self._file_open_lock:

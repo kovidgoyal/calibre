@@ -5,10 +5,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from PyQt4.Qt import QApplication, QFont, QFontInfo, QFontDialog
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
-from calibre.gui2 import config, gprefs
+from calibre.gui2 import config, gprefs, qt_app
 from calibre.utils.localization import available_translations, \
     get_language, get_lang
 from calibre.utils.config import prefs
@@ -56,12 +57,64 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             (_('Never'), 'never')]
         r('toolbar_text', gprefs, choices=choices)
 
+        self.current_font = None
+        self.change_font_button.clicked.connect(self.change_font)
+
+
+    def initialize(self):
+        ConfigWidgetBase.initialize(self)
+        self.current_font = gprefs['font']
+        self.update_font_display()
+
+    def restore_defaults(self):
+        ConfigWidgetBase.restore_defaults(self)
+        ofont = self.current_font
+        self.current_font = None
+        if ofont is not None:
+            self.changed_signal.emit()
+            self.update_font_display()
+
+    def build_font_obj(self):
+        font_info = self.current_font
+        if font_info is not None:
+            font = QFont(*font_info)
+        else:
+            font = qt_app.original_font
+        return font
+
+    def update_font_display(self):
+        font = self.build_font_obj()
+        fi = QFontInfo(font)
+        name = unicode(fi.family())
+
+        self.font_display.setFont(font)
+        self.font_display.setText(name +
+                ' [%dpt]'%fi.pointSize())
+
+    def change_font(self, *args):
+        fd = QFontDialog(self.build_font_obj(), self)
+        if fd.exec_() == fd.Accepted:
+            font = fd.selectedFont()
+            fi = QFontInfo(font)
+            self.current_font = (unicode(fi.family()), fi.pointSize(),
+                    fi.weight(), fi.italic())
+            self.update_font_display()
+            self.changed_signal.emit()
+
+    def commit(self, *args):
+        rr = ConfigWidgetBase.commit(self, *args)
+        if self.current_font != gprefs['font']:
+            gprefs['font'] = self.current_font
+            QApplication.setFont(self.font_display.font())
+            rr = True
+        return rr
+
+
     def refresh_gui(self, gui):
         gui.search.search_as_you_type(config['search_as_you_type'])
-
+        self.update_font_display()
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
     app = QApplication([])
     test_widget('Interface', 'Look & Feel')
 

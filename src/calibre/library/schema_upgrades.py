@@ -425,3 +425,19 @@ class SchemaUpgrade(object):
         ids = [(x[0],) for x in data if has_cover(x[1])]
         self.conn.executemany('UPDATE books SET has_cover=1 WHERE id=?', ids)
 
+    def upgrade_version_15(self):
+        'Remove commas from tags'
+        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';')")
+        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';;')")
+        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', '')")
+
+    def upgrade_version_16(self):
+        self.conn.executescript('''
+        DROP TRIGGER IF EXISTS books_update_trg;
+        CREATE TRIGGER books_update_trg
+            AFTER UPDATE ON books
+            BEGIN
+            UPDATE books SET sort=title_sort(NEW.title)
+                         WHERE id=NEW.id AND OLD.title <> NEW.title;
+            END;
+        ''')

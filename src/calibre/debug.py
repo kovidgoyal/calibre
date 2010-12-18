@@ -23,6 +23,12 @@ Run an embedded python interpreter.
                       help='Debug the specified device driver.')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
                       help='Run the GUI',)
+    parser.add_option('--gui-debug',  default=None,
+                      help='Run the GUI with a debug console, logging to the'
+                      ' specified path',)
+    parser.add_option('--show-gui-debug',  default=None,
+                      help='Display the specified log file.',)
+
     parser.add_option('-w', '--viewer',  default=False, action='store_true',
                       help='Run the ebook viewer',)
     parser.add_option('--paths', default=False, action='store_true',
@@ -135,7 +141,28 @@ def add_simple_plugin(path_to_plugin):
     os.chdir(odir)
     shutil.rmtree(tdir)
 
-
+def run_debug_gui(logpath):
+    import time, platform
+    time.sleep(3) # Give previous GUI time to shutdown fully and release locks
+    from calibre.constants import __appname__, __version__, isosx
+    print __appname__, _('Debug log')
+    print __appname__, __version__
+    print platform.platform()
+    print platform.system()
+    print platform.system_alias(platform.system(), platform.release(),
+            platform.version())
+    print 'Python', platform.python_version()
+    try:
+        if iswindows:
+            print 'Windows:', platform.win32_ver()
+        elif isosx:
+            print 'OSX:', platform.mac_ver()
+        else:
+            print 'Linux:', platform.linux_distribution()
+    except:
+        pass
+    from calibre.gui2.main import main
+    main(['__CALIBRE_GUI_DEBUG__', logpath])
 
 def main(args=sys.argv):
     from calibre.constants import debug
@@ -154,6 +181,20 @@ def main(args=sys.argv):
     if opts.gui:
         from calibre.gui2.main import main
         main(['calibre'])
+    elif opts.gui_debug is not None:
+        run_debug_gui(opts.gui_debug)
+    elif opts.show_gui_debug:
+        import time, re
+        time.sleep(1)
+        from calibre.gui2 import open_local_file
+        if iswindows:
+            with open(opts.show_gui_debug, 'r+b') as f:
+                raw = f.read()
+                raw = re.sub('(?<!\r)\n', '\r\n', raw)
+                f.seek(0)
+                f.truncate()
+                f.write(raw)
+        open_local_file(opts.show_gui_debug)
     elif opts.viewer:
         from calibre.gui2.viewer.main import main
         vargs = ['ebook-viewer', '--debug-javascript']
