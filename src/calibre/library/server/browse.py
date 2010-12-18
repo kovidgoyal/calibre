@@ -373,18 +373,13 @@ class BrowseServer(object):
                     script='toplevel();', main=main)
 
     def browse_sort_categories(self, items, sort):
-        def keyg(x):
-            x = getattr(x, 'sort', x.name)
-            if isinstance(x, unicode):
-                return sort_key(x)
-            return x
-
+        if sort not in ('rating', 'name', 'popularity'):
+            sort = 'name'
+        items.sort(key=lambda x: sort_key(getattr(x, 'sort', x.name)))
         if sort == 'popularity':
             items.sort(key=operator.attrgetter('count'), reverse=True)
         elif sort == 'rating':
             items.sort(key=operator.attrgetter('avg_rating'), reverse=True)
-        else:
-            items.sort(key=keyg)
         return sort
 
     def browse_category(self, category, sort):
