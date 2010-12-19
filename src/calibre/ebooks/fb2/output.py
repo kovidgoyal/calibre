@@ -16,15 +16,15 @@ class FB2Output(OutputFormatPlugin):
     file_type = 'fb2'
 
     options = set([
-        OptionRecommendation(name='h1_to_title',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Wrap all h1 tags with fb2 title elements.')),
-        OptionRecommendation(name='h2_to_title',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Wrap all h2 tags with fb2 title elements.')),
-        OptionRecommendation(name='h3_to_title',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Wrap all h3 tags with fb2 title elements.')),
+        OptionRecommendation(name='sectionize',
+            recommended_value='files', level=OptionRecommendation.LOW,
+            choices=['toc', 'files', 'nothing'],
+            help=_('Specify the sectionization of elements. '
+                'A value of "nothing" turns the book into a single section. '
+                'A value of "files" turns each file into a separate section; use this if your device is having trouble. '
+                'A value of "Table of Contents" turns the entries in the Table of Contents into titles and creates sections; '
+                'if it fails, adjust the "Structure Detection" and/or "Table of Contents" settings '
+                '(turn on "Force use of auto-generated Table of Contents).')),
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):

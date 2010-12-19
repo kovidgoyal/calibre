@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="3" column="0">
+   <item row="1" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -28,23 +28,19 @@
     </spacer>
    </item>
    <item row="0" column="0">
-    <widget class="QCheckBox" name="opt_h1_to_title">
-     <property name="text">
-      <string>Wrap h1 tags with &lt;title&gt; elements</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="opt_h2_to_title">
-     <property name="text">
-      <string>Wrap h2 tags with &lt;title&gt; elements</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="opt_h3_to_title">
-     <property name="text">
-      <string>Wrap h3 tags with &lt;title&gt; elements</string>
+    <widget class="QLabel" name="label">
+    <property name="text">
+     <string>Sectionize:</string>
+    </property>
+    <property name="buddy">
+     <cstring>opt_sectionize</cstring>
+    </property>
+   </widget>
+  </item>
+  <item row="0" column="1">
+   <widget class="QComboBox" name="opt_sectionize">
+    <property name="minimumContentsLength">
+     <number>20</number>
      </property>
     </widget>
    </item>
