@@ -36,6 +36,16 @@ Install BeautifulSoup 3.0.x manually into site-packages (3.1.x parses broken HTM
 
 Install pywin32 and edit win32com\__init__.py setting _frozen = True and
 __gen_path__ to a temp dir (otherwise it tries to set it to a dir in the install tree which leads to permission errors)
+Note that you should use::
+
+    import tempfile
+    __gen_path__ = os.path.join(
+                            tempfile.gettempdir(), "gen_py",
+                            "%d.%d" % (sys.version_info[0], sys.version_info[1]))
+
+Use gettempdir instead of the win32 api method as gettempdir returns a temp dir that is guaranteed to actually work.
+
+
 Also edit win32com\client\gencache.py and change the except IOError on line 57 to catch all exceptions.
 
 SQLite
