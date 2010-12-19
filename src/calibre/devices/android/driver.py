@@ -24,7 +24,7 @@ class ANDROID(USBMS):
                 0xc92 : [0x100], 0xc97: [0x226]},
 
             # Eken
-            0x040d : { 0x8510 : [0x0001] },
+            0x040d : { 0x8510 : [0x0001], 0x0851 : [0x1] },
 
             # Motorola
             0x22b8 : { 0x41d9 : [0x216], 0x2d67 : [0x100], 0x41db : [0x216],
@@ -49,8 +49,9 @@ class ANDROID(USBMS):
             # Dell
             0x413c : { 0xb007 : [0x0100, 0x0224]},
 
-            # Eken?
-            0x040d : { 0x0851 : [0x0001]},
+            # LG
+            0x1004 : { 0x61cc : [0x100] },
+
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
@@ -59,7 +60,7 @@ class ANDROID(USBMS):
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
 
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
-            'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX']
+            'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
