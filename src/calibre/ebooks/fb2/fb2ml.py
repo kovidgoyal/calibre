@@ -27,13 +27,10 @@ class FB2MLizer(object):
     '''
     Todo: * Include more FB2 specific tags in the conversion.
           * Handle a tags.
-          * Figure out some way to turn oeb_book.toc items into <section><title>
-            <p> to allow for readers to generate toc from the document.
     '''
 
     def __init__(self, log):
         self.log = log
-        self.image_hrefs = {}
         self.reset_state()
 
     def reset_state(self):
@@ -43,17 +40,25 @@ class FB2MLizer(object):
         # in different directories. FB2 images are all in a flat layout so we rename all images
         # into a sequential numbering system to ensure there are no collisions between image names.
         self.image_hrefs = {}
+        # Mapping of toc items and their 
+        self.toc = {}
+        # Used to see whether a new <section> needs to be opened
+        self.section_level = 0
 
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to FB2 markup...')
         self.oeb_book = oeb_book
         self.opts = opts
+        self.reset_state()
+        
+        # Used for adding <section>s and <title>s to allow readers
+        # to generate toc from the document.
+        if self.opts.sectionize == 'toc':
+            self.create_flat_toc(self.oeb_book.toc, 1)
 
         return self.fb2mlize_spine()
 
     def fb2mlize_spine(self):
-        self.reset_state()
-
         output = [self.fb2_header()]
         output.append(self.get_text())
         output.append(self.fb2mlize_images())
@@ -66,13 +71,19 @@ class FB2MLizer(object):
             return u'<?xml version="1.0" encoding="UTF-8"?>' + output
 
     def clean_text(self, text):
-        text = re.sub(r'(?miu)<section>\s*</section>', '', text)
-        text = re.sub(r'(?miu)\s+</section>', '</section>', text)
-        text = re.sub(r'(?miu)</section><section>', '</section>\n\n<section>', text)
-
         text = re.sub(r'(?miu)<p>\s*</p>', '', text)
-        text = re.sub(r'(?miu)\s+</p>', '</p>', text)
-        text = re.sub(r'(?miu)</p><p>', '</p>\n\n<p>', text)
+        text = re.sub(r'(?miu)\s*</p>', '</p>', text)
+        text = re.sub(r'(?miu)</p>\s*<p>', '</p>\n\n<p>', text)
+        
+        text = re.sub(r'(?miu)<title>\s*</title>', '', text)
+        text = re.sub(r'(?miu)\s+</title>', '</title>', text)
+        
+        text = re.sub(r'(?miu)<section>\s*</section>', '', text)
+        text = re.sub(r'(?miu)\s*</section>', '\n</section>', text)
+        text = re.sub(r'(?miu)</section>\s*', '</section>\n\n', text)
+        text = re.sub(r'(?miu)\s*<section>', '\n<section>', text)
+        text = re.sub(r'(?miu)<section>\s*', '<section>\n', text)
+        text = re.sub(r'(?miu)</section><section>', '</section>\n\n<section>', text)
         
         if self.opts.insert_blank_line:
             text = re.sub(r'(?miu)</p>', '</p><empty-line />', text)
@@ -144,12 +155,34 @@ class FB2MLizer(object):
 
     def get_text(self):
         text = ['<body>']
+        
+        # Create main section if there are no others to create
+        if self.opts.sectionize == 'nothing':
+            text.append('<section>')
+            self.section_level += 1
+        
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
-            text.append('<section>')
+            
+            # Start a <section> if we must sectionize each file or if the TOC references this page
+            page_section_open = False
+            if self.opts.sectionize == 'files' or self.toc.get(item.href) == 'page':
+                text.append('<section>')
+                page_section_open = True
+                self.section_level += 1
+            
             text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+            
+            if page_section_open:
+                text.append('</section>')
+                self.section_level -= 1
+                
+        # Close any open sections
+        while self.section_level > 0:
             text.append('</section>')
+            self.section_level -= 1
+
         return ''.join(text) + '</body>'
 
     def fb2mlize_images(self):
@@ -183,6 +216,17 @@ class FB2MLizer(object):
                     self.log.error('Error: Could not include file %s because ' \
                         '%s.' % (item.href, e))
         return ''.join(images)
+
+    def create_flat_toc(self, nodes, level):
+        for item in nodes:
+            href, mid, id = item.href.partition('#')
+            if not id:
+                self.toc[href] = 'page'
+            else:
+                if not self.toc.get(href, None):
+                    self.toc[href] = {}
+                self.toc[href][id] = level
+                self.create_flat_toc(item.nodes, level + 1)
 
     def ensure_p(self):
         if self.in_p:
@@ -254,10 +298,38 @@ class FB2MLizer(object):
         # First tag in tree
         tag = barename(elem_tree.tag)
 
+        # Convert TOC entries to <title>s and add <section>s
+        if self.opts.sectionize == 'toc':
+            # A section cannot be a child of any other element than another section,
+            # so leave the tag alone if there are parents
+            if not tag_stack:
+                # There are two reasons to start a new section here: the TOC pointed to
+                # this page (then we use the first non-<body> on the page as a <title>), or
+                # the TOC pointed to a specific element
+                newlevel = 0
+                toc_entry = self.toc.get(page.href, None)
+                if toc_entry == 'page':
+                    if tag != 'body' and hasattr(elem_tree, 'text') and elem_tree.text:
+                        newlevel = 1
+                        self.toc[page.href] = None
+                elif toc_entry and elem_tree.attrib.get('id', None):
+                    newlevel = toc_entry.get(elem_tree.attrib.get('id', None), None)
+                    
+                # Start a new section if necessary
+                if newlevel:
+                    if not (newlevel > self.section_level):
+                        fb2_out.append('</section>')
+                        self.section_level -= 1
+                    fb2_out.append('<section>')
+                    self.section_level += 1
+                    fb2_out.append('<title>')
+                    tags.append('title')
+            if self.section_level == 0:
+                # If none of the prior processing made a section, make one now to be FB2 spec compliant
+                fb2_out.append('<section>')
+                self.section_level += 1
+
         # Process the XHTML tag if it needs to be converted to an FB2 tag.
-        if tag == 'h1' and self.opts.h1_to_title or tag == 'h2' and self.opts.h2_to_title or tag == 'h3' and self.opts.h3_to_title:
-            fb2_out.append('<title>')
-            tags.append('title')
         if tag == 'img':
             if elem_tree.attrib.get('src', None):
                 # Only write the image tag if it is in the manifest.
