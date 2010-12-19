@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-17 19:23+0000\n"
-"PO-Revision-Date: 2010-12-17 22:09+0000\n"
+"PO-Revision-Date: 2010-12-18 12:55+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-18 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-12-19 04:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1953,7 +1953,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:627
 msgid "Could not find an ebook inside the archive"
-msgstr "No s'ha trobat cap llibre dintre de l'arxiu"
+msgstr "No s'ha trobat cap llibre dins de l'arxiu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:685
 msgid "Values of series index and rating must be numbers. Ignoring"
@@ -5075,11 +5075,11 @@ msgstr "S'ha desat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:57
 msgid "Searching for sub-folders"
-msgstr "S'estan buscant subcarpetes"
+msgstr "S'està cercant subcarpetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:62
 msgid "Searching for books"
-msgstr "S'estan buscant llibres"
+msgstr "S'està cercant llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:74
 msgid "Looking for duplicates based on file hash"
@@ -7713,7 +7713,7 @@ msgid ""
 "The replacement text. The matched search text will be replaced with this "
 "string"
 msgstr ""
-"El text de substitució. Els textos que coincideixin es substituiran amb "
+"El text de substitució. Els textos que coincideixin se substituiran per "
 "aquesta cadena"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:403
@@ -7839,8 +7839,7 @@ msgstr "S'ha esgotat el temps de descàrrega."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:266
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
-"No s'ha pogut trobar una portada per al llibre. Intenteu especificar primer "
-"l'ISBN."
+"No s'ha trobat una portada per al llibre. Intenteu especificar primer l'ISBN."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:278
 msgid ""
@@ -8182,7 +8181,7 @@ msgstr "Canvieu el contingut de la cerca desada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:35
 msgid "&Search:"
-msgstr "Re&cerca:"
+msgstr "&Cerca:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:133
 msgid "Need username and password"
@@ -8367,7 +8366,8 @@ msgstr "conté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:42
 msgid "The text to search for. It is interpreted as a regular expression."
-msgstr "El text que s'ha de cerca. S'interpreta com a una expressió regular."
+msgstr ""
+"El text que s'ha de cercar. S'interpreta com a una expressió regular."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:43
 msgid ""
@@ -9256,7 +9256,7 @@ msgstr "Enda&vant!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:187
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr "Fes una cerca ràpida (també podeu prémer la tecla de retorn)"
+msgstr "Cerca ràpida (també podeu prémer la tecla de retorn)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 msgid "Reset Quick Search"
@@ -10867,7 +10867,7 @@ msgstr "Cerca"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:308
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
-"La cerca seleccionada s'eliminarà <b>permanentment</b). N'esteu segur?"
+"La cerca seleccionada se suprimirà <b>permanentment</b). N'esteu segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:351
 msgid "Search (For Advanced Search click the button to the left)"
@@ -11697,7 +11697,7 @@ msgstr "Cerca el següent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:203
 msgid "Find next occurrence"
-msgstr "Cerca el següent cop que passa"
+msgstr "Troba la coincidència següent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:204
 msgid "F3"
@@ -11729,7 +11729,7 @@ msgstr "Cerca l'anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:212
 msgid "Find previous occurrence"
-msgstr "Cerca l'anterior cop que passa"
+msgstr "Troba la coincidència anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
 msgid "Shift+F3"
@@ -13782,7 +13782,7 @@ msgstr "Xinès simplificat"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:98
 msgid "Chinese (HK)"
-msgstr "Xinès tradicional"
+msgstr "Xinès (HK)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
 msgid "Traditional Chinese"
