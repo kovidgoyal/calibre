@@ -225,8 +225,8 @@ class Query(object):
             attr = getattr(e, 'args', [None])
             attr = attr if attr else [None]
             if isinstance(attr[0], socket.timeout):
-                raise NiceBooksError(_('Nicebooks timed out. Try again later.'))
-            raise NiceBooksError(_('Nicebooks encountered an error.'))
+                raise AmazonError(_('Amazon timed out. Try again later.'))
+            raise AmazonError(_('Amazon encountered an error.'))
         if '<title>404 - ' in raw:
             return
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
