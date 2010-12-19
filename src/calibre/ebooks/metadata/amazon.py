@@ -121,6 +121,19 @@ def report(verbose):
 class AmazonError(Exception):
     pass
 
+class ThreadwithResults(Thread):
+    def __init__(self, func, *args, **kargs):
+        self.func = func
+        self.args = args
+        self.kargs = kargs
+        self.result = None
+        Thread.__init__(self)
+
+    def get_result(self):
+        return self.result
+
+    def run(self):
+        self.result = self.func(*self.args, **self.kargs)
 
 class Query(object):
 

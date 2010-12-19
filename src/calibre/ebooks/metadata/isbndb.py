@@ -25,7 +25,7 @@ class ISBNDB(MetadataSource):
 
     def fetch(self):
         if not self.site_customization:
-            return
+            return None
         try:
             self.results = search(self.title, self.book_author, self.publisher, self.isbn,
                                    max_results=10, verbose=self.verbose, key=self.site_customization)
@@ -231,6 +231,7 @@ def search(title=None, author=None, publisher=None, isbn=None,
     #List of entry
     ans = ResultList()
     ans.populate(entries, verbose)
+    ans = [x for x in ans if x is not None]
     return list(dict((book.isbn, book) for book in ans).values())
 
 def option_parser():

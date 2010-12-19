@@ -299,8 +299,8 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
     with MetadataSources(fetchers) as manager:
         manager(title, author, publisher, isbn, verbose)
         manager.join()
-
-    results = list(fetchers[0].results) if fetchers else []
+    
+    results = list(fetchers[0].results) if fetchers[0].results else []
     for fetcher in fetchers[1:]:
         merge_results(results, fetcher.results)
 
