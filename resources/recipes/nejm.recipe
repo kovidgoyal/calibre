@@ -4,7 +4,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class NYTimes(BasicNewsRecipe):
 
     title       = 'New England Journal of Medicine'
-    __author__  = 'Krittika Goyal'
+    __author__  = 'Kovid Goyal'
     description = 'Medical news'
     timefmt = ' [%d %b, %Y]'
     needs_subscription = True
