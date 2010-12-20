@@ -257,7 +257,6 @@ class EbookIterator(object):
             s.max_page = s.start_page + s.pages - 1
         self.toc = self.opf.toc
 
-        self.find_embedded_fonts()
         self.read_bookmarks()
 
         return self
