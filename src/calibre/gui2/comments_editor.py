@@ -74,6 +74,7 @@ class EditorWidget(QWebView):
                     _('Align justified'), False),
                 ('Undo', 'undo', 'edit-undo', _('Undo'), False),
                 ('Redo', 'redo', 'edit-redo', _('Redo'), False),
+                ('RemoveFormat', 'remove_format', 'trash', _('Remove formatting'), False),
                 ('Copy', 'copy', 'edit-copy', _('Copy'), False),
                 ('Paste', 'paste', 'edit-paste', _('Paste'), False),
                 ('Cut', 'cut', 'edit-cut', _('Cut'), False),
@@ -81,6 +82,8 @@ class EditorWidget(QWebView):
                     _('Increase Indentation'), False),
                 ('Outdent', 'outdent', 'format-indent-less',
                     _('Decrease Indentation'), False),
+                ('SelectAll', 'select_all', 'edit-select-all',
+                    _('Select all'), False),
             ]:
             ac = PageAction(wac, icon, text, checkable, self)
             setattr(self, 'action_'+name, ac)
@@ -159,6 +162,8 @@ class Editor(QWidget):
 
         self.toolbar1.addAction(self.editor.action_undo)
         self.toolbar1.addAction(self.editor.action_redo)
+        self.toolbar1.addAction(self.editor.action_select_all)
+        self.toolbar1.addAction(self.editor.action_remove_format)
         self.toolbar1.addSeparator()
 
         for x in ('copy', 'cut', 'paste'):
