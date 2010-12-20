@@ -321,7 +321,7 @@ class LinuxFreeze(Command):
                 try:
                     locale.setlocale(locale.LC_ALL, '')
                 except:
-                    print 'WARNING: Failed to set default libc locale, using en_US'
+                    print 'WARNING: Failed to set default libc locale, using en_US.UTF-8'
                     locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
                 enc = locale.getdefaultlocale()[1]
                 if not enc:
