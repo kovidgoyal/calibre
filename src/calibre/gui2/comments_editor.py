@@ -9,26 +9,85 @@ __docformat__ = 'restructuredtext en'
 from lxml import html
 from lxml.html import soupparser
 
-from PyQt4.Qt import QApplication, QFontInfo, QPalette, QSize, QWidget, \
-    QToolBar, QVBoxLayout, QAction, QIcon
+from PyQt4.Qt import QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit, \
+    QToolBar, QVBoxLayout, QAction, QIcon, QWebPage, Qt, QTabWidget, \
+    QSyntaxHighlighter, QColor, QChar
 from PyQt4.QtWebKit import QWebView
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities
 
-class EditorWidget(QWebView):
+
+class PageAction(QAction): # {{{
+
+    def __init__(self, wac, icon, text, checkable, view):
+        QAction.__init__(self, QIcon(I(icon+'.png')), text, view)
+        self._page_action = getattr(QWebPage, wac)
+        self.setCheckable(checkable)
+        self.triggered.connect(self.trigger_page_action)
+        view.selectionChanged.connect(self.update_state,
+                type=Qt.QueuedConnection)
+        self.page_action.changed.connect(self.update_state,
+                type=Qt.QueuedConnection)
+
+    @property
+    def page_action(self):
+        return self.parent().pageAction(self._page_action)
+
+    def trigger_page_action(self, *args):
+        self.page_action.trigger()
+
+    def update_state(self, *args):
+        if self.isCheckable():
+            self.setChecked(self.page_action.isChecked())
+        self.setEnabled(self.page_action.isEnabled())
+
+# }}}
+
+class EditorWidget(QWebView): # {{{
 
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
 
-        for name, icon, text, checkable in [
-                ('bold', 'format-text-bold', _('Bold'), True),
-                ('italic', 'format-text-italic', _('Italic'), True),
-                ('underline', 'format-text-underline', _('Underline'), True),
-                ('strikethrough', 'format-text-underline', _('Underline'), True),
+        for wac, name, icon, text, checkable in [
+                ('ToggleBold', 'bold', 'format-text-bold', _('Bold'), True),
+                ('ToggleItalic', 'italic', 'format-text-italic', _('Italic'),
+                    True),
+                ('ToggleUnderline', 'underline', 'format-text-underline',
+                    _('Underline'), True),
+                ('ToggleStrikethrough', 'strikethrough', 'format-text-strikethrough',
+                    _('Strikethrough'), True),
+                ('ToggleSuperscript', 'superscript', 'format-text-superscript',
+                    _('Superscript'), True),
+                ('ToggleSubscript', 'subscript', 'format-text-subscript',
+                    _('Subscript'), True),
+                ('InsertOrderedList', 'ordered_list', 'format-list-ordered',
+                    _('Ordered list'), True),
+                ('InsertUnorderedList', 'unordered_list', 'format-list-unordered',
+                    _('Unordered list'), True),
+
+                ('AlignLeft', 'align_left', 'format-justify-left',
+                    _('Align left'), False),
+                ('AlignCenter', 'align_center', 'format-justify-center',
+                    _('Align center'), False),
+                ('AlignRight', 'align_right', 'format-justify-right',
+                    _('Align right'), False),
+                ('AlignJustified', 'align_justified', 'format-justify-fill',
+                    _('Align justified'), False),
+                ('Undo', 'undo', 'edit-undo', _('Undo'), False),
+                ('Redo', 'redo', 'edit-redo', _('Redo'), False),
+                ('RemoveFormat', 'remove_format', 'trash', _('Remove formatting'), False),
+                ('Copy', 'copy', 'edit-copy', _('Copy'), False),
+                ('Paste', 'paste', 'edit-paste', _('Paste'), False),
+                ('Cut', 'cut', 'edit-cut', _('Cut'), False),
+                ('Indent', 'indent', 'format-indent-more',
+                    _('Increase Indentation'), False),
+                ('Outdent', 'outdent', 'format-indent-less',
+                    _('Decrease Indentation'), False),
+                ('SelectAll', 'select_all', 'edit-select-all',
+                    _('Select all'), False),
             ]:
-            ac = QAction(QIcon(I(icon+'.png')), text, self)
-            ac.setCheckable(checkable)
+            ac = PageAction(wac, icon, text, checkable, self)
             setattr(self, 'action_'+name, ac)
 
     def sizeHint(self):
@@ -67,12 +126,7 @@ class EditorWidget(QWebView):
         def fset(self, val):
             self.setHtml(val)
             f = QFontInfo(QApplication.font(self)).pixelSize()
-            b = unicode(QApplication.palette().color(QPalette.Normal,
-                            QPalette.Base).name())
-            c = unicode(QApplication.palette().color(QPalette.Normal,
-                            QPalette.Text).name())
-            style = 'font-size: %dpx; background-color: %s; color: %s' % (f, b,
-                    c)
+            style = 'font-size: %dpx;' % (f,)
 
             for body in self.page().mainFrame().documentElement().findAll('body'):
                 body.setAttribute('style', style)
@@ -80,18 +134,278 @@ class EditorWidget(QWebView):
 
         return property(fget=fget, fset=fset)
 
+# }}}
+
+# Highlighter {{{
+State_Text = -1
+State_DocType = 0
+State_Comment = 1
+State_TagStart = 2
+State_TagName = 3
+State_InsideTag = 4
+State_AttributeName = 5
+State_SingleQuote = 6
+State_DoubleQuote = 7
+State_AttributeValue = 8
+
+class Highlighter(QSyntaxHighlighter):
+
+    def __init__(self, doc):
+        QSyntaxHighlighter.__init__(self, doc)
+        self.colors = {}
+        self.colors['doctype']        = QColor(192, 192, 192)
+        self.colors['entity']         = QColor(128, 128, 128)
+        self.colors['tag']            = QColor(136,  18, 128)
+        self.colors['comment']        = QColor( 35, 110,  37)
+        self.colors['attrname']       = QColor(153,  69,   0)
+        self.colors['attrval']        = QColor( 36,  36, 170)
+
+    def highlightBlock(self, text):
+        state = self.previousBlockState()
+        len_ = text.length()
+        start = 0
+        pos = 0
+
+        while pos < len_:
+
+            if state == State_Comment:
+                start = pos
+                while pos < len_:
+                    if text.mid(pos, 3) == "-->":
+                        pos += 3;
+                        state = State_Text;
+                        break
+                    else:
+                        pos += 1
+                self.setFormat(start, pos - start, self.colors['comment'])
+
+            elif state == State_DocType:
+                start = pos
+                while pos < len_:
+                    ch = text.at(pos)
+                    pos += 1
+                    if ch == QChar('>'):
+                        state = State_Text
+                        break
+                self.setFormat(start, pos - start, self.colors['doctype'])
+
+            # at '<' in e.g. "<span>foo</span>"
+            elif state == State_TagStart:
+                start = pos + 1
+                while pos < len_:
+                    ch = text.at(pos)
+                    pos += 1
+                    if ch == QChar('>'):
+                        state = State_Text
+                        break
+                    if not ch.isSpace():
+                        pos -= 1
+                        state = State_TagName
+                        break
+
+            # at 'b' in e.g "<blockquote>foo</blockquote>"
+            elif state == State_TagName:
+                start = pos
+                while pos < len_:
+                    ch = text.at(pos)
+                    pos += 1
+                    if ch.isSpace():
+                        pos -= 1
+                        state = State_InsideTag
+                        break
+                    if ch == QChar('>'):
+                        state = State_Text
+                        break
+                self.setFormat(start, pos - start, self.colors['tag']);
+
+            # anywhere after tag name and before tag closing ('>')
+            elif state == State_InsideTag:
+                start = pos
+
+                while pos < len_:
+                    ch = text.at(pos)
+                    pos += 1
+
+                    if ch == QChar('/'):
+                        continue
+
+                    if ch == QChar('>'):
+                        state = State_Text
+                        break
+
+                    if not ch.isSpace():
+                        pos -= 1
+                        state = State_AttributeName
+                        break
+
+            # at 's' in e.g. <img src=bla.png/>
+            elif state == State_AttributeName:
+                start = pos
+
+                while pos < len_:
+                    ch = text.at(pos)
+                    pos += 1
+
+                    if ch == QChar('='):
+                        state = State_AttributeValue
+                        break
+
+                    if ch in (QChar('>'), QChar('/')):
+                        state = State_InsideTag
+                        break
+
+                self.setFormat(start, pos - start, self.colors['attrname'])
+
+            # after '=' in e.g. <img src=bla.png/>
+            elif state == State_AttributeValue:
+                start = pos
+
+                # find first non-space character
+                while pos < len_:
+                    ch = text.at(pos)
+                    pos += 1
+
+                    # handle opening single quote
+                    if ch == QChar("'"):
+                        state = State_SingleQuote
+                        break
+
+                    # handle opening double quote
+                    if ch == QChar('"'):
+                        state = State_DoubleQuote
+                        break
+
+                    if not ch.isSpace():
+                        break
+
+                if state == State_AttributeValue:
+                    # attribute value without quote
+                    # just stop at non-space or tag delimiter
+                    start = pos
+                    while pos < len_:
+                        ch = text.at(pos);
+                        if ch.isSpace():
+                            break
+                        if ch in (QChar('>'), QChar('/')):
+                            break
+                        pos += 1
+                    state = State_InsideTag
+                    self.setFormat(start, pos - start, self.colors['attrval'])
+
+            # after the opening single quote in an attribute value
+            elif state == State_SingleQuote:
+                start = pos
+
+                while pos < len_:
+                    ch = text.at(pos)
+                    pos += 1
+                    if ch == QChar("'"):
+                        break
+
+                state = State_InsideTag
+
+                self.setFormat(start, pos - start, self.colors['attrval'])
+
+            # after the opening double quote in an attribute value
+            elif state == State_DoubleQuote:
+                start = pos
+
+                while pos < len_:
+                    ch = text.at(pos)
+                    pos += 1
+                    if ch == QChar('"'):
+                        break
+
+                state = State_InsideTag
+
+                self.setFormat(start, pos - start, self.colors['attrval'])
+
+            else:
+                # State_Text and default
+                while pos < len_:
+                    ch = text.at(pos)
+                    if ch == QChar('<'):
+                        if text.mid(pos, 4) == "<!--":
+                            state = State_Comment
+                        else:
+                            if text.mid(pos, 9).toUpper() == "<!DOCTYPE":
+                                state = State_DocType
+                            else:
+                                state = State_TagStart
+                        break;
+                    elif ch == QChar('&'):
+                        start = pos
+                        while pos < len_ and text.at(pos) != QChar(';'):
+                            self.setFormat(start, pos - start,
+                                    self.colors['entity'])
+                            pos += 1
+
+                    else:
+                        pos += 1
+
+
+        self.setCurrentBlockState(state)
+
+# }}}
 
 class Editor(QWidget):
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.toolbar = QToolBar(self)
+        self.toolbar1 = QToolBar(self)
+        self.toolbar2 = QToolBar(self)
         self.editor = EditorWidget(self)
+        self.tabs = QTabWidget(self)
+        self.tabs.setTabPosition(self.tabs.South)
+        self.wyswyg = QWidget(self.tabs)
+        self.code_edit = QPlainTextEdit(self.tabs)
+        self.source_dirty = False
+        self.wyswyg_dirty = True
+
         self._layout = QVBoxLayout(self)
+        self.wyswyg.layout = l = QVBoxLayout(self.wyswyg)
         self.setLayout(self._layout)
-        self._layout.setContentsMargins(0, 0, 0, 0)
-        self._layout.addWidget(self.toolbar)
-        self._layout.addWidget(self.editor)
+        l.setContentsMargins(0, 0, 0, 0)
+        l.addWidget(self.toolbar1)
+        l.addWidget(self.toolbar2)
+        l.addWidget(self.editor)
+        self._layout.addWidget(self.tabs)
+        self.tabs.addTab(self.wyswyg, _('Normal view'))
+        self.tabs.addTab(self.code_edit, _('HTML Source'))
+        self.tabs.currentChanged[int].connect(self.change_tab)
+        self.highlighter = Highlighter(self.code_edit.document())
+
+        for x in ('bold', 'italic', 'underline', 'strikethrough',
+                'superscript', 'subscript', 'indent', 'outdent'):
+            ac = getattr(self.editor, 'action_'+x)
+            if x in ('superscript', 'indent'):
+                self.toolbar2.addSeparator()
+            self.toolbar2.addAction(ac)
+        self.toolbar2.addSeparator()
+
+        for x in ('left', 'center', 'right', 'justified'):
+            ac = getattr(self.editor, 'action_align_'+x)
+            self.toolbar2.addAction(ac)
+        self.toolbar2.addSeparator()
+
+        self.toolbar1.addAction(self.editor.action_undo)
+        self.toolbar1.addAction(self.editor.action_redo)
+        self.toolbar1.addAction(self.editor.action_select_all)
+        self.toolbar1.addAction(self.editor.action_remove_format)
+        self.toolbar1.addSeparator()
+
+        for x in ('copy', 'cut', 'paste'):
+            ac = getattr(self.editor, 'action_'+x)
+            self.toolbar1.addAction(ac)
+        self.toolbar1.addSeparator()
+
+        for x in ('', 'un'):
+            ac = getattr(self.editor, 'action_%sordered_list'%x)
+            self.toolbar1.addAction(ac)
+        self.toolbar1.addSeparator()
+
+        self.code_edit.textChanged.connect(self.code_dirtied)
+        self.editor.page().contentsChanged.connect(self.wyswyg_dirtied)
 
     @dynamic_property
     def html(self):
@@ -99,7 +413,23 @@ class Editor(QWidget):
             self.editor.html = v
         return property(fget=lambda self:self.editor.html, fset=fset)
 
+    def change_tab(self, index):
+        #print 'reloading:', (index and self.wyswyg_dirty) or (not index and
+        #        self.source_dirty)
+        if index == 1: # changing to code view
+            if self.wyswyg_dirty:
+                self.code_edit.setPlainText(self.html)
+                self.wyswyg_dirty = False
+        elif index == 0: #changing to wyswyg
+            if self.source_dirty:
+                self.html = unicode(self.code_edit.toPlainText())
+                self.source_dirty = False
 
+    def wyswyg_dirtied(self, *args):
+        self.wyswyg_dirty = True
+
+    def code_dirtied(self, *args):
+        self.source_dirty = True
 
 if __name__ == '__main__':
     app = QApplication([])

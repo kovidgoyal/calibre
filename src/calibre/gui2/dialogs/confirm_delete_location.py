@@ -29,13 +29,23 @@ class Dialog(QDialog, Ui_Dialog):
 
     def choice(self):
         return self.loc
-        
+
+    def break_cycles(self):
+        for x in ('lib', 'device', 'both'):
+            b = getattr(self, 'button_'+x)
+            try:
+                b.clicked.disconnect()
+            except:
+                pass
+
 
 def confirm_location(msg, name, parent=None, pixmap='dialog_warning.png'):
     d = Dialog(msg, name, parent)
     d.label.setPixmap(QPixmap(I(pixmap)))
     d.setWindowIcon(QIcon(I(pixmap)))
     d.resize(d.sizeHint())
-    if d.exec_() == d.Accepted:
+    ret = d.exec_()
+    d.break_cycles()
+    if ret == d.Accepted:
         return d.choice()
     return None

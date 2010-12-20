@@ -266,3 +266,12 @@ class POCKETBOOK701(USBMS):
     VENDOR_NAME = 'ANDROID'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
 
+    def windows_sort_drives(self, drives):
+        if len(drives) < 2: return drives
+        main = drives.get('main', None)
+        carda = drives.get('carda', None)
+        if main and carda:
+            drives['main'] = carda
+            drives['carda'] = main
+        return drives
+

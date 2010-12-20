@@ -188,6 +188,7 @@ class Document(QWebPage):
 
         # Miscellaneous
         settings.setAttribute(QWebSettings.LinksIncludedInFocusChain, True)
+        settings.setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
         self.set_user_stylesheet()
         self.misc_config()
 
