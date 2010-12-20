@@ -2133,9 +2133,27 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
                 self.conn.commit()
 
+    series_index_pat = re.compile(r'(.*)\[([.0-9]+)\]')
+
+    def _get_series_values(self, val):
+        if not val:
+            return (val, None)
+        match = self.series_index_pat.match(val)
+        if match is not None:
+            idx = match.group(2)
+            try:
+                idx = float(idx)
+                return (match.group(1).strip(), idx)
+            except:
+                pass
+        return (val, None)
+
     def set_series(self, id, series, notify=True, commit=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
-        self.conn.execute('DELETE FROM series WHERE (SELECT COUNT(id) FROM books_series_link WHERE series=series.id) < 1')
+        self.conn.execute('''DELETE FROM series
+                             WHERE (SELECT COUNT(id) FROM books_series_link
+                                    WHERE series=series.id) < 1''')
+        (series, idx) = self._get_series_values(series)
         if series:
             if not isinstance(series, unicode):
                 series = series.decode(preferred_encoding, 'replace')
@@ -2147,6 +2165,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
+            if idx:
+                self.set_series_index(id, idx, notify=notify, commit=commit)
         self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()

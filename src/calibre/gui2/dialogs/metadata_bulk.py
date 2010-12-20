@@ -375,7 +375,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             else:
                 val = mi.get(field, None)
             if val is None:
-                val = []
+                val = ['']
             elif not fm['is_multiple']:
                 val = [val]
             elif field == 'authors':
@@ -547,11 +547,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if not dest:
             dest = source
         dfm = self.db.field_metadata[dest]
-
         mi = self.db.get_metadata(id, index_is_id=True,)
-        val = mi.get(source)
-        if val is None:
-            return
         val = self.s_r_do_regexp(mi)
         val = self.s_r_do_destination(mi, val)
         if dfm['is_multiple']:

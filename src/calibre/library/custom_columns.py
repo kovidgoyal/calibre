@@ -445,6 +445,9 @@ class CustomColumns(object):
                 index_is_id=True)
         val = self.custom_data_adapters[data['datatype']](val, data)
 
+        if data['datatype'] == 'series' and extra is None:
+            (val, extra) = self._get_series_values(val)
+
         if data['normalized']:
             if data['datatype'] == 'enumeration' and (
                     val and val not in data['display']['enum_values']):
