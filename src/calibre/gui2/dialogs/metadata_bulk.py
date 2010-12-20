@@ -185,10 +185,10 @@ class MyBlockingBusy(QDialog):
                         cdata, area = get_cover_data(fmt)
                         if cdata:
                             covers.append((cdata, area))
-                covers.sort(key=lambda x: x[1])
-                if covers:
-                    self.db.set_cover(id, covers[-1][0])
-                covers = []
+                    covers.sort(key=lambda x: x[1])
+                    if covers:
+                        self.db.set_cover(id, covers[-1][0])
+                    covers = []
         elif self.current_phase == 2:
             # All of these just affect the DB, so we can tolerate a total rollback
             if do_auto_author:
