@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os
+import re, os, posixpath
 
 import cherrypy
 
@@ -88,17 +88,24 @@ class ContentServer(object):
     def static(self, name):
         'Serves static content'
         name = name.lower()
-        cherrypy.response.headers['Content-Type'] = {
+        fname = posixpath.basename(name)
+        try:
+            cherrypy.response.headers['Content-Type'] = {
                      'js'   : 'text/javascript',
                      'css'  : 'text/css',
                      'png'  : 'image/png',
                      'gif'  : 'image/gif',
                      'html' : 'text/html',
-                     ''      : 'application/octet-stream',
-                     }[name.rpartition('.')[-1].lower()]
+                     }[fname.rpartition('.')[-1].lower()]
+        except KeyError:
+            raise cherrypy.HTTPError(404, '%r not a valid resource type'%name)
         cherrypy.response.headers['Last-Modified'] = self.last_modified(self.build_time)
-        path = P('content_server/'+name)
-        if not os.path.exists(path):
+        basedir = os.path.abspath(P('content_server'))
+        path = os.path.join(basedir, name.replace('/', os.sep))
+        path = os.path.abspath(path)
+        if not path.startswith(basedir):
+            raise cherrypy.HTTPError(403, 'Access to %s is forbidden'%name)
+        if not os.path.exists(path) or not os.path.isfile(path):
             raise cherrypy.HTTPError(404, '%s not found'%name)
         if self.opts.develop:
             lm = fromtimestamp(os.stat(path).st_mtime)
