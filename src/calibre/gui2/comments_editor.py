@@ -59,13 +59,28 @@ class EditorWidget(QWebView):
                     _('Superscript'), True),
                 ('ToggleSubscript', 'subscript', 'format-text-subscript',
                     _('Subscript'), True),
+                ('InsertOrderedList', 'ordered_list', 'format-list-ordered',
+                    _('Ordered list'), True),
+                ('InsertUnorderedList', 'unordered_list', 'format-list-unordered',
+                    _('Unordered list'), True),
 
+                ('AlignLeft', 'align_left', 'format-justify-left',
+                    _('Align left'), False),
+                ('AlignCenter', 'align_center', 'format-justify-center',
+                    _('Align center'), False),
+                ('AlignRight', 'align_right', 'format-justify-right',
+                    _('Align right'), False),
+                ('AlignJustified', 'align_justified', 'format-justify-fill',
+                    _('Align justified'), False),
                 ('Undo', 'undo', 'edit-undo', _('Undo'), False),
                 ('Redo', 'redo', 'edit-redo', _('Redo'), False),
                 ('Copy', 'copy', 'edit-copy', _('Copy'), False),
                 ('Paste', 'paste', 'edit-paste', _('Paste'), False),
                 ('Cut', 'cut', 'edit-cut', _('Cut'), False),
-
+                ('Indent', 'indent', 'format-indent-more',
+                    _('Increase Indentation'), False),
+                ('Outdent', 'outdent', 'format-indent-less',
+                    _('Decrease Indentation'), False),
             ]:
             ac = PageAction(wac, icon, text, checkable, self)
             setattr(self, 'action_'+name, ac)
@@ -119,13 +134,42 @@ class Editor(QWidget):
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.toolbar = QToolBar(self)
+        self.toolbar1 = QToolBar(self)
+        self.toolbar2 = QToolBar(self)
         self.editor = EditorWidget(self)
         self._layout = QVBoxLayout(self)
         self.setLayout(self._layout)
         self._layout.setContentsMargins(0, 0, 0, 0)
-        self._layout.addWidget(self.toolbar)
+        self._layout.addWidget(self.toolbar1)
+        self._layout.addWidget(self.toolbar2)
         self._layout.addWidget(self.editor)
+
+        for x in ('bold', 'italic', 'underline', 'strikethrough',
+                'superscript', 'subscript', 'indent', 'outdent'):
+            ac = getattr(self.editor, 'action_'+x)
+            if x in ('superscript', 'indent'):
+                self.toolbar2.addSeparator()
+            self.toolbar2.addAction(ac)
+        self.toolbar2.addSeparator()
+
+        for x in ('left', 'center', 'right', 'justified'):
+            ac = getattr(self.editor, 'action_align_'+x)
+            self.toolbar2.addAction(ac)
+        self.toolbar2.addSeparator()
+
+        self.toolbar1.addAction(self.editor.action_undo)
+        self.toolbar1.addAction(self.editor.action_redo)
+        self.toolbar1.addSeparator()
+
+        for x in ('copy', 'cut', 'paste'):
+            ac = getattr(self.editor, 'action_'+x)
+            self.toolbar1.addAction(ac)
+        self.toolbar1.addSeparator()
+
+        for x in ('', 'un'):
+            ac = getattr(self.editor, 'action_%sordered_list'%x)
+            self.toolbar1.addAction(ac)
+        self.toolbar1.addSeparator()
 
     @dynamic_property
     def html(self):
