@@ -243,7 +243,7 @@
   <action name="action_copy">
    <property name="icon">
     <iconset resource="../../../../resources/images.qrc">
-     <normaloff>:/images/edit_copy.png</normaloff>:/images/edit_copy.png</iconset>
+     <normaloff>:/images/edit-copy.png</normaloff>:/images/edit-copy.png</iconset>
    </property>
    <property name="text">
     <string>Copy to clipboard</string>

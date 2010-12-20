@@ -9,26 +9,65 @@ __docformat__ = 'restructuredtext en'
 from lxml import html
 from lxml.html import soupparser
 
-from PyQt4.Qt import QApplication, QFontInfo, QPalette, QSize, QWidget, \
-    QToolBar, QVBoxLayout, QAction, QIcon
+from PyQt4.Qt import QApplication, QFontInfo, QSize, QWidget, \
+    QToolBar, QVBoxLayout, QAction, QIcon, QWebPage, Qt
 from PyQt4.QtWebKit import QWebView
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities
+
+
+class PageAction(QAction):
+
+    def __init__(self, wac, icon, text, checkable, view):
+        QAction.__init__(self, QIcon(I(icon+'.png')), text, view)
+        self._page_action = getattr(QWebPage, wac)
+        self.setCheckable(checkable)
+        self.triggered.connect(self.trigger_page_action)
+        view.selectionChanged.connect(self.update_state,
+                type=Qt.QueuedConnection)
+        self.page_action.changed.connect(self.update_state,
+                type=Qt.QueuedConnection)
+
+    @property
+    def page_action(self):
+        return self.parent().pageAction(self._page_action)
+
+    def trigger_page_action(self, *args):
+        self.page_action.trigger()
+
+    def update_state(self, *args):
+        if self.isCheckable():
+            self.setChecked(self.page_action.isChecked())
+        self.setEnabled(self.page_action.isEnabled())
+
 
 class EditorWidget(QWebView):
 
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
 
-        for name, icon, text, checkable in [
-                ('bold', 'format-text-bold', _('Bold'), True),
-                ('italic', 'format-text-italic', _('Italic'), True),
-                ('underline', 'format-text-underline', _('Underline'), True),
-                ('strikethrough', 'format-text-underline', _('Underline'), True),
+        for wac, name, icon, text, checkable in [
+                ('ToggleBold', 'bold', 'format-text-bold', _('Bold'), True),
+                ('ToggleItalic', 'italic', 'format-text-italic', _('Italic'),
+                    True),
+                ('ToggleUnderline', 'underline', 'format-text-underline',
+                    _('Underline'), True),
+                ('ToggleStrikethrough', 'strikethrough', 'format-text-strikethrough',
+                    _('Strikethrough'), True),
+                ('ToggleSuperscript', 'superscript', 'format-text-superscript',
+                    _('Superscript'), True),
+                ('ToggleSubscript', 'subscript', 'format-text-subscript',
+                    _('Subscript'), True),
+
+                ('Undo', 'undo', 'edit-undo', _('Undo'), False),
+                ('Redo', 'redo', 'edit-redo', _('Redo'), False),
+                ('Copy', 'copy', 'edit-copy', _('Copy'), False),
+                ('Paste', 'paste', 'edit-paste', _('Paste'), False),
+                ('Cut', 'cut', 'edit-cut', _('Cut'), False),
+
             ]:
-            ac = QAction(QIcon(I(icon+'.png')), text, self)
-            ac.setCheckable(checkable)
+            ac = PageAction(wac, icon, text, checkable, self)
             setattr(self, 'action_'+name, ac)
 
     def sizeHint(self):
@@ -67,12 +106,7 @@ class EditorWidget(QWebView):
         def fset(self, val):
             self.setHtml(val)
             f = QFontInfo(QApplication.font(self)).pixelSize()
-            b = unicode(QApplication.palette().color(QPalette.Normal,
-                            QPalette.Base).name())
-            c = unicode(QApplication.palette().color(QPalette.Normal,
-                            QPalette.Text).name())
-            style = 'font-size: %dpx; background-color: %s; color: %s' % (f, b,
-                    c)
+            style = 'font-size: %dpx;' % (f,)
 
             for body in self.page().mainFrame().documentElement().findAll('body'):
                 body.setAttribute('style', style)
