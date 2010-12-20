@@ -1128,6 +1128,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 for l in list:
                     (id, val, sort_val) = (l[0], l[1], l[2])
                     tids[category][val] = (id, sort_val)
+            elif cat['datatype'] == 'series':
+                for l in list:
+                    (id, val) = (l[0], l[1])
+                    tids[category][val] = (id, title_sort(val))
             elif cat['datatype'] == 'rating':
                 for l in list:
                     (id, val) = (l[0], l[1])
