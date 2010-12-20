@@ -650,7 +650,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.action_table_of_contents.setDisabled(not self.iterator.toc)
             self.current_book_has_toc = bool(self.iterator.toc)
             self.current_title = title
-            self.setWindowTitle(self.base_window_title+' - '+title)
+            self.setWindowTitle(self.base_window_title+' - '+title +
+                    ' [%s]'%os.path.splitext(pathtoebook)[1][1:].upper())
             self.pos.setMaximum(sum(self.iterator.pages))
             self.pos.setSuffix(' / %d'%sum(self.iterator.pages))
             self.vertical_scrollbar.setMinimum(100)
