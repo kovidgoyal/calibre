@@ -40,13 +40,12 @@ class GazetvanAntwerpen(BasicNewsRecipe):
     remove_tags_after  = dict(name='span', attrs={'class':'author'})
 
     feeds = [
-              (u'Overzicht & Blikvanger', u'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/overview/overzicht'       )
+              (u'Binnenland'            , u'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/binnenland'    )
+             ,(u'Buitenland'            , u'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/buitenland'    )
              ,(u'Stad & Regio'          , u'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/stadenregio'   )
              ,(u'Economie'              , u'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/economie'      )
-             ,(u'Binnenland'            , u'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/binnenland'    )
-             ,(u'Buitenland'            , u'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/buitenland'    )
              ,(u'Media & Cultur'        , u'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/mediaencultuur')
-             ,(u'Wetenschap'            , u'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/mediaencultuur')
+             ,(u'Wetenschap'            , u'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/wetenschap'    )
              ,(u'Sport'                 , u'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/sport'         )
             ]
 
