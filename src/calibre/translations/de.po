@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-17 19:23+0000\n"
-"PO-Revision-Date: 2010-12-18 06:00+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2010-12-20 20:03+0000\n"
+"Last-Translator: Matthias Heisig <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-19 04:43+0000\n"
+"X-Launchpad-Export-Date: 2010-12-21 13:26+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -690,7 +690,7 @@ msgstr "Gewähltes Plugin ausschalten"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:148
 msgid "Debug log"
-msgstr ""
+msgstr "Debug-Log"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -841,7 +841,7 @@ msgstr "Kommunikation mit dem  PocketBook 602."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "Kommuniziere mit dem PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1538,6 +1538,12 @@ msgid ""
 "line height specification, unless you know what you are doing. For example, "
 "you can achieve \"double spaced\" text by setting this to 240."
 msgstr ""
+"Die minimale Zeilenhöhe, ausgedrückt als Prozentsatz der berechneten "
+"Schriftgröße des Elementes. Calibre wird sicherstellen, dass jedes Element "
+"diese eingestellte Mindesthöhe hat, unabhängig von der Vorlage. Zum "
+"deaktivieren null einsetzen. Standard ist 120%. Benutzen sie dieses Feld zum "
+"einstellen der Zeilenhöhe wenn Sie wissen was Sie tun. Zum Beispiel können "
+"Sie einen zweizeiligen Text erreichen, wenn Sie den Wert auf 240 setzten."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:180
 msgid ""
@@ -1546,6 +1552,11 @@ msgid ""
 "cases, the minimum line height option is more useful. By default no line "
 "height manipulation is performed."
 msgstr ""
+"Die Zeilenhöhe in Punkten. Steuert den Abstand zwischen aufeinander "
+"folgenden Zeilen Text. Gilt nur für Elemente, welche Ihre eigene Zeilenhöhe "
+"nicht selber festlegen. In den meisten Fällen ist das setzen der minimalen "
+"Zeilenhöhe besser. Standardmäßig wird keine Änderung der Zeilenhöhe "
+"durchgeführt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:191
 msgid ""
@@ -2115,6 +2126,9 @@ msgid ""
 "will flatten the file system inside the EPUB, putting all files into the top "
 "level."
 msgstr ""
+"Diese Option ist nur nötig, wenn Sie beabsichtigen das EPUB mit einem "
+"FBReaderJ zu benutzen. Diese Option wird die Ordnerstruktur des EPUB's "
+"vereinfachen, indem alle Dateien in der obersten Ebene abgelegt werden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:184
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:203
@@ -3055,23 +3069,23 @@ msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:369
 msgid "Covers: 1-Check/ 2-Download"
-msgstr ""
+msgstr "Cover: 1-Überprüfen/ 2-Downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:371
 msgid "Covers files path"
-msgstr ""
+msgstr "Covers Speicherort"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:396
 msgid "No cover found!"
-msgstr ""
+msgstr "Kein Cover gefunden!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:398
 msgid "A cover was found for this book"
-msgstr ""
+msgstr "Es wurde ein Cover für dieses Buch gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:407
 msgid "Cover saved to file "
-msgstr ""
+msgstr "Cover gespeichert "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1308
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1404
@@ -3851,7 +3865,7 @@ msgstr "Autor und Titel mit neuen Metadaten überschreiben"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:101
 msgid "Automatically download the cover, if available"
-msgstr ""
+msgstr "Läd das Cover, wenn möglich, automatisch herunter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:130
 msgid "Limit max simultaneous jobs to number of CPUs"
@@ -4338,6 +4352,8 @@ msgid ""
 "You cannot change libraries while using the environment variable "
 "CALIBRE_OVERRIDE_DATABASE_PATH."
 msgstr ""
+"Sie können die Bibliotheken nicht ändern während die Umgebungsvariable "
+"CALIBRE_OVERRIDE_DATABASE_PATH gesetzt ist."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:401
 msgid "You cannot change libraries while jobs are running."
@@ -4422,23 +4438,27 @@ msgid ""
 "You cannot use other libraries while using the environment variable "
 "CALIBRE_OVERRIDE_DATABASE_PATH."
 msgstr ""
+"Sie können keine anderen Bibliotheken benutzen, während die "
+"Umgebungsvariable CALIBRE_OVERRIDE_DATABASE_PATH gesetzt ist."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:31
 msgid "Deleting..."
-msgstr ""
+msgstr "Wird gelöscht …"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:53
 msgid "Deleted"
-msgstr ""
+msgstr "Gelöscht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:65
 msgid "Failed to delete"
-msgstr ""
+msgstr "Fehler beim Löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:66
 msgid ""
 "Failed to delete some books, click the Show Details button for details."
 msgstr ""
+"Fehler beim löschen einiger Bücher, klicken Sie auf den Details-Button für "
+"mehr Details."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:72
 msgid "Del"
@@ -4635,6 +4655,8 @@ msgstr "In das zuerst gewählte Buch zusammenführen - andere behalten"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:58
 msgid "Merge only formats into first selected book - delete others"
 msgstr ""
+"Füge nur die Formate des ersten gewählten buches zusammen - lösche die "
+"anderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:79
 msgid "Cannot download metadata"
@@ -4762,7 +4784,7 @@ msgstr "Willkommens-Assistenten ausführen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 msgid "Restart in debug mode"
-msgstr ""
+msgstr "Neustart im Debug-Modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:43
@@ -5685,7 +5707,7 @@ msgstr " KB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:63
 msgid "&Flatten EPUB file structure"
-msgstr ""
+msgstr "&Flatten EPUB Dateistruktur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
@@ -5889,11 +5911,11 @@ msgstr "Satzzeichen o&ptimieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:157
 msgid "Minimum &line height:"
-msgstr ""
+msgstr "Minimale &line Höhe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:158
 msgid " %"
-msgstr ""
+msgstr " %"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -6123,7 +6145,7 @@ msgstr "Etikett für persönliches Dokument:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:83
 msgid "Ignore &margins"
-msgstr ""
+msgstr "Ignoriere &margins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -7075,7 +7097,7 @@ msgstr "E&rstelle eine leere Bibliothek am neuen Ort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:82
 msgid "&Copy structure from the current library"
-msgstr ""
+msgstr "&Copy Struktur von der aktuellen Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:83
 msgid ""
@@ -7111,7 +7133,7 @@ msgstr "&Profil:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:23
 msgid "&OK"
-msgstr ""
+msgstr "&OK"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
@@ -7211,11 +7233,11 @@ msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:65
 msgid "Has Cover"
-msgstr ""
+msgstr "Hat ein Cover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:66
 msgid "Has Summary"
-msgstr ""
+msgstr "Hat eine Zusammenfassung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:170
 msgid "Finding metadata..."
@@ -7355,7 +7377,7 @@ msgstr "Wortanfänge groß schreiben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:207
 msgid "Capitalize"
-msgstr ""
+msgstr "Großschreiben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:210
 msgid "Character match"
@@ -7631,15 +7653,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:388
 msgid "Change &cover"
-msgstr ""
+msgstr "Ändere &cover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:389
 msgid "&Generate default cover"
-msgstr ""
+msgstr "&Generate standard Cover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:390
 msgid "&Remove cover"
-msgstr ""
+msgstr "&Remove Cover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:453
@@ -7888,18 +7910,26 @@ msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author. No action is required if this is what you want."
 msgstr ""
+" Die rote Farbe zeigt an, dass die derzeitige Sortierung nach Autor nicht "
+"mit dem Autor übereinstimmt. Es ist keine Maßnahme erforderlich sollten Sie "
+"dies so wünschen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:458
 msgid ""
 " The green color indicates that the current title sort matches the current "
 "title"
 msgstr ""
+" Die grüne Farbe zeigt an, dass die derzeitige Sortierung nach Titel mit dem "
+"Titel übereinstimmt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:461
 msgid ""
 " The red color warns that the current title sort does not match the current "
 "title. No action is required if this is what you want."
 msgstr ""
+" Die rote Farbe zeigt an, dass die derzeitige Sortierung nach Titel nicht "
+"mit dem Titel übereinstimmt. Es ist keine Maßnahme erforderlich sollten Sie "
+"dies so wünschen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:467
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:102
@@ -7976,13 +8006,15 @@ msgstr "Meta-Informationen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:399
 msgid "Title &sort: "
-msgstr ""
+msgstr "Titel &sort: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:400
 msgid ""
 "Specify how this book should be sorted when by title. For example, The "
 "Exorcist might be sorted as Exorcist, The."
 msgstr ""
+"Gibt an, wie dieses Buch nach Titel sortiert werden soll. Zum Beispiel, "
+"\"Der Exorzist\", kann sortiert werden nach \"Exorzist, Der\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:402
 msgid "Author S&ort: "
@@ -8022,6 +8054,9 @@ msgid ""
 "Using this button to create title sort will change title sort from red to "
 "green."
 msgstr ""
+"Erstellt automatisch die Sortierung nach Titel anhand des aktuellen Titels.\n"
+"Bei Benutzung dieses Buttons wird das Feld \"Sortierung nach Title\" von Rot "
+"nach Grün wechseln."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:423
 msgid "Swap the author and title"
@@ -9273,7 +9308,7 @@ msgstr "J"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:355
 msgid "Edit template"
-msgstr ""
+msgstr "Vorlage bearbeiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:67
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:241
@@ -10053,10 +10088,14 @@ msgid ""
 "included, and is the default. For example, the list 'one,two,three' has\n"
 "four values, the first of them being the empty value."
 msgstr ""
+"Eine durch Kommata getrennte Liste an zulässigen Werten. Der leere Wert ist "
+"immer\n"
+"inbegriffen und ist die Standardeinstellung. Die Liste 'eins,zwei,drei' hat\n"
+"vier Werte, der erste von diesen ist der leere Wert."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:169
 msgid "The empty string is always the first value"
-msgstr ""
+msgstr "Die leere Zeichenkette ist immer der erste Wert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
@@ -10223,11 +10262,11 @@ msgstr "&Werkzeugleiste in zwei Leisten teilen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:136
 msgid "Interface font:"
-msgstr ""
+msgstr "Interface-Schriftart:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:137
 msgid "Change &font (needs restart)"
-msgstr ""
+msgstr "Ändere &font (Neustart erforderlich)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:222
 msgid "&Apply"
@@ -11106,7 +11145,7 @@ msgstr "Calibre Quick-Start-Guide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:266
 msgid "Debug mode"
-msgstr ""
+msgstr "Debug-Modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:267
 msgid ""
@@ -11114,6 +11153,8 @@ msgid ""
 "log will be available in the file: %s<p>The log will be displayed "
 "automatically."
 msgstr ""
+"Sie haben Calibre im Debug-Modus gestartet. Beim verlassen des Programms "
+"wird ein Debug-Log erstellt: %s<p>Das Log wird automatisch angezeigt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:451
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:462
@@ -11305,7 +11346,7 @@ msgstr "Zuletzt ver&wendete Fenstergröße merken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:192
 msgid "Remember the &current page when quitting"
-msgstr ""
+msgstr "Speicher die &current Seite beim Verlassen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:193
 msgid "H&yphenate (break line in the middle of large words)"
@@ -11331,19 +11372,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:197
 msgid "Page flip &duration:"
-msgstr ""
+msgstr "Umblättern &duration"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "disabled"
-msgstr ""
+msgstr "Deaktiviert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid " secs"
-msgstr ""
+msgstr " Sekunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
 msgid "Mouse &wheel flips pages"
-msgstr ""
+msgstr "Maus &wheel blättert um"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:202
 msgid "Maximum &view width:"
@@ -11367,10 +11408,13 @@ msgid ""
 "For examples, click <a "
 "href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">here</a>."
 msgstr ""
+"<p> Ein CSS-Stylesheet kann benutzt werden um das aussehen der Bücher zu "
+"beeinflussen. Beispiele finden Sie <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">hier</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:207
 msgid "User &Stylesheet"
-msgstr ""
+msgstr "Benutzer &Stylesheet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
@@ -11412,16 +11456,18 @@ msgstr "Voreingestellte Sprache für die Regeln der Silbentrennung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:55
 msgid "Save the current position in the document, when quitting"
-msgstr ""
+msgstr "Speichere beim Verlassen die aktuelle position im Dokument"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:57
 msgid "Have the mouse wheel turn pages"
-msgstr ""
+msgstr "Mit dem Mausrad umblättern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
 msgid ""
 "The time, in seconds, for the page flip animation. Default is half a second."
 msgstr ""
+"Die Zeit in Sekunden für die Umblättern Animation. Standard ist eine halbe "
+"Sekunde."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:62
 msgid "Font options"
@@ -13699,27 +13745,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:82
 msgid " near "
-msgstr ""
+msgstr " nahe "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:124
 msgid "syntax error - program ends before EOF"
-msgstr ""
+msgstr "Syntax Fehler - Programm endete vor EOF"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:141
 msgid "unknown id "
-msgstr ""
+msgstr "unbekannte id "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:146
 msgid "unknown function {0}"
-msgstr ""
+msgstr "unbekannte Funktion {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:165
 msgid "missing closing parenthesis"
-msgstr ""
+msgstr "fehlende schließende Klammer"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:183
 msgid "expression is not function or constant"
-msgstr ""
+msgstr "Ausdruck ist keine Funktion oder Konstante"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:210
 msgid "lookup requires either 2 or an odd number of arguments"
@@ -14072,15 +14118,15 @@ msgstr "Angepasst"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:118
 msgid "Next section"
-msgstr ""
+msgstr "Nächster Abschnitt"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:121
 msgid "Main menu"
-msgstr ""
+msgstr "Hauptmenü"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:125
 msgid "Previous section"
-msgstr ""
+msgstr "Vorhergehender Abschnitt"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:214
 msgid "Section Menu"
@@ -14088,16 +14134,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:217
 msgid "Main Menu"
-msgstr ""
+msgstr "Hauptmenü"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:303
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:393
 msgid "Sections"
-msgstr ""
+msgstr "Sektionen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:390
 msgid "Articles"
-msgstr ""
+msgstr "Artikel"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:476
 msgid ""
