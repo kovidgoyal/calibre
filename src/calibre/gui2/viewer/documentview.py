@@ -3,8 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-'''
-'''
+# Imports {{{
 import os, math, re, glob, sys
 from base64 import b64encode
 from functools import partial
@@ -24,6 +23,8 @@ from calibre.constants import iswindows
 from calibre import prints, guess_type
 from calibre.gui2.viewer.keys import SHORTCUTS
 
+# }}}
+
 bookmarks = referencing = hyphenation = jquery = jquery_scrollTo = \
         hyphenator = images = hyphen_pats = None
 
@@ -33,6 +34,7 @@ def load_builtin_fonts():
         QFontDatabase.addApplicationFont(f)
     return 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'
 
+# Config {{{
 def config(defaults=None):
     desc = _('Options to customize the ebook viewer')
     if defaults is None:
@@ -137,8 +139,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 str(self.hyphenate_default_lang.itemData(idx).toString()))
         return QDialog.accept(self, *args)
 
+# }}}
 
-class Document(QWebPage):
+class Document(QWebPage): # {{{
 
     def set_font_settings(self):
         opts = config().parse()
@@ -449,7 +452,9 @@ class Document(QWebPage):
                 self.height+amount)
         self.setPreferredContentsSize(s)
 
-class EntityDeclarationProcessor(object):
+# }}}
+
+class EntityDeclarationProcessor(object): # {{{
 
     def __init__(self, html):
         self.declared_entities = {}
@@ -460,8 +465,9 @@ class EntityDeclarationProcessor(object):
         self.processed_html = html
         for key, val in self.declared_entities.iteritems():
             self.processed_html = self.processed_html.replace('&%s;'%key, val)
+# }}}
 
-class DocumentView(QWebView):
+class DocumentView(QWebView): # {{{
 
     DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern)
 
@@ -961,4 +967,5 @@ class DocumentView(QWebView):
             self.manager.scrolled(self.scroll_fraction)
         return ret
 
+# }}}
 
