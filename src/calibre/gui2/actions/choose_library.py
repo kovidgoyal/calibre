@@ -138,6 +138,10 @@ class CheckIntegrity(QProgressDialog):
                         'You should check them manually. This can '
                         'happen if you manipulate the files in the '
                         'library folder directly.'), det_msg=det_msg, show=True)
+        else:
+            info_dialog(self, _('No errors found'),
+                    _('The integrity check completed with no uncorrectable errors found.'),
+                    show=True)
         self.reset()
 
 # }}}
