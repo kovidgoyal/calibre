@@ -55,7 +55,7 @@ except:
 
 _ignore_starts = u'\'"'+u''.join(unichr(x) for x in range(0x2018, 0x201e)+[0x2032, 0x2033])
 
-def title_sort(title, order='library_order'):
+def title_sort(title, order=tweaks['title_series_sorting']):
     title = title.strip()
     if order == 'strictly_alphabetic':
         return title
