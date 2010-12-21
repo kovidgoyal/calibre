@@ -524,7 +524,10 @@ class Editor(QWidget): # {{{
     def html(self):
         def fset(self, v):
             self.editor.html = v
-        return property(fget=lambda self:self.editor.html, fset=fset)
+        def fget(self):
+            self.tabs.setCurrentIndex(0)
+            return self.editor.html
+        return property(fget=fget, fset=fset)
 
     def change_tab(self, index):
         #print 'reloading:', (index and self.wyswyg_dirty) or (not index and
