@@ -202,6 +202,9 @@ class EditorWidget(QWebView): # {{{
 
         def fget(self):
             ans = u''
+            check = unicode(self.page().mainFrame().toPlainText()).strip()
+            if not check:
+                return ans
             try:
                 raw = unicode(self.page().mainFrame().toHtml())
                 raw = xml_to_unicode(raw, strip_encoding_pats=True,
@@ -534,11 +537,11 @@ class Editor(QWidget): # {{{
         #        self.source_dirty)
         if index == 1: # changing to code view
             if self.wyswyg_dirty:
-                self.code_edit.setPlainText(self.html)
+                self.code_edit.setPlainText(self.editor.html)
                 self.wyswyg_dirty = False
         elif index == 0: #changing to wyswyg
             if self.source_dirty:
-                self.html = unicode(self.code_edit.toPlainText())
+                self.editor.html = unicode(self.code_edit.toPlainText())
                 self.source_dirty = False
 
     def wyswyg_dirtied(self, *args):
