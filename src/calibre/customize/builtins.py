@@ -474,7 +474,7 @@ from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
-        SOVOS, PICO, SUNTECH_EB700
+        SOVOS, PICO, SUNSTECH_EB700
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600, LUMIREAD, ALURATEK_COLOR
@@ -579,7 +579,7 @@ plugins += [
     ELONEX,
     TECLAST_K3,
     NEWSMY,
-    PICO, SUNTECH_EB700,
+    PICO, SUNSTECH_EB700,
     IPAPYRUS,
     SOVOS,
     EDGE,

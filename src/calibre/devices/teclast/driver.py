@@ -72,10 +72,10 @@ class SOVOS(TECLAST_K3):
     VENDOR_NAME      = 'RK28XX'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB-MSC'
 
-class SUNTECH_EB700(TECLAST_K3):
-    name = 'Suntech EB700 device interface'
+class SUNSTECH_EB700(TECLAST_K3):
+    name = 'Sunstech EB700 device interface'
     gui_name = 'EB700'
-    description    = _('Communicate with the Suntech EB700 reader.')
+    description    = _('Communicate with the Sunstech EB700 reader.')
 
     FORMATS = ['epub', 'fb2', 'pdf', 'pdb', 'txt']
 
