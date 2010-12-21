@@ -129,7 +129,7 @@ class PrivBookInfo(ctypes.Structure):
 def BambookConnect(ip = DEFAULT_BAMBOOK_IP, timeout = 0):
     if isinstance(ip, unicode):
         ip = ip.encode('ascii')
-    handle = ctypes.c_int(0)
+    handle = ctypes.c_void_p(0)
     if lib_handle == None:
         raise Exception(_('Bambook SDK has not been installed.'))
     ret = lib_handle.BambookConnect(ip, timeout, ctypes.byref(handle))
