@@ -283,8 +283,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 self.all_fields.append(f)
         self.all_fields.sort()
         self.writable_fields.sort()
-        self.search_field.setMaxVisibleItems(20)
-        self.destination_field.setMaxVisibleItems(20)
+        self.search_field.setMaxVisibleItems(25)
+        self.destination_field.setMaxVisibleItems(25)
         offset = 10
         self.s_r_number_of_books = min(10, len(self.ids))
         for i in range(1,self.s_r_number_of_books+1):
@@ -375,7 +375,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             else:
                 val = mi.get(field, None)
             if val is None:
-                val = ['']
+                val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
                 val = [val]
             elif field == 'authors':
