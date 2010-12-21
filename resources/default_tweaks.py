@@ -192,9 +192,11 @@ sony_collection_sorting_rules = []
 #    create a collection named '%All by author' of all books sorted by author
 # device_special_collections = {'title':'%All by title', 'author':''}
 #    create a collection named '%All by title' of books sorted by title,
-#     respecting the order tweaks
+#    respecting the order tweaks
+# device_special_collections = {'title':'%All by title', 'author':'%All by author'}
+#    make both collections
 # sony_all_books_by_author_collection = {'title':'', 'author':''}
-#    disable the collection
+#    disable both collections
 device_special_collections = {'title':'', 'author':''}
 
 
