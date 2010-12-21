@@ -11,7 +11,7 @@ from lxml.html import soupparser
 
 from PyQt4.Qt import QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit, \
     QToolBar, QVBoxLayout, QAction, QIcon, QWebPage, Qt, QTabWidget, \
-    QSyntaxHighlighter, QColor, QChar
+    QSyntaxHighlighter, QColor, QChar, QColorDialog
 from PyQt4.QtWebKit import QWebView
 
 from calibre.ebooks.chardet import xml_to_unicode
@@ -90,8 +90,36 @@ class EditorWidget(QWebView): # {{{
             ac = PageAction(wac, icon, text, checkable, self)
             setattr(self, 'action_'+name, ac)
 
+        self.action_color = QAction(QIcon(I('format-text-color')), _('Foreground color'),
+                self)
+        self.action_color.triggered.connect(self.foreground_color)
+
+        self.action_background = QAction(QIcon(I('format-fill-color')),
+                _('Background color'), self)
+        self.action_background.triggered.connect(self.background_color)
+
+    def foreground_color(self):
+        col = QColorDialog.getColor(Qt.black, self,
+                _('Choose foreground color'), QColorDialog.ShowAlphaChannel)
+        if col.isValid():
+            self.exec_command('foreColor', unicode(col.name()))
+
+    def background_color(self):
+        col = QColorDialog.getColor(Qt.white, self,
+                _('Choose background color'), QColorDialog.ShowAlphaChannel)
+        if col.isValid():
+            self.exec_command('hiliteColor', unicode(col.name()))
+
     def sizeHint(self):
         return QSize(150, 150)
+
+    def exec_command(self, cmd, arg=None):
+        frame = self.page().mainFrame()
+        if arg is not None:
+            js = 'document.execCommand("%s", false, "%s");' % (cmd, arg)
+        else:
+            js = 'document.execCommand("%s", false, null);' % cmd
+        frame.evaluateJavaScript(js)
 
     @dynamic_property
     def html(self):
@@ -402,6 +430,10 @@ class Editor(QWidget):
         for x in ('', 'un'):
             ac = getattr(self.editor, 'action_%sordered_list'%x)
             self.toolbar1.addAction(ac)
+        self.toolbar1.addSeparator()
+
+        self.toolbar1.addAction(self.editor.action_color)
+        self.toolbar1.addAction(self.editor.action_background)
         self.toolbar1.addSeparator()
 
         self.code_edit.textChanged.connect(self.code_dirtied)
