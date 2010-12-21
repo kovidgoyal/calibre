@@ -5,18 +5,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re, os
 
 from lxml import html
 from lxml.html import soupparser
 
 from PyQt4.Qt import QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit, \
-    QToolBar, QVBoxLayout, QAction, QIcon, QWebPage, Qt, QTabWidget, \
-    QSyntaxHighlighter, QColor, QChar, QColorDialog
+    QToolBar, QVBoxLayout, QAction, QIcon, QWebPage, Qt, QTabWidget, QUrl, \
+    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QInputDialog
 from PyQt4.QtWebKit import QWebView
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities
-
+from calibre.gui2 import open_url
 
 class PageAction(QAction): # {{{
 
@@ -41,6 +42,18 @@ class PageAction(QAction): # {{{
         if self.isCheckable():
             self.setChecked(self.page_action.isChecked())
         self.setEnabled(self.page_action.isEnabled())
+
+# }}}
+
+class BlockStyleAction(QAction): # {{{
+
+    def __init__(self, text, name, view):
+        QAction.__init__(self, text, view)
+        self._name = name
+        self.triggered.connect(self.apply_style)
+
+    def apply_style(self, *args):
+        self.parent().exec_command('formatBlock', self._name)
 
 # }}}
 
@@ -98,6 +111,38 @@ class EditorWidget(QWebView): # {{{
                 _('Background color'), self)
         self.action_background.triggered.connect(self.background_color)
 
+        self.action_block_style = QAction(QIcon(I('format-text-heading')),
+                _('Style text block'), self)
+        self.action_block_style.setToolTip(
+                _('Style the selected text block'))
+        self.block_style_menu = QMenu(self)
+        self.action_block_style.setMenu(self.block_style_menu)
+        self.block_style_actions = []
+        for text, name in [
+                (_('Normal'), 'p'),
+                (_('Heading') +' 1', 'h1'),
+                (_('Heading') +' 2', 'h2'),
+                (_('Heading') +' 3', 'h3'),
+                (_('Heading') +' 4', 'h4'),
+                (_('Heading') +' 5', 'h5'),
+                (_('Heading') +' 6', 'h6'),
+                (_('Pre-formatted'), 'pre'),
+                (_('Address'), 'address'),
+                ]:
+            ac = BlockStyleAction(text, name, self)
+            self.block_style_menu.addAction(ac)
+            self.block_style_actions.append(ac)
+
+        self.action_insert_link = QAction(QIcon(I('insert-link.png')),
+                _('Insert link'), self)
+        self.action_insert_link.triggered.connect(self.insert_link)
+
+        self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
+        self.page().linkClicked.connect(self.link_clicked)
+
+    def link_clicked(self, url):
+        open_url(url)
+
     def foreground_color(self):
         col = QColorDialog.getColor(Qt.black, self,
                 _('Choose foreground color'), QColorDialog.ShowAlphaChannel)
@@ -109,6 +154,37 @@ class EditorWidget(QWebView): # {{{
                 _('Choose background color'), QColorDialog.ShowAlphaChannel)
         if col.isValid():
             self.exec_command('hiliteColor', unicode(col.name()))
+
+    def insert_link(self, *args):
+        link, ok = QInputDialog.getText(self, _('Create link'),
+            _('Enter URL'))
+        if not ok:
+            return
+        url = self.parse_link(unicode(link))
+        if url.isValid():
+            url = unicode(url.toString())
+            self.exec_command('createLink', url)
+
+    def parse_link(self, link):
+        link = link.strip()
+        has_schema = re.match(r'^[a-zA-Z]+:', link)
+        if has_schema is not None:
+            url = QUrl(link, QUrl.TolerantMode)
+            if url.isValid():
+                return url
+        if os.path.exists(link):
+            return QUrl.fromLocalFile(link)
+
+        if has_schema is None:
+            first, _, rest = link.partition('.')
+            prefix = 'http'
+            if first == 'ftp':
+                prefix = 'ftp'
+            url = QUrl(prefix +'://'+link, QUrl.TolerantMode)
+            if url.isValid():
+                return url
+
+        return QUrl(link, QUrl.TolerantMode)
 
     def sizeHint(self):
         return QSize(150, 150)
@@ -435,6 +511,11 @@ class Editor(QWidget):
         self.toolbar1.addAction(self.editor.action_color)
         self.toolbar1.addAction(self.editor.action_background)
         self.toolbar1.addSeparator()
+
+        self.toolbar1.addAction(self.editor.action_block_style)
+        w = self.toolbar1.widgetForAction(self.editor.action_block_style)
+        w.setPopupMode(w.InstantPopup)
+        self.toolbar1.addAction(self.editor.action_insert_link)
 
         self.code_edit.textChanged.connect(self.code_dirtied)
         self.editor.page().contentsChanged.connect(self.wyswyg_dirtied)
