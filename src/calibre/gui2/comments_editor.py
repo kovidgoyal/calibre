@@ -127,6 +127,7 @@ class EditorWidget(QWebView): # {{{
                 (_('Heading') +' 5', 'h5'),
                 (_('Heading') +' 6', 'h6'),
                 (_('Pre-formatted'), 'pre'),
+                (_('Blockquote'), 'blockquote'),
                 (_('Address'), 'address'),
                 ]:
             ac = BlockStyleAction(text, name, self)
