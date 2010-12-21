@@ -524,6 +524,8 @@ class EnComboBox(QComboBox):
 
 class HistoryLineEdit(QComboBox):
 
+    lost_focus = pyqtSignal()
+
     def __init__(self, *args):
         QComboBox.__init__(self, *args)
         self.setEditable(True)
@@ -558,6 +560,10 @@ class HistoryLineEdit(QComboBox):
 
     def text(self):
         return self.currentText()
+
+    def focusOutEvent(self, e):
+        QComboBox.focusOutEvent(self, e)
+        self.lost_focus.emit()
 
 class ComboBoxWithHelp(QComboBox):
     '''
