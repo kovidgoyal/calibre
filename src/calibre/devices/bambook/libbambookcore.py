@@ -18,19 +18,17 @@ try:
     cdll = ctypes.cdll
     if iswindows:
         _lib_name = 'BambookCore'
-        cdll = ctypes.windll
+    if hasattr(sys, 'frozen') and iswindows:
+        lp = os.path.join(os.path.dirname(sys.executable), 'DLLs', 'BambookCore.dll')
+        lib_handle = cdll.LoadLibrary(lp)
+    elif hasattr(sys, 'frozen_path'):
+        lp = os.path.join(sys.frozen_path, 'lib', 'libBambookCore.so')
+        lib_handle = cdll.LoadLibrary(lp)
     else:
-        if hasattr(sys, 'frozen') and iswindows:
-            lp = os.path.join(os.path.dirname(sys.executable), 'DLLs', 'BambookCore.dll')
-            lib_handle = cdll.LoadLibrary(lp)
-        elif hasattr(sys, 'frozen_path'):
-            lp = os.path.join(sys.frozen_path, 'lib', 'libBambookCore.so')
-            lib_handle = cdll.LoadLibrary(lp)
-        else:
-            lib_handle = load_library(_lib_name, cdll)
+        lib_handle = load_library(_lib_name, cdll)
 except:
     lib_handle = None
- 
+
 if iswindows:
     text_encoding = 'mbcs'
 elif islinux:
