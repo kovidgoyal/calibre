@@ -179,6 +179,8 @@ class PRS505(USBMS):
         self.plugboard_func = pb_func
 
     def upload_cover(self, path, filename, metadata, filepath):
+        return # Disabled as the SONY's don't need this thumbnail anyway and
+               # older models don't auto delete it
         if metadata.thumbnail and metadata.thumbnail[-1]:
             path = path.replace('/', os.sep)
             is_main = path.startswith(self._main_prefix)
