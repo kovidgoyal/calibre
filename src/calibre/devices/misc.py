@@ -204,3 +204,23 @@ class LUMIREAD(USBMS):
             with open(cfilepath+'.jpg', 'wb') as f:
                 f.write(metadata.thumbnail[-1])
 
+class ALURATEK_COLOR(USBMS):
+
+    name           = 'Aluratek Color Device Interface'
+    gui_name       = 'Aluratek Color'
+    description    = _('Communicate with the Aluratek Color')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'fb2', 'txt', 'pdf']
+
+    VENDOR_ID   = [0x1f3a]
+    PRODUCT_ID  = [0x1000]
+    BCD         = [0x0002]
+
+    EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'books'
+
+    VENDOR_NAME = 'USB_2.0'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB_FLASH_DRIVER'
+
