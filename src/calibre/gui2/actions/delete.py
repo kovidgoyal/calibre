@@ -97,10 +97,15 @@ class DeleteAction(InterfaceAction):
         for action in list(self.delete_menu.actions())[1:]:
             action.setEnabled(enabled)
 
-    def _get_selected_formats(self, msg):
+    def _get_selected_formats(self, msg, ids):
         from calibre.gui2.dialogs.select_formats import SelectFormats
-        fmts = self.gui.library_view.model().db.all_formats()
-        d = SelectFormats([x.lower() for x in fmts], msg, parent=self.gui)
+        fmts = set([])
+        db = self.gui.library_view.model().db
+        for x in ids:
+            fmts_ = db.formats(x, index_is_id=True, verify_formats=False)
+            if fmts_:
+                fmts.update(frozenset([x.lower() for x in fmts_.split(',')]))
+        d = SelectFormats(list(sorted(fmts)), msg, parent=self.gui)
         if d.exec_() != d.Accepted:
             return None
         return d.selected_formats
@@ -118,7 +123,7 @@ class DeleteAction(InterfaceAction):
         if not ids:
             return
         fmts = self._get_selected_formats(
-            _('Choose formats to be deleted'))
+            _('Choose formats to be deleted'), ids)
         if not fmts:
             return
         for id in ids:
@@ -136,7 +141,7 @@ class DeleteAction(InterfaceAction):
         if not ids:
             return
         fmts = self._get_selected_formats(
-            '<p>'+_('Choose formats <b>not</b> to be deleted'))
+            '<p>'+_('Choose formats <b>not</b> to be deleted'), ids)
         if fmts is None:
             return
         for id in ids:

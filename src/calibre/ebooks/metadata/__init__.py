@@ -57,6 +57,8 @@ _ignore_starts = u'\'"'+u''.join(unichr(x) for x in range(0x2018, 0x201e)+[0x203
 
 def title_sort(title):
     title = title.strip()
+    if tweaks['title_series_sorting'] == 'strictly_alphabetic':
+        return title
     if title and title[0] in _ignore_starts:
         title = title[1:]
     match = _title_pat.search(title)

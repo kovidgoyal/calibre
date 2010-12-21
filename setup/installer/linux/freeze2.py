@@ -318,7 +318,11 @@ class LinuxFreeze(Command):
             import codecs
 
             def set_default_encoding():
-                locale.setlocale(locale.LC_ALL, '')
+                try:
+                    locale.setlocale(locale.LC_ALL, '')
+                except:
+                    print 'WARNING: Failed to set default libc locale, using en_US.UTF-8'
+                    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
                 enc = locale.getdefaultlocale()[1]
                 if not enc:
                     enc = locale.nl_langinfo(locale.CODESET)
