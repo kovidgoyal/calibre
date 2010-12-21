@@ -452,7 +452,7 @@ class Highlighter(QSyntaxHighlighter):
 
 # }}}
 
-class Editor(QWidget):
+class Editor(QWidget): # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -543,6 +543,8 @@ class Editor(QWidget):
 
     def code_dirtied(self, *args):
         self.source_dirty = True
+
+# }}}
 
 if __name__ == '__main__':
     app = QApplication([])
