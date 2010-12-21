@@ -414,6 +414,13 @@ Future conversion of these books will use the default settings.</string>
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QRadioButton" name="cover_from_fmt">
+              <property name="text">
+               <string>Set from &amp;ebook file(s)</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -710,8 +717,8 @@ nothing should be put between the original text and the inserted text</string>
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>122</width>
-              <height>38</height>
+              <width>726</width>
+              <height>334</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="testgrid">

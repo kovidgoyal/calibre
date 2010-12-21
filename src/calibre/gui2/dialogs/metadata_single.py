@@ -34,6 +34,7 @@ from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.preferences.social import SocialMetadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre import strftime
+from calibre.library.comments import comments_to_html
 
 class CoverFetcher(Thread): # {{{
 
@@ -195,7 +196,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             _file + _(" is not a valid picture"))
                     d.exec_()
                 else:
-                    self.cover_path.setText(_file)
                     self.cover.setPixmap(pix)
                     self.update_cover_tooltip()
                     self.cover_changed = True
@@ -409,7 +409,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if mi.series_index is not None:
                 self.series_index.setValue(float(mi.series_index))
         if mi.comments and mi.comments.strip():
-            self.comments.setPlainText(mi.comments)
+            comments = comments_to_html(mi.comments)
+            self.comments.html = comments
 
 
     def sync_formats(self):
@@ -556,7 +557,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if rating > 0:
             self.rating.setValue(int(rating/2.))
         comments = self.db.comments(row)
-        self.comments.setPlainText(comments if comments else '')
+        if comments and comments.strip():
+            comments = comments_to_html(comments)
+            self.comments.html = comments
         cover = self.db.cover(row)
         pubdate = db.pubdate(self.id, index_is_id=True)
         self.pubdate.setDate(QDate(pubdate.year, pubdate.month,
@@ -806,10 +809,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             self.pubdate.setDate(QDate(dt.year, dt.month, dt.day))
                         summ = book.comments
                         if summ:
-                            prefix = unicode(self.comments.toPlainText())
+                            prefix = self.comment.html
                             if prefix:
                                 prefix += '\n'
-                            self.comments.setPlainText(prefix + summ)
+                            self.comments.html = prefix + comments_to_html(summ)
                         if book.rating is not None:
                             self.rating.setValue(int(book.rating))
                         if book.tags:
@@ -899,7 +902,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_series_index(self.id, self.series_index.value(),
                                      notify=False, commit=False)
             self.db.set_comment(self.id,
-                    unicode(self.comments.toPlainText()).strip(),
+                    self.comments.html,
                                 notify=False, commit=False)
             d = self.pubdate.date()
             d = qt_to_dt(d)
@@ -936,16 +939,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         QDialog.reject(self, *args)
 
     def read_state(self):
-        wg = dynamic.get('metasingle_window_geometry', None)
-        ss = dynamic.get('metasingle_splitter_state', None)
+        wg = dynamic.get('metasingle_window_geometry2', None)
+        ss = dynamic.get('metasingle_splitter_state2', None)
         if wg is not None:
             self.restoreGeometry(wg)
         if ss is not None:
             self.splitter.restoreState(ss)
 
     def save_state(self):
-        dynamic.set('metasingle_window_geometry', bytes(self.saveGeometry()))
-        dynamic.set('metasingle_splitter_state',
+        dynamic.set('metasingle_window_geometry2', bytes(self.saveGeometry()))
+        dynamic.set('metasingle_splitter_state2',
                 bytes(self.splitter.saveState()))
 
     def break_cycles(self):
