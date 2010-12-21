@@ -2133,12 +2133,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
                 self.conn.commit()
 
-    series_index_pat = re.compile(r'(.*)\[([.0-9]+)\]')
+    series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
 
     def _get_series_values(self, val):
         if not val:
             return (val, None)
-        match = self.series_index_pat.match(val)
+        match = self.series_index_pat.match(val.strip())
         if match is not None:
             idx = match.group(2)
             try:
