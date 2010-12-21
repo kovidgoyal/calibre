@@ -12,6 +12,7 @@ from PyQt4 import QtGui
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
+from calibre.ebooks.metadata.book.base import composite_formatter
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -268,6 +269,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def prepare_search_and_replace(self):
         self.search_for.initialize('bulk_edit_search_for')
         self.replace_with.initialize('bulk_edit_replace_with')
+        self.s_r_template.initialize('bulk_edit_template')
         self.test_text.initialize('bulk_edit_test_test')
         self.all_fields = ['']
         self.writable_fields = ['']
@@ -282,6 +284,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if f in ['sort'] or fm[f]['datatype'] == 'composite':
                 self.all_fields.append(f)
         self.all_fields.sort()
+        self.all_fields.insert(1, '{template}')
         self.writable_fields.sort()
         self.search_field.setMaxVisibleItems(25)
         self.destination_field.setMaxVisibleItems(25)
@@ -360,15 +363,21 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
+        self.s_r_template.lost_focus.connect(self.s_r_template_changed)
         self.central_widget.setCurrentIndex(0)
 
         self.search_for.completer().setCaseSensitivity(Qt.CaseSensitive)
         self.replace_with.completer().setCaseSensitivity(Qt.CaseSensitive)
+        self.s_r_template.completer().setCaseSensitivity(Qt.CaseSensitive)
 
         self.s_r_search_mode_changed(self.search_mode.currentIndex())
 
     def s_r_get_field(self, mi, field):
         if field:
+            if field == '{template}':
+                v = composite_formatter.safe_format\
+                    (unicode(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
+                return [v]
             fm = self.db.metadata_for_field(field)
             if field == 'sort':
                 val = mi.get('title_sort', None)
@@ -384,7 +393,16 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             val = []
         return val
 
+    def s_r_template_changed(self):
+        self.s_r_search_field_changed(self.search_field.currentIndex())
+
     def s_r_search_field_changed(self, idx):
+        if self.search_mode.currentIndex() != 0 and idx == 1: # Template
+            self.s_r_template.setVisible(True)
+            self.template_label.setVisible(True)
+        else:
+            self.s_r_template.setVisible(False)
+            self.template_label.setVisible(False)
         for i in range(0, self.s_r_number_of_books):
             w = getattr(self, 'book_%d_text'%(i+1))
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
