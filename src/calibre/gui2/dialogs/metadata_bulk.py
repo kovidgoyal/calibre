@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to edit metadata in bulk'''
 
-import re
+import re, os
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox
@@ -12,12 +12,41 @@ from PyQt4 import QtGui
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
+from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import sort_key, capitalize
+from calibre.utils.config import prefs
+from calibre.utils.magick.draw import identify_data
+
+def get_cover_data(path):
+    old = prefs['read_file_metadata']
+    if not old:
+        prefs['read_file_metadata'] = True
+    cdata = area = None
+
+    try:
+        mi = get_metadata(open(path, 'rb'),
+                os.path.splitext(path)[1][1:].lower())
+        if mi.cover and os.access(mi.cover, os.R_OK):
+            cdata = open(mi.cover).read()
+        elif mi.cover_data[1] is not None:
+            cdata = mi.cover_data[1]
+        if cdata:
+            width, height, fmt = identify_data(cdata)
+            area = width*height
+    except:
+        cdata = area = None
+
+    if old != prefs['read_file_metadata']:
+        prefs['read_file_metadata'] = old
+
+    return cdata, area
+
+
 
 class MyBlockingBusy(QDialog):
 
@@ -146,6 +175,20 @@ class MyBlockingBusy(QDialog):
                 cdata = calibre_cover(mi.title, mi.format_field('authors')[-1],
                         series_string=series_string)
                 self.db.set_cover(id, cdata)
+            elif cover_action == 'fromfmt':
+                fmts = self.db.formats(id, index_is_id=True, verify_formats=False)
+                if fmts:
+                    covers = []
+                    for fmt in fmts.split(','):
+                        fmt = self.db.format_abspath(id, fmt, index_is_id=True)
+                        if not fmt: continue
+                        cdata, area = get_cover_data(fmt)
+                        if cdata:
+                            covers.append((cdata, area))
+                    covers.sort(key=lambda x: x[1])
+                    if covers:
+                        self.db.set_cover(id, covers[-1][0])
+                    covers = []
         elif self.current_phase == 2:
             # All of these just affect the DB, so we can tolerate a total rollback
             if do_auto_author:
@@ -700,6 +743,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             cover_action = 'remove'
         elif self.cover_generate.isChecked():
             cover_action = 'generate'
+        elif self.cover_from_fmt.isChecked():
+            cover_action = 'fromfmt'
 
         args = (remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,

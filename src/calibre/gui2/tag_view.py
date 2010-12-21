@@ -18,6 +18,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
 from calibre.library.field_metadata import TagsIcons, category_icon_map
+from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
@@ -409,17 +410,31 @@ class TagTreeItem(object): # {{{
         return NONE
 
     def tag_data(self, role):
+        tag = self.tag
+        if tag.category == 'authors' and \
+                tweaks['categories_use_field_for_author_name'] == 'author_sort':
+            name = tag.sort
+            tt_author = True
+        else:
+            name = tag.name
+            tt_author = False
         if role == Qt.DisplayRole:
-            if self.tag.count == 0:
-                return QVariant('%s'%(self.tag.name))
+            if tag.count == 0:
+                return QVariant('%s'%(name))
             else:
-                return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
+                return QVariant('[%d] %s'%(tag.count, name))
         if role == Qt.EditRole:
-            return QVariant(self.tag.name)
+            return QVariant(tag.name)
         if role == Qt.DecorationRole:
-            return self.icon_state_map[self.tag.state]
-        if role == Qt.ToolTipRole and self.tag.tooltip is not None:
-            return QVariant(self.tag.tooltip)
+            return self.icon_state_map[tag.state]
+        if role == Qt.ToolTipRole:
+            if tt_author:
+                if tag.tooltip is not None:
+                    return QVariant('(%s) %s'%(tag.name, tag.tooltip))
+                else:
+                    return QVariant(tag.name)
+            if tag.tooltip is not None:
+                return QVariant(tag.tooltip)
         return NONE
 
     def toggle(self):

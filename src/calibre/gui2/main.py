@@ -254,6 +254,7 @@ def run_in_debug_mode(logpath=None):
     e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
     import tempfile, subprocess
     fd, logpath = tempfile.mkstemp('.txt')
+    os.close(fd)
 
     if hasattr(sys, 'frameworks_dir'):
         base = os.path.dirname(sys.frameworks_dir)
@@ -265,7 +266,13 @@ def run_in_debug_mode(logpath=None):
         base, ext = os.path.splitext(e)
         exe = base + '-debug' + ext
     print 'Starting debug executable:', exe
-    subprocess.Popen([exe, '--gui-debug', logpath], stdout=fd, stderr=fd)
+    creationflags = 0
+    if iswindows:
+        import win32process
+        creationflags = win32process.CREATE_NO_WINDOW
+    subprocess.Popen([exe, '--gui-debug', logpath], stdout=open(logpath, 'w'),
+            stderr=subprocess.STDOUT, stdin=open(os.devnull, 'r'),
+            creationflags=creationflags)
 
 def run_gui(opts, args, actions, listener, app, gui_debug=None):
     initialize_file_icon_provider()
@@ -299,7 +306,13 @@ def run_gui(opts, args, actions, listener, app, gui_debug=None):
     if runner.main.gui_debug is not None:
         e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
         import subprocess
-        subprocess.Popen([e, '--show-gui-debug', runner.main.gui_debug])
+        creationflags = 0
+        if iswindows:
+            import win32process
+            creationflags = win32process.CREATE_NO_WINDOW
+        subprocess.Popen([e, '--show-gui-debug', runner.main.gui_debug],
+            creationflags=creationflags, stdout=open(os.devnull, 'w'),
+            stderr=subprocess.PIPE, stdin=open(os.devnull, 'r'))
     return ret
 
 def cant_start(msg=_('If you are sure it is not running')+', ',

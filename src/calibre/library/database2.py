@@ -8,7 +8,7 @@ The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re
 from itertools import repeat
-from math import floor
+from math import ceil
 from Queue import Queue
 
 from PyQt4.QtGui import QImage
@@ -113,7 +113,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def exists_at(cls, path):
         return path and os.path.exists(os.path.join(path, 'metadata.db'))
 
-    def __init__(self, library_path, row_factory=False):
+    def __init__(self, library_path, row_factory=False, default_prefs=None):
         self.field_metadata = FieldMetadata()
         self.dirtied_queue = Queue()
         if not os.path.exists(library_path):
@@ -127,10 +127,29 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if isinstance(self.dbpath, unicode) and not iswindows:
             self.dbpath = self.dbpath.encode(filesystem_encoding)
 
+        apply_default_prefs = not os.path.exists(self.dbpath)
         self.connect()
+
         self.is_case_sensitive = not iswindows and not isosx and \
             not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
         SchemaUpgrade.__init__(self)
+
+        # if we are to copy the prefs and structure from some other DB, then
+        # we need to do it before we call initialize_dynamic
+        if apply_default_prefs and default_prefs is not None:
+            dbprefs = DBPrefs(self)
+            for key in default_prefs:
+                # be sure that prefs not to be copied are listed below
+                if key in ['news_to_be_synced']:
+                    continue
+                try:
+                    dbprefs[key] = default_prefs[key]
+                except:
+                    pass # ignore options that don't exist anymore
+            fmvals = [f for f in default_prefs['field_metadata'].values() if f['is_custom']]
+            for f in fmvals:
+                self.create_custom_column(f['label'], f['name'], f['datatype'],
+                        f['is_multiple'] is not None, f['is_editable'], f['display'])
         self.initialize_dynamic()
 
     def get_property(self, idx, index_is_id=False, loc=-1):
@@ -1109,6 +1128,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 for l in list:
                     (id, val, sort_val) = (l[0], l[1], l[2])
                     tids[category][val] = (id, sort_val)
+            elif cat['datatype'] == 'series':
+                for l in list:
+                    (id, val) = (l[0], l[1])
+                    tids[category][val] = (id, title_sort(val))
+            elif cat['datatype'] == 'rating':
+                for l in list:
+                    (id, val) = (l[0], l[1])
+                    tids[category][val] = (id, '{0:05.2f}'.format(val))
             else:
                 for l in list:
                     (id, val) = (l[0], l[1])
@@ -1237,12 +1264,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
             # sort the list
             if sort == 'name':
-                def get_sort_key(x):
-                    sk = x.s
-                    if isinstance(sk, unicode):
-                        sk = sort_key(sk)
-                    return sk
-                kf = get_sort_key
+                kf = lambda x :sort_key(x.s)
                 reverse=False
             elif sort == 'popularity':
                 kf = lambda x: x.c
@@ -1365,14 +1387,42 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         series_id = self.conn.get('SELECT id from series WHERE name=?',
                 (series,), all=False)
         if series_id is None:
+            if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+                return float(tweaks['series_index_auto_increment'])
             return 1.0
-        series_num = self.conn.get(
-            ('SELECT MAX(series_index) FROM books WHERE id IN '
-            '(SELECT book FROM books_series_link where series=?)'),
-            (series_id,), all=False)
-        if series_num is None:
+        series_indices = self.conn.get(
+            ('SELECT series_index FROM books WHERE id IN '
+            '(SELECT book FROM books_series_link where series=?) '
+            'ORDER BY series_index'),
+            (series_id,))
+        return self._get_next_series_num_for_list(series_indices)
+
+    def _get_next_series_num_for_list(self, series_indices):
+        if not series_indices:
+            if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+                return float(tweaks['series_index_auto_increment'])
             return 1.0
-        return floor(series_num+1)
+        series_indices = [x[0] for x in series_indices]
+        if tweaks['series_index_auto_increment'] == 'next':
+            return series_indices[-1] + 1
+        if tweaks['series_index_auto_increment'] == 'first_free':
+            for i in range(1, 10000):
+                if i not in series_indices:
+                    return i
+            # really shouldn't get here.
+        if tweaks['series_index_auto_increment'] == 'next_free':
+            for i in range(int(ceil(series_indices[0])), 10000):
+                if i not in series_indices:
+                    return i
+            # really shouldn't get here.
+        if tweaks['series_index_auto_increment'] == 'last_free':
+            for i in range(int(ceil(series_indices[-1])), 0, -1):
+                if i not in series_indices:
+                    return i
+            return series_indices[-1] + 1
+        if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+            return float(tweaks['series_index_auto_increment'])
+        return 1.0
 
     def set(self, row, column, val):
         '''
@@ -1565,6 +1615,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('metadata', [id])
 
+    def set_title_sort(self, id, title_sort_, notify=True, commit=True):
+        if not title_sort_:
+            return False
+        if isbytestring(title_sort_):
+            title_sort_ = title_sort_.decode(preferred_encoding, 'replace')
+        self.conn.execute('UPDATE books SET sort=? WHERE id=?', (title_sort_, id))
+        self.data.set(id, self.FIELD_MAP['sort'], title_sort_, row_is_id=True)
+        self.dirtied([id], commit=False)
+        if commit:
+            self.conn.commit()
+        if notify:
+            self.notify('metadata', [id])
+        return True
+
     def _set_title(self, id, title):
         if not title:
             return False
@@ -1746,18 +1810,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                      FROM books, books_series_link as lt
                                      WHERE books.id = lt.book AND lt.series=?
                                      ORDER BY books.series_index''', (old_id,))
-            # Get the next series index
-            index = self.get_next_series_num_for(new_name)
             # Now update the link table
             self.conn.execute('''UPDATE books_series_link
                                  SET series=?
                                  WHERE series=?''',(new_id, old_id,))
             # Now set the indices
             for (book_id,) in books:
+                # Get the next series index
+                index = self.get_next_series_num_for(new_name)
                 self.conn.execute('''UPDATE books
                                      SET series_index=?
                                      WHERE id=?''',(index, book_id,))
-                index = index + 1
         self.dirty_books_referencing('series', new_id, commit=False)
         self.conn.commit()
 
@@ -1907,7 +1970,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     @classmethod
     def cleanup_tags(cls, tags):
-        tags = [x.strip() for x in tags if x.strip()]
+        tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
         tags = [x.decode(preferred_encoding, 'replace') \
                     if isbytestring(x) else x for x in tags]
         tags = [u' '.join(x.split()) for x in tags]

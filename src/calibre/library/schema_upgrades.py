@@ -427,5 +427,17 @@ class SchemaUpgrade(object):
 
     def upgrade_version_15(self):
         'Remove commas from tags'
-        self.conn.execute("UPDATE tags SET name=REPLACE(name, ',', ';')")
+        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';')")
+        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';;')")
+        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', '')")
 
+    def upgrade_version_16(self):
+        self.conn.executescript('''
+        DROP TRIGGER IF EXISTS books_update_trg;
+        CREATE TRIGGER books_update_trg
+            AFTER UPDATE ON books
+            BEGIN
+            UPDATE books SET sort=title_sort(NEW.title)
+                         WHERE id=NEW.id AND OLD.title <> NEW.title;
+            END;
+        ''')
