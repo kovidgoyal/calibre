@@ -133,8 +133,15 @@ class CollectionsBookList(BookList):
 
         collections = {}
 
-        all_by_author = tweaks['sony_all_books_by_author_collection']
-        all_by_title = tweaks['sony_all_books_by_title_collection']
+        # get the special collection names
+        try:
+            all_by_author = tweaks['device_special_collections']['author']
+        except:
+            all_by_author = ''
+        try:
+            all_by_title = tweaks['device_special_collections']['title']
+        except:
+            all_by_title = ''
 
         for book in self:
             tsval = book.get('_pb_title_sort',

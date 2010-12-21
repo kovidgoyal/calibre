@@ -180,22 +180,22 @@ sony_collection_renaming_rules={}
 # Default: empty (no rules), so no collection attributes are named.
 sony_collection_sorting_rules = []
 
-# Specify whether special collections are to be made. The two available are
-# all_by_author and all_by_title. These collections work around various device
-# idiosyncrasies regarding sorting of lists. The all by author collection is
-# sorted by author(s) then title. The by title collection is sorted by title
-# then authors(s)
+# Specify whether special collections are to be made. This option is primarily
+# of use on a Sony. The two available are all_by_author and all_by_title. These
+# collections work around various device idiosyncrasies regarding sorting of
+# lists, especially the sony *50 models. The author collection is sorted by
+# author(s) then title. The title collection is sorted by title then authors(s)
 # Enable a collection by entering a collection name in the variable. That
 # collection name must be unique.
 # Examples:
-# sony_all_books_by_author_collection = '%All by author'
-#    create a collection of all books sorted by author
-# sony_all_books_by_title_collection = '%All by title'
-#    create a collection of books sorted by title, respecting the order tweaks
-# sony_all_books_by_author_collection = ''
+# device_special_collections = {'title':'', 'author':'%All by author'}
+#    create a collection named '%All by author' of all books sorted by author
+# device_special_collections = {'title':'%All by title', 'author':''}
+#    create a collection named '%All by title' of books sorted by title,
+#     respecting the order tweaks
+# sony_all_books_by_author_collection = {'title':'', 'author':''}
 #    disable the collection
-sony_all_books_by_author_collection = ''
-sony_all_books_by_title_collection = ''
+device_special_collections = {'title':'', 'author':''}
 
 
 # Create search terms to apply a query across several built-in search terms.
