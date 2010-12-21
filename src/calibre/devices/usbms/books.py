@@ -132,9 +132,14 @@ class CollectionsBookList(BookList):
         use_renaming_rules = prefs['manage_device_metadata'] == 'on_connect'
 
         collections = {}
-        # This map of sets is used to avoid linear searches when testing for
-        # book equality
+
+        all_by_author = tweaks['sony_all_books_by_author_collection']
+        all_by_title = tweaks['sony_all_books_by_title_collection']
+
         for book in self:
+            tsval = book.get('_pb_title_sort',
+                             book.get('title_sort', book.get('title', 'zzzz')))
+            asval = book.get('_pb_author_sort', book.get('author_sort', ''))
             # Make sure we can identify this book via the lpath
             lpath = getattr(book, 'lpath', None)
             if lpath is None:
@@ -211,22 +216,29 @@ class CollectionsBookList(BookList):
                         collections[cat_name] = {}
                     if use_renaming_rules and sort_attr:
                         sort_val = book.get(sort_attr, None)
-                        collections[cat_name][lpath] = \
-                                (book, sort_val, book.get('title_sort', 'zzzz'))
+                        collections[cat_name][lpath] = (book, sort_val, tsval)
                     elif is_series:
                         if doing_dc:
                             collections[cat_name][lpath] = \
-                                (book, book.get('series_index', sys.maxint),
-                                 book.get('title_sort', 'zzzz'))
+                                (book, book.get('series_index', sys.maxint), tsval)
                         else:
                             collections[cat_name][lpath] = \
-                                (book, book.get(attr+'_index', sys.maxint),
-                                 book.get('title_sort', 'zzzz'))
+                                (book, book.get(attr+'_index', sys.maxint), tsval)
                     else:
                         if lpath not in collections[cat_name]:
-                            collections[cat_name][lpath] = \
-                                (book, book.get('title_sort', 'zzzz'),
-                                 book.get('title_sort', 'zzzz'))
+                            collections[cat_name][lpath] = (book, tsval, tsval)
+
+            # All books by author
+            if all_by_author:
+                if all_by_author not in collections:
+                    collections[all_by_author] = {}
+                collections[all_by_author][lpath] = (book, asval, tsval)
+            # All books by title
+            if all_by_title:
+                if all_by_title not in collections:
+                    collections[all_by_title] = {}
+                collections[all_by_title][lpath] = (book, tsval, asval)
+
         # Sort collections
         result = {}
 
