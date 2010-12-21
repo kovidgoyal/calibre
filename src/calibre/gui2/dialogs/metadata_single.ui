@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>887</width>
-    <height>750</height>
+    <width>994</width>
+    <height>726</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -43,8 +43,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>879</width>
-        <height>711</height>
+        <width>986</width>
+        <height>687</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -66,8 +66,8 @@
           <attribute name="title">
            <string>&amp;Basic metadata</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_3">
-           <item>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
             <widget class="QSplitter" name="splitter">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -495,29 +495,132 @@ Using this button to create author sort will change author sort from red to gree
                  </property>
                 </widget>
                </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="layoutWidget_2">
+              <layout class="QVBoxLayout" name="verticalLayout_2">
                <item>
-                <widget class="QGroupBox" name="groupBox_2">
-                 <property name="title">
-                  <string>&amp;Comments</string>
+                <widget class="QGroupBox" name="bc_box">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>10</verstretch>
+                  </sizepolicy>
                  </property>
-                 <layout class="QGridLayout" name="gridLayout_4">
-                  <item row="0" column="0">
-                   <widget class="QTextEdit" name="comments">
-                    <property name="tabChangesFocus">
-                     <bool>true</bool>
-                    </property>
-                    <property name="acceptRichText">
-                     <bool>false</bool>
+                 <property name="title">
+                  <string>Book Cover</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_4">
+                  <item>
+                   <widget class="ImageView" name="cover" native="true">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>100</verstretch>
+                     </sizepolicy>
                     </property>
                    </widget>
+                  </item>
+                  <item>
+                   <layout class="QVBoxLayout" name="_4">
+                    <property name="spacing">
+                     <number>6</number>
+                    </property>
+                    <property name="sizeConstraint">
+                     <enum>QLayout::SetMaximumSize</enum>
+                    </property>
+                    <property name="margin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="label_5">
+                      <property name="text">
+                       <string>Change &amp;cover image:</string>
+                      </property>
+                      <property name="buddy">
+                       <cstring>cover_button</cstring>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="_5">
+                      <property name="spacing">
+                       <number>6</number>
+                      </property>
+                      <property name="margin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QPushButton" name="cover_button">
+                        <property name="text">
+                         <string>&amp;Browse</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../../../../resources/images.qrc">
+                          <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="trim_cover_button">
+                        <property name="toolTip">
+                         <string>Remove border (if any) from cover</string>
+                        </property>
+                        <property name="text">
+                         <string>T&amp;rim</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../../../../resources/images.qrc">
+                          <normaloff>:/images/trim.png</normaloff>:/images/trim.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="reset_cover">
+                        <property name="toolTip">
+                         <string>Reset cover to default</string>
+                        </property>
+                        <property name="text">
+                         <string>&amp;Remove</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../../../../resources/images.qrc">
+                          <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QHBoxLayout" name="_6">
+                    <item>
+                     <widget class="QPushButton" name="fetch_cover_button">
+                      <property name="text">
+                       <string>Download co&amp;ver</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="generate_cover_button">
+                      <property name="toolTip">
+                       <string>Generate a default cover based on the title and author</string>
+                      </property>
+                      <property name="text">
+                       <string>&amp;Generate cover</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </item>
                  </layout>
                 </widget>
                </item>
               </layout>
              </widget>
-             <widget class="QWidget" name="layoutWidget_2">
-              <layout class="QVBoxLayout" name="verticalLayout_2">
+             <widget class="QWidget" name="layoutWidget">
+              <layout class="QVBoxLayout" name="verticalLayout_3">
                <item>
                 <widget class="QGroupBox" name="af_group_box">
                  <property name="sizePolicy">
@@ -544,6 +647,12 @@ Using this button to create author sort will change author sort from red to gree
                        <size>
                         <width>16777215</width>
                         <height>140</height>
+                       </size>
+                      </property>
+                      <property name="baseSize">
+                       <size>
+                        <width>100</width>
+                        <height>0</height>
                        </size>
                       </property>
                       <property name="dragDropMode">
@@ -644,129 +753,22 @@ Using this button to create author sort will change author sort from red to gree
                 </widget>
                </item>
                <item>
-                <widget class="QGroupBox" name="bc_box">
+                <widget class="QGroupBox" name="groupBox">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                    <horstretch>0</horstretch>
                    <verstretch>10</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="title">
-                  <string>Book Cover</string>
+                  <string>&amp;Comments</string>
                  </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_4">
+                 <layout class="QVBoxLayout" name="verticalLayout_8">
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
                   <item>
-                   <widget class="ImageView" name="cover" native="true">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                      <horstretch>0</horstretch>
-                      <verstretch>100</verstretch>
-                     </sizepolicy>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <layout class="QVBoxLayout" name="_4">
-                    <property name="spacing">
-                     <number>6</number>
-                    </property>
-                    <property name="sizeConstraint">
-                     <enum>QLayout::SetMaximumSize</enum>
-                    </property>
-                    <property name="margin">
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <widget class="QLabel" name="label_5">
-                      <property name="text">
-                       <string>Change &amp;cover image:</string>
-                      </property>
-                      <property name="buddy">
-                       <cstring>cover_path</cstring>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <layout class="QHBoxLayout" name="_5">
-                      <property name="spacing">
-                       <number>6</number>
-                      </property>
-                      <property name="margin">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <widget class="QLineEdit" name="cover_path">
-                        <property name="readOnly">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="cover_button">
-                        <property name="text">
-                         <string>&amp;Browse</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../../../../resources/images.qrc">
-                          <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QToolButton" name="trim_cover_button">
-                        <property name="toolTip">
-                         <string>Remove border (if any) from cover</string>
-                        </property>
-                        <property name="text">
-                         <string>T&amp;rim</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../../../../resources/images.qrc">
-                          <normaloff>:/images/trim.png</normaloff>:/images/trim.png</iconset>
-                        </property>
-                        <property name="toolButtonStyle">
-                         <enum>Qt::ToolButtonTextBesideIcon</enum>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QToolButton" name="reset_cover">
-                        <property name="toolTip">
-                         <string>Reset cover to default</string>
-                        </property>
-                        <property name="text">
-                         <string>...</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../../../../resources/images.qrc">
-                          <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="_6">
-                    <item>
-                     <widget class="QPushButton" name="fetch_cover_button">
-                      <property name="text">
-                       <string>Download co&amp;ver</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="generate_cover_button">
-                      <property name="toolTip">
-                       <string>Generate a default cover based on the title and author</string>
-                      </property>
-                      <property name="text">
-                       <string>&amp;Generate cover</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
+                   <widget class="Editor" name="comments" native="true"/>
                   </item>
                  </layout>
                 </widget>
@@ -828,6 +830,12 @@ Using this button to create author sort will change author sort from red to gree
    <header>calibre/gui2/widgets.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>Editor</class>
+   <extends>QWidget</extends>
+   <header location="global">calibre/gui2/comments_editor.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>title</tabstop>
@@ -848,13 +856,11 @@ Using this button to create author sort will change author sort from red to gree
   <tabstop>date</tabstop>
   <tabstop>pubdate</tabstop>
   <tabstop>fetch_metadata_button</tabstop>
-  <tabstop>comments</tabstop>
   <tabstop>button_set_cover</tabstop>
   <tabstop>button_set_metadata</tabstop>
   <tabstop>formats</tabstop>
   <tabstop>add_format_button</tabstop>
   <tabstop>remove_format_button</tabstop>
-  <tabstop>cover_path</tabstop>
   <tabstop>cover_button</tabstop>
   <tabstop>trim_cover_button</tabstop>
   <tabstop>reset_cover</tabstop>
