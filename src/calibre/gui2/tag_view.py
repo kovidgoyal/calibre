@@ -695,8 +695,10 @@ class TagsModel(QAbstractItemModel): # {{{
     def setData(self, index, value, role=Qt.EditRole):
         if not index.isValid():
             return NONE
-        # set up to position at the category label
-        path = self.path_for_index(self.parent(index))
+        # set up to reposition at the same item. We can do this except if
+        # working with the last item and that item is deleted, in which case
+        # we position at the parent label
+        path = index.model().path_for_index(index)
         val = unicode(value.toString())
         if not val:
             error_dialog(self.tags_view, _('Item is blank'),
@@ -947,18 +949,22 @@ class TagBrowserMixin(object): # {{{
                         for old_id in to_rename[text]:
                             rename_func(old_id, new_name=unicode(text))
 
-            # Clean up everything, as information could have changed for many books.
-            self.library_view.model().refresh()
-            self.tags_view.set_new_model()
-            self.tags_view.recount()
-            self.saved_search.clear()
-            self.search.clear()
+            # Clean up the library view
+            self.do_tag_item_renamed()
+            self.tags_view.set_new_model() # does a refresh for free
 
     def do_tag_item_renamed(self):
         # Clean up library view and search
-        self.library_view.model().refresh()
-        self.saved_search.clear()
-        self.search.clear()
+        # get information to redo the selection
+        rows = [r.row() for r in \
+                self.library_view.selectionModel().selectedRows()]
+        m = self.library_view.model()
+        ids = [m.id(r) for r in rows]
+
+        m.refresh(reset=False)
+        m.research()
+        self.library_view.select_rows(ids)
+        # refreshing the tags view happens at the emit()/call() site
 
     def do_author_sort_edit(self, parent, id):
         db = self.library_view.model().db
