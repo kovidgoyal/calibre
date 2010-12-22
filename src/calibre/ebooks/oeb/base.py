@@ -657,7 +657,10 @@ class Metadata(object):
                 attrib[key] = prefixname(value, nsrmap)
             if namespace(self.term) == DC11_NS:
                 elem = element(parent, self.term, attrib=attrib)
-                elem.text = self.value
+                try:
+                    elem.text = self.value
+                except:
+                    elem.text = repr(self.value)
             else:
                 elem = element(parent, OPF('meta'), attrib=attrib)
                 elem.attrib['name'] = prefixname(self.term, nsrmap)
