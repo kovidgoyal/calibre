@@ -206,17 +206,23 @@ class SearchBox2(QComboBox): # {{{
         self.line_edit.blockSignals(yes)
 
     def set_search_string(self, txt, store_in_history=False, emit_changed=True):
-        self.setFocus(Qt.OtherFocusReason)
-        if not txt:
-            self.clear()
-        else:
-            self.normalize_state()
-            self.setEditText(txt)
-            self.line_edit.end(False)
-            if emit_changed:
-                self.changed.emit()
-            self._do_search(store_in_history=store_in_history)
-        self.focus_to_library.emit()
+        if not store_in_history:
+            self.activated.disconnect()
+        try:
+            self.setFocus(Qt.OtherFocusReason)
+            if not txt:
+                self.clear()
+            else:
+                self.normalize_state()
+                self.setEditText(txt)
+                self.line_edit.end(False)
+                if emit_changed:
+                    self.changed.emit()
+                self._do_search(store_in_history=store_in_history)
+            self.focus_to_library.emit()
+        finally:
+            if not store_in_history:
+                self.activated.connect(self.history_selected)
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
