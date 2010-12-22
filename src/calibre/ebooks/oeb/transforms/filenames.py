@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import posixpath
-from urlparse import urldefrag
+from urlparse import urldefrag, urlparse
 
 from lxml import etree
 import cssutils
@@ -67,6 +67,10 @@ class RenameFiles(object): # {{{
 
     def url_replacer(self, orig_url):
         url = urlnormalize(orig_url)
+        parts = urlparse(url)
+        if parts.scheme:
+            # Only rewrite local URLs
+            return orig_url
         path, frag = urldefrag(url)
         if self.renamed_items_map:
             orig_item = self.renamed_items_map.get(self.current_item.href, self.current_item)

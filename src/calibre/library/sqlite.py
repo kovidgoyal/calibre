@@ -16,7 +16,6 @@ from datetime import datetime
 from functools import partial
 
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
-from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, isoformat
 from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG

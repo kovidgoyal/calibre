@@ -5,18 +5,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re, os
 
 from lxml import html
 from lxml.html import soupparser
 
 from PyQt4.Qt import QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit, \
-    QToolBar, QVBoxLayout, QAction, QIcon, QWebPage, Qt, QTabWidget, \
-    QSyntaxHighlighter, QColor, QChar
-from PyQt4.QtWebKit import QWebView
+    QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, \
+    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QInputDialog
+from PyQt4.QtWebKit import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities
-
+from calibre.gui2 import open_url
 
 class PageAction(QAction): # {{{
 
@@ -41,6 +42,18 @@ class PageAction(QAction): # {{{
         if self.isCheckable():
             self.setChecked(self.page_action.isChecked())
         self.setEnabled(self.page_action.isEnabled())
+
+# }}}
+
+class BlockStyleAction(QAction): # {{{
+
+    def __init__(self, text, name, view):
+        QAction.__init__(self, text, view)
+        self._name = name
+        self.triggered.connect(self.apply_style)
+
+    def apply_style(self, *args):
+        self.parent().exec_command('formatBlock', self._name)
 
 # }}}
 
@@ -90,14 +103,109 @@ class EditorWidget(QWebView): # {{{
             ac = PageAction(wac, icon, text, checkable, self)
             setattr(self, 'action_'+name, ac)
 
+        self.action_color = QAction(QIcon(I('format-text-color')), _('Foreground color'),
+                self)
+        self.action_color.triggered.connect(self.foreground_color)
+
+        self.action_background = QAction(QIcon(I('format-fill-color')),
+                _('Background color'), self)
+        self.action_background.triggered.connect(self.background_color)
+
+        self.action_block_style = QAction(QIcon(I('format-text-heading')),
+                _('Style text block'), self)
+        self.action_block_style.setToolTip(
+                _('Style the selected text block'))
+        self.block_style_menu = QMenu(self)
+        self.action_block_style.setMenu(self.block_style_menu)
+        self.block_style_actions = []
+        for text, name in [
+                (_('Normal'), 'p'),
+                (_('Heading') +' 1', 'h1'),
+                (_('Heading') +' 2', 'h2'),
+                (_('Heading') +' 3', 'h3'),
+                (_('Heading') +' 4', 'h4'),
+                (_('Heading') +' 5', 'h5'),
+                (_('Heading') +' 6', 'h6'),
+                (_('Pre-formatted'), 'pre'),
+                (_('Blockquote'), 'blockquote'),
+                (_('Address'), 'address'),
+                ]:
+            ac = BlockStyleAction(text, name, self)
+            self.block_style_menu.addAction(ac)
+            self.block_style_actions.append(ac)
+
+        self.action_insert_link = QAction(QIcon(I('insert-link.png')),
+                _('Insert link'), self)
+        self.action_insert_link.triggered.connect(self.insert_link)
+
+        self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
+        self.page().linkClicked.connect(self.link_clicked)
+
+    def link_clicked(self, url):
+        open_url(url)
+
+    def foreground_color(self):
+        col = QColorDialog.getColor(Qt.black, self,
+                _('Choose foreground color'), QColorDialog.ShowAlphaChannel)
+        if col.isValid():
+            self.exec_command('foreColor', unicode(col.name()))
+
+    def background_color(self):
+        col = QColorDialog.getColor(Qt.white, self,
+                _('Choose background color'), QColorDialog.ShowAlphaChannel)
+        if col.isValid():
+            self.exec_command('hiliteColor', unicode(col.name()))
+
+    def insert_link(self, *args):
+        link, ok = QInputDialog.getText(self, _('Create link'),
+            _('Enter URL'))
+        if not ok:
+            return
+        url = self.parse_link(unicode(link))
+        if url.isValid():
+            url = unicode(url.toString())
+            self.exec_command('createLink', url)
+
+    def parse_link(self, link):
+        link = link.strip()
+        has_schema = re.match(r'^[a-zA-Z]+:', link)
+        if has_schema is not None:
+            url = QUrl(link, QUrl.TolerantMode)
+            if url.isValid():
+                return url
+        if os.path.exists(link):
+            return QUrl.fromLocalFile(link)
+
+        if has_schema is None:
+            first, _, rest = link.partition('.')
+            prefix = 'http'
+            if first == 'ftp':
+                prefix = 'ftp'
+            url = QUrl(prefix +'://'+link, QUrl.TolerantMode)
+            if url.isValid():
+                return url
+
+        return QUrl(link, QUrl.TolerantMode)
+
     def sizeHint(self):
         return QSize(150, 150)
+
+    def exec_command(self, cmd, arg=None):
+        frame = self.page().mainFrame()
+        if arg is not None:
+            js = 'document.execCommand("%s", false, "%s");' % (cmd, arg)
+        else:
+            js = 'document.execCommand("%s", false, null);' % cmd
+        frame.evaluateJavaScript(js)
 
     @dynamic_property
     def html(self):
 
         def fget(self):
             ans = u''
+            check = unicode(self.page().mainFrame().toPlainText()).strip()
+            if not check:
+                return ans
             try:
                 raw = unicode(self.page().mainFrame().toHtml())
                 raw = xml_to_unicode(raw, strip_encoding_pats=True,
@@ -348,7 +456,7 @@ class Highlighter(QSyntaxHighlighter):
 
 # }}}
 
-class Editor(QWidget):
+class Editor(QWidget): # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -404,6 +512,15 @@ class Editor(QWidget):
             self.toolbar1.addAction(ac)
         self.toolbar1.addSeparator()
 
+        self.toolbar1.addAction(self.editor.action_color)
+        self.toolbar1.addAction(self.editor.action_background)
+        self.toolbar1.addSeparator()
+
+        self.toolbar1.addAction(self.editor.action_block_style)
+        w = self.toolbar1.widgetForAction(self.editor.action_block_style)
+        w.setPopupMode(w.InstantPopup)
+        self.toolbar1.addAction(self.editor.action_insert_link)
+
         self.code_edit.textChanged.connect(self.code_dirtied)
         self.editor.page().contentsChanged.connect(self.wyswyg_dirtied)
 
@@ -411,18 +528,21 @@ class Editor(QWidget):
     def html(self):
         def fset(self, v):
             self.editor.html = v
-        return property(fget=lambda self:self.editor.html, fset=fset)
+        def fget(self):
+            self.tabs.setCurrentIndex(0)
+            return self.editor.html
+        return property(fget=fget, fset=fset)
 
     def change_tab(self, index):
         #print 'reloading:', (index and self.wyswyg_dirty) or (not index and
         #        self.source_dirty)
         if index == 1: # changing to code view
             if self.wyswyg_dirty:
-                self.code_edit.setPlainText(self.html)
+                self.code_edit.setPlainText(self.editor.html)
                 self.wyswyg_dirty = False
         elif index == 0: #changing to wyswyg
             if self.source_dirty:
-                self.html = unicode(self.code_edit.toPlainText())
+                self.editor.html = unicode(self.code_edit.toPlainText())
                 self.source_dirty = False
 
     def wyswyg_dirtied(self, *args):
@@ -430,6 +550,8 @@ class Editor(QWidget):
 
     def code_dirtied(self, *args):
         self.source_dirty = True
+
+# }}}
 
 if __name__ == '__main__':
     app = QApplication([])

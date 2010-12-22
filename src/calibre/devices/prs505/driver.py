@@ -58,9 +58,16 @@ class PRS505(USBMS):
     SUPPORTS_USE_AUTHOR_SORT = True
     EBOOK_DIR_MAIN = 'database/media/books'
 
+    ALL_BY_TITLE  = _('All by title')
+    ALL_BY_AUTHOR = _('All by author')
+
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of metadata fields '
             'to turn into collections on the device. Possibilities include: ')+\
-                    'series, tags, authors'
+                    'series, tags, authors' +\
+            _('. Two special collections are available: %s:%s and %s:%s. Add  '
+            'these values to the list to enable them. The collections will be '
+            'given the name provided after the ":" character.')%(
+                                    'abt', ALL_BY_TITLE, 'aba', ALL_BY_AUTHOR)
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags'])
 
     plugboard = None
@@ -151,7 +158,7 @@ class PRS505(USBMS):
                 blists[i] = booklists[i]
         opts = self.settings()
         if opts.extra_customization:
-            collections = [x.lower().strip() for x in
+            collections = [x.strip() for x in
                     opts.extra_customization.split(',')]
         else:
             collections = []
@@ -179,6 +186,8 @@ class PRS505(USBMS):
         self.plugboard_func = pb_func
 
     def upload_cover(self, path, filename, metadata, filepath):
+        return # Disabled as the SONY's don't need this thumbnail anyway and
+               # older models don't auto delete it
         if metadata.thumbnail and metadata.thumbnail[-1]:
             path = path.replace('/', os.sep)
             is_main = path.startswith(self._main_prefix)

@@ -508,6 +508,29 @@ Future conversion of these books will use the default settings.</string>
           </layout>
          </item>
          <item row="4" column="0">
+          <widget class="QLabel" name="template_label">
+           <property name="text">
+            <string>Te&amp;mplate:</string>
+           </property>
+           <property name="buddy">
+            <cstring>s_r_template</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="HistoryLineEdit" name="s_r_template">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Enter a template to be used as the source for the search/replace</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
           <widget class="QLabel" name="xlabel_2">
            <property name="text">
             <string>&amp;Search for:</string>
@@ -517,7 +540,7 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="5" column="1">
           <widget class="HistoryLineEdit" name="search_for">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -530,7 +553,7 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="2">
+         <item row="5" column="2">
           <widget class="QCheckBox" name="case_sensitive">
            <property name="toolTip">
             <string>Check this box if the search string must match exactly upper and lower case. Uncheck it if case is to be ignored</string>
@@ -543,7 +566,7 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="xlabel_4">
            <property name="text">
             <string>&amp;Replace with:</string>
@@ -553,14 +576,14 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="6" column="1">
           <widget class="HistoryLineEdit" name="replace_with">
            <property name="toolTip">
             <string>The replacement text. The matched search text will be replaced with this string</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
+         <item row="6" column="2">
           <layout class="QHBoxLayout" name="verticalLayout">
            <item>
             <widget class="QLabel" name="label_41">
@@ -595,7 +618,7 @@ field is processed. In regular expression mode, only the matched text is process
            </item>
           </layout>
          </item>
-         <item row="6" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="destination_field_label">
            <property name="text">
             <string>&amp;Destination field:</string>
@@ -605,14 +628,15 @@ field is processed. In regular expression mode, only the matched text is process
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
+         <item row="7" column="1">
           <widget class="QComboBox" name="destination_field">
            <property name="toolTip">
-            <string>The field that the text will be put into after all replacements. If blank, the source field is used.</string>
+            <string>The field that the text will be put into after all replacements.
+If blank, the source field is used if the field is modifiable</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="2">
+         <item row="7" column="2">
           <layout class="QHBoxLayout" name="verticalLayout">
            <item>
             <widget class="QLabel" name="replace_mode_label">
@@ -660,7 +684,7 @@ nothing should be put between the original text and the inserted text</string>
            </item>
           </layout>
          </item>
-         <item row="7" column="1">
+         <item row="8" column="1">
           <widget class="QLabel" name="xlabel_3">
            <property name="text">
             <string>Test &amp;text</string>
@@ -670,7 +694,7 @@ nothing should be put between the original text and the inserted text</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="2">
+         <item row="8" column="2">
           <widget class="QLabel" name="label_51">
            <property name="text">
             <string>Test re&amp;sult</string>
@@ -791,6 +815,7 @@ nothing should be put between the original text and the inserted text</string>
   <tabstop>central_widget</tabstop>
   <tabstop>search_field</tabstop>
   <tabstop>search_mode</tabstop>
+  <tabstop>s_r_template</tabstop>
   <tabstop>search_for</tabstop>
   <tabstop>case_sensitive</tabstop>
   <tabstop>replace_with</tabstop>
