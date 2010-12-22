@@ -18,6 +18,7 @@ from calibre.utils.config import Config, StringConfig
 from calibre.utils.localization import get_language
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.flip import SlideFlip
+from calibre.gui2.viewer.gestures import Gestures
 from calibre.gui2.shortcuts import Shortcuts, ShortcutConfig
 from calibre.constants import iswindows
 from calibre import prints, guess_type
@@ -474,6 +475,7 @@ class DocumentView(QWebView): # {{{
     def __init__(self, *args):
         QWebView.__init__(self, *args)
         self.flipper = SlideFlip(self)
+        self.gestures = Gestures()
         self.is_auto_repeat_event = False
         self.debug_javascript = False
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
@@ -958,6 +960,29 @@ class DocumentView(QWebView): # {{{
         if self.manager is not None:
             self.manager.viewport_resized(self.scroll_fraction)
         return ret
+
+    def event(self, ev):
+        typ = ev.type()
+        if typ == ev.TouchBegin:
+            try:
+                self.gestures.start_gesture('touch', ev)
+            except:
+                import traceback
+                traceback.print_exc()
+        elif typ == ev.TouchEnd:
+            try:
+                gesture = self.gestures.end_gesture('touch', ev, self.rect())
+            except:
+                import traceback
+                traceback.print_exc()
+            if gesture is not None:
+                ev.accept()
+                if gesture == 'lineleft':
+                    self.next_page()
+                elif gesture == 'lineright':
+                    self.previous_page()
+                return True
+        return QWebView.event(self, ev)
 
     def mouseReleaseEvent(self, ev):
         opos = self.document.ypos
