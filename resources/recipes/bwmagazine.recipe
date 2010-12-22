@@ -4,9 +4,7 @@ __copyright__ = '2008 Kovid Goyal kovid@kovidgoyal.net, 2010 Darko Miletic <dark
 www.businessweek.com
 '''
 
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class BusinessWeek(BasicNewsRecipe):
     title                 = 'Business Week'
@@ -24,8 +22,8 @@ class BusinessWeek(BasicNewsRecipe):
     publication_type      = 'magazine'
     cover_url             = 'http://images.businessweek.com/mz/covers/current_120x160.jpg'
     masthead_url          = 'http://assets.businessweek.com/images/bw-logo.png'
-    extra_css             = """ 
-                               body{font-family: Helvetica,Arial,sans-serif } 
+    extra_css             = """
+                               body{font-family: Helvetica,Arial,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
                                .tagline{color: gray; font-style: italic}
                                .photoCredit{font-size: small; color: gray}
@@ -68,7 +66,7 @@ class BusinessWeek(BasicNewsRecipe):
               (u'Careers', u'http://rss.businessweek.com/bw_rss/careers'),
               (u'B-Schools', u'http://www.businessweek.com/rss/bschools.rss'),
               (u'Magazine Selections', u'http://www.businessweek.com/rss/magazine.rss'),
-              (u'CEO Guide to Tech', u'http://www.businessweek.com/rss/ceo_guide_tech.rss'),    
+              (u'CEO Guide to Tech', u'http://www.businessweek.com/rss/ceo_guide_tech.rss'),
             ]
 
     def get_article_url(self, article):
@@ -85,7 +83,7 @@ class BusinessWeek(BasicNewsRecipe):
             return None
         rurl, sep, rest = url.rpartition('?')
         if rurl:
-           return rurl         
+           return rurl
         return rest
 
     def print_version(self, url):
@@ -93,12 +91,12 @@ class BusinessWeek(BasicNewsRecipe):
            return url
         rurl = url.replace('http://www.businessweek.com/','http://www.businessweek.com/print/')
         return rurl.replace('/investing/','/investor/')
-        
+
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
         for alink in soup.findAll('a'):
             if alink.string is not None:
                tstr = alink.string
-               alink.replaceWith(tstr)            
+               alink.replaceWith(tstr)
         return soup
