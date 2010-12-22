@@ -134,14 +134,17 @@ class CollectionsBookList(BookList):
         collections = {}
 
         # get the special collection names
-        try:
-            all_by_author = tweaks['device_special_collections']['author']
-        except:
-            all_by_author = ''
-        try:
-            all_by_title = tweaks['device_special_collections']['title']
-        except:
-            all_by_title = ''
+        all_by_author = ''
+        all_by_title = ''
+        ca = []
+        for c in collection_attributes:
+            if c.startswith('aba:') and c[4:]:
+                all_by_author = c[4:]
+            elif c.startswith('abt:') and c[4:]:
+                all_by_title = c[4:]
+            else:
+                ca.append(c.lower())
+        collection_attributes = ca
 
         for book in self:
             tsval = book.get('_pb_title_sort',
