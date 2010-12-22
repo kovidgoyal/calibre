@@ -166,6 +166,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.choose_menu = QMenu(self.gui)
         self.qaction.setMenu(self.choose_menu)
 
+
         if not os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             self.choose_menu.addAction(self.action_choose)
 
@@ -175,6 +176,11 @@ class ChooseLibraryAction(InterfaceAction):
             self.rename_menu_action = self.choose_menu.addMenu(self.rename_menu)
             self.delete_menu = QMenu(_('Delete library'))
             self.delete_menu_action = self.choose_menu.addMenu(self.delete_menu)
+
+        ac = self.create_action(spec=(_('Pick a random book'), 'catalog.png',
+            None, None), attr='action_pick_random')
+        ac.triggered.connect(self.pick_random)
+        self.choose_menu.addAction(ac)
 
         self.rename_separator = self.choose_menu.addSeparator()
 
@@ -212,6 +218,12 @@ class ChooseLibraryAction(InterfaceAction):
         ac.triggered.connect(self.restore_database, type=Qt.QueuedConnection)
         self.maintenance_menu.addAction(ac)
         self.choose_menu.addMenu(self.maintenance_menu)
+
+    def pick_random(self, *args):
+        import random
+        pick = random.randint(0, self.gui.library_view.model().rowCount(None))
+        self.gui.library_view.set_current_row(pick)
+        self.gui.library_view.scroll_to_row(pick)
 
     def library_name(self):
         db = self.gui.library_view.model().db
