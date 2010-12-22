@@ -1,64 +1,104 @@
-
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008 Kovid Goyal kovid@kovidgoyal.net, 2010 Darko Miletic <darko.miletic at gmail.com>'
 '''
-http://www.businessweek.com/magazine/news/articles/business_news.htm
+www.businessweek.com
 '''
 
-from calibre import strftime
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
-class BWmagazine(BasicNewsRecipe):
-    title                 = 'BusinessWeek Magazine'
-    __author__            = 'Darko Miletic'
-    description           = 'Stay up to date with BusinessWeek magazine articles. Read news on international business, personal finances & the economy in the BusinessWeek online magazine.'
+class BusinessWeek(BasicNewsRecipe):
+    title                 = 'Business Week'
+    __author__            = 'Kovid Goyal and Darko Miletic'
+    description           = 'Read the latest international business news & stock market news. Get updated company profiles, financial advice, global economy and technology news.'
     publisher             = 'Bloomberg L.P.'
-    category              = 'news, International Business News, current news in international business,international business articles, personal business, business week magazine, business week magazine articles, business week magazine online, business week online magazine'
-    oldest_article        = 10
-    max_articles_per_feed = 100
+    category              = 'Business, business news, stock market, stock market news, financial advice, company profiles, financial advice, global economy, technology news'
+    oldest_article        = 7
+    max_articles_per_feed = 200
     no_stylesheets        = True
-    encoding              = 'utf-8'
+    encoding              = 'utf8'
     use_embedded_content  = False
     language              = 'en'
-    INDEX                 = 'http://www.businessweek.com/magazine/news/articles/business_news.htm'
+    remove_empty_feeds    = True
+    publication_type      = 'magazine'
     cover_url             = 'http://images.businessweek.com/mz/covers/current_120x160.jpg'
-
+    masthead_url          = 'http://assets.businessweek.com/images/bw-logo.png'
+    extra_css             = """ 
+                               body{font-family: Helvetica,Arial,sans-serif } 
+                               img{margin-bottom: 0.4em; display:block}
+                               .tagline{color: gray; font-style: italic}
+                               .photoCredit{font-size: small; color: gray}
+                            """
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
                         }
 
+    remove_tags       = [
+                           dict(attrs={'class':'inStory'})
+                          ,dict(name=['meta','link','iframe','base','embed','object','table','th','tr','td'])
+                          ,dict(attrs={'id':['inset','videoDisplay']})
+                        ]
+    keep_only_tags    = [dict(name='div', attrs={'id':['story-body','storyBody']})]
+    remove_attributes = ['lang']
+    match_regexps     = [r'http://www.businessweek.com/.*_page_[1-9].*']
 
-    def parse_index(self):
-        articles = []
-        soup = self.index_to_soup(self.INDEX)
-        ditem = soup.find('div',attrs={'id':'column2'})
-        if ditem:
-            for item in ditem.findAll('h3'):
-                title_prefix = ''
-                description = ''
-                feed_link = item.find('a')
-                if feed_link and feed_link.has_key('href'):
-                    url   = 'http://www.businessweek.com/magazine/' + feed_link['href'].partition('../../')[2]
-                    title = title_prefix + self.tag_to_string(feed_link)
-                    date  = strftime(self.timefmt)
-                    articles.append({
-                                      'title'      :title
-                                     ,'date'       :date
-                                     ,'url'        :url
-                                     ,'description':description
-                                    })
-        return [(soup.head.title.string, articles)]
 
-    keep_only_tags = dict(name='div', attrs={'id':'storyBody'})
+    feeds = [
+              (u'Top Stories', u'http://www.businessweek.com/topStories/rss/topStories.rss'),
+              (u'Top News'   , u'http://www.businessweek.com/rss/bwdaily.rss'              ),
+              (u'Asia', u'http://www.businessweek.com/rss/asia.rss'),
+              (u'Autos', u'http://www.businessweek.com/rss/autos/index.rss'),
+              (u'Classic Cars', u'http://rss.businessweek.com/bw_rss/classiccars'),
+              (u'Hybrids', u'http://rss.businessweek.com/bw_rss/hybrids'),
+              (u'Europe', u'http://www.businessweek.com/rss/europe.rss'),
+              (u'Auto Reviews', u'http://rss.businessweek.com/bw_rss/autoreviews'),
+              (u'Innovation & Design', u'http://www.businessweek.com/rss/innovate.rss'),
+              (u'Architecture', u'http://www.businessweek.com/rss/architecture.rss'),
+              (u'Brand Equity', u'http://www.businessweek.com/rss/brandequity.rss'),
+              (u'Auto Design', u'http://www.businessweek.com/rss/carbuff.rss'),
+              (u'Game Room', u'http://rss.businessweek.com/bw_rss/gameroom'),
+              (u'Technology', u'http://www.businessweek.com/rss/technology.rss'),
+              (u'Investing', u'http://rss.businessweek.com/bw_rss/investor'),
+              (u'Small Business', u'http://www.businessweek.com/rss/smallbiz.rss'),
+              (u'Careers', u'http://rss.businessweek.com/bw_rss/careers'),
+              (u'B-Schools', u'http://www.businessweek.com/rss/bschools.rss'),
+              (u'Magazine Selections', u'http://www.businessweek.com/rss/magazine.rss'),
+              (u'CEO Guide to Tech', u'http://www.businessweek.com/rss/ceo_guide_tech.rss'),    
+            ]
+
+    def get_article_url(self, article):
+        url = article.get('guid', None)
+        if 'podcasts' in url:
+            return None
+        if 'surveys' in url:
+            return None
+        if 'images' in url:
+            return None
+        if 'feedroom' in url:
+            return None
+        if '/magazine/toc/' in url:
+            return None
+        rurl, sep, rest = url.rpartition('?')
+        if rurl:
+           return rurl         
+        return rest
 
     def print_version(self, url):
-        rurl = url.rpartition('?')[0]
-        if rurl == '':
-           rurl = url
-        return rurl.replace('.com/magazine/','.com/print/magazine/')
-
-
+        if '/news/' in url or '/blog/ in url':
+           return url
+        rurl = url.replace('http://www.businessweek.com/','http://www.businessweek.com/print/')
+        return rurl.replace('/investing/','/investor/')
+        
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)            
+        return soup
