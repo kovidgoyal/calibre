@@ -139,9 +139,9 @@ class CollectionsBookList(BookList):
         ca = []
         for c in collection_attributes:
             if c.startswith('aba:') and c[4:]:
-                all_by_author = c[4:]
+                all_by_author = c[4:].strip()
             elif c.startswith('abt:') and c[4:]:
-                all_by_title = c[4:]
+                all_by_title = c[4:].strip()
             else:
                 ca.append(c.lower())
         collection_attributes = ca
