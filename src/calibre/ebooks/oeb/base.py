@@ -227,18 +227,14 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
             text = el.attrib['style']
             if _css_url_re.search(text) is not None:
                 stext = parseStyle(text)
-                changed = False
                 for p in stext.getProperties(all=True):
                     v = p.cssValue
                     if v.CSS_VALUE_LIST == v.cssValueType:
                         for item in v:
-                            changed = True
                             set_property(item)
                     elif v.CSS_PRIMITIVE_VALUE == v.cssValueType:
-                        changed = True
                         set_property(v)
-                if changed:
-                    el.attrib['style'] = stext.cssText.replace('\n', ' ').replace('\r',
+                el.attrib['style'] = stext.cssText.replace('\n', ' ').replace('\r',
                         ' ')
 
 
