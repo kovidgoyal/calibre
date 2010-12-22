@@ -1,0 +1,58 @@
+#!/usr/bin/env  python
+# -*- coding: utf-8 -*-
+#Based on Lars Jacob's Taz Digiabo recipe
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, veezh'
+
+'''
+www.nrc.nl
+'''
+import os, urllib2, zipfile
+import time
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+
+
+class NRCHandelsblad(BasicNewsRecipe):
+
+    title = u'NRC Handelsblad'
+    description = u'De EPUB-versie van NRC'
+    language = 'nl'
+    lang = 'nl-NL'
+
+    __author__ = 'veezh'
+
+    conversion_options = {
+        'no_default_epub_cover' : True
+    }
+
+    def build_index(self):
+        today = time.strftime("%Y%m%d")
+        domain = "http://digitaleeditie.nrc.nl"
+
+        url = domain + "/digitaleeditie/helekrant/epub/nrc_" + today + ".epub"
+#        print url
+
+        try:
+            f = urllib2.urlopen(url)
+        except urllib2.HTTPError:
+            self.report_progress(0,_('Kan niet inloggen om editie te downloaden'))
+            raise ValueError('Krant van vandaag nog niet beschikbaar')
+
+        tmp = PersistentTemporaryFile(suffix='.epub')
+        self.report_progress(0,_('downloading epub'))
+        tmp.write(f.read())
+        tmp.close()
+
+        zfile = zipfile.ZipFile(tmp.name, 'r')
+        self.report_progress(0,_('extracting epub'))
+
+        zfile.extractall(self.output_dir)
+
+        tmp.close()
+        index = os.path.join(self.output_dir, 'content.opf')
+
+        self.report_progress(1,_('epub downloaded and extracted'))
+
+        return index
