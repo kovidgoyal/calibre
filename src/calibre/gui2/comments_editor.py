@@ -11,9 +11,9 @@ from lxml import html
 from lxml.html import soupparser
 
 from PyQt4.Qt import QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit, \
-    QToolBar, QVBoxLayout, QAction, QIcon, QWebPage, Qt, QTabWidget, QUrl, \
+    QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, \
     QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QInputDialog
-from PyQt4.QtWebKit import QWebView
+from PyQt4.QtWebKit import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities
