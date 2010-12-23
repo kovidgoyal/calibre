@@ -62,7 +62,7 @@ class SNBInput(InputFormatPlugin):
                 oeb.uid = oeb.metadata.identifier[0]
                 break
 
-        with TemporaryDirectory('_chm2oeb', keep=True) as tdir:
+        with TemporaryDirectory('_snb2oeb', keep=True) as tdir:
             log.debug('Process TOC ...')
             toc = snbFile.GetFileStream('snbf/toc.snbf')
             oeb.container = DirContainer(tdir, log)
@@ -74,17 +74,18 @@ class SNBInput(InputFormatPlugin):
                     chapterSrc = ch.get('src')
                     fname = 'ch_%d.htm' % i
                     data = snbFile.GetFileStream('snbc/' + chapterSrc)
-                    if data != None:
-                        snbc = etree.fromstring(data)
-                        outputFile = open(os.path.join(tdir, fname), 'wb')
-                        lines = []
-                        for line in snbc.find('.//body'):
-                            if line.tag == 'text':
-                                lines.append(u'<p>%s</p>' % html_encode(line.text))
-                            elif line.tag == 'img':
-                                lines.append(u'<p><img src="%s" /></p>' % html_encode(line.text))
-                        outputFile.write((HTML_TEMPLATE % (chapterName, u'\n'.join(lines))).encode('utf-8', 'replace'))
-                        outputFile.close()
+                    if data == None:
+                        continue
+                    snbc = etree.fromstring(data)
+                    outputFile = open(os.path.join(tdir, fname), 'wb')
+                    lines = []
+                    for line in snbc.find('.//body'):
+                        if line.tag == 'text':
+                            lines.append(u'<p>%s</p>' % html_encode(line.text))
+                        elif line.tag == 'img':
+                            lines.append(u'<p><img src="%s" /></p>' % html_encode(line.text))
+                    outputFile.write((HTML_TEMPLATE % (chapterName, u'\n'.join(lines))).encode('utf-8', 'replace'))
+                    outputFile.close()
                     oeb.toc.add(ch.text, fname)
                     id, href = oeb.manifest.generate(id='html',
                         href=ascii_filename(fname))
