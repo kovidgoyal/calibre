@@ -16,7 +16,6 @@ from datetime import datetime
 from functools import partial
 
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
-from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, isoformat
 from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG
@@ -161,10 +160,7 @@ class DBThread(Thread):
             self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
         self.conn.create_collation('PYNOCASE', partial(pynocase,
             encoding=encoding))
-        if tweaks['title_series_sorting'] == 'strictly_alphabetic':
-            self.conn.create_function('title_sort', 1, lambda x:x)
-        else:
-            self.conn.create_function('title_sort', 1, title_sort)
+        self.conn.create_function('title_sort', 1, title_sort)
         self.conn.create_function('author_to_author_sort', 1,
                 _author_to_author_sort)
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))

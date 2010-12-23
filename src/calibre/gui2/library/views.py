@@ -123,8 +123,8 @@ class BooksView(QTableView): # {{{
         elif action == 'show':
             h.setSectionHidden(idx, False)
             if h.sectionSize(idx) < 3:
-               sz = h.sectionSizeHint(idx)
-               h.resizeSection(idx, sz)
+                sz = h.sectionSizeHint(idx)
+                h.resizeSection(idx, sz)
         elif action == 'ascending':
             self.sortByColumn(idx, Qt.AscendingOrder)
         elif action == 'descending':

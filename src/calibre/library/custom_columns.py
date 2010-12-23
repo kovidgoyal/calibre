@@ -8,12 +8,12 @@ __docformat__ = 'restructuredtext en'
 
 import json, re
 from functools import partial
-from math import floor
 
 from calibre import prints
 from calibre.constants import preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date
+from calibre.utils.config import tweaks
 
 class CustomColumns(object):
 
@@ -261,15 +261,15 @@ class CustomColumns(object):
         series_id = self.conn.get('SELECT id from %s WHERE value=?'%table,
                                                         (series,), all=False)
         if series_id is None:
+            if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+                return float(tweaks['series_index_auto_increment'])
             return 1.0
-        # get the label of the associated series number table
-        series_num = self.conn.get('''
-                SELECT MAX({lt}.extra) FROM {lt}
+        series_indices = self.conn.get('''
+                SELECT {lt}.extra FROM {lt}
                 WHERE {lt}.book IN (SELECT book FROM {lt} where value=?)
-                '''.format(lt=lt), (series_id,), all=False)
-        if series_num is None:
-            return 1.0
-        return floor(series_num+1)
+                ORDER BY {lt}.extra
+                '''.format(lt=lt), (series_id,))
+        return self._get_next_series_num_for_list(series_indices)
 
     def all_custom(self, label=None, num=None):
         if label is not None:
@@ -444,6 +444,9 @@ class CustomColumns(object):
         getter = partial(self.get_custom, id_, num=data['num'],
                 index_is_id=True)
         val = self.custom_data_adapters[data['datatype']](val, data)
+
+        if data['datatype'] == 'series' and extra is None:
+            (val, extra) = self._get_series_values(val)
 
         if data['normalized']:
             if data['datatype'] == 'enumeration' and (

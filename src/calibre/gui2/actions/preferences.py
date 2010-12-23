@@ -10,6 +10,7 @@ from PyQt4.Qt import QIcon, QMenu, Qt
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
 from calibre.gui2 import error_dialog
+from calibre.constants import DEBUG
 
 class PreferencesAction(InterfaceAction):
 
@@ -22,6 +23,10 @@ class PreferencesAction(InterfaceAction):
         pm.addAction(QIcon(I('config.png')), _('Preferences'), self.do_config)
         pm.addAction(QIcon(I('wizard.png')), _('Run welcome wizard'),
                 self.gui.run_wizard)
+        if not DEBUG:
+            pm.addSeparator()
+            pm.addAction(QIcon(I('debug.png')), _('Restart in debug mode'),
+                self.debug_restart)
         self.qaction.setMenu(pm)
         self.preferences_menu = pm
         for x in (self.gui.preferences_action, self.qaction):
@@ -44,4 +49,6 @@ class PreferencesAction(InterfaceAction):
         d.run_wizard_requested.connect(self.gui.run_wizard,
                 type=Qt.QueuedConnection)
 
+    def debug_restart(self, *args):
+        self.gui.quit(restart=True, debug_on_restart=True)
 

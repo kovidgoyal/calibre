@@ -5,14 +5,14 @@ __copyright__ = '2010, Li Fanxi <lifanxi at freemindworld.com>'
 __docformat__ = 'restructuredtext en'
 
 '''
-Sanda library wrapper 
+Sanda library wrapper
 '''
 
 import ctypes, uuid, hashlib, os, sys
 from threading import Event, Lock
 from calibre.constants import iswindows, islinux, isosx
 from calibre import load_library
- 
+
 try:
     _lib_name = 'libBambookCore'
     cdll = ctypes.cdll
@@ -71,7 +71,7 @@ TRANS_STATUS_ERR        = 2	#传输出错
 BBKeyNum0 = 0
 BBKeyNum1 = 1
 BBKeyNum2 = 2
-BBKeyNum3 = 3 
+BBKeyNum3 = 3
 BBKeyNum4 = 4
 BBKeyNum5 = 5
 BBKeyNum6 = 6
@@ -85,7 +85,7 @@ BBKeyDown = 13
 BBKeyLeft = 14
 BBKeyRight = 15
 BBKeyPageUp = 16
-BBKeyPageDown = 17 
+BBKeyPageDown = 17
 BBKeyOK = 18
 BBKeyESC = 19
 BBKeyBookshelf = 20
@@ -158,7 +158,7 @@ def BambookGetErrorString(code):
     func = lib_handle.BambookGetErrorString
     func.restype = ctypes.c_char_p
     return func(code)
-    
+
 
 # extern "C" BB_RESULT BambookGetSDKVersion(uint32_t * version);
 def BambookGetSDKVersion():
@@ -275,7 +275,7 @@ def BambookReplacePrivBook(handle, filename, bookID, callback, userData):
         return True
     else:
         return False
-    
+
 # extern "C" BB_RESULT BambookFetchPrivBook(BB_HANDLE hConn, const char *
 #     lpszBookID, const char * lpszFilePath, TransCallback pCallbackFunc, intptr_t userData);
 def BambookFetchPrivBook(handle, bookID, filename, callback, userData):
@@ -339,7 +339,7 @@ class Bambook:
         if self.handle:
             return BambookDisconnect(self.handle)
         return False
-    
+
     def GetState(self):
         if self.handle:
             return BambookGetConnectStatus(self.handle)
@@ -354,7 +354,7 @@ class Bambook:
         if self.handle:
             taskID = job.NewJob()
             if guid:
-                if BambookReplacePrivBook(self.handle, fileName, guid, 
+                if BambookReplacePrivBook(self.handle, fileName, guid,
                                           bambookTransferCallback, taskID):
                     if(job.WaitJob(taskID)):
                         job.DeleteJob(taskID)
@@ -391,7 +391,7 @@ class Bambook:
             else:
                 job.DeleteJob(taskID)
                 return False
-        return False    
+        return False
 
     def DeleteFile(self, guid):
         if self.handle:
@@ -404,13 +404,13 @@ class Bambook:
             books = []
             bookInfo = PrivBookInfo()
             bi = ctypes.pointer(bookInfo)
-            
+
             ret = BambookGetFirstPrivBookInfo(self.handle, bi)
             while ret:
                 books.append(bi.contents.Clone())
                 ret = BambookGetNextPrivBookInfo(self.handle, bi)
             return books
-            
+
     @staticmethod
     def GetSDKVersion():
         return BambookGetSDKVersion()
@@ -431,13 +431,13 @@ class Bambook:
         ret = BambookUnpackFileFromSnb(fileName, 'snbf/toc.snbf', path + '/snbf/toc.snbf')
         if not ret:
             return False
-        
+
         return True
 
     @staticmethod
     def PackageSNB(fileName, path):
         return BambookPackSnbFromDir(fileName, path)
-    
+
 def passed():
     print "> Pass"
 
@@ -460,7 +460,7 @@ if __name__ == "__main__":
         passed()
     else:
         failed()
-        
+
     print "Verify good SNB File"
     if bb.VerifySNB(u'/tmp/f8268e6c1f4e78c.snb'):
         passed()
@@ -472,13 +472,13 @@ if __name__ == "__main__":
         passed()
     else:
         failed()
-        
+
     print "Extract SNB File"
     if bb.ExtractSNB('./test.snb', '/tmp/test'):
         passed()
     else:
         failed()
-    
+
     print "Packet SNB File"
     if bb.PackageSNB('/tmp/tmp.snb', '/tmp/test') and bb.VerifySNB('/tmp/tmp.snb'):
         passed()
@@ -509,7 +509,7 @@ if __name__ == "__main__":
         passed()
     else:
         failed()
-    
+
     print "Get book list"
     books = bb.GetBookList()
     if len(books) > 10:

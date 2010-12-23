@@ -18,6 +18,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
 from calibre.library.field_metadata import TagsIcons, category_icon_map
+from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
@@ -409,17 +410,31 @@ class TagTreeItem(object): # {{{
         return NONE
 
     def tag_data(self, role):
+        tag = self.tag
+        if tag.category == 'authors' and \
+                tweaks['categories_use_field_for_author_name'] == 'author_sort':
+            name = tag.sort
+            tt_author = True
+        else:
+            name = tag.name
+            tt_author = False
         if role == Qt.DisplayRole:
-            if self.tag.count == 0:
-                return QVariant('%s'%(self.tag.name))
+            if tag.count == 0:
+                return QVariant('%s'%(name))
             else:
-                return QVariant('[%d] %s'%(self.tag.count, self.tag.name))
+                return QVariant('[%d] %s'%(tag.count, name))
         if role == Qt.EditRole:
-            return QVariant(self.tag.name)
+            return QVariant(tag.name)
         if role == Qt.DecorationRole:
-            return self.icon_state_map[self.tag.state]
-        if role == Qt.ToolTipRole and self.tag.tooltip is not None:
-            return QVariant(self.tag.tooltip)
+            return self.icon_state_map[tag.state]
+        if role == Qt.ToolTipRole:
+            if tt_author:
+                if tag.tooltip is not None:
+                    return QVariant('(%s) %s'%(tag.name, tag.tooltip))
+                else:
+                    return QVariant(tag.name)
+            if tag.tooltip is not None:
+                return QVariant(tag.tooltip)
         return NONE
 
     def toggle(self):
@@ -680,8 +695,10 @@ class TagsModel(QAbstractItemModel): # {{{
     def setData(self, index, value, role=Qt.EditRole):
         if not index.isValid():
             return NONE
-        # set up to position at the category label
-        path = self.path_for_index(self.parent(index))
+        # set up to reposition at the same item. We can do this except if
+        # working with the last item and that item is deleted, in which case
+        # we position at the parent label
+        path = index.model().path_for_index(index)
         val = unicode(value.toString())
         if not val:
             error_dialog(self.tags_view, _('Item is blank'),
@@ -932,18 +949,22 @@ class TagBrowserMixin(object): # {{{
                         for old_id in to_rename[text]:
                             rename_func(old_id, new_name=unicode(text))
 
-            # Clean up everything, as information could have changed for many books.
-            self.library_view.model().refresh()
-            self.tags_view.set_new_model()
-            self.tags_view.recount()
-            self.saved_search.clear()
-            self.search.clear()
+            # Clean up the library view
+            self.do_tag_item_renamed()
+            self.tags_view.set_new_model() # does a refresh for free
 
     def do_tag_item_renamed(self):
         # Clean up library view and search
-        self.library_view.model().refresh()
-        self.saved_search.clear()
-        self.search.clear()
+        # get information to redo the selection
+        rows = [r.row() for r in \
+                self.library_view.selectionModel().selectedRows()]
+        m = self.library_view.model()
+        ids = [m.id(r) for r in rows]
+
+        m.refresh(reset=False)
+        m.research()
+        self.library_view.select_rows(ids)
+        # refreshing the tags view happens at the emit()/call() site
 
     def do_author_sort_edit(self, parent, id):
         db = self.library_view.model().db

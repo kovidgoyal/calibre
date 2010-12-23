@@ -246,3 +246,32 @@ class POCKETBOOK602(USBMS):
     VENDOR_NAME = ''
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['PB602', 'PB902']
 
+class POCKETBOOK701(USBMS):
+
+    name = 'PocketBook 701 Device Interface'
+    description = _('Communicate with the PocketBook 701')
+    author = _('Kovid Goyal')
+
+    supported_platforms = ['windows', 'osx', 'linux']
+    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm',
+            'doc', 'tcr', 'txt']
+
+    EBOOK_DIR_MAIN = 'books'
+    SUPPORTS_SUB_DIRS = True
+
+    VENDOR_ID   = [0x18d1]
+    PRODUCT_ID  = [0xa004]
+    BCD         = [0x0224]
+
+    VENDOR_NAME = 'ANDROID'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
+
+    def windows_sort_drives(self, drives):
+        if len(drives) < 2: return drives
+        main = drives.get('main', None)
+        carda = drives.get('carda', None)
+        if main and carda:
+            drives['main'] = carda
+            drives['carda'] = main
+        return drives
+

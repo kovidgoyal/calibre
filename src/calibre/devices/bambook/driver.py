@@ -43,15 +43,15 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
         'Unable to add book to library directly from Bambook. '
         'Please save the book to disk and add the file to library from disk.')
 
-    METADATA_CACHE = '.calibre.bambook'    
+    METADATA_CACHE = '.calibre.bambook'
     METADATA_FILE_GUID = 'calibremetadata.snb'
 
     bambook = None
-    
+
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
         self.open()
-    
+
     def open(self):
         # Make sure the Bambook library is ready
         if not is_bambook_lib_ready():
@@ -93,7 +93,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
         if self.bambook:
             deviceInfo = self.bambook.GetDeviceInfo()
             return (_("Bambook"), "SD928", deviceInfo.firmwareVersion, "MimeType")
-            
+
     def card_prefix(self, end_session=True):
         '''
         Return a 2 element list of the prefix to paths on the cards.
@@ -164,7 +164,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
                 continue
             b = self.book_class('', book.bookGuid)
             b.title = book.bookName.decode(text_encoding)
-            b.authors = [ book.bookAuthor.decode(text_encoding) ] 
+            b.authors = [ book.bookAuthor.decode(text_encoding) ]
             b.size = 0
             b.datatime = time.gmtime()
             b.lpath = book.bookGuid
@@ -187,7 +187,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
                     if self.update_metadata_item(book, booklist[idx]):
                         changed = True
                 else:
-                    if booklist.add_book(book, 
+                    if booklist.add_book(book,
                                    replace_metadata=False):
                         changed = True
             except: # Probably a filename encoding error
@@ -322,17 +322,17 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
 
         '''
         if not self.bambook:
-            return 
+            return
 
         json_codec = JsonCodec()
-        
+
         # Create stub virtual book for sync info
         with TemporaryDirectory() as tdir:
             snbcdir = os.path.join(tdir, 'snbc')
             snbfdir = os.path.join(tdir, 'snbf')
             os.mkdir(snbcdir)
             os.mkdir(snbfdir)
-            
+
             f = open(os.path.join(snbfdir, 'book.snbf'), 'wb')
             f.write('''<book-snbf version="1.0">
   <head>
@@ -362,7 +362,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
             cache_name = os.path.join(snbcdir, self.METADATA_CACHE)
             with open(cache_name, 'wb') as f:
                 json_codec.encode_to_file(f, booklists[0])
-                
+
             with TemporaryFile('.snb') as f:
                 if self.bambook.PackageSNB(f, tdir):
                     if not self.bambook.SendFile(f, self.METADATA_FILE_GUID):
@@ -441,8 +441,8 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
         with TemporaryDirectory() as tdir:
             if self.bambook.GetFile(self.METADATA_FILE_GUID, tdir):
                 cache_name = os.path.join(tdir, self.METADATA_CACHE)
-                if self.bambook.ExtractSNBContent(os.path.join(tdir, self.METADATA_FILE_GUID), 
-                                                  'snbc/' + self.METADATA_CACHE, 
+                if self.bambook.ExtractSNBContent(os.path.join(tdir, self.METADATA_FILE_GUID),
+                                                  'snbc/' + self.METADATA_CACHE,
                                                   cache_name):
                     json_codec = JsonCodec()
                     if os.access(cache_name, os.R_OK):
@@ -460,7 +460,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
     def update_metadata_item(cls, book, blb):
         # Currently, we do not have enough information
         # from Bambook SDK to judge whether a book has
-        # been changed, we assume all books has been 
+        # been changed, we assume all books has been
         # changed.
         changed = True
         # if book.bookName.decode(text_encoding) != blb.title:

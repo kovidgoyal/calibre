@@ -1,0 +1,62 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Derek Liang <Derek.liang.ca @@@at@@@ gmail.com>'
+'''
+wenxuecity.com
+'''
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TheCND(BasicNewsRecipe):
+
+	title	  = 'wenxuecity - znjy'
+	__author__ = 'Derek Liang'
+	description = ''
+	INDEX = 'http://bbs.wenxuecity.com/znjy/?elite=1'
+	language = 'zh'
+	conversion_options = {'linearize_tables':True}
+
+	remove_tags_before = dict(name='div', id='message')
+	remove_tags_after  = dict(name='div', id='message')
+	remove_tags		= [dict(name='div', id='postmeta'), dict(name='div', id='footer')]
+	no_stylesheets	 = True
+
+	preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+
+	def print_version(self, url):
+		return url + '?print'
+
+	def parse_index(self):
+		soup = self.index_to_soup(self.INDEX)
+
+		feeds = []
+		articles = {}
+
+		for a in soup.findAll('a', attrs={'class':'post'}):
+			url = a['href']
+			if url.startswith('/'):
+				url = 'http://bbs.wenxuecity.com'+url
+			title = self.tag_to_string(a)
+			self.log('\tFound article: ', title, ' at:', url)
+			dateReg = re.search( '(\d\d?)/(\d\d?)/(\d\d)', self.tag_to_string(a.parent) )
+			date = '%(y)s/%(m)02d/%(d)02d' % {'y' : dateReg.group(3), 'm' : int(dateReg.group(1)), 'd' : int(dateReg.group(2)) }
+			if not articles.has_key(date):
+				articles[date] = []
+			articles[date].append({'title':title, 'url':url, 'description': '', 'date':''})
+			self.log('\t\tAppend to : ', date)
+
+		self.log('log articles', articles)
+		mostCurrent = sorted(articles).pop()
+		self.title = '文学城 - 子女教育 - ' + mostCurrent
+
+		feeds.append((self.title, articles[mostCurrent]))
+
+		return feeds
+
+	def populate_article_metadata(self, article, soup, first):
+		header = soup.find('h3')
+		self.log('header: ' + self.tag_to_string(header))
+		pass
+

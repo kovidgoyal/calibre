@@ -12,11 +12,22 @@ defaults.
 
 
 # The algorithm used to assign a new book in an existing series a series number.
+# New series numbers assigned using this tweak are always integer values, except
+# if a constant non-integer is specified.
 # Possible values are:
-# next - Next available number
+# next - First available integer larger than the largest existing number
+# first_free - First available integer larger than 0
+# next_free - First available integer larger than the smallest existing number
+# last_free - First available integer smaller than the largest existing number
+#             Return largest existing + 1 if no free number is found
 # const - Assign the number 1 always
+# a number - Assign that number always. The number is not in quotes. Note that
+#            0.0 can be used here.
+# Examples:
+# series_index_auto_increment = 'next'
+# series_index_auto_increment = 'next_free'
+# series_index_auto_increment = 16.5
 series_index_auto_increment = 'next'
-
 
 
 # The algorithm used to copy author to author_sort
@@ -29,6 +40,20 @@ series_index_auto_increment = 'next'
 # must be recomputed by right-clicking on an author in the left-hand tags pane,
 # selecting 'manage authors', and pressing 'Recalculate all author sort values'.
 author_sort_copy_method = 'invert'
+
+# Set which author field to display in the tags pane (the list of authors,
+# series, publishers etc on the left hand side). The choices are author and
+# author_sort. This tweak affects only what is displayed under the authors
+# category in the tags pane and content server. Please note that if you set this
+# to author_sort, it is very possible to see duplicate names in the list because
+# although it is guaranteed that author names are unique, there is no such
+# guarantee for author_sort values. Showing duplicates won't break anything, but
+# it could lead to some confusion. When using 'author_sort', the tooltip will
+# show the author's name.
+# Examples:
+#   categories_use_field_for_author_name = 'author'
+#   categories_use_field_for_author_name = 'author_sort'
+categories_use_field_for_author_name = 'author'
 
 
 # Set whether boolean custom columns are two- or three-valued.
@@ -235,3 +260,9 @@ doubleclick_on_library_view = 'open_viewer'
 # Example: locale_for_sorting = 'fr' -- sort using French rules.
 # Example: locale_for_sorting = 'nb' -- sort using Norwegian rules.
 locale_for_sorting =  ''
+
+
+# Set whether to use one or two columns for custom metadata when editing
+# metadata  one book at a time. If True, then the fields are laid out using two
+# columns. If False, one column is used.
+metadata_single_use_2_cols_for_custom_fields = True

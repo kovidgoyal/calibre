@@ -410,6 +410,9 @@ class XMLCache(object):
                     newmi = book.deepcopy_metadata()
                     newmi.template_to_attribute(book, plugboard)
                     newmi.set('_new_book', getattr(book, '_new_book', False))
+                    book.set('_pb_title_sort',
+                             newmi.get('title_sort', newmi.get('title', None)))
+                    book.set('_pb_author_sort', newmi.get('author_sort', ''))
                 else:
                     newmi = book
                 (gtz_count, ltz_count, use_tz_var) = \
