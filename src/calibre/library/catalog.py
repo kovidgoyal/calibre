@@ -550,6 +550,13 @@ class EPUB_MOBI(CatalogPlugin):
                            "of the conversion process a bug is occurring.\n"
                            "Default: '%default'None\n"
                            "Applies to: ePub, MOBI output formats")),
+                   Option('--exclude-book-marker',
+                          default=':',
+                          dest='exclude_book_marker',
+                          action = None,
+                          help=_("field:pattern specifying custom field/contents indicating book should be excluded.\n"
+                          "Default: '%default'\n"
+                          "Applies to ePub, MOBI output formats")),
                    Option('--exclude-genre',
                           default='\[.+\]',
                           dest='exclude_genre',
@@ -585,6 +592,23 @@ class EPUB_MOBI(CatalogPlugin):
                           help=_("Include 'Recently Added' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
+                   Option('--header-note-source-field',
+                          default='',
+                          dest='header_note_source_field',
+                          action = None,
+                          help=_("Custom field containing note text to insert in Description header.\n"
+                          "Default: '%default'\n"
+                          "Applies to: ePub, MOBI output formats")),
+                   Option('--merge-comments',
+                          default='::',
+                          dest='merge_comments',
+                          action = None,
+                          help=_("<custom field>:[before|after]:[True|False] specifying:\n"
+                          " <custom field> Custom field containing notes to merge with Comments\n"
+                          " [before|after] Placement of notes with respect to Comments\n"
+                          " [True|False] - A horizontal rule is inserted between notes and Comments\n"
+                          "Default: '%default'\n"
+                          "Applies to ePub, MOBI output formats")),
                    Option('--note-tag',
                           default='*',
                           dest='note_tag',
@@ -845,6 +869,7 @@ class EPUB_MOBI(CatalogPlugin):
             catalog.copyResources()
             catalog.buildSources()
         '''
+
         # A single number creates 'Last x days' only.
         # Multiple numbers create 'Last x days', 'x to y days ago' ...
         # e.g, [7,15,30,60], [30]
@@ -889,6 +914,7 @@ class EPUB_MOBI(CatalogPlugin):
                                                   and self.generateForKindle \
                                                 else False
             self.__genres = None
+            self.genres = []
             self.__genre_tags_dict = None
             self.__htmlFileList = []
             self.__markerTags = self.getMarkerTags()
@@ -900,13 +926,15 @@ class EPUB_MOBI(CatalogPlugin):
             self.__progressString = ''
             f, _, p = opts.read_book_marker.partition(':')
             self.__read_book_marker = {'field':f, 'pattern':p}
+            f, p, hr = self.opts.merge_comments.split(':')
+            self.__merge_comments = {'field':f, 'position':p, 'hr':hr}
             self.__reporter = report_progress
             self.__stylesheet = stylesheet
             self.__thumbs = None
             self.__thumbWidth = 0
             self.__thumbHeight = 0
             self.__title = opts.catalog_title
-            self.__totalSteps = 11.0
+            self.__totalSteps = 8.0
             self.__useSeriesPrefixInTitlesSection = False
             self.__verbose = opts.verbose
 
@@ -916,17 +944,36 @@ class EPUB_MOBI(CatalogPlugin):
                     self.__output_profile = profile
                     break
 
-            # Confirm/create thumbs archive
+            # Confirm/create thumbs archive.
             if not os.path.exists(self.__cache_dir):
                 self.opts.log.info(" creating new thumb cache '%s'" % self.__cache_dir)
                 os.makedirs(self.__cache_dir)
             if not os.path.exists(self.__archive_path):
-                self.opts.log.info(" creating thumbnail archive")
+                self.opts.log.info(' creating thumbnail archive, thumb_width: %1.2f"' %
+                                     float(self.opts.thumb_width))
                 zfw = ZipFile(self.__archive_path, mode='w')
                 zfw.writestr("Catalog Thumbs Archive",'')
+                zfw.comment = "thumb_width: %1.2f" % float(self.opts.thumb_width)
                 zfw.close()
             else:
-                self.opts.log.info(" existing thumb cache at '%s'" % self.__archive_path)
+                with closing(ZipFile(self.__archive_path, mode='r')) as zfr:
+                    try:
+                        cached_thumb_width = float(zfr.comment[len('thumb_width: '):])
+                    except:
+                        cached_thumb_width = "0.0"
+
+                if float(cached_thumb_width) != float(self.opts.thumb_width):
+                    self.opts.log.info(" invalidating cache at '%s'" % self.__archive_path)
+                    self.opts.log.info('  thumb_width: %1.2f" => %1.2f"' %
+                                        (float(cached_thumb_width),float(self.opts.thumb_width)))
+                    os.remove(self.__archive_path)
+                    zfw = ZipFile(self.__archive_path, mode='w')
+                    zfw.writestr("Catalog Thumbs Archive",'')
+                    zfw.comment = "thumb_width: %1.2f" % float(self.opts.thumb_width)
+                    zfw.close()
+                else:
+                    self.opts.log.info(' existing thumb cache at %s, cached_thumb_width: %1.2f"' %
+                                         (self.__archive_path, float(cached_thumb_width)))
 
             # Tweak build steps based on optional sections:  1 call for HTML, 1 for NCX
             if self.opts.generate_titles:
@@ -937,6 +984,9 @@ class EPUB_MOBI(CatalogPlugin):
                     self.__totalSteps += 2
             if self.opts.generate_series:
                 self.__totalSteps += 2
+            if self.opts.generate_descriptions:
+                # +1 thumbs
+                self.__totalSteps += 3
 
         # Accessors
         if True:
@@ -1246,7 +1296,8 @@ class EPUB_MOBI(CatalogPlugin):
                     return False
             self.fetchBooksByAuthor()
             self.fetchBookmarks()
-            self.generateHTMLDescriptions()
+            if self.opts.generate_descriptions:
+                self.generateHTMLDescriptions()
             self.generateHTMLByAuthor()
             if self.opts.generate_titles:
                 self.generateHTMLByTitle()
@@ -1256,10 +1307,10 @@ class EPUB_MOBI(CatalogPlugin):
                 self.generateHTMLByDateAdded()
                 if self.generateRecentlyRead:
                     self.generateHTMLByDateRead()
-            self.generateHTMLByTags()
-
-            self.generateThumbnails()
-
+            if self.opts.generate_genres:
+                self.generateHTMLByTags()
+            if self.opts.generate_descriptions:
+                self.generateThumbnails()
             self.generateOPF()
             self.generateNCXHeader()
             self.generateNCXByAuthor("Authors")
@@ -1271,8 +1322,11 @@ class EPUB_MOBI(CatalogPlugin):
                 self.generateNCXByDateAdded("Recently Added")
                 if self.generateRecentlyRead:
                     self.generateNCXByDateRead("Recently Read")
-            self.generateNCXByGenre("Genres")
-            self.generateNCXDescriptions("Descriptions")
+            if self.opts.generate_genres:
+                self.generateNCXByGenre("Genres")
+            if self.opts.generate_descriptions:
+                self.generateNCXDescriptions("Descriptions")
+
             self.writeNCX()
             return True
 
@@ -1340,6 +1394,7 @@ class EPUB_MOBI(CatalogPlugin):
             #print "fetchBooksByTitle(): opts.search_text: %s" % self.opts.search_text
             # Fetch the database as a dictionary
             data = self.plugin.search_sort_db(self.db, self.opts)
+            data = self.processExclusions(data)
 
             # Populate this_title{} from data[{},{}]
             titles = []
@@ -1388,6 +1443,8 @@ class EPUB_MOBI(CatalogPlugin):
                         record['comments'] = record['comments'][:ad_offset]
 
                     this_title['description'] = self.markdownComments(record['comments'])
+
+                    # Create short description
                     paras = BeautifulSoup(this_title['description']).findAll('p')
                     tokens = []
                     for p in paras:
@@ -1398,6 +1455,10 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     this_title['description'] = None
                     this_title['short_description'] = None
+
+                # Merge with custom field/value
+                if self.__merge_comments['field']:
+                    this_title['description'] = self.mergeComments(this_title)
 
                 if record['cover']:
                     this_title['cover'] = re.sub('&amp;', '&', record['cover'])
@@ -1412,6 +1473,14 @@ class EPUB_MOBI(CatalogPlugin):
                     for format in record['formats']:
                         formats.append(self.convertHTMLEntities(format))
                     this_title['formats'] = formats
+
+                # Add user notes to be displayed in header
+                if self.opts.header_note_source_field:
+                    notes = self.__db.get_field(record['id'],
+                                            self.opts.header_note_source_field,
+                                            index_is_id=True)
+                    if notes:
+                        this_title['notes'] = notes
 
                 titles.append(this_title)
 
@@ -1712,7 +1781,8 @@ class EPUB_MOBI(CatalogPlugin):
                     for tag in title.get('tags', []):
                         aTag = Tag(soup,'a')
                         #print "aTag: %s" % "Genre_%s.html" % re.sub("\W","",tag.lower())
-                        aTag['href'] = "Genre_%s.html" % re.sub("\W","",tag.lower())
+                        if self.opts.generate_genres:
+                            aTag['href'] = "Genre_%s.html" % re.sub("\W","",tag.lower())
                         aTag.insert(0,escape(NavigableString(tag)))
                         emTag = Tag(soup, "em")
                         emTag.insert(0, aTag)
@@ -1770,7 +1840,6 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     #ratingLabel = body.find('td',text="Rating").replaceWith("Unrated")
                     ratingTag.insert(0,NavigableString('<br/>'))
-
 
                 # Insert user notes or remove Notes label.  Notes > 1 line will push formatting down
                 if 'notes' in title:
@@ -1894,7 +1963,8 @@ class EPUB_MOBI(CatalogPlugin):
 
                 # Link to book
                 aTag = Tag(soup, "a")
-                aTag['href'] = "book_%d.html" % (int(float(book['id'])))
+                if self.opts.generate_descriptions:
+                    aTag['href'] = "book_%d.html" % (int(float(book['id'])))
                 aTag.insert(0,escape(book['title']))
                 pBookTag.insert(ptc, aTag)
                 ptc += 1
@@ -2067,8 +2137,9 @@ class EPUB_MOBI(CatalogPlugin):
                         ptc += 1
 
                 aTag = Tag(soup, "a")
-                aTag['href'] = "book_%d.html" % (int(float(book['id'])))
-                # Use series, series index if avail else just title, + year of publication
+                if self.opts.generate_descriptions:
+                    aTag['href'] = "book_%d.html" % (int(float(book['id'])))
+                # Use series, series index if avail else title, + year of publication
                 if current_series:
                     aTag.insert(0,'%s (%s)' % (escape(book['title'][len(book['series'])+1:]),
                                                book['date'].split()[1]))
@@ -2078,7 +2149,6 @@ class EPUB_MOBI(CatalogPlugin):
                     non_series_books += 1
                 pBookTag.insert(ptc, aTag)
                 ptc += 1
-
 
                 divTag.insert(dtc, pBookTag)
                 dtc += 1
@@ -2200,7 +2270,8 @@ class EPUB_MOBI(CatalogPlugin):
                                 ptc += 1
 
                         aTag = Tag(soup, "a")
-                        aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
+                        if self.opts.generate_descriptions:
+                            aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
                         if current_series:
                             aTag.insert(0,escape(new_entry['title'][len(new_entry['series'])+1:]))
                         else:
@@ -2251,7 +2322,8 @@ class EPUB_MOBI(CatalogPlugin):
                                 ptc += 1
 
                         aTag = Tag(soup, "a")
-                        aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
+                        if self.opts.generate_descriptions:
+                            aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
                         aTag.insert(0,escape(new_entry['title']))
                         pBookTag.insert(ptc, aTag)
                         ptc += 1
@@ -2411,7 +2483,8 @@ class EPUB_MOBI(CatalogPlugin):
                         ptc += 1
 
                         aTag = Tag(soup, "a")
-                        aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
+                        if self.opts.generate_descriptions:
+                            aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
                         aTag.insert(0,escape(new_entry['title']))
                         pBookTag.insert(ptc, aTag)
                         ptc += 1
@@ -2458,7 +2531,8 @@ class EPUB_MOBI(CatalogPlugin):
                         ptc += 1
 
                         aTag = Tag(soup, "a")
-                        aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
+                        if self.opts.generate_descriptions:
+                            aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
                         aTag.insert(0,escape(new_entry['title']))
                         pBookTag.insert(ptc, aTag)
                         ptc += 1
@@ -2699,7 +2773,8 @@ class EPUB_MOBI(CatalogPlugin):
                         ptc += 1
 
                 aTag = Tag(soup, "a")
-                aTag['href'] = "book_%d.html" % (int(float(book['id'])))
+                if self.opts.generate_descriptions:
+                    aTag['href'] = "book_%d.html" % (int(float(book['id'])))
                 # Use series, series index if avail else just title
                 #aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
 
@@ -2983,18 +3058,20 @@ class EPUB_MOBI(CatalogPlugin):
             manifest.insert(mtc, itemTag)
             mtc += 1
 
-            # Write the thumbnail images to the manifest
-            for thumb in self.thumbs:
-                itemTag = Tag(soup, "item")
-                itemTag['href'] = "images/%s" % (thumb)
-                end = thumb.find('.jpg')
-                itemTag['id'] = "%s-image" % thumb[:end]
-                itemTag['media-type'] = 'image/jpeg'
-                manifest.insert(mtc, itemTag)
-                mtc += 1
+            # Write the thumbnail images, descriptions to the manifest
+            sort_descriptions_by = []
+            if self.opts.generate_descriptions:
+                for thumb in self.thumbs:
+                    itemTag = Tag(soup, "item")
+                    itemTag['href'] = "images/%s" % (thumb)
+                    end = thumb.find('.jpg')
+                    itemTag['id'] = "%s-image" % thumb[:end]
+                    itemTag['media-type'] = 'image/jpeg'
+                    manifest.insert(mtc, itemTag)
+                    mtc += 1
 
-            # HTML files - add books to manifest and spine
-            sort_descriptions_by = self.booksByAuthor if self.opts.sort_descriptions_by_author \
+                # HTML files - add descriptions to manifest and spine
+                sort_descriptions_by = self.booksByAuthor if self.opts.sort_descriptions_by_author \
                                                       else self.booksByTitle
             # Add html_files to manifest and spine
 
@@ -3970,15 +4047,15 @@ class EPUB_MOBI(CatalogPlugin):
             from calibre.customize.ui import output_profiles
             for x in output_profiles():
                 if x.short_name == self.opts.output_profile:
-                    # .9" width  aspect ratio: 3:4
-                    self.thumbWidth = int(x.dpi * 1)
-                    self.thumbHeight = int(self.thumbWidth * 1.33)
+                    # aspect ratio: 3:4
+                    self.thumbWidth = x.dpi * float(self.opts.thumb_width)
+                    self.thumbHeight = self.thumbWidth * 1.33
                     if 'kindle' in x.short_name and self.opts.fmt == 'mobi':
                         # Kindle DPI appears to be off by a factor of 2
-                        self.thumbWidth = int(self.thumbWidth/2)
-                        self.thumbHeight = int(self.thumbHeight/2)
+                        self.thumbWidth = self.thumbWidth/2
+                        self.thumbHeight = self.thumbHeight/2
                     break
-            if False and self.verbose:
+            if True and self.verbose:
                 self.opts.log("     DPI = %d; thumbnail dimensions: %d x %d" % \
                               (x.dpi, self.thumbWidth, self.thumbHeight))
 
@@ -4238,7 +4315,8 @@ class EPUB_MOBI(CatalogPlugin):
 
                 # Add the book title
                 aTag = Tag(soup, "a")
-                aTag['href'] = "book_%d.html" % (int(float(book['id'])))
+                if self.opts.generate_descriptions:
+                    aTag['href'] = "book_%d.html" % (int(float(book['id'])))
                 # Use series, series index if avail else just title
                 if current_series:
                     aTag.insert(0,escape(book['title'][len(book['series'])+1:]))
@@ -4460,7 +4538,9 @@ class EPUB_MOBI(CatalogPlugin):
                 # Leading numbers optionally translated to text equivalent
                 # Capitalize leading sort word
                 if i==0:
-                    if self.opts.numbers_as_text and re.match('[0-9]+',word[0]):
+                    # *** Keep this code in case we need to restore numbers_as_text ***
+                    if False:
+                    #if self.opts.numbers_as_text and re.match('[0-9]+',word[0]):
                         translated.append(EPUB_MOBI.NumberToText(word).text.capitalize())
                     else:
                         if re.match('[0-9]+',word[0]):
@@ -4540,7 +4620,6 @@ class EPUB_MOBI(CatalogPlugin):
             ''' Return a list of special marker tags to be excluded from genre list '''
             markerTags = []
             markerTags.extend(self.opts.exclude_tags.split(','))
-            markerTags.extend(self.opts.note_tag.split(','))
             return markerTags
 
         def letter_or_symbol(self,char):
@@ -4663,13 +4742,63 @@ class EPUB_MOBI(CatalogPlugin):
 
             return result.renderContents(encoding=None)
 
+        def mergeComments(self, record):
+            '''
+            merge ['description'] with custom field contents to be displayed in Descriptions
+            '''
+            merged = ''
+            if record['description']:
+                addendum = self.__db.get_field(record['id'],
+                                            self.__merge_comments['field'],
+                                            index_is_id=True)
+                include_hr = eval(self.__merge_comments['hr'])
+                if self.__merge_comments['position'] == 'before':
+                    merged = addendum
+                    if include_hr:
+                        merged += '<hr class="merged_comments_divider"/>'
+                    else:
+                        merged += '\n'
+                    merged += record['description']
+                else:
+                    merged = record['description']
+                    if include_hr:
+                        merged += '<hr class="merged_comments_divider"/>'
+                    else:
+                        merged += '\n'
+                    merged += addendum
+            else:
+                # Return the custom field contents
+                merged = self.__db.get_field(record['id'],
+                                            self.__merge_comments['field'],
+                                            index_is_id=True)
+
+            return merged
+
+        def processExclusions(self, data_set):
+            '''
+            Remove excluded entries
+            '''
+            field, pat = self.opts.exclude_book_marker.split(':')
+            if pat == '':
+                return data_set
+            filtered_data_set = []
+            for record in data_set:
+                field_contents = self.__db.get_field(record['id'],
+                                            field,
+                                            index_is_id=True)
+                if field_contents:
+                    if re.search(pat, unicode(field_contents),
+                            re.IGNORECASE) is not None:
+                        continue
+                filtered_data_set.append(record)
+
+            return filtered_data_set
+
         def processSpecialTags(self, tags, this_title, opts):
             tag_list = []
             for tag in tags:
                 tag = self.convertHTMLEntities(tag)
-                if tag.startswith(opts.note_tag):
-                    this_title['notes'] = tag[len(self.opts.note_tag):]
-                elif re.search(opts.exclude_genre, tag):
+                if re.search(opts.exclude_genre, tag):
                     continue
                 elif self.__read_book_marker['field'] == 'tag' and \
                      tag == self.__read_book_marker['pattern']:
@@ -4767,13 +4896,16 @@ class EPUB_MOBI(CatalogPlugin):
         if opts_dict['ids']:
             build_log.append(" book count: %d" % len(opts_dict['ids']))
 
-        sections_list = ['Descriptions','Authors']
+        sections_list = ['Authors']
         if opts.generate_titles:
             sections_list.append('Titles')
         if opts.generate_recently_added:
             sections_list.append('Recently Added')
-        if not opts.exclude_genre.strip() == '.':
+        if opts.generate_genres:
             sections_list.append('Genres')
+        if opts.generate_descriptions:
+            sections_list.append('Descriptions')
+
         build_log.append(u" Sections: %s" % ', '.join(sections_list))
 
         # Display opts
@@ -4782,11 +4914,12 @@ class EPUB_MOBI(CatalogPlugin):
         build_log.append(" opts:")
         for key in keys:
             if key in ['catalog_title','authorClip','connected_kindle','descriptionClip',
-                       'exclude_genre','exclude_tags','note_tag','numbers_as_text',
+                       'exclude_book_marker','exclude_genre','exclude_tags',
+                       'header_note_source_field','merge_comments',
                        'output_profile','read_book_marker',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
-                        'wishlist_tag']:
-                build_log.append("  %s: %s" % (key, opts_dict[key]))
+                       'thumb_width','wishlist_tag']:
+                build_log.append("  %s: %s" % (key, repr(opts_dict[key])))
 
         if opts.verbose:
             log('\n'.join(line for line in build_log))
@@ -4801,6 +4934,7 @@ class EPUB_MOBI(CatalogPlugin):
         catalog.copyResources()
         catalog.calculateThumbnailSize()
         catalog_source_built = catalog.buildSources()
+
         if opts.verbose:
             if catalog_source_built:
                 log.info(" Completed catalog source generation\n")

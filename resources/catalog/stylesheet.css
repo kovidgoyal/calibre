@@ -108,6 +108,13 @@ p.date_read {
 	text-indent:-6em;
 	}
 
+hr.annotations_divider {
+	width:50%;
+	margin-left:1em;
+	margin-top:0em;
+	margin-bottom:0em;
+	}
+
 hr.description_divider {
 	width:90%;
 	margin-left:5%;
@@ -117,18 +124,20 @@ hr.description_divider {
     border-left: solid white 0px;
 	}
 
-hr.annotations_divider {
-	width:50%;
-	margin-left:1em;
-	margin-top:0em;
-	margin-bottom:0em;
+hr.merged_comments_divider {
+	width:80%;
+	margin-left:10%;
+	border-top: solid white 0px;
+	border-right: solid white 0px;
+    border-bottom: dotted grey 2px;
+    border-left: solid white 0px;
 	}
 
 td.publisher, td.date {
 	font-weight:bold;
 	text-align:center;
 	}
-td.rating {
+td.rating, td.notes {
 	text-align: center;
 	}
 td.thumbnail img {

@@ -17,18 +17,55 @@ class PluginWidget(QWidget,Ui_Form):
 
     TITLE = _('E-book options')
     HELP  = _('Options specific to')+' EPUB/MOBI '+_('output')
-    OPTION_FIELDS = [('exclude_genre','\[.+\]'),
-                     ('exclude_tags','~,'+_('Catalog')),
-                     ('generate_titles', True),
-                     ('generate_series', True),
-                     ('generate_recently_added', True),
-                     ('note_tag','*'),
-                     ('numbers_as_text', False),
-                     ('read_pattern','+'),
-                     ('read_source_field_cb','Tag'),
-                     ('wishlist_tag','Wishlist'),
-                     ]
 
+    CheckBoxControls = [
+                        'generate_titles',
+                        'generate_series',
+                        'generate_genres',
+                        'generate_recently_added',
+                        'generate_descriptions',
+                        'include_hr'
+                        ]
+    ComboBoxControls = [
+                        'read_source_field',
+                        'exclude_source_field',
+                        'header_note_source_field',
+                        'merge_source_field'
+                        ]
+    LineEditControls = [
+                        'exclude_genre',
+                        'exclude_pattern',
+                        'exclude_tags',
+                        'read_pattern',
+                        'wishlist_tag'
+                        ]
+    RadioButtonControls = [
+                        'merge_before',
+                        'merge_after'
+                        ]
+    SpinBoxControls = [
+                        'thumb_width'
+                        ]
+
+    OPTION_FIELDS = zip(CheckBoxControls,
+                        [True for i in CheckBoxControls],
+                        ['check_box' for i in CheckBoxControls])
+    OPTION_FIELDS += zip(ComboBoxControls,
+                        [None for i in ComboBoxControls],
+                        ['combo_box' for i in ComboBoxControls])
+    OPTION_FIELDS += zip(RadioButtonControls,
+                        [None for i in RadioButtonControls],
+                        ['radio_button' for i in RadioButtonControls])
+
+    # LineEditControls
+    OPTION_FIELDS += zip(['exclude_genre'],['\[.+\]'],['line_edit'])
+    OPTION_FIELDS += zip(['exclude_pattern'],[None],['line_edit'])
+    OPTION_FIELDS += zip(['exclude_tags'],['~,'+_('Catalog')],['line_edit'])
+    OPTION_FIELDS += zip(['read_pattern'],['+'],['line_edit'])
+    OPTION_FIELDS += zip(['wishlist_tag'],['Wishlist'],['line_edit'])
+
+    # SpinBoxControls
+    OPTION_FIELDS += zip(['thumb_width'],[1.00],['spin_box'])
 
     # Output synced to the connected device?
     sync_enabled = True
@@ -42,95 +79,193 @@ class PluginWidget(QWidget,Ui_Form):
 
     def initialize(self, name, db):
         self.name = name
-
-        # Populate the 'Read book' source fields
-        all_custom_fields = db.custom_field_keys()
-        custom_fields = {}
-        custom_fields['Tag'] = {'field':'tag', 'datatype':u'text'}
-        for custom_field in all_custom_fields:
-            field_md = db.metadata_for_field(custom_field)
-            if field_md['datatype'] in ['bool','composite','datetime','text']:
-                custom_fields[field_md['name']] = {'field':custom_field,
-                                                   'datatype':field_md['datatype']}
-
-        # Add the sorted eligible fields to the combo box
-        for cf in sorted(custom_fields):
-            self.read_source_field_cb.addItem(cf)
-
-        self.read_source_fields = custom_fields
-        self.read_source_field_cb.currentIndexChanged.connect(self.read_source_field_changed)
+        self.db = db
+        self.populateComboBoxes()
 
         # Update dialog fields from stored options
         for opt in self.OPTION_FIELDS:
-            opt_value = gprefs.get(self.name + '_' + opt[0], opt[1])
-            if opt[0] in [
-                          'generate_recently_added',
-                          'generate_series',
-                          'generate_titles',
-                          'numbers_as_text',
-                          ]:
-                getattr(self, opt[0]).setChecked(opt_value)
+            c_name, c_def, c_type = opt
+            opt_value = gprefs.get(self.name + '_' + c_name, c_def)
+            if c_type in ['check_box']:
+                getattr(self, c_name).setChecked(eval(str(opt_value)))
+            elif c_type in ['combo_box'] and opt_value is not None:
+                # *** Test this code with combo boxes ***
+                #index = self.read_source_field.findText(opt_value)
+                index = getattr(self,c_name).findText(opt_value)
+                if index == -1 and c_name == 'read_source_field':
+                    index = self.read_source_field.findText('Tag')
+                #self.read_source_field.setCurrentIndex(index)
+                getattr(self,c_name).setCurrentIndex(index)
+            elif c_type in ['line_edit']:
+                getattr(self, c_name).setText(opt_value)
+            elif c_type in ['radio_button'] and opt_value is not None:
+                getattr(self, c_name).setChecked(opt_value)
+            elif c_type in ['spin_box']:
+                getattr(self, c_name).setValue(float(opt_value))
 
-            # Combo box
-            elif opt[0] in ['read_source_field_cb']:
-                # Look for last-stored combo box value
-                index = self.read_source_field_cb.findText(opt_value)
-                if index == -1:
-                    index = self.read_source_field_cb.findText('Tag')
-                self.read_source_field_cb.setCurrentIndex(index)
-
-            # Text fields
-            else:
-                getattr(self, opt[0]).setText(opt_value)
-
-        # Init self.read_source_field
-        cs = unicode(self.read_source_field_cb.currentText())
+        # Init self.read_source_field_name
+        cs = unicode(self.read_source_field.currentText())
         read_source_spec = self.read_source_fields[cs]
-        self.read_source_field = read_source_spec['field']
+        self.read_source_field_name = read_source_spec['field']
+
+        # Init self.exclude_source_field_name
+        self.exclude_source_field_name = ''
+        cs = unicode(self.exclude_source_field.currentText())
+        if cs > '':
+            exclude_source_spec = self.exclude_source_fields[cs]
+            self.exclude_source_field_name = exclude_source_spec['field']
+
+        # Init self.merge_source_field_name
+        self.merge_source_field_name = ''
+        cs = unicode(self.merge_source_field.currentText())
+        if cs > '':
+            merge_source_spec = self.merge_source_fields[cs]
+            self.merge_source_field_name = merge_source_spec['field']
+
+        # Init self.header_note_source_field_name
+        self.header_note_source_field_name = ''
+        cs = unicode(self.header_note_source_field.currentText())
+        if cs > '':
+            header_note_source_spec = self.header_note_source_fields[cs]
+            self.header_note_source_field_name = header_note_source_spec['field']
+
+        # Hook changes to thumb_width
+        self.thumb_width.valueChanged.connect(self.thumb_width_changed)
 
     def options(self):
         # Save/return the current options
         # exclude_genre stores literally
         # generate_titles, generate_recently_added, numbers_as_text stores as True/False
         # others store as lists
+
         opts_dict = {}
+        # Save values to gprefs
         for opt in self.OPTION_FIELDS:
-            # Save values to gprefs
-            if opt[0] in [
-                          'generate_recently_added',
-                          'generate_series',
-                          'generate_titles',
-                          'numbers_as_text',
-                          ]:
-                opt_value = getattr(self,opt[0]).isChecked()
+            c_name, c_def, c_type = opt
+            if c_type in ['check_box', 'radio_button']:
+                opt_value = getattr(self, c_name).isChecked()
+            elif c_type in ['combo_box']:
+                opt_value = unicode(getattr(self,c_name).currentText())
+            elif c_type in ['line_edit']:
+                opt_value = unicode(getattr(self, c_name).text())
+            elif c_type in ['spin_box']:
+                opt_value = unicode(getattr(self, c_name).cleanText())
+            gprefs.set(self.name + '_' + c_name, opt_value)
 
-            # Combo box uses .currentText()
-            elif opt[0] in ['read_source_field_cb']:
-                opt_value = unicode(getattr(self, opt[0]).currentText())
-
-            # text fields use .text()
+            # Construct opts object
+            if c_name == 'exclude_tags':
+                # store as list
+                opts_dict[c_name] = opt_value.split(',')
             else:
-                opt_value = unicode(getattr(self, opt[0]).text())
-            gprefs.set(self.name + '_' + opt[0], opt_value)
+                opts_dict[c_name] = opt_value
 
-            # Construct opts
-            if opt[0] in [
-                          'exclude_genre',
-                          'generate_recently_added',
-                          'generate_series',
-                          'generate_titles',
-                          'numbers_as_text',
-                          ]:
-                opts_dict[opt[0]] = opt_value
-            else:
-                opts_dict[opt[0]] = opt_value.split(',')
+        # Generate markers for hybrids
+        opts_dict['read_book_marker'] = "%s:%s" % (self.read_source_field_name,
+                                                   self.read_pattern.text())
+        opts_dict['exclude_book_marker'] = "%s:%s" % (self.exclude_source_field_name,
+                                                       self.exclude_pattern.text())
 
-        # Generate read_book_marker
-        opts_dict['read_book_marker'] = "%s:%s" % (self.read_source_field, self.read_pattern.text())
+        # Generate specs for merge_comments, header_note_source_field
+        checked = ''
+        if self.merge_before.isChecked():
+            checked = 'before'
+        elif self.merge_after.isChecked():
+            checked = 'after'
+        include_hr = self.include_hr.isChecked()
+        opts_dict['merge_comments'] = "%s:%s:%s" % \
+            (self.merge_source_field_name, checked, include_hr)
+
+        opts_dict['header_note_source_field'] = self.header_note_source_field_name
 
         # Append the output profile
         opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]
+        if False:
+            print "opts_dict"
+            for opt in sorted(opts_dict.keys()):
+                print " %s: %s" % (opt, repr(opts_dict[opt]))
         return opts_dict
+
+    def populateComboBoxes(self):
+        # Custom column types declared in
+        #  gui2.preferences.create_custom_column:CreateCustomColumn()
+        # As of 0.7.34:
+        #  bool         Yes/No
+        #  comments     Long text, like comments, not shown in tag browser
+        #  composite    Column built from other columns
+        #  datetime     Date
+        #  enumeration  Text, but with a fixed set of permitted values
+        #  float        Floating point numbers
+        #  int          Integers
+        #  rating       Ratings, shown with stars
+        #  series       Text column for keeping series-like information
+        #  text         Column shown in the tag browser
+        #  *text        Comma-separated text, like tags, shown in tag browser
+
+        all_custom_fields = self.db.custom_field_keys()
+        # Populate the 'Read book' hybrid
+        custom_fields = {}
+        custom_fields['Tag'] = {'field':'tag', 'datatype':u'text'}
+        for custom_field in all_custom_fields:
+            field_md = self.db.metadata_for_field(custom_field)
+            if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
+                custom_fields[field_md['name']] = {'field':custom_field,
+                                                   'datatype':field_md['datatype']}
+        # Add the sorted eligible fields to the combo box
+        for cf in sorted(custom_fields):
+            self.read_source_field.addItem(cf)
+        self.read_source_fields = custom_fields
+        self.read_source_field.currentIndexChanged.connect(self.read_source_field_changed)
+
+
+        # Populate the 'Excluded books' hybrid
+        custom_fields = {}
+        for custom_field in all_custom_fields:
+            field_md = self.db.metadata_for_field(custom_field)
+            if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
+                custom_fields[field_md['name']] = {'field':custom_field,
+                                                   'datatype':field_md['datatype']}
+        # Blank field first
+        self.exclude_source_field.addItem('')
+        # Add the sorted eligible fields to the combo box
+        for cf in sorted(custom_fields):
+            self.exclude_source_field.addItem(cf)
+        self.exclude_source_fields = custom_fields
+        self.exclude_source_field.currentIndexChanged.connect(self.exclude_source_field_changed)
+
+
+        # Populate the 'Header note' combo box
+        custom_fields = {}
+        for custom_field in all_custom_fields:
+            field_md = self.db.metadata_for_field(custom_field)
+            if field_md['datatype'] in ['composite','datetime','enumeration','text']:
+                custom_fields[field_md['name']] = {'field':custom_field,
+                                                   'datatype':field_md['datatype']}
+        # Blank field first
+        self.header_note_source_field.addItem('')
+        # Add the sorted eligible fields to the combo box
+        for cf in sorted(custom_fields):
+            self.header_note_source_field.addItem(cf)
+        self.header_note_source_fields = custom_fields
+        self.header_note_source_field.currentIndexChanged.connect(self.header_note_source_field_changed)
+
+
+        # Populate the 'Merge with Comments' combo box
+        custom_fields = {}
+        for custom_field in all_custom_fields:
+            field_md = self.db.metadata_for_field(custom_field)
+            if field_md['datatype'] in ['text','comments']:
+                custom_fields[field_md['name']] = {'field':custom_field,
+                                                   'datatype':field_md['datatype']}
+        # Blank field first
+        self.merge_source_field.addItem('')
+        # Add the sorted eligible fields to the combo box
+        for cf in sorted(custom_fields):
+            self.merge_source_field.addItem(cf)
+        self.merge_source_fields = custom_fields
+        self.merge_source_field.currentIndexChanged.connect(self.merge_source_field_changed)
+        self.merge_before.setEnabled(False)
+        self.merge_after.setEnabled(False)
+        self.include_hr.setEnabled(False)
 
     def read_source_field_changed(self,new_index):
         '''
@@ -138,9 +273,9 @@ class PluginWidget(QWidget,Ui_Form):
         Currently using QLineEdit for all field types
         Possible to modify to switch QWidget type
         '''
-        new_source = str(self.read_source_field_cb.currentText())
+        new_source = str(self.read_source_field.currentText())
         read_source_spec = self.read_source_fields[str(new_source)]
-        self.read_source_field = read_source_spec['field']
+        self.read_source_field_name = read_source_spec['field']
 
         # Change pattern input widget to match the source field datatype
         if read_source_spec['datatype'] in ['bool','composite','datetime','text']:
@@ -152,3 +287,62 @@ class PluginWidget(QWidget,Ui_Form):
                 self.read_pattern = dw
                 self.read_spec_hl.addWidget(dw)
 
+    def exclude_source_field_changed(self,new_index):
+        '''
+        Process changes in the exclude_source_field combo box
+        Currently using QLineEdit for all field types
+        Possible to modify to switch QWidget type
+        '''
+        new_source = str(self.exclude_source_field.currentText())
+        self.exclude_source_field_name = new_source
+        if new_source > '':
+            exclude_source_spec = self.exclude_source_fields[str(new_source)]
+            self.exclude_source_field_name = exclude_source_spec['field']
+
+            # Change pattern input widget to match the source field datatype
+            if exclude_source_spec['datatype'] in ['bool','composite','datetime','text']:
+                if not isinstance(self.exclude_pattern, QLineEdit):
+                    self.exclude_spec_hl.removeWidget(self.exclude_pattern)
+                    dw = QLineEdit(self)
+                    dw.setObjectName('exclude_pattern')
+                    dw.setToolTip('Exclusion pattern')
+                    self.exclude_pattern = dw
+                    self.exclude_spec_hl.addWidget(dw)
+        else:
+            self.exclude_pattern.setText('')
+
+    def header_note_source_field_changed(self,new_index):
+        '''
+        Process changes in the header_note_source_field combo box
+        '''
+        new_source = str(self.header_note_source_field.currentText())
+        self.header_note_source_field_name = new_source
+        if new_source > '':
+            header_note_source_spec = self.header_note_source_fields[str(new_source)]
+            self.header_note_source_field_name = header_note_source_spec['field']
+
+    def merge_source_field_changed(self,new_index):
+        '''
+        Process changes in the header_note_source_field combo box
+        '''
+        new_source = str(self.merge_source_field.currentText())
+        self.merge_source_field_name = new_source
+        if new_source > '':
+            merge_source_spec = self.merge_source_fields[str(new_source)]
+            self.merge_source_field_name = merge_source_spec['field']
+            if not self.merge_before.isChecked() and not self.merge_after.isChecked():
+                self.merge_after.setChecked(True)
+            self.merge_before.setEnabled(True)
+            self.merge_after.setEnabled(True)
+            self.include_hr.setEnabled(True)
+
+        else:
+            self.merge_before.setEnabled(False)
+            self.merge_after.setEnabled(False)
+            self.include_hr.setEnabled(False)
+
+    def thumb_width_changed(self,new_value):
+        '''
+        Process changes in the thumb_width spin box
+        '''
+        pass
