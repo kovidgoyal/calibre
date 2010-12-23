@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-17 19:23+0000\n"
-"PO-Revision-Date: 2010-12-18 06:46+0000\n"
+"PO-Revision-Date: 2010-12-22 18:16+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-19 04:42+0000\n"
+"X-Launchpad-Export-Date: 2010-12-23 04:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -699,7 +699,7 @@ msgstr "Desgaitu izendaturiko gehigarria."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:148
 msgid "Debug log"
-msgstr ""
+msgstr "Araztu saioa"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -8079,7 +8079,7 @@ msgstr "Meta informazioa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:399
 msgid "Title &sort: "
-msgstr ""
+msgstr "Izenburu &mota: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:400
 msgid ""
@@ -14350,6 +14350,12 @@ msgstr "Ez deskargatu CSS (Cascading Style Sheets) estilo orririk."
 #~ msgid "Communicate with the Promedia eBook reader"
 #~ msgstr "Jar zaitez harremanetan \"Promedia eBook reader\" horrekin."
 
+#~ msgid "Force maximum line lenght"
+#~ msgstr "Force maximum line lenght"
+
+#~ msgid "Fit &cover to view"
+#~ msgstr "Fit &cover to view"
+
 #~ msgid ""
 #~ "Email\n"
 #~ "Delivery"
@@ -14365,6 +14371,21 @@ msgstr "Ez deskargatu CSS (Cascading Style Sheets) estilo orririk."
 
 #~ msgid "TabWidget"
 #~ msgstr "TabWidget"
+
+#~ msgid ""
+#~ "The label must contain only letters, digits and underscores, and start with "
+#~ "a letter"
+#~ msgstr ""
+#~ "The label must contain only letters, digits and underscores, and start with "
+#~ "a letter"
+
+#~ msgid ""
+#~ "The lookup name must be lower case and cannot contain \":\"s or spaces"
+#~ msgstr ""
+#~ "The lookup name must be lower case and cannot contain \":\"s or spaces"
+
+#~ msgid "Click to see list of active jobs."
+#~ msgstr "Click to see list of active jobs."
 
 #~ msgid "General"
 #~ msgstr "Orokorra"
@@ -14494,6 +14515,20 @@ msgstr "Ez deskargatu CSS (Cascading Style Sheets) estilo orririk."
 
 #~ msgid "Click to open Book Details window"
 #~ msgstr "Egin klik \"Liburuaren zehaztasunak\" leihoa zabaltzeko"
+
+#~ msgid ""
+#~ "Regex tips:\n"
+#~ "- The default regex - \\[[\\w ]*\\] - excludes genre tags of the form [tag], "
+#~ "e.g., [Amazon Freebie]\n"
+#~ "- A regex pattern of a single dot excludes all genre tags, generating no "
+#~ "Genre Section"
+#~ msgstr ""
+#~ "Regex, \"Regular Expresion\" iradokizunak:\n"
+#~ "- Regex lehenetsita- \\[[\\w ]*\\] - baztertu genero etiketako itxuratik "
+#~ "[etiketa], esaterako, [Amazon Freebie]\n"
+#~ "- \"DoT\" sinple bateko, hau da \"Damage-over Time\" sinple bateko, regex "
+#~ "estandar  batek ez ditu genero etiketa guztiak baztertuko, ez da sortuko "
+#~ "Genero Sailarik"
 
 #~ msgid "You cannot change libraries when a device is connected."
 #~ msgstr ""
