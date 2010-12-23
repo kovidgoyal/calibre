@@ -141,6 +141,9 @@ class EditorWidget(QWebView): # {{{
         self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.page().linkClicked.connect(self.link_clicked)
 
+        self.setHtml('')
+        self.page().setContentEditable(True)
+
     def link_clicked(self, url):
         open_url(url)
 
