@@ -51,6 +51,10 @@ def comments_to_html(comments):
     if not isinstance(comments, unicode):
         comments = comments.decode(preferred_encoding, 'replace')
 
+    if comments.startswith('<'):
+        # Comment is already HTML do not mess with it
+        return comments
+
     if '<' not in comments:
         comments = prepare_string_for_xml(comments)
         parts = [u'<p class="description">%s</p>'%x.replace(u'\n', u'<br />')
