@@ -226,6 +226,7 @@ class EditorWidget(QWebView): # {{{
                 for body in root.xpath('//body'):
                     if body.text:
                         elems.append('<p>%s</p>'%body.text)
+                        body.text = ''
                     elems += [html.tostring(x, encoding=unicode) for x in body if
                         x.tag not in ('script', 'style')]
 
