@@ -139,12 +139,18 @@ class EditorWidget(QWebView): # {{{
         self.action_insert_link = QAction(QIcon(I('insert-link.png')),
                 _('Insert link'), self)
         self.action_insert_link.triggered.connect(self.insert_link)
+        self.action_clear = QAction(QIcon(I('edit-clear')), _('Clear'), self)
+        self.action_clear.triggered.connect(self.clear_text)
 
         self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.page().linkClicked.connect(self.link_clicked)
 
         self.setHtml('')
         self.page().setContentEditable(True)
+
+    def clear_text(self, *args):
+        self.action_select_all.trigger()
+        self.action_cut.trigger()
 
     def link_clicked(self, url):
         open_url(url)
@@ -511,6 +517,7 @@ class Editor(QWidget): # {{{
         self.toolbar1.addAction(self.editor.action_redo)
         self.toolbar1.addAction(self.editor.action_select_all)
         self.toolbar1.addAction(self.editor.action_remove_format)
+        self.toolbar1.addAction(self.editor.action_clear)
         self.toolbar1.addSeparator()
 
         for x in ('copy', 'cut', 'paste'):
@@ -530,7 +537,7 @@ class Editor(QWidget): # {{{
         self.toolbar1.addAction(self.editor.action_block_style)
         w = self.toolbar1.widgetForAction(self.editor.action_block_style)
         w.setPopupMode(w.InstantPopup)
-        self.toolbar1.addAction(self.editor.action_insert_link)
+        self.toolbar2.addAction(self.editor.action_insert_link)
 
         self.code_edit.textChanged.connect(self.code_dirtied)
         self.editor.page().contentsChanged.connect(self.wyswyg_dirtied)
