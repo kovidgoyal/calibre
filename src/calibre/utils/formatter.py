@@ -57,6 +57,11 @@ class _Parser(object):
         y = float(y if y else 0)
         return ops[op](x, y)
 
+    def _template(self, template):
+        template = template.replace('[[', '{').replace(']]', '}')
+        return self.parent.safe_format(template, self.parent.kwargs, 'TEMPLATE',
+                                       self.parent.book)
+
     local_functions = {
             'add'      : (2, partial(_math, op='+')),
             'assign'   : (2, _assign),
@@ -68,6 +73,7 @@ class _Parser(object):
             'strcmp'   : (5, _strcmp),
             'substr'   : (3, lambda s, x, y, z: x[int(y): len(x) if int(z) == 0 else int(z)]),
             'subtract' : (2, partial(_math, op='-')),
+            'template' : (1, _template)
     }
 
     def __init__(self, val, prog, parent):

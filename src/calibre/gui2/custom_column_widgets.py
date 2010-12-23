@@ -587,8 +587,6 @@ class BulkSeries(BulkBase):
                 else:
                     s_index = self.db.get_custom_extra(book_id, num=self.col_id,
                                                        index_is_id=True)
-                    if s_index is None:
-                        s_index = 1.0
                 extras.append(s_index)
             self.db.set_custom_bulk(book_ids, val, extras=extras,
                                    num=self.col_id, notify=notify)

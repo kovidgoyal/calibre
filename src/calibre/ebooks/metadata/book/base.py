@@ -463,6 +463,8 @@ class Metadata(object):
         other_lang = getattr(other, 'language', None)
         if other_lang and other_lang.lower() != 'und':
             self.language = other_lang
+        if not getattr(self, 'series', None):
+            self.series_index = None
 
     def format_series_index(self, val=None):
         from calibre.ebooks.metadata import fmt_sidx

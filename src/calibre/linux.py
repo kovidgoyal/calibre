@@ -188,7 +188,7 @@ class PostInstall:
             from calibre.utils.smtp import option_parser as smtp_op
             from calibre.ebooks.epub.fix.main import option_parser as fix_op
             any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
-                'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt', 'lrf']
+                'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt', 'lrf', 'snb']
             bc = os.path.join(os.path.dirname(self.opts.staging_sharedir),
                 'bash-completion')
             if os.path.exists(bc):

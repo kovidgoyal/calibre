@@ -13,8 +13,8 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0">
-   <item row="4" column="0">
+  <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0" rowminimumheight="0,0,0,0,0,0">
+   <item row="5" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -35,9 +35,9 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QCheckBox" name="opt_snb_indent_first_line">
+    <widget class="QCheckBox" name="opt_snb_dont_indent_first_line">
      <property name="text">
-      <string>Insert space before the first line for each paragraph</string>
+      <string>Don't indent the first line for each paragraph</string>
      </property>
     </widget>
    </item>
@@ -45,6 +45,13 @@
     <widget class="QCheckBox" name="opt_snb_insert_empty_line">
      <property name="text">
       <string>Insert empty line between paragraphs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="opt_snb_full_screen">
+     <property name="text">
+      <string>Optimize for full-sceen view </string>
      </property>
     </widget>
    </item>

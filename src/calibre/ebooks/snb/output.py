@@ -35,14 +35,17 @@ class SNBOutput(OutputFormatPlugin):
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Specify whether or not to insert an empty line between '
             'two paragraphs.')),
-        OptionRecommendation(name='snb_indent_first_line',
-            recommended_value=True, level=OptionRecommendation.LOW,
+        OptionRecommendation(name='snb_dont_indent_first_line',
+            recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Specify whether or not to insert two space characters '
             'to indent the first line of each paragraph.')),
         OptionRecommendation(name='snb_hide_chapter_name',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Specify whether or not to hide the chapter title for each '
             'chapter. Useful for image-only output (eg. comics).')),
+        OptionRecommendation(name='snb_full_screen',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Resize all the images for full screen view. ')),
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -228,7 +231,10 @@ class SNBOutput(OutputFormatPlugin):
         img.load(imageData)
         (x,y) = img.size
         if self.opts:
-            SCREEN_X, SCREEN_Y = self.opts.output_profile.comic_screen_size
+            if self.opts.snb_full_screen:
+                SCREEN_X, SCREEN_Y = self.opts.output_profile.screen_size
+            else:
+                SCREEN_X, SCREEN_Y = self.opts.output_profile.comic_screen_size
         else:
             SCREEN_X = 540
             SCREEN_Y = 700

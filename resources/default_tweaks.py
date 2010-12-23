@@ -41,6 +41,20 @@ series_index_auto_increment = 'next'
 # selecting 'manage authors', and pressing 'Recalculate all author sort values'.
 author_sort_copy_method = 'invert'
 
+# Set which author field to display in the tags pane (the list of authors,
+# series, publishers etc on the left hand side). The choices are author and
+# author_sort. This tweak affects only what is displayed under the authors
+# category in the tags pane and content server. Please note that if you set this
+# to author_sort, it is very possible to see duplicate names in the list because
+# although it is guaranteed that author names are unique, there is no such
+# guarantee for author_sort values. Showing duplicates won't break anything, but
+# it could lead to some confusion. When using 'author_sort', the tooltip will
+# show the author's name.
+# Examples:
+#   categories_use_field_for_author_name = 'author'
+#   categories_use_field_for_author_name = 'author_sort'
+categories_use_field_for_author_name = 'author'
+
 
 # Set whether boolean custom columns are two- or three-valued.
 #  Two-values for true booleans

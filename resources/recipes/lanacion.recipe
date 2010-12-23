@@ -78,4 +78,6 @@ class Lanacion(BasicNewsRecipe):
                      ]
 
     def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
         return self.adeify_images(soup)

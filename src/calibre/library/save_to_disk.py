@@ -7,6 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, traceback, cStringIO, re, shutil
+from functools import partial
 
 from calibre.constants import DEBUG
 from calibre.utils.config import Config, StringConfig, tweaks
@@ -139,8 +140,7 @@ class SafeFormat(TemplateFormatter):
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
         to_lowercase=False):
-    library_order = tweaks['save_template_title_series_sorting'] == 'library_order'
-    tsfmt = title_sort if library_order else lambda x: x
+    tsfmt = partial(title_sort, order=tweaks['save_template_title_series_sorting'])
     format_args = FORMAT_ARGS.copy()
     format_args.update(mi.all_non_none_fields())
     if mi.title:

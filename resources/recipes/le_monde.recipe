@@ -4,7 +4,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class LeMonde(BasicNewsRecipe):
     title                  = 'Le Monde'
     __author__             = 'veezh'
-    description            = 'Actualités'
+    description            = u'Actualit\xe9s'
     oldest_article         = 1
     max_articles_per_feed  = 100
     no_stylesheets         = True

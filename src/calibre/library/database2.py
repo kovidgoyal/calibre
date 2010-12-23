@@ -1128,6 +1128,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 for l in list:
                     (id, val, sort_val) = (l[0], l[1], l[2])
                     tids[category][val] = (id, sort_val)
+            elif cat['datatype'] == 'series':
+                for l in list:
+                    (id, val) = (l[0], l[1])
+                    tids[category][val] = (id, title_sort(val))
+            elif cat['datatype'] == 'rating':
+                for l in list:
+                    (id, val) = (l[0], l[1])
+                    tids[category][val] = (id, '{0:05.2f}'.format(val))
             else:
                 for l in list:
                     (id, val) = (l[0], l[1])
@@ -1256,12 +1264,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
             # sort the list
             if sort == 'name':
-                def get_sort_key(x):
-                    sk = x.s
-                    if isinstance(sk, unicode):
-                        sk = sort_key(sk)
-                    return sk
-                kf = get_sort_key
+                kf = lambda x :sort_key(x.s)
                 reverse=False
             elif sort == 'popularity':
                 kf = lambda x: x.c
@@ -1967,7 +1970,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     @classmethod
     def cleanup_tags(cls, tags):
-        tags = [x.strip() for x in tags if x.strip()]
+        tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
         tags = [x.decode(preferred_encoding, 'replace') \
                     if isbytestring(x) else x for x in tags]
         tags = [u' '.join(x.split()) for x in tags]
@@ -2130,9 +2133,27 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
                 self.conn.commit()
 
+    series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
+
+    def _get_series_values(self, val):
+        if not val:
+            return (val, None)
+        match = self.series_index_pat.match(val.strip())
+        if match is not None:
+            idx = match.group(2)
+            try:
+                idx = float(idx)
+                return (match.group(1).strip(), idx)
+            except:
+                pass
+        return (val, None)
+
     def set_series(self, id, series, notify=True, commit=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
-        self.conn.execute('DELETE FROM series WHERE (SELECT COUNT(id) FROM books_series_link WHERE series=series.id) < 1')
+        self.conn.execute('''DELETE FROM series
+                             WHERE (SELECT COUNT(id) FROM books_series_link
+                                    WHERE series=series.id) < 1''')
+        (series, idx) = self._get_series_values(series)
         if series:
             if not isinstance(series, unicode):
                 series = series.decode(preferred_encoding, 'replace')
@@ -2144,6 +2165,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
+            if idx:
+                self.set_series_index(id, idx, notify=notify, commit=commit)
         self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
