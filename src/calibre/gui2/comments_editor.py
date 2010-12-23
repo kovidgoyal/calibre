@@ -62,6 +62,8 @@ class EditorWidget(QWebView): # {{{
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
 
+        self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
+
         for wac, name, icon, text, checkable in [
                 ('ToggleBold', 'bold', 'format-text-bold', _('Bold'), True),
                 ('ToggleItalic', 'italic', 'format-text-italic', _('Italic'),
@@ -213,6 +215,7 @@ class EditorWidget(QWebView): # {{{
                 raw = unicode(self.page().mainFrame().toHtml())
                 raw = xml_to_unicode(raw, strip_encoding_pats=True,
                                     resolve_entities=True)[0]
+                raw = self.comments_pat.sub('', raw)
 
                 try:
                     root = html.fromstring(raw)
