@@ -225,7 +225,7 @@ class EditorWidget(QWebView): # {{{
                 elems = []
                 for body in root.xpath('//body'):
                     if body.text:
-                        elems.append('<p>%s</p>'%body.text)
+                        elems.append(body.text)
                     elems += [html.tostring(x, encoding=unicode) for x in body if
                         x.tag not in ('script', 'style')]
 
@@ -233,6 +233,8 @@ class EditorWidget(QWebView): # {{{
                     ans = u'<div>%s</div>'%(u''.join(elems))
                 else:
                     ans = u''.join(elems)
+                    if not ans.startswith('<'):
+                        ans = '<p>%s</p>'%ans
                 ans = xml_replace_entities(ans)
             except:
                 import traceback
