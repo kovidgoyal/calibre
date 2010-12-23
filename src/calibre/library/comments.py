@@ -51,7 +51,7 @@ def comments_to_html(comments):
     if not isinstance(comments, unicode):
         comments = comments.decode(preferred_encoding, 'replace')
 
-    if comments.startswith('<'):
+    if comments.lstrip().startswith('<'):
         # Comment is already HTML do not mess with it
         return comments
 
