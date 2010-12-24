@@ -62,6 +62,8 @@ class EditorWidget(QWebView): # {{{
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
 
+        self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
+
         for wac, name, icon, text, checkable in [
                 ('ToggleBold', 'bold', 'format-text-bold', _('Bold'), True),
                 ('ToggleItalic', 'italic', 'format-text-italic', _('Italic'),
@@ -137,9 +139,18 @@ class EditorWidget(QWebView): # {{{
         self.action_insert_link = QAction(QIcon(I('insert-link.png')),
                 _('Insert link'), self)
         self.action_insert_link.triggered.connect(self.insert_link)
+        self.action_clear = QAction(QIcon(I('edit-clear')), _('Clear'), self)
+        self.action_clear.triggered.connect(self.clear_text)
 
         self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.page().linkClicked.connect(self.link_clicked)
+
+        self.setHtml('')
+        self.page().setContentEditable(True)
+
+    def clear_text(self, *args):
+        self.action_select_all.trigger()
+        self.action_cut.trigger()
 
     def link_clicked(self, url):
         open_url(url)
@@ -210,6 +221,7 @@ class EditorWidget(QWebView): # {{{
                 raw = unicode(self.page().mainFrame().toHtml())
                 raw = xml_to_unicode(raw, strip_encoding_pats=True,
                                     resolve_entities=True)[0]
+                raw = self.comments_pat.sub('', raw)
 
                 try:
                     root = html.fromstring(raw)
@@ -218,12 +230,17 @@ class EditorWidget(QWebView): # {{{
 
                 elems = []
                 for body in root.xpath('//body'):
+                    if body.text:
+                        elems.append(body.text)
                     elems += [html.tostring(x, encoding=unicode) for x in body if
-                        x.tag != 'script']
+                        x.tag not in ('script', 'style')]
+
                 if len(elems) > 1:
                     ans = u'<div>%s</div>'%(u''.join(elems))
                 else:
                     ans = u''.join(elems)
+                    if not ans.startswith('<'):
+                        ans = '<p>%s</p>'%ans
                 ans = xml_replace_entities(ans)
             except:
                 import traceback
@@ -500,6 +517,7 @@ class Editor(QWidget): # {{{
         self.toolbar1.addAction(self.editor.action_redo)
         self.toolbar1.addAction(self.editor.action_select_all)
         self.toolbar1.addAction(self.editor.action_remove_format)
+        self.toolbar1.addAction(self.editor.action_clear)
         self.toolbar1.addSeparator()
 
         for x in ('copy', 'cut', 'paste'):
@@ -519,7 +537,7 @@ class Editor(QWidget): # {{{
         self.toolbar1.addAction(self.editor.action_block_style)
         w = self.toolbar1.widgetForAction(self.editor.action_block_style)
         w.setPopupMode(w.InstantPopup)
-        self.toolbar1.addAction(self.editor.action_insert_link)
+        self.toolbar2.addAction(self.editor.action_insert_link)
 
         self.code_edit.textChanged.connect(self.code_dirtied)
         self.editor.page().contentsChanged.connect(self.wyswyg_dirtied)

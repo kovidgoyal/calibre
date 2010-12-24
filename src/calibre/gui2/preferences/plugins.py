@@ -103,7 +103,7 @@ class PluginModel(QAbstractItemModel): # {{{
             plugin = self.index_to_plugin(index)
             if role == Qt.DisplayRole:
                 ver = '.'.join(map(str, plugin.version))
-                desc = '\n'.join(textwrap.wrap(plugin.description, 50))
+                desc = '\n'.join(textwrap.wrap(plugin.description, 100))
                 ans='%s (%s) %s %s\n%s'%(plugin.name, ver, _('by'), plugin.author, desc)
                 c = plugin_customization(plugin)
                 if c:

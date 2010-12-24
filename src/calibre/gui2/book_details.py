@@ -249,7 +249,7 @@ class BookInfo(QWebView):
             left_pane = u'<table>%s</table>'%rows
             right_pane = u'<div>%s</div>'%comments
             self.setHtml(templ%(u'<table><tr><td valign="top" '
-                    'style="padding-right:2em">%s</td><td valign="top">%s</td></tr></table>'
+                'style="padding-right:2em; width:40%%">%s</td><td valign="top">%s</td></tr></table>'
                     % (left_pane, right_pane)))
 
     def mouseDoubleClickEvent(self, ev):
