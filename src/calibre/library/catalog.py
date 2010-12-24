@@ -106,6 +106,9 @@ class CSV_XML(CatalogPlugin):
         if self.fmt == 'csv':
             outfile = codecs.open(path_to_output, 'w', 'utf8')
 
+            # Write a UTF-8 BOM
+            outfile.write('\xef\xbb\xbf')
+
             # Output the field headers
             outfile.write(u'%s\n' % u','.join(fields))
 
@@ -132,7 +135,6 @@ class CSV_XML(CatalogPlugin):
                     elif field == 'comments':
                         item = item.replace(u'\r\n',u' ')
                         item = item.replace(u'\n',u' ')
-
                     outstr.append(u'"%s"' % unicode(item).replace('"','""'))
 
                 outfile.write(u','.join(outstr) + u'\n')
@@ -953,24 +955,22 @@ class EPUB_MOBI(CatalogPlugin):
                                      float(self.opts.thumb_width))
                 zfw = ZipFile(self.__archive_path, mode='w')
                 zfw.writestr("Catalog Thumbs Archive",'')
-                zfw.comment = "thumb_width: %1.2f" % float(self.opts.thumb_width)
+                #zfw.comment = "thumb_width: %1.2f" % float(self.opts.thumb_width)
                 zfw.close()
             else:
                 with closing(ZipFile(self.__archive_path, mode='r')) as zfr:
                     try:
-                        cached_thumb_width = float(zfr.comment[len('thumb_width: '):])
+                        cached_thumb_width = zfr.read('thumb_width')
                     except:
-                        cached_thumb_width = "0.0"
+                        cached_thumb_width = "-1"
 
                 if float(cached_thumb_width) != float(self.opts.thumb_width):
                     self.opts.log.info(" invalidating cache at '%s'" % self.__archive_path)
                     self.opts.log.info('  thumb_width: %1.2f" => %1.2f"' %
                                         (float(cached_thumb_width),float(self.opts.thumb_width)))
                     os.remove(self.__archive_path)
-                    zfw = ZipFile(self.__archive_path, mode='w')
-                    zfw.writestr("Catalog Thumbs Archive",'')
-                    zfw.comment = "thumb_width: %1.2f" % float(self.opts.thumb_width)
-                    zfw.close()
+                    with closing(ZipFile(self.__archive_path, mode='w')) as zfw:
+                        zfw.writestr("Catalog Thumbs Archive",'')
                 else:
                     self.opts.log.info(' existing thumb cache at %s, cached_thumb_width: %1.2f"' %
                                          (self.__archive_path, float(cached_thumb_width)))
@@ -2996,6 +2996,11 @@ class EPUB_MOBI(CatalogPlugin):
                         #title['cover'] = "%s/DefaultCover.jpg" % self.catalogPath
                         title['cover'] = cover
                         self.generateThumbnail(title, image_dir, "thumbnail_default.jpg")
+
+            # Write the thumb_width to the file validating cache contents
+            # Allows detection of aborted catalog builds
+            with closing(ZipFile(self.__archive_path, mode='a'))as zfw:
+                zfw.writestr('thumb_width', self.opts.thumb_width)
 
             self.thumbs = thumbs
 
