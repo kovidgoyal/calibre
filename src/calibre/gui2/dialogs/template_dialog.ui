@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CommentsDialog</class>
- <widget class="QDialog" name="CommentsDialog">
+ <class>TemplateDialog</class>
+ <widget class="QDialog" name="TemplateDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -19,35 +19,28 @@
   <property name="windowTitle">
    <string>Edit Comments</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="Editor" name="textbox" native="true"/>
-   </item>
-   <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-  </layout>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QPlainTextEdit" name="textbox"/>
+    </item>
+    <item>
+     <widget class="QDialogButtonBox" name="buttonBox">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="standardButtons">
+       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      </property>
+     </widget>
+    </item>
+   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Editor</class>
-   <extends>QWidget</extends>
-   <header>calibre/gui2/comments_editor.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>CommentsDialog</receiver>
+   <receiver>TemplateDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -63,7 +56,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>CommentsDialog</receiver>
+   <receiver>TemplateDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
