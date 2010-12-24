@@ -479,6 +479,7 @@ class Editor(QWidget): # {{{
         QWidget.__init__(self, parent)
         self.toolbar1 = QToolBar(self)
         self.toolbar2 = QToolBar(self)
+        self.toolbar3 = QToolBar(self)
         self.editor = EditorWidget(self)
         self.tabs = QTabWidget(self)
         self.tabs.setTabPosition(self.tabs.South)
@@ -493,6 +494,7 @@ class Editor(QWidget): # {{{
         l.setContentsMargins(0, 0, 0, 0)
         l.addWidget(self.toolbar1)
         l.addWidget(self.toolbar2)
+        l.addWidget(self.toolbar3)
         l.addWidget(self.editor)
         self._layout.addWidget(self.tabs)
         self.tabs.addTab(self.wyswyg, _('Normal view'))
@@ -500,19 +502,7 @@ class Editor(QWidget): # {{{
         self.tabs.currentChanged[int].connect(self.change_tab)
         self.highlighter = Highlighter(self.code_edit.document())
 
-        for x in ('bold', 'italic', 'underline', 'strikethrough',
-                'superscript', 'subscript', 'indent', 'outdent'):
-            ac = getattr(self.editor, 'action_'+x)
-            if x in ('superscript', 'indent'):
-                self.toolbar2.addSeparator()
-            self.toolbar2.addAction(ac)
-        self.toolbar2.addSeparator()
-
-        for x in ('left', 'center', 'right', 'justified'):
-            ac = getattr(self.editor, 'action_align_'+x)
-            self.toolbar2.addAction(ac)
-        self.toolbar2.addSeparator()
-
+        # toolbar1 {{{
         self.toolbar1.addAction(self.editor.action_undo)
         self.toolbar1.addAction(self.editor.action_redo)
         self.toolbar1.addAction(self.editor.action_select_all)
@@ -523,21 +513,39 @@ class Editor(QWidget): # {{{
         for x in ('copy', 'cut', 'paste'):
             ac = getattr(self.editor, 'action_'+x)
             self.toolbar1.addAction(ac)
-        self.toolbar1.addSeparator()
 
+        self.toolbar1.addSeparator()
+        self.toolbar1.addAction(self.editor.action_background)
+        # }}}
+
+        # toolbar2 {{{
         for x in ('', 'un'):
             ac = getattr(self.editor, 'action_%sordered_list'%x)
-            self.toolbar1.addAction(ac)
-        self.toolbar1.addSeparator()
+            self.toolbar2.addAction(ac)
+        self.toolbar2.addSeparator()
+        for x in ('superscript', 'subscript', 'indent', 'outdent'):
+            self.toolbar2.addAction(getattr(self.editor, 'action_' + x))
+            if x in ('subscript', 'outdent'):
+                self.toolbar2.addSeparator()
 
-        self.toolbar1.addAction(self.editor.action_color)
-        self.toolbar1.addAction(self.editor.action_background)
-        self.toolbar1.addSeparator()
-
-        self.toolbar1.addAction(self.editor.action_block_style)
-        w = self.toolbar1.widgetForAction(self.editor.action_block_style)
+        self.toolbar2.addAction(self.editor.action_block_style)
+        w = self.toolbar2.widgetForAction(self.editor.action_block_style)
         w.setPopupMode(w.InstantPopup)
         self.toolbar2.addAction(self.editor.action_insert_link)
+        # }}}
+
+        # toolbar3 {{{
+        for x in ('bold', 'italic', 'underline', 'strikethrough'):
+            ac = getattr(self.editor, 'action_'+x)
+            self.toolbar3.addAction(ac)
+        self.toolbar3.addSeparator()
+
+        for x in ('left', 'center', 'right', 'justified'):
+            ac = getattr(self.editor, 'action_align_'+x)
+            self.toolbar3.addAction(ac)
+        self.toolbar3.addSeparator()
+        self.toolbar3.addAction(self.editor.action_color)
+        # }}}
 
         self.code_edit.textChanged.connect(self.code_dirtied)
         self.editor.page().contentsChanged.connect(self.wyswyg_dirtied)
