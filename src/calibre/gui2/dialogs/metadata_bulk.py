@@ -414,6 +414,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.s_r_template.completer().setCaseSensitivity(Qt.CaseSensitive)
 
         self.s_r_search_mode_changed(self.search_mode.currentIndex())
+        self.multiple_separator.setFixedWidth(30)
+        self.multiple_separator.setText(' ::: ')
+        self.multiple_separator.textChanged.connect(self.s_r_separator_changed)
 
     def s_r_get_field(self, mi, field):
         if field:
@@ -451,19 +454,22 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
             src = unicode(self.search_field.currentText())
             t = self.s_r_get_field(mi, src)
-            w.setText(''.join(t[0:1]))
+            w.setText(unicode(self.multiple_separator.text()).join(t))
 
         if self.search_mode.currentIndex() == 0:
             self.destination_field.setCurrentIndex(idx)
         else:
+            self.s_r_destination_field_changed(self.destination_field.currentText())
             self.s_r_paint_results(None)
 
     def s_r_destination_field_changed(self, txt):
         txt = unicode(txt)
+        if not txt:
+            txt = unicode(self.search_field.currentText())
         self.comma_separated.setEnabled(True)
-        if txt:
-            fm = self.db.metadata_for_field(txt)
-            if fm['is_multiple']:
+        if txt and txt in self.writable_fields:
+            self.destination_field_fm = self.db.metadata_for_field(txt)
+            if self.destination_field_fm['is_multiple']:
                 self.comma_separated.setEnabled(False)
                 self.comma_separated.setChecked(True)
         self.s_r_paint_results(None)
@@ -492,6 +498,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.comma_separated.setVisible(True)
             self.s_r_heading.setText('<p>'+self.main_heading + self.regexp_heading)
         self.s_r_paint_results(None)
+
+    def s_r_separator_changed(self, txt):
+        self.s_r_search_field_changed(self.search_field.currentIndex())
 
     def s_r_set_colors(self):
         if self.s_r_error is not None:
@@ -592,8 +601,12 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             wr = getattr(self, 'book_%d_result'%(i+1))
             try:
                 result = self.s_r_do_regexp(mi)
-                t = self.s_r_do_destination(mi, result[0:1])
-                t = self.s_r_replace_mode_separator().join(t)
+                t = self.s_r_do_destination(mi, result)
+                if len(result) > 1 and self.destination_field_fm is not None and \
+                            self.destination_field_fm['is_multiple']:
+                    t = unicode(self.multiple_separator.text()).join(t)
+                else:
+                    t = self.s_r_replace_mode_separator().join(t)
                 wr.setText(t)
             except Exception as e:
                 self.s_r_error = e

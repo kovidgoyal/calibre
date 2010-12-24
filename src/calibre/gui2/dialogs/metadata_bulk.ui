@@ -478,7 +478,7 @@ Future conversion of these books will use the default settings.</string>
            <item>
             <widget class="QLabel" name="xlabel_24">
              <property name="text">
-              <string>Search mode:</string>
+              <string>Search &amp;mode:</string>
              </property>
              <property name="buddy">
               <cstring>search_mode</cstring>
@@ -559,7 +559,7 @@ Future conversion of these books will use the default settings.</string>
             <string>Check this box if the search string must match exactly upper and lower case. Uncheck it if case is to be ignored</string>
            </property>
            <property name="text">
-            <string>Case sensitive</string>
+            <string>Cas&amp;e sensitive</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -588,7 +588,7 @@ Future conversion of these books will use the default settings.</string>
            <item>
             <widget class="QLabel" name="label_41">
              <property name="text">
-              <string>Apply function after replace:</string>
+              <string>&amp;Apply function after replace:</string>
              </property>
              <property name="buddy">
               <cstring>replace_func</cstring>
@@ -641,7 +641,7 @@ If blank, the source field is used if the field is modifiable</string>
            <item>
             <widget class="QLabel" name="replace_mode_label">
              <property name="text">
-              <string>Mode:</string>
+              <string>M&amp;ode:</string>
              </property>
              <property name="buddy">
               <cstring>replace_mode</cstring>
@@ -658,11 +658,11 @@ If blank, the source field is used if the field is modifiable</string>
            <item>
             <widget class="QCheckBox" name="comma_separated">
              <property name="toolTip">
-              <string>If the replace mode is prepend or append, then this box indicates whether a comma or
-nothing should be put between the original text and the inserted text</string>
+              <string>Specifies whether a comma should be put between values when copying from a
+multiple-valued field to a single-valued field</string>
              </property>
              <property name="text">
-              <string>use comma</string>
+              <string>&amp;Use comma</string>
              </property>
              <property name="checked">
               <bool>true</bool>
@@ -687,7 +687,7 @@ nothing should be put between the original text and the inserted text</string>
          <item row="8" column="1">
           <widget class="QLabel" name="xlabel_3">
            <property name="text">
-            <string>Test &amp;text</string>
+            <string>Test text</string>
            </property>
            <property name="buddy">
             <cstring>test_text</cstring>
@@ -695,14 +695,48 @@ nothing should be put between the original text and the inserted text</string>
           </widget>
          </item>
          <item row="8" column="2">
-          <widget class="QLabel" name="label_51">
-           <property name="text">
-            <string>Test re&amp;sult</string>
-           </property>
-           <property name="buddy">
-            <cstring>test_result</cstring>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_21">
+           <item>
+            <widget class="QLabel" name="label_51">
+             <property name="text">
+              <string>Test result</string>
+             </property>
+             <property name="buddy">
+              <cstring>test_result</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="HSpacer_347">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="xlabel_41">
+             <property name="text">
+              <string>Multi&amp;ple separator:</string>
+             </property>
+             <property name="buddy">
+              <cstring>multiple_separator</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="multiple_separator">
+             <property name="toolTip">
+              <string>Used when displaying test results to separate values in multiple-valued fields</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item row="9" column="0" colspan="4">
           <widget class="QScrollArea" name="scrollArea11">
@@ -823,7 +857,7 @@ nothing should be put between the original text and the inserted text</string>
   <tabstop>destination_field</tabstop>
   <tabstop>replace_mode</tabstop>
   <tabstop>comma_separated</tabstop>
-  <tabstop>scrollArea11</tabstop>
+  <tabstop>multiple_separator</tabstop>
   <tabstop>test_text</tabstop>
   <tabstop>test_result</tabstop>
  </tabstops>

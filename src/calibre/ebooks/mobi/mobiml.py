@@ -468,8 +468,9 @@ class MobiMLizer(object):
                         vtag.append(child)
                     else:
                         break
-                for child in vbstate.para:
-                    vtag.append(child)
+                if vbstate.para is not None:
+                    for child in vbstate.para:
+                        vtag.append(child)
                 return
 
         if text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS:
