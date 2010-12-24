@@ -769,7 +769,7 @@ class DocumentView(QWebView): # {{{
                 self.to_bottom = True
                 if epf:
                     self.flipper.initialize(self.current_page_image(), False)
-                    self.manager.previous_document()
+                self.manager.previous_document()
         else:
             opos = self.document.ypos
             upper_limit = opos - delta_y
@@ -783,8 +783,8 @@ class DocumentView(QWebView): # {{{
                 if epf:
                     self.flipper(self.current_page_image(),
                             duration=self.document.page_flip_duration)
-            if self.manager is not None:
-                self.manager.scrolled(self.scroll_fraction)
+                if self.manager is not None:
+                    self.manager.scrolled(self.scroll_fraction)
 
     def next_page(self):
         if self.flipper.running and not self.is_auto_repeat_event:
