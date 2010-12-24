@@ -14,6 +14,22 @@ from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import strcmp
+from calibre.utils.formatter import TemplateFormatter
+
+class SafeFormat(TemplateFormatter):
+    '''
+    Provides a format function that substitutes '' for any missing value
+    '''
+
+    def get_value(self, key, args, kwargs):
+        try:
+            if key in kwargs:
+                return kwargs[key]
+            return key
+        except:
+            return key
+
+safe_formatter = SafeFormat()
 
 class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -107,23 +123,25 @@ class CollectionsBookList(BookList):
                 return sortattr
         return None
 
-    def compute_category_name(self, attr, category, field_meta):
+    def compute_category_name(self, field_key, field_value, field_meta):
         renames = tweaks['sony_collection_renaming_rules']
-        attr_name = renames.get(attr, None)
-        if attr_name is None:
+        field_name = renames.get(field_key, None)
+        if field_name is None:
             if field_meta['is_custom']:
-                attr_name = '(%s)'%field_meta['name']
+                field_name = field_meta['name']
             else:
-                attr_name = ''
-        elif attr_name != '':
-            attr_name = '(%s)'%attr_name
-        cat_name = '%s %s'%(category, attr_name)
+                field_name = ''
+        cat_name = safe_formatter.safe_format(
+                        fmt=tweaks['sony_collection_name_template'],
+                        kwargs={'category':field_name, 'value':field_value},
+                        error_value='', book=None)
         return cat_name.strip()
 
     def get_collections(self, collection_attributes):
         from calibre.devices.usbms.driver import debug_print
         debug_print('Starting get_collections:', prefs['manage_device_metadata'])
         debug_print('Renaming rules:', tweaks['sony_collection_renaming_rules'])
+        debug_print('Formatting template:', tweaks['sony_collection_name_template'])
         debug_print('Sorting rules:', tweaks['sony_collection_sorting_rules'])
 
         # Complexity: we can use renaming rules only when using automatic
