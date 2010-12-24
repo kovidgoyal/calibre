@@ -143,7 +143,7 @@ auto_connect_to_folder = ''
 # documentation, 'Darkover' is called the value and 'My Series' is called the
 # category. If two books have fields that generate the same collection name,
 # then both books will be in that collection.
-# This set of tweaks tweak lets you specify for a standard or custom field how
+# This set of tweaks lets you specify for a standard or custom field how
 # the collections are to be named. You can use it to add a description to a
 # standard field, for example 'Foo (Tag)' instead of the 'Foo'. You can also use
 # it to force multiple fields to end up in the same collection. For example, you
