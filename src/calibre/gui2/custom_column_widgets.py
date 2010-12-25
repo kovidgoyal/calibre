@@ -9,7 +9,7 @@ import sys
 from functools import partial
 
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
-        QDate, QGroupBox, QVBoxLayout, QPlainTextEdit, QSizePolicy, \
+        QDate, QGroupBox, QVBoxLayout, QSizePolicy, \
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
         QPushButton
 

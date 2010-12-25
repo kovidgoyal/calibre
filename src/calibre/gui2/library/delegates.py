@@ -301,9 +301,13 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         self.document = QTextDocument()
 
     def paint(self, painter, option, index):
+        style = self.parent().style()
         self.document.setHtml(index.data(Qt.DisplayRole).toString())
         painter.save()
-        if option.state & QStyle.State_Selected:
+        if hasattr(QStyle, 'CE_ItemViewItem'):
+            style.drawControl(QStyle.CE_ItemViewItem, option,
+                    painter, self._parent)
+        elif option.state & QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
         painter.setClipRect(option.rect)
         painter.translate(option.rect.topLeft())
