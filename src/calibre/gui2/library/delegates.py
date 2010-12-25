@@ -306,7 +306,7 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         painter.save()
         if hasattr(QStyle, 'CE_ItemViewItem'):
             style.drawControl(QStyle.CE_ItemViewItem, option,
-                    painter, self._parent)
+                    painter, self.parent())
         elif option.state & QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
         painter.setClipRect(option.rect)
