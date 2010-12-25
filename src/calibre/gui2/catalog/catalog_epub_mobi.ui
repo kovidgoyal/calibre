@@ -35,10 +35,10 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Sections to include in generated catalog.  A minimal catalog includes 'Books by Author'.</string>
+      <string>Sections to include in catalog.  All catalogs include 'Books by Author'.</string>
      </property>
      <property name="title">
-      <string>Included sections  (Books by Author included by default)</string>
+      <string>Included sections</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
@@ -100,7 +100,8 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Lucida Grande'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Default pattern &lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New,courier';&quot;&gt;\[.+\]&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;excludes tags of the form [&lt;span style=&quot; font-style:italic;&quot;&gt;tag&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;excludes tags of the form [&lt;span style=&quot; font-family:'Courier New,courier';&quot;&gt;tag&lt;/span&gt;], &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;e.g., [Project Gutenberg]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="title">
       <string>Excluded genres</string>
@@ -184,7 +185,7 @@ p, li { white-space: pre-wrap; }
       </size>
      </property>
      <property name="toolTip">
-      <string>Exclude matching books from generated catalog</string>
+      <string>Books matching either pattern will not be included in generated catalog. </string>
      </property>
      <property name="title">
       <string>Excluded books</string>
@@ -279,7 +280,7 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="toolTip">
-           <string>Column containing exclusion criteria</string>
+           <string>Column containing additional exclusion criteria</string>
           </property>
           <property name="sizeAdjustPolicy">
            <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
@@ -455,7 +456,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QLineEdit" name="wishlist_tag">
           <property name="toolTip">
-           <string>Wishlist items will be displayed with ✕</string>
+           <string>Books tagged as Wishlist items will be displayed with ✕</string>
           </property>
          </widget>
         </item>
@@ -497,7 +498,7 @@ p, li { white-space: pre-wrap; }
            </sizepolicy>
           </property>
           <property name="toolTip">
-           <string>Size hint for cover thumbnails included in Descriptions</string>
+           <string>Size hint for Description cover thumbnails</string>
           </property>
           <property name="suffix">
            <string>&quot;</string>
@@ -540,8 +541,11 @@ p, li { white-space: pre-wrap; }
             <height>16777215</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string/>
+          </property>
           <property name="text">
-           <string>Header note</string>
+           <string>Description note</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -563,7 +567,7 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="toolTip">
-           <string>Column containing header note</string>
+           <string>Custom column source for note to include in Description header area</string>
           </property>
          </widget>
         </item>
@@ -602,7 +606,7 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="toolTip">
-           <string>Column containing additional content to merge</string>
+           <string>Additional content merged with Comments during catalog generation</string>
           </property>
          </widget>
         </item>
@@ -616,7 +620,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QRadioButton" name="merge_before">
           <property name="toolTip">
-           <string>Merge before Comments</string>
+           <string>Merge additional content before Comments</string>
           </property>
           <property name="text">
            <string>Before</string>
@@ -626,7 +630,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QRadioButton" name="merge_after">
           <property name="toolTip">
-           <string>Merge after Comments</string>
+           <string>Merge additional content after Comments</string>
           </property>
           <property name="text">
            <string>After</string>
@@ -643,7 +647,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QCheckBox" name="include_hr">
           <property name="toolTip">
-           <string>Separate with horizontal rule</string>
+           <string>Separate Comments and additional content with horizontal rule</string>
           </property>
           <property name="text">
            <string>&lt;hr /&gt;</string>

@@ -237,7 +237,7 @@ class PluginWidget(QWidget,Ui_Form):
         custom_fields = {}
         for custom_field in all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
-            if field_md['datatype'] in ['composite','datetime','enumeration','text']:
+            if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
                 custom_fields[field_md['name']] = {'field':custom_field,
                                                    'datatype':field_md['datatype']}
         # Blank field first
@@ -298,6 +298,7 @@ class PluginWidget(QWidget,Ui_Form):
         if new_source > '':
             exclude_source_spec = self.exclude_source_fields[str(new_source)]
             self.exclude_source_field_name = exclude_source_spec['field']
+            self.exclude_pattern.setEnabled(True)
 
             # Change pattern input widget to match the source field datatype
             if exclude_source_spec['datatype'] in ['bool','composite','datetime','text']:
@@ -309,7 +310,7 @@ class PluginWidget(QWidget,Ui_Form):
                     self.exclude_pattern = dw
                     self.exclude_spec_hl.addWidget(dw)
         else:
-            self.exclude_pattern.setText('')
+            self.exclude_pattern.setEnabled(False)
 
     def header_note_source_field_changed(self,new_index):
         '''

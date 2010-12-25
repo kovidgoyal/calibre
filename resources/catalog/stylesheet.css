@@ -2,19 +2,29 @@ body { background-color: white; }
 
 p.title  {
 	margin-top:0em;
-	margin-bottom:1em;
+	margin-bottom:0em;
 	text-align:center;
 	font-style:italic;
 	font-size:xx-large;
-    border-bottom: solid black 2px;
+	}
+
+p.series_id {
+	margin-top:0em;
+	margin-bottom:0em;
+	text-align:center;
+	}
+
+a.series_id {
+	font-style:normal;
+	font-size:large;
 	}
 
 p.author {
+	font-size:large;
 	margin-top:0em;
 	margin-bottom:0em;
 	text-align: center;
 	text-indent: 0em;
-	font-size:large;
   	}
 
 p.author_index {
@@ -26,7 +36,8 @@ p.author_index {
 	text-indent: 0em;
 	}
 
-p.tags {
+p.genres {
+	font-style:normal;
 	margin-top:0.5em;
 	margin-bottom:0em;
 	text-align: left;
@@ -124,22 +135,37 @@ hr.description_divider {
     border-left: solid white 0px;
 	}
 
+hr.header_divider {
+	width:100%;
+	border-top: solid white 1px;
+	border-right: solid white 0px;
+    border-bottom: solid black 2px;
+    border-left: solid white 0px;
+	}
+
 hr.merged_comments_divider {
 	width:80%;
 	margin-left:10%;
 	border-top: solid white 0px;
 	border-right: solid white 0px;
-    border-bottom: dotted grey 2px;
+    border-bottom: dashed gray 2px;
     border-left: solid white 0px;
 	}
 
-td.publisher, td.date {
-	font-weight:bold;
+td {
 	text-align:center;
 	}
-td.rating, td.notes {
-	text-align: center;
+td.publisher, td.date {
+	font-weight:bold;
 	}
+
+td.rating{
+	}
+
+td.notes {
+	font-size: 100%;
+	}
+
 td.thumbnail img {
 	-webkit-box-shadow: 4px 4px 12px #999;
 	}
