@@ -13,7 +13,7 @@ from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, \
                      QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
                      QIcon,  QDoubleSpinBox, QVariant, QSpinBox, \
                      QStyledItemDelegate, QCompleter, \
-                     QComboBox
+                     QComboBox, QTextDocument
 
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
@@ -22,6 +22,8 @@ from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
 from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
+
 
 class RatingDelegate(QStyledItemDelegate): # {{{
     COLOR    = QColor("blue")
@@ -294,6 +296,24 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
     Delegate for comments data.
     '''
 
+    def __init__(self, parent):
+        QStyledItemDelegate.__init__(self, parent)
+        self.document = QTextDocument()
+
+    def paint(self, painter, option, index):
+        style = self.parent().style()
+        self.document.setHtml(index.data(Qt.DisplayRole).toString())
+        painter.save()
+        if hasattr(QStyle, 'CE_ItemViewItem'):
+            style.drawControl(QStyle.CE_ItemViewItem, option,
+                    painter, self._parent)
+        elif option.state & QStyle.State_Selected:
+            painter.fillRect(option.rect, option.palette.highlight())
+        painter.setClipRect(option.rect)
+        painter.translate(option.rect.topLeft())
+        self.document.drawContents(painter)
+        painter.restore()
+
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
@@ -301,11 +321,11 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         editor = CommentsDialog(parent, text)
         d = editor.exec_()
         if d:
-            m.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
+            m.setData(index, QVariant(editor.textbox.html), Qt.EditRole)
         return None
 
     def setModelData(self, editor, model, index):
-        model.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
+        model.setData(index, QVariant(editor.textbox.html), Qt.EditRole)
 # }}}
 
 class CcBoolDelegate(QStyledItemDelegate): # {{{
@@ -351,7 +371,7 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
     def createEditor(self, parent, option, index):
         m = index.model()
         text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
-        editor = CommentsDialog(parent, text)
+        editor = TemplateDialog(parent, text)
         editor.setWindowTitle(_("Edit template"))
         editor.textbox.setTabChangesFocus(False)
         editor.textbox.setTabStopWidth(20)
