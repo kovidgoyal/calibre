@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-23 22:48+0000\n"
-"PO-Revision-Date: 2010-12-23 23:17+0000\n"
-"Last-Translator: Jiri Formacek <Unknown>\n"
+"PO-Revision-Date: 2010-12-24 15:08+0000\n"
+"Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-24 04:43+0000\n"
+"X-Launchpad-Export-Date: 2010-12-25 04:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -787,7 +787,7 @@ msgstr "Komunikovat s iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Spojit se s Sanda Bambook eBook čtečkou"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
@@ -806,11 +806,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:66
 msgid "Unable to connect to Bambook."
-msgstr "Nelze se připojit ke službě Bombook"
+msgstr "Nelze se připojit ke službě Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:95
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:201
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:217
@@ -4109,7 +4109,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:142
 msgid "No errors found"
-msgstr ""
+msgstr "Nenalezeny žádné chyby"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:143
 msgid "The integrity check completed with no uncorrectable errors found."
@@ -5453,31 +5453,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:76
 msgid "Superscript"
-msgstr ""
+msgstr "Superskript"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:78
 msgid "Subscript"
-msgstr ""
+msgstr "Podskript"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:80
 msgid "Ordered list"
-msgstr ""
+msgstr "Seřazený seznam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:82
 msgid "Unordered list"
-msgstr ""
+msgstr "Neseřazený seznam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:85
 msgid "Align left"
-msgstr ""
+msgstr "Zarovnat vlevo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:87
 msgid "Align center"
-msgstr ""
+msgstr "Zarovnat na střed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:89
 msgid "Align right"
-msgstr ""
+msgstr "Zarovnat doprava"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:91
 msgid "Align justified"
@@ -5485,23 +5485,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:92
 msgid "Undo"
-msgstr ""
+msgstr "Zpět"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:93
 msgid "Redo"
-msgstr ""
+msgstr "Opakovat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:94
 msgid "Remove formatting"
-msgstr ""
+msgstr "Odstranit formátování"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:96
 msgid "Paste"
-msgstr ""
+msgstr "Vložit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:97
 msgid "Cut"
-msgstr ""
+msgstr "Vyjmout"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:99
 msgid "Increase Indentation"
@@ -5513,15 +5513,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:103
 msgid "Select all"
-msgstr ""
+msgstr "Označit vše"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:108
 msgid "Foreground color"
-msgstr ""
+msgstr "Barva popředí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:113
 msgid "Background color"
-msgstr ""
+msgstr "Barva pozadí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:117
 msgid "Style text block"
@@ -5544,7 +5544,7 @@ msgstr "Normální"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:129
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:130
 msgid "Heading"
-msgstr ""
+msgstr "Nadpis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:131
 msgid "Pre-formatted"
@@ -5556,7 +5556,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:133
 msgid "Address"
-msgstr ""
+msgstr "Adresa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:140
 msgid "Insert link"
@@ -5570,19 +5570,19 @@ msgstr "Vyčistit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:160
 msgid "Choose foreground color"
-msgstr ""
+msgstr "Vyberte si barvu popředí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:166
 msgid "Choose background color"
-msgstr ""
+msgstr "Vybrat barvu pozadí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:171
 msgid "Create link"
-msgstr ""
+msgstr "Vytvořit odkaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:172
 msgid "Enter URL"
-msgstr ""
+msgstr "Zadej URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:498
 msgid "Normal view"
@@ -5590,7 +5590,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:499
 msgid "HTML Source"
-msgstr ""
+msgstr "HTML zdroj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
 msgid ""
@@ -8083,7 +8083,7 @@ msgstr "Resetovat obálku na výchozí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:444
 msgid "&Remove"
-msgstr ""
+msgstr "Odst&ranit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:445
 msgid "Download co&ver"

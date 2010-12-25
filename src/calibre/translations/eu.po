@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-23 22:48+0000\n"
-"PO-Revision-Date: 2010-12-23 19:04+0000\n"
+"PO-Revision-Date: 2010-12-24 06:14+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-24 04:42+0000\n"
+"X-Launchpad-Export-Date: 2010-12-25 04:47+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -815,30 +815,34 @@ msgstr "Komunikatu iTunes horrekin ."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Komunikatu \"Sanda Bambook eBook reader\" enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"Ezin izan da liburutegira liburua gehitu Bambook-etik zuzenean. Mesedez, "
+"gorde liburua diskoan eta gehitu fitxategia liburura diskotik."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:58
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Ezin izan da Bambook horrekin konektatu, lehenago instalatu beharko duzu "
+"Bambook liburutegia."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:66
 msgid "Unable to connect to Bambook."
-msgstr ""
+msgstr "Ezin izan da Bambook horrekin konektatu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:95
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:201
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:217
@@ -899,7 +903,7 @@ msgstr "Metadatuak gailura bidaltzen..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:132
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDK ez da instalatu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -1131,11 +1135,11 @@ msgstr "Komunikatu \"Acer Lumiread\" enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:211
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Komunikatu \"Aluratek Color\" enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:231
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Komunikatu \"Trekstor\" enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1186,11 +1190,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:61
 msgid "All by title"
-msgstr ""
+msgstr "Guztiak izenburuaren arabera"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by author"
-msgstr ""
+msgstr "Guztiak egilearen arabera"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:64
 msgid ""
@@ -1242,7 +1246,7 @@ msgstr "Komunikatu \"Sovos reader\" enpresako arduradunekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:78
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Komunikatu \"Sunstech EB700 reader\" enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:258
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1266,6 +1270,8 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"Ezin izan da detektatu %s diskoaren gailua. Edo dagoeneko gailua erauzi egin "
+"da, edo zure kernel horrek esportatzen ari da SYSFS bertsio zaharkitu bat."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:617
 msgid "Unable to mount main memory (Error code: %d)"
@@ -3827,7 +3833,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:48
 msgid "Resize all the images for full screen view. "
-msgstr ""
+msgstr "Irudi guztien tamaina egokitu pantaila osoan ondo ikusteko. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:125
 msgid "Start Page"
@@ -4352,11 +4358,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:142
 msgid "No errors found"
-msgstr ""
+msgstr "Ez da akatsik topatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:143
 msgid "The integrity check completed with no uncorrectable errors found."
 msgstr ""
+"Akatsen bilaketa osoa egin da eta ez da konpontzeko zaila den inolako "
+"akatsik topatu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
@@ -4390,7 +4398,7 @@ msgstr "Ezabatu liburutegia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:180
 msgid "Pick a random book"
-msgstr ""
+msgstr "Hartu liburu bat ausaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:199
 msgid "Library Maintenance"
@@ -4714,6 +4722,8 @@ msgid ""
 "Some of the selected books are on the attached device. <b>Where</b> do you "
 "want the selected files deleted from?"
 msgstr ""
+"Hautatutako liburuetako batzuk erantsitako gailuan daude. <b>Nondik</b> nahi "
+"duzu ezabatu hautatutako fitxategiak?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:257
 msgid ""
@@ -5719,87 +5729,89 @@ msgstr "Azpimarratua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:74
 msgid "Strikethrough"
-msgstr ""
+msgstr "Marratua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:76
 msgid "Superscript"
-msgstr ""
+msgstr "Goi-indizea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:78
 msgid "Subscript"
-msgstr ""
+msgstr "Azpi-indizea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:80
 msgid "Ordered list"
-msgstr ""
+msgstr "Zerrenda ordenatua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:82
 msgid "Unordered list"
-msgstr ""
+msgstr "Ordenatu gabeko zerrenda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:85
 msgid "Align left"
-msgstr ""
+msgstr "Lerrokatu ezkerretara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:87
 msgid "Align center"
-msgstr ""
+msgstr "Lerrokatu erdian"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:89
 msgid "Align right"
-msgstr ""
+msgstr "Lerrokatu eskuinetara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:91
 msgid "Align justified"
-msgstr ""
+msgstr "Lerrokatu ezker-eskuinean"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:92
 msgid "Undo"
-msgstr ""
+msgstr "Desegin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:93
 msgid "Redo"
-msgstr ""
+msgstr "Berregin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:94
 msgid "Remove formatting"
-msgstr ""
+msgstr "Kendu formateatzea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:96
 msgid "Paste"
-msgstr ""
+msgstr "Itsatsi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:97
 msgid "Cut"
-msgstr ""
+msgstr "Moztu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:99
 msgid "Increase Indentation"
 msgstr ""
+"Koska handitu (testuaren zati bat eskuinetara edo ezkerretara mugitu)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:101
 msgid "Decrease Indentation"
 msgstr ""
+"Koska txikitu (testuaren zati bat eskuinetara edo ezkerretara mugitu)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:103
 msgid "Select all"
-msgstr ""
+msgstr "Hautatu dena"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:108
 msgid "Foreground color"
-msgstr ""
+msgstr "Aurreko planoaren kolorea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:113
 msgid "Background color"
-msgstr ""
+msgstr "Atzeko planoaren kolorea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:117
 msgid "Style text block"
-msgstr ""
+msgstr "Testu blokearen estiloa aldatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:119
 msgid "Style the selected text block"
-msgstr ""
+msgstr "Hautatutako testu blokearen estiloa aldatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:33
@@ -5814,11 +5826,11 @@ msgstr "Normala"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:129
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:130
 msgid "Heading"
-msgstr ""
+msgstr "Izenburua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:131
 msgid "Pre-formatted"
-msgstr ""
+msgstr "Aurre-formateaturik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:132
 msgid "Blockquote"
@@ -5826,11 +5838,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:133
 msgid "Address"
-msgstr ""
+msgstr "Helbidea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:140
 msgid "Insert link"
-msgstr ""
+msgstr "Txertatu esteka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:79
@@ -5840,27 +5852,27 @@ msgstr "Garbitu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:160
 msgid "Choose foreground color"
-msgstr ""
+msgstr "Hautatu lehen planoko kolorea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:166
 msgid "Choose background color"
-msgstr ""
+msgstr "Hautatu atzeko planoko kolorea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:171
 msgid "Create link"
-msgstr ""
+msgstr "Sortu esteka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:172
 msgid "Enter URL"
-msgstr ""
+msgstr "Sartu URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:498
 msgid "Normal view"
-msgstr ""
+msgstr "Ikuspegi arrunta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:499
 msgid "HTML Source"
-msgstr ""
+msgstr "HTML iturburua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
 msgid ""
@@ -6046,7 +6058,7 @@ msgstr "FB2 outputa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:39
 msgid "Sectionize:"
-msgstr ""
+msgstr "Moldatu ataletan:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -6631,7 +6643,7 @@ msgstr "Ezkutatu kapituluaren izena"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:44
 msgid "Don't indent the first line for each paragraph"
-msgstr ""
+msgstr "Koskarik ez lehen lerroan paragrafo bakoitzean"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:45
 msgid "Insert empty line between paragraphs"
@@ -6639,7 +6651,7 @@ msgstr "Sartu lerro huts bat paragrafoen artean"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:46
 msgid "Optimize for full-sceen view "
-msgstr ""
+msgstr "Optimizatu pantaila-osoa ikuspegia "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -7460,7 +7472,7 @@ msgstr "Iruzkinak editatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:62
 msgid "Where do you want to delete from?"
-msgstr ""
+msgstr "Nondik ezabatu nahi duzu?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:63
@@ -7475,7 +7487,7 @@ msgstr "Gailua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:65
 msgid "Library and Device"
-msgstr ""
+msgstr "Liburutegia eta irakurgailua"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:55
 msgid "&Show this warning again"
@@ -7807,7 +7819,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:422
 msgid "S/R TEMPLATE ERROR"
-msgstr ""
+msgstr "S/R TXANTILOI ERROREA"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:532
 msgid "You must specify a destination when source is a composite field"
@@ -8002,7 +8014,7 @@ msgstr "&Ezabatu liburu-azala"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:407
 msgid "Set from &ebook file(s)"
-msgstr ""
+msgstr "Ezarri &e-liburu(eta)ko fitxategi(eta)tik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:408
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:457
@@ -8036,11 +8048,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:414
 msgid "Te&mplate:"
-msgstr ""
+msgstr "Txa&ntiloia:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:415
 msgid "Enter a template to be used as the source for the search/replace"
-msgstr ""
+msgstr "Sartu bilatu/ordeztu horretarako iturburua izango den txantiloia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:416
 msgid "&Search for:"
@@ -8262,12 +8274,17 @@ msgid ""
 " The green color indicates that the current title sort matches the current "
 "title"
 msgstr ""
+" Kolore berdeak adierazten du oraingo izenburu mota horrek bat egiten duela "
+"oraingo izenburuarekin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:462
 msgid ""
 " The red color warns that the current title sort does not match the current "
 "title. No action is required if this is what you want."
 msgstr ""
+" Kolore gorriak abisua ematen du esateko oraingo titulu mota horrek ez duela "
+"bat egiten oraingo tituluarekin. Horixe bada nahi duzuna, jakina, ez duzu "
+"ezer egin behar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:468
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:102
@@ -8352,6 +8369,8 @@ msgid ""
 "Specify how this book should be sorted when by title. For example, The "
 "Exorcist might be sorted as Exorcist, The."
 msgstr ""
+"Zehaztu hola sailkatu beharko litzateke liburu hau izenburuaren arabera. "
+"Esate baterako, El Quijote horrela sailka daiteke: Quijote, El."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:406
 msgid "Author S&ort: "
@@ -8435,7 +8454,7 @@ msgstr "Berrezarri lehenetsitako liburu-azala"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:444
 msgid "&Remove"
-msgstr ""
+msgstr "&Kendu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:445
 msgid "Download co&ver"
@@ -11693,7 +11712,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:197
 msgid "Page flip &duration:"
-msgstr ""
+msgstr "Orriaren biraren &iraupena:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "disabled"
@@ -11705,7 +11724,7 @@ msgstr " segundoak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
 msgid "Mouse &wheel flips pages"
-msgstr ""
+msgstr "Saguaren &gurpilak orriak biratu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:202
 msgid "Maximum &view width:"
@@ -11729,6 +11748,10 @@ msgid ""
 "For examples, click <a "
 "href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">here</a>."
 msgstr ""
+"<p>CSS estilo orri bat. Liburuen itxura kontrolatzeko erabi daitekeen estilo "
+"orria. Esate baterako, egin klik <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">hementxe</a>"
+"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:207
 msgid "User &Stylesheet"
@@ -11781,7 +11804,7 @@ msgstr "Gorde dokumentuaren oraingo egoera alde egiterakoan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:60
 msgid "Have the mouse wheel turn pages"
-msgstr ""
+msgstr "Saguaren gurpilak orriak biratzeko aukera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:62
 msgid ""
@@ -12775,6 +12798,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"eremua: liburua irakurri egin dela adierazten duen patroia.\n"
+"Lehenetsita: '%default'\n"
+"Aplikatu ePub eta MOBI output formatuetara"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:619
 msgid ""
@@ -13172,6 +13198,14 @@ msgid ""
 "ouput.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog catalog /path/to/destination.(CSV|EPUB|MOBI|XML ...) [options]\n"
+"\n"
+"    Esportatu katalogo bat path/to/destination luzapena zehaztutako "
+"bidetik.\n"
+"    Aukerak kontrolatzen dute nola ikusiko diren sarrerak sortuko den "
+"helburu katalogoan.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:656
 msgid ""

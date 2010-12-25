@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-23 22:48+0000\n"
-"PO-Revision-Date: 2010-12-17 19:52+0000\n"
+"PO-Revision-Date: 2010-12-24 06:58+0000\n"
 "Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-24 04:54+0000\n"
+"X-Launchpad-Export-Date: 2010-12-25 04:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -793,30 +793,33 @@ msgstr "Communicate with iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Communicate with the Sanda Bambook eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"Unable to add book to library directly from Bambook. Please save the book to "
+"disc and add the file to library from disc."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:58
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Unable to connect to Bambook, you need to install Bambook library first."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:66
 msgid "Unable to connect to Bambook."
-msgstr ""
+msgstr "Unable to connect to Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:95
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:201
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:217
@@ -877,7 +880,7 @@ msgstr "Sending metadata to device..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:132
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDK has not been installed."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -1102,11 +1105,11 @@ msgstr "Communicate with the Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:211
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Communicate with the Aluratek Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:231
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Communicate with the Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1150,11 +1153,11 @@ msgstr "Communicate with all the Sony eBook readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:61
 msgid "All by title"
-msgstr ""
+msgstr "All by title"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by author"
-msgstr ""
+msgstr "All by author"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:64
 msgid ""
@@ -1170,6 +1173,9 @@ msgid ""
 "to the list to enable them. The collections will be given the name provided "
 "after the \":\" character."
 msgstr ""
+". Two special collections are available: %s:%s and %s:%s. Add  these values "
+"to the list to enable them. The collections will be given the name provided "
+"after the \":\" character."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1202,7 +1208,7 @@ msgstr "Communicate with the Sovos reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:78
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Communicate with the Sunstech EB700 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:258
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1225,6 +1231,8 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"Unable to detect the %s disc drive. Either the device has already been "
+"ejected, or your kernel is exporting a deprecated version of SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:617
 msgid "Unable to mount main memory (Error code: %d)"
@@ -2160,6 +2168,13 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents)."
 msgstr ""
+"Specify the sectionization of elements. A value of \"nothing\" turns the "
+"book into a single section. A value of \"files\" turns each file into a "
+"separate section; use this if your device is having trouble. A value of "
+"\"Table of Contents\" turns the entries in the Table of Contents into titles "
+"and creates sections; if it fails, adjust the \"Structure Detection\" and/or "
+"\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
+"of Contents)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:249
 msgid ""
@@ -3656,7 +3671,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:48
 msgid "Resize all the images for full screen view. "
-msgstr ""
+msgstr "Resize all the images for full screen view. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:125
 msgid "Start Page"
@@ -4169,11 +4184,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:142
 msgid "No errors found"
-msgstr ""
+msgstr "No errors found"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:143
 msgid "The integrity check completed with no uncorrectable errors found."
-msgstr ""
+msgstr "The integrity check completed with no uncorrectable errors found."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
@@ -4207,7 +4222,7 @@ msgstr "Delete library"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:180
 msgid "Pick a random book"
-msgstr ""
+msgstr "Pick a random book"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:199
 msgid "Library Maintenance"
@@ -4525,6 +4540,8 @@ msgid ""
 "Some of the selected books are on the attached device. <b>Where</b> do you "
 "want the selected files deleted from?"
 msgstr ""
+"Some of the selected books are on the attached device. <b>Where</b> do you "
+"want the selected files deleted from?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:257
 msgid ""
@@ -5532,87 +5549,87 @@ msgstr "Underline"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:74
 msgid "Strikethrough"
-msgstr ""
+msgstr "Strikethrough"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:76
 msgid "Superscript"
-msgstr ""
+msgstr "Superscript"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:78
 msgid "Subscript"
-msgstr ""
+msgstr "Subscript"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:80
 msgid "Ordered list"
-msgstr ""
+msgstr "Ordered list"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:82
 msgid "Unordered list"
-msgstr ""
+msgstr "Unordered list"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:85
 msgid "Align left"
-msgstr ""
+msgstr "Align left"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:87
 msgid "Align center"
-msgstr ""
+msgstr "Align centre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:89
 msgid "Align right"
-msgstr ""
+msgstr "Align right"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:91
 msgid "Align justified"
-msgstr ""
+msgstr "Align justified"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:92
 msgid "Undo"
-msgstr ""
+msgstr "Undo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:93
 msgid "Redo"
-msgstr ""
+msgstr "Redo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:94
 msgid "Remove formatting"
-msgstr ""
+msgstr "Remove formatting"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:96
 msgid "Paste"
-msgstr ""
+msgstr "Paste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:97
 msgid "Cut"
-msgstr ""
+msgstr "Cut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:99
 msgid "Increase Indentation"
-msgstr ""
+msgstr "Increase Indentation"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:101
 msgid "Decrease Indentation"
-msgstr ""
+msgstr "Decrease Indentation"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:103
 msgid "Select all"
-msgstr ""
+msgstr "Select all"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:108
 msgid "Foreground color"
-msgstr ""
+msgstr "Foreground colour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:113
 msgid "Background color"
-msgstr ""
+msgstr "Background colour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:117
 msgid "Style text block"
-msgstr ""
+msgstr "Style text block"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:119
 msgid "Style the selected text block"
-msgstr ""
+msgstr "Style the selected text block"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:33
@@ -5627,23 +5644,23 @@ msgstr "Normal"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:129
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:130
 msgid "Heading"
-msgstr ""
+msgstr "Heading"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:131
 msgid "Pre-formatted"
-msgstr ""
+msgstr "Pre-formatted"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:132
 msgid "Blockquote"
-msgstr ""
+msgstr "Blockquote"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:133
 msgid "Address"
-msgstr ""
+msgstr "Address"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:140
 msgid "Insert link"
-msgstr ""
+msgstr "Insert link"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:79
@@ -5653,27 +5670,27 @@ msgstr "Clear"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:160
 msgid "Choose foreground color"
-msgstr ""
+msgstr "Choose foreground colour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:166
 msgid "Choose background color"
-msgstr ""
+msgstr "Choose background colour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:171
 msgid "Create link"
-msgstr ""
+msgstr "Create link"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:172
 msgid "Enter URL"
-msgstr ""
+msgstr "Enter URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:498
 msgid "Normal view"
-msgstr ""
+msgstr "Normal view"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:499
 msgid "HTML Source"
-msgstr ""
+msgstr "HTML Source"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
 msgid ""
@@ -5858,7 +5875,7 @@ msgstr "FB2 Output"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:39
 msgid "Sectionize:"
-msgstr ""
+msgstr "Sectionise:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -6435,7 +6452,7 @@ msgstr "Hide chapter name"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:44
 msgid "Don't indent the first line for each paragraph"
-msgstr ""
+msgstr "Don't indent the first line for each paragraph"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:45
 msgid "Insert empty line between paragraphs"
@@ -6443,7 +6460,7 @@ msgstr "Insert empty line between paragraphs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:46
 msgid "Optimize for full-sceen view "
-msgstr ""
+msgstr "Optimise for full-sceen view "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -7259,7 +7276,7 @@ msgstr "Edit Comments"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:62
 msgid "Where do you want to delete from?"
-msgstr ""
+msgstr "Where do you want to delete from?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:63
@@ -7274,7 +7291,7 @@ msgstr "Device"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:65
 msgid "Library and Device"
-msgstr ""
+msgstr "Library and Device"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:55
 msgid "&Show this warning again"
@@ -7596,7 +7613,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:422
 msgid "S/R TEMPLATE ERROR"
-msgstr ""
+msgstr "S/R TEMPLATE ERROR"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:532
 msgid "You must specify a destination when source is a composite field"
@@ -7782,7 +7799,7 @@ msgstr "&Remove cover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:407
 msgid "Set from &ebook file(s)"
-msgstr ""
+msgstr "Set from &ebook file(s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:408
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:457
@@ -7816,11 +7833,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:414
 msgid "Te&mplate:"
-msgstr ""
+msgstr "Te&mplate:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:415
 msgid "Enter a template to be used as the source for the search/replace"
-msgstr ""
+msgstr "Enter a template to be used as the source for the search/replace"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:416
 msgid "&Search for:"
@@ -7883,6 +7900,8 @@ msgid ""
 "The field that the text will be put into after all replacements.\n"
 "If blank, the source field is used if the field is modifiable"
 msgstr ""
+"The field that the text will be put into after all replacements.\n"
+"If blank, the source field is used if the field is modifiable"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:428
 msgid "Mode:"
@@ -8219,7 +8238,7 @@ msgstr "Reset cover to default"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:444
 msgid "&Remove"
-msgstr ""
+msgstr "&Remove"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:445
 msgid "Download co&ver"

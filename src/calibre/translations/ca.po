@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-23 22:48+0000\n"
-"PO-Revision-Date: 2010-12-18 12:55+0000\n"
+"PO-Revision-Date: 2010-12-24 23:02+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-24 04:43+0000\n"
+"X-Launchpad-Export-Date: 2010-12-25 04:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -808,30 +808,34 @@ msgstr "Comunica't amb l'iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Comunica't amb un lector Sanda Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"No s'ha pogut afegir directament el llibre a la biblioteca des del Bambook. "
+"Deseu el llibre al disc i afegiu el fitxer a la biblioteca des del disc."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:58
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"No s'ha pogut connectar amb el Bambook, primer s'ha d'instal·lar la "
+"biblioteca del Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:66
 msgid "Unable to connect to Bambook."
-msgstr ""
+msgstr "No s'ha pogut connectar amb el Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:95
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:201
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:217
@@ -892,7 +896,7 @@ msgstr "S'està enviant metadades al dispositiu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:132
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "No s'ha instal·lat el SDK del Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -1117,11 +1121,11 @@ msgstr "Comunica't amb l'Acer Lumiread."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:211
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Comunica't amb un Aluratek Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:231
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Comunica't amb un Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1165,11 +1169,11 @@ msgstr "Comunica't amb tots els lectors Sony."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:61
 msgid "All by title"
-msgstr ""
+msgstr "Tots per títol"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by author"
-msgstr ""
+msgstr "Tots per autor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:64
 msgid ""
@@ -1185,6 +1189,9 @@ msgid ""
 "to the list to enable them. The collections will be given the name provided "
 "after the \":\" character."
 msgstr ""
+". Estan disponibles dues col·leccions especials: %s:%s i %s:%s. Afegiu "
+"aquests valors per habilitar-les. Es donarà el nom que s'introdueixi després "
+"del caràcter «:» a les col·leccions."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1217,7 +1224,7 @@ msgstr "Comunica't amb un lector Sovos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:78
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Comunica't amb un lector Sunstech EB700."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:258
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1243,6 +1250,8 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"No s'ha pogut detectar la unitat de disc %s. Pot ser que ja s'hagi expulsat "
+"la unitat o bé el nucli exporta una versió del SYSFS obsoleta."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:617
 msgid "Unable to mount main memory (Error code: %d)"
@@ -2208,6 +2217,13 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents)."
 msgstr ""
+"Especifiqueu com s'ha de dividir en seccions els elements. Un valor de "
+"«nothing» fa que el llibre tingui una sola secció. Un valor de «files» fa "
+"que hi hagi una secció per cada fitxer; utilitzeu aquesta opció si el vostre "
+"dispositiu té problemes. Un valor de «Table of Contents» converteix les "
+"entrades de l'índex en títols i crea les seccions corresponents; si falla, "
+"ajusteu els paràmetres de «Detecció de l'estructura» i/o «Índex» (activeu "
+"«Força l'ús de l'índex que es generi automàticament»)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:249
 msgid ""
@@ -3731,7 +3747,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:48
 msgid "Resize all the images for full screen view. "
-msgstr ""
+msgstr "Redimensiona totes les imatges a vista de pantalla completa. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:125
 msgid "Start Page"
@@ -4253,11 +4269,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:142
 msgid "No errors found"
-msgstr ""
+msgstr "No s'ha trobat errors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:143
 msgid "The integrity check completed with no uncorrectable errors found."
 msgstr ""
+"La comprovació d'integritat s'ha acabat sense que s'hagi trobat cap error "
+"que no es pugui corregir."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
@@ -4291,7 +4309,7 @@ msgstr "Esborra la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:180
 msgid "Pick a random book"
-msgstr ""
+msgstr "Agafa un llibre a l'atzar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:199
 msgid "Library Maintenance"
@@ -4614,6 +4632,8 @@ msgid ""
 "Some of the selected books are on the attached device. <b>Where</b> do you "
 "want the selected files deleted from?"
 msgstr ""
+"Alguns dels llibres seleccionats són al dispositiu connectat. D'<b>on</b> "
+"voleu que se suprimeixin els fitxers seleccionats?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:257
 msgid ""
@@ -5628,87 +5648,87 @@ msgstr "Subratllat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:74
 msgid "Strikethrough"
-msgstr ""
+msgstr "Ratllat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:76
 msgid "Superscript"
-msgstr ""
+msgstr "Superíndex"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:78
 msgid "Subscript"
-msgstr ""
+msgstr "Subíndex"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:80
 msgid "Ordered list"
-msgstr ""
+msgstr "Llista ordenada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:82
 msgid "Unordered list"
-msgstr ""
+msgstr "Llista sense ordenar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:85
 msgid "Align left"
-msgstr ""
+msgstr "Alinea a l'esquerra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:87
 msgid "Align center"
-msgstr ""
+msgstr "Alinea al centre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:89
 msgid "Align right"
-msgstr ""
+msgstr "Alinea a la dreta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:91
 msgid "Align justified"
-msgstr ""
+msgstr "Justifica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:92
 msgid "Undo"
-msgstr ""
+msgstr "Desfés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:93
 msgid "Redo"
-msgstr ""
+msgstr "Refés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:94
 msgid "Remove formatting"
-msgstr ""
+msgstr "Elimina el format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:96
 msgid "Paste"
-msgstr ""
+msgstr "Enganxa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:97
 msgid "Cut"
-msgstr ""
+msgstr "Talla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:99
 msgid "Increase Indentation"
-msgstr ""
+msgstr "Augmenta el sagnat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:101
 msgid "Decrease Indentation"
-msgstr ""
+msgstr "Redueix el sagnat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:103
 msgid "Select all"
-msgstr ""
+msgstr "Selecciona-ho tot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:108
 msgid "Foreground color"
-msgstr ""
+msgstr "Color del primer pla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:113
 msgid "Background color"
-msgstr ""
+msgstr "Color del fons"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:117
 msgid "Style text block"
-msgstr ""
+msgstr "Aplica un estil al bloc de text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:119
 msgid "Style the selected text block"
-msgstr ""
+msgstr "Aplica un estil al bloc de text seleccionat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:33
@@ -5723,23 +5743,23 @@ msgstr "Normal"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:129
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:130
 msgid "Heading"
-msgstr ""
+msgstr "Encapçalament"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:131
 msgid "Pre-formatted"
-msgstr ""
+msgstr "Preformatat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:132
 msgid "Blockquote"
-msgstr ""
+msgstr "Bloc de cita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:133
 msgid "Address"
-msgstr ""
+msgstr "Adreça"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:140
 msgid "Insert link"
-msgstr ""
+msgstr "Insereix un enllaç"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:79
@@ -5749,27 +5769,27 @@ msgstr "Neteja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:160
 msgid "Choose foreground color"
-msgstr ""
+msgstr "Trieu el color del primer pla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:166
 msgid "Choose background color"
-msgstr ""
+msgstr "Trieu el color del fons"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:171
 msgid "Create link"
-msgstr ""
+msgstr "Crea un enllaç"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:172
 msgid "Enter URL"
-msgstr ""
+msgstr "Introduïu la URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:498
 msgid "Normal view"
-msgstr ""
+msgstr "Vista normal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:499
 msgid "HTML Source"
-msgstr ""
+msgstr "Codi font HTML"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
 msgid ""
@@ -5955,7 +5975,7 @@ msgstr "Sortida FB2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:39
 msgid "Sectionize:"
-msgstr ""
+msgstr "Divideix en seccions:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -6538,7 +6558,7 @@ msgstr "Oculta el títol del capítol"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:44
 msgid "Don't indent the first line for each paragraph"
-msgstr ""
+msgstr "No sagnis la primera línia de cada paràgraf"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:45
 msgid "Insert empty line between paragraphs"
@@ -6546,7 +6566,7 @@ msgstr "Insereix un línia en blanc entre paràgrafs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:46
 msgid "Optimize for full-sceen view "
-msgstr ""
+msgstr "Optimitza per a visió en pantalla completa "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -7370,7 +7390,7 @@ msgstr "Edita els comentaris"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:62
 msgid "Where do you want to delete from?"
-msgstr ""
+msgstr "D'on voleu suprimir?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:63
@@ -7385,7 +7405,7 @@ msgstr "Dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:65
 msgid "Library and Device"
-msgstr ""
+msgstr "Biblioteca i dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:55
 msgid "&Show this warning again"
@@ -7938,7 +7958,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:414
 msgid "Te&mplate:"
-msgstr ""
+msgstr "Pla&ntilla:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:415
 msgid "Enter a template to be used as the source for the search/replace"
@@ -8343,7 +8363,7 @@ msgstr "Torna a la portada per defecte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:444
 msgid "&Remove"
-msgstr ""
+msgstr "Sup&rimeix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:445
 msgid "Download co&ver"
