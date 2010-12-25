@@ -6,7 +6,6 @@ meaning as possible.
 import os
 from math import ceil
 
-from calibre.ebooks.unidecode.unidecoder import Unidecoder
 from calibre import sanitize_file_name
 from calibre.constants import preferred_encoding, iswindows
 udc = Unidecoder()

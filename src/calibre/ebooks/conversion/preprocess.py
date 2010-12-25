@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import functools, re
 
 from calibre import entity_to_unicode
+from calibre.utils.config import prefs
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'
@@ -523,9 +524,9 @@ class HTMLPreProcessor(object):
         html = XMLDECL_RE.sub('', html)
 
         if getattr(self.extra_opts, 'asciiize', False):
-            from calibre.ebooks.unidecode.unidecoder import Unidecoder
-            unidecoder = Unidecoder()
-            html = unidecoder.decode(html)
+            from calibre.ebooks.unihandecode import Unihandecoder
+            unihandecoder = Unihandecoder(lang=prefs['language'])
+            html = unihandecoder.decode(html)
 
         if self.plugin_preprocess:
             html = self.input_plugin_preprocess(self.extra_opts, html)
@@ -535,10 +536,10 @@ class HTMLPreProcessor(object):
 
         unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
         if unsupported_unicode_chars:
-            from calibre.ebooks.unidecode.unidecoder import Unidecoder
-            unidecoder = Unidecoder()
+            from calibre.ebooks.unihandecode import Unihandecoder
+            unihandecoder = Unihandecoder(lang=prefs['language'])
             for char in unsupported_unicode_chars:
-                asciichar = unidecoder.decode(char)
+                asciichar = unihandecoder.decode(char)
                 html = html.replace(char, asciichar)
 
         return html
