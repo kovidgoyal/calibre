@@ -136,6 +136,7 @@ class BookInfo(QDialog, Ui_BookInfo):
             txt  = info[key]
             if key.endswith(':html'):
                 key = key[:-5]
+                txt = comments_to_html(txt)
             if key != _('Path'):
                 txt  = u'<br />\n'.join(textwrap.wrap(txt, 120))
             rows += u'<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)

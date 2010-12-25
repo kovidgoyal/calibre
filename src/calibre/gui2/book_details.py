@@ -46,6 +46,7 @@ def render_rows(data):
             txt = txt.decode(preferred_encoding, 'replace')
         if key.endswith(u':html'):
             key = key[:-5]
+            txt = comments_to_html(txt)
         elif '</font>' not in txt:
             txt = prepare_string_for_xml(txt)
         if 'id' in data:
