@@ -296,19 +296,19 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
     Delegate for comments data.
     '''
 
+    def __init__(self, parent):
+        QStyledItemDelegate.__init__(self, parent)
+        self.document = QTextDocument()
+
     def paint(self, painter, option, index):
-        document = QTextDocument()
-        value = index.data(Qt.DisplayRole)
-#        if value.isValid() and not value.isNull():
-#             QString text("<span style='background-color: lightgreen'>This</span> is highlighted.");
-        text = value.toString()
-        document.setHtml(text);
+        self.document.setHtml(index.data(Qt.DisplayRole).toString())
         painter.save()
+        if option.state & QStyle.State_Selected:
+            painter.fillRect(option.rect, option.palette.highlight())
         painter.setClipRect(option.rect)
-        painter.translate(option.rect.topLeft());
-        document.drawContents(painter);
+        painter.translate(option.rect.topLeft())
+        self.document.drawContents(painter)
         painter.restore()
-#        painter.translate(-option.rect.topLeft());
 
     def createEditor(self, parent, option, index):
         m = index.model()
