@@ -8,9 +8,11 @@ from math import ceil
 
 from calibre import sanitize_file_name
 from calibre.constants import preferred_encoding, iswindows
-udc = Unidecoder()
+from calibre.ebooks.unihandecode import Unihandecoder
+from calibre.utils.config import prefs
 
 def ascii_text(orig):
+    udc = Unihandecoder(lang=prefs['language'])
     try:
         ascii = udc.decode(orig)
     except:
