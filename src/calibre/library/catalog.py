@@ -52,7 +52,8 @@ class CSV_XML(CatalogPlugin):
                 action = None,
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
-                    'Available fields: %s.\n'
+                    'Available fields: %s,\n'
+                    'plus user-created custom fields.\n'
                     "Default: '%%default'\n"
                     "Applies to: CSV, XML output formats")%', '.join(FIELDS)),
 
@@ -549,6 +550,17 @@ class EPUB_MOBI(CatalogPlugin):
     version = (0, 0, 1)
     file_types = set(['epub','mobi'])
 
+    '''
+    # Deprecated, keeping this just in case there are complaints
+    Option('--numbers-as-text',
+          default=False,
+          dest='numbers_as_text',
+          action = None,
+          help=_("Sort titles with leading numbers as text, e.g.,\n'2001: A Space Odyssey' sorts as \n'Two Thousand One: A Space Odyssey'.\n"
+          "Default: '%default'\n"
+          "Applies to: ePub, MOBI output formats")),
+   '''
+
     cli_options = [Option('--catalog-title',
                           default = 'My Books',
                           dest = 'catalog_title',
@@ -625,20 +637,6 @@ class EPUB_MOBI(CatalogPlugin):
                           " [True|False] - A horizontal rule is inserted between notes and Comments\n"
                           "Default: '%default'\n"
                           "Applies to ePub, MOBI output formats")),
-                   Option('--note-tag',
-                          default='*',
-                          dest='note_tag',
-                          action = None,
-                          help=_("Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
-                          "Default: '%default'\n"
-                          "Applies to: ePub, MOBI output formats")),
-                   Option('--numbers-as-text',
-                          default=False,
-                          dest='numbers_as_text',
-                          action = None,
-                          help=_("Sort titles with leading numbers as text, e.g.,\n'2001: A Space Odyssey' sorts as \n'Two Thousand One: A Space Odyssey'.\n"
-                          "Default: '%default'\n"
-                          "Applies to: ePub, MOBI output formats")),
                    Option('--output-profile',
                           default=None,
                           dest='output_profile',
@@ -1422,6 +1420,8 @@ class EPUB_MOBI(CatalogPlugin):
             # Populate this_title{} from data[{},{}]
             titles = []
             for record in data:
+                if False:
+                    print "available record metadata:\n%s" % sorted(record.keys())
                 this_title = {}
 
                 this_title['id'] = record['id']
@@ -1438,6 +1438,9 @@ class EPUB_MOBI(CatalogPlugin):
 
                 this_title['title_sort'] = self.generateSortTitle(this_title['title'])
                 if 'authors' in record:
+                    # from calibre.ebooks.metadata import authors_to_string
+                    # return authors_to_string(self.authors)
+
                     this_title['authors'] = record['authors']
                     if record['authors']:
                         this_title['author'] = " &amp; ".join(record['authors'])
@@ -1780,9 +1783,16 @@ class EPUB_MOBI(CatalogPlugin):
             title_list = self.booksByTitle
             if not self.useSeriesPrefixInTitlesSection:
                 title_list = self.booksByTitle_noSeriesPrefix
+            drtc = 0
             for book in title_list:
                 if self.letter_or_symbol(book['title_sort'][0]) != current_letter :
                     # Start a new letter
+                    if drtc:
+                        divTag.insert(dtc, divRunningTag)
+                        dtc += 1
+                    divRunningTag = Tag(soup, 'div')
+                    divRunningTag['style'] = 'display:inline-block;width:100%'
+                    drtc = 0
                     current_letter = self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "letter_index"
@@ -1790,8 +1800,8 @@ class EPUB_MOBI(CatalogPlugin):
                     aTag['name'] = "%s" % self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag.insert(0,aTag)
                     pIndexTag.insert(1,NavigableString(self.letter_or_symbol(book['title_sort'][0])))
-                    divTag.insert(dtc,pIndexTag)
-                    dtc += 1
+                    divRunningTag.insert(dtc,pIndexTag)
+                    drtc += 1
 
                 # Add books
                 pBookTag = Tag(soup, "p")
@@ -1839,8 +1849,12 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag.insert(ptc, emTag)
                 ptc += 1
 
-                divTag.insert(dtc, pBookTag)
-                dtc += 1
+                divRunningTag.insert(drtc, pBookTag)
+                drtc += 1
+
+            # Add the last divRunningTag to divTag
+            divTag.insert(dtc, divRunningTag)
+            dtc += 1
 
             # Add the divTag to the body
             body.insert(btc, divTag)
@@ -1902,28 +1916,37 @@ class EPUB_MOBI(CatalogPlugin):
             for book in self.booksByAuthor:
                 book_count += 1
                 if self.letter_or_symbol(book['author_sort'][0].upper()) != current_letter :
-                    '''
-                    # Start a new letter - anchor only, hidden
-                    current_letter = book['author_sort'][0].upper()
-                    aTag = Tag(soup, "a")
-                    aTag['name'] = "%sauthors" % current_letter
-                    divTag.insert(dtc, aTag)
-                    dtc += 1
-                    '''
                     # Start a new letter with Index letter
                     current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
+                    author_count = 0
+                    divOpeningTag = Tag(soup, 'div')
+                    divOpeningTag['style'] = 'display:inline-block;width:100%'
+                    dotc = 0
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "letter_index"
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%sauthors" % self.letter_or_symbol(current_letter)
                     pIndexTag.insert(0,aTag)
                     pIndexTag.insert(1,NavigableString(self.letter_or_symbol(book['author_sort'][0].upper())))
-                    divTag.insert(dtc,pIndexTag)
-                    dtc += 1
+                    divOpeningTag.insert(dotc,pIndexTag)
+                    dotc += 1
 
                 if book['author'] != current_author:
                     # Start a new author
                     current_author = book['author']
+                    author_count += 1
+                    if author_count == 2:
+                        # Add divOpeningTag to divTag
+                        divTag.insert(dtc, divOpeningTag)
+                        dtc += 1
+                    elif author_count > 2:
+                        divTag.insert(dtc, divRunningTag)
+                        dtc += 1
+
+                    divRunningTag = Tag(soup, 'div')
+                    divRunningTag['style'] = 'display:inline-block;width:100%'
+                    drtc = 0
+
                     non_series_books = 0
                     current_series = None
                     pAuthorTag = Tag(soup, "p")
@@ -1932,18 +1955,12 @@ class EPUB_MOBI(CatalogPlugin):
                     aTag['name'] = "%s" % self.generateAuthorAnchor(current_author)
                     aTag.insert(0,NavigableString(current_author))
                     pAuthorTag.insert(0,aTag)
-                    divTag.insert(dtc,pAuthorTag)
-                    dtc += 1
-
-                '''
-                # Insert an <hr /> between non-series and series
-                if not current_series and non_series_books and book['series']:
-                    # Insert an <hr />
-                    hrTag = Tag(soup,'hr')
-                    hrTag['class'] = "series_divider"
-                    divTag.insert(dtc,hrTag)
-                    dtc += 1
-                '''
+                    if author_count == 1:
+                        divOpeningTag.insert(dotc, pAuthorTag)
+                        dotc += 1
+                    else:
+                        divRunningTag.insert(drtc,pAuthorTag)
+                        drtc += 1
 
                 # Check for series
                 if book['series'] and book['series'] != current_series:
@@ -1963,8 +1980,12 @@ class EPUB_MOBI(CatalogPlugin):
                         #pSeriesTag.insert(0,NavigableString(self.NOT_READ_SYMBOL + '%s' % book['series']))
                         pSeriesTag.insert(0,NavigableString('%s' % book['series']))
 
-                    divTag.insert(dtc,pSeriesTag)
-                    dtc += 1
+                    if author_count == 1:
+                        divOpeningTag.insert(dotc, pSeriesTag)
+                        dotc += 1
+                    else:
+                        divRunningTag.insert(drtc,pSeriesTag)
+                        drtc += 1
                 if current_series and not book['series']:
                     current_series = None
 
@@ -2007,8 +2028,12 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag.insert(ptc, aTag)
                 ptc += 1
 
-                divTag.insert(dtc, pBookTag)
-                dtc += 1
+                if author_count == 1:
+                    divOpeningTag.insert(dotc, pBookTag)
+                    dotc += 1
+                else:
+                    divRunningTag.insert(drtc,pBookTag)
+                    drtc += 1
 
             if not self.__generateForKindle:
                 # Insert the <h2> tag with book_count at the head
@@ -2023,6 +2048,10 @@ class EPUB_MOBI(CatalogPlugin):
                 pTag.insert(1,NavigableString('%s' % (friendly_name)))
                 body.insert(btc,pTag)
                 btc += 1
+
+            if author_count == 1:
+                divTag.insert(dtc, divOpeningTag)
+                dtc += 1
 
             # Add the divTag to the body
             body.insert(btc, divTag)
@@ -2571,14 +2600,6 @@ class EPUB_MOBI(CatalogPlugin):
                 # Check for initial letter change
                 sort_title = self.generateSortTitle(book['series'])
                 if self.letter_or_symbol(sort_title[0].upper()) != current_letter :
-                    '''
-                    # Start a new letter - anchor only, hidden
-                    current_letter = book['author_sort'][0].upper()
-                    aTag = Tag(soup, "a")
-                    aTag['name'] = "%sseries" % current_letter
-                    divTag.insert(dtc, aTag)
-                    dtc += 1
-                    '''
                     # Start a new letter with Index letter
                     current_letter = self.letter_or_symbol(sort_title[0].upper())
                     pIndexTag = Tag(soup, "p")
@@ -4258,6 +4279,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             if False:
                 print "title metadata:\n%s" % ', '.join(sorted(book.keys()))
+            if False:
                 for item in sorted(book.keys()):
                     try:
                         print "%s: %s%s" % (item, book[item][:50], '...' if len(book[item])>50 else '')
@@ -4355,13 +4377,9 @@ class EPUB_MOBI(CatalogPlugin):
                 note_content = book['notes']['content']
 
             # >>>> Populate the template <<<<
-            if True:
-                root = etree.fromstring(generate_html(), parser=RECOVER_PARSER)
-            else:
-                root = etree.fromstring(generate_html())
+            root = etree.fromstring(generate_html(), parser=RECOVER_PARSER)
             header = etree.tostring(root, pretty_print=True, encoding='utf-8')
             soup = BeautifulSoup(header, selfClosingTags=['mbp:pagebreak'])
-
 
 
             # >>>> Post-process the template <<<<
@@ -4448,7 +4466,6 @@ class EPUB_MOBI(CatalogPlugin):
                 </head>
                 <body>
                     <p class="title"></p>
-                    <!--div class="hr"><blockquote><hr/></blockquote></div-->
                     <div class="authors"></div>
                 </body>
                 </html>
