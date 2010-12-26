@@ -14,22 +14,7 @@ from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import strcmp
-from calibre.utils.formatter import TemplateFormatter
-
-class SafeFormat(TemplateFormatter):
-    '''
-    Provides a format function that substitutes '' for any missing value
-    '''
-
-    def get_value(self, key, args, kwargs):
-        try:
-            if key in kwargs:
-                return kwargs[key]
-            return key
-        except:
-            return key
-
-safe_formatter = SafeFormat()
+from calibre.utils.formatter import eval_formatter
 
 class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -131,10 +116,10 @@ class CollectionsBookList(BookList):
                 field_name = field_meta['name']
             else:
                 field_name = ''
-        cat_name = safe_formatter.safe_format(
+        cat_name = eval_formatter.safe_format(
                         fmt=tweaks['sony_collection_name_template'],
                         kwargs={'category':field_name, 'value':field_value},
-                        error_value='', book=None)
+                        error_value='GET_CATEGORY', book=None)
         return cat_name.strip()
 
     def get_collections(self, collection_attributes):

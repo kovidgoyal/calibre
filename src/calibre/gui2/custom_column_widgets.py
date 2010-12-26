@@ -19,6 +19,7 @@ from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
+from calibre.library.comments import comments_to_html
 
 class Base(object):
 
@@ -197,7 +198,7 @@ class Comments(Base):
     def setter(self, val):
         if val is None:
             val = ''
-        self._tb.html = val
+        self._tb.html = comments_to_html(val)
 
     def getter(self):
         val = unicode(self._tb.html).strip()
