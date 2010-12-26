@@ -152,18 +152,18 @@ hr.merged_comments_divider {
     border-left: solid white 0px;
 	}
 
-td {
-	text-align:center;
-	}
 td.publisher, td.date {
 	font-weight:bold;
+	text-align:center;
 	}
 
 td.rating{
+	text-align:center;
 	}
 
 td.notes {
 	font-size: 100%;
+	text-align:center;
 	}
 
 td.thumbnail img {
