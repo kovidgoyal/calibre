@@ -1507,7 +1507,7 @@ class EPUB_MOBI(CatalogPlugin):
                     notes = self.__db.get_field(record['id'],
                                         self.opts.header_note_source_field,
                                         index_is_id=True)
-                    if field_md['datatype'] == 'datetime':
+                    if notes and field_md['datatype'] == 'datetime':
                         # Reformat date fields to match UI presentation: dd MMM YYYY
                         notes = format_date(notes,'dd MMM yyyy')
 

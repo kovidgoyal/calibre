@@ -617,6 +617,8 @@ class KindleDXOutput(OutputProfile):
     #comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
+	missing_char = u'x\u2009'
+	empty_ratings_char = u'\u2606'
     ratings_char = u'\u2605'
     read_char = u'\u2713'
     mobi_ems_per_blockquote = 2.0
