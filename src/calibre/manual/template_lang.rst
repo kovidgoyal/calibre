@@ -274,7 +274,7 @@ The following program produces the same results as the original recipe, using on
     Name: #special_title
     Template: (the following with all leading spaces removed)
         program:
-        #	compute the equivalent of the composit fields and store them in local variables
+        #	compute the equivalent of the composite fields and store them in local variables
             stripped = re(field('series'), '^(A|The|An)\s+', '');
             shortened = shorten(stripped, 4, '-' ,4);
             initials = re(stripped, '[^\w]*(\w?)[^\s]+(\s|$)', '\1');
