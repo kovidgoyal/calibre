@@ -19,7 +19,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
         if text is not None:
             self.textbox.setPlainText(text)
-        self.textbox.setTabChangesFocus(True)
+        self.textbox.setTabStopWidth(50)
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
 
