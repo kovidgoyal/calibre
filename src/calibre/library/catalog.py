@@ -4321,14 +4321,14 @@ class EPUB_MOBI(CatalogPlugin):
                 _soup = BeautifulSoup('')
                 genresTag = Tag(_soup,'p')
                 gtc = 0
-                for tag in book.get('tags', []):
+                for (i, tag) in enumerate(book.get('tags', [])):
                     aTag = Tag(_soup,'a')
                     if self.opts.generate_genres:
                         aTag['href'] = "Genre_%s.html" % re.sub("\W","",tag.lower())
                     aTag.insert(0,escape(NavigableString(tag)))
                     genresTag.insert(gtc, aTag)
                     gtc += 1
-                    if gtc < len(book['tags']):
+                    if i < len(book['tags'])-1:
                         genresTag.insert(gtc, NavigableString(' %s ' % MIDDOT))
                         gtc += 1
                 genres = genresTag.renderContents()
