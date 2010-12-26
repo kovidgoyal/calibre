@@ -55,7 +55,7 @@ class _Parser(object):
             }
         x = float(x if x else 0)
         y = float(y if y else 0)
-        return str(ops[op](x, y))
+        return unicode(ops[op](x, y))
 
     def _template(self, template):
         template = template.replace('[[', '{').replace(']]', '}')
