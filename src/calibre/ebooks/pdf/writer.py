@@ -25,10 +25,6 @@ from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
-def get_pdf_printer():
-    return QPrinter(QPrinter.HighResolution)
-
-
 def get_custom_size(opts):
     custom_size = None
     if opts.custom_size != None:
@@ -42,12 +38,12 @@ def get_custom_size(opts):
                 custom_size = None
     return custom_size
 
-def setup_printer(opts, for_comic=False):
+def get_pdf_printer(opts, for_comic=False):
     from calibre.gui2 import is_ok_to_use_qt
     if not is_ok_to_use_qt():
         raise Exception('Not OK to use Qt')
 
-    printer = get_pdf_printer()
+    printer = QPrinter(QPrinter.HighResolution)
     custom_size = get_custom_size(opts)
 
     if opts.output_profile.short_name == 'default':
@@ -63,13 +59,14 @@ def setup_printer(opts, for_comic=False):
         dpi = opts.output_profile.dpi
         printer.setPaperSize(QSizeF(float(w) / dpi, float(h)/dpi), QPrinter.Inch)
 
-    printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
+    printer.setPageMargins(opts.margin_left, opts.margin_top, opts.margin_right, opts.margin_bottom, QPrinter.Point)
     printer.setOrientation(orientation(opts.orientation))
     printer.setOutputFormat(QPrinter.PdfFormat)
+    printer.setFullPage(True)
     return printer
 
 def get_printer_page_size(opts, for_comic=False):
-    printer = setup_printer(opts, for_comic=for_comic)
+    printer = get_pdf_printer(opts, for_comic=for_comic)
     size =  printer.paperSize(QPrinter.Millimeter)
     return size.width() / 10., size.height() / 10.
 
@@ -154,24 +151,11 @@ class PDFWriter(QObject): # {{{
 
         self.view.load(QUrl.fromLocalFile(item))
 
-    def get_printer(self, set_horz_margins=False):
-        printer = get_pdf_printer()
-        printer.setPaperSize(QSizeF(self.size[0] * 10, self.size[1] * 10), QPrinter.Millimeter)
-        if set_horz_margins:
-            printer.setPageMargins(0., self.opts.margin_top, 0.,
-                    self.opts.margin_bottom, QPrinter.Point)
-        else:
-            printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
-        printer.setOrientation(orientation(self.opts.orientation))
-        printer.setOutputFormat(QPrinter.PdfFormat)
-        printer.setFullPage(not set_horz_margins)
-        return printer
-
     def _render_html(self, ok):
         if ok:
             item_path = os.path.join(self.tmp_path, '%i.pdf' % len(self.combine_queue))
-            self.logger.debug('\tRendering item %s as %i' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
-            printer = self.get_printer(set_horz_margins=True)
+            self.logger.debug('\tRendering item %s as %i.pdf' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
+            printer = get_pdf_printer(self.opts)
             printer.setOutputFileName(item_path)
             self.view.print_(printer)
         self._render_book()
@@ -233,16 +217,11 @@ class ImagePDFWriter(object):
             os.remove(f.name)
 
     def render_images(self, outpath, mi, items):
-        printer = get_pdf_printer()
-        printer.setPaperSize(QSizeF(self.size[0] * 10, self.size[1] * 10), QPrinter.Millimeter)
-        printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
-        printer.setOrientation(orientation(self.opts.orientation))
-        printer.setOutputFormat(QPrinter.PdfFormat)
+        printer = get_pdf_printer(self.opts)
         printer.setOutputFileName(outpath)
         printer.setDocName(mi.title)
         printer.setCreator(u'%s [%s]'%(__appname__, __version__))
         # Seems to be no way to set author
-        printer.setFullPage(True)
 
         painter = QPainter(printer)
         painter.setRenderHints(QPainter.Antialiasing|QPainter.SmoothPixmapTransform)
