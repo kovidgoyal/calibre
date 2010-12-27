@@ -284,15 +284,19 @@ class BooksView(QTableView): # {{{
         for col, order in sort_history:
             if col == 'date':
                 col = 'timestamp'
-            if col in self.column_map and (not history or history[0][0] != col):
-                history.append([col, order])
+            if col in self.column_map:
+                if (not history or history[0][0] != col):
+                    history.append([col, order])
+                elif isinstance(order, bool) and history[0][1] != order:
+                    history[0][1] = order
         return history
 
     def apply_sort_history(self, saved_history):
         if not saved_history:
             return
         for col, order in reversed(self.cleanup_sort_history(saved_history)[:3]):
-            self.sortByColumn(self.column_map.index(col), order)
+            self.sortByColumn(self.column_map.index(col),
+                              Qt.AscendingOrder if order else Qt.DescendingOrder)
 
     def apply_state(self, state):
         h = self.column_header

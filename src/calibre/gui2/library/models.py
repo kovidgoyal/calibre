@@ -252,7 +252,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.db.sort(label, ascending)
         if reset:
             self.reset()
-        self.sorted_on = (label, order)
+        self.sorted_on = (label, order == Qt.AscendingOrder)
         self.sort_history.insert(0, self.sorted_on)
         self.sorting_done.emit(self.db.index)
 
