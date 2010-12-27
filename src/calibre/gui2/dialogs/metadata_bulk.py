@@ -417,6 +417,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.multiple_separator.setFixedWidth(30)
         self.multiple_separator.setText(' ::: ')
         self.multiple_separator.textChanged.connect(self.s_r_separator_changed)
+        self.results_count.valueChanged[int].connect(self.s_r_display_bounds_changed)
+        self.starting_from.valueChanged[int].connect(self.s_r_display_bounds_changed)
 
     def s_r_get_field(self, mi, field):
         if field:
@@ -439,6 +441,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             val = []
         return val
 
+    def s_r_display_bounds_changed(self, i):
+        self.s_r_search_field_changed(self.search_field.currentIndex())
+
     def s_r_template_changed(self):
         self.s_r_search_field_changed(self.search_field.currentIndex())
 
@@ -454,6 +459,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
             src = unicode(self.search_field.currentText())
             t = self.s_r_get_field(mi, src)
+            if len(t) > 1:
+                t = t[self.starting_from.value()-1:
+                      self.starting_from.value()-1 + self.results_count.value()]
             w.setText(unicode(self.multiple_separator.text()).join(t))
 
         if self.search_mode.currentIndex() == 0:
@@ -466,12 +474,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         txt = unicode(txt)
         if not txt:
             txt = unicode(self.search_field.currentText())
-        self.comma_separated.setEnabled(True)
         if txt and txt in self.writable_fields:
             self.destination_field_fm = self.db.metadata_for_field(txt)
-            if self.destination_field_fm['is_multiple']:
-                self.comma_separated.setEnabled(False)
-                self.comma_separated.setChecked(True)
         self.s_r_paint_results(None)
 
     def s_r_search_mode_changed(self, val):
@@ -542,6 +546,22 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             dest = src
         dest_mode = self.replace_mode.currentIndex()
 
+        if self.destination_field_fm['is_multiple']:
+            if self.comma_separated.isChecked():
+                if dest == 'authors':
+                    splitter = ' & '
+                else:
+                    splitter = ','
+
+                res = []
+                for v in val:
+                    for x in v.split(splitter):
+                        if x.strip():
+                            res.append(x.strip())
+                val = res
+            else:
+                val = [v.replace(',', '') for v in val]
+
         if dest_mode != 0:
             dest_val = mi.get(dest, '')
             if dest_val is None:
@@ -602,8 +622,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             try:
                 result = self.s_r_do_regexp(mi)
                 t = self.s_r_do_destination(mi, result)
-                if len(result) > 1 and self.destination_field_fm is not None and \
-                            self.destination_field_fm['is_multiple']:
+                if len(t) > 1 and self.destination_field_fm['is_multiple']:
+                    t = t[self.starting_from.value()-1:
+                          self.starting_from.value()-1 + self.results_count.value()]
                     t = unicode(self.multiple_separator.text()).join(t)
                 else:
                     t = self.s_r_replace_mode_separator().join(t)

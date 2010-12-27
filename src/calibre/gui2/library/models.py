@@ -334,6 +334,8 @@ class BooksModel(QAbstractTableModel): # {{{
             if key not in cf_to_display:
                 continue
             name, val = mi.format_field(key)
+            if mi.metadata_for_field(key)['datatype'] == 'comments':
+                name += ':html'
             if val:
                 data[name] = val
         return data

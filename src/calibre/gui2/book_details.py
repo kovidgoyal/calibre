@@ -44,7 +44,10 @@ def render_rows(data):
             key = key.decode(preferred_encoding, 'replace')
         if isinstance(txt, str):
             txt = txt.decode(preferred_encoding, 'replace')
-        if '</font>' not in txt:
+        if key.endswith(u':html'):
+            key = key[:-5]
+            txt = comments_to_html(txt)
+        elif '</font>' not in txt:
             txt = prepare_string_for_xml(txt)
         if 'id' in data:
             if key == _('Path'):

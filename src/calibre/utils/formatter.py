@@ -36,7 +36,7 @@ class _Parser(object):
         return gt
 
     def _assign(self, target, value):
-        setattr(self, target, value)
+        self.variables[target] = value
         return value
 
     def _concat(self, *args):
@@ -55,18 +55,23 @@ class _Parser(object):
             }
         x = float(x if x else 0)
         y = float(y if y else 0)
-        return ops[op](x, y)
+        return unicode(ops[op](x, y))
 
     def _template(self, template):
         template = template.replace('[[', '{').replace(']]', '}')
         return self.parent.safe_format(template, self.parent.kwargs, 'TEMPLATE',
                                        self.parent.book)
 
+    def _eval(self, template):
+        template = template.replace('[[', '{').replace(']]', '}')
+        return eval_formatter.safe_format(template, self.variables, 'EVAL', None)
+
     local_functions = {
             'add'      : (2, partial(_math, op='+')),
             'assign'   : (2, _assign),
             'cmp'      : (5, _cmp),
             'divide'   : (2, partial(_math, op='/')),
+            'eval'     : (1, _eval),
             'field'    : (1, lambda s, x: s.parent.get_value(x, [], s.parent.kwargs)),
             'multiply' : (2, partial(_math, op='*')),
             'strcat'   : (-1, _concat),
@@ -82,7 +87,7 @@ class _Parser(object):
         if prog[1] != '':
             self.error(_('failed to scan program. Invalid input {0}').format(prog[1]))
         self.parent = parent
-        setattr(self, '$', val)
+        self.variables = {'$':val}
 
     def error(self, message):
         m = 'Formatter: ' + message + _(' near ')
@@ -144,7 +149,7 @@ class _Parser(object):
             # We have an identifier. Determine if it is a function
             id = self.token()
             if not self.token_op_is_a('('):
-                return getattr(self, id, _('unknown id ') + id)
+                return self.variables.get(id, _('unknown id ') + id)
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
@@ -417,15 +422,18 @@ class TemplateFormatter(string.Formatter):
         self.kwargs = kwargs
         self.book = book
         self.composite_values = {}
-        try:
-            ans = self.vformat(fmt, [], kwargs).strip()
-        except Exception, e:
-            if DEBUG:
-                traceback.print_exc()
-            ans = error_value + ' ' + e.message
+        if fmt.startswith('program:'):
+            ans = self._eval_program(None, fmt[8:])
+        else:
+            try:
+                ans = self.vformat(fmt, [], kwargs).strip()
+            except Exception, e:
+                if DEBUG:
+                    traceback.print_exc()
+                ans = error_value + ' ' + e.message
         return ans
 
-class ValidateFormat(TemplateFormatter):
+class ValidateFormatter(TemplateFormatter):
     '''
     Provides a format function that substitutes '' for any missing value
     '''
@@ -435,6 +443,14 @@ class ValidateFormat(TemplateFormatter):
     def validate(self, x):
         return self.vformat(x, [], {})
 
-validation_formatter = ValidateFormat()
+validation_formatter = ValidateFormatter()
 
+class EvalFormatter(TemplateFormatter):
+    '''
+    A template formatter that uses a simple dict instead of an mi instance
+    '''
+    def get_value(self, key, args, kwargs):
+        return kwargs.get(key, _('No such variable ') + key)
+
+eval_formatter = EvalFormatter()
 
