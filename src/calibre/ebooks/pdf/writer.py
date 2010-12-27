@@ -217,7 +217,7 @@ class ImagePDFWriter(object):
             os.remove(f.name)
 
     def render_images(self, outpath, mi, items):
-        printer = get_pdf_printer(self.opts)
+        printer = get_pdf_printer(self.opts, for_comic=True)
         printer.setOutputFileName(outpath)
         printer.setDocName(mi.title)
         printer.setCreator(u'%s [%s]'%(__appname__, __version__))
