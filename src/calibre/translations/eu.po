@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-23 22:48+0000\n"
-"PO-Revision-Date: 2010-12-24 06:14+0000\n"
+"PO-Revision-Date: 2010-12-26 18:53+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-25 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-12-27 04:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1210,6 +1210,9 @@ msgid ""
 "to the list to enable them. The collections will be given the name provided "
 "after the \":\" character."
 msgstr ""
+". Badaude bi bilduma berezi eskuragarri: %s:%s eta %s:%s. Gehitu balio hauek "
+"zerrendara balioei bidea emateko . Bilduma hauei  \":\" karakterearen osteko "
+"izena emango zaie."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1665,6 +1668,11 @@ msgid ""
 "cases, the minimum line height option is more useful. By default no line "
 "height manipulation is performed."
 msgstr ""
+"Lerroaren altuera puntuetan. Kontrola ezazu elkarren ondoan dauden lerroen "
+"arteko espazioa. Bere altuera lerroetan adierazten ez duten elementuei "
+"aplikatuko zaie, ez besteei. Gehienetan, lerroaren altuera minimoa da "
+"erabilgarriena. Lehenetsita hauxe: ez da da lerroen altuera aldaketarik "
+"egingo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:191
 msgid ""
@@ -2261,6 +2269,10 @@ msgid ""
 "will flatten the file system inside the EPUB, putting all files into the top "
 "level."
 msgstr ""
+"Aukera hau beharrezkoa izango da EPUB formatuko fitxategia FBReaderJ gailu "
+"batekin erabiltzeko asmoa baldin baduzu. Aukera honekin barneko EPUB "
+"fitxategi sistema sinplifikatu egingo da, fitxategi guztiak goiko mailan "
+"jarriz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:184
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:206
@@ -3298,6 +3310,10 @@ msgid ""
 "will try to convert margins specified in the input document, otherwise it "
 "will ignore them."
 msgstr ""
+"Jaramonik ez egin sorburu dokumentuaren orrialde bazterrei. Balio faltsua "
+"baldin bada, orduan MOBI helburu gehigarria saiatuko da zehaztutako "
+"bazterrak sorburuan bertan bihurtzen, bestela ez die balio horiei inolako "
+"jaramonik egingo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:113
 msgid "All articles"
@@ -3918,6 +3934,9 @@ msgid ""
 "with the markdown-format option becauselinks are always removed with plain "
 "text output."
 msgstr ""
+"Ez kendu dokumentuko estekak. Hau erabilgarria izango da Markdown formatu "
+"aukera erabiltzerakoan zeren estekak beti kendu egiten baitira helburua "
+"testu soila denean."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:58
 msgid ""
@@ -3925,6 +3944,9 @@ msgid ""
 "paired with the markdown-format option becauseimage references are always "
 "removed with plain text output."
 msgstr ""
+"Ez kendu dokumentuko irudi erreferentziak. Hau erabilgarria izango da "
+"Markdown formatu aukera erabiltzerakoan zeren erreferentziak beti kendu "
+"egiten baitira helburua testu soila denean."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:68
 msgid "Send file to storage card instead of main memory by default"
@@ -4923,6 +4945,13 @@ msgid ""
 "books will be permanently <b>deleted</b> from your calibre library.<br><br>  "
 "Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"Hautatutako liburuen formatuak eta metadatuak bateratu egingo dira "
+"<b>hautatutako lehen liburuarekin</b> (%s). ISBNa <i>ez</i> da "
+"bateratuko.<br><br>Bigarren eta ondoko liburuak bateratu ondoren beste "
+"formatu guztiak <b>ezabatu egingo</b> dira. <br><br>Hautatu duzun lehen "
+"liburuaren formatu guztiak gorde egingo dira eta bigarren eta ondorengo "
+"bikoiztutako formatu guztiak <b>ezabatu egingo</b> dira betiko zure calibre "
+"liburutegitik.<br><br>  <b>Ziur zaude?</b> Benetan aurrera egin nahi duzu?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:17
 msgid "F"
@@ -5834,7 +5863,7 @@ msgstr "Aurre-formateaturik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:132
 msgid "Blockquote"
-msgstr ""
+msgstr "Aipuen blokea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:133
 msgid "Address"
@@ -7236,6 +7265,15 @@ msgid ""
 "enter the full path to the file after a <code>>></code>.  For example:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 msgstr ""
+"<p>Sar ezazu ISBN zerrenda bat ezkerretako kutxatilan, ISBN bana lerroko. "
+"calibre aplikazioak modu automatikoan sortuko ditu bere ISBN-an "
+"oinarritutako sarrerak eta deskargatuko ditu liburuen metadatuak eta liburu-"
+"azalak.</p>\n"
+"<p>Balio ez duen ISBN-ren bat topatuz gero ez zaio jaramonik egingo</p>\n"
+"<p>Zehaztu dezakezu, baita, fitxategi bat ISBN bakoitzari gehitzeko. Hau "
+"egiteko sartu bide osoa fitxategian   <code>>></code>-aren ondoren.  "
+"Adibidez:</p>\n"
+"<p><code>9788842915232 >> %s</code></p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:53
 msgid "&Paste from clipboard"
@@ -7428,6 +7466,10 @@ msgid ""
 "Copy the custom columns, saved searches, column widths, plugboards,\n"
 "user categories, and other information from the old to the new library"
 msgstr ""
+"Kopiatu pertsonalizatutako zutabeak, gordetako bilaketak, zutabeen "
+"zabalerak, gehigarrien taulak,\n"
+"erabiltzaileen kategoriak eta informazio gehiago liburutegi zaharretik "
+"liburutegi berrira"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:85
 msgid "&Move current library to new location"
@@ -8115,6 +8157,8 @@ msgid ""
 "The field that the text will be put into after all replacements.\n"
 "If blank, the source field is used if the field is modifiable"
 msgstr ""
+"Eremua. Ordezkapen guztien ostean non sartuko den testua jakiteko eremua.\n"
+"Zuriz utziz gero, sorburuko eremua erabiliko da aldatzeko aukerarik badago."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:428
 msgid "Mode:"
@@ -8268,6 +8312,9 @@ msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author. No action is required if this is what you want."
 msgstr ""
+" Gorri koloreak erakusten du oraingo egile klaseak ez duela bat egiten "
+"oraingo egilearekin. Hau baldin bada zeuk nahi duzuna, ez duzu ezer egin "
+"behar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:459
 msgid ""
@@ -8411,6 +8458,10 @@ msgid ""
 "Using this button to create title sort will change title sort from red to "
 "green."
 msgstr ""
+"Sortu automatikoki izenburuen klasea izango den sarrera bat oraingo izenburu "
+"sarreran oinarrituta.\n"
+"Botoi hau erabiliz gero izenburuen klasea sortzeko, izenburuaren klasearen "
+"kolorea aldatuko da berdetik gorrira."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:427
 msgid "Swap the author and title"
@@ -10431,6 +10482,12 @@ msgid ""
 "included, and is the default. For example, the list 'one,two,three' has\n"
 "four values, the first of them being the empty value."
 msgstr ""
+"Komen bidez bereizitako behin-betiko balioen zerrenda. Hutsik dagoen balioa "
+"beti\n"
+"barne eta horixe da lehenetsitako balioa. Esate baterako, \"bat, bi, hiru\" "
+"zerrendak\n"
+"lau balio dauzka, zeren zerrendako lehen balioa beti hutsa balioa izango "
+"baita."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:169
 msgid "The empty string is always the first value"
@@ -11494,6 +11551,9 @@ msgid ""
 "log will be available in the file: %s<p>The log will be displayed "
 "automatically."
 msgstr ""
+"Berrabiarazi duzu calibre aplikazioa modu araztailean. calibre ixterakoan, "
+"hasiera araztailea erabilgarri egongo da honako fitxategian: %s<p>hori "
+"automatikoki erakutsiko da."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:451
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:462
@@ -13183,6 +13243,10 @@ msgid ""
 "interpreted. This is a JSON  string. For enumeration columns, use --"
 "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 msgstr ""
+"Zutabe honetako datuak nola interpretatuko diren ebazteko hiztegia, non "
+"hiztegiaren aukerak pertsonalizatu daitezkeen. Hau JSON (JavaScript Object "
+"Notation) katea da. Zerrendatze zutabeetarako, erabil ezazu: --"
+"display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:581
 msgid "You must specify label, name and datatype"
