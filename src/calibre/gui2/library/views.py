@@ -57,6 +57,11 @@ class BooksView(QTableView): # {{{
         elif tweaks['doubleclick_on_library_view'] == 'open_viewer':
             self.setEditTriggers(self.SelectedClicked|self.editTriggers())
             self.doubleClicked.connect(parent.iactions['View'].view_triggered)
+        elif tweaks['doubleclick_on_library_view'] == 'edit_metadata':
+            # Must not enable single-click to edit, or the field will remain
+            # open in edit mode underneath the edit metadata dialog
+            self.doubleClicked.connect(
+                        partial(parent.iactions['Edit Metadata'].edit_metadata, checked=False))
 
         self.drag_allowed = True
         self.setDragEnabled(True)

@@ -44,7 +44,10 @@ def render_rows(data):
             key = key.decode(preferred_encoding, 'replace')
         if isinstance(txt, str):
             txt = txt.decode(preferred_encoding, 'replace')
-        if '</font>' not in txt:
+        if key.endswith(u':html'):
+            key = key[:-5]
+            txt = comments_to_html(txt)
+        elif '</font>' not in txt:
             txt = prepare_string_for_xml(txt)
         if 'id' in data:
             if key == _('Path'):
@@ -249,7 +252,7 @@ class BookInfo(QWebView):
             left_pane = u'<table>%s</table>'%rows
             right_pane = u'<div>%s</div>'%comments
             self.setHtml(templ%(u'<table><tr><td valign="top" '
-                    'style="padding-right:2em">%s</td><td valign="top">%s</td></tr></table>'
+                'style="padding-right:2em; width:40%%">%s</td><td valign="top">%s</td></tr></table>'
                     % (left_pane, right_pane)))
 
     def mouseDoubleClickEvent(self, ev):

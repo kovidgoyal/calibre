@@ -1,0 +1,109 @@
+#!/usr/bin/env  python
+# -*- coding: utf-8 -*-
+
+__license__     = 'GPL v3'
+__copyright__   = '04 December 2010, desUBIKado'
+__author__      = 'desUBIKado'
+__description__ = 'Daily newspaper from Aragon'
+__version__     = 'v0.05'
+__date__        = '07, December 2010'
+'''
+elperiodicodearagon.com
+'''
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class elperiodicodearagon(BasicNewsRecipe):
+    title                 = u'El Periodico de Aragon'
+    __author__            = u'desUBIKado'
+    description           = u'Noticias desde Aragon'
+    publisher             = u'elperiodicodearagon.com'
+    category              = u'news, politics, Spain, Aragon'
+    oldest_article        = 2
+    delay                 = 0
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    language              = 'es'
+    encoding              = 'utf8'
+    remove_empty_feeds    = True
+    remove_javascript     = True
+
+
+    conversion_options = {
+                             'comments'  : description
+                            ,'tags'      : category
+                            ,'language'  : language
+                            ,'publisher' : publisher
+                         }
+
+    feeds              = [(u'Arag\xf3n', u'http://elperiodicodearagon.com/RSS/2.xml'),
+                          (u'Internacional', u'http://elperiodicodearagon.com/RSS/4.xml'),
+                          (u'Espa\xf1a', u'http://elperiodicodearagon.com/RSS/3.xml'),
+                          (u'Econom\xeda', u'http://elperiodicodearagon.com/RSS/5.xml'),
+                          (u'Deportes', u'http://elperiodicodearagon.com/RSS/7.xml'),
+                          (u'Real Zaragoza', u'http://elperiodicodearagon.com/RSS/10.xml'),
+                          (u'Opini\xf3n', u'http://elperiodicodearagon.com/RSS/103.xml'),
+                          (u'Escenarios', u'http://elperiodicodearagon.com/RSS/105.xml'),
+                          (u'Sociedad', u'http://elperiodicodearagon.com/RSS/104.xml'),
+                          (u'Gente', u'http://elperiodicodearagon.com/RSS/330.xml')]
+
+
+    extra_css = '''
+                    h3{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:xx-large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    dd{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+		'''
+
+    remove_attributes = ['height','width']
+
+    keep_only_tags     = [dict(name='div', attrs={'id':'contenidos'})]
+
+
+    # Quitar toda la morralla
+
+    remove_tags        = [dict(name='ul', attrs={'class':'herramientasDeNoticia'}),
+                          dict(name='span', attrs={'class':'MasInformacion '}),
+                          dict(name='span', attrs={'class':'MasInformacion'}),
+                          dict(name='div', attrs={'class':'Middle'}),
+                          dict(name='div', attrs={'class':'MenuCabeceraRZaragoza'}),
+                          dict(name='div', attrs={'id':'MenuCabeceraRZaragoza'}),
+                          dict(name='div', attrs={'class':'MenuEquipo'}),
+                          dict(name='div', attrs={'class':'TemasRelacionados'}),
+                          dict(name='div', attrs={'class':'GaleriaEnNoticia'}),
+                          dict(name='div', attrs={'class':'Recorte'}),
+                          dict(name='div', attrs={'id':'NoticiasenRecursos'}),
+                          dict(name='div', attrs={'id':'NoticiaEnPapel'}),
+                          dict(name='p', attrs={'class':'RecorteEnNoticias'}),
+                          dict(name='div', attrs={'id':'Comparte'}),
+                          dict(name='div', attrs={'id':'CajaComparte'}),
+                          dict(name='a', attrs={'class':'EscribirComentario'}),
+                          dict(name='a', attrs={'class':'AvisoComentario'}),
+                          dict(name='div', attrs={'class':'CajaAvisoComentario'}),
+                          dict(name='div', attrs={'class':'navegaNoticias'}),
+                          dict(name='div', attrs={'id':'PaginadorDiCom'}),
+                          dict(name='div', attrs={'id':'CajaAccesoCuentaUsuario'}),
+                          dict(name='div', attrs={'id':'CintilloComentario'}),
+                          dict(name='div', attrs={'id':'EscribeComentario'}),
+                          dict(name='div', attrs={'id':'FormularioComentario'}),
+                          dict(name='div', attrs={'id':'FormularioNormas'})]
+
+    # Recuperamos la portada de papel (la imagen format=1 tiene mayor resolucion)
+
+    def get_cover_url(self):
+        index = 'http://pdf.elperiodicodearagon.com/'
+        soup = self.index_to_soup(index)
+        for image in soup.findAll('img',src=True):
+           if image['src'].startswith('http://pdf.elperiodicodearagon.com/funciones/portada-preview.php?eid='):
+              return image['src'].rstrip('format=2') + 'format=1'
+        return None
+
+    # Para quitar espacios entre la noticia y los comentarios (lineas 1 y 2)
+    # El indice no apuntaba correctamente al empiece de la noticia (linea 3)
+
+    preprocess_regexps = [
+        (re.compile(r'<p>&nbsp;</p>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        (re.compile(r'<p> </p>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        (re.compile(r'<p id="">', re.DOTALL|re.IGNORECASE), lambda match: '<p>')
+        ]

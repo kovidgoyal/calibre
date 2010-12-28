@@ -556,18 +556,19 @@ class BrowseServer(object):
                 ids = self.search_cache('search:"%s"'%which)
             except:
                 raise cherrypy.HTTPError(404, 'Search: %r not understood'%which)
-        all_ids = self.search_cache('')
-        if category == 'newest':
-            ids = all_ids
-            hide_sort = 'true'
-        elif category == 'allbooks':
-            ids = all_ids
         else:
-            q = category
-            if q == 'news':
-                q = 'tags'
-            ids = self.db.get_books_for_category(q, cid)
-            ids = [x for x in ids if x in all_ids]
+            all_ids = self.search_cache('')
+            if category == 'newest':
+                ids = all_ids
+                hide_sort = 'true'
+            elif category == 'allbooks':
+                ids = all_ids
+            else:
+                q = category
+                if q == 'news':
+                    q = 'tags'
+                ids = self.db.get_books_for_category(q, cid)
+                ids = [x for x in ids if x in all_ids]
 
         items = [self.db.data._data[x] for x in ids]
         if category == 'newest':

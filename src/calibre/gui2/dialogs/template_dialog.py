@@ -4,14 +4,13 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 from PyQt4.Qt import Qt, QDialog, QDialogButtonBox
-from calibre.gui2.dialogs.comments_dialog_ui import Ui_CommentsDialog
-from calibre.library.comments import comments_to_html
+from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 
-class CommentsDialog(QDialog, Ui_CommentsDialog):
+class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def __init__(self, parent, text):
         QDialog.__init__(self, parent)
-        Ui_CommentsDialog.__init__(self)
+        Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
         # Remove help icon on title bar
         icon = self.windowIcon()
@@ -19,8 +18,8 @@ class CommentsDialog(QDialog, Ui_CommentsDialog):
         self.setWindowIcon(icon)
 
         if text is not None:
-            self.textbox.html = comments_to_html(text)
-        # self.textbox.setTabChangesFocus(True)
+            self.textbox.setPlainText(text)
+        self.textbox.setTabChangesFocus(True)
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
 

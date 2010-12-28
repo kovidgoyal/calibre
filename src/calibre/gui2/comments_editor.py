@@ -62,6 +62,8 @@ class EditorWidget(QWebView): # {{{
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
 
+        self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
+
         for wac, name, icon, text, checkable in [
                 ('ToggleBold', 'bold', 'format-text-bold', _('Bold'), True),
                 ('ToggleItalic', 'italic', 'format-text-italic', _('Italic'),
@@ -137,9 +139,18 @@ class EditorWidget(QWebView): # {{{
         self.action_insert_link = QAction(QIcon(I('insert-link.png')),
                 _('Insert link'), self)
         self.action_insert_link.triggered.connect(self.insert_link)
+        self.action_clear = QAction(QIcon(I('edit-clear')), _('Clear'), self)
+        self.action_clear.triggered.connect(self.clear_text)
 
         self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.page().linkClicked.connect(self.link_clicked)
+
+        self.setHtml('')
+        self.page().setContentEditable(True)
+
+    def clear_text(self, *args):
+        self.action_select_all.trigger()
+        self.action_cut.trigger()
 
     def link_clicked(self, url):
         open_url(url)
@@ -210,6 +221,7 @@ class EditorWidget(QWebView): # {{{
                 raw = unicode(self.page().mainFrame().toHtml())
                 raw = xml_to_unicode(raw, strip_encoding_pats=True,
                                     resolve_entities=True)[0]
+                raw = self.comments_pat.sub('', raw)
 
                 try:
                     root = html.fromstring(raw)
@@ -218,12 +230,17 @@ class EditorWidget(QWebView): # {{{
 
                 elems = []
                 for body in root.xpath('//body'):
+                    if body.text:
+                        elems.append(body.text)
                     elems += [html.tostring(x, encoding=unicode) for x in body if
-                        x.tag != 'script']
+                        x.tag not in ('script', 'style')]
+
                 if len(elems) > 1:
                     ans = u'<div>%s</div>'%(u''.join(elems))
                 else:
                     ans = u''.join(elems)
+                    if not ans.startswith('<'):
+                        ans = '<p>%s</p>'%ans
                 ans = xml_replace_entities(ans)
             except:
                 import traceback
@@ -462,6 +479,7 @@ class Editor(QWidget): # {{{
         QWidget.__init__(self, parent)
         self.toolbar1 = QToolBar(self)
         self.toolbar2 = QToolBar(self)
+        self.toolbar3 = QToolBar(self)
         self.editor = EditorWidget(self)
         self.tabs = QTabWidget(self)
         self.tabs.setTabPosition(self.tabs.South)
@@ -476,6 +494,7 @@ class Editor(QWidget): # {{{
         l.setContentsMargins(0, 0, 0, 0)
         l.addWidget(self.toolbar1)
         l.addWidget(self.toolbar2)
+        l.addWidget(self.toolbar3)
         l.addWidget(self.editor)
         self._layout.addWidget(self.tabs)
         self.tabs.addTab(self.wyswyg, _('Normal view'))
@@ -483,43 +502,50 @@ class Editor(QWidget): # {{{
         self.tabs.currentChanged[int].connect(self.change_tab)
         self.highlighter = Highlighter(self.code_edit.document())
 
-        for x in ('bold', 'italic', 'underline', 'strikethrough',
-                'superscript', 'subscript', 'indent', 'outdent'):
-            ac = getattr(self.editor, 'action_'+x)
-            if x in ('superscript', 'indent'):
-                self.toolbar2.addSeparator()
-            self.toolbar2.addAction(ac)
-        self.toolbar2.addSeparator()
-
-        for x in ('left', 'center', 'right', 'justified'):
-            ac = getattr(self.editor, 'action_align_'+x)
-            self.toolbar2.addAction(ac)
-        self.toolbar2.addSeparator()
-
+        # toolbar1 {{{
         self.toolbar1.addAction(self.editor.action_undo)
         self.toolbar1.addAction(self.editor.action_redo)
         self.toolbar1.addAction(self.editor.action_select_all)
         self.toolbar1.addAction(self.editor.action_remove_format)
+        self.toolbar1.addAction(self.editor.action_clear)
         self.toolbar1.addSeparator()
 
         for x in ('copy', 'cut', 'paste'):
             ac = getattr(self.editor, 'action_'+x)
             self.toolbar1.addAction(ac)
-        self.toolbar1.addSeparator()
 
+        self.toolbar1.addSeparator()
+        self.toolbar1.addAction(self.editor.action_background)
+        # }}}
+
+        # toolbar2 {{{
         for x in ('', 'un'):
             ac = getattr(self.editor, 'action_%sordered_list'%x)
-            self.toolbar1.addAction(ac)
-        self.toolbar1.addSeparator()
+            self.toolbar2.addAction(ac)
+        self.toolbar2.addSeparator()
+        for x in ('superscript', 'subscript', 'indent', 'outdent'):
+            self.toolbar2.addAction(getattr(self.editor, 'action_' + x))
+            if x in ('subscript', 'outdent'):
+                self.toolbar2.addSeparator()
 
-        self.toolbar1.addAction(self.editor.action_color)
-        self.toolbar1.addAction(self.editor.action_background)
-        self.toolbar1.addSeparator()
-
-        self.toolbar1.addAction(self.editor.action_block_style)
-        w = self.toolbar1.widgetForAction(self.editor.action_block_style)
+        self.toolbar2.addAction(self.editor.action_block_style)
+        w = self.toolbar2.widgetForAction(self.editor.action_block_style)
         w.setPopupMode(w.InstantPopup)
-        self.toolbar1.addAction(self.editor.action_insert_link)
+        self.toolbar2.addAction(self.editor.action_insert_link)
+        # }}}
+
+        # toolbar3 {{{
+        for x in ('bold', 'italic', 'underline', 'strikethrough'):
+            ac = getattr(self.editor, 'action_'+x)
+            self.toolbar3.addAction(ac)
+        self.toolbar3.addSeparator()
+
+        for x in ('left', 'center', 'right', 'justified'):
+            ac = getattr(self.editor, 'action_align_'+x)
+            self.toolbar3.addAction(ac)
+        self.toolbar3.addSeparator()
+        self.toolbar3.addAction(self.editor.action_color)
+        # }}}
 
         self.code_edit.textChanged.connect(self.code_dirtied)
         self.editor.page().contentsChanged.connect(self.wyswyg_dirtied)

@@ -173,6 +173,8 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
                 extra.append('%s: %s<br />'%(xml(name), xml(format_tag_string(val, ',',
                                                            ignore_max=True,
                                                            no_tag_count=True))))
+            elif datatype == 'comments':
+                extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode(val))))
             else:
                 extra.append('%s: %s<br />'%(xml(name), xml(unicode(val))))
     comments = item[FM['comments']]
