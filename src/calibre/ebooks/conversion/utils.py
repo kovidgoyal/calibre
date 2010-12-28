@@ -135,11 +135,10 @@ class PreProcessor(object):
 
         is_pdftohtml = self.is_pdftohtml(html)
         if is_pdftohtml:
-            print "this is a pdf"
-        chapter_line_open = "<(?P<outer>p)[^>]*>(\s*<[ibu][^>]*>)?\s*"
-        chapter_line_close = "\s*(</[ibu][^>]*>\s*)?</(?P=outer)>"
-        title_line_open = "<(?P<outer2>p)[^>]*>\s*"
-        title_line_close = "\s*</(?P=outer2)>"
+            chapter_line_open = "<(?P<outer>p)[^>]*>(\s*<[ibu][^>]*>)?\s*"
+            chapter_line_close = "\s*(</[ibu][^>]*>\s*)?</(?P=outer)>"
+            title_line_open = "<(?P<outer2>p)[^>]*>\s*"
+            title_line_close = "\s*</(?P=outer2)>"
 
 
         if blanks_between_paragraphs:
