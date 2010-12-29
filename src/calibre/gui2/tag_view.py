@@ -10,20 +10,20 @@ Browsing book collection by tags.
 from itertools import izip
 from functools import partial
 
-from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
-                     QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
+from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
+                     QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox,\
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
-                     QPushButton, QWidget, QItemDelegate
+                     QPushButton, QWidget, QItemDelegate, QLineEdit
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.library.database2 import Tag
 from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key, upper
+from calibre.utils.icu import sort_key, upper, lower
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.formatter import eval_formatter
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
@@ -54,6 +54,8 @@ class TagDelegate(QItemDelegate): # {{{
             painter.setClipRect(r)
 
         # Paint the text
+        if item.boxed:
+            painter.drawRoundedRect(r, 5, 5)
         r.setLeft(r.left()+r.height()+3)
         painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
                         model.data(index, Qt.DisplayRole).toString())
@@ -357,6 +359,7 @@ class TagTreeItem(object): # {{{
                  parent=None, tooltip=None, category_key=None):
         self.parent = parent
         self.children = []
+        self.boxed = False
         if self.parent is not None:
             self.parent.append(self)
         if data is None:
@@ -940,6 +943,79 @@ class TagsModel(QAbstractItemModel): # {{{
                         ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
         return ans
 
+    def find_node(self, txt, start_index):
+        if not txt:
+            return None
+        txt = lower(txt)
+        if start_index is None:
+            start_index = QModelIndex()
+        self.node_found = None
+
+        def process_tag(depth, tag_index, tag_item, start_path):
+            path = self.path_for_index(tag_index)
+            if depth < len(start_path) and path[depth] <= start_path[depth]:
+                return False
+            tag = tag_item.tag
+            if tag is None:
+                return False
+            if lower(tag.name).find(txt) >= 0:
+                self.node_found = tag_index
+                return True
+            return False
+
+        def process_level(depth, category_index, start_path):
+            path = self.path_for_index(category_index)
+            if depth < len(start_path):
+                if path[depth] < start_path[depth]:
+                    return False
+                if path[depth] > start_path[depth]:
+                    start_path = path
+            for j in xrange(self.rowCount(category_index)):
+                tag_index = self.index(j, 0, category_index)
+                tag_item = tag_index.internalPointer()
+                if tag_item.type == TagTreeItem.CATEGORY:
+                    if process_level(depth+1, tag_index, start_path):
+                        return True
+                else:
+                    if process_tag(depth+1, tag_index, tag_item, start_path):
+                        return True
+            return False
+
+        for i in xrange(self.rowCount(QModelIndex())):
+            if process_level(0, self.index(i, 0, QModelIndex()),
+                                  self.path_for_index(start_index)):
+                break
+        return self.node_found
+
+    def show_item_at_index(self, idx, box=False):
+        if idx.isValid():
+            tag_item = idx.internalPointer()
+            self.tags_view.setCurrentIndex(idx)
+            self.tags_view.scrollTo(idx, QTreeView.PositionAtCenter)
+            if box:
+                tag_item.boxed = True
+                self.dataChanged.emit(idx, idx)
+
+    def clear_boxed(self):
+        def process_tag(tag_index, tag_item):
+            if tag_item.boxed:
+                tag_item.boxed = False
+                self.dataChanged.emit(tag_index, tag_index)
+
+        def process_level(category_index):
+            for j in xrange(self.rowCount(category_index)):
+                tag_index = self.index(j, 0, category_index)
+                tag_item = tag_index.internalPointer()
+                if tag_item.type == TagTreeItem.CATEGORY:
+                    process_level(tag_index)
+                else:
+                    process_tag(tag_index, tag_item)
+
+        for i in xrange(self.rowCount(QModelIndex())):
+            process_level(self.index(i, 0, QModelIndex()))
+
+
+
     # }}}
 
 class TagBrowserMixin(object): # {{{
@@ -1059,6 +1135,24 @@ class TagBrowserWidget(QWidget): # {{{
         self.setLayout(self._layout)
         self._layout.setContentsMargins(0,0,0,0)
 
+        search_layout = QHBoxLayout()
+        self._layout.addLayout(search_layout)
+        self.item_search = QLineEdit(parent)
+        try:
+            self.item_search.setPlaceholderText(_('Find item in tag browser'))
+        except:
+            # Using Qt < 4.7
+            pass
+        search_layout.addWidget(self.item_search)
+        self.search_button = QPushButton()
+        self.search_button.setText(_('Find!'))
+        self.search_button.setFixedWidth(40)
+        search_layout.addWidget(self.search_button)
+        self.current_position = None
+        self.search_button.clicked.connect(self.find)
+        self.item_search.editingFinished.connect(self.find)
+        self.item_search.textChanged.connect(self.find_text_changed)
+
         parent.tags_view = TagsView(parent)
         self.tags_view = parent.tags_view
         self._layout.addWidget(parent.tags_view)
@@ -1092,6 +1186,22 @@ class TagBrowserWidget(QWidget): # {{{
 
     def set_pane_is_visible(self, to_what):
         self.tags_view.set_pane_is_visible(to_what)
+
+    def find_text_changed(self, str):
+        self.current_position = None
+
+    def find(self):
+        self.search_button.setFocus(True)
+        model = self.tags_view.model()
+        model.clear_boxed()
+        self.current_position =\
+            model.find_node(unicode(self.item_search.text()), self.current_position)
+        if self.current_position:
+            model.show_item_at_index(self.current_position, box=True)
+        elif self.item_search.text():
+            warning_dialog(self.tags_view, _('No item found'),
+                        _('No (more) matches for that search')).exec_()
+
 
 
 # }}}
