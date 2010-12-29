@@ -11,8 +11,9 @@ Based on Text::Unidecode's xAB.pm lists. This combines all xAB.pm files into
 a single dictionary.
 '''
 
+
 CODEPOINTS = {
-	u'x20': [
+	'x20': [
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', '', '',
 		'-', '-', '-', '-', '--', '--', '||', '_', '\'', '\'', ',', '\'', '"', '"', ',,', '"',
 		'+', '++', '*', '*>', '.', '..', '...', '.', '\n', '\n\n', '', '', '', '', '', ' ',
@@ -30,7 +31,7 @@ CODEPOINTS = {
 		'', '', '', '', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'x25': [
+	'x25': [
 		'-', '-', '|', '|', '-', '-', '|', '|', '-', '-', '|', '|', '+', '+', '+', '+',
 		'+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+',
 		'+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+',
@@ -48,7 +49,7 @@ CODEPOINTS = {
 		'*', '*', '*', '*', '*', '*', '*', '#', '#', '#', '#', '#', '^', '^', '^', 'O',
 		'#', '#', '#', '#', '#', '#', '#', '#', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'x1e': [
+	'x1e': [
 		'A', 'a', 'B', 'b', 'B', 'b', 'B', 'b', 'C', 'c', 'D', 'd', 'D', 'd', 'D', 'd',
 		'D', 'd', 'D', 'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'F', 'f',
 		'G', 'g', 'H', 'h', 'H', 'h', 'H', 'h', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i',
@@ -66,7 +67,7 @@ CODEPOINTS = {
 		'O', 'o', 'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u',
 		'U', 'u', 'Y', 'y', 'Y', 'y', 'Y', 'y', 'Y', 'y', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xae': [
+	'xae': [
 		'geul', 'geulg', 'geulm', 'geulb', 'geuls', 'geult', 'geulp', 'geulh', 'geum', 'geub', 'geubs', 'geus', 'geuss', 'geung', 'geuj', 'geuc',
 		'geuk', 'geut', 'geup', 'geuh', 'gyi', 'gyig', 'gyigg', 'gyigs', 'gyin', 'gyinj', 'gyinh', 'gyid', 'gyil', 'gyilg', 'gyilm', 'gyilb',
 		'gyils', 'gyilt', 'gyilp', 'gyilh', 'gyim', 'gyib', 'gyibs', 'gyis', 'gyiss', 'gying', 'gyij', 'gyic', 'gyik', 'gyit', 'gyip', 'gyih',
@@ -84,7 +85,7 @@ CODEPOINTS = {
 		'ggel', 'ggelg', 'ggelm', 'ggelb', 'ggels', 'ggelt', 'ggelp', 'ggelh', 'ggem', 'ggeb', 'ggebs', 'gges', 'ggess', 'ggeng', 'ggej', 'ggec',
 		'ggek', 'gget', 'ggep', 'ggeh', 'ggyeo', 'ggyeog', 'ggyeogg', 'ggyeogs', 'ggyeon', 'ggyeonj', 'ggyeonh', 'ggyeod', 'ggyeol', 'ggyeolg', 'ggyeolm', 'ggyeolb',
 	],
-	u'xa2': [
+	'xa2': [
 		'kax', 'ka', 'kap', 'kuox', 'kuo', 'kuop', 'kot', 'kox', 'ko', 'kop', 'ket', 'kex', 'ke', 'kep', 'kut', 'kux',
 		'ku', 'kup', 'kurx', 'kur', 'ggit', 'ggix', 'ggi', 'ggiex', 'ggie', 'ggiep', 'ggat', 'ggax', 'gga', 'ggap', 'gguot', 'gguox',
 		'gguo', 'gguop', 'ggot', 'ggox', 'ggo', 'ggop', 'gget', 'ggex', 'gge', 'ggep', 'ggut', 'ggux', 'ggu', 'ggup', 'ggurx', 'ggur',
@@ -102,7 +103,7 @@ CODEPOINTS = {
 		'zze', 'zzep', 'zzux', 'zzu', 'zzup', 'zzurx', 'zzur', 'zzyt', 'zzyx', 'zzy', 'zzyp', 'zzyrx', 'zzyr', 'nzit', 'nzix', 'nzi',
 		'nzip', 'nziex', 'nzie', 'nziep', 'nzat', 'nzax', 'nza', 'nzap', 'nzuox', 'nzuo', 'nzox', 'nzop', 'nzex', 'nze', 'nzux', 'nzu',
 	],
-	u'xc2': [
+	'xc2': [
 		'syon', 'syonj', 'syonh', 'syod', 'syol', 'syolg', 'syolm', 'syolb', 'syols', 'syolt', 'syolp', 'syolh', 'syom', 'syob', 'syobs', 'syos',
 		'syoss', 'syong', 'syoj', 'syoc', 'syok', 'syot', 'syop', 'syoh', 'su', 'sug', 'sugg', 'sugs', 'sun', 'sunj', 'sunh', 'sud',
 		'sul', 'sulg', 'sulm', 'sulb', 'suls', 'sult', 'sulp', 'sulh', 'sum', 'sub', 'subs', 'sus', 'suss', 'sung', 'suj', 'suc',
@@ -120,7 +121,7 @@ CODEPOINTS = {
 		'sin', 'sinj', 'sinh', 'sid', 'sil', 'silg', 'silm', 'silb', 'sils', 'silt', 'silp', 'silh', 'sim', 'sib', 'sibs', 'sis',
 		'siss', 'sing', 'sij', 'sic', 'sik', 'sit', 'sip', 'sih', 'ssa', 'ssag', 'ssagg', 'ssags', 'ssan', 'ssanj', 'ssanh', 'ssad',
 	],
-	u'x03': [
+	'x03': [
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
@@ -138,7 +139,7 @@ CODEPOINTS = {
 		'Sp', 'sp', 'Sh', 'sh', 'F', 'f', 'Kh', 'kh', 'H', 'h', 'G', 'g', 'CH', 'ch', 'Ti', 'ti',
 		'k', 'r', 'c', 'j', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xc5': [
+	'xc5': [
 		'sseum', 'sseub', 'sseubs', 'sseus', 'sseuss', 'sseung', 'sseuj', 'sseuc', 'sseuk', 'sseut', 'sseup', 'sseuh', 'ssyi', 'ssyig', 'ssyigg', 'ssyigs',
 		'ssyin', 'ssyinj', 'ssyinh', 'ssyid', 'ssyil', 'ssyilg', 'ssyilm', 'ssyilb', 'ssyils', 'ssyilt', 'ssyilp', 'ssyilh', 'ssyim', 'ssyib', 'ssyibs', 'ssyis',
 		'ssyiss', 'ssying', 'ssyij', 'ssyic', 'ssyik', 'ssyit', 'ssyip', 'ssyih', 'ssi', 'ssig', 'ssigg', 'ssigs', 'ssin', 'ssinj', 'ssinh', 'ssid',
@@ -156,7 +157,7 @@ CODEPOINTS = {
 		'em', 'eb', 'ebs', 'es', 'ess', 'eng', 'ej', 'ec', 'ek', 'et', 'ep', 'eh', 'yeo', 'yeog', 'yeogg', 'yeogs',
 		'yeon', 'yeonj', 'yeonh', 'yeod', 'yeol', 'yeolg', 'yeolm', 'yeolb', 'yeols', 'yeolt', 'yeolp', 'yeolh', 'yeom', 'yeob', 'yeobs', 'yeos',
 	],
-	u'xfb': [
+	'xfb': [
 		'ff', 'fi', 'fl', 'ffi', 'ffl', 'st', 'st', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', 'mn', 'me', 'mi', 'vn', 'mkh', '[?]', '[?]', '[?]', '[?]', '[?]', 'yi', '', 'ay',
 		'`', '', 'd', 'h', 'k', 'l', 'm', 'm', 't', '+', 'sh', 's', 'sh', 's', 'a', 'a',
@@ -174,7 +175,7 @@ CODEPOINTS = {
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 	],
-	u'x06': [
+	'x06': [
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', ',', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', ';', '[?]', '[?]', '[?]', '?',
 		'[?]', '', 'a', '\'', 'w\'', '', 'y\'', '', 'b', '@', 't', 'th', 'j', 'H', 'kh', 'd',
@@ -192,7 +193,7 @@ CODEPOINTS = {
 		'', '', '', '', '', '', '', '', '', '^', '', '', '', '', '[?]', '[?]',
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Sh', 'D', 'Gh', '&', '+m',
 	],
-	u'x07': [
+	'x07': [
 		'//', '/', ',', '!', '!', '-', ',', ',', ';', '?', '~', '\{', '\}', '*', '[?]', '',
 		'\'', '', 'b', 'g', 'g', 'd', 'd', 'h', 'w', 'z', 'H', 't', 't', 'y', 'yh', 'k',
 		'l', 'm', 'n', 's', 's', '`', 'p', 'p', 'S', 'q', 'r', 'sh', 't', '[?]', '[?]', '[?]',
@@ -210,7 +211,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xcc': [
+	'xcc': [
 		'jjyim', 'jjyib', 'jjyibs', 'jjyis', 'jjyiss', 'jjying', 'jjyij', 'jjyic', 'jjyik', 'jjyit', 'jjyip', 'jjyih', 'jji', 'jjig', 'jjigg', 'jjigs',
 		'jjin', 'jjinj', 'jjinh', 'jjid', 'jjil', 'jjilg', 'jjilm', 'jjilb', 'jjils', 'jjilt', 'jjilp', 'jjilh', 'jjim', 'jjib', 'jjibs', 'jjis',
 		'jjiss', 'jjing', 'jjij', 'jjic', 'jjik', 'jjit', 'jjip', 'jjih', 'ca', 'cag', 'cagg', 'cags', 'can', 'canj', 'canh', 'cad',
@@ -228,7 +229,7 @@ CODEPOINTS = {
 		'cyeom', 'cyeob', 'cyeobs', 'cyeos', 'cyeoss', 'cyeong', 'cyeoj', 'cyeoc', 'cyeok', 'cyeot', 'cyeop', 'cyeoh', 'cye', 'cyeg', 'cyegg', 'cyegs',
 		'cyen', 'cyenj', 'cyenh', 'cyed', 'cyel', 'cyelg', 'cyelm', 'cyelb', 'cyels', 'cyelt', 'cyelp', 'cyelh', 'cyem', 'cyeb', 'cyebs', 'cyes',
 	],
-	u'xc6': [
+	'xc6': [
 		'yeoss', 'yeong', 'yeoj', 'yeoc', 'yeok', 'yeot', 'yeop', 'yeoh', 'ye', 'yeg', 'yegg', 'yegs', 'yen', 'yenj', 'yenh', 'yed',
 		'yel', 'yelg', 'yelm', 'yelb', 'yels', 'yelt', 'yelp', 'yelh', 'yem', 'yeb', 'yebs', 'yes', 'yess', 'yeng', 'yej', 'yec',
 		'yek', 'yet', 'yep', 'yeh', 'o', 'og', 'ogg', 'ogs', 'on', 'onj', 'onh', 'od', 'ol', 'olg', 'olm', 'olb',
@@ -246,7 +247,7 @@ CODEPOINTS = {
 		'weoss', 'weong', 'weoj', 'weoc', 'weok', 'weot', 'weop', 'weoh', 'we', 'weg', 'wegg', 'wegs', 'wen', 'wenj', 'wenh', 'wed',
 		'wel', 'welg', 'welm', 'welb', 'wels', 'welt', 'welp', 'welh', 'wem', 'web', 'webs', 'wes', 'wess', 'weng', 'wej', 'wec',
 	],
-	u'xb8': [
+	'xb8': [
 		'reoss', 'reong', 'reoj', 'reoc', 'reok', 'reot', 'reop', 'reoh', 're', 'reg', 'regg', 'regs', 'ren', 'renj', 'renh', 'red',
 		'rel', 'relg', 'relm', 'relb', 'rels', 'relt', 'relp', 'relh', 'rem', 'reb', 'rebs', 'res', 'ress', 'reng', 'rej', 'rec',
 		'rek', 'ret', 'rep', 'reh', 'ryeo', 'ryeog', 'ryeogg', 'ryeogs', 'ryeon', 'ryeonj', 'ryeonh', 'ryeod', 'ryeol', 'ryeolg', 'ryeolm', 'ryeolb',
@@ -264,7 +265,7 @@ CODEPOINTS = {
 		'ryoss', 'ryong', 'ryoj', 'ryoc', 'ryok', 'ryot', 'ryop', 'ryoh', 'ru', 'rug', 'rugg', 'rugs', 'run', 'runj', 'runh', 'rud',
 		'rul', 'rulg', 'rulm', 'rulb', 'ruls', 'rult', 'rulp', 'rulh', 'rum', 'rub', 'rubs', 'rus', 'russ', 'rung', 'ruj', 'ruc',
 	],
-	u'x33': [
+	'x33': [
 		'apartment', 'alpha', 'ampere', 'are', 'inning', 'inch', 'won', 'escudo', 'acre', 'ounce', 'ohm', 'kai-ri', 'carat', 'calorie', 'gallon', 'gamma',
 		'giga', 'guinea', 'curie', 'guilder', 'kilo', 'kilogram', 'kilometer', 'kilowatt', 'gram', 'gram ton', 'cruzeiro', 'krone', 'case', 'koruna', 'co-op', 'cycle',
 		'centime', 'shilling', 'centi', 'cent', 'dozen', 'desi', 'dollar', 'ton', 'nano', 'knot', 'heights', 'percent', 'parts', 'barrel', 'piaster', 'picul',
@@ -282,7 +283,7 @@ CODEPOINTS = {
 		'1d', '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d', '10d', '11d', '12d', '13d', '14d', '15d', '16d',
 		'17d', '18d', '19d', '20d', '21d', '22d', '23d', '24d', '25d', '26d', '27d', '28d', '29d', '30d', '31d',
 	],
-	u'x32': [
+	'x32': [
 		'(g)', '(n)', '(d)', '(r)', '(m)', '(b)', '(s)', '()', '(j)', '(c)', '(k)', '(t)', '(p)', '(h)', '(ga)', '(na)',
 		'(da)', '(ra)', '(ma)', '(ba)', '(sa)', '(a)', '(ja)', '(ca)', '(ka)', '(ta)', '(pa)', '(ha)', '(ju)', '[?]', '[?]', '[?]',
 		'(1) ', '(2) ', '(3) ', '(4) ', '(5) ', '(6) ', '(7) ', '(8) ', '(9) ', '(10) ', '(Yue) ', '(Huo) ', '(Shui) ', '(Mu) ', '(Jin) ', '(Tu) ',
@@ -300,7 +301,7 @@ CODEPOINTS = {
 		'ti', 'tu', 'te', 'to', 'na', 'ni', 'nu', 'ne', 'no', 'ha', 'hi', 'hu', 'he', 'ho', 'ma', 'mi',
 		'mu', 'me', 'mo', 'ya', 'yu', 'yo', 'ra', 'ri', 'ru', 're', 'ro', 'wa', 'wi', 'we', 'wo',
 	],
-	u'x04': [
+	'x04': [
 		'Ie', 'Io', 'Dj', 'Gj', 'Ie', 'Dz', 'I', 'Yi', 'J', 'Lj', 'Nj', 'Tsh', 'Kj', 'I', 'U', 'Dzh',
 		'A', 'B', 'V', 'G', 'D', 'Ie', 'Zh', 'Z', 'I', 'I', 'K', 'L', 'M', 'N', 'O', 'P',
 		'R', 'S', 'T', 'U', 'F', 'Kh', 'Ts', 'Ch', 'Sh', 'Shch', '', 'Y', '\'', 'E', 'Iu', 'Ia',
@@ -318,7 +319,7 @@ CODEPOINTS = {
 		'Dz', 'dz', 'I', 'i', 'I', 'i', 'O', 'o', 'O', 'o', 'O', 'o', 'E', 'e', 'U', 'u',
 		'U', 'u', 'U', 'u', 'Ch', 'ch', '[?]', '[?]', 'Y', 'y', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xb6': [
+	'xb6': [
 		'ddyels', 'ddyelt', 'ddyelp', 'ddyelh', 'ddyem', 'ddyeb', 'ddyebs', 'ddyes', 'ddyess', 'ddyeng', 'ddyej', 'ddyec', 'ddyek', 'ddyet', 'ddyep', 'ddyeh',
 		'ddo', 'ddog', 'ddogg', 'ddogs', 'ddon', 'ddonj', 'ddonh', 'ddod', 'ddol', 'ddolg', 'ddolm', 'ddolb', 'ddols', 'ddolt', 'ddolp', 'ddolh',
 		'ddom', 'ddob', 'ddobs', 'ddos', 'ddoss', 'ddong', 'ddoj', 'ddoc', 'ddok', 'ddot', 'ddop', 'ddoh', 'ddwa', 'ddwag', 'ddwagg', 'ddwags',
@@ -336,7 +337,7 @@ CODEPOINTS = {
 		'ddwels', 'ddwelt', 'ddwelp', 'ddwelh', 'ddwem', 'ddweb', 'ddwebs', 'ddwes', 'ddwess', 'ddweng', 'ddwej', 'ddwec', 'ddwek', 'ddwet', 'ddwep', 'ddweh',
 		'ddwi', 'ddwig', 'ddwigg', 'ddwigs', 'ddwin', 'ddwinj', 'ddwinh', 'ddwid', 'ddwil', 'ddwilg', 'ddwilm', 'ddwilb', 'ddwils', 'ddwilt', 'ddwilp', 'ddwilh',
 	],
-	u'x23': [
+	'x23': [
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
@@ -354,7 +355,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xbc': [
+	'xbc': [
 		'mil', 'milg', 'milm', 'milb', 'mils', 'milt', 'milp', 'milh', 'mim', 'mib', 'mibs', 'mis', 'miss', 'ming', 'mij', 'mic',
 		'mik', 'mit', 'mip', 'mih', 'ba', 'bag', 'bagg', 'bags', 'ban', 'banj', 'banh', 'bad', 'bal', 'balg', 'balm', 'balb',
 		'bals', 'balt', 'balp', 'balh', 'bam', 'bab', 'babs', 'bas', 'bass', 'bang', 'baj', 'bac', 'bak', 'bat', 'bap', 'bah',
@@ -372,7 +373,7 @@ CODEPOINTS = {
 		'byel', 'byelg', 'byelm', 'byelb', 'byels', 'byelt', 'byelp', 'byelh', 'byem', 'byeb', 'byebs', 'byes', 'byess', 'byeng', 'byej', 'byec',
 		'byek', 'byet', 'byep', 'byeh', 'bo', 'bog', 'bogg', 'bogs', 'bon', 'bonj', 'bonh', 'bod', 'bol', 'bolg', 'bolm', 'bolb',
 	],
-	u'x2f': [
+	'x2f': [
 		'[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ',
 		'[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ',
 		'[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ',
@@ -390,7 +391,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?]', '[?]', '[?]',
 	],
-	u'xb4': [
+	'xb4': [
 		'dwaen', 'dwaenj', 'dwaenh', 'dwaed', 'dwael', 'dwaelg', 'dwaelm', 'dwaelb', 'dwaels', 'dwaelt', 'dwaelp', 'dwaelh', 'dwaem', 'dwaeb', 'dwaebs', 'dwaes',
 		'dwaess', 'dwaeng', 'dwaej', 'dwaec', 'dwaek', 'dwaet', 'dwaep', 'dwaeh', 'doe', 'doeg', 'doegg', 'doegs', 'doen', 'doenj', 'doenh', 'doed',
 		'doel', 'doelg', 'doelm', 'doelb', 'doels', 'doelt', 'doelp', 'doelh', 'doem', 'doeb', 'doebs', 'does', 'doess', 'doeng', 'doej', 'doec',
@@ -408,7 +409,7 @@ CODEPOINTS = {
 		'deun', 'deunj', 'deunh', 'deud', 'deul', 'deulg', 'deulm', 'deulb', 'deuls', 'deult', 'deulp', 'deulh', 'deum', 'deub', 'deubs', 'deus',
 		'deuss', 'deung', 'deuj', 'deuc', 'deuk', 'deut', 'deup', 'deuh', 'dyi', 'dyig', 'dyigg', 'dyigs', 'dyin', 'dyinj', 'dyinh', 'dyid',
 	],
-	u'xc9': [
+	'xc9': [
 		'jun', 'junj', 'junh', 'jud', 'jul', 'julg', 'julm', 'julb', 'juls', 'jult', 'julp', 'julh', 'jum', 'jub', 'jubs', 'jus',
 		'juss', 'jung', 'juj', 'juc', 'juk', 'jut', 'jup', 'juh', 'jweo', 'jweog', 'jweogg', 'jweogs', 'jweon', 'jweonj', 'jweonh', 'jweod',
 		'jweol', 'jweolg', 'jweolm', 'jweolb', 'jweols', 'jweolt', 'jweolp', 'jweolh', 'jweom', 'jweob', 'jweobs', 'jweos', 'jweoss', 'jweong', 'jweoj', 'jweoc',
@@ -426,7 +427,7 @@ CODEPOINTS = {
 		'jjan', 'jjanj', 'jjanh', 'jjad', 'jjal', 'jjalg', 'jjalm', 'jjalb', 'jjals', 'jjalt', 'jjalp', 'jjalh', 'jjam', 'jjab', 'jjabs', 'jjas',
 		'jjass', 'jjang', 'jjaj', 'jjac', 'jjak', 'jjat', 'jjap', 'jjah', 'jjae', 'jjaeg', 'jjaegg', 'jjaegs', 'jjaen', 'jjaenj', 'jjaenh', 'jjaed',
 	],
-	u'xb7': [
+	'xb7': [
 		'ddwim', 'ddwib', 'ddwibs', 'ddwis', 'ddwiss', 'ddwing', 'ddwij', 'ddwic', 'ddwik', 'ddwit', 'ddwip', 'ddwih', 'ddyu', 'ddyug', 'ddyugg', 'ddyugs',
 		'ddyun', 'ddyunj', 'ddyunh', 'ddyud', 'ddyul', 'ddyulg', 'ddyulm', 'ddyulb', 'ddyuls', 'ddyult', 'ddyulp', 'ddyulh', 'ddyum', 'ddyub', 'ddyubs', 'ddyus',
 		'ddyuss', 'ddyung', 'ddyuj', 'ddyuc', 'ddyuk', 'ddyut', 'ddyup', 'ddyuh', 'ddeu', 'ddeug', 'ddeugg', 'ddeugs', 'ddeun', 'ddeunj', 'ddeunh', 'ddeud',
@@ -444,7 +445,7 @@ CODEPOINTS = {
 		'ryaem', 'ryaeb', 'ryaebs', 'ryaes', 'ryaess', 'ryaeng', 'ryaej', 'ryaec', 'ryaek', 'ryaet', 'ryaep', 'ryaeh', 'reo', 'reog', 'reogg', 'reogs',
 		'reon', 'reonj', 'reonh', 'reod', 'reol', 'reolg', 'reolm', 'reolb', 'reols', 'reolt', 'reolp', 'reolh', 'reom', 'reob', 'reobs', 'reos',
 	],
-	u'xbe': [
+	'xbe': [
 		'byum', 'byub', 'byubs', 'byus', 'byuss', 'byung', 'byuj', 'byuc', 'byuk', 'byut', 'byup', 'byuh', 'beu', 'beug', 'beugg', 'beugs',
 		'beun', 'beunj', 'beunh', 'beud', 'beul', 'beulg', 'beulm', 'beulb', 'beuls', 'beult', 'beulp', 'beulh', 'beum', 'beub', 'beubs', 'beus',
 		'beuss', 'beung', 'beuj', 'beuc', 'beuk', 'beut', 'beup', 'beuh', 'byi', 'byig', 'byigg', 'byigs', 'byin', 'byinj', 'byinh', 'byid',
@@ -462,7 +463,7 @@ CODEPOINTS = {
 		'bbeom', 'bbeob', 'bbeobs', 'bbeos', 'bbeoss', 'bbeong', 'bbeoj', 'bbeoc', 'bbeok', 'bbeot', 'bbeop', 'bbeoh', 'bbe', 'bbeg', 'bbegg', 'bbegs',
 		'bben', 'bbenj', 'bbenh', 'bbed', 'bbel', 'bbelg', 'bbelm', 'bbelb', 'bbels', 'bbelt', 'bbelp', 'bbelh', 'bbem', 'bbeb', 'bbebs', 'bbes',
 	],
-	u'x10': [
+	'x10': [
 		'k', 'kh', 'g', 'gh', 'ng', 'c', 'ch', 'j', 'jh', 'ny', 'nny', 'tt', 'tth', 'dd', 'ddh', 'nn',
 		'tt', 'th', 'd', 'dh', 'n', 'p', 'ph', 'b', 'bh', 'm', 'y', 'r', 'l', 'w', 's', 'h',
 		'll', 'a', '[?]', 'i', 'ii', 'u', 'uu', 'e', '[?]', 'o', 'au', '[?]', 'aa', 'i', 'ii', 'u',
@@ -480,7 +481,7 @@ CODEPOINTS = {
 		'r', 's', 't', 'u', 'p`', 'k`', 'g\'', 'q', 'sh', 'ch`', 'c`', 'z\'', 'c', 'ch', 'x', 'j',
 		'h', 'e', 'y', 'w', 'xh', 'oe', 'f', '[?]', '[?]', '[?]', '[?]', ' // ', '[?]', '[?]', '[?]',
 	],
-	u'x1f': [
+	'x1f': [
 		'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A',
 		'e', 'e', 'e', 'e', 'e', 'e', '[?]', '[?]', 'E', 'E', 'E', 'E', 'E', 'E', '[?]', '[?]',
 		'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E',
@@ -498,7 +499,7 @@ CODEPOINTS = {
 		'u', 'u', 'u', 'u', 'R', 'R', 'u', 'u', 'U', 'U', 'U', 'U', 'R', '"`', '"\'', '`',
 		'[?]', '[?]', 'o', 'o', 'o', '[?]', 'o', 'o', 'O', 'O', 'O', 'O', 'O', '\'', '`',
 	],
-	u'x31': [
+	'x31': [
 		'[?]', '[?]', '[?]', '[?]', '[?]', 'B', 'P', 'M', 'F', 'D', 'T', 'N', 'L', 'G', 'K', 'H',
 		'J', 'Q', 'X', 'ZH', 'CH', 'SH', 'R', 'Z', 'C', 'S', 'A', 'O', 'E', 'EH', 'AI', 'EI',
 		'AU', 'OU', 'AN', 'EN', 'ANG', 'ENG', 'ER', 'I', 'U', 'IU', 'V', 'NG', 'GN', '[?]', '[?]', '[?]',
@@ -516,7 +517,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'x18': [
+	'x18': [
 		' @ ', ' ... ', ', ', '. ', ': ', ' // ', '', '-', ', ', '. ', '', '', '', '', '', '[?]',
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'a', 'e', 'i', 'o', 'u', 'O', 'U', 'ee', 'n', 'ng', 'b', 'p', 'q', 'g', 'm', 'l',
@@ -534,7 +535,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'x11': [
+	'x11': [
 		'g', 'gg', 'n', 'd', 'dd', 'r', 'm', 'b', 'bb', 's', 'ss', '', 'j', 'jj', 'c', 'k',
 		't', 'p', 'h', 'ng', 'nn', 'nd', 'nb', 'dg', 'rn', 'rr', 'rh', 'rN', 'mb', 'mN', 'bg', 'bn',
 		'', 'bs', 'bsg', 'bst', 'bsb', 'bss', 'bsj', 'bj', 'bc', 'bt', 'bp', 'bN', 'bbN', 'sg', 'sn', 'sd',
@@ -552,7 +553,7 @@ CODEPOINTS = {
 		'mc', 'mh', 'mN', 'bl', 'bp', 'ph', 'pN', 'sg', 'sd', 'sl', 'sb', 'Z', 'g', 'ss', '', 'kh',
 		'N', 'Ns', 'NZ', 'pb', 'pN', 'hn', 'hl', 'hm', 'hb', 'Q', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xcf': [
+	'xcf': [
 		'ke', 'keg', 'kegg', 'kegs', 'ken', 'kenj', 'kenh', 'ked', 'kel', 'kelg', 'kelm', 'kelb', 'kels', 'kelt', 'kelp', 'kelh',
 		'kem', 'keb', 'kebs', 'kes', 'kess', 'keng', 'kej', 'kec', 'kek', 'ket', 'kep', 'keh', 'kyeo', 'kyeog', 'kyeogg', 'kyeogs',
 		'kyeon', 'kyeonj', 'kyeonh', 'kyeod', 'kyeol', 'kyeolg', 'kyeolm', 'kyeolb', 'kyeols', 'kyeolt', 'kyeolp', 'kyeolh', 'kyeom', 'kyeob', 'kyeobs', 'kyeos',
@@ -570,7 +571,7 @@ CODEPOINTS = {
 		'ku', 'kug', 'kugg', 'kugs', 'kun', 'kunj', 'kunh', 'kud', 'kul', 'kulg', 'kulm', 'kulb', 'kuls', 'kult', 'kulp', 'kulh',
 		'kum', 'kub', 'kubs', 'kus', 'kuss', 'kung', 'kuj', 'kuc', 'kuk', 'kut', 'kup', 'kuh', 'kweo', 'kweog', 'kweogg', 'kweogs',
 	],
-	u'x01': [
+	'x01': [
 		'A', 'a', 'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd',
 		'D', 'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g',
 		'G', 'g', 'G', 'g', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i',
@@ -588,7 +589,7 @@ CODEPOINTS = {
 		'A', 'a', 'AE', 'ae', 'G', 'g', 'G', 'g', 'K', 'k', 'O', 'o', 'O', 'o', 'ZH', 'zh',
 		'j', 'DZ', 'D', 'dz', 'G', 'g', 'HV', 'W', 'N', 'n', 'A', 'a', 'AE', 'ae', 'O', 'o',
 	],
-	u'xc7': [
+	'xc7': [
 		'wek', 'wet', 'wep', 'weh', 'wi', 'wig', 'wigg', 'wigs', 'win', 'winj', 'winh', 'wid', 'wil', 'wilg', 'wilm', 'wilb',
 		'wils', 'wilt', 'wilp', 'wilh', 'wim', 'wib', 'wibs', 'wis', 'wiss', 'wing', 'wij', 'wic', 'wik', 'wit', 'wip', 'wih',
 		'yu', 'yug', 'yugg', 'yugs', 'yun', 'yunj', 'yunh', 'yud', 'yul', 'yulg', 'yulm', 'yulb', 'yuls', 'yult', 'yulp', 'yulh',
@@ -606,7 +607,7 @@ CODEPOINTS = {
 		'jyak', 'jyat', 'jyap', 'jyah', 'jyae', 'jyaeg', 'jyaegg', 'jyaegs', 'jyaen', 'jyaenj', 'jyaenh', 'jyaed', 'jyael', 'jyaelg', 'jyaelm', 'jyaelb',
 		'jyaels', 'jyaelt', 'jyaelp', 'jyaelh', 'jyaem', 'jyaeb', 'jyaebs', 'jyaes', 'jyaess', 'jyaeng', 'jyaej', 'jyaec', 'jyaek', 'jyaet', 'jyaep', 'jyaeh',
 	],
-	u'x16': [
+	'x16': [
 		'kka', 'kk', 'nu', 'no', 'ne', 'nee', 'ni', 'na', 'mu', 'mo', 'me', 'mee', 'mi', 'ma', 'yu', 'yo',
 		'ye', 'yee', 'yi', 'ya', 'ju', 'ju', 'jo', 'je', 'jee', 'ji', 'ji', 'ja', 'jju', 'jjo', 'jje', 'jjee',
 		'jji', 'jja', 'lu', 'lo', 'le', 'lee', 'li', 'la', 'dlu', 'dlo', 'dle', 'dlee', 'dli', 'dla', 'lhu', 'lho',
@@ -624,7 +625,7 @@ CODEPOINTS = {
 		'ear', 'ior', 'qu', 'qu', 'qu', 's', 'yr', 'yr', 'yr', 'q', 'x', '.', ':', '+', '17', '18',
 		'19', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xac': [
+	'xac': [
 		'ga', 'gag', 'gagg', 'gags', 'gan', 'ganj', 'ganh', 'gad', 'gal', 'galg', 'galm', 'galb', 'gals', 'galt', 'galp', 'galh',
 		'gam', 'gab', 'gabs', 'gas', 'gass', 'gang', 'gaj', 'gac', 'gak', 'gat', 'gap', 'gah', 'gae', 'gaeg', 'gaegg', 'gaegs',
 		'gaen', 'gaenj', 'gaenh', 'gaed', 'gael', 'gaelg', 'gaelm', 'gaelb', 'gaels', 'gaelt', 'gaelp', 'gaelh', 'gaem', 'gaeb', 'gaebs', 'gaes',
@@ -642,7 +643,7 @@ CODEPOINTS = {
 		'go', 'gog', 'gogg', 'gogs', 'gon', 'gonj', 'gonh', 'god', 'gol', 'golg', 'golm', 'golb', 'gols', 'golt', 'golp', 'golh',
 		'gom', 'gob', 'gobs', 'gos', 'goss', 'gong', 'goj', 'goc', 'gok', 'got', 'gop', 'goh', 'gwa', 'gwag', 'gwagg', 'gwags',
 	],
-	u'xbf': [
+	'xbf': [
 		'bbess', 'bbeng', 'bbej', 'bbec', 'bbek', 'bbet', 'bbep', 'bbeh', 'bbyeo', 'bbyeog', 'bbyeogg', 'bbyeogs', 'bbyeon', 'bbyeonj', 'bbyeonh', 'bbyeod',
 		'bbyeol', 'bbyeolg', 'bbyeolm', 'bbyeolb', 'bbyeols', 'bbyeolt', 'bbyeolp', 'bbyeolh', 'bbyeom', 'bbyeob', 'bbyeobs', 'bbyeos', 'bbyeoss', 'bbyeong', 'bbyeoj', 'bbyeoc',
 		'bbyeok', 'bbyeot', 'bbyeop', 'bbyeoh', 'bbye', 'bbyeg', 'bbyegg', 'bbyegs', 'bbyen', 'bbyenj', 'bbyenh', 'bbyed', 'bbyel', 'bbyelg', 'bbyelm', 'bbyelb',
@@ -660,7 +661,7 @@ CODEPOINTS = {
 		'bbuss', 'bbung', 'bbuj', 'bbuc', 'bbuk', 'bbut', 'bbup', 'bbuh', 'bbweo', 'bbweog', 'bbweogg', 'bbweogs', 'bbweon', 'bbweonj', 'bbweonh', 'bbweod',
 		'bbweol', 'bbweolg', 'bbweolm', 'bbweolb', 'bbweols', 'bbweolt', 'bbweolp', 'bbweolh', 'bbweom', 'bbweob', 'bbweobs', 'bbweos', 'bbweoss', 'bbweong', 'bbweoj', 'bbweoc',
 	],
-	u'xd3': [
+	'xd3': [
 		'tim', 'tib', 'tibs', 'tis', 'tiss', 'ting', 'tij', 'tic', 'tik', 'tit', 'tip', 'tih', 'pa', 'pag', 'pagg', 'pags',
 		'pan', 'panj', 'panh', 'pad', 'pal', 'palg', 'palm', 'palb', 'pals', 'palt', 'palp', 'palh', 'pam', 'pab', 'pabs', 'pas',
 		'pass', 'pang', 'paj', 'pac', 'pak', 'pat', 'pap', 'pah', 'pae', 'paeg', 'paegg', 'paegs', 'paen', 'paenj', 'paenh', 'paed',
@@ -678,7 +679,7 @@ CODEPOINTS = {
 		'pyem', 'pyeb', 'pyebs', 'pyes', 'pyess', 'pyeng', 'pyej', 'pyec', 'pyek', 'pyet', 'pyep', 'pyeh', 'po', 'pog', 'pogg', 'pogs',
 		'pon', 'ponj', 'ponh', 'pod', 'pol', 'polg', 'polm', 'polb', 'pols', 'polt', 'polp', 'polh', 'pom', 'pob', 'pobs', 'pos',
 	],
-	u'x0e': [
+	'x0e': [
 		'[?]', 'k', 'kh', 'kh', 'kh', 'kh', 'kh', 'ng', 'cch', 'ch', 'ch', 'ch', 'ch', 'y', 'd', 't',
 		'th', 'th', 'th', 'n', 'd', 't', 'th', 'th', 'th', 'n', 'b', 'p', 'ph', 'f', 'ph', 'f',
 		'ph', 'm', 'y', 'r', 'R', 'l', 'L', 'w', 's', 's', 's', 'h', 'l', '`', 'h', '~',
@@ -696,7 +697,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xbd': [
+	'xbd': [
 		'bols', 'bolt', 'bolp', 'bolh', 'bom', 'bob', 'bobs', 'bos', 'boss', 'bong', 'boj', 'boc', 'bok', 'bot', 'bop', 'boh',
 		'bwa', 'bwag', 'bwagg', 'bwags', 'bwan', 'bwanj', 'bwanh', 'bwad', 'bwal', 'bwalg', 'bwalm', 'bwalb', 'bwals', 'bwalt', 'bwalp', 'bwalh',
 		'bwam', 'bwab', 'bwabs', 'bwas', 'bwass', 'bwang', 'bwaj', 'bwac', 'bwak', 'bwat', 'bwap', 'bwah', 'bwae', 'bwaeg', 'bwaegg', 'bwaegs',
@@ -714,7 +715,7 @@ CODEPOINTS = {
 		'bwils', 'bwilt', 'bwilp', 'bwilh', 'bwim', 'bwib', 'bwibs', 'bwis', 'bwiss', 'bwing', 'bwij', 'bwic', 'bwik', 'bwit', 'bwip', 'bwih',
 		'byu', 'byug', 'byugg', 'byugs', 'byun', 'byunj', 'byunh', 'byud', 'byul', 'byulg', 'byulm', 'byulb', 'byuls', 'byult', 'byulp', 'byulh',
 	],
-	u'x0c': [
+	'x0c': [
 		'[?]', 'N', 'N', 'H', '[?]', 'a', 'aa', 'i', 'ii', 'u', 'uu', 'R', 'L', '[?]', 'e', 'ee',
 		'ai', '[?]', 'o', 'oo', 'au', 'k', 'kh', 'g', 'gh', 'ng', 'c', 'ch', 'j', 'jh', 'ny', 'tt',
 		'tth', 'dd', 'ddh', 'nn', 't', 'th', 'd', 'dh', 'n', '[?]', 'p', 'ph', 'b', 'bh', 'm', 'y',
@@ -732,7 +733,7 @@ CODEPOINTS = {
 		'RR', 'LL', '[?]', '[?]', '[?]', '[?]', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xd1': [
+	'xd1': [
 		'tyal', 'tyalg', 'tyalm', 'tyalb', 'tyals', 'tyalt', 'tyalp', 'tyalh', 'tyam', 'tyab', 'tyabs', 'tyas', 'tyass', 'tyang', 'tyaj', 'tyac',
 		'tyak', 'tyat', 'tyap', 'tyah', 'tyae', 'tyaeg', 'tyaegg', 'tyaegs', 'tyaen', 'tyaenj', 'tyaenh', 'tyaed', 'tyael', 'tyaelg', 'tyaelm', 'tyaelb',
 		'tyaels', 'tyaelt', 'tyaelp', 'tyaelh', 'tyaem', 'tyaeb', 'tyaebs', 'tyaes', 'tyaess', 'tyaeng', 'tyaej', 'tyaec', 'tyaek', 'tyaet', 'tyaep', 'tyaeh',
@@ -750,7 +751,7 @@ CODEPOINTS = {
 		'twael', 'twaelg', 'twaelm', 'twaelb', 'twaels', 'twaelt', 'twaelp', 'twaelh', 'twaem', 'twaeb', 'twaebs', 'twaes', 'twaess', 'twaeng', 'twaej', 'twaec',
 		'twaek', 'twaet', 'twaep', 'twaeh', 'toe', 'toeg', 'toegg', 'toegs', 'toen', 'toenj', 'toenh', 'toed', 'toel', 'toelg', 'toelm', 'toelb',
 	],
-	u'x26': [
+	'x26': [
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '[?]', '[?]', '[?]', '[?]', '[?]', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
@@ -768,7 +769,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xd4': [
+	'xd4': [
 		'poss', 'pong', 'poj', 'poc', 'pok', 'pot', 'pop', 'poh', 'pwa', 'pwag', 'pwagg', 'pwags', 'pwan', 'pwanj', 'pwanh', 'pwad',
 		'pwal', 'pwalg', 'pwalm', 'pwalb', 'pwals', 'pwalt', 'pwalp', 'pwalh', 'pwam', 'pwab', 'pwabs', 'pwas', 'pwass', 'pwang', 'pwaj', 'pwac',
 		'pwak', 'pwat', 'pwap', 'pwah', 'pwae', 'pwaeg', 'pwaegg', 'pwaegs', 'pwaen', 'pwaenj', 'pwaenh', 'pwaed', 'pwael', 'pwaelg', 'pwaelm', 'pwaelb',
@@ -786,7 +787,7 @@ CODEPOINTS = {
 		'pwiss', 'pwing', 'pwij', 'pwic', 'pwik', 'pwit', 'pwip', 'pwih', 'pyu', 'pyug', 'pyugg', 'pyugs', 'pyun', 'pyunj', 'pyunh', 'pyud',
 		'pyul', 'pyulg', 'pyulm', 'pyulb', 'pyuls', 'pyult', 'pyulp', 'pyulh', 'pyum', 'pyub', 'pyubs', 'pyus', 'pyuss', 'pyung', 'pyuj', 'pyuc',
 	],
-	u'x12': [
+	'x12': [
 		'ha', 'hu', 'hi', 'haa', 'hee', 'he', 'ho', '[?]', 'la', 'lu', 'li', 'laa', 'lee', 'le', 'lo', 'lwa',
 		'hha', 'hhu', 'hhi', 'hhaa', 'hhee', 'hhe', 'hho', 'hhwa', 'ma', 'mu', 'mi', 'maa', 'mee', 'me', 'mo', 'mwa',
 		'sza', 'szu', 'szi', 'szaa', 'szee', 'sze', 'szo', 'szwa', 'ra', 'ru', 'ri', 'raa', 'ree', 're', 'ro', 'rwa',
@@ -804,7 +805,7 @@ CODEPOINTS = {
 		'zha', 'zhu', 'zhi', 'zhaa', 'zhee', 'zhe', 'zho', 'zhwa', 'ya', 'yu', 'yi', 'yaa', 'yee', 'ye', 'yo', '[?]',
 		'da', 'du', 'di', 'daa', 'dee', 'de', 'do', 'dwa', 'dda', 'ddu', 'ddi', 'ddaa', 'ddee', 'dde', 'ddo', 'ddwa',
 	],
-	u'xc8': [
+	'xc8': [
 		'jeo', 'jeog', 'jeogg', 'jeogs', 'jeon', 'jeonj', 'jeonh', 'jeod', 'jeol', 'jeolg', 'jeolm', 'jeolb', 'jeols', 'jeolt', 'jeolp', 'jeolh',
 		'jeom', 'jeob', 'jeobs', 'jeos', 'jeoss', 'jeong', 'jeoj', 'jeoc', 'jeok', 'jeot', 'jeop', 'jeoh', 'je', 'jeg', 'jegg', 'jegs',
 		'jen', 'jenj', 'jenh', 'jed', 'jel', 'jelg', 'jelm', 'jelb', 'jels', 'jelt', 'jelp', 'jelh', 'jem', 'jeb', 'jebs', 'jes',
@@ -822,7 +823,7 @@ CODEPOINTS = {
 		'jyo', 'jyog', 'jyogg', 'jyogs', 'jyon', 'jyonj', 'jyonh', 'jyod', 'jyol', 'jyolg', 'jyolm', 'jyolb', 'jyols', 'jyolt', 'jyolp', 'jyolh',
 		'jyom', 'jyob', 'jyobs', 'jyos', 'jyoss', 'jyong', 'jyoj', 'jyoc', 'jyok', 'jyot', 'jyop', 'jyoh', 'ju', 'jug', 'jugg', 'jugs',
 	],
-	u'xaf': [
+	'xaf': [
 		'ggyeols', 'ggyeolt', 'ggyeolp', 'ggyeolh', 'ggyeom', 'ggyeob', 'ggyeobs', 'ggyeos', 'ggyeoss', 'ggyeong', 'ggyeoj', 'ggyeoc', 'ggyeok', 'ggyeot', 'ggyeop', 'ggyeoh',
 		'ggye', 'ggyeg', 'ggyegg', 'ggyegs', 'ggyen', 'ggyenj', 'ggyenh', 'ggyed', 'ggyel', 'ggyelg', 'ggyelm', 'ggyelb', 'ggyels', 'ggyelt', 'ggyelp', 'ggyelh',
 		'ggyem', 'ggyeb', 'ggyebs', 'ggyes', 'ggyess', 'ggyeng', 'ggyej', 'ggyec', 'ggyek', 'ggyet', 'ggyep', 'ggyeh', 'ggo', 'ggog', 'ggogg', 'ggogs',
@@ -840,7 +841,7 @@ CODEPOINTS = {
 		'ggweols', 'ggweolt', 'ggweolp', 'ggweolh', 'ggweom', 'ggweob', 'ggweobs', 'ggweos', 'ggweoss', 'ggweong', 'ggweoj', 'ggweoc', 'ggweok', 'ggweot', 'ggweop', 'ggweoh',
 		'ggwe', 'ggweg', 'ggwegg', 'ggwegs', 'ggwen', 'ggwenj', 'ggwenh', 'ggwed', 'ggwel', 'ggwelg', 'ggwelm', 'ggwelb', 'ggwels', 'ggwelt', 'ggwelp', 'ggwelh',
 	],
-	u'x28': [
+	'x28': [
 		' ', 'a', '1', 'b', '\'', 'k', '2', 'l', '@', 'c', 'i', 'f', '/', 'm', 's', 'p',
 		'"', 'e', '3', 'h', '9', 'o', '6', 'r', '^', 'd', 'j', 'g', '>', 'n', 't', 'q',
 		',', '*', '5', '<', '-', 'u', '8', 'v', '.', '%', '[', '\$', '+', 'x', '!', '&',
@@ -858,7 +859,7 @@ CODEPOINTS = {
 		'[d678]', '[d1678]', '[d2678]', '[d12678]', '[d3678]', '[d13678]', '[d23678]', '[d123678]', '[d4678]', '[d14678]', '[d24678]', '[d124678]', '[d34678]', '[d134678]', '[d234678]', '[d1234678]',
 		'[d5678]', '[d15678]', '[d25678]', '[d125678]', '[d35678]', '[d135678]', '[d235678]', '[d1235678]', '[d45678]', '[d145678]', '[d245678]', '[d1245678]', '[d345678]', '[d1345678]', '[d2345678]', '[d12345678]',
 	],
-	u'xb1': [
+	'xb1': [
 		'nyaess', 'nyaeng', 'nyaej', 'nyaec', 'nyaek', 'nyaet', 'nyaep', 'nyaeh', 'neo', 'neog', 'neogg', 'neogs', 'neon', 'neonj', 'neonh', 'neod',
 		'neol', 'neolg', 'neolm', 'neolb', 'neols', 'neolt', 'neolp', 'neolh', 'neom', 'neob', 'neobs', 'neos', 'neoss', 'neong', 'neoj', 'neoc',
 		'neok', 'neot', 'neop', 'neoh', 'ne', 'neg', 'negg', 'negs', 'nen', 'nenj', 'nenh', 'ned', 'nel', 'nelg', 'nelm', 'nelb',
@@ -876,7 +877,7 @@ CODEPOINTS = {
 		'noess', 'noeng', 'noej', 'noec', 'noek', 'noet', 'noep', 'noeh', 'nyo', 'nyog', 'nyogg', 'nyogs', 'nyon', 'nyonj', 'nyonh', 'nyod',
 		'nyol', 'nyolg', 'nyolm', 'nyolb', 'nyols', 'nyolt', 'nyolp', 'nyolh', 'nyom', 'nyob', 'nyobs', 'nyos', 'nyoss', 'nyong', 'nyoj', 'nyoc',
 	],
-	u'xfd': [
+	'xfd': [
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
@@ -894,7 +895,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'', '', '', '', '', '', '', '', '', '', '', '', '[?]', '[?]', '[?]',
 	],
-	u'x14': [
+	'x14': [
 		'[?]', 'e', 'aai', 'i', 'ii', 'o', 'oo', 'oo', 'ee', 'i', 'a', 'aa', 'we', 'we', 'wi', 'wi',
 		'wii', 'wii', 'wo', 'wo', 'woo', 'woo', 'woo', 'wa', 'wa', 'waa', 'waa', 'waa', 'ai', 'w', '\'', 't',
 		'k', 'sh', 's', 'n', 'w', 'n', '[?]', 'w', 'c', '?', 'l', 'en', 'in', 'on', 'an', 'pe',
@@ -912,7 +913,7 @@ CODEPOINTS = {
 		'lwii', 'lwii', 'lwo', 'lwo', 'lwoo', 'lwoo', 'lwa', 'lwa', 'lwaa', 'lwaa', 'l', 'l', 'l', 'se', 'saai', 'si',
 		'sii', 'so', 'soo', 'soo', 'sa', 'saa', 'swe', 'swe', 'swi', 'swi', 'swii', 'swii', 'swo', 'swo', 'swoo', 'swoo',
 	],
-	u'x00': [
+	'x00': [
 		'\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d', '\x0e', '\x0f',
 		'\x10', '\x11', '\x12', '\x13', '\x14', '\x15', '\x16', '\x17', '\x18', '\x19', '\x1a', '\x1b', '\x1c', '\x1d', '\x1e', '\x1f',
 		' ', '!', '"', '#', '\$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/',
@@ -930,7 +931,7 @@ CODEPOINTS = {
 		'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i',
 		'd', 'n', 'o', 'o', 'o', 'o', 'o', '/', 'o', 'u', 'u', 'u', 'u', 'y', 'th', 'y',
 	],
-	u'xfe': [
+	'xfe': [
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'', '', '', '~', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
@@ -948,7 +949,7 @@ CODEPOINTS = {
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '[?]', '[?]', '',
 	],
-	u'xad': [
+	'xad': [
 		'gwan', 'gwanj', 'gwanh', 'gwad', 'gwal', 'gwalg', 'gwalm', 'gwalb', 'gwals', 'gwalt', 'gwalp', 'gwalh', 'gwam', 'gwab', 'gwabs', 'gwas',
 		'gwass', 'gwang', 'gwaj', 'gwac', 'gwak', 'gwat', 'gwap', 'gwah', 'gwae', 'gwaeg', 'gwaegg', 'gwaegs', 'gwaen', 'gwaenj', 'gwaenh', 'gwaed',
 		'gwael', 'gwaelg', 'gwaelm', 'gwaelb', 'gwaels', 'gwaelt', 'gwaelp', 'gwaelh', 'gwaem', 'gwaeb', 'gwaebs', 'gwaes', 'gwaess', 'gwaeng', 'gwaej', 'gwaec',
@@ -966,7 +967,7 @@ CODEPOINTS = {
 		'gyun', 'gyunj', 'gyunh', 'gyud', 'gyul', 'gyulg', 'gyulm', 'gyulb', 'gyuls', 'gyult', 'gyulp', 'gyulh', 'gyum', 'gyub', 'gyubs', 'gyus',
 		'gyuss', 'gyung', 'gyuj', 'gyuc', 'gyuk', 'gyut', 'gyup', 'gyuh', 'geu', 'geug', 'geugg', 'geugs', 'geun', 'geunj', 'geunh', 'geud',
 	],
-	u'x05': [
+	'x05': [
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
@@ -984,7 +985,7 @@ CODEPOINTS = {
 		'n', 's', '`', 'p', 'p', 'ts', 'ts', 'q', 'r', 'sh', 't', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'V', 'oy', 'i', '\'', '"', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xce': [
+	'xce': [
 		'cwik', 'cwit', 'cwip', 'cwih', 'cyu', 'cyug', 'cyugg', 'cyugs', 'cyun', 'cyunj', 'cyunh', 'cyud', 'cyul', 'cyulg', 'cyulm', 'cyulb',
 		'cyuls', 'cyult', 'cyulp', 'cyulh', 'cyum', 'cyub', 'cyubs', 'cyus', 'cyuss', 'cyung', 'cyuj', 'cyuc', 'cyuk', 'cyut', 'cyup', 'cyuh',
 		'ceu', 'ceug', 'ceugg', 'ceugs', 'ceun', 'ceunj', 'ceunh', 'ceud', 'ceul', 'ceulg', 'ceulm', 'ceulb', 'ceuls', 'ceult', 'ceulp', 'ceulh',
@@ -1002,7 +1003,7 @@ CODEPOINTS = {
 		'kyaek', 'kyaet', 'kyaep', 'kyaeh', 'keo', 'keog', 'keogg', 'keogs', 'keon', 'keonj', 'keonh', 'keod', 'keol', 'keolg', 'keolm', 'keolb',
 		'keols', 'keolt', 'keolp', 'keolh', 'keom', 'keob', 'keobs', 'keos', 'keoss', 'keong', 'keoj', 'keoc', 'keok', 'keot', 'keop', 'keoh',
 	],
-	u'x2e': [
+	'x2e': [
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
@@ -1020,7 +1021,7 @@ CODEPOINTS = {
 		'[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ', '[?] ',
 		'[?] ', '[?] ', '[?] ', '[?] ', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xd7': [
+	'xd7': [
 		'hwen', 'hwenj', 'hwenh', 'hwed', 'hwel', 'hwelg', 'hwelm', 'hwelb', 'hwels', 'hwelt', 'hwelp', 'hwelh', 'hwem', 'hweb', 'hwebs', 'hwes',
 		'hwess', 'hweng', 'hwej', 'hwec', 'hwek', 'hwet', 'hwep', 'hweh', 'hwi', 'hwig', 'hwigg', 'hwigs', 'hwin', 'hwinj', 'hwinh', 'hwid',
 		'hwil', 'hwilg', 'hwilm', 'hwilb', 'hwils', 'hwilt', 'hwilp', 'hwilh', 'hwim', 'hwib', 'hwibs', 'hwis', 'hwiss', 'hwing', 'hwij', 'hwic',
@@ -1038,7 +1039,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'x21': [
+	'x21': [
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
@@ -1056,7 +1057,7 @@ CODEPOINTS = {
 		'-', '|', '-', '|', '-', '-', '-', '|', '-', '|', '|', '|', '|', '|', '|', '|',
 		'-', '\\', '\\', '|', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xb0': [
+	'xb0': [
 		'ggwem', 'ggweb', 'ggwebs', 'ggwes', 'ggwess', 'ggweng', 'ggwej', 'ggwec', 'ggwek', 'ggwet', 'ggwep', 'ggweh', 'ggwi', 'ggwig', 'ggwigg', 'ggwigs',
 		'ggwin', 'ggwinj', 'ggwinh', 'ggwid', 'ggwil', 'ggwilg', 'ggwilm', 'ggwilb', 'ggwils', 'ggwilt', 'ggwilp', 'ggwilh', 'ggwim', 'ggwib', 'ggwibs', 'ggwis',
 		'ggwiss', 'ggwing', 'ggwij', 'ggwic', 'ggwik', 'ggwit', 'ggwip', 'ggwih', 'ggyu', 'ggyug', 'ggyugg', 'ggyugs', 'ggyun', 'ggyunj', 'ggyunh', 'ggyud',
@@ -1074,7 +1075,7 @@ CODEPOINTS = {
 		'nyam', 'nyab', 'nyabs', 'nyas', 'nyass', 'nyang', 'nyaj', 'nyac', 'nyak', 'nyat', 'nyap', 'nyah', 'nyae', 'nyaeg', 'nyaegg', 'nyaegs',
 		'nyaen', 'nyaenj', 'nyaenh', 'nyaed', 'nyael', 'nyaelg', 'nyaelm', 'nyaelb', 'nyaels', 'nyaelt', 'nyaelp', 'nyaelh', 'nyaem', 'nyaeb', 'nyaebs', 'nyaes',
 	],
-	u'xa3': [
+	'xa3': [
 		'nzup', 'nzurx', 'nzur', 'nzyt', 'nzyx', 'nzy', 'nzyp', 'nzyrx', 'nzyr', 'sit', 'six', 'si', 'sip', 'siex', 'sie', 'siep',
 		'sat', 'sax', 'sa', 'sap', 'suox', 'suo', 'suop', 'sot', 'sox', 'so', 'sop', 'sex', 'se', 'sep', 'sut', 'sux',
 		'su', 'sup', 'surx', 'sur', 'syt', 'syx', 'sy', 'syp', 'syrx', 'syr', 'ssit', 'ssix', 'ssi', 'ssip', 'ssiex', 'ssie',
@@ -1092,7 +1093,7 @@ CODEPOINTS = {
 		'jit', 'jix', 'ji', 'jip', 'jiet', 'jiex', 'jie', 'jiep', 'juot', 'juox', 'juo', 'juop', 'jot', 'jox', 'jo', 'jop',
 		'jut', 'jux', 'ju', 'jup', 'jurx', 'jur', 'jyt', 'jyx', 'jy', 'jyp', 'jyrx', 'jyr', 'qit', 'qix', 'qi', 'qip',
 	],
-	u'xbb': [
+	'xbb': [
 		'moen', 'moenj', 'moenh', 'moed', 'moel', 'moelg', 'moelm', 'moelb', 'moels', 'moelt', 'moelp', 'moelh', 'moem', 'moeb', 'moebs', 'moes',
 		'moess', 'moeng', 'moej', 'moec', 'moek', 'moet', 'moep', 'moeh', 'myo', 'myog', 'myogg', 'myogs', 'myon', 'myonj', 'myonh', 'myod',
 		'myol', 'myolg', 'myolm', 'myolb', 'myols', 'myolt', 'myolp', 'myolh', 'myom', 'myob', 'myobs', 'myos', 'myoss', 'myong', 'myoj', 'myoc',
@@ -1110,7 +1111,7 @@ CODEPOINTS = {
 		'myin', 'myinj', 'myinh', 'myid', 'myil', 'myilg', 'myilm', 'myilb', 'myils', 'myilt', 'myilp', 'myilh', 'myim', 'myib', 'myibs', 'myis',
 		'myiss', 'mying', 'myij', 'myic', 'myik', 'myit', 'myip', 'myih', 'mi', 'mig', 'migg', 'migs', 'min', 'minj', 'minh', 'mid',
 	],
-	u'x02': [
+	'x02': [
 		'A', 'a', 'A', 'a', 'E', 'e', 'E', 'e', 'I', 'i', 'I', 'i', 'O', 'o', 'O', 'o',
 		'R', 'r', 'R', 'r', 'U', 'u', 'U', 'u', 'S', 's', 'T', 't', 'Y', 'y', 'H', 'h',
 		'[?]', '[?]', 'OU', 'ou', 'Z', 'z', 'A', 'a', 'E', 'e', 'O', 'o', 'O', 'o', 'O', 'o',
@@ -1128,7 +1129,7 @@ CODEPOINTS = {
 		'G', 'l', 's', 'x', '?', '', '', '', '', '', '', '', 'V', '=', '"', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xb5': [
+	'xb5': [
 		'dyil', 'dyilg', 'dyilm', 'dyilb', 'dyils', 'dyilt', 'dyilp', 'dyilh', 'dyim', 'dyib', 'dyibs', 'dyis', 'dyiss', 'dying', 'dyij', 'dyic',
 		'dyik', 'dyit', 'dyip', 'dyih', 'di', 'dig', 'digg', 'digs', 'din', 'dinj', 'dinh', 'did', 'dil', 'dilg', 'dilm', 'dilb',
 		'dils', 'dilt', 'dilp', 'dilh', 'dim', 'dib', 'dibs', 'dis', 'diss', 'ding', 'dij', 'dic', 'dik', 'dit', 'dip', 'dih',
@@ -1146,7 +1147,7 @@ CODEPOINTS = {
 		'ddyeol', 'ddyeolg', 'ddyeolm', 'ddyeolb', 'ddyeols', 'ddyeolt', 'ddyeolp', 'ddyeolh', 'ddyeom', 'ddyeob', 'ddyeobs', 'ddyeos', 'ddyeoss', 'ddyeong', 'ddyeoj', 'ddyeoc',
 		'ddyeok', 'ddyeot', 'ddyeop', 'ddyeoh', 'ddye', 'ddyeg', 'ddyegg', 'ddyegs', 'ddyen', 'ddyenj', 'ddyenh', 'ddyed', 'ddyel', 'ddyelg', 'ddyelm', 'ddyelb',
 	],
-	u'x17': [
+	'x17': [
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
@@ -1164,7 +1165,7 @@ CODEPOINTS = {
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'x0b': [
+	'x0b': [
 		'[?]', 'N', 'N', 'H', '[?]', 'a', 'aa', 'i', 'ii', 'u', 'uu', 'R', 'L', '[?]', '[?]', 'e',
 		'ai', '[?]', '[?]', 'o', 'au', 'k', 'kh', 'g', 'gh', 'ng', 'c', 'ch', 'j', 'jh', 'ny', 'tt',
 		'tth', 'dd', 'ddh', 'nn', 't', 'th', 'd', 'dh', 'n', '[?]', 'p', 'ph', 'b', 'bh', 'm', 'y',
@@ -1182,7 +1183,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 		'+10+', '+100+', '+1000+', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'x0f': [
+	'x0f': [
 		'AUM', '', '', '', '', '', '', '', ' // ', ' * ', '', '-', ' / ', ' / ', ' // ', ' -/ ',
 		' +/ ', ' X/ ', ' /XX/ ', ' /X/ ', ', ', '', '', '', '', '', '', '', '', '', '', '',
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.5', '1.5', '2.5', '3.5', '4.5', '5.5',
@@ -1200,7 +1201,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xc4': [
+	'xc4': [
 		'sswals', 'sswalt', 'sswalp', 'sswalh', 'sswam', 'sswab', 'sswabs', 'sswas', 'sswass', 'sswang', 'sswaj', 'sswac', 'sswak', 'sswat', 'sswap', 'sswah',
 		'sswae', 'sswaeg', 'sswaegg', 'sswaegs', 'sswaen', 'sswaenj', 'sswaenh', 'sswaed', 'sswael', 'sswaelg', 'sswaelm', 'sswaelb', 'sswaels', 'sswaelt', 'sswaelp', 'sswaelh',
 		'sswaem', 'sswaeb', 'sswaebs', 'sswaes', 'sswaess', 'sswaeng', 'sswaej', 'sswaec', 'sswaek', 'sswaet', 'sswaep', 'sswaeh', 'ssoe', 'ssoeg', 'ssoegg', 'ssoegs',
@@ -1218,7 +1219,7 @@ CODEPOINTS = {
 		'ssyuls', 'ssyult', 'ssyulp', 'ssyulh', 'ssyum', 'ssyub', 'ssyubs', 'ssyus', 'ssyuss', 'ssyung', 'ssyuj', 'ssyuc', 'ssyuk', 'ssyut', 'ssyup', 'ssyuh',
 		'sseu', 'sseug', 'sseugg', 'sseugs', 'sseun', 'sseunj', 'sseunh', 'sseud', 'sseul', 'sseulg', 'sseulm', 'sseulb', 'sseuls', 'sseult', 'sseulp', 'sseulh',
 	],
-	u'xd0': [
+	'xd0': [
 		'kweon', 'kweonj', 'kweonh', 'kweod', 'kweol', 'kweolg', 'kweolm', 'kweolb', 'kweols', 'kweolt', 'kweolp', 'kweolh', 'kweom', 'kweob', 'kweobs', 'kweos',
 		'kweoss', 'kweong', 'kweoj', 'kweoc', 'kweok', 'kweot', 'kweop', 'kweoh', 'kwe', 'kweg', 'kwegg', 'kwegs', 'kwen', 'kwenj', 'kwenh', 'kwed',
 		'kwel', 'kwelg', 'kwelm', 'kwelb', 'kwels', 'kwelt', 'kwelp', 'kwelh', 'kwem', 'kweb', 'kwebs', 'kwes', 'kwess', 'kweng', 'kwej', 'kwec',
@@ -1236,7 +1237,7 @@ CODEPOINTS = {
 		'taen', 'taenj', 'taenh', 'taed', 'tael', 'taelg', 'taelm', 'taelb', 'taels', 'taelt', 'taelp', 'taelh', 'taem', 'taeb', 'taebs', 'taes',
 		'taess', 'taeng', 'taej', 'taec', 'taek', 'taet', 'taep', 'taeh', 'tya', 'tyag', 'tyagg', 'tyags', 'tyan', 'tyanj', 'tyanh', 'tyad',
 	],
-	u'xb9': [
+	'xb9': [
 		'ruk', 'rut', 'rup', 'ruh', 'rweo', 'rweog', 'rweogg', 'rweogs', 'rweon', 'rweonj', 'rweonh', 'rweod', 'rweol', 'rweolg', 'rweolm', 'rweolb',
 		'rweols', 'rweolt', 'rweolp', 'rweolh', 'rweom', 'rweob', 'rweobs', 'rweos', 'rweoss', 'rweong', 'rweoj', 'rweoc', 'rweok', 'rweot', 'rweop', 'rweoh',
 		'rwe', 'rweg', 'rwegg', 'rwegs', 'rwen', 'rwenj', 'rwenh', 'rwed', 'rwel', 'rwelg', 'rwelm', 'rwelb', 'rwels', 'rwelt', 'rwelp', 'rwelh',
@@ -1254,7 +1255,7 @@ CODEPOINTS = {
 		'mak', 'mat', 'map', 'mah', 'mae', 'maeg', 'maegg', 'maegs', 'maen', 'maenj', 'maenh', 'maed', 'mael', 'maelg', 'maelm', 'maelb',
 		'maels', 'maelt', 'maelp', 'maelh', 'maem', 'maeb', 'maebs', 'maes', 'maess', 'maeng', 'maej', 'maec', 'maek', 'maet', 'maep', 'maeh',
 	],
-	u'xff': [
+	'xff': [
 		'[?]', '!', '"', '#', '\$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/',
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?',
 		'@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
@@ -1272,7 +1273,7 @@ CODEPOINTS = {
 		'/C', 'PS', '!', '-', '|', 'Y=', 'W=', '[?]', '|', '-', '|', '-', '|', '#', 'O', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '\{', '|', '\}', '', '', '', '',
 	],
-	u'xc3': [
+	'xc3': [
 		'ssal', 'ssalg', 'ssalm', 'ssalb', 'ssals', 'ssalt', 'ssalp', 'ssalh', 'ssam', 'ssab', 'ssabs', 'ssas', 'ssass', 'ssang', 'ssaj', 'ssac',
 		'ssak', 'ssat', 'ssap', 'ssah', 'ssae', 'ssaeg', 'ssaegg', 'ssaegs', 'ssaen', 'ssaenj', 'ssaenh', 'ssaed', 'ssael', 'ssaelg', 'ssaelm', 'ssaelb',
 		'ssaels', 'ssaelt', 'ssaelp', 'ssaelh', 'ssaem', 'ssaeb', 'ssaebs', 'ssaes', 'ssaess', 'ssaeng', 'ssaej', 'ssaec', 'ssaek', 'ssaet', 'ssaep', 'ssaeh',
@@ -1290,7 +1291,7 @@ CODEPOINTS = {
 		'ssol', 'ssolg', 'ssolm', 'ssolb', 'ssols', 'ssolt', 'ssolp', 'ssolh', 'ssom', 'ssob', 'ssobs', 'ssos', 'ssoss', 'ssong', 'ssoj', 'ssoc',
 		'ssok', 'ssot', 'ssop', 'ssoh', 'sswa', 'sswag', 'sswagg', 'sswags', 'sswan', 'sswanj', 'sswanh', 'sswad', 'sswal', 'sswalg', 'sswalm', 'sswalb',
 	],
-	u'x09': [
+	'x09': [
 		'[?]', 'N', 'N', 'H', '[?]', 'a', 'aa', 'i', 'ii', 'u', 'uu', 'R', 'L', 'eN', 'e', 'e',
 		'ai', 'oN', 'o', 'o', 'au', 'k', 'kh', 'g', 'gh', 'ng', 'c', 'ch', 'j', 'jh', 'ny', 'tt',
 		'tth', 'dd', 'ddh', 'nn', 't', 'th', 'd', 'dh', 'n', 'nnn', 'p', 'ph', 'b', 'bh', 'm', 'y',
@@ -1308,7 +1309,7 @@ CODEPOINTS = {
 		'RR', 'LL', 'L', 'LL', '[?]', '[?]', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 		'r\'', 'r`', 'Rs', 'Rs', '1/', '2/', '3/', '4/', ' 1 - 1/', '/16', '', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xb2': [
+	'xb2': [
 		'nyok', 'nyot', 'nyop', 'nyoh', 'nu', 'nug', 'nugg', 'nugs', 'nun', 'nunj', 'nunh', 'nud', 'nul', 'nulg', 'nulm', 'nulb',
 		'nuls', 'nult', 'nulp', 'nulh', 'num', 'nub', 'nubs', 'nus', 'nuss', 'nung', 'nuj', 'nuc', 'nuk', 'nut', 'nup', 'nuh',
 		'nweo', 'nweog', 'nweogg', 'nweogs', 'nweon', 'nweonj', 'nweonh', 'nweod', 'nweol', 'nweolg', 'nweolm', 'nweolb', 'nweols', 'nweolt', 'nweolp', 'nweolh',
@@ -1326,7 +1327,7 @@ CODEPOINTS = {
 		'nik', 'nit', 'nip', 'nih', 'da', 'dag', 'dagg', 'dags', 'dan', 'danj', 'danh', 'dad', 'dal', 'dalg', 'dalm', 'dalb',
 		'dals', 'dalt', 'dalp', 'dalh', 'dam', 'dab', 'dabs', 'das', 'dass', 'dang', 'daj', 'dac', 'dak', 'dat', 'dap', 'dah',
 	],
-	u'x0a': [
+	'x0a': [
 		'[?]', '[?]', 'N', '[?]', '[?]', 'a', 'aa', 'i', 'ii', 'u', 'uu', '[?]', '[?]', '[?]', '[?]', 'ee',
 		'ai', '[?]', '[?]', 'oo', 'au', 'k', 'kh', 'g', 'gh', 'ng', 'c', 'ch', 'j', 'jh', 'ny', 'tt',
 		'tth', 'dd', 'ddh', 'nn', 't', 'th', 'd', 'dh', 'n', '[?]', 'p', 'ph', 'b', 'bb', 'm', 'y',
@@ -1344,7 +1345,7 @@ CODEPOINTS = {
 		'RR', '[?]', '[?]', '[?]', '[?]', '[?]', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'x0d': [
+	'x0d': [
 		'[?]', '[?]', 'N', 'H', '[?]', 'a', 'aa', 'i', 'ii', 'u', 'uu', 'R', 'L', '[?]', 'e', 'ee',
 		'ai', '[?]', 'o', 'oo', 'au', 'k', 'kh', 'g', 'gh', 'ng', 'c', 'ch', 'j', 'jh', 'ny', 'tt',
 		'tth', 'dd', 'ddh', 'nn', 't', 'th', 'd', 'dh', 'n', '[?]', 'p', 'ph', 'b', 'bh', 'm', 'y',
@@ -1362,7 +1363,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', 'RR', 'LL', ' . ', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xc1': [
+	'xc1': [
 		'syae', 'syaeg', 'syaegg', 'syaegs', 'syaen', 'syaenj', 'syaenh', 'syaed', 'syael', 'syaelg', 'syaelm', 'syaelb', 'syaels', 'syaelt', 'syaelp', 'syaelh',
 		'syaem', 'syaeb', 'syaebs', 'syaes', 'syaess', 'syaeng', 'syaej', 'syaec', 'syaek', 'syaet', 'syaep', 'syaeh', 'seo', 'seog', 'seogg', 'seogs',
 		'seon', 'seonj', 'seonh', 'seod', 'seol', 'seolg', 'seolm', 'seolb', 'seols', 'seolt', 'seolp', 'seolh', 'seom', 'seob', 'seobs', 'seos',
@@ -1380,7 +1381,7 @@ CODEPOINTS = {
 		'soe', 'soeg', 'soegg', 'soegs', 'soen', 'soenj', 'soenh', 'soed', 'soel', 'soelg', 'soelm', 'soelb', 'soels', 'soelt', 'soelp', 'soelh',
 		'soem', 'soeb', 'soebs', 'soes', 'soess', 'soeng', 'soej', 'soec', 'soek', 'soet', 'soep', 'soeh', 'syo', 'syog', 'syogg', 'syogs',
 	],
-	u'xba': [
+	'xba': [
 		'mya', 'myag', 'myagg', 'myags', 'myan', 'myanj', 'myanh', 'myad', 'myal', 'myalg', 'myalm', 'myalb', 'myals', 'myalt', 'myalp', 'myalh',
 		'myam', 'myab', 'myabs', 'myas', 'myass', 'myang', 'myaj', 'myac', 'myak', 'myat', 'myap', 'myah', 'myae', 'myaeg', 'myaegg', 'myaegs',
 		'myaen', 'myaenj', 'myaenh', 'myaed', 'myael', 'myaelg', 'myaelm', 'myaelb', 'myaels', 'myaelt', 'myaelp', 'myaelh', 'myaem', 'myaeb', 'myaebs', 'myaes',
@@ -1398,7 +1399,7 @@ CODEPOINTS = {
 		'mwae', 'mwaeg', 'mwaegg', 'mwaegs', 'mwaen', 'mwaenj', 'mwaenh', 'mwaed', 'mwael', 'mwaelg', 'mwaelm', 'mwaelb', 'mwaels', 'mwaelt', 'mwaelp', 'mwaelh',
 		'mwaem', 'mwaeb', 'mwaebs', 'mwaes', 'mwaess', 'mwaeng', 'mwaej', 'mwaec', 'mwaek', 'mwaet', 'mwaep', 'mwaeh', 'moe', 'moeg', 'moegg', 'moegs',
 	],
-	u'xb3': [
+	'xb3': [
 		'dae', 'daeg', 'daegg', 'daegs', 'daen', 'daenj', 'daenh', 'daed', 'dael', 'daelg', 'daelm', 'daelb', 'daels', 'daelt', 'daelp', 'daelh',
 		'daem', 'daeb', 'daebs', 'daes', 'daess', 'daeng', 'daej', 'daec', 'daek', 'daet', 'daep', 'daeh', 'dya', 'dyag', 'dyagg', 'dyags',
 		'dyan', 'dyanj', 'dyanh', 'dyad', 'dyal', 'dyalg', 'dyalm', 'dyalb', 'dyals', 'dyalt', 'dyalp', 'dyalh', 'dyam', 'dyab', 'dyabs', 'dyas',
@@ -1416,7 +1417,7 @@ CODEPOINTS = {
 		'dwa', 'dwag', 'dwagg', 'dwags', 'dwan', 'dwanj', 'dwanh', 'dwad', 'dwal', 'dwalg', 'dwalm', 'dwalb', 'dwals', 'dwalt', 'dwalp', 'dwalh',
 		'dwam', 'dwab', 'dwabs', 'dwas', 'dwass', 'dwang', 'dwaj', 'dwac', 'dwak', 'dwat', 'dwap', 'dwah', 'dwae', 'dwaeg', 'dwaegg', 'dwaegs',
 	],
-	u'xa0': [
+	'xa0': [
 		'it', 'ix', 'i', 'ip', 'iet', 'iex', 'ie', 'iep', 'at', 'ax', 'a', 'ap', 'uox', 'uo', 'uop', 'ot',
 		'ox', 'o', 'op', 'ex', 'e', 'wu', 'bit', 'bix', 'bi', 'bip', 'biet', 'biex', 'bie', 'biep', 'bat', 'bax',
 		'ba', 'bap', 'buox', 'buo', 'buop', 'bot', 'box', 'bo', 'bop', 'bex', 'be', 'bep', 'but', 'bux', 'bu', 'bup',
@@ -1434,7 +1435,7 @@ CODEPOINTS = {
 		'fy', 'fyp', 'vit', 'vix', 'vi', 'vip', 'viet', 'viex', 'vie', 'viep', 'vat', 'vax', 'va', 'vap', 'vot', 'vox',
 		'vo', 'vop', 'vex', 'vep', 'vut', 'vux', 'vu', 'vup', 'vurx', 'vur', 'vyt', 'vyx', 'vy', 'vyp', 'vyrx', 'vyr',
 	],
-	u'x15': [
+	'x15': [
 		'swa', 'swa', 'swaa', 'swaa', 'swaa', 's', 's', 'sw', 's', 'sk', 'skw', 'sW', 'spwa', 'stwa', 'skwa', 'scwa',
 		'she', 'shi', 'shii', 'sho', 'shoo', 'sha', 'shaa', 'shwe', 'shwe', 'shwi', 'shwi', 'shwii', 'shwii', 'shwo', 'shwo', 'shwoo',
 		'shwoo', 'shwa', 'shwa', 'shwaa', 'shwaa', 'sh', 'ye', 'yaai', 'yi', 'yii', 'yo', 'yoo', 'yoo', 'ya', 'yaa', 'ywe',
@@ -1452,7 +1453,7 @@ CODEPOINTS = {
 		'thi', 'tha', 'ttu', 'tto', 'tte', 'ttee', 'tti', 'tta', 'pu', 'po', 'pe', 'pee', 'pi', 'pa', 'p', 'gu',
 		'go', 'ge', 'gee', 'gi', 'ga', 'khu', 'kho', 'khe', 'khee', 'khi', 'kha', 'kku', 'kko', 'kke', 'kkee', 'kki',
 	],
-	u'x13': [
+	'x13': [
 		'ja', 'ju', 'ji', 'jaa', 'jee', 'je', 'jo', 'jwa', 'ga', 'gu', 'gi', 'gaa', 'gee', 'ge', 'go', '[?]',
 		'gwa', '[?]', 'gwi', 'gwaa', 'gwee', 'gwe', '[?]', '[?]', 'gga', 'ggu', 'ggi', 'ggaa', 'ggee', 'gge', 'ggo', '[?]',
 		'tha', 'thu', 'thi', 'thaa', 'thee', 'the', 'tho', 'thwa', 'cha', 'chu', 'chi', 'chaa', 'chee', 'che', 'cho', 'chwa',
@@ -1470,7 +1471,7 @@ CODEPOINTS = {
 		'tlo', 'tlu', 'tlv', 'tsa', 'tse', 'tsi', 'tso', 'tsu', 'tsv', 'wa', 'we', 'wi', 'wo', 'wu', 'wv', 'ya',
 		'ye', 'yi', 'yo', 'yu', 'yv', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'x27': [
+	'x27': [
 		'[?]', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
@@ -1488,7 +1489,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'x24': [
+	'x24': [
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
@@ -1506,7 +1507,7 @@ CODEPOINTS = {
 		'', '', '', '', '', '', '', '', '', '', '', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xcb': [
+	'xcb': [
 		'jjwaels', 'jjwaelt', 'jjwaelp', 'jjwaelh', 'jjwaem', 'jjwaeb', 'jjwaebs', 'jjwaes', 'jjwaess', 'jjwaeng', 'jjwaej', 'jjwaec', 'jjwaek', 'jjwaet', 'jjwaep', 'jjwaeh',
 		'jjoe', 'jjoeg', 'jjoegg', 'jjoegs', 'jjoen', 'jjoenj', 'jjoenh', 'jjoed', 'jjoel', 'jjoelg', 'jjoelm', 'jjoelb', 'jjoels', 'jjoelt', 'jjoelp', 'jjoelh',
 		'jjoem', 'jjoeb', 'jjoebs', 'jjoes', 'jjoess', 'jjoeng', 'jjoej', 'jjoec', 'jjoek', 'jjoet', 'jjoep', 'jjoeh', 'jjyo', 'jjyog', 'jjyogg', 'jjyogs',
@@ -1524,7 +1525,7 @@ CODEPOINTS = {
 		'jjeuls', 'jjeult', 'jjeulp', 'jjeulh', 'jjeum', 'jjeub', 'jjeubs', 'jjeus', 'jjeuss', 'jjeung', 'jjeuj', 'jjeuc', 'jjeuk', 'jjeut', 'jjeup', 'jjeuh',
 		'jjyi', 'jjyig', 'jjyigg', 'jjyigs', 'jjyin', 'jjyinj', 'jjyinh', 'jjyid', 'jjyil', 'jjyilg', 'jjyilm', 'jjyilb', 'jjyils', 'jjyilt', 'jjyilp', 'jjyilh',
 	],
-	u'xc0': [
+	'xc0': [
 		'bbweok', 'bbweot', 'bbweop', 'bbweoh', 'bbwe', 'bbweg', 'bbwegg', 'bbwegs', 'bbwen', 'bbwenj', 'bbwenh', 'bbwed', 'bbwel', 'bbwelg', 'bbwelm', 'bbwelb',
 		'bbwels', 'bbwelt', 'bbwelp', 'bbwelh', 'bbwem', 'bbweb', 'bbwebs', 'bbwes', 'bbwess', 'bbweng', 'bbwej', 'bbwec', 'bbwek', 'bbwet', 'bbwep', 'bbweh',
 		'bbwi', 'bbwig', 'bbwigg', 'bbwigs', 'bbwin', 'bbwinj', 'bbwinh', 'bbwid', 'bbwil', 'bbwilg', 'bbwilm', 'bbwilb', 'bbwils', 'bbwilt', 'bbwilp', 'bbwilh',
@@ -1542,7 +1543,7 @@ CODEPOINTS = {
 		'saek', 'saet', 'saep', 'saeh', 'sya', 'syag', 'syagg', 'syags', 'syan', 'syanj', 'syanh', 'syad', 'syal', 'syalg', 'syalm', 'syalb',
 		'syals', 'syalt', 'syalp', 'syalh', 'syam', 'syab', 'syabs', 'syas', 'syass', 'syang', 'syaj', 'syac', 'syak', 'syat', 'syap', 'syah',
 	],
-	u'x22': [
+	'x22': [
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
@@ -1560,7 +1561,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xa1': [
+	'xa1': [
 		'dit', 'dix', 'di', 'dip', 'diex', 'die', 'diep', 'dat', 'dax', 'da', 'dap', 'duox', 'duo', 'dot', 'dox', 'do',
 		'dop', 'dex', 'de', 'dep', 'dut', 'dux', 'du', 'dup', 'durx', 'dur', 'tit', 'tix', 'ti', 'tip', 'tiex', 'tie',
 		'tiep', 'tat', 'tax', 'ta', 'tap', 'tuot', 'tuox', 'tuo', 'tuop', 'tot', 'tox', 'to', 'top', 'tex', 'te', 'tep',
@@ -1578,7 +1579,7 @@ CODEPOINTS = {
 		'gie', 'giep', 'gat', 'gax', 'ga', 'gap', 'guot', 'guox', 'guo', 'guop', 'got', 'gox', 'go', 'gop', 'get', 'gex',
 		'ge', 'gep', 'gut', 'gux', 'gu', 'gup', 'gurx', 'gur', 'kit', 'kix', 'ki', 'kip', 'kiex', 'kie', 'kiep', 'kat',
 	],
-	u'xd6': [
+	'xd6': [
 		'hyeo', 'hyeog', 'hyeogg', 'hyeogs', 'hyeon', 'hyeonj', 'hyeonh', 'hyeod', 'hyeol', 'hyeolg', 'hyeolm', 'hyeolb', 'hyeols', 'hyeolt', 'hyeolp', 'hyeolh',
 		'hyeom', 'hyeob', 'hyeobs', 'hyeos', 'hyeoss', 'hyeong', 'hyeoj', 'hyeoc', 'hyeok', 'hyeot', 'hyeop', 'hyeoh', 'hye', 'hyeg', 'hyegg', 'hyegs',
 		'hyen', 'hyenj', 'hyenh', 'hyed', 'hyel', 'hyelg', 'hyelm', 'hyelb', 'hyels', 'hyelt', 'hyelp', 'hyelh', 'hyem', 'hyeb', 'hyebs', 'hyes',
@@ -1596,7 +1597,7 @@ CODEPOINTS = {
 		'hweo', 'hweog', 'hweogg', 'hweogs', 'hweon', 'hweonj', 'hweonh', 'hweod', 'hweol', 'hweolg', 'hweolm', 'hweolb', 'hweols', 'hweolt', 'hweolp', 'hweolh',
 		'hweom', 'hweob', 'hweobs', 'hweos', 'hweoss', 'hweong', 'hweoj', 'hweoc', 'hweok', 'hweot', 'hweop', 'hweoh', 'hwe', 'hweg', 'hwegg', 'hwegs',
 	],
-	u'xd5': [
+	'xd5': [
 		'pyuk', 'pyut', 'pyup', 'pyuh', 'peu', 'peug', 'peugg', 'peugs', 'peun', 'peunj', 'peunh', 'peud', 'peul', 'peulg', 'peulm', 'peulb',
 		'peuls', 'peult', 'peulp', 'peulh', 'peum', 'peub', 'peubs', 'peus', 'peuss', 'peung', 'peuj', 'peuc', 'peuk', 'peut', 'peup', 'peuh',
 		'pyi', 'pyig', 'pyigg', 'pyigs', 'pyin', 'pyinj', 'pyinh', 'pyid', 'pyil', 'pyilg', 'pyilm', 'pyilb', 'pyils', 'pyilt', 'pyilp', 'pyilh',
@@ -1614,7 +1615,7 @@ CODEPOINTS = {
 		'heok', 'heot', 'heop', 'heoh', 'he', 'heg', 'hegg', 'hegs', 'hen', 'henj', 'henh', 'hed', 'hel', 'helg', 'helm', 'helb',
 		'hels', 'helt', 'help', 'helh', 'hem', 'heb', 'hebs', 'hes', 'hess', 'heng', 'hej', 'hec', 'hek', 'het', 'hep', 'heh',
 	],
-	u'xd2': [
+	'xd2': [
 		'toels', 'toelt', 'toelp', 'toelh', 'toem', 'toeb', 'toebs', 'toes', 'toess', 'toeng', 'toej', 'toec', 'toek', 'toet', 'toep', 'toeh',
 		'tyo', 'tyog', 'tyogg', 'tyogs', 'tyon', 'tyonj', 'tyonh', 'tyod', 'tyol', 'tyolg', 'tyolm', 'tyolb', 'tyols', 'tyolt', 'tyolp', 'tyolh',
 		'tyom', 'tyob', 'tyobs', 'tyos', 'tyoss', 'tyong', 'tyoj', 'tyoc', 'tyok', 'tyot', 'tyop', 'tyoh', 'tu', 'tug', 'tugg', 'tugs',
@@ -1632,7 +1633,7 @@ CODEPOINTS = {
 		'tyils', 'tyilt', 'tyilp', 'tyilh', 'tyim', 'tyib', 'tyibs', 'tyis', 'tyiss', 'tying', 'tyij', 'tyic', 'tyik', 'tyit', 'tyip', 'tyih',
 		'ti', 'tig', 'tigg', 'tigs', 'tin', 'tinj', 'tinh', 'tid', 'til', 'tilg', 'tilm', 'tilb', 'tils', 'tilt', 'tilp', 'tilh',
 	],
-	u'xcd': [
+	'xcd': [
 		'cyess', 'cyeng', 'cyej', 'cyec', 'cyek', 'cyet', 'cyep', 'cyeh', 'co', 'cog', 'cogg', 'cogs', 'con', 'conj', 'conh', 'cod',
 		'col', 'colg', 'colm', 'colb', 'cols', 'colt', 'colp', 'colh', 'com', 'cob', 'cobs', 'cos', 'coss', 'cong', 'coj', 'coc',
 		'cok', 'cot', 'cop', 'coh', 'cwa', 'cwag', 'cwagg', 'cwags', 'cwan', 'cwanj', 'cwanh', 'cwad', 'cwal', 'cwalg', 'cwalm', 'cwalb',
@@ -1650,7 +1651,7 @@ CODEPOINTS = {
 		'cwess', 'cweng', 'cwej', 'cwec', 'cwek', 'cwet', 'cwep', 'cweh', 'cwi', 'cwig', 'cwigg', 'cwigs', 'cwin', 'cwinj', 'cwinh', 'cwid',
 		'cwil', 'cwilg', 'cwilm', 'cwilb', 'cwils', 'cwilt', 'cwilp', 'cwilh', 'cwim', 'cwib', 'cwibs', 'cwis', 'cwiss', 'cwing', 'cwij', 'cwic',
 	],
-	u'x30': [
+	'x30': [
 		' ', ', ', '. ', '"', '[JIS]', '"', '/', '0', '<', '> ', '<<', '>> ', '[', '] ', '\{', '\} ',
 		'[(', ')] ', '@', 'X ', '[', '] ', '[[', ']] ', '((', ')) ', '[[', ']] ', '~ ', '``', '\'\'', ',,',
 		'@', '1', '2', '3', '4', '5', '6', '7', '8', '9', '', '', '', '', '', '',
@@ -1668,7 +1669,7 @@ CODEPOINTS = {
 		'mu', 'me', 'mo', 'ya', 'ya', 'yu', 'yu', 'yo', 'yo', 'ra', 'ri', 'ru', 're', 'ro', 'wa', 'wa',
 		'wi', 'we', 'wo', 'n', 'vu', 'ka', 'ke', 'va', 'vi', 've', 'vo', '', '', '"', '"',
 	],
-	u'xca': [
+	'xca': [
 		'jjael', 'jjaelg', 'jjaelm', 'jjaelb', 'jjaels', 'jjaelt', 'jjaelp', 'jjaelh', 'jjaem', 'jjaeb', 'jjaebs', 'jjaes', 'jjaess', 'jjaeng', 'jjaej', 'jjaec',
 		'jjaek', 'jjaet', 'jjaep', 'jjaeh', 'jjya', 'jjyag', 'jjyagg', 'jjyags', 'jjyan', 'jjyanj', 'jjyanh', 'jjyad', 'jjyal', 'jjyalg', 'jjyalm', 'jjyalb',
 		'jjyals', 'jjyalt', 'jjyalp', 'jjyalh', 'jjyam', 'jjyab', 'jjyabs', 'jjyas', 'jjyass', 'jjyang', 'jjyaj', 'jjyac', 'jjyak', 'jjyat', 'jjyap', 'jjyah',
@@ -1686,7 +1687,7 @@ CODEPOINTS = {
 		'jjwal', 'jjwalg', 'jjwalm', 'jjwalb', 'jjwals', 'jjwalt', 'jjwalp', 'jjwalh', 'jjwam', 'jjwab', 'jjwabs', 'jjwas', 'jjwass', 'jjwang', 'jjwaj', 'jjwac',
 		'jjwak', 'jjwat', 'jjwap', 'jjwah', 'jjwae', 'jjwaeg', 'jjwaegg', 'jjwaegs', 'jjwaen', 'jjwaenj', 'jjwaenh', 'jjwaed', 'jjwael', 'jjwaelg', 'jjwaelm', 'jjwaelb',
 	],
-	u'xa4': [
+	'xa4': [
 		'qiet', 'qiex', 'qie', 'qiep', 'quot', 'quox', 'quo', 'quop', 'qot', 'qox', 'qo', 'qop', 'qut', 'qux', 'qu', 'qup',
 		'qurx', 'qur', 'qyt', 'qyx', 'qy', 'qyp', 'qyrx', 'qyr', 'jjit', 'jjix', 'jji', 'jjip', 'jjiet', 'jjiex', 'jjie', 'jjiep',
 		'jjuox', 'jjuo', 'jjuop', 'jjot', 'jjox', 'jjo', 'jjop', 'jjut', 'jjux', 'jju', 'jjup', 'jjurx', 'jjur', 'jjyt', 'jjyx', 'jjy',
@@ -1704,7 +1705,7 @@ CODEPOINTS = {
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 		'[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]', '[?]',
 	],
-	u'xfc': [
+	'xfc': [
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
@@ -1722,7 +1723,7 @@ CODEPOINTS = {
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 		'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
 	],
-        u'x1d4':[
+        'x1d4':[
                 'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
                 'P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e',
                 'f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u',
@@ -1740,7 +1741,7 @@ CODEPOINTS = {
                 'P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e',
                 'f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v'
         ],
-       u'x1d5':[
+       'x1d5':[
                 'w','x','y','z','A','B','','D','E','F','G','','','J','K',
                 'L','M','N','O','P','Q','','S','T','U','V','W','X','Y','','a',
                 'b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q',
@@ -1758,7 +1759,7 @@ CODEPOINTS = {
                 'L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a',
                 'b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r'
        ],
-      u'x1d6':[
+      'x1d6':[
                 's','t','u','v','w','x','y','z','A','B','C','D','E','F','G',
                 'H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W',
                 'X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m',
@@ -1776,7 +1777,7 @@ CODEPOINTS = {
                    '','','','','','','','','','','','','','','','',
                    '','','','','','','','','','','','','','','','',''
         ],
-        u'x1d7':[
+        'x1d7':[
                 '','','','','','','','','','','','','','','',
                 '','','','','','','','','','','','','','','','',
                 '','','','','','','','','','','','','','','','',

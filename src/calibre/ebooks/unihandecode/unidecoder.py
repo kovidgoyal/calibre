@@ -59,8 +59,8 @@ it under the same terms as Perl itself.
 '''
 
 import re
-from unicodepoints import CODEPOINTS
-from zhcodepoints import CODEPOINTS as HANCODES
+from unihandecode.unicodepoints import CODEPOINTS
+from unihandecode.zhcodepoints import CODEPOINTS as HANCODES
 
 class Unidecoder(object):
 
@@ -71,15 +71,6 @@ class Unidecoder(object):
         self.codepoints.update(HANCODES)
 
     def decode(self, text):
-        '''
-        Tranliterate the string from unicode characters to ASCII in Chinese and others.
-        example  convert:  "明天明天的风吹" and "明日は明日の風が吹く"
-        >>> u = Unidecoder()
-        >>> print u.decode(u"\u660e\u5929\u660e\u5929\u7684\u98ce\u5439")
-        Ming Tian Ming Tian De Feng Chui 
-        >>> print u.decode(u'\u660e\u65e5\u306f\u660e\u65e5\u306e\u98a8\u304c\u5439\u304f')
-        Ming Ri haMing Ri noFeng gaChui ku
-        '''
         # Replace characters larger than 127 with their ASCII equivelent.
         return re.sub('[^\x00-\x7f]',lambda x: self.replace_point(x.group()), text)
 
@@ -101,19 +92,18 @@ class Unidecoder(object):
         Find what group character is a part of.
         '''
         # Code groups withing CODEPOINTS take the form 'xAB'
-        return u'x%02x' % (ord(unicode(character)) >> 8)
+        try:#python2 
+            return 'x%02x' % (ord(unicode(character)) >> 8)
+        except: 
+            return 'x%02x' % (ord(character) >> 8)
 
     def grouped_point(self, character):
         '''
         Return the location the replacement character is in the list for a
         the group character is a part of.
         '''
-        return ord(unicode(character)) & 255
-
-def _test():
-	import doctest
-	doctest.testmod()
-
-if __name__ == "__main__":
-	_test()
+        try:#python2
+            return ord(unicode(character)) & 255
+        except:
+            return ord(character) & 255
 
