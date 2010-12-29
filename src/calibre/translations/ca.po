@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-23 22:48+0000\n"
-"PO-Revision-Date: 2010-12-25 21:48+0000\n"
+"PO-Revision-Date: 2010-12-28 18:14+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-26 04:48+0000\n"
+"X-Launchpad-Export-Date: 2010-12-29 04:38+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -4893,7 +4893,7 @@ msgstr "Ctrl+P"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:200
 msgid "Run welcome wizard"
-msgstr "Executa l'asitent de benvinguda"
+msgstr "Executa l'assistent de benvinguda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 msgid "Restart in debug mode"
