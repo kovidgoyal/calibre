@@ -18,9 +18,11 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
 from calibre.library.field_metadata import TagsIcons, category_icon_map
+from calibre.library.database2 import Tag
 from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, upper
 from calibre.utils.search_query_parser import saved_searches
+from calibre.utils.formatter import eval_formatter
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories import TagCategories
@@ -400,7 +402,7 @@ class TagTreeItem(object): # {{{
 
     def category_data(self, role):
         if role == Qt.DisplayRole:
-            return QVariant(self.py_name + ' [%d]'%len(self.children))
+            return QVariant(self.py_name + ' [%d]'%len(self.child_tags()))
         if role == Qt.DecorationRole:
             return self.icon
         if role == Qt.FontRole:
@@ -441,6 +443,15 @@ class TagTreeItem(object): # {{{
         if self.type == self.TAG:
             self.tag.state = (self.tag.state + 1)%3
 
+    def child_tags(self):
+        res = []
+        for t in self.children:
+            if t.type == TagTreeItem.CATEGORY:
+                for c in t.children:
+                    res.append(c)
+            else:
+                res.append(t)
+        return res
     # }}}
 
 class TagsModel(QAbstractItemModel): # {{{
@@ -477,19 +488,11 @@ class TagsModel(QAbstractItemModel): # {{{
                 tt = _('The lookup/search name is "{0}"').format(r)
             else:
                 tt = ''
-            c = TagTreeItem(parent=self.root_item,
+            TagTreeItem(parent=self.root_item,
                     data=self.categories[i],
                     category_icon=self.category_icon_map[r],
                     tooltip=tt, category_key=r)
-            # This duplicates code in refresh(). Having it here as well
-            # can save seconds during startup, because we avoid a second
-            # call to get_node_tree.
-            for tag in data[r]:
-                if r not in self.categories_with_ratings and \
-                            not self.db.field_metadata[r]['is_custom'] and \
-                            not self.db.field_metadata[r]['kind'] == 'user':
-                    tag.avg_rating = None
-                TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
+        self.refresh(data=data)
 
     def mimeTypes(self):
         return ["application/calibre+from_library"]
@@ -652,35 +655,85 @@ class TagsModel(QAbstractItemModel): # {{{
             return None
         return data
 
-    def refresh(self):
-        data = self.get_node_tree(config['sort_tags_by']) # get category data
+    def refresh(self, data=None):
+        sort_by = config['sort_tags_by']
+        if data is None:
+            data = self.get_node_tree(sort_by) # get category data
         if data is None:
             return False
         row_index = -1
+        empty_tag = Tag('')
+        collapse = tweaks['categories_collapse_more_than']
+        collapse_model = tweaks['categories_collapse_model']
+        if sort_by == 'name':
+            collapse_template = tweaks['categories_collapsed_name_template']
+        elif sort_by == 'rating':
+            collapse_model = 'partition'
+            collapse_template = tweaks['categories_collapsed_rating_template']
+        else:
+            collapse_model = 'partition'
+            collapse_template = tweaks['categories_collapsed_popularity_template']
+        collapse_letter = None
+
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
             row_index += 1
             category = self.root_item.children[row_index]
-            names = [t.tag.name for t in category.children]
-            states = [t.tag.state for t in category.children]
+            names = []
+            states = []
+            children = category.child_tags()
+            states = [t.tag.state for t in children]
+            names = [t.tag.name for names in children]
             state_map = dict(izip(names, states))
             category_index = self.index(row_index, 0, QModelIndex())
+            category_node = category_index.internalPointer()
             if len(category.children) > 0:
                 self.beginRemoveRows(category_index, 0,
                         len(category.children)-1)
                 category.children = []
                 self.endRemoveRows()
-            if len(data[r]) > 0:
-                self.beginInsertRows(category_index, 0, len(data[r])-1)
-                for tag in data[r]:
-                    if r not in self.categories_with_ratings and \
+            cat_len = len(data[r])
+            if cat_len <= 0:
+                continue
+
+            self.beginInsertRows(category_index, 0, len(data[r])-1)
+            clear_rating = True if r not in self.categories_with_ratings and \
                                 not self.db.field_metadata[r]['is_custom'] and \
-                                not self.db.field_metadata[r]['kind'] == 'user':
-                        tag.avg_rating = None
-                    tag.state = state_map.get(tag.name, 0)
+                                not self.db.field_metadata[r]['kind'] == 'user' \
+                            else False
+            for idx,tag in enumerate(data[r]):
+                if clear_rating:
+                    tag.avg_rating = None
+                tag.state = state_map.get(tag.name, 0)
+
+                if collapse > 0 and cat_len > collapse:
+                    if collapse_model == 'partition':
+                        if (idx % collapse) == 0:
+                            d = {'first': tag}
+                            if cat_len > idx + collapse:
+                                d['last'] = data[r][idx+collapse-1]
+                            else:
+                                d['last'] = empty_tag
+                            name = eval_formatter.safe_format(collapse_template,
+                                                              d, 'TAG_VIEW', None)
+                            sub_cat = TagTreeItem(parent=category,
+                                     data = name, tooltip = None,
+                                     category_icon = category_node.icon,
+                                     category_key=category_node.category_key)
+                    else:
+                        if upper(tag.name[0]) != collapse_letter:
+                            collapse_letter = upper(tag.name[0])
+                            sub_cat = TagTreeItem(parent=category,
+                                     data = collapse_letter,
+                                     category_icon = category_node.icon,
+                                     tooltip = None,
+                                     category_key=category_node.category_key)
+                    t = TagTreeItem(parent=sub_cat, data=tag,
+                                        icon_map=self.icon_state_map)
+                else:
                     t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_state_map)
-                self.endInsertRows()
+            self.endInsertRows()
         return True
 
     def columnCount(self, parent):
@@ -824,19 +877,28 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def reset_all_states(self, except_=None):
         update_list = []
+        def process_tag(tag_item):
+            tag = tag_item.tag
+            if tag is except_:
+                self.dataChanged.emit(tag_index, tag_index)
+                return
+            if tag.state != 0 or tag in update_list:
+                tag.state = 0
+                update_list.append(tag)
+                self.dataChanged.emit(tag_index, tag_index)
+
         for i in xrange(self.rowCount(QModelIndex())):
             category_index = self.index(i, 0, QModelIndex())
             for j in xrange(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = tag_index.internalPointer()
-                tag = tag_item.tag
-                if tag is except_:
-                    self.dataChanged.emit(tag_index, tag_index)
-                    continue
-                if tag.state != 0 or tag in update_list:
-                    tag.state = 0
-                    update_list.append(tag)
-                    self.dataChanged.emit(tag_index, tag_index)
+                if tag_item.type == TagTreeItem.CATEGORY:
+                    for k in xrange(self.rowCount(tag_index)):
+                        ti = self.index(k, 0, tag_index)
+                        ti = ti.internalPointer()
+                        process_tag(ti)
+                else:
+                    process_tag(tag_item)
 
     def clear_state(self):
         self.reset_all_states()
@@ -856,6 +918,7 @@ class TagsModel(QAbstractItemModel): # {{{
         ans = []
         tags_seen = set()
         row_index = -1
+
         for i, key in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
@@ -863,7 +926,7 @@ class TagsModel(QAbstractItemModel): # {{{
             if key.endswith(':'): # User category, so skip it. The tag will be marked in its real category
                 continue
             category_item = self.root_item.children[row_index]
-            for tag_item in category_item.children:
+            for tag_item in category_item.child_tags():
                 tag = tag_item.tag
                 if tag.state > 0:
                     prefix = ' not ' if tag.state == 2 else ''
