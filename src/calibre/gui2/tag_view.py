@@ -877,7 +877,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def reset_all_states(self, except_=None):
         update_list = []
-        def process_tag(tag_item):
+        def process_tag(tag_index, tag_item):
             tag = tag_item.tag
             if tag is except_:
                 self.dataChanged.emit(tag_index, tag_index)
@@ -887,18 +887,17 @@ class TagsModel(QAbstractItemModel): # {{{
                 update_list.append(tag)
                 self.dataChanged.emit(tag_index, tag_index)
 
-        for i in xrange(self.rowCount(QModelIndex())):
-            category_index = self.index(i, 0, QModelIndex())
+        def process_level(category_index):
             for j in xrange(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = tag_index.internalPointer()
                 if tag_item.type == TagTreeItem.CATEGORY:
-                    for k in xrange(self.rowCount(tag_index)):
-                        ti = self.index(k, 0, tag_index)
-                        ti = ti.internalPointer()
-                        process_tag(ti)
+                    process_level(tag_index)
                 else:
-                    process_tag(tag_item)
+                    process_tag(tag_index, tag_item)
+
+        for i in xrange(self.rowCount(QModelIndex())):
+            process_level(self.index(i, 0, QModelIndex()))
 
     def clear_state(self):
         self.reset_all_states()
