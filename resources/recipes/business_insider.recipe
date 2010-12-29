@@ -1,0 +1,69 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.businessinsider.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Business_insider(BasicNewsRecipe):
+    title                 = 'Business Insider'
+    __author__            = 'Darko Miletic'
+    description           = 'Noticias de Argentina y el resto del mundo'
+    publisher             = 'Business Insider, Inc.'
+    category              = 'news, politics, finances, world'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = True
+    language              = 'en'
+    remove_empty_feeds    = True
+    publication_type      = 'newsportal'
+    masthead_url          = 'http://static.businessinsider.com/assets/images/logos/tbi_print.jpg'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [
+                      dict(name=['meta','link'])
+                     ,dict(attrs={'class':'feedflare'})
+                  ]
+    remove_attributes=['lang','border']
+
+
+    feeds = [
+              (u'Latest'      , u'http://feeds2.feedburner.com/businessinsider'                          )
+             ,(u'Markets'     , u'http://feeds.feedburner.com/TheMoneyGame'                              )
+             ,(u'Wall Street' , u'http://feeds.feedburner.com/clusterstock'                              )
+             ,(u'Tech'        , u'http://feeds.feedburner.com/typepad/alleyinsider/silicon_alley_insider')
+             ,(u'The Wire'    , u'http://feeds.feedburner.com/businessinsider/thewire'                   )
+             ,(u'War Room'    , u'http://feeds.feedburner.com/businessinsider/warroom'                   )
+             ,(u'Sports'      , u'http://feeds.feedburner.com/businessinsider/sportspage'                )
+             ,(u'Tools'       , u'http://feeds.feedburner.com/businessinsider/tools'                     )
+             ,(u'Travel'      , u'http://feeds.feedburner.com/businessinsider/travel'                    )
+            ]
+
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            if item['href'].startswith('http://feedads'):
+               item.extract()
+            else:
+                if item.string is not None:
+                   tstr = item.string
+                   item.replaceWith(tstr)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
