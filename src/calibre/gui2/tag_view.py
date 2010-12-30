@@ -13,7 +13,7 @@ from functools import partial
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
                      QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox,\
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
-                     QPushButton, QWidget, QItemDelegate, QLineEdit
+                     QPushButton, QWidget, QItemDelegate, QString
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
@@ -28,6 +28,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
+from calibre.gui2.widgets import HistoryLineEdit
 
 class TagDelegate(QItemDelegate): # {{{
 
@@ -725,7 +726,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key)
                     else:
-                        if upper(tag.name[0]) != collapse_letter:
+                        if upper(tag.sort[0]) != collapse_letter:
                             collapse_letter = upper(tag.name[0])
                             sub_cat = TagTreeItem(parent=category,
                                      data = collapse_letter,
@@ -943,7 +944,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
         return ans
 
-    def find_node(self, txt, start_index):
+    def find_node(self, key, txt, start_index):
         if not txt:
             return None
         txt = lower(txt)
@@ -970,6 +971,8 @@ class TagsModel(QAbstractItemModel): # {{{
                     return False
                 if path[depth] > start_path[depth]:
                     start_path = path
+            if key and category_index.internalPointer().category_key != key:
+                return False
             for j in xrange(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = tag_index.internalPointer()
@@ -1131,13 +1134,14 @@ class TagBrowserWidget(QWidget): # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
+        self.parent = parent
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
         self._layout.setContentsMargins(0,0,0,0)
 
         search_layout = QHBoxLayout()
         self._layout.addLayout(search_layout)
-        self.item_search = QLineEdit(parent)
+        self.item_search = HistoryLineEdit(parent)
         try:
             self.item_search.setPlaceholderText(_('Find item in tag browser'))
         except:
@@ -1150,8 +1154,10 @@ class TagBrowserWidget(QWidget): # {{{
         search_layout.addWidget(self.search_button)
         self.current_position = None
         self.search_button.clicked.connect(self.find)
-        self.item_search.editingFinished.connect(self.find)
-        self.item_search.textChanged.connect(self.find_text_changed)
+        self.item_search.initialize('tag_browser_search')
+        self.item_search.lineEdit().returnPressed.connect(self.find_text_changed)
+        self.item_search.activated[QString].connect(self.find_text_changed)
+        self.item_search.completer().setCaseSensitivity(Qt.CaseSensitive)
 
         parent.tags_view = TagsView(parent)
         self.tags_view = parent.tags_view
@@ -1187,15 +1193,36 @@ class TagBrowserWidget(QWidget): # {{{
     def set_pane_is_visible(self, to_what):
         self.tags_view.set_pane_is_visible(to_what)
 
-    def find_text_changed(self, str):
+    def find_text_changed(self, str=None):
+        print 'here', str
         self.current_position = None
+        self.find()
 
     def find(self):
         self.search_button.setFocus(True)
         model = self.tags_view.model()
         model.clear_boxed()
-        self.current_position =\
-            model.find_node(unicode(self.item_search.text()), self.current_position)
+        txt = unicode(self.item_search.currentText())
+
+        idx = self.item_search.findText(txt, Qt.MatchFixedString)
+        self.item_search.blockSignals(True)
+        if idx < 0:
+            self.item_search.insertItem(0, txt)
+        else:
+            t = self.item_search.itemText(idx)
+            self.item_search.removeItem(idx)
+            self.item_search.insertItem(0, t)
+        self.item_search.setCurrentIndex(0)
+        self.item_search.blockSignals(False)
+
+        colon = txt.find(':')
+        key = None
+        if colon > 0:
+            key = self.parent.library_view.model().db.\
+                        field_metadata.search_term_to_field_key(txt[:colon])
+            txt = txt[colon+1:]
+        print key, txt
+        self.current_position = model.find_node(key, txt, self.current_position)
         if self.current_position:
             model.show_item_at_index(self.current_position, box=True)
         elif self.item_search.text():
