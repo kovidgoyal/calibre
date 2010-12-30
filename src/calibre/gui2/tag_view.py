@@ -336,12 +336,13 @@ class TagsView(QTreeView): # {{{
     # If the number of user categories changed,  if custom columns have come or
     # gone, or if columns have been hidden or restored, we must rebuild the
     # model. Reason: it is much easier than reconstructing the browser tree.
-    def set_new_model(self):
+    def set_new_model(self, filter_categories_by = None):
         try:
             self._model = TagsModel(self.db, parent=self,
                                     hidden_categories=self.hidden_categories,
                                     search_restriction=self.search_restriction,
-                                    drag_drop_finished=self.drag_drop_finished)
+                                    drag_drop_finished=self.drag_drop_finished,
+                                    filter_categories_by=filter_categories_by)
             self.setModel(self._model)
         except:
             # The DB must be gone. Set the model to None and hope that someone
@@ -461,7 +462,8 @@ class TagTreeItem(object): # {{{
 class TagsModel(QAbstractItemModel): # {{{
 
     def __init__(self, db, parent, hidden_categories=None,
-            search_restriction=None, drag_drop_finished=None):
+            search_restriction=None, drag_drop_finished=None,
+            filter_categories_by=None):
         QAbstractItemModel.__init__(self, parent)
 
         # must do this here because 'QPixmap: Must construct a QApplication
@@ -481,6 +483,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.hidden_categories = hidden_categories
         self.search_restriction = search_restriction
         self.row_map = []
+        self.filter_categories_by = filter_categories_by
 
         # get_node_tree cannot return None here, because row_map is empty
         data = self.get_node_tree(config['sort_tags_by'])
@@ -647,6 +650,11 @@ class TagsModel(QAbstractItemModel): # {{{
                         ids=self.db.search('', return_matches=True))
         else:
             data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
+
+        if self.filter_categories_by:
+            for category in data.keys():
+                data[category] = [t for t in data[category]
+                        if lower(t.name).find(self.filter_categories_by) >= 0]
 
         tb_categories = self.db.field_metadata
         for category in tb_categories:
@@ -948,7 +956,7 @@ class TagsModel(QAbstractItemModel): # {{{
         if not txt:
             return None
         txt = lower(txt)
-        if start_index is None:
+        if start_index is None or not start_index.isValid():
             start_index = QModelIndex()
         self.node_found = None
 
@@ -1017,7 +1025,8 @@ class TagsModel(QAbstractItemModel): # {{{
         for i in xrange(self.rowCount(QModelIndex())):
             process_level(self.index(i, 0, QModelIndex()))
 
-
+    def get_filter_categories_by(self):
+        return self.filter_categories_by
 
     # }}}
 
@@ -1151,7 +1160,9 @@ class TagBrowserWidget(QWidget): # {{{
         'Search for items. This is a "contains" search; items containing the\n'
         'text anywhere in the name will be found. You can limit the search\n'
         'to particular categories using syntax similar to search. For example,\n'
-        'tags:foo will find foo in any tag, but not in authors etc.'))
+        'tags:foo will find foo in any tag, but not in authors etc. Entering\n'
+        '*foo will filter all categories at once, showing only those items\n'
+        'containing the text "foo"'))
         search_layout.addWidget(self.item_search)
         self.search_button = QPushButton()
         self.search_button.setText(_('Find!'))
@@ -1161,8 +1172,9 @@ class TagBrowserWidget(QWidget): # {{{
         self.current_position = None
         self.search_button.clicked.connect(self.find)
         self.item_search.initialize('tag_browser_search')
-        self.item_search.lineEdit().returnPressed.connect(self.find_text_changed)
-        self.item_search.activated[QString].connect(self.find_text_changed)
+        self.item_search.lineEdit().returnPressed.connect(self.do_find)
+        self.item_search.lineEdit().textEdited.connect(self.find_text_changed)
+        self.item_search.activated[QString].connect(self.do_find)
         self.item_search.completer().setCaseSensitivity(Qt.CaseSensitive)
 
         parent.tags_view = TagsView(parent)
@@ -1199,18 +1211,34 @@ class TagBrowserWidget(QWidget): # {{{
     def set_pane_is_visible(self, to_what):
         self.tags_view.set_pane_is_visible(to_what)
 
-    def find_text_changed(self, str=None):
+    def find_text_changed(self, str):
+        self.current_position = None
+
+    def do_find(self, str=None):
         self.current_position = None
         self.find()
 
     def find(self):
-        self.search_button.setFocus(True)
         model = self.tags_view.model()
         model.clear_boxed()
-        txt = unicode(self.item_search.currentText())
+        txt = unicode(self.item_search.currentText()).strip()
 
-        idx = self.item_search.findText(txt, Qt.MatchFixedString)
+        if txt.startswith('*'):
+            self.tags_view.set_new_model(filter_categories_by=txt[1:])
+            self.current_position = None
+            return
+        if model.get_filter_categories_by():
+            self.tags_view.set_new_model(filter_categories_by=None)
+            self.current_position = None
+            model = self.tags_view.model()
+
+        if not txt:
+            return
+
         self.item_search.blockSignals(True)
+        self.item_search.lineEdit().blockSignals(True)
+        self.search_button.setFocus(True)
+        idx = self.item_search.findText(txt, Qt.MatchFixedString)
         if idx < 0:
             self.item_search.insertItem(0, txt)
         else:
@@ -1219,6 +1247,7 @@ class TagBrowserWidget(QWidget): # {{{
             self.item_search.insertItem(0, t)
         self.item_search.setCurrentIndex(0)
         self.item_search.blockSignals(False)
+        self.item_search.lineEdit().blockSignals(False)
 
         colon = txt.find(':')
         key = None
@@ -1226,6 +1255,7 @@ class TagBrowserWidget(QWidget): # {{{
             key = self.parent.library_view.model().db.\
                         field_metadata.search_term_to_field_key(txt[:colon])
             txt = txt[colon+1:]
+
         self.current_position = model.find_node(key, txt, self.current_position)
         if self.current_position:
             model.show_item_at_index(self.current_position, box=True)
