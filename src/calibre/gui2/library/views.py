@@ -165,7 +165,7 @@ class BooksView(QTableView): # {{{
                     partial(self.column_header_context_handler,
                         action='descending', column=col))
             if self._model.sorted_on[0] == col:
-                ac = a if self._model.sorted_on[1] == Qt.AscendingOrder else d
+                ac = a if self._model.sorted_on[1] else d
                 ac.setCheckable(True)
                 ac.setChecked(True)
             if col not in ('ondevice', 'rating', 'inlibrary') and \
@@ -282,13 +282,13 @@ class BooksView(QTableView): # {{{
     def cleanup_sort_history(self, sort_history):
         history = []
         for col, order in sort_history:
+            if not isinstance(order, bool):
+                continue
             if col == 'date':
                 col = 'timestamp'
             if col in self.column_map:
-                if (not history or history[0][0] != col):
+                if (not history or history[-1][0] != col):
                     history.append([col, order])
-                elif isinstance(order, bool) and history[0][1] != order:
-                    history[0][1] = order
         return history
 
     def apply_sort_history(self, saved_history):

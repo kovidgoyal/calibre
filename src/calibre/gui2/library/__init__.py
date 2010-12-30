@@ -7,4 +7,4 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import Qt
 
-DEFAULT_SORT = ('timestamp', Qt.DescendingOrder)
+DEFAULT_SORT = ('timestamp', False)
