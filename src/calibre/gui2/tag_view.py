@@ -18,6 +18,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
 from calibre.library.field_metadata import TagsIcons, category_icon_map
+from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import saved_searches
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -60,18 +61,19 @@ class TagDelegate(QItemDelegate): # {{{
 class TagsView(QTreeView): # {{{
 
     refresh_required    = pyqtSignal()
-    tags_marked         = pyqtSignal(object, object)
+    tags_marked         = pyqtSignal(object)
     user_category_edit  = pyqtSignal(object)
     tag_list_edit       = pyqtSignal(object, object)
     saved_search_edit   = pyqtSignal(object)
     author_sort_edit    = pyqtSignal(object, object)
     tag_item_renamed    = pyqtSignal()
     search_item_renamed = pyqtSignal()
-    drag_drop_finished  = pyqtSignal(object)
+    drag_drop_finished  = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
         self.tag_match = None
+        self.disable_recounting = False
         self.setUniformRowHeights(True)
         self.setCursor(Qt.PointingHandCursor)
         self.setIconSize(QSize(30, 30))
@@ -106,10 +108,13 @@ class TagsView(QTreeView): # {{{
             self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
             self.sort_by.currentIndexChanged.connect(self.sort_changed)
             self.made_connections = True
+        self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
 
     def database_changed(self, event, ids):
-        self.refresh_required.emit()
+        if self.refresh_signal_processed:
+            self.refresh_signal_processed = False
+            self.refresh_required.emit()
 
     @property
     def match_all(self):
@@ -135,11 +140,21 @@ class TagsView(QTreeView): # {{{
         # swallow these to avoid toggling and editing at the same time
         pass
 
+    @property
+    def search_string(self):
+        tokens = self._model.tokens()
+        joiner = ' and ' if self.match_all else ' or '
+        return joiner.join(tokens)
+
     def toggle(self, index):
         modifiers = int(QApplication.keyboardModifiers())
         exclusive = modifiers not in (Qt.CTRL, Qt.SHIFT)
         if self._model.toggle(index, exclusive):
-            self.tags_marked.emit(self._model.tokens(), self.match_all)
+            self.tags_marked.emit(self.search_string)
+
+    def conditional_clear(self, search_string):
+        if search_string != self.search_string:
+            self.clear()
 
     def context_menu_handler(self, action=None, category=None,
                              key=None, index=None):
@@ -174,76 +189,105 @@ class TagsView(QTreeView): # {{{
 
     def show_context_menu(self, point):
         index = self.indexAt(point)
-        if not index.isValid():
-            return False
-        item = index.internalPointer()
-        tag_name = ''
-        if item.type == TagTreeItem.TAG:
-            tag_item = item
-            tag_name = item.tag.name
-            tag_id = item.tag.id
-            item = item.parent
-        if item.type == TagTreeItem.CATEGORY:
-            category = unicode(item.name.toString())
-            key = item.category_key
-            # Verify that we are working with a field that we know something about
-            if key not in self.db.field_metadata:
-                return True
+        self.context_menu = QMenu(self)
 
-            self.context_menu = QMenu(self)
-            # If the user right-clicked on an editable item, then offer
-            # the possibility of renaming that item
-            if tag_name and \
-                    (key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
-                     self.db.field_metadata[key]['is_custom'] and \
-                     self.db.field_metadata[key]['datatype'] != 'rating'):
-                self.context_menu.addAction(_('Rename \'%s\'')%tag_name,
-                        partial(self.context_menu_handler, action='edit_item',
-                                category=tag_item, index=index))
-                if key == 'authors':
-                    self.context_menu.addAction(_('Edit sort for \'%s\'')%tag_name,
-                            partial(self.context_menu_handler,
-                                    action='edit_author_sort', index=tag_id))
+        if index.isValid():
+            item = index.internalPointer()
+            tag_name = ''
+
+            if item.type == TagTreeItem.TAG:
+                tag_item = item
+                tag_name = item.tag.name
+                tag_id = item.tag.id
+                item = item.parent
+
+            if item.type == TagTreeItem.CATEGORY:
+                category = unicode(item.name.toString())
+                key = item.category_key
+                # Verify that we are working with a field that we know something about
+                if key not in self.db.field_metadata:
+                    return True
+
+                # If the user right-clicked on an editable item, then offer
+                # the possibility of renaming that item
+                if tag_name and \
+                        (key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
+                        self.db.field_metadata[key]['is_custom'] and \
+                        self.db.field_metadata[key]['datatype'] != 'rating'):
+                    self.context_menu.addAction(_('Rename \'%s\'')%tag_name,
+                            partial(self.context_menu_handler, action='edit_item',
+                                    category=tag_item, index=index))
+                    if key == 'authors':
+                        self.context_menu.addAction(_('Edit sort for \'%s\'')%tag_name,
+                                partial(self.context_menu_handler,
+                                        action='edit_author_sort', index=tag_id))
+                    self.context_menu.addSeparator()
+                # Hide/Show/Restore categories
+                self.context_menu.addAction(_('Hide category %s') % category,
+                    partial(self.context_menu_handler, action='hide', category=category))
+                if self.hidden_categories:
+                    m = self.context_menu.addMenu(_('Show category'))
+                    for col in sorted(self.hidden_categories, key=sort_key):
+                        m.addAction(col,
+                            partial(self.context_menu_handler, action='show', category=col))
+
+                # Offer specific editors for tags/series/publishers/saved searches
                 self.context_menu.addSeparator()
-            # Hide/Show/Restore categories
-            self.context_menu.addAction(_('Hide category %s') % category,
-                partial(self.context_menu_handler, action='hide', category=category))
-            if self.hidden_categories:
-                m = self.context_menu.addMenu(_('Show category'))
-                for col in sorted(self.hidden_categories, cmp=lambda x,y: cmp(x.lower(), y.lower())):
-                    m.addAction(col,
-                        partial(self.context_menu_handler, action='show', category=col))
-                self.context_menu.addAction(_('Show all categories'),
-                            partial(self.context_menu_handler, action='defaults'))
+                if key in ['tags', 'publisher', 'series'] or \
+                            self.db.field_metadata[key]['is_custom']:
+                    self.context_menu.addAction(_('Manage %s')%category,
+                            partial(self.context_menu_handler, action='open_editor',
+                                    category=tag_name, key=key))
+                elif key == 'authors':
+                    self.context_menu.addAction(_('Manage %s')%category,
+                            partial(self.context_menu_handler, action='edit_author_sort'))
+                elif key == 'search':
+                    self.context_menu.addAction(_('Manage Saved Searches'),
+                        partial(self.context_menu_handler, action='manage_searches',
+                                category=tag_name))
 
-            # Offer specific editors for tags/series/publishers/saved searches
-            self.context_menu.addSeparator()
-            if key in ['tags', 'publisher', 'series'] or \
-                        self.db.field_metadata[key]['is_custom']:
-                self.context_menu.addAction(_('Manage %s')%category,
-                        partial(self.context_menu_handler, action='open_editor',
-                                category=tag_name, key=key))
-            elif key == 'authors':
-                self.context_menu.addAction(_('Manage %s')%category,
-                        partial(self.context_menu_handler, action='edit_author_sort'))
-            elif key == 'search':
-                self.context_menu.addAction(_('Manage Saved Searches'),
-                    partial(self.context_menu_handler, action='manage_searches',
-                            category=tag_name))
+                # Always show the user categories editor
+                self.context_menu.addSeparator()
+                if category in self.db.prefs.get('user_categories', {}).keys():
+                    self.context_menu.addAction(_('Manage User Categories'),
+                            partial(self.context_menu_handler, action='manage_categories',
+                                    category=category))
+                else:
+                    self.context_menu.addAction(_('Manage User Categories'),
+                            partial(self.context_menu_handler, action='manage_categories',
+                                    category=None))
 
-            # Always show the user categories editor
-            self.context_menu.addSeparator()
-            if category in self.db.prefs.get('user_categories', {}).keys():
-                self.context_menu.addAction(_('Manage User Categories'),
-                        partial(self.context_menu_handler, action='manage_categories',
-                                category=category))
-            else:
-                self.context_menu.addAction(_('Manage User Categories'),
-                        partial(self.context_menu_handler, action='manage_categories',
-                                category=None))
+        if self.hidden_categories:
+            if not self.context_menu.isEmpty():
+                self.context_menu.addSeparator()
+            self.context_menu.addAction(_('Show all categories'),
+                        partial(self.context_menu_handler, action='defaults'))
 
+        if not self.context_menu.isEmpty():
             self.context_menu.popup(self.mapToGlobal(point))
         return True
+
+    def dragMoveEvent(self, event):
+        QTreeView.dragMoveEvent(self, event)
+        self.setDropIndicatorShown(False)
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            return
+        item = index.internalPointer()
+        flags = self._model.flags(index)
+        if item.type == TagTreeItem.TAG and flags & Qt.ItemIsDropEnabled:
+            self.setDropIndicatorShown(True)
+        else:
+            if item.type == TagTreeItem.CATEGORY:
+                fm_dest = self.db.metadata_for_field(item.category_key)
+                if fm_dest['kind'] == 'user':
+                    md = event.mimeData()
+                    fm_src = self.db.metadata_for_field(md.column_name)
+                    if md.column_name in ['authors', 'publisher', 'series'] or \
+                            (fm_src['is_custom'] and
+                             fm_src['datatype'] in ['series', 'text'] and
+                             not fm_src['is_multiple']):
+                        self.setDropIndicatorShown(True)
 
     def clear(self):
         if self.model():
@@ -256,6 +300,9 @@ class TagsView(QTreeView): # {{{
         return self.isExpanded(idx)
 
     def recount(self, *args):
+        if self.disable_recounting:
+            return
+        self.refresh_signal_processed = True
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
@@ -441,8 +488,59 @@ class TagsModel(QAbstractItemModel): # {{{
                     ids = list(map(int, str(md.data(mime)).split()))
                     self.handle_drop(node, ids)
                     return True
+            elif node.type == TagTreeItem.CATEGORY:
+                fm_dest = self.db.metadata_for_field(node.category_key)
+                if fm_dest['kind'] == 'user':
+                    fm_src = self.db.metadata_for_field(md.column_name)
+                    if md.column_name in ['authors', 'publisher', 'series'] or \
+                            (fm_src['is_custom'] and
+                             fm_src['datatype'] in ['series', 'text'] and
+                             not fm_src['is_multiple']):
+                        mime = 'application/calibre+from_library'
+                        ids = list(map(int, str(md.data(mime)).split()))
+                        self.handle_user_category_drop(node, ids, md.column_name)
+                        return True
         return False
 
+    def handle_user_category_drop(self, on_node, ids, column):
+        categories = self.db.prefs.get('user_categories', {})
+        category = categories.get(on_node.category_key[:-1], None)
+        if category is None:
+            return
+        fm_src = self.db.metadata_for_field(column)
+        for id in ids:
+            vmap = {}
+            label = fm_src['label']
+            if not fm_src['is_custom']:
+                if label == 'authors':
+                    items = self.db.get_authors_with_ids()
+                    items = [(i[0], i[1].replace('|', ',')) for i in items]
+                    value = self.db.authors(id, index_is_id=True)
+                    value = [v.replace('|', ',') for v in value.split(',')]
+                elif label == 'publisher':
+                    items = self.db.get_publishers_with_ids()
+                    value = self.db.publisher(id, index_is_id=True)
+                elif label == 'series':
+                    items = self.db.get_series_with_ids()
+                    value = self.db.series(id, index_is_id=True)
+            else:
+                items = self.db.get_custom_items_with_ids(label=label)
+                value = self.db.get_custom(id, label=label, index_is_id=True)
+            if value is None:
+                return
+            if not isinstance(value, list):
+                value = [value]
+            for v in items:
+                vmap[v[1]] = v[0]
+            for val in value:
+                for (v, c, id) in category:
+                    if v == val and c == column:
+                        break
+                else:
+                    category.append([val, column, vmap[val]])
+            categories[on_node.category_key[:-1]] = category
+            self.db.prefs.set('user_categories', categories)
+            self.drag_drop_finished.emit(None, True)
 
     def handle_drop(self, on_node, ids):
         #print 'Dropped ids:', ids, on_node.tag
@@ -492,7 +590,7 @@ class TagsModel(QAbstractItemModel): # {{{
             self.db.set_metadata(id, mi, set_title=False,
                                  set_authors=set_authors, commit=False)
         self.db.commit()
-        self.drag_drop_finished.emit(ids)
+        self.drag_drop_finished.emit(ids, False)
 
     def set_search_restriction(self, s):
         self.search_restriction = s
@@ -505,7 +603,8 @@ class TagsModel(QAbstractItemModel): # {{{
         # Reconstruct the user categories, putting them into metadata
         self.db.field_metadata.remove_dynamic_categories()
         tb_cats = self.db.field_metadata
-        for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys()):
+        for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys(),
+                               key=sort_key):
             cat_name = user_cat+':' # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
         if len(saved_searches().names()):
@@ -634,6 +733,8 @@ class TagsModel(QAbstractItemModel): # {{{
                     (fm['is_custom'] and \
                         fm['datatype'] in ['text', 'rating', 'series']):
                     ans |= Qt.ItemIsDropEnabled
+            else:
+                ans |= Qt.ItemIsDropEnabled
         return ans
 
     def supportedDropActions(self):
@@ -760,8 +861,7 @@ class TagBrowserMixin(object): # {{{
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
         self.tags_view.set_database(self.library_view.model().db,
                 self.tag_match, self.sort_by)
-        self.tags_view.tags_marked.connect(self.search.search_from_tags)
-        self.tags_view.tags_marked.connect(self.saved_search.clear_to_help)
+        self.tags_view.tags_marked.connect(self.search.set_search_string)
         self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
@@ -783,23 +883,23 @@ class TagBrowserMixin(object): # {{{
         db=self.library_view.model().db
         if category == 'tags':
             result = db.get_tags_with_ids()
-            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+            key = sort_key
         elif category == 'series':
             result = db.get_series_with_ids()
-            compare = (lambda x,y:cmp(title_sort(x).lower(), title_sort(y).lower()))
+            key = lambda x:sort_key(title_sort(x))
         elif category == 'publisher':
             result = db.get_publishers_with_ids()
-            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+            key = sort_key
         else: # should be a custom field
             cc_label = None
             if category in db.field_metadata:
                 cc_label = db.field_metadata[category]['label']
-                result = self.db.get_custom_items_with_ids(label=cc_label)
+                result = db.get_custom_items_with_ids(label=cc_label)
             else:
                 result = []
-            compare = (lambda x,y:cmp(x.lower(), y.lower()))
+            key = sort_key
 
-        d = TagListEditor(self, tag_to_match=tag, data=result, compare=compare)
+        d = TagListEditor(self, tag_to_match=tag, data=result, key=key)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename # dict of new text to old id
@@ -828,14 +928,14 @@ class TagBrowserMixin(object): # {{{
             self.library_view.model().refresh()
             self.tags_view.set_new_model()
             self.tags_view.recount()
-            self.saved_search.clear_to_help()
-            self.search.clear_to_help()
+            self.saved_search.clear()
+            self.search.clear()
 
     def do_tag_item_renamed(self):
         # Clean up library view and search
         self.library_view.model().refresh()
-        self.saved_search.clear_to_help()
-        self.search.clear_to_help()
+        self.saved_search.clear()
+        self.search.clear()
 
     def do_author_sort_edit(self, parent, id):
         db = self.library_view.model().db
@@ -846,12 +946,17 @@ class TagBrowserMixin(object): # {{{
                 if old_author != new_author:
                     # The id might change if the new author already exists
                     id = db.rename_author(id, new_author)
-                db.set_sort_field_for_author(id, unicode(new_sort))
+                db.set_sort_field_for_author(id, unicode(new_sort),
+                                             commit=False, notify=False)
+            db.commit()
             self.library_view.model().refresh()
             self.tags_view.recount()
 
-    def drag_drop_finished(self, ids):
-        self.library_view.model().refresh_ids(ids)
+    def drag_drop_finished(self, ids, is_category):
+        if is_category:
+            self.tags_view.recount()
+        else:
+            self.library_view.model().refresh_ids(ids)
 
 # }}}
 

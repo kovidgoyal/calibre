@@ -37,6 +37,8 @@ class Plugin(_Plugin):
             self.fsizes.append((name, num, float(size)))
         self.fnames = dict((name, sz) for name, _, sz in self.fsizes if name)
         self.fnums = dict((num, sz) for _, num, sz in self.fsizes if num)
+        self.width_pts = self.width * 72./self.dpi
+        self.height_pts = self.height * 72./self.dpi
 
 # Input profiles {{{
 class InputProfile(Plugin):
@@ -678,6 +680,15 @@ class NookOutput(OutputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
+class NookColorOutput(NookOutput):
+    name = 'Nook Color'
+    short_name = 'nook_color'
+    description = _('This profile is intended for the B&N Nook Color.')
+
+    screen_size               = (600, 900)
+    comic_screen_size         = (594, 900)
+    dpi                       = 169
+
 class BambookOutput(OutputProfile):
 
     author      = 'Li Fanxi'
@@ -698,6 +709,6 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         iPadOutput, KoboReaderOutput, TabletOutput,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-        BambookOutput, ]
+        BambookOutput, NookColorOutput]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))

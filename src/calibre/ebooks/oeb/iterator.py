@@ -96,7 +96,10 @@ class EbookIterator(object):
 
     def search(self, text, index, backwards=False):
         text = text.lower()
-        for i, path in enumerate(self.spine):
+        pmap = [(i, path) for i, path in enumerate(self.spine)]
+        if backwards:
+            pmap.reverse()
+        for i, path in pmap:
             if (backwards and i < index) or (not backwards and i > index):
                 if text in open(path, 'rb').read().decode(path.encoding).lower():
                     return i

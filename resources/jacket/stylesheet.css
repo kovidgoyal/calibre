@@ -36,22 +36,37 @@
 /*
 **	Title
 */
-.cbj_title {
+table.cbj_header td.cbj_title {
 	font-size: x-large;
+	font-style: italic;
+	text-align: center;
+}
+
+/*
+**	Series
+*/
+table.cbj_header td.cbj_series {
+	font-size: medium;
 	text-align: center;
 }
 
 /*
 **	Author
 */
-.cbj_author {
+table.cbj_header td.cbj_author {
 	font-size: medium;
 	text-align: center;
-    margin-bottom: 1ex;
 }
 
 /*
-**	Table containing Series, Publication Year, Rating and Tags
+**	Publisher/published
+*/
+table.cbj_header td.cbj_pubdata {
+	text-align: center;
+}
+
+/*
+**	Table containing Rating and Tags
 */
 table.cbj_header {
 	width: 100%;
@@ -62,9 +77,8 @@ table.cbj_header {
 */
 table.cbj_header td.cbj_label {
 	font-family: sans-serif;
-	font-weight: bold;
 	text-align: right;
-	width: 40%;
+	width: 33%;
 	}
 
 /*
@@ -73,8 +87,22 @@ table.cbj_header td.cbj_label {
 table.cbj_header td.cbj_content {
 	font-family: sans-serif;
 	text-align: left;
-	width:60%;
+	width:67%;
 	}
+
+/*
+** Metadata divider
+*/
+hr.metadata_divider {
+	width:90%;
+	margin-left:5%;
+	border-top: solid white 0px;
+	border-right: solid white 0px;
+    border-bottom: solid black 1px;
+    border-left: solid white 0px;
+	}
+
+
 
 /*
 **	To skip a banner item (Series|Published|Rating|Tags),

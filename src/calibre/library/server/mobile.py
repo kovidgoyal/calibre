@@ -21,6 +21,7 @@ from calibre.constants import __appname__
 from calibre import human_readable, isbytestring
 from calibre.utils.date import utcfromtimestamp
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.icu import sort_key
 
 def CLASS(*args, **kwargs): # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)
@@ -211,8 +212,7 @@ class MobileServer(object):
 
         CFM = self.db.field_metadata
         CKEYS = [key for key in sorted(custom_fields_to_display(self.db),
-             cmp=lambda x,y: cmp(CFM[x]['name'].lower(),
-                                 CFM[y]['name'].lower()))]
+                                       key=lambda x:sort_key(CFM[x]['name']))]
         # This method uses its own book dict, not the Metadata dict. The loop
         # below could be changed to use db.get_metadata instead of reading
         # info directly from the record made by the view, but it doesn't seem

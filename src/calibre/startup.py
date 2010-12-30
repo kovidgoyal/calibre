@@ -129,7 +129,7 @@ if not _run_once:
 
                 def __getattribute__(self, attr):
                     if attr in ('name', '__enter__', '__str__', '__unicode__',
-                            '__repr__'):
+                            '__repr__', '__exit__'):
                         return object.__getattribute__(self, attr)
                     fobject = object.__getattribute__(self, 'fobject')
                     return getattr(fobject, attr)
@@ -154,6 +154,11 @@ if not _run_once:
                     fobject = object.__getattribute__(self, 'fobject')
                     fobject.__enter__()
                     return self
+
+                def __exit__(self, *args):
+                    fobject = object.__getattribute__(self, 'fobject')
+                    return fobject.__exit__(*args)
+
 
             m = mode[0]
             random = len(mode) > 1 and mode[1] == '+'
@@ -193,6 +198,15 @@ if not _run_once:
         return ans
 
     __builtin__.__dict__['lopen'] = local_open
+
+    from calibre.utils.icu import title_case, lower as icu_lower, upper as icu_upper
+    __builtin__.__dict__['icu_lower'] = icu_lower
+    __builtin__.__dict__['icu_upper'] = icu_upper
+    __builtin__.__dict__['icu_title'] = title_case
+
+    import mimetypes
+    mimetypes.init([P('mime.types')])
+    guess_type = mimetypes.guess_type
 
 def test_lopen():
     from calibre.ptempfile import TemporaryDirectory

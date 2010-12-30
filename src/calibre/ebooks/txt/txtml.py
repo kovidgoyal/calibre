@@ -35,6 +35,7 @@ BLOCK_STYLES = [
 
 SPACE_TAGS = [
     'td',
+    'br',
 ]
 
 class TXTMLizer(object):
@@ -155,6 +156,10 @@ class TXTMLizer(object):
 
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
+            p = elem.getparent()
+            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+                    and elem.tail:
+                return [elem.tail]
             return ['']
 
         text = ['']
@@ -174,8 +179,7 @@ class TXTMLizer(object):
                 text.append(u'\n\n')
 
         if tag in SPACE_TAGS:
-            if not end.endswith('u ') and hasattr(elem, 'text') and elem.text:
-                text.append(u' ')
+            text.append(u' ')
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:

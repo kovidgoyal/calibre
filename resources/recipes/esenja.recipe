@@ -1,0 +1,87 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, matek09, matek09@gmail.com'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class Esensja(BasicNewsRecipe):
+
+	title = u'Esensja'
+	__author__ = 'matek09'
+	description = 'Monthly magazine'
+	encoding = 'utf-8'
+	no_stylesheets = True
+	language = 'pl'
+	remove_javascript = True
+	HREF = '0'
+
+	#keep_only_tags =[]
+	#keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'article'})
+	remove_tags_before = dict(dict(name = 'div', attrs = {'class' : 't-title'}))
+	remove_tags_after = dict(dict(name = 'img', attrs = {'src' : '../../../2000/01/img/tab_bot.gif'}))
+
+	remove_tags =[]
+	remove_tags.append(dict(name = 'img', attrs = {'src' : '../../../2000/01/img/tab_top.gif'}))
+	remove_tags.append(dict(name = 'img', attrs = {'src' : '../../../2000/01/img/tab_bot.gif'}))
+	remove_tags.append(dict(name = 'div', attrs = {'class' : 't-title2 nextpage'}))
+
+	extra_css = '''
+					.t-title {font-size: x-large; font-weight: bold; text-align: left}
+					.t-author {font-size: x-small; text-align: left}
+					.t-title2 {font-size: x-small; font-style: italic; text-align: left}
+					.text {font-size: small; text-align: left}
+					.annot-ref {font-style: italic; text-align: left}
+				'''
+
+	preprocess_regexps = [(re.compile(r'alt="[^"]*"'),
+						lambda match: '')]
+
+	def parse_index(self):
+		soup = self.index_to_soup('http://www.esensja.pl/magazyn/')
+		a = soup.find('a', attrs={'href' : re.compile('.*/index.html')})
+		year = a['href'].split('/')[0]
+		month = a['href'].split('/')[1]
+		self.HREF = 'http://www.esensja.pl/magazyn/' + year + '/' + month + '/iso/'
+		soup = self.index_to_soup(self.HREF + '01.html')
+		self.cover_url = 'http://www.esensja.pl/magazyn/' + year + '/' + month + '/img/ilustr/cover_b.jpg'
+		feeds = []
+		intro = soup.find('div', attrs={'class' : 'n-title'})
+		introduction = {'title' : self.tag_to_string(intro.a),
+						'url' : self.HREF + intro.a['href'],
+						'date' : '',
+						'description' : ''}
+		chapter = 'Wprowadzenie'
+		subchapter = ''
+		articles = []
+		articles.append(introduction)
+		for tag in intro.findAllNext(attrs={'class': ['chapter', 'subchapter', 'n-title']}):
+			if tag.name in 'td':
+				if len(articles) > 0:
+					section = chapter
+					if len(subchapter) > 0:
+						section += ' - ' + subchapter
+					feeds.append((section, articles))
+					articles = []
+				if tag['class'] == 'chapter':
+					chapter = self.tag_to_string(tag).capitalize()
+					subchapter = ''
+				else:
+					subchapter = self.tag_to_string(tag)
+					subchapter = self.tag_to_string(tag)
+				continue
+			articles.append({'title' : self.tag_to_string(tag.a), 'url' : self.HREF + tag.a['href'], 'date' : '', 'description' : ''})
+
+			a = self.index_to_soup(self.HREF + tag.a['href'])
+			i = 1
+			while True:
+				div = a.find('div', attrs={'class' : 't-title2 nextpage'})
+				if div is not None:
+					a = self.index_to_soup(self.HREF + div.a['href'])
+					articles.append({'title' : self.tag_to_string(tag.a) + ' c. d. ' + str(i), 'url' : self.HREF + div.a['href'], 'date' : '', 'description' : ''})
+					i = i + 1
+				else:
+					break
+
+		return feeds

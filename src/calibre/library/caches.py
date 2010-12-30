@@ -129,6 +129,7 @@ class CoverCache(Thread): # {{{
         self.keep_running = True
         self.cache = {}
         self.lock = RLock()
+        self.allowed_ids = frozenset([])
         self.null_image = QImage()
 
     def stop(self):
@@ -175,6 +176,11 @@ class CoverCache(Thread): # {{{
                 break
             for id_ in ids:
                 time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
+                if not self.keep_running:
+                    return
+                with self.lock:
+                    if id_ not in self.allowed_ids:
+                        continue
                 try:
                     img = self._image_for_id(id_)
                 except:
@@ -193,6 +199,7 @@ class CoverCache(Thread): # {{{
 
     def set_cache(self, ids):
         with self.lock:
+            self.allowed_ids = frozenset(ids)
             already_loaded = set([])
             for id in self.cache.keys():
                 if id in ids:
@@ -213,8 +220,9 @@ class CoverCache(Thread): # {{{
     def refresh(self, ids):
         with self.lock:
             for id_ in ids:
-                self.cache.pop(id_, None)
-                self.load_queue.put(id_)
+                cover = self.cache.pop(id_, None)
+                if cover is not None:
+                    self.load_queue.put(id_)
 # }}}
 
 ### Global utility function for get_match here and in gui2/library.py
@@ -223,7 +231,7 @@ EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
 def _match(query, value, matchkind):
     for t in value:
-        t = t.lower()
+        t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
             if ((matchkind == EQUALS_MATCH and query == t) or
                 (matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
@@ -403,7 +411,7 @@ class ResultCache(SearchQueryParser): # {{{
                         '<=':[2, lambda r, q: r <= q]
                     }
 
-    def get_numeric_matches(self, location, query):
+    def get_numeric_matches(self, location, query, val_func = None):
         matches = set([])
         if len(query) == 0:
             return matches
@@ -419,7 +427,10 @@ class ResultCache(SearchQueryParser): # {{{
         if relop is None:
                 (p, relop) = self.numeric_search_relops['=']
 
-        loc = self.field_metadata[location]['rec_index']
+        if val_func is None:
+            loc = self.field_metadata[location]['rec_index']
+            val_func = lambda item, loc=loc: item[loc]
+
         dt = self.field_metadata[location]['datatype']
         if dt == 'int':
             cast = (lambda x: int (x))
@@ -429,6 +440,9 @@ class ResultCache(SearchQueryParser): # {{{
             adjust = lambda x: x/2
         elif dt == 'float':
             cast = lambda x : float (x)
+            adjust = lambda x: x
+        else: # count operation
+            cast = (lambda x: int (x))
             adjust = lambda x: x
 
         if len(query) > 1:
@@ -446,10 +460,11 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is None:
                 continue
-            if not item[loc]:
+            v = val_func(item)
+            if not v:
                 i = 0
             else:
-                i = adjust(item[loc])
+                i = adjust(v)
             if relop(i, q):
                 matches.add(item[0])
         return matches
@@ -467,15 +482,23 @@ class ResultCache(SearchQueryParser): # {{{
                     return matches
                 raise ParseException(query, len(query), 'Recursive query group detected', self)
 
-            # take care of dates special case
-            if location in self.field_metadata and \
-                     self.field_metadata[location]['datatype'] == 'datetime':
-                return self.get_dates_matches(location, query.lower())
+            if location in self.field_metadata:
+                fm = self.field_metadata[location]
+                # take care of dates special case
+                if fm['datatype'] == 'datetime':
+                    return self.get_dates_matches(location, query.lower())
 
-            # take care of numbers special case
-            if location in self.field_metadata and \
-                    self.field_metadata[location]['datatype'] in ('rating', 'int', 'float'):
-                return self.get_numeric_matches(location, query.lower())
+                # take care of numbers special case
+                if fm['datatype'] in ('rating', 'int', 'float'):
+                    return self.get_numeric_matches(location, query.lower())
+
+                # take care of the 'count' operator for is_multiples
+                if fm['is_multiple'] and \
+                        len(query) > 1 and query.startswith('#') and \
+                        query[1:1] in '=<>!':
+                    vf = lambda item, loc=fm['rec_index'], ms=fm['is_multiple']:\
+                            len(item[loc].split(ms)) if item[loc] is not None else 0
+                    return self.get_numeric_matches(location, query[1:], val_func=vf)
 
             # everything else, or 'all' matches
             matchkind = CONTAINS_MATCH
@@ -490,7 +513,7 @@ class ResultCache(SearchQueryParser): # {{{
                     query = query[1:]
             if matchkind != REGEXP_MATCH:
                 # leave case in regexps because it can be significant e.g. \S \W \D
-                query = query.lower()
+                query = icu_lower(query)
 
             if not isinstance(query, unicode):
                 query = query.decode('utf-8')
@@ -505,7 +528,7 @@ class ResultCache(SearchQueryParser): # {{{
                 if len(self.field_metadata[x]['search_terms']):
                     db_col[x] = self.field_metadata[x]['rec_index']
                     if self.field_metadata[x]['datatype'] not in \
-                                    ['composite', 'text', 'comments', 'series']:
+                            ['composite', 'text', 'comments', 'series', 'enumeration']:
                         exclude_fields.append(db_col[x])
                     col_datatype[db_col[x]] = self.field_metadata[x]['datatype']
                     is_multiple_cols[db_col[x]] = self.field_metadata[x]['is_multiple']
@@ -670,7 +693,6 @@ class ResultCache(SearchQueryParser): # {{{
         for id in ids:
             try:
                 self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
-                self._data[id].append(db.has_cover(id, index_is_id=True))
                 self._data[id].append(db.book_on_device_string(id))
                 self._data[id].append(None)
                 if len(self.composites) > 0:
@@ -691,7 +713,6 @@ class ResultCache(SearchQueryParser): # {{{
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
             self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
-            self._data[id].append(db.has_cover(id, index_is_id=True))
             self._data[id].append(db.book_on_device_string(id))
             self._data[id].append(None)
             if len(self.composites) > 0:
@@ -721,7 +742,6 @@ class ResultCache(SearchQueryParser): # {{{
             self._data[r[0]] = r
         for item in self._data:
             if item is not None:
-                item.append(db.has_cover(item[0], index_is_id=True))
                 item.append(db.book_on_device_string(item[0]))
                 item.append(None)
                 if len(self.composites) > 0:
@@ -784,11 +804,13 @@ class SortKey(object):
 class SortKeyGenerator(object):
 
     def __init__(self, fields, field_metadata, data):
+        from calibre.utils.icu import sort_key
         self.field_metadata = field_metadata
         self.orders = [-1 if x[1] else 1 for x in fields]
         self.entries = [(x[0], field_metadata[x[0]]) for x in fields]
         self.library_order = tweaks['title_series_sorting'] == 'library_order'
         self.data = data
+        self.string_sort_key = sort_key
 
     def __call__(self, record):
         values = tuple(self.itervals(self.data[record]))
@@ -809,17 +831,14 @@ class SortKeyGenerator(object):
                 if val is None:
                     val = ('', 1)
                 else:
-                    val = val.lower()
                     if self.library_order:
                         val = title_sort(val)
                     sidx_fm = self.field_metadata[name + '_index']
                     sidx = record[sidx_fm['rec_index']]
-                    val = (val, sidx)
+                    val = (self.string_sort_key(val), sidx)
 
-            elif dt in ('text', 'comments', 'composite'):
-                if val is None:
-                    val = ''
-                val = val.lower()
+            elif dt in ('text', 'comments', 'composite', 'enumeration'):
+                val = self.string_sort_key(val)
 
             elif dt == 'bool':
                 val = {True: 1, False: 2, None: 3}.get(val, 3)

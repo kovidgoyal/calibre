@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = 'calibre'
-__version__   = '0.7.28'
+__version__   = '0.7.33'
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
 import re
@@ -67,7 +67,8 @@ if plugins is None:
                 'pdfreflow',
                 'progress_indicator',
                 'chmlib',
-                'chm_extra'
+                'chm_extra',
+                'icu',
             ] + \
                     (['winutil'] if iswindows else []) + \
                     (['usbobserver'] if isosx else []):

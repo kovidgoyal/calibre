@@ -5,17 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, cStringIO
+import textwrap
 from urllib import unquote
 
 from lxml import etree
-try:
-    from PIL import Image as PILImage
-    PILImage
-except ImportError:
-    import Image as PILImage
-
 from calibre import guess_type
+from calibre.utils.magick.draw import identify_data
 
 class CoverManager(object):
 
@@ -126,9 +121,7 @@ class CoverManager(object):
             if x.href == urlnormalize(href):
                 try:
                     raw = x.data
-                    f = cStringIO.StringIO(raw)
-                    im = PILImage.open(f)
-                    return im.size
+                    return identify_data(raw)[:2]
                 except:
                     self.log.exception('Failed to read image dimensions')
         return None, None

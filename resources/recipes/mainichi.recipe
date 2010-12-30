@@ -1,0 +1,40 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+'''
+www.mainichi.jp
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MainichiDailyNews(BasicNewsRecipe):
+    title          = u'\u6bce\u65e5\u65b0\u805e'
+    __author__     = 'Hiroshi Miura'
+    oldest_article = 2
+    max_articles_per_feed = 20
+    description    = 'Japanese traditional newspaper Mainichi Daily News'
+    publisher      = 'Mainichi Daily News'
+    category       = 'news, japan'
+    language       = 'ja'
+
+    feeds          = [(u'daily news', u'http://mainichi.jp/rss/etc/flash.rss')]
+
+    remove_tags_before = {'class':"NewsTitle"}
+    remove_tags = [{'class':"RelatedArticle"}]
+    remove_tags_after = {'class':"Credit"}
+
+    def parse_feeds(self):
+
+        feeds = BasicNewsRecipe.parse_feeds(self)
+
+        for curfeed in feeds:
+            delList = []
+            for a,curarticle in enumerate(curfeed.articles):
+                if re.search(r'pheedo.jp', curarticle.url):
+                    delList.append(curarticle)
+            if len(delList)>0:
+                for d in delList:
+                    index = curfeed.articles.index(d)
+                    curfeed.articles[index:index+1] = []
+
+        return feeds

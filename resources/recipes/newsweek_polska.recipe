@@ -1,19 +1,22 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, Mateusz Kielar, matek09@gmail.com'
+__copyright__ = '2010, matek09, matek09@gmail.com'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Newsweek(BasicNewsRecipe):
-	EDITION = 0
+	FIND_LAST_FULL_ISSUE = True
+	EDITION = '0'
+	EXCLUDE_LOCKED = True
+	LOCKED_ICO = 'http://www.newsweek.pl/bins/media/static/newsweek/img/ico_locked.gif'
 
 	title = u'Newsweek Polska'
-	__author__ = 'Mateusz Kielar'
+	__author__ = 'matek09'
 	description = 'Weekly magazine'
 	encoding = 'utf-8'
 	no_stylesheets = True
-	language = 'en'
+	language = 'pl'
 	remove_javascript = True
 
 	keep_only_tags =[]
@@ -33,34 +36,54 @@ class Newsweek(BasicNewsRecipe):
 	def print_version(self, url):
 		return url.replace("http://www.newsweek.pl/artykuly/wydanie/" + str(self.EDITION), "http://www.newsweek.pl/artykuly") + '/print'
 
+	def is_locked(self, a):
+		if a.findNext('img')['src'] == 'http://www.newsweek.pl/bins/media/static/newsweek/img/ico_locked.gif':
+			return True
+		else:
+			return False
+
+	def is_full(self, issue_soup):
+		if len(issue_soup.findAll('img', attrs={'src' : 'http://www.newsweek.pl/bins/media/static/newsweek/img/ico_locked.gif'})) > 1:
+			return False
+		else:
+			return True
+
 	def find_last_full_issue(self):
-		page = self.index_to_soup('http://www.newsweek.pl/Frames/IssueCover.aspx')
-		issue = 'http://www.newsweek.pl/Frames/' + page.find(lambda tag: tag.name == 'span' and not tag.attrs).a['href']
-		page = self.index_to_soup(issue)
-		issue = 'http://www.newsweek.pl/Frames/' + page.find(lambda tag: tag.name == 'span' and not tag.attrs).a['href']
-		page = self.index_to_soup(issue)
-		self.EDITION = page.find('a', attrs={'target' : '_parent'})['href'].replace('/wydania/','')
+		frame_url = 'http://www.newsweek.pl/Frames/IssueCover.aspx'
+		while True:
+			frame_soup = self.index_to_soup(frame_url)
+			self.EDITION = frame_soup.find('a', attrs={'target' : '_parent'})['href'].replace('/wydania/','')
+			issue_soup = self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
+			if self.is_full(issue_soup):
+				break
+			frame_url = 'http://www.newsweek.pl/Frames/' + frame_soup.find(lambda tag: tag.name == 'span' and not tag.attrs).a['href']
+
+
 
 	def parse_index(self):
-		self.find_last_full_issue()
-		soup = self.index_to_soup('http://www.newsweek.pl/wydania/' + str(self.EDITION))
+		if self.FIND_LAST_FULL_ISSUE:
+			self.find_last_full_issue()
+		soup = self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
 		img = soup.find('img', id="ctl00_C1_PaperIsssueView_IssueImage", src=True)
 		self.cover_url = img['src']
 		feeds = []
 		parent = soup.find(id='content-left-big')
 		for txt in parent.findAll(attrs={'class':'txt_normal_red strong'}):
-			section = self.tag_to_string(txt).capitalize()
 			articles = list(self.find_articles(txt))
-			feeds.append((section, articles))
+			if len(articles) > 0:
+				section = self.tag_to_string(txt).capitalize()
+				feeds.append((section, articles))
 		return feeds
 
 	def find_articles(self, txt):
 		for a in txt.findAllNext( attrs={'class':['strong','hr']}):
 			if a.name in "div":
 				break
+			if (not self.FIND_LAST_FULL_ISSUE) & self.EXCLUDE_LOCKED & self.is_locked(a):
+				continue
 			yield {
 				'title' : self.tag_to_string(a),
-				'url'   : 'http://www.newsweek.pl'+a['href'],
+				'url'   : 'http://www.newsweek.pl' + a['href'],
 				'date'  : '',
 				'description' : ''
 				}

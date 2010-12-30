@@ -4,6 +4,368 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.33
+  date: 2010-12-10
+
+  new features:
+    - title: "Language sensitive sorting"
+      type: major
+      description: >
+        "calibre now sorts using language specific rules. The language used is the language of the calibre interface, which can be changed via Preferences->Look & Feel. There is also
+        a tweak that allows you to use a different language from the one used for the calibre interface. Powered by the ICU library."
+
+    - title: "Add an action to merge only formats and leave metadata alone (Shift+Alt+M)"
+      tickets: [7709]
+
+    - title: "Add a tweak to control which custom columns are displayed in the Book details panel."
+
+    - title: "Implement a more sophisticated 'functional programming' template language. See the User Manual for details."
+
+    - title: "Speed up deleting of large numbers of books and show progress while doing so"
+
+    - title: "Adding books: Dont refresh the Tag Browser while adding multiple books. Should speed up the adding of large numbers of books."
+
+    - title: "Edit metadata dialog: When trying to download metadata, if there are multiple matches indicate which matches have a cover and summary in the list. Also add an option to automatically download the cover of the selected match."
+
+    - title: "Drivers for the HTC Legend and Samsung Epic"
+
+    - title: "FB2 Output: Convert SVG images in the input document to raster images"
+
+    - title: "News download: Localize the navigation bars in the downloaded news to the language the user has selected for their calibre interface"
+
+  bug fixes:
+    - title: "Various fixes to the Title Case function"
+      tickets: [7846]
+
+    - title: "Content server: Fix --url-prefix being ignored for links at the Top level"
+
+    - title: "News download: When generating periodicals for the SONY use the local timezone in the SONY specific metadata"
+
+    - title: "Fix bug in cover cache that could cause it to keep a large number of covers in memory. Showed up when adding large numbers of books to calibre."
+      tickets: [7813]
+
+    - title: "Adding books: Run in the main thread to prevent unfortunate interactions with the metadata backup. Also fix regression that broke the Abort button."
+
+    - title: "Fix a crash on OS X if OK is clicked inthe edit metadata button while downloading a cover"
+      tickets: [7716]
+
+    - title: "E-book viewer: Fix a regression that prevented booksmarks from working with some EPUB files"
+      tickets: [7812]
+
+    - title: "Save to disk: Refactor to not open a database connection in the worker process. Also fix a bug that could lead to save failures not being reported."
+
+    - title: "Fix regression in 0.7.32 that broke opening formats in the ebook viewer from the edit metadata dialog"
+
+    - title: "FB2 Output: Generate output 100% compliant with the FB2 spec"
+
+    - title: "Fix Saved search dropdown box looses selected search"
+      tickets: [7787]
+
+    - title: "TXT Output: Fix an issue where the br to space conversion was not being handled properly."
+
+  improved recipes:
+    - Le Monde
+    - Ming Pao
+    - New Yorker
+
+  new recipes:
+    - title: "ToyoKeizai News and Nikkei Social News"
+      author: "Hiroshi Miura"
+      
+    - title: "St. Louis Post Dispatch"
+      author: "cisaak"
+
+    - title: "Heise Open and Technology Review"
+      author: "Anton Gillert"
+
+
+- version: 0.7.32
+  date: 2010-12-03
+
+  new features:
+    - title: "All new linux binary build. With updated libraries and replacing cx_Freeze with my own C python launcher code."
+
+    - title: "Edit metadata dialog: Add Next and Previous buttons and show cover size in tooltip"
+      tickets: [7706, 7711]
+
+    - title: "A new custom column type: Enumeration. This column can take one of a user defined set of values."
+
+    - title: "PML Output: Add option to reduce image sizes/bit depth to allow PML Output to be used with DropBook"
+
+    - title: "TXT Output: Add option to generate Markdown output. Turn <br> tags into spaces."
+
+    - title: "Add a count function to the template language. Make author_sort searchable."
+
+    - title: "Various consistency and usability enhancements to the search box."
+      tickets: [7726]
+      description: >
+        "Always select first book in result set of a search. Similar books searches added to search history. Search history order is no longer randomized. When focussing the search box with a keyboard shortcut, select all text. If you press enter in the search box, the search is executed and the book list os automatically focussed."
+
+    - title: "Driver for samsung fascinate and PocketBook 902"
+
+    - title: "FB2 Output: Add option to create FB2 sections based on internal file structure of input file (useful for EPUB files that have been split on chapter boundaries). Also add options to mark h1/h2/h3 tags as section titles in the FB2 file."
+      tickets: [7738]
+
+    - title: "Metadata jacket: Add publisher information to jacket."
+
+    - title: "Catalog generation: Allow use of custom columns as well as tags to indicate read books. Note that your previously saved read books setting will be lost."
+
+    - title: "Bulk metadata edit dialog: Add an Apply button to allow you to perform multiple operations in sequence"
+
+    - title: "Allow drag and drop of books onto user categories. If you drag a book from a particular column (say authors) and drop it onto a user category, the column value will be added to the user category. So for authors, the authros will be added to the user category."
+
+    - title: "Check Library can now check and repair the has_cover cache"
+
+    - title: "Allow GUI plugins to be distributed in ZIP files. See http://www.mobileread.com/forums/showthread.php?t=108774"
+
+    - title: "Allow searching by the number of tags/authors/formats/etc. See User Manual for details."
+
+    - title: "Tiny speed up when loading large libraries and make various metadata editing tasks a little faster by reducing the number of times the Tag Browser is refreshed"
+
+  bug fixes:
+    - title: "E-book viewer: Fix broken backwards searching"
+
+    - title: "Fix custom ratings column values being displayed incorrectly in book details area"
+      tickets: [7740]
+
+    - title: "Fix book details dialog not using internal viewer to view ebooks"
+      tickets: [7424]
+
+    - title: "MOBI Output: When the input document does not explicitly specify a size for images, set the size to be the natural size of the image. This works around Amazon's *truly wonderful* MOBI renderer's tendency to expand images that do not have a width and height specified."
+
+    - title: "Conversion pipeline: Fix bug that caused height/width specified in %/em of screen size to be incorrectly calculated by a factor of 72./DPI"
+
+    - title: "Conversion pipeline: Respect max-width and max-height when calculating the effective size of an element"
+
+    - title: "Conversion pipeline: Do not override CSS for images with the value of the img width/height attributes, unless no CSS is specified for the image"
+
+    - title: "E-book viewer: Resize automatically to fit on smaller screens"
+
+    - title: "Use the same MIME database on all platforms that calibre runs on, works around python 2.7's crazy insistence on reading MIME data from the registry"
+
+    - title: "Kobo driver: Allow html, txt and rtf documents to be deleted"
+
+    - title: "Always overwrite title/author metadata when downloading metadata for books added by ISBN"
+
+    - title: "Nook Color profile: Reduce screen height to 900px"
+
+    - title: "Fix regression that broke RTF conversion on some linux systems"
+
+    - title: "Fix bug that could break searching after copying and deleting a book from the current library"
+      tickets: [7459]
+
+  improved recipes:
+    - NZZ
+    - Frankfurter Rundschau
+    - JiJi Press
+    - Revista Muy Intersante
+
+  new recipes:
+    - title: "Global Times"
+      author: "malfi"
+      
+    - title: "The Philosopher's Magazine"
+      author: "Darko Miletic"
+
+    - title: "Poughkeepsie Journal"
+      author: "weebl"
+
+    - title: "Business Spectator and ABC Australia"
+      author: "Dean Cording"
+
+    - title: "La Rijoa and NacionRed"
+      author: "Arturo Martinez Nieves"
+
+    - title: "Animal Politico"
+      author: "leamsi"
+
+
+- version: 0.7.31
+  date: 2010-11-27
+
+  bug fixes:
+    - title: "Fix various regressions in the calibre windows build caused by the switch to python 2.7. If you are on windows and upgraded to 0.7.30, it is highly recommended that you upgrade to 0.7.31. If you are not on windows, you can ignore 0.7.31"
+      tickets: [7685, 7694, 7691]
+
+
+- version: 0.7.30
+  date: 2010-11-26
+
+  new features:
+    - title: "Support for Acer Lumiread and PocketBook Pro 602"
+
+    - title: "When importing by ISBN also allow the specification of a file to be imported."
+      tickets: [7400]
+
+    - title: "E-mail sending: Email sends are now regular jobs that can be accessed from the jobs list. Also when sending using gmail/hotmail send at most one email every five minutes to avoid trigerring their spam controls. Failed sends are now retried one more time, automatically."
+
+    - title: "Content server: When a category contains only one item, go directly to the book list instead of forcing the user to click on that one item"
+
+    - title: "E-mail sending: Allow unencrypted connections to SMTP relay"
+
+    - title: "Improve startup times for large libraries by caching the has_cover check"
+
+    - title: "Update windows binary build to use python 2.7"
+
+    - title: "Metadata and cover download plugins from Nicebooks (disabled by default)"
+
+
+  bug fixes:
+    - title: "MOBI Input: Fix bug in cleanup regex that broke parsing of escaped XML declarations."
+      tickets: [7585]
+
+    - title: "Content server: Fix bug when user has custom categories/columns with non ascii names"
+      tickets: [7590]
+
+    - title: "RTF Output: Handle non breaking spaces correctly"
+      tickets: [7668]
+
+    - title: "Conversion pipeline: When rasterizing SVG images workaround incorrect handinlg of percentage height specifications in QSvgRenderer."
+      tickets: [7598]
+
+    - title: "News download: Update version of feedparser used to parse RSS feeds."
+      tickets: [7674]
+
+    - title: "Tag Browser: Allow user to restore hidden categories by a right click even is all categories have been hidden"
+
+    - title: "TXT/RTF Output: Handle XML processing instructions embedded in content correctly."
+      tickets: [7644]
+
+    - title: "MOBI Input: Workarounds for lack of nesting rules between block and inline tags"
+      tickets: [7618]
+
+    - title: "E-book viewer: Load all hyphenation patterns to support multi-lingual books"
+
+    - title: "E-book viewer: Fix incorrect lang names being used in hyphenation"
+
+    - title: "Check to see that the result file from a conversion is not empty before adding it, protects against the case where the conversion process crashes and the GUI adds a zero byte file to the book record"
+
+    - title: "E-book viewer: More sophisticated algorithm to resize images to fit viewer window. Should preserve aspect ratio in more cases"
+
+    - title: "Remove unneccessary calls to set_path when creating book records. Speeds up record creation by about 30% on my system"
+
+    - title: "Speedup for bibtex catalog generation."
+
+    - title: "Kobo driver: Fix missing table in deleting books process for Kobo WiFi and Kobo-O 1.8 Beta"
+
+    - title: "RTF Input: Preserve scene breaks in the form of empty paragraphs. Preprocessing: Improvements to chapter detection"
+
+    - title: "Fix custom recipe not sorted by title"
+      tickets: [7486]
+
+    - title: "Kobo driver: Fix bug in managing the Im_Reading category on windows"
+
+  improved recipes:
+    - "El Pais - Uruguay"
+    - Argentinian La Nacion
+    - comics.com
+    - Mingpao
+    - Revista Muy Intersante
+    - Telepolis
+    - New York Times
+
+  new recipes:
+    - title: "Bangkok Biz News and Matichon"
+      author: "Anat Ruangrassamee"
+      
+    - title: "The Workingham Times and Deutsche Welle"
+      author: "Darko Miletic"
+
+    - title: "Biz Portal"
+      author: "marbs"
+
+    - title: "Various Japanese news sources"
+      author: "Hiroshi Miura"
+
+    - title: "Arcamax"
+      author: "Starson17"
+
+    - title: "Various Spanish news sources"
+      author: "Gustavo Azambuja"
+
+    - title: "TSN"
+      author: Nexus
+
+    - title: "Zeit Online Premium"
+      author: Steffen Siebert
+
+
+- version: 0.7.29
+  date: 2010-11-19
+
+  new features:
+    - title: "OSX binary build is now based on Qt 4.7. Also, the build is now Intel only and requires at least OS X 10.5.2. If you are on a PowerPC machine or an older OS X version, do not upgrade"
+
+    - title: "Content server: Allow direct navigation to a set of books in the book list."
+      tickets: [7453]
+
+    - title: "OS X: When deleting books, put the files into the recycle bin instead of deleting them permanently"
+
+    - title: "Add button to easy configure Hotmail as email relay. Also improve usability of easy config buttons"
+
+    - title: "Kobo driver: Support Currently_Reading category"
+
+    - title: "Catalog generation: Thumbnail caching, wishlist, improved description layout."
+      tickets: [7376]
+
+    - title: "Support for the Cybook Orizon"
+
+  bug fixes:
+    - title: "Fix restore to defaults in preferences incorrectly setting PDF unwrap factor to 0.0"
+
+    - title: "PDF Input: Fix unwrapping of accented characters"
+
+    - title: "Do not display dialogs asking for confirmation or showing conversion errors when calibre is minimized to system tray"
+      tickets: [7549]
+
+    - title: "calibre server: Fix regression that broke digest authentication when the calibre interface language was set to non English"
+
+    - title: "EPUB Output: Do not raise an error for invalid embedded fonts in the input document."
+      tickets: [7567]
+
+    - title: "RTF Input: Improved conversion of tables, with support for border styles on table cells"
+
+    - title: "E-book viewer: Fix regression that broke hyphenation. Also add more language patterns for hyphenation"
+
+    - title: "SONY driver: Fix cover thumbnails being uploaded to wrong directory on windows"
+
+    - title: "Fix UnicodeDecodeError when displaying a failed metadata fetch message"
+      tickets: [7560]
+
+    - title: "Bulk metadata edit: Speed up remove all tags operation"
+
+    - title: "MOBI Output: Specify image sizes in pixels instead of em to accomodate Amazon's @#$%#@! MOBI renderer"
+
+    - title: "Fix bug preventing customizing of builtin recipes if they are not ascii encoded"
+
+    - title: "SONY XML cache: Handle case where XML db contains reference to a file that does not exist gracefully"
+
+  improved recipes:
+    - Al Jazeera 
+    - The Moscow Times
+    - GLobe and Mail
+    - Washington Post
+
+  new recipes:
+    - title: "Hannoversche Allgemeine Zeitung"
+      author: "Artemis"
+      
+    - title: "globes.co.il"
+      author: "marbs"
+
+    - title: "THN and RDS"
+      author: "Nexus"
+
+    - title: "pclab.pl"
+      author: "ravcio"
+
+    - title: "Now Toronto"
+      author: "Starson17"
+
+    - title: "Press releases of the German government and EU Commission"
+      author: "malfi"
+
+
 - version: 0.7.28
   date: 2010-11-12
 

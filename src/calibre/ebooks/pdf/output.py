@@ -101,6 +101,8 @@ class PDFOutput(OutputFormatPlugin):
                 for item in m:
                     if item.href == urlnormalize(href):
                         self.cover_data = item.data
+                        if not isinstance(self.cover_data, basestring):
+                            self.cover_data = None
 
     def convert_text(self, oeb_book):
         self.log.debug('Serializing oeb input to disk for processing...')
