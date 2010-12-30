@@ -1143,13 +1143,19 @@ class TagBrowserWidget(QWidget): # {{{
         self._layout.addLayout(search_layout)
         self.item_search = HistoryLineEdit(parent)
         try:
-            self.item_search.setPlaceholderText(_('Find item in tag browser'))
+            self.item_search.lineEdit().setPlaceholderText(_('Find item in tag browser'))
         except:
             # Using Qt < 4.7
             pass
+        self.item_search.setToolTip(_(
+        'Search for items. This is a "contains" search; items containing the\n'
+        'text anywhere in the name will be found. You can limit the search\n'
+        'to particular categories using syntax similar to search. For example,\n'
+        'tags:foo will find foo in any tag, but not in authors etc.'))
         search_layout.addWidget(self.item_search)
         self.search_button = QPushButton()
         self.search_button.setText(_('Find!'))
+        self.search_button.setToolTip(_('Find the first/next matching item'))
         self.search_button.setFixedWidth(40)
         search_layout.addWidget(self.search_button)
         self.current_position = None
