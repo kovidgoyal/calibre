@@ -29,8 +29,7 @@ class TXTOutput(OutputFormatPlugin):
         OptionRecommendation(name='output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \
-            'The default is utf-8. Note: This option is not honored by all ' \
-            'formats.')),
+            'The default is utf-8.')),
         OptionRecommendation(name='inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Add Table of Contents to beginning of the book.')),

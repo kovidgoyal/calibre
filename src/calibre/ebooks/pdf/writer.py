@@ -57,7 +57,7 @@ def get_pdf_printer(opts, for_comic=False):
         h = opts.output_profile.comic_screen_size[1] if for_comic else \
                 opts.output_profile.height
         dpi = opts.output_profile.dpi
-        printer.setPaperSize(QSizeF(float(w) / dpi, float(h)/dpi), QPrinter.Inch)
+        printer.setPaperSize(QSizeF(float(w) / dpi, float(h) / dpi), QPrinter.Inch)
 
     printer.setPageMargins(opts.margin_left, opts.margin_top, opts.margin_right, opts.margin_bottom, QPrinter.Point)
     printer.setOrientation(orientation(opts.orientation))
