@@ -57,6 +57,11 @@ class BooksView(QTableView): # {{{
         elif tweaks['doubleclick_on_library_view'] == 'open_viewer':
             self.setEditTriggers(self.SelectedClicked|self.editTriggers())
             self.doubleClicked.connect(parent.iactions['View'].view_triggered)
+        elif tweaks['doubleclick_on_library_view'] == 'edit_metadata':
+            # Must not enable single-click to edit, or the field will remain
+            # open in edit mode underneath the edit metadata dialog
+            self.doubleClicked.connect(
+                        partial(parent.iactions['Edit Metadata'].edit_metadata, checked=False))
 
         self.drag_allowed = True
         self.setDragEnabled(True)
@@ -105,7 +110,8 @@ class BooksView(QTableView): # {{{
         hv.setCursor(Qt.PointingHandCursor)
         self.selected_ids = []
         self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
-        self._model.sorting_done.connect(self.sorting_done)
+        self._model.sorting_done.connect(self.sorting_done,
+                type=Qt.QueuedConnection)
 
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
@@ -122,8 +128,8 @@ class BooksView(QTableView): # {{{
         elif action == 'show':
             h.setSectionHidden(idx, False)
             if h.sectionSize(idx) < 3:
-               sz = h.sectionSizeHint(idx)
-               h.resizeSection(idx, sz)
+                sz = h.sectionSizeHint(idx)
+                h.resizeSection(idx, sz)
         elif action == 'ascending':
             self.sortByColumn(idx, Qt.AscendingOrder)
         elif action == 'descending':
@@ -227,6 +233,7 @@ class BooksView(QTableView): # {{{
             sm = self.selectionModel()
             for idx in indices:
                 sm.select(idx, sm.Select|sm.Rows)
+            self.scroll_to_row(indices[0].row())
         self.selected_ids = []
     # }}}
 

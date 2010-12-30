@@ -245,7 +245,7 @@ class RTFInput(InputFormatPlugin):
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException
-        self.options = options
+        self.opts = options
         self.log = log
         self.log('Converting RTF to XML...')
         #Name of the preprocesssed RTF file
@@ -290,12 +290,12 @@ class RTFInput(InputFormatPlugin):
             res = transform.tostring(result)
             res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             # Replace newlines inserted by the 'empty_paragraphs' option in rtf2xml with html blank lines
-            if not getattr(self.options, 'remove_paragraph_spacing', False):
+            if not getattr(self.opts, 'remove_paragraph_spacing', False):
                 res = re.sub('\s*<body>', '<body>', res)
                 res = re.sub('(?<=\n)\n{2}',
                         u'<p>\u00a0</p>\n'.encode('utf-8'), res)
-            if self.options.preprocess_html:
-                preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
+            if self.opts.preprocess_html:
+                preprocessor = PreProcessor(self.opts, log=getattr(self, 'log', None))
                 res = preprocessor(res)
             f.write(res)
         self.write_inline_css(inline_class, border_styles)

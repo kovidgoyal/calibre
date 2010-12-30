@@ -19,7 +19,6 @@ from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
 from calibre.constants import isosx
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
-from calibre.utils.fonts import fontconfig
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs, XMLConfig
@@ -283,6 +282,7 @@ class FontFamilyModel(QAbstractListModel):
 
     def __init__(self, *args):
         QAbstractListModel.__init__(self, *args)
+        from calibre.utils.fonts import fontconfig
         try:
             self.families = fontconfig.find_font_families()
         except:
@@ -524,6 +524,8 @@ class EnComboBox(QComboBox):
 
 class HistoryLineEdit(QComboBox):
 
+    lost_focus = pyqtSignal()
+
     def __init__(self, *args):
         QComboBox.__init__(self, *args)
         self.setEditable(True)
@@ -558,6 +560,10 @@ class HistoryLineEdit(QComboBox):
 
     def text(self):
         return self.currentText()
+
+    def focusOutEvent(self, e):
+        QComboBox.focusOutEvent(self, e)
+        self.lost_focus.emit()
 
 class ComboBoxWithHelp(QComboBox):
     '''

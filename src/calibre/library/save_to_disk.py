@@ -7,6 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, traceback, cStringIO, re, shutil
+from functools import partial
 
 from calibre.constants import DEBUG
 from calibre.utils.config import Config, StringConfig, tweaks
@@ -119,10 +120,8 @@ class SafeFormat(TemplateFormatter):
             try:
                 b = self.book.get_user_metadata(key, False)
             except:
-                if DEBUG:
-                    traceback.print_exc()
+                traceback.print_exc()
                 b = None
-
             if b is not None and b['datatype'] == 'composite':
                 if key in self.composite_values:
                     return self.composite_values[key]
@@ -135,15 +134,13 @@ class SafeFormat(TemplateFormatter):
                 return val.replace('/', '_').replace('\\', '_')
             return ''
         except:
-            if DEBUG:
-                traceback.print_exc()
+            traceback.print_exc()
             return key
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
         to_lowercase=False):
-    library_order = tweaks['save_template_title_series_sorting'] == 'library_order'
-    tsfmt = title_sort if library_order else lambda x: x
+    tsfmt = partial(title_sort, order=tweaks['save_template_title_series_sorting'])
     format_args = FORMAT_ARGS.copy()
     format_args.update(mi.all_non_none_fields())
     if mi.title:
@@ -155,6 +152,8 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         format_args['tags'] = mi.format_tags()
         if format_args['tags'].startswith('/'):
             format_args['tags'] = format_args['tags'][1:]
+    else:
+        format_args['tags'] = ''
     if mi.series:
         format_args['series'] = tsfmt(mi.series)
         if mi.series_index is not None:
@@ -254,6 +253,7 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
         if not os.path.exists(dirpath):
             raise
 
+    ocover = mi.cover
     if opts.save_cover and cover and os.access(cover, os.R_OK):
         with open(base_path+'.jpg', 'wb') as f:
             with open(cover, 'rb') as s:
@@ -266,6 +266,8 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
         opf = metadata_to_opf(mi)
         with open(base_path+'.opf', 'wb') as f:
             f.write(opf)
+
+    mi.cover = ocover
 
     written = False
     for fmt in formats:

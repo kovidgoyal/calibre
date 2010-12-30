@@ -97,7 +97,7 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Line &amp;height:</string>
@@ -107,7 +107,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1" colspan="2">
+   <item row="4" column="1" colspan="2">
     <widget class="QDoubleSpinBox" name="opt_line_height">
      <property name="suffix">
       <string> pt</string>
@@ -117,7 +117,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Input character &amp;encoding:</string>
@@ -127,17 +127,17 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1" colspan="3">
+   <item row="5" column="1" colspan="3">
     <widget class="QLineEdit" name="opt_input_encoding"/>
    </item>
-   <item row="5" column="0" colspan="2">
+   <item row="6" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_remove_paragraph_spacing">
      <property name="text">
       <string>Remove &amp;spacing between paragraphs</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="2" colspan="2">
+   <item row="6" column="2" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QLabel" name="label_4">
@@ -164,21 +164,21 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>Text justification:</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="8" column="0">
     <widget class="QCheckBox" name="opt_linearize_tables">
      <property name="text">
       <string>&amp;Linearize tables</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0" colspan="4">
+   <item row="11" column="0" colspan="4">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Extra &amp;CSS</string>
@@ -190,34 +190,57 @@
      </layout>
     </widget>
    </item>
-   <item row="6" column="2" colspan="2">
+   <item row="7" column="2" colspan="2">
     <widget class="QComboBox" name="opt_change_justification"/>
    </item>
-   <item row="7" column="1" colspan="3">
+   <item row="8" column="1" colspan="3">
     <widget class="QCheckBox" name="opt_asciiize">
      <property name="text">
       <string>&amp;Transliterate unicode characters to ASCII</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="9" column="0">
     <widget class="QCheckBox" name="opt_insert_blank_line">
      <property name="text">
       <string>Insert &amp;blank line</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="1" colspan="2">
+   <item row="9" column="1" colspan="2">
     <widget class="QCheckBox" name="opt_keep_ligatures">
      <property name="text">
       <string>Keep &amp;ligatures</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
+   <item row="10" column="0">
     <widget class="QCheckBox" name="opt_smarten_punctuation">
      <property name="text">
       <string>Smarten &amp;punctuation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Minimum &amp;line height:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_minimum_line_height</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="2">
+    <widget class="QDoubleSpinBox" name="opt_minimum_line_height">
+     <property name="suffix">
+      <string> %</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <double>900.000000000000000</double>
      </property>
     </widget>
    </item>

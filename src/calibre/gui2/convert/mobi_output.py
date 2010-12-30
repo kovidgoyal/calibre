@@ -11,7 +11,6 @@ from PyQt4.Qt import Qt
 from calibre.gui2.convert.mobi_output_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2.widgets import FontFamilyModel
-from calibre.utils.fonts import fontconfig
 
 font_family_model = None
 
@@ -25,8 +24,10 @@ class PluginWidget(Widget, Ui_Form):
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
                 ['prefer_author_sort', 'rescale_images', 'toc_title',
+                    'mobi_ignore_margins',
                 'dont_compress', 'no_inline_toc', 'masthead_font','personal_doc']
                 )
+        from calibre.utils.fonts import fontconfig
         self.db, self.book_id = db, book_id
 
         global font_family_model

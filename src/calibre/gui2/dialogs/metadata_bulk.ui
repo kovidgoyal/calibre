@@ -381,7 +381,7 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="15" column="0" colspan="3">
+         <item row="14" column="0" colspan="3">
           <spacer name="verticalSpacer_2">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -393,6 +393,36 @@ Future conversion of these books will use the default settings.</string>
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="13" column="0" colspan="3">
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Change &amp;cover</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QRadioButton" name="cover_generate">
+              <property name="text">
+               <string>&amp;Generate default cover</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="cover_remove">
+              <property name="text">
+               <string>&amp;Remove cover</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="cover_from_fmt">
+              <property name="text">
+               <string>Set from &amp;ebook file(s)</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -448,7 +478,7 @@ Future conversion of these books will use the default settings.</string>
            <item>
             <widget class="QLabel" name="xlabel_24">
              <property name="text">
-              <string>Search mode:</string>
+              <string>Search &amp;mode:</string>
              </property>
              <property name="buddy">
               <cstring>search_mode</cstring>
@@ -478,6 +508,29 @@ Future conversion of these books will use the default settings.</string>
           </layout>
          </item>
          <item row="4" column="0">
+          <widget class="QLabel" name="template_label">
+           <property name="text">
+            <string>Te&amp;mplate:</string>
+           </property>
+           <property name="buddy">
+            <cstring>s_r_template</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="HistoryLineEdit" name="s_r_template">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Enter a template to be used as the source for the search/replace</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
           <widget class="QLabel" name="xlabel_2">
            <property name="text">
             <string>&amp;Search for:</string>
@@ -487,7 +540,7 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="5" column="1">
           <widget class="HistoryLineEdit" name="search_for">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -500,20 +553,20 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="2">
+         <item row="5" column="2">
           <widget class="QCheckBox" name="case_sensitive">
            <property name="toolTip">
             <string>Check this box if the search string must match exactly upper and lower case. Uncheck it if case is to be ignored</string>
            </property>
            <property name="text">
-            <string>Case sensitive</string>
+            <string>Cas&amp;e sensitive</string>
            </property>
            <property name="checked">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="xlabel_4">
            <property name="text">
             <string>&amp;Replace with:</string>
@@ -523,19 +576,19 @@ Future conversion of these books will use the default settings.</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="6" column="1">
           <widget class="HistoryLineEdit" name="replace_with">
            <property name="toolTip">
             <string>The replacement text. The matched search text will be replaced with this string</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
+         <item row="6" column="2">
           <layout class="QHBoxLayout" name="verticalLayout">
            <item>
             <widget class="QLabel" name="label_41">
              <property name="text">
-              <string>Apply function after replace:</string>
+              <string>&amp;Apply function after replace:</string>
              </property>
              <property name="buddy">
               <cstring>replace_func</cstring>
@@ -565,7 +618,7 @@ field is processed. In regular expression mode, only the matched text is process
            </item>
           </layout>
          </item>
-         <item row="6" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="destination_field_label">
            <property name="text">
             <string>&amp;Destination field:</string>
@@ -575,19 +628,20 @@ field is processed. In regular expression mode, only the matched text is process
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
+         <item row="7" column="1">
           <widget class="QComboBox" name="destination_field">
            <property name="toolTip">
-            <string>The field that the text will be put into after all replacements. If blank, the source field is used.</string>
+            <string>The field that the text will be put into after all replacements.
+If blank, the source field is used if the field is modifiable</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="2">
+         <item row="7" column="2">
           <layout class="QHBoxLayout" name="verticalLayout">
            <item>
             <widget class="QLabel" name="replace_mode_label">
              <property name="text">
-              <string>Mode:</string>
+              <string>M&amp;ode:</string>
              </property>
              <property name="buddy">
               <cstring>replace_mode</cstring>
@@ -604,11 +658,12 @@ field is processed. In regular expression mode, only the matched text is process
            <item>
             <widget class="QCheckBox" name="comma_separated">
              <property name="toolTip">
-              <string>If the replace mode is prepend or append, then this box indicates whether a comma or
-nothing should be put between the original text and the inserted text</string>
+              <string>Specifies whether result items should be split into multiple values or
+left as single values. This option has the most effect when the source field is
+not multiple and the destination field is multiple</string>
              </property>
              <property name="text">
-              <string>use comma</string>
+              <string>Split &amp;result</string>
              </property>
              <property name="checked">
               <bool>true</bool>
@@ -630,25 +685,91 @@ nothing should be put between the original text and the inserted text</string>
            </item>
           </layout>
          </item>
-         <item row="7" column="1">
-          <widget class="QLabel" name="xlabel_3">
-           <property name="text">
-            <string>Test &amp;text</string>
-           </property>
-           <property name="buddy">
-            <cstring>test_text</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="2">
-          <widget class="QLabel" name="label_51">
-           <property name="text">
-            <string>Test re&amp;sult</string>
-           </property>
-           <property name="buddy">
-            <cstring>test_result</cstring>
-           </property>
-          </widget>
+         <item row="8" column="1" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_21">
+           <item>
+            <spacer name="HSpacer_347">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="xlabel_412">
+             <property name="text">
+              <string>For multiple-valued fields, sho&amp;w</string>
+             </property>
+             <property name="buddy">
+              <cstring>results_count</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="results_count">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>999</number>
+             </property>
+             <property name="value">
+              <number>999</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="xlabel_412">
+             <property name="text">
+              <string>values starting a&amp;t</string>
+             </property>
+             <property name="buddy">
+              <cstring>starting_from</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="starting_from">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>999</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="xlabel_41">
+             <property name="text">
+              <string>with values separated b&amp;y</string>
+             </property>
+             <property name="buddy">
+              <cstring>multiple_separator</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="multiple_separator">
+             <property name="toolTip">
+              <string>Used when displaying test results to separate values in multiple-valued fields</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item row="9" column="0" colspan="4">
           <widget class="QScrollArea" name="scrollArea11">
@@ -663,11 +784,25 @@ nothing should be put between the original text and the inserted text</string>
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>122</width>
-              <height>38</height>
+              <width>726</width>
+              <height>334</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="testgrid">
+             <item row="7" column="1">
+              <widget class="QLabel" name="xlabel_3">
+               <property name="text">
+                <string>Test text</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="2">
+              <widget class="QLabel" name="xlabel_3">
+               <property name="text">
+                <string>Test result</string>
+               </property>
+              </widget>
+             </item>
              <item row="8" column="0">
               <widget class="QLabel" name="label_31">
                <property name="text">
@@ -761,6 +896,7 @@ nothing should be put between the original text and the inserted text</string>
   <tabstop>central_widget</tabstop>
   <tabstop>search_field</tabstop>
   <tabstop>search_mode</tabstop>
+  <tabstop>s_r_template</tabstop>
   <tabstop>search_for</tabstop>
   <tabstop>case_sensitive</tabstop>
   <tabstop>replace_with</tabstop>
@@ -768,7 +904,9 @@ nothing should be put between the original text and the inserted text</string>
   <tabstop>destination_field</tabstop>
   <tabstop>replace_mode</tabstop>
   <tabstop>comma_separated</tabstop>
-  <tabstop>scrollArea11</tabstop>
+  <tabstop>results_count</tabstop>
+  <tabstop>starting_from</tabstop>
+  <tabstop>multiple_separator</tabstop>
   <tabstop>test_text</tabstop>
   <tabstop>test_result</tabstop>
  </tabstops>

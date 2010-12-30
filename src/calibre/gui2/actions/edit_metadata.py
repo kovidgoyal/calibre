@@ -154,14 +154,16 @@ class EditMetadataAction(InterfaceAction):
             d.view_format.connect(lambda
                     fmt:self.gui.iactions['View'].view_format(row_list[current_row],
                         fmt))
-            if d.exec_() != d.Accepted:
-                d.view_format.disconnect()
+            ret = d.exec_()
+            d.break_cycles()
+            if ret != d.Accepted:
                 break
-            d.view_format.disconnect()
+
             changed.add(d.id)
             if d.row_delta == 0:
                 break
             current_row += d.row_delta
+
 
         if changed:
             self.gui.library_view.model().refresh_ids(list(changed))

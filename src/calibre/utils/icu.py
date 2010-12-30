@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Setup code {{{
+import sys
 from functools import partial
 
 from calibre.constants import plugins
@@ -84,6 +85,12 @@ def icu_capitalize(s):
 load_icu()
 load_collator()
 _icu_not_ok = _icu is None or _collator is None
+
+try:
+    if sys.getdefaultencoding().lower() == 'ascii':
+        _icu.set_default_encoding('utf-8')
+except:
+    pass
 
 # }}}
 

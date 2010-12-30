@@ -23,7 +23,7 @@ from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import string_to_authors, \
-        authors_to_string, check_isbn
+        authors_to_string, check_isbn, title_sort
 from calibre.ebooks.metadata.covers import download_cover
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.metadata import MetaInformation
@@ -34,6 +34,7 @@ from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 from calibre.gui2.preferences.social import SocialMetadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre import strftime
+from calibre.library.comments import comments_to_html
 
 class CoverFetcher(Thread): # {{{
 
@@ -195,7 +196,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             _file + _(" is not a valid picture"))
                     d.exec_()
                 else:
-                    self.cover_path.setText(_file)
                     self.cover.setPixmap(pix)
                     self.update_cover_tooltip()
                     self.cover_changed = True
@@ -240,37 +240,39 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cover_fetcher = CoverFetcher(None, None, isbn,
                                             self.timeout, title, author)
         self.cover_fetcher.start()
-        self._hangcheck = QTimer(self)
-        self._hangcheck.timeout.connect(self.hangcheck,
-                type=Qt.QueuedConnection)
         self.cf_start_time = time.time()
         self.pi.start(_('Downloading cover...'))
-        self._hangcheck.start(100)
+        QTimer.singleShot(100, self.hangcheck)
 
     def hangcheck(self):
-        if self.cover_fetcher.is_alive() and \
-            time.time()-self.cf_start_time < self.COVER_FETCH_TIMEOUT:
+        cf = self.cover_fetcher
+        if cf is None:
+            # Called after dialog closed
             return
 
-        self._hangcheck.stop()
+        if cf.is_alive() and \
+            time.time()-self.cf_start_time < self.COVER_FETCH_TIMEOUT:
+            QTimer.singleShot(100, self.hangcheck)
+            return
+
         try:
-            if self.cover_fetcher.is_alive():
+            if cf.is_alive():
                 error_dialog(self, _('Cannot fetch cover'),
                     _('<b>Could not fetch cover.</b><br/>')+
                     _('The download timed out.')).exec_()
                 return
-            if self.cover_fetcher.needs_isbn:
+            if cf.needs_isbn:
                 error_dialog(self, _('Cannot fetch cover'),
                     _('Could not find cover for this book. Try '
                       'specifying the ISBN first.')).exec_()
                 return
-            if self.cover_fetcher.exception is not None:
-                err = self.cover_fetcher.exception
+            if cf.exception is not None:
+                err = cf.exception
                 error_dialog(self, _('Cannot fetch cover'),
                     _('<b>Could not fetch cover.</b><br/>')+unicode(err)).exec_()
                 return
-            if self.cover_fetcher.errors and self.cover_fetcher.cover_data is None:
-                details = u'\n\n'.join([e[-1] + ': ' + e[1] for e in self.cover_fetcher.errors])
+            if cf.errors and cf.cover_data is None:
+                details = u'\n\n'.join([e[-1] + ': ' + e[1] for e in cf.errors])
                 error_dialog(self, _('Cannot fetch cover'),
                     _('<b>Could not fetch cover.</b><br/>') +
                     _('For the error message from each cover source, '
@@ -278,7 +280,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 return
 
             pix = QPixmap()
-            pix.loadFromData(self.cover_fetcher.cover_data)
+            pix.loadFromData(cf.cover_data)
             if pix.isNull():
                 error_dialog(self, _('Bad cover'),
                              _('The cover is not a valid picture')).exec_()
@@ -287,11 +289,12 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 self.update_cover_tooltip()
                 self.cover_changed = True
                 self.cpixmap = pix
-                self.cover_data = self.cover_fetcher.cover_data
+                self.cover_data = cf.cover_data
         finally:
             self.fetch_cover_button.setEnabled(True)
             self.unsetCursor()
-            self.pi.stop()
+            if self.pi is not None:
+                self.pi.stop()
 
 
     # }}}
@@ -406,7 +409,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if mi.series_index is not None:
                 self.series_index.setValue(float(mi.series_index))
         if mi.comments and mi.comments.strip():
-            self.comments.setPlainText(mi.comments)
+            comments = comments_to_html(mi.comments)
+            self.comments.html = comments
 
 
     def sync_formats(self):
@@ -438,16 +442,27 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def __init__(self, window, row, db, prev=None,
             next_=None):
         ResizableDialog.__init__(self, window)
+        self.cover_fetcher = None
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
-        self.cancel_all = False
         base = unicode(self.author_sort.toolTip())
-        self.ok_aus_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
+        ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
                             _(' The green color indicates that the current '
                     'author sort matches the current author'))
-        self.bad_aus_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
+        bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
                 _(' The red color indicates that the current '
-                    'author sort does not match the current author'))
+                    'author sort does not match the current author. '
+                    'No action is required if this is what you want.'))
+        self.aus_tooltips = (ok_tooltip, bad_tooltip)
 
+        base = unicode(self.title_sort.toolTip())
+        ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
+                            _(' The green color indicates that the current '
+                              'title sort matches the current title'))
+        bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
+                _(' The red color warns that the current '
+                  'title sort does not match the current title. '
+                  'No action is required if this is what you want.'))
+        self.ts_tooltips = (ok_tooltip, bad_tooltip)
         self.row_delta = 0
         if prev:
             self.prev_button = QPushButton(QIcon(I('back.png')), _('Previous'),
@@ -503,7 +518,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         self.remove_unused_series)
         QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
                         self.deduce_author_sort)
+        QObject.connect(self.auto_title_sort, SIGNAL('clicked()'),
+                        self.deduce_title_sort)
         self.trim_cover_button.clicked.connect(self.trim_cover)
+        self.connect(self.title_sort, SIGNAL('textChanged(const QString&)'),
+                     self.title_sort_box_changed)
+        self.connect(self.title, SIGNAL('textChanged(const QString&)'),
+                     self.title_box_changed)
         self.connect(self.author_sort, SIGNAL('textChanged(const QString&)'),
                      self.author_sort_box_changed)
         self.connect(self.authors, SIGNAL('editTextChanged(const QString&)'),
@@ -520,6 +541,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
 
         self.title.setText(db.title(row))
+        self.title_sort.setText(db.title_sort(row))
         isbn = db.isbn(self.id, index_is_id=True)
         if not isbn:
             isbn = ''
@@ -535,7 +557,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if rating > 0:
             self.rating.setValue(int(rating/2.))
         comments = self.db.comments(row)
-        self.comments.setPlainText(comments if comments else '')
+        if comments and comments.strip():
+            comments = comments_to_html(comments)
+            self.comments.html = comments
         cover = self.db.cover(row)
         pubdate = db.pubdate(self.id, index_is_id=True)
         self.pubdate.setDate(QDate(pubdate.year, pubdate.month,
@@ -570,7 +594,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
         self.series.lineEdit().editingFinished.connect(self.increment_series_index)
 
-        self.show()
         pm = QPixmap()
         if cover:
             pm.loadFromData(cover)
@@ -590,12 +613,14 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.original_author = unicode(self.authors.text()).strip()
         self.original_title = unicode(self.title.text()).strip()
 
+        self.show()
+
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
         layout = w.layout()
         self.custom_column_widgets, self.__cc_spacers = \
-                    populate_metadata_page(layout, self.db, self.id,
-                                           parent=w, bulk=False, two_column=True)
+            populate_metadata_page(layout, self.db, self.id, parent=w, bulk=False,
+                two_column=tweaks['metadata_single_use_2_cols_for_custom_fields'])
         self.__custom_col_layouts = [layout]
         ans = self.custom_column_widgets
         for i in range(len(ans)-1):
@@ -606,27 +631,40 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             for c in range(2, len(ans[i].widgets), 2):
                 w.setTabOrder(ans[i].widgets[c-1], ans[i].widgets[c+1])
 
+    def title_box_changed(self, txt):
+        ts = unicode(txt)
+        ts = title_sort(ts)
+        self.mark_box_as_ok(control = self.title_sort, tt=self.ts_tooltips,
+                            normal=(unicode(self.title_sort.text()) == ts))
+
+    def title_sort_box_changed(self, txt):
+        ts = unicode(txt)
+        self.mark_box_as_ok(control = self.title_sort, tt=self.ts_tooltips,
+                            normal=(title_sort(unicode(self.title.text())) == ts))
+
     def authors_box_changed(self, txt):
         aus = unicode(txt)
         aus = re.sub(r'\s+et al\.$', '', aus)
         aus = self.db.author_sort_from_authors(string_to_authors(aus))
-        self.mark_author_sort(normal=(unicode(self.author_sort.text()) == aus))
+        self.mark_box_as_ok(control = self.author_sort, tt=self.aus_tooltips,
+                            normal=(unicode(self.author_sort.text()) == aus))
 
     def author_sort_box_changed(self, txt):
         au = unicode(self.authors.text())
         au = re.sub(r'\s+et al\.$', '', au)
         au = self.db.author_sort_from_authors(string_to_authors(au))
-        self.mark_author_sort(normal=(au == txt))
+        self.mark_box_as_ok(control = self.author_sort, tt=self.aus_tooltips,
+                            normal=(au == txt))
 
-    def mark_author_sort(self, normal=True):
+    def mark_box_as_ok(self, control, tt, normal=True):
         if normal:
             col = 'rgb(0, 255, 0, 20%)'
         else:
             col = 'rgb(255, 0, 0, 20%)'
-        self.author_sort.setStyleSheet('QLineEdit { color: black; '
-                                       'background-color: %s; }'%col)
-        tt = self.ok_aus_tooltip if normal else self.bad_aus_tooltip
-        self.author_sort.setToolTip(tt)
+        control.setStyleSheet('QLineEdit { color: black; '
+                              'background-color: %s; }'%col)
+        tt = tt[0] if normal else tt[1]
+        control.setToolTip(tt)
 
     def validate_isbn(self, isbn):
         isbn = unicode(isbn).strip()
@@ -648,12 +686,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         authors = string_to_authors(au)
         self.author_sort.setText(self.db.author_sort_from_authors(authors))
 
+    def deduce_title_sort(self):
+        ts = unicode(self.title.text())
+        self.title_sort.setText(title_sort(ts))
+
     def swap_title_author(self):
         title = self.title.text()
         self.title.setText(self.authors.text())
         self.authors.setText(title)
-        self.author_sort.setText('')
-
+        self.deduce_author_sort()
+        self.deduce_title_sort()
 
     def initialize_combos(self):
         self.initalize_authors()
@@ -767,10 +809,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             self.pubdate.setDate(QDate(dt.year, dt.month, dt.day))
                         summ = book.comments
                         if summ:
-                            prefix = unicode(self.comments.toPlainText())
+                            prefix = self.comments.html
                             if prefix:
                                 prefix += '\n'
-                            self.comments.setPlainText(prefix + summ)
+                            self.comments.html = prefix + comments_to_html(summ)
                         if book.rating is not None:
                             self.rating.setValue(int(book.rating))
                         if book.tags:
@@ -800,7 +842,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 series = unicode(self.series.text()).strip()
                 if series and series != self.original_series_name:
                     ns = 1
-                    if tweaks['series_index_auto_increment'] == 'next':
+                    if tweaks['series_index_auto_increment'] != 'const':
                         ns = self.db.get_next_series_num_for(series)
                     self.series_index.setValue(ns)
                     self.original_series_name = series
@@ -828,16 +870,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.accept()
 
     def accept(self):
-        cf = getattr(self, 'cover_fetcher', None)
-        if cf is not None and hasattr(cf, 'terminate'):
-            cf.terminate()
-            cf.wait()
         try:
             if self.formats_changed:
                 self.sync_formats()
             title = unicode(self.title.text()).strip()
             if title != self.original_title:
                 self.db.set_title(self.id, title, notify=False)
+            # This must be after setting the title because of the DB update trigger
+            ts = unicode(self.title_sort.text()).strip()
+            if ts:
+                self.db.set_title_sort(self.id, ts, notify=False, commit=False)
             au = unicode(self.authors.text()).strip()
             if au and au != self.original_author:
                 self.db.set_authors(self.id, string_to_authors(au), notify=False)
@@ -860,7 +902,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_series_index(self.id, self.series_index.value(),
                                      notify=False, commit=False)
             self.db.set_comment(self.id,
-                    unicode(self.comments.toPlainText()).strip(),
+                    self.comments.html,
                                 notify=False, commit=False)
             d = self.pubdate.date()
             d = qt_to_dt(d)
@@ -888,25 +930,68 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         show=True)
             raise
         self.save_state()
+        self.cover_fetcher = None
         QDialog.accept(self)
 
     def reject(self, *args):
-        cf = getattr(self, 'cover_fetcher', None)
-        if cf is not None and hasattr(cf, 'terminate'):
-            cf.terminate()
-            cf.wait()
         self.save_state()
+        self.cover_fetcher = None
         QDialog.reject(self, *args)
 
     def read_state(self):
-        wg = dynamic.get('metasingle_window_geometry', None)
-        ss = dynamic.get('metasingle_splitter_state', None)
+        wg = dynamic.get('metasingle_window_geometry2', None)
+        ss = dynamic.get('metasingle_splitter_state2', None)
         if wg is not None:
             self.restoreGeometry(wg)
         if ss is not None:
             self.splitter.restoreState(ss)
 
     def save_state(self):
-        dynamic.set('metasingle_window_geometry', bytes(self.saveGeometry()))
-        dynamic.set('metasingle_splitter_state',
+        dynamic.set('metasingle_window_geometry2', bytes(self.saveGeometry()))
+        dynamic.set('metasingle_splitter_state2',
                 bytes(self.splitter.saveState()))
+
+    def break_cycles(self):
+        # Break any reference cycles that could prevent python
+        # from garbage collecting this dialog
+        def disconnect(signal):
+            try:
+                signal.disconnect()
+            except:
+                pass # Fails if view format was never connected
+        disconnect(self.view_format)
+        for b in ('next_button', 'prev_button'):
+            x = getattr(self, b, None)
+            if x is not None:
+                disconnect(x.clicked)
+
+if __name__ == '__main__':
+    from calibre.library import db
+    from PyQt4.Qt import QApplication
+    from calibre.utils.mem import memory
+    import gc
+
+
+    app = QApplication([])
+    db = db()
+
+    # Initialize all Qt Objects once
+    d = MetadataSingleDialog(None, 4, db)
+    d.break_cycles()
+    d.reject()
+    del d
+
+    for i in range(5):
+        gc.collect()
+    before = memory()
+
+    d = MetadataSingleDialog(None, 4, db)
+    d.reject()
+    d.break_cycles()
+    del d
+
+    for i in range(5):
+        gc.collect()
+    print 'Used memory:', memory(before)/1024.**2, 'MB'
+
+

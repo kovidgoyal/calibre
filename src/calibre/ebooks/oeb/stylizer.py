@@ -205,7 +205,10 @@ class Stylizer(object):
                     NameError, # thrown on OS X instead of SelectorSyntaxError
                     SelectorSyntaxError):
                 continue
-            matches = selector(tree)
+            try:
+                matches = selector(tree)
+            except etree.XPathEvalError:
+                continue
 
             if not matches:
                 ntext = capital_sel_pat.sub(lambda m: m.group().lower(), text)
@@ -633,12 +636,12 @@ class Style(object):
             parent = self._getparent()
             if 'line-height' in self._style:
                 lineh = self._style['line-height']
+                if lineh == 'normal':
+                    lineh = '1.2'
                 try:
-                    float(lineh)
+                    result = float(lineh) * self.fontSize
                 except ValueError:
                     result = self._unit_convert(lineh, base=self.fontSize)
-                else:
-                    result = float(lineh) * self.fontSize
             elif parent is not None:
                 # TODO: proper inheritance
                 result = parent.lineHeight

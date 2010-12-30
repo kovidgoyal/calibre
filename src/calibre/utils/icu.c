@@ -329,7 +329,7 @@ icu_lower(PyObject *self, PyObject *args) {
     PyMem_Free(input);
 
     return ret;
-}
+} // }}}
 
 // title {{{
 static PyObject *
@@ -374,9 +374,22 @@ icu_title(PyObject *self, PyObject *args) {
     PyMem_Free(input);
 
     return ret;
+} // }}}
+
+
+// set_default_encoding {{{
+static PyObject *
+icu_set_default_encoding(PyObject *self, PyObject *args) {
+    char *encoding;
+    if (!PyArg_ParseTuple(args, "s:setdefaultencoding", &encoding))
+        return NULL;
+    if (PyUnicode_SetDefaultEncoding(encoding))
+        return NULL;
+    Py_INCREF(Py_None);
+    return Py_None;
+
 }
-
-
+// }}}
 
 static PyMethodDef icu_methods[] = {
     {"upper", icu_upper, METH_VARARGS,
@@ -389,6 +402,10 @@ static PyMethodDef icu_methods[] = {
 
     {"title", icu_title, METH_VARARGS,
         "title(locale, unicode object) -> Title cased unicode object using locale rules."
+    },
+
+    {"set_default_encoding", icu_set_default_encoding, METH_VARARGS,
+        "set_default_encoding(encoding) -> Set the default encoding for the python unicode implementation."
     },
 
     {NULL}  /* Sentinel */

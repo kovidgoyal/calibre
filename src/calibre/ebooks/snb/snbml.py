@@ -121,7 +121,7 @@ class SNBMLizer(object):
                     subitem = line[len(CALIBRE_SNB_BM_TAG):]
                     bodyTree = trees[subitem].find(".//body")
                 else:
-                    if self.opts and self.opts.snb_indent_first_line:
+                    if self.opts and not self.opts.snb_dont_indent_first_line:
                         prefix = u'\u3000\u3000'
                     else:
                         prefix = u''

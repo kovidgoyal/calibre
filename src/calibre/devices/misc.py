@@ -62,9 +62,9 @@ class SWEEX(USBMS):
     # Ordered list of supported formats
     FORMATS     = ['epub', 'prc', 'fb2', 'html', 'rtf', 'chm', 'pdf', 'txt']
 
-    VENDOR_ID   = [0x0525]
-    PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x0319]
+    VENDOR_ID   = [0x0525, 0x177f]
+    PRODUCT_ID  = [0xa4a5, 0x300]
+    BCD         = [0x0319, 0x110]
 
     VENDOR_NAME = 'SWEEX'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOKREADER'
@@ -104,7 +104,7 @@ class PDNOVEL(USBMS):
 
     VENDOR_NAME = 'ANDROID'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
-    THUMBNAIL_HEIGHT = 144
+    THUMBNAIL_HEIGHT = 130
 
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = False
@@ -203,4 +203,64 @@ class LUMIREAD(USBMS):
                 os.makedirs(pdir)
             with open(cfilepath+'.jpg', 'wb') as f:
                 f.write(metadata.thumbnail[-1])
+
+class ALURATEK_COLOR(USBMS):
+
+    name           = 'Aluratek Color Device Interface'
+    gui_name       = 'Aluratek Color'
+    description    = _('Communicate with the Aluratek Color')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'fb2', 'txt', 'pdf']
+
+    VENDOR_ID   = [0x1f3a]
+    PRODUCT_ID  = [0x1000]
+    BCD         = [0x0002]
+
+    EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'books'
+
+    VENDOR_NAME = 'USB_2.0'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB_FLASH_DRIVER'
+
+class TREKSTOR(USBMS):
+
+    name           = 'Trekstor E-book player device interface'
+    gui_name       = 'Trekstor'
+    description    = _('Communicate with the Trekstor')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'txt', 'pdf']
+
+    VENDOR_ID   = [0x1e68]
+    PRODUCT_ID  = [0x0041]
+    BCD         = [0x0002]
+
+    EBOOK_DIR_MAIN = 'Ebooks'
+
+    VENDOR_NAME = 'TREKSTOR'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_PLAYER_7'
+
+class EEEREADER(USBMS):
+
+    name           = 'Asus EEE Reader device interface'
+    gui_name       = 'EEE Reader'
+    description    = _('Communicate with the EEE Reader')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'fb2', 'txt', 'pdf']
+
+    VENDOR_ID   = [0x0b05]
+    PRODUCT_ID  = [0x178f]
+    BCD         = [0x0319]
+
+    EBOOK_DIR_MAIN = 'Books'
+
+    VENDOR_NAME = 'LINUX'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
 

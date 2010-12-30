@@ -9,9 +9,10 @@ from PyQt4.Qt import QCoreApplication, SIGNAL, QModelIndex, QTimer, Qt, \
     QDialog, QPixmap, QGraphicsScene, QIcon, QSize
 
 from calibre.gui2.dialogs.book_info_ui import Ui_BookInfo
-from calibre.gui2 import dynamic, open_local_file
+from calibre.gui2 import dynamic, open_local_file, open_url
 from calibre import fit_image
 from calibre.library.comments import comments_to_html
+from calibre.utils.icu import sort_key
 
 class BookInfo(QDialog, Ui_BookInfo):
 
@@ -21,11 +22,9 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.setupUi(self)
         self.cover_pixmap = None
         self.comments.sizeHint = self.comments_size_hint
+        self.comments.page().setLinkDelegationPolicy(self.comments.page().DelegateAllLinks)
+        self.comments.linkClicked(self.link_clicked)
         self.view_func = view_func
-
-        desktop = QCoreApplication.instance().desktop()
-        screen_height = desktop.availableGeometry().height() - 100
-        self.resize(self.size().width(), screen_height)
 
 
         self.view = view
@@ -40,8 +39,15 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
         self.cover.resizeEvent = self.cover_view_resized
 
+        desktop = QCoreApplication.instance().desktop()
+        screen_height = desktop.availableGeometry().height() - 100
+        self.resize(self.size().width(), screen_height)
+
+    def link_clicked(self, url):
+        open_url(url)
+
     def comments_size_hint(self):
-        return QSize(350, 350)
+        return QSize(350, 250)
 
     def toggle_cover_fit(self, state):
         dynamic.set('book_info_dialog_fit_cover', self.fit_cover.isChecked())
@@ -113,6 +119,7 @@ class BookInfo(QDialog, Ui_BookInfo):
             lines = [x if x.strip() else '<br><br>' for x in lines]
             comments = '\n'.join(lines)
         self.comments.setHtml('<div>%s</div>' % comments)
+        self.comments.page().setLinkDelegationPolicy(self.comments.page().DelegateAllLinks)
         cdata = info.pop('cover', '')
         self.cover_pixmap = QPixmap.fromImage(cdata)
         self.resize_cover()
@@ -129,9 +136,12 @@ class BookInfo(QDialog, Ui_BookInfo):
             for f in formats:
                 f = f.strip()
                 info[_('Formats')] += '<a href="%s">%s</a>, '%(f,f)
-        for key in info.keys():
+        for key in sorted(info.keys(), key=sort_key):
             if key == 'id': continue
             txt  = info[key]
+            if key.endswith(':html'):
+                key = key[:-5]
+                txt = comments_to_html(txt)
             if key != _('Path'):
                 txt  = u'<br />\n'.join(textwrap.wrap(txt, 120))
             rows += u'<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)

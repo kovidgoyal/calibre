@@ -203,16 +203,17 @@ All the functions listed under single-function mode can be used in program mode,
 
 The following functions are available in addition to those described in single-function mode. With the exception of the ``id`` parameter of assign, all parameters can be statements (sequences of expressions):
 
-    * ``add(x, y)``	-- returns x + y. Throws an exception if either x or y are not numbers.
+    * ``add(x, y)`` -- returns x + y. Throws an exception if either x or y are not numbers.
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
-    * ``divide(x, y)``	-- returns x / y. Throws an exception if either x or y are not numbers.
+    * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
     * ``field(name)`` -- returns the metadata field named by ``name``.
-    * ``multiply``	-- returns x * y. Throws an exception if either x or y are not numbers.
+    * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.
     * ``strcat(a, b, ...)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
     * ``strcmp(x, y, lt, eq, gt)`` -- does a case-insensitive comparison x and y as strings. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
     * ``substr(str, start, end)`` -- returns the ``start``'th through the ``end``'th characters of ``str``. The first character in ``str`` is the zero'th character. If end is negative, then it indicates that many characters counting from the right. If end is zero, then it indicates the last character. For example, ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)`` returns ``'234'``.
-    * ``subtract``	-- returns x - y. Throws an exception if either x or y are not numbers.
+    * ``subtract(x, y)`` -- returns x - y. Throws an exception if either x or y are not numbers.
+    * ``template(x)`` -- evaluates x as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. For example, ``template('[[title_sort]]') will evaluate the template ``{title_sort}`` and return its value.
     
 Special notes for save/send templates
 -------------------------------------

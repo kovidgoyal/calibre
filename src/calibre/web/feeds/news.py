@@ -548,6 +548,7 @@ class BasicNewsRecipe(Recipe):
             }
 
         For an example, see the recipe for downloading `The Atlantic`.
+        In addition, you can add 'author' for the author of the article.
         '''
         raise NotImplementedError
 

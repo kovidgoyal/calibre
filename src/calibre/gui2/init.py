@@ -123,6 +123,8 @@ class Stack(QStackedWidget): # {{{
                 _('Tag Browser'), I('tags.png'),
                 parent=parent, side_index=0, initial_side_size=200,
                 shortcut=_('Shift+Alt+T'))
+        parent.tb_splitter.state_changed.connect(
+                        self.tb_widget.set_pane_is_visible, Qt.QueuedConnection)
         parent.tb_splitter.addWidget(self.tb_widget)
         parent.tb_splitter.addWidget(parent.cb_splitter)
         parent.tb_splitter.setCollapsible(parent.tb_splitter.other_index, False)

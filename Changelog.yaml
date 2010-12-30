@@ -4,6 +4,221 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.35
+  date: 2010-12-23
+
+  new features:
+    - title: "Add a simple to use Rich text editor for comments to the edit metadata dialog."
+      description: >
+        "You can now easily add formatting like bold/italic/lists/headings/colors/etc. to book comments via the
+        edit metadata dialog"
+      type: major
+
+    - title: "E-book viewer: Add a right click menu item 'Inspect' that allows you to inspect the underlying HTML/CSS source of the currently displayed content"
+      type: major
+
+    - title: "When deleting books from the library if a device is connected and the books are also present on the device ask the user if the books should be deleted from the device, the library, or both."
+
+    - title: "Add device drivers for Trekstore eBook  Player 7, Sanda Bambook, ALuratek Color, Samsung Galaxy, LG Optimus, Motorola Droid 2 and Sunstech EB700"
+      tickets: [8021, 7966, 7973, 7956]
+
+    - title: "Add an entry to the menu of the calibre library button to select a random book from your calibre library"
+      tickets: [8010]
+
+    - title: "SONY driver: Add a couple of special extra collections for all books by author and all books by title, to workaround the broken sorting on newer SONY models. To enable these collections, go to Preferences->Plugins->Device Interface plugins and customize the SONY plugin."
+
+    - title: "Edit metadata dialog: When downloading metadata, make the table of matching books sortable"
+      tickets: [7951]
+
+    - title: "Add a success message after a database integrity check completes successfully"
+
+    - title: "Search and replace: When using regular expression mode, add a special input field '{template}' that allows use the templating language to create complex input fields. Also allow setting of series_index by search and replace using the same syntax as in the book list, namely, Series Name [series number]"
+
+    - title: "Bulk metadata edit: Add option to automatically set cover from the cover present in the actual ebook files"
+      tickets: [7947]
+
+    - title: "E-book viewer: Show format of current book in the title bar."
+      tickets: [7974]
+
+    - title: "Add a tweak to control how author names are displayed in the Tag Browser and Content Server"
+
+    - title: "FB2 Output: Restore sectionizing functionality"
+
+  bug fixes:
+    - title: "When in narrow layout, reserve 40% of available width in the book details panel for series/formats/etc and use the rest for comments"
+      tickets: [8028]
+
+    - title: "PDB Input: Fix failure to block-indent PML \t sections"
+      tickets: [8019]
+
+    - title: "Tag browser: When renaming items dont reset the library view and try not to scroll the Tag Browser itself"
+
+    - title: "Conversion pipeline: Fix broken link rewriting for inline CSS embedded in HTML"
+
+    - title: "Fix regression in 0.7.34 that broke recipes using extra_css to link to SONY device fonts"
+      tickets: [7995]
+
+    - title: "SONY driver: Don't upload thumbnails as they slow down post disconnect processing on older models"
+
+    - title: "Content server: Fix a bug that allowed remote users to read arbitrary png/gif/js/css/html files"
+      tickets: [7980]
+
+    - title: "On X11 initialize fontconfig in the GUI thread as Qt also uses fontconfig internally and fontconfig is not thread safe. Fixes a few random crashes on calibre strartup"
+
+    - title: "When using the remove specific format actions, only show available formats in the selected books"
+      tickets: [7967]
+
+    - title: "Linux binary build: If setting system default locale fails, try setting locale to en_US.UTF-8 instead"
+
+    - title: "Have the title sort tweak respected everywhere"
+
+    - title: "PocketBook 701 driver: Swap the main memory and card drives on windows"
+
+    - title: "Fix regression in templating that caused series_index to be shown even when book had no series"
+      tickets: [7949]
+
+    - title: "Content server: Fix regressiont hat broke browsing by rating"
+
+    - title: "Content server OPDS feeds: Fix parsing of author names as XML"
+      tickets: [7938]
+
+  improved recipes:
+    - Business Week Magazine 
+    - Gazet van Antwerpen
+    - La Nacion
+    - New England Journal of Medicine
+    - Journal of Hospital Medicine
+
+  new recipes:
+    - title: "NRC Handelsblad (EPUB version)"
+      author: "veezh"
+      
+    - title: "CND and wenxuecity - znjy"
+      author: "Derek Liang"
+
+    - title: "Mish's Global Economic Trend Analysis"
+      author: "Darko Miletic"
+
+- version: 0.7.34
+  date: 2010-12-17
+
+  new features:
+    - title: "Page turn animations in the e-book viewer"
+      type: major
+      description: >
+        "Now when you use the Page Down/Page Up keys or the next/previous page buttons in the viewer, page turning will be animated. The duration of the animation can be controlled in the viewer preferences. Setting it to 0 disables the animation completely."
+
+    - title: "Conversion pipeline: Add an option to set the minimum line height of all elemnts as a percentage of the computed font size. By default, calibre now sets the line height to 120% of the computed font size."
+
+    - title: "Large speedup in startup times and post metadata edit wait for large libraries"
+
+    - title: "Allow changing the font used in the calibre interface via Preferences->Look and feel"
+
+    - title: "Allow editing of the title sort value for a book via the edit metadata dialog"
+
+    - title: "Disable the cover cache. This means that if you are running calibre on an underpowered machine, you might notice some slow down in the cover browser. On the other hand, calibre's memory consumption is reduced."
+
+    - title: "You can now restart calibre in debug mode by clicking the arrow next to the Preferences button. In debug mode, after you quit calibre, a diagnostic log will popup"
+      tickets: [7359]
+
+    - title: "When creating a new calibre library add an option to copy the custom column, saved searches, etc from the current library."
+      tickets: [7643]
+
+    - title: "Add more tweaks to control how the next available series number is calculated."
+      tickets: [7892]
+
+    - title: "Add a tweak to control layout of the custom metadata tab in the edit metadata dialog"
+
+    - title: "Apple driver: Set series number as track number on windows when sending books to iTunes"
+
+    - title: "Drivers for PocketBook 701 and Samsung E65"
+
+    - title: "E-book viewer: Add option to have the mouse wheel flip pages"
+
+    - title: "Add a load_resources method to the InterfaceAction and Plugin classes to facilitate loading of resources from plugin ZIP files"
+
+    - title: "E-book viewer: Add option to not remember position in book when quitting."
+      tickets: [7699]
+
+    - title: "When sorting the book list, keep the current book visible after the sort completes."
+      tickets: [7504]
+
+    - title: "EPUB Output: Add an option to flatten the EPUB file structure, specially for FBReaderJ."
+      tickets: [7788]
+
+    - title: "EPUB Output: Ensure all files inside the generated EPUB have unique filenames, to support broken EPUB readers like Stanza, Aldiko, FBReader and Sigil"
+
+    - title: "FB2 Output: Add support for some 2.1 style tags."
+
+    - title: "Bulk metadata edit: Add options to delete cover/generate default cover."
+      tickets: [7885]
+
+    - title: "Fix a regression in 0.7.33 that broke updating covers in ebook files when saving to disk."
+      tickets: [7886]
+
+    - title: "Don't refresh the Tag browser if it is hidden. Speeds up metadata editing with large libraries, if you hide teh Tag Browser."
+
+    - title: "MOBI Output: Add option to ignore margins in input document"
+      tickets: [7877]
+
+    - title: "Kobo driver: Add support for 1.8.x firmware"
+
+  bug fixes:
+    - title: "Fix various memory leaks introduced in the last couple of releases"
+
+    - title: "EPUB metadata: When rendering first page as the cover, handle embedded svg correctly."
+      tickets: [7909]
+
+    - title: "Disable multiple library support when the CALIBRE_OVERRIDE_DATABASE_PATH env var is set"
+
+    - title: "Content server: Fix bug that could cause saved search based restrictions to not exclude all books"
+      tickets: [7876]
+
+    - title: "Topaz metadata: Read metadata correctly from Topaz files that have MOBI file extensions"
+
+    - title: "MOBI Input: Handle the (rare) MOBI files that do not specify per paragraph text indents correctly."
+      tickets: [7869]
+
+    - title: "MOBI metadata reader: Handle invalid PRC files with spurious image_offset headers"
+
+    - title: "Fix drag/drop of new cover to book detail panel does not update cover browser"
+      tickets: [7890]
+
+    - title: "Do not open the book details dialog when double click on the scrollbars in the book details panel"
+      tickets: [7826]
+
+    - title: "Templates: Fix {tags} not working when no tags are present"
+      tickets: [7888]
+
+    - title: "HTML metadata: Fix regression that broke parsing of some meta tags"
+      tickets: [7851]
+
+    - title: "Preferences: Add tooltips to buddy labels as well."
+      tickets: [7873]
+
+    - title: "Content server: Fix handling of root URL when using --url-prefix"
+
+    - title: "Ensure that the default encoding used by python is never ASCII (needed when running a non frozen version of calibre on linux)"
+
+  improved recipes:
+    - Astronomy Picture of the day
+    - New Scientist
+    - Radikal
+    - Times of India
+    - Economic Times
+    - Zeit Online
+    - Dilbert
+
+  new recipes:
+    - title: "Various Japanes news sources, National Geographic and paper.li"
+      author: "Hiroshi Miura"
+      
+    - title: "Science based medicine"
+      author: "BuzzKill"
+
+    - title: "Kompiutierra"
+      author: "Vadim Dyadkin"
+
 - version: 0.7.33
   date: 2010-12-10
 

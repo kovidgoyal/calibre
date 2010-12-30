@@ -39,6 +39,12 @@ class MOBIOutput(OutputFormatPlugin):
         OptionRecommendation(name='personal_doc', recommended_value='[PDOC]',
             help=_('Tag marking book to be filed with Personal Docs')
         ),
+        OptionRecommendation(name='mobi_ignore_margins',
+            recommended_value=False,
+            help=_('Ignore margins in the input document. If False, then '
+                'the MOBI output plugin will try to convert margins specified'
+                ' in the input document, otherwise it will ignore them.')
+        ),
     ])
 
     def check_for_periodical(self):

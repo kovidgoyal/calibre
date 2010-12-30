@@ -4,6 +4,7 @@ __copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 economictimes.indiatimes.com
 '''
 
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheEconomicTimes(BasicNewsRecipe):
@@ -32,18 +33,17 @@ class TheEconomicTimes(BasicNewsRecipe):
                         , 'language'         : language
                         }
 
-    keep_only_tags = [dict(attrs={'class':'printdiv'})]
-    remove_tags    = [dict(name=['object','link','embed','iframe','base','table','meta'])]
-    remove_attributes = ['name']
 
+    remove_tags_before = dict(name='h1')
     feeds          = [(u'All articles', u'http://economictimes.indiatimes.com/rssfeedsdefault.cms')]
 
     def print_version(self, url):
         rest, sep, art = url.rpartition('/articleshow/')
+        return 'http://m.economictimes.com/PDAET/articleshow/' + art
         return 'http://economictimes.indiatimes.com/articleshow/' + art + '?prtpage=1'
 
     def get_article_url(self, article):
-        rurl = article.get('link',  None)
+        rurl = article.get('guid',  None)
         if (rurl.find('/quickieslist/') > 0) or (rurl.find('/quickiearticleshow/') > 0):
            return None
         return rurl
