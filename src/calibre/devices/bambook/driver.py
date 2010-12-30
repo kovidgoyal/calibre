@@ -29,12 +29,16 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
     booklist_class = BookList
     book_class = Book
 
+    ip = None
+
     FORMATS = [ "snb" ]
     VENDOR_ID = 0x230b
     PRODUCT_ID = 0x0001
     BCD = None
     CAN_SET_METADATA = False
     THUMBNAIL_HEIGHT = 155
+    EXTRA_CUSTOMIZATION_MESSAGE = \
+        _("Device IP Address (restart calibre after changing)")
 
     icon = I("devices/bambook.png")
 #    OPEN_FEEDBACK_MESSAGE = _(
@@ -47,6 +51,10 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
     METADATA_FILE_GUID = 'calibremetadata.snb'
 
     bambook = None
+    is_connected = False
+
+    def __init__(self, ip):
+        self.ip = ip
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
@@ -60,15 +68,23 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
         self.eject()
         # Connect
         self.bambook = Bambook()
-        self.bambook.Connect()
+        self.bambook.Connect(ip = self.ip, timeout = 10000)
         if self.bambook.GetState() != CONN_CONNECTED:
             self.bambook = None
-            raise Exception(_("Unable to connect to Bambook."))
+            raise OpenFeedback(_("Unable to connect to Bambook. \n"
+                                 "If you are trying to connect via Wi-Fi, "
+                                 "please make sure the IP address of Bambook has been correctly configured."))
+        self.is_connected = True
+        return True
+
+    def unmount_device(self):
+        self.eject()
 
     def eject(self):
         if self.bambook:
             self.bambook.Disconnect()
             self.bambook = None
+            self.is_connected = False
 
     def post_yank_cleanup(self):
         self.eject()
@@ -475,3 +491,8 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
     def get_guid(uuid):
         guid = hashlib.md5(uuid).hexdigest()[0:15] + ".snb"
         return guid
+
+class BAMBOOKWifi(BAMBOOK):
+    def is_usb_connected(self, devices_on_system, debug=False,
+                         only_presence=False):
+        return self.is_connected, self
