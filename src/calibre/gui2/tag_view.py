@@ -56,7 +56,7 @@ class TagDelegate(QItemDelegate): # {{{
 
         # Paint the text
         if item.boxed:
-            painter.drawRoundedRect(r, 5, 5)
+            painter.drawRoundedRect(r.adjusted(1,1,-1,-1), 5, 5)
         r.setLeft(r.left()+r.height()+3)
         painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
                         model.data(index, Qt.DisplayRole).toString())
@@ -1194,7 +1194,6 @@ class TagBrowserWidget(QWidget): # {{{
         self.tags_view.set_pane_is_visible(to_what)
 
     def find_text_changed(self, str=None):
-        print 'here', str
         self.current_position = None
         self.find()
 
@@ -1221,7 +1220,6 @@ class TagBrowserWidget(QWidget): # {{{
             key = self.parent.library_view.model().db.\
                         field_metadata.search_term_to_field_key(txt[:colon])
             txt = txt[colon+1:]
-        print key, txt
         self.current_position = model.find_node(key, txt, self.current_position)
         if self.current_position:
             model.show_item_at_index(self.current_position, box=True)
