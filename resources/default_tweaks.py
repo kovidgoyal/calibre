@@ -315,3 +315,11 @@ locale_for_sorting =  ''
 # metadata  one book at a time. If True, then the fields are laid out using two
 # columns. If False, one column is used.
 metadata_single_use_2_cols_for_custom_fields = True
+
+# The number of seconds to wait before sending emails when using a
+# public email server like gmail or hotmail. Default is: 5 minutes
+# Setting it to lower may cause the server's SPAM controls to kick in,
+# making email sending fail. Changes will take effect only after a restart of
+# calibre.
+public_smtp_relay_delay = 301
+
