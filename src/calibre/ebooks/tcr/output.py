@@ -22,11 +22,6 @@ class TCROutput(OutputFormatPlugin):
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \
             'The default is utf-8.')),
-        OptionRecommendation(name='compression_level', recommended_value=5,
-            level=OptionRecommendation.LOW,
-            help=_('Specify the compression level to use. Scale 1 - 10. 1 ' \
-            'being the lowest compression but the fastest and 10 being the ' \
-            'highest compression but the slowest.')),
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -48,7 +43,7 @@ class TCROutput(OutputFormatPlugin):
         txt = writer.extract_content(oeb_book, opts).encode(opts.output_encoding, 'replace')
 
         log.info('Compressing text...')
-        txt = compress(txt, opts.compression_level)
+        txt = compress(txt)
 
         out_stream.seek(0)
         out_stream.truncate()
