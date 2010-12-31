@@ -1289,7 +1289,7 @@ class TagBrowserWidget(QWidget): # {{{
             model.show_item_at_path(self.current_find_position, box=True)
         elif self.item_search.text():
             self.not_found_label.setVisible(True)
-            width = self.not_found_label.parent().width()-8
+            width = self.width()-8
             height = self.not_found_label.heightForWidth(width) + 20
             self.not_found_label.resize(width, height)
             self.not_found_label.move(4, 10)
