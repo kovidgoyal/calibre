@@ -374,7 +374,13 @@ class TagTreeItem(object): # {{{
         elif self.type == self.TAG:
             icon_map[0] = data.icon
             self.tag, self.icon_state_map = data, list(map(QVariant, icon_map))
-        self.tooltip = tooltip
+        if tooltip:
+            if tooltip.endswith(':'):
+                self.tooltip = tooltip + ' '
+            else:
+                self.tooltip = tooltip + ': '
+        else:
+            self.tooltip = ''
 
     def __str__(self):
         if self.type == self.ROOT:
@@ -436,8 +442,10 @@ class TagTreeItem(object): # {{{
                     return QVariant('(%s) %s'%(tag.name, tag.tooltip))
                 else:
                     return QVariant(tag.name)
-            if tag.tooltip is not None:
-                return QVariant(tag.tooltip)
+            if tag.tooltip:
+                return QVariant(self.tooltip + tag.tooltip)
+            else:
+                return QVariant(self.tooltip)
         return NONE
 
     def toggle(self):
@@ -736,10 +744,11 @@ class TagsModel(QAbstractItemModel): # {{{
                                      category_icon = category_node.icon,
                                      tooltip = None,
                                      category_key=category_node.category_key)
-                    t = TagTreeItem(parent=sub_cat, data=tag,
+                    t = TagTreeItem(parent=sub_cat, data=tag, tooltip=r,
                                         icon_map=self.icon_state_map)
                 else:
-                    t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_state_map)
+                    t = TagTreeItem(parent=category, data=tag, tooltip=r,
+                                    icon_map=self.icon_state_map)
             self.endInsertRows()
         return True
 
