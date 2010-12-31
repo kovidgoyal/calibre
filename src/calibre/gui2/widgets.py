@@ -554,6 +554,7 @@ class HistoryLineEdit(QComboBox):
         self.blockSignals(True)
         self.clear()
         self.addItems(items)
+        self.setEditText(ct)
         self.blockSignals(False)
         history.set(self.store_name, items)
 
