@@ -1203,7 +1203,7 @@ class TagBrowserWidget(QWidget): # {{{
         self.not_found_label = l
         l.setFrameStyle(QFrame.StyledPanel)
         l.setAutoFillBackground(True)
-        l.setText('<p><b>'+_('No More Matches.</b><p> Click Find again to go to first match'))
+        l.setText('<p><b>'+_('No More Matches.</b><p>Click Find again to go to first match'))
         l.setAlignment(Qt.AlignVCenter)
         l.setWordWrap(True)
         l.resize(l.sizeHint())
