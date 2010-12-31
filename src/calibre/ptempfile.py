@@ -40,7 +40,7 @@ def base_dir():
             _base_dir = td
         else:
             _base_dir = tempfile.mkdtemp(prefix='%s_%s_tmp_'%(__appname__,
-                __version__))
+                __version__), dir=os.environ.get('CALIBRE_TEMP_DIR', None))
             atexit.register(remove_dir, _base_dir)
     return _base_dir
 

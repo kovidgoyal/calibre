@@ -1,3 +1,10 @@
+/**
+ * Copyright 2009 Kovid Goyal <kovid@kovidgoyal.net>
+ * License: GNU GPL v2+
+ */
+
+
+
 #include <stdio.h>
 #include <errno.h>
 #include <sstream>

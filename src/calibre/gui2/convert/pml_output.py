@@ -17,6 +17,7 @@ class PluginWidget(Widget, Ui_Form):
     ICON = I('mimetypes/unknown.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, ['inline_toc', 'full_image_depth'])
+        Widget.__init__(self, parent, ['inline_toc', 'full_image_depth',
+            'output_encoding'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)

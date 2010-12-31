@@ -46,14 +46,27 @@ class SNBInput(InputFormatPlugin):
         meta = snbFile.GetFileStream('snbf/book.snbf')
         if meta != None:
             meta = etree.fromstring(meta)
-            oeb.metadata.add('title', meta.find('.//head/name').text)
-            oeb.metadata.add('creator', meta.find('.//head/author').text, attrib={'role':'aut'})
-            oeb.metadata.add('language', meta.find('.//head/language').text.lower().replace('_', '-'))
-            oeb.metadata.add('creator', meta.find('.//head/generator').text)
-            oeb.metadata.add('publisher', meta.find('.//head/publisher').text)
-            cover = meta.find('.//head/cover')
-            if cover != None and cover.text != None:
-                oeb.guide.add('cover', 'Cover', cover.text)
+            l = { 'title'    : './/head/name',
+                  'creator'  : './/head/author',
+                  'language' : './/head/language',
+                  'generator': './/head/generator',
+                  'publisher': './/head/publisher',
+                  'cover'    : './/head/cover', }
+            d = {}
+            for item in l:
+                node = meta.find(l[item])
+                if node != None:
+                    d[item] = node.text if node.text != None else ''
+                else:
+                    d[item] = ''
+
+            oeb.metadata.add('title', d['title'])
+            oeb.metadata.add('creator', d['creator'], attrib={'role':'aut'})
+            oeb.metadata.add('language', d['language'].lower().replace('_', '-'))
+            oeb.metadata.add('generator', d['generator'])
+            oeb.metadata.add('publisher', d['publisher'])
+            if d['cover'] != '':
+                oeb.guide.add('cover', 'Cover', d['cover'])
 
         bookid = str(uuid.uuid4())
         oeb.metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')

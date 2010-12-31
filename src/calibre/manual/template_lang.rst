@@ -211,7 +211,7 @@ The following functions are available in addition to those described in single-f
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
     * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
     * ``field(name)`` -- returns the metadata field named by ``name``.
-    * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those `assign`ed to). This permits using the template processor to construct complex results from local variables.
+    * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables.
     * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.
     * ``print(a, b, ...)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``), the output will go to a black hole.
     * ``strcat(a, b, ...)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
@@ -268,7 +268,7 @@ The solution requires creating three composite columns. The first column is used
     Title: Revenge of the Wrought-Iron Flamingos
     Output: MLM [03] Revenge of the Wrought-Iron Flamingos
 
-The following program produces the same results as the original recipe, using only one custom column to hold the results of a program that computes the special title value.
+The following program produces the same results as the original recipe, using only one custom column to hold the results of a program that computes the special title value::
 
     Custom column: 
     Name: #special_title

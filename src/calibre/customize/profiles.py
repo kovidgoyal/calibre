@@ -439,6 +439,13 @@ class TabletOutput(iPadOutput):
     screen_size = (sys.maxint, sys.maxint)
     comic_screen_size = (sys.maxint, sys.maxint)
 
+class SamsungGalaxy(TabletOutput):
+    name = 'Samsung Galaxy'
+    shortname = 'galaxy'
+    description = _('Intended for the Samsung Galaxy and similar tablet devices with '
+            'a resolution of 600x1280')
+    screen_size = comic_screen_size = (600, 1280)
+
 class SonyReaderOutput(OutputProfile):
 
     name        = 'Sony Reader'
@@ -707,7 +714,7 @@ class BambookOutput(OutputProfile):
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
-        iPadOutput, KoboReaderOutput, TabletOutput,
+        iPadOutput, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
         BambookOutput, NookColorOutput]

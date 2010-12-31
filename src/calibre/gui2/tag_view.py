@@ -336,7 +336,7 @@ class TagsView(QTreeView): # {{{
     # If the number of user categories changed,  if custom columns have come or
     # gone, or if columns have been hidden or restored, we must rebuild the
     # model. Reason: it is much easier than reconstructing the browser tree.
-    def set_new_model(self, filter_categories_by = None):
+    def set_new_model(self, filter_categories_by=None):
         try:
             self._model = TagsModel(self.db, parent=self,
                                     hidden_categories=self.hidden_categories,
@@ -1165,7 +1165,7 @@ class TagBrowserWidget(QWidget): # {{{
         'containing the text "foo"'))
         search_layout.addWidget(self.item_search)
         self.search_button = QPushButton()
-        self.search_button.setText(_('Find!'))
+        self.search_button.setText(_('&Find'))
         self.search_button.setToolTip(_('Find the first/next matching item'))
         self.search_button.setFixedWidth(40)
         search_layout.addWidget(self.search_button)

@@ -41,9 +41,12 @@ class FB2Input(InputFormatPlugin):
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS, RECOVER_PARSER
+        from calibre.ebooks.chardet import xml_to_unicode
         NAMESPACES = {'f':FB2NS, 'l':XLINK_NS}
         log.debug('Parsing XML...')
         raw = stream.read().replace('\0', '')
+        raw = xml_to_unicode(raw, strip_encoding_pats=True,
+            assume_utf8=True)[0]
         try:
             doc = etree.fromstring(raw)
         except etree.XMLSyntaxError:
