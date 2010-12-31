@@ -550,6 +550,9 @@ class EPUB_MOBI(CatalogPlugin):
     version = (0, 0, 1)
     file_types = set(['epub','mobi'])
 
+    THUMB_SMALLEST = "1.0"
+    THUMB_LARGEST = "2.0"
+
     '''
     # Deprecated, keeping this just in case there are complaints
     Option('--numbers-as-text',
@@ -599,22 +602,36 @@ class EPUB_MOBI(CatalogPlugin):
                           "--exclude-tags=skip will match 'skip this book' and 'Skip will like this'.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
+                   Option('--generate-descriptions',
+                          default=True,
+                          dest='generate_descriptions',
+                          action = 'store_true',
+                          help=_("Include book descriptions in catalog.\n"
+                          "Default: '%default'\n"
+                          "Applies to: ePub, MOBI output formats")),
+                   Option('--generate-genres',
+                          default=True,
+                          dest='generate_genres',
+                          action = 'store_true',
+                          help=_("Include 'Genres' section in catalog.\n"
+                          "Default: '%default'\n"
+                          "Applies to: ePub, MOBI output formats")),
                    Option('--generate-titles',
-                          default=False,
+                          default=True,
                           dest='generate_titles',
                           action = 'store_true',
                           help=_("Include 'Titles' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-series',
-                          default=False,
+                          default=True,
                           dest='generate_series',
                           action = 'store_true',
                           help=_("Include 'Series' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-recently-added',
-                          default=False,
+                          default=True,
                           dest='generate_recently_added',
                           action = 'store_true',
                           help=_("Include 'Recently Added' section in catalog.\n"
@@ -649,6 +666,14 @@ class EPUB_MOBI(CatalogPlugin):
                           dest='read_book_marker',
                           action = None,
                           help=_("field:pattern indicating book has been read.\n" "Default: '%default'\n"
+                          "Applies to ePub, MOBI output formats")),
+                   Option('--thumb-width',
+                          default='1.0',
+                          dest='thumb_width',
+                          action = None,
+                          help=_("Size hint (in inches) for book covers in catalog.\n"
+                          "Range: 1.0 - 2.0\n"
+                          "Default: '%default'\n"
                           "Applies to ePub, MOBI output formats")),
                    Option('--wishlist-tag',
                           default='Wishlist',
@@ -979,8 +1004,8 @@ class EPUB_MOBI(CatalogPlugin):
                             cached_thumb_width = "-1"
 
                     if float(cached_thumb_width) != float(self.opts.thumb_width):
-                        self.opts.log.info(" refreshing cache at '%s'" % self.__archive_path)
-                        self.opts.log.info('  thumb_width: %1.2f" => %1.2f"' %
+                        self.opts.log.warning(" invalidating cache at '%s'" % self.__archive_path)
+                        self.opts.log.warning('  thumb_width changed: %1.2f" => %1.2f"' %
                                             (float(cached_thumb_width),float(self.opts.thumb_width)))
                         os.remove(self.__archive_path)
                         with closing(ZipFile(self.__archive_path, mode='w')) as zfw:
@@ -4946,6 +4971,19 @@ class EPUB_MOBI(CatalogPlugin):
             sections_list.append('Descriptions')
 
         build_log.append(u" Sections: %s" % ', '.join(sections_list))
+
+        # Limit thumb_width to 1.0" - 2.0"
+        try:
+            if float(opts.thumb_width) < float(self.THUMB_SMALLEST):
+                log.warning("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width,self.THUMB_SMALLEST))
+                opts.thumb_width = self.THUMB_SMALLEST
+            if float(opts.thumb_width) > float(self.THUMB_LARGEST):
+                log.warning("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width,self.THUMB_LARGEST))
+                opts.thumb_width = self.THUMB_LARGEST
+            opts.thumb_width = "%.2f" % float(opts.thumb_width)
+        except:
+            log.error("coercing thumb_width from '%s' to '%s'" % (opts.thumb_width,self.THUMB_SMALLEST))
+            opts.thumb_width = "1.0"
 
         # Display opts
         keys = opts_dict.keys()
