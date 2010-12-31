@@ -674,7 +674,6 @@ class TagsModel(QAbstractItemModel): # {{{
         if data is None:
             return False
         row_index = -1
-        empty_tag = Tag('')
         collapse = tweaks['categories_collapse_more_than']
         collapse_model = tweaks['categories_collapse_model']
         if sort_by == 'name':
@@ -726,7 +725,7 @@ class TagsModel(QAbstractItemModel): # {{{
                             if cat_len > idx + collapse:
                                 d['last'] = data[r][idx+collapse-1]
                             else:
-                                d['last'] = empty_tag
+                                d['last'] = data[r][cat_len-1]
                             name = eval_formatter.safe_format(collapse_template,
                                                               d, 'TAG_VIEW', None)
                             sub_cat = TagTreeItem(parent=category,
