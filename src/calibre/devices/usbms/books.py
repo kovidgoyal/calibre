@@ -140,11 +140,19 @@ class CollectionsBookList(BookList):
         all_by_author = ''
         all_by_title = ''
         ca = []
+        all_by_something = []
         for c in collection_attributes:
-            if c.startswith('aba:') and c[4:]:
+            if c.startswith('aba:') and c[4:].strip():
                 all_by_author = c[4:].strip()
-            elif c.startswith('abt:') and c[4:]:
+            elif c.startswith('abt:') and c[4:].strip():
                 all_by_title = c[4:].strip()
+            elif c.startswith('abs:') and c[4:].strip():
+                name = c[4:].strip()
+                sby = self.in_category_sort_rules(name)
+                if sby is None:
+                    sby = name
+                if name and sby:
+                    all_by_something.append((name, sby))
             else:
                 ca.append(c.lower())
         collection_attributes = ca
@@ -251,6 +259,10 @@ class CollectionsBookList(BookList):
                 if all_by_title not in collections:
                     collections[all_by_title] = {}
                 collections[all_by_title][lpath] = (book, tsval, asval)
+            for (n, sb) in all_by_something:
+                if n not in collections:
+                    collections[n] = {}
+                collections[n][lpath] = (book, book.get(sb, ''), tsval)
 
         # Sort collections
         result = {}
