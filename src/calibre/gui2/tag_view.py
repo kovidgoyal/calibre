@@ -948,7 +948,10 @@ class TagsModel(QAbstractItemModel): # {{{
         '''
         Search for an item (a node) in the tags browser list that matches both
         the key (exact case-insensitive match) and txt (contains case-
-        insensitive match). Returns the path to the node.
+        insensitive match). Returns the path to the node. Note that paths are to
+        a location (second item, fourth item, 25 item), not to a node. If the
+        tree is changed subsequent to calling this method, the path can easily
+        refer to a different node or no node at all.
         '''
         if not txt:
             return None
