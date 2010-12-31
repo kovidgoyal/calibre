@@ -1243,7 +1243,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 else:
                     icon = icon_map[':custom']
                     icon_map[category] = icon
-                    tooltip = self.custom_column_label_map[label]['name']
 
             datatype = cat['datatype']
             avgr = lambda x: 0.0 if x.rc == 0 else x.rt/x.rc
