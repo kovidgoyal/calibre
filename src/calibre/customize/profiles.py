@@ -439,6 +439,13 @@ class TabletOutput(iPadOutput):
     screen_size = (sys.maxint, sys.maxint)
     comic_screen_size = (sys.maxint, sys.maxint)
 
+class SamsungGalaxy(TabletOutput):
+    name = 'Samsung Galaxy'
+    shortname = 'galaxy'
+    description = _('Intended for the Samsung Galaxy and similar tablet devices with '
+            'a resolution of 600x1280')
+    screen_size = comic_screen_size = (600, 1280)
+
 class SonyReaderOutput(OutputProfile):
 
     name        = 'Sony Reader'
