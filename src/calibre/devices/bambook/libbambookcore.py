@@ -329,6 +329,8 @@ class Bambook:
         self.handle = None
 
     def Connect(self, ip = DEFAULT_BAMBOOK_IP, timeout = 10000):
+        if ip == None or ip == '':
+            ip = DEFAULT_BAMBOOK_IP
         self.handle = BambookConnect(ip, timeout)
         if self.handle and self.handle != 0:
             return True

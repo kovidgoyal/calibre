@@ -55,6 +55,32 @@ author_sort_copy_method = 'invert'
 #   categories_use_field_for_author_name = 'author_sort'
 categories_use_field_for_author_name = 'author'
 
+# Control how the tags pane displays categories containing many items. If the
+# number of items is larger than categories_collapse_more_than, a sub-category
+# will be added. If sorting by name, then the subcategories can be organized by
+# first letter (categories_collapse_model = 'first letter') or into equal-sized
+# groups (categories_collapse_model = 'partition'). If sorting by average rating
+# or by popularity, then 'partition' is always used. The addition of
+# subcategories can be disabled by setting categories_collapse_more_than = 0.
+# When using partition, the format of the subcategory label is controlled by a
+# template: categories_collapsed_name_template if sorting by name,
+# categories_collapsed_rating_template if sorting by average rating, and
+# categories_collapsed_popularity_template if sorting by popularity. There are
+# two variables available to the template: first and last. The variable 'first'
+# is the initial item in the subcategory, and the variable 'last' is the final
+# item in the subcategory. Both variables are 'objects'; they each have multiple
+# values that are obtained by using a suffix. For example, first.name for an
+# author category will be the name of the author. The sub-values available are:
+#  name: the printable name of the item
+#  count: the number of books that references this item
+#  avg_rating: the averate rating of all the books referencing this item
+#  sort: the sort value. For authors, this is the author_sort for that author
+#  category: the category (e.g., authors, series) that the item is in.
+categories_collapse_more_than = 50
+categories_collapsed_name_template = '{first.name:shorten(4,'',0)}{last.name::shorten(4,'',0)| - |}'
+categories_collapsed_rating_template = '{first.avg_rating:4.2f}{last.avg_rating:4.2f| - |}'
+categories_collapsed_popularity_template = '{first.count:d}{last.count:d| - |}'
+categories_collapse_model = 'first letter'
 
 # Set whether boolean custom columns are two- or three-valued.
 #  Two-values for true booleans
@@ -135,32 +161,53 @@ auto_connect_to_folder = ''
 # metadata management is set to automatic. Collections on Sonys are named
 # depending upon whether the field is standard or custom. A collection derived
 # from a standard field is named for the value in that field. For example, if
-# the standard 'series' column contains the name 'Darkover', then the series
-# will be named 'Darkover'. A collection derived from a custom field will have
-# the name of the field added to the value. For example, if a custom series
+# the standard 'series' column contains the value 'Darkover', then the
+# collection name is 'Darkover'. A collection derived from a custom field will
+# have the name of the field added to the value. For example, if a custom series
 # column named 'My Series' contains the name 'Darkover', then the collection
-# will be named 'Darkover (My Series)'. If two books have fields that generate
-# the same collection name, then both books will be in that collection. This
-# tweak lets you specify for a standard or custom field the value to be put
-# inside the parentheses. You can use it to add a parenthetical description to a
+# will by default be named 'Darkover (My Series)'. For purposes of this
+# documentation, 'Darkover' is called the value and 'My Series' is called the
+# category. If two books have fields that generate the same collection name,
+# then both books will be in that collection.
+# This set of tweaks lets you specify for a standard or custom field how
+# the collections are to be named. You can use it to add a description to a
 # standard field, for example 'Foo (Tag)' instead of the 'Foo'. You can also use
 # it to force multiple fields to end up in the same collection. For example, you
 # could force the values in 'series', '#my_series_1', and '#my_series_2' to
 # appear in collections named 'some_value (Series)', thereby merging all of the
-# fields into one set of collections. The syntax of this tweak is
-# {'field_lookup_name':'name_to_use', 'lookup_name':'name', ...}
-# Example 1: I want three series columns to be merged into one set of
-# collections. If the column lookup names are 'series', '#series_1' and
-# '#series_2', and if I want nothing in the parenthesis, then the value to use
-# in the tweak value would be:
-# sony_collection_renaming_rules={'series':'', '#series_1':'', '#series_2':''}
-# Example 2: I want the word '(Series)' to appear on collections made from
-# series, and the word '(Tag)' to appear on collections made from tags. Use:
-# sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}
-# Example 3: I want 'series' and '#myseries' to be merged, and for the
-# collection name to have '(Series)' appended. The renaming rule is:
-# sony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}
+# fields into one set of collections.
+# There are two related tweaks. The first determines the category name to use
+# for a metadata field.  The second is a template, used to determines how the
+# value and category are combined to create the collection name.
+# The syntax of the first tweak, sony_collection_renaming_rules, is:
+# {'field_lookup_name':'category_name_to_use', 'lookup_name':'name', ...}
+# The second tweak, sony_collection_name_template, is a template. It uses the
+# same template language as plugboards and save templates. This tweak controls
+# how the value and category are combined together to make the collection name.
+# The only two fields available are {category} and {value}. The {value} field is
+# never empty. The {category} field can be empty. The default is to put the
+# value first, then the category enclosed in parentheses, it is isn't empty:
+# '{value} {category:|(|)}'
+# Examples: The first three examples assume that the second tweak
+# has not been changed.
+# 1: I want three series columns to be merged into one set of collections. The
+# column lookup names are 'series', '#series_1' and '#series_2'. I want nothing
+# in the parenthesis. The value to use in the tweak value would be:
+#    sony_collection_renaming_rules={'series':'', '#series_1':'', '#series_2':''}
+# 2: I want the word '(Series)' to appear on collections made from series, and
+# the word '(Tag)' to appear on collections made from tags. Use:
+#    sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}
+# 3: I want 'series' and '#myseries' to be merged, and for the collection name
+# to have '(Series)' appended. The renaming rule is:
+#    sony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}
+# 4: Same as example 2, but instead of having the category name in parentheses
+# and appended to the value, I want it prepended and separated by a colon, such
+# as in Series: Darkover. I must change the template used to format the category name
+# The resulting two tweaks are:
+#    sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}
+#    sony_collection_name_template='{category:||: }{value}'
 sony_collection_renaming_rules={}
+sony_collection_name_template='{value}{category:| (|)}'
 
 
 # Specify how sony collections are sorted. This tweak is only applicable if
@@ -244,8 +291,10 @@ generate_cover_title_font = None
 generate_cover_foot_font = None
 
 
-# Behavior of doubleclick on the books list. Choices:
-# open_viewer, do_nothing, edit_cell. Default: open_viewer.
+# Behavior of doubleclick on the books list. Choices: open_viewer, do_nothing,
+# edit_cell, edit_metadata. Selecting edit_metadata has the side effect of
+# disabling editing a field using a single click.
+# Default: open_viewer.
 # Example: doubleclick_on_library_view = 'do_nothing'
 doubleclick_on_library_view = 'open_viewer'
 
@@ -266,3 +315,11 @@ locale_for_sorting =  ''
 # metadata  one book at a time. If True, then the fields are laid out using two
 # columns. If False, one column is used.
 metadata_single_use_2_cols_for_custom_fields = True
+
+# The number of seconds to wait before sending emails when using a
+# public email server like gmail or hotmail. Default is: 5 minutes
+# Setting it to lower may cause the server's SPAM controls to kick in,
+# making email sending fail. Changes will take effect only after a restart of
+# calibre.
+public_smtp_relay_delay = 301
+

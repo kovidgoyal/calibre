@@ -22,6 +22,7 @@ from calibre.customize.ui import available_input_formats, available_output_forma
 from calibre.ebooks.metadata import authors_to_string
 from calibre.constants import preferred_encoding
 from calibre.gui2 import config, Dispatcher, warning_dialog
+from calibre.utils.config import tweaks
 
 class EmailJob(BaseJob): # {{{
 
@@ -83,7 +84,7 @@ class Emailer(Thread): # {{{
         rh = opts.relay_host
         if rh and (
             'gmail.com' in rh or 'live.com' in rh):
-            self.rate_limit = 301
+            self.rate_limit = tweaks['public_smtp_relay_delay']
 
     def stop(self):
         self._run = False

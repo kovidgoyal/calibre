@@ -9,6 +9,7 @@ import mimetypes, os
 from base64 import b64decode
 from lxml import etree
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.chardet import xml_to_unicode
 
 XLINK_NS     = 'http://www.w3.org/1999/xlink'
 def XLINK(name):
@@ -23,7 +24,10 @@ def get_metadata(stream):
     tostring = lambda x : etree.tostring(x, method='text',
             encoding=unicode).strip()
     parser = etree.XMLParser(recover=True, no_network=True)
-    root = etree.fromstring(stream.read(), parser=parser)
+    raw = stream.read()
+    raw = xml_to_unicode(raw, strip_encoding_pats=True,
+            assume_utf8=True)[0]
+    root = etree.fromstring(raw, parser=parser)
     authors, author_sort = [], None
     for au in XPath('//fb2:author')(root):
         fname = lname = author = None

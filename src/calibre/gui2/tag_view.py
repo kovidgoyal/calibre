@@ -10,22 +10,25 @@ Browsing book collection by tags.
 from itertools import izip
 from functools import partial
 
-from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, \
-                     QFont, QSize, QIcon, QPoint, QVBoxLayout, QComboBox, \
+from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
+                     QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox,\
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, \
-                     QPushButton, QWidget, QItemDelegate
+                     QPushButton, QWidget, QItemDelegate, QString
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
 from calibre.library.field_metadata import TagsIcons, category_icon_map
+from calibre.library.database2 import Tag
 from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, upper, lower
 from calibre.utils.search_query_parser import saved_searches
-from calibre.gui2 import error_dialog
+from calibre.utils.formatter import eval_formatter
+from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
+from calibre.gui2.widgets import HistoryLineEdit
 
 class TagDelegate(QItemDelegate): # {{{
 
@@ -52,6 +55,8 @@ class TagDelegate(QItemDelegate): # {{{
             painter.setClipRect(r)
 
         # Paint the text
+        if item.boxed:
+            painter.drawRoundedRect(r.adjusted(1,1,-1,-1), 5, 5)
         r.setLeft(r.left()+r.height()+3)
         painter.drawText(r, Qt.AlignLeft|Qt.AlignVCenter,
                         model.data(index, Qt.DisplayRole).toString())
@@ -331,12 +336,13 @@ class TagsView(QTreeView): # {{{
     # If the number of user categories changed,  if custom columns have come or
     # gone, or if columns have been hidden or restored, we must rebuild the
     # model. Reason: it is much easier than reconstructing the browser tree.
-    def set_new_model(self):
+    def set_new_model(self, filter_categories_by=None):
         try:
             self._model = TagsModel(self.db, parent=self,
                                     hidden_categories=self.hidden_categories,
                                     search_restriction=self.search_restriction,
-                                    drag_drop_finished=self.drag_drop_finished)
+                                    drag_drop_finished=self.drag_drop_finished,
+                                    filter_categories_by=filter_categories_by)
             self.setModel(self._model)
         except:
             # The DB must be gone. Set the model to None and hope that someone
@@ -355,6 +361,7 @@ class TagTreeItem(object): # {{{
                  parent=None, tooltip=None, category_key=None):
         self.parent = parent
         self.children = []
+        self.boxed = False
         if self.parent is not None:
             self.parent.append(self)
         if data is None:
@@ -400,7 +407,7 @@ class TagTreeItem(object): # {{{
 
     def category_data(self, role):
         if role == Qt.DisplayRole:
-            return QVariant(self.py_name + ' [%d]'%len(self.children))
+            return QVariant(self.py_name + ' [%d]'%len(self.child_tags()))
         if role == Qt.DecorationRole:
             return self.icon
         if role == Qt.FontRole:
@@ -441,12 +448,22 @@ class TagTreeItem(object): # {{{
         if self.type == self.TAG:
             self.tag.state = (self.tag.state + 1)%3
 
+    def child_tags(self):
+        res = []
+        for t in self.children:
+            if t.type == TagTreeItem.CATEGORY:
+                for c in t.children:
+                    res.append(c)
+            else:
+                res.append(t)
+        return res
     # }}}
 
 class TagsModel(QAbstractItemModel): # {{{
 
     def __init__(self, db, parent, hidden_categories=None,
-            search_restriction=None, drag_drop_finished=None):
+            search_restriction=None, drag_drop_finished=None,
+            filter_categories_by=None):
         QAbstractItemModel.__init__(self, parent)
 
         # must do this here because 'QPixmap: Must construct a QApplication
@@ -466,6 +483,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.hidden_categories = hidden_categories
         self.search_restriction = search_restriction
         self.row_map = []
+        self.filter_categories_by = filter_categories_by
 
         # get_node_tree cannot return None here, because row_map is empty
         data = self.get_node_tree(config['sort_tags_by'])
@@ -477,19 +495,11 @@ class TagsModel(QAbstractItemModel): # {{{
                 tt = _('The lookup/search name is "{0}"').format(r)
             else:
                 tt = ''
-            c = TagTreeItem(parent=self.root_item,
+            TagTreeItem(parent=self.root_item,
                     data=self.categories[i],
                     category_icon=self.category_icon_map[r],
                     tooltip=tt, category_key=r)
-            # This duplicates code in refresh(). Having it here as well
-            # can save seconds during startup, because we avoid a second
-            # call to get_node_tree.
-            for tag in data[r]:
-                if r not in self.categories_with_ratings and \
-                            not self.db.field_metadata[r]['is_custom'] and \
-                            not self.db.field_metadata[r]['kind'] == 'user':
-                    tag.avg_rating = None
-                TagTreeItem(parent=c, data=tag, icon_map=self.icon_state_map)
+        self.refresh(data=data)
 
     def mimeTypes(self):
         return ["application/calibre+from_library"]
@@ -641,6 +651,11 @@ class TagsModel(QAbstractItemModel): # {{{
         else:
             data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
 
+        if self.filter_categories_by:
+            for category in data.keys():
+                data[category] = [t for t in data[category]
+                        if lower(t.name).find(self.filter_categories_by) >= 0]
+
         tb_categories = self.db.field_metadata
         for category in tb_categories:
             if category in data: # The search category can come and go
@@ -652,35 +667,85 @@ class TagsModel(QAbstractItemModel): # {{{
             return None
         return data
 
-    def refresh(self):
-        data = self.get_node_tree(config['sort_tags_by']) # get category data
+    def refresh(self, data=None):
+        sort_by = config['sort_tags_by']
+        if data is None:
+            data = self.get_node_tree(sort_by) # get category data
         if data is None:
             return False
         row_index = -1
+        empty_tag = Tag('')
+        collapse = tweaks['categories_collapse_more_than']
+        collapse_model = tweaks['categories_collapse_model']
+        if sort_by == 'name':
+            collapse_template = tweaks['categories_collapsed_name_template']
+        elif sort_by == 'rating':
+            collapse_model = 'partition'
+            collapse_template = tweaks['categories_collapsed_rating_template']
+        else:
+            collapse_model = 'partition'
+            collapse_template = tweaks['categories_collapsed_popularity_template']
+        collapse_letter = None
+
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
             row_index += 1
             category = self.root_item.children[row_index]
-            names = [t.tag.name for t in category.children]
-            states = [t.tag.state for t in category.children]
+            names = []
+            states = []
+            children = category.child_tags()
+            states = [t.tag.state for t in children]
+            names = [t.tag.name for names in children]
             state_map = dict(izip(names, states))
             category_index = self.index(row_index, 0, QModelIndex())
+            category_node = category_index.internalPointer()
             if len(category.children) > 0:
                 self.beginRemoveRows(category_index, 0,
                         len(category.children)-1)
                 category.children = []
                 self.endRemoveRows()
-            if len(data[r]) > 0:
-                self.beginInsertRows(category_index, 0, len(data[r])-1)
-                for tag in data[r]:
-                    if r not in self.categories_with_ratings and \
+            cat_len = len(data[r])
+            if cat_len <= 0:
+                continue
+
+            self.beginInsertRows(category_index, 0, len(data[r])-1)
+            clear_rating = True if r not in self.categories_with_ratings and \
                                 not self.db.field_metadata[r]['is_custom'] and \
-                                not self.db.field_metadata[r]['kind'] == 'user':
-                        tag.avg_rating = None
-                    tag.state = state_map.get(tag.name, 0)
+                                not self.db.field_metadata[r]['kind'] == 'user' \
+                            else False
+            for idx,tag in enumerate(data[r]):
+                if clear_rating:
+                    tag.avg_rating = None
+                tag.state = state_map.get(tag.name, 0)
+
+                if collapse > 0 and cat_len > collapse:
+                    if collapse_model == 'partition':
+                        if (idx % collapse) == 0:
+                            d = {'first': tag}
+                            if cat_len > idx + collapse:
+                                d['last'] = data[r][idx+collapse-1]
+                            else:
+                                d['last'] = empty_tag
+                            name = eval_formatter.safe_format(collapse_template,
+                                                              d, 'TAG_VIEW', None)
+                            sub_cat = TagTreeItem(parent=category,
+                                     data = name, tooltip = None,
+                                     category_icon = category_node.icon,
+                                     category_key=category_node.category_key)
+                    else:
+                        if upper(tag.sort[0]) != collapse_letter:
+                            collapse_letter = upper(tag.name[0])
+                            sub_cat = TagTreeItem(parent=category,
+                                     data = collapse_letter,
+                                     category_icon = category_node.icon,
+                                     tooltip = None,
+                                     category_key=category_node.category_key)
+                    t = TagTreeItem(parent=sub_cat, data=tag,
+                                        icon_map=self.icon_state_map)
+                else:
                     t = TagTreeItem(parent=category, data=tag, icon_map=self.icon_state_map)
-                self.endInsertRows()
+            self.endInsertRows()
         return True
 
     def columnCount(self, parent):
@@ -824,19 +889,27 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def reset_all_states(self, except_=None):
         update_list = []
-        for i in xrange(self.rowCount(QModelIndex())):
-            category_index = self.index(i, 0, QModelIndex())
+        def process_tag(tag_index, tag_item):
+            tag = tag_item.tag
+            if tag is except_:
+                self.dataChanged.emit(tag_index, tag_index)
+                return
+            if tag.state != 0 or tag in update_list:
+                tag.state = 0
+                update_list.append(tag)
+                self.dataChanged.emit(tag_index, tag_index)
+
+        def process_level(category_index):
             for j in xrange(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = tag_index.internalPointer()
-                tag = tag_item.tag
-                if tag is except_:
-                    self.dataChanged.emit(tag_index, tag_index)
-                    continue
-                if tag.state != 0 or tag in update_list:
-                    tag.state = 0
-                    update_list.append(tag)
-                    self.dataChanged.emit(tag_index, tag_index)
+                if tag_item.type == TagTreeItem.CATEGORY:
+                    process_level(tag_index)
+                else:
+                    process_tag(tag_index, tag_item)
+
+        for i in xrange(self.rowCount(QModelIndex())):
+            process_level(self.index(i, 0, QModelIndex()))
 
     def clear_state(self):
         self.reset_all_states()
@@ -856,6 +929,7 @@ class TagsModel(QAbstractItemModel): # {{{
         ans = []
         tags_seen = set()
         row_index = -1
+
         for i, key in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
@@ -863,7 +937,7 @@ class TagsModel(QAbstractItemModel): # {{{
             if key.endswith(':'): # User category, so skip it. The tag will be marked in its real category
                 continue
             category_item = self.root_item.children[row_index]
-            for tag_item in category_item.children:
+            for tag_item in category_item.child_tags():
                 tag = tag_item.tag
                 if tag.state > 0:
                     prefix = ' not ' if tag.state == 2 else ''
@@ -877,6 +951,82 @@ class TagsModel(QAbstractItemModel): # {{{
                             tags_seen.add(tag.name)
                         ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
         return ans
+
+    def find_node(self, key, txt, start_index):
+        if not txt:
+            return None
+        txt = lower(txt)
+        if start_index is None or not start_index.isValid():
+            start_index = QModelIndex()
+        self.node_found = None
+
+        def process_tag(depth, tag_index, tag_item, start_path):
+            path = self.path_for_index(tag_index)
+            if depth < len(start_path) and path[depth] <= start_path[depth]:
+                return False
+            tag = tag_item.tag
+            if tag is None:
+                return False
+            if lower(tag.name).find(txt) >= 0:
+                self.node_found = tag_index
+                return True
+            return False
+
+        def process_level(depth, category_index, start_path):
+            path = self.path_for_index(category_index)
+            if depth < len(start_path):
+                if path[depth] < start_path[depth]:
+                    return False
+                if path[depth] > start_path[depth]:
+                    start_path = path
+            if key and category_index.internalPointer().category_key != key:
+                return False
+            for j in xrange(self.rowCount(category_index)):
+                tag_index = self.index(j, 0, category_index)
+                tag_item = tag_index.internalPointer()
+                if tag_item.type == TagTreeItem.CATEGORY:
+                    if process_level(depth+1, tag_index, start_path):
+                        return True
+                else:
+                    if process_tag(depth+1, tag_index, tag_item, start_path):
+                        return True
+            return False
+
+        for i in xrange(self.rowCount(QModelIndex())):
+            if process_level(0, self.index(i, 0, QModelIndex()),
+                                  self.path_for_index(start_index)):
+                break
+        return self.node_found
+
+    def show_item_at_index(self, idx, box=False):
+        if idx.isValid():
+            tag_item = idx.internalPointer()
+            self.tags_view.setCurrentIndex(idx)
+            self.tags_view.scrollTo(idx, QTreeView.PositionAtCenter)
+            if box:
+                tag_item.boxed = True
+                self.dataChanged.emit(idx, idx)
+
+    def clear_boxed(self):
+        def process_tag(tag_index, tag_item):
+            if tag_item.boxed:
+                tag_item.boxed = False
+                self.dataChanged.emit(tag_index, tag_index)
+
+        def process_level(category_index):
+            for j in xrange(self.rowCount(category_index)):
+                tag_index = self.index(j, 0, category_index)
+                tag_item = tag_index.internalPointer()
+                if tag_item.type == TagTreeItem.CATEGORY:
+                    process_level(tag_index)
+                else:
+                    process_tag(tag_index, tag_item)
+
+        for i in xrange(self.rowCount(QModelIndex())):
+            process_level(self.index(i, 0, QModelIndex()))
+
+    def get_filter_categories_by(self):
+        return self.filter_categories_by
 
     # }}}
 
@@ -993,9 +1143,39 @@ class TagBrowserWidget(QWidget): # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
+        self.parent = parent
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
         self._layout.setContentsMargins(0,0,0,0)
+
+        search_layout = QHBoxLayout()
+        self._layout.addLayout(search_layout)
+        self.item_search = HistoryLineEdit(parent)
+        try:
+            self.item_search.lineEdit().setPlaceholderText(_('Find item in tag browser'))
+        except:
+            # Using Qt < 4.7
+            pass
+        self.item_search.setToolTip(_(
+        'Search for items. This is a "contains" search; items containing the\n'
+        'text anywhere in the name will be found. You can limit the search\n'
+        'to particular categories using syntax similar to search. For example,\n'
+        'tags:foo will find foo in any tag, but not in authors etc. Entering\n'
+        '*foo will filter all categories at once, showing only those items\n'
+        'containing the text "foo"'))
+        search_layout.addWidget(self.item_search)
+        self.search_button = QPushButton()
+        self.search_button.setText(_('&Find'))
+        self.search_button.setToolTip(_('Find the first/next matching item'))
+        self.search_button.setFixedWidth(40)
+        search_layout.addWidget(self.search_button)
+        self.current_position = None
+        self.search_button.clicked.connect(self.find)
+        self.item_search.initialize('tag_browser_search')
+        self.item_search.lineEdit().returnPressed.connect(self.do_find)
+        self.item_search.lineEdit().textEdited.connect(self.find_text_changed)
+        self.item_search.activated[QString].connect(self.do_find)
+        self.item_search.completer().setCaseSensitivity(Qt.CaseSensitive)
 
         parent.tags_view = TagsView(parent)
         self.tags_view = parent.tags_view
@@ -1030,6 +1210,59 @@ class TagBrowserWidget(QWidget): # {{{
 
     def set_pane_is_visible(self, to_what):
         self.tags_view.set_pane_is_visible(to_what)
+
+    def find_text_changed(self, str):
+        self.current_position = None
+
+    def do_find(self, str=None):
+        self.current_position = None
+        self.find()
+
+    def find(self):
+        model = self.tags_view.model()
+        model.clear_boxed()
+        txt = unicode(self.item_search.currentText()).strip()
+
+        if txt.startswith('*'):
+            self.tags_view.set_new_model(filter_categories_by=txt[1:])
+            self.current_position = None
+            return
+        if model.get_filter_categories_by():
+            self.tags_view.set_new_model(filter_categories_by=None)
+            self.current_position = None
+            model = self.tags_view.model()
+
+        if not txt:
+            return
+
+        self.item_search.blockSignals(True)
+        self.item_search.lineEdit().blockSignals(True)
+        self.search_button.setFocus(True)
+        idx = self.item_search.findText(txt, Qt.MatchFixedString)
+        if idx < 0:
+            self.item_search.insertItem(0, txt)
+        else:
+            t = self.item_search.itemText(idx)
+            self.item_search.removeItem(idx)
+            self.item_search.insertItem(0, t)
+        self.item_search.setCurrentIndex(0)
+        self.item_search.blockSignals(False)
+        self.item_search.lineEdit().blockSignals(False)
+
+        colon = txt.find(':')
+        key = None
+        if colon > 0:
+            key = self.parent.library_view.model().db.\
+                        field_metadata.search_term_to_field_key(txt[:colon])
+            txt = txt[colon+1:]
+
+        self.current_position = model.find_node(key, txt, self.current_position)
+        if self.current_position:
+            model.show_item_at_index(self.current_position, box=True)
+        elif self.item_search.text():
+            warning_dialog(self.tags_view, _('No item found'),
+                        _('No (more) matches for that search')).exec_()
+
 
 
 # }}}

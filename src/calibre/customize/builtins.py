@@ -478,7 +478,7 @@ from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600, LUMIREAD, ALURATEK_COLOR, \
-        TREKSTOR
+        TREKSTOR, EEEREADER, NEXTBOOK
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
@@ -605,6 +605,8 @@ plugins += [
     ALURATEK_COLOR,
     BAMBOOK,
     TREKSTOR,
+    EEEREADER,
+    NEXTBOOK,
     ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \

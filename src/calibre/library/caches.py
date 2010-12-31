@@ -669,6 +669,9 @@ class ResultCache(SearchQueryParser): # {{{
             fields = [('timestamp', False)]
 
         keyg = SortKeyGenerator(fields, self.field_metadata, self._data)
+        # For efficiency, the key generator returns a plain value if only one
+        # field is in the sort field list. Because the normal cmp function will
+        # always assume asc, we must deal with asc/desc here.
         if len(fields) == 1:
             self._map.sort(key=keyg, reverse=not fields[0][1])
         else:
@@ -697,7 +700,7 @@ class SortKeyGenerator(object):
     def __init__(self, fields, field_metadata, data):
         from calibre.utils.icu import sort_key
         self.field_metadata = field_metadata
-        self.orders = [-1 if x[1] else 1 for x in fields]
+        self.orders = [1 if x[1] else -1 for x in fields]
         self.entries = [(x[0], field_metadata[x[0]]) for x in fields]
         self.library_order = tweaks['title_series_sorting'] == 'library_order'
         self.data = data

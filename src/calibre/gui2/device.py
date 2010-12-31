@@ -24,6 +24,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
+from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
@@ -634,6 +635,10 @@ class DeviceMixin(object): # {{{
                              _('Select folder to open as device'))
         if dir is not None:
             self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder', path=dir)
+
+    def connect_to_bambook(self):
+        self.device_manager.mount_device(kls=BAMBOOKWifi, kind='bambook', 
+                                         path=BAMBOOK.settings().extra_customization)
 
     def connect_to_itunes(self):
         self.device_manager.mount_device(kls=ITUNES_ASYNC, kind='itunes', path=None)

@@ -244,3 +244,43 @@ class TREKSTOR(USBMS):
     VENDOR_NAME = 'TREKSTOR'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_PLAYER_7'
 
+class EEEREADER(USBMS):
+
+    name           = 'Asus EEE Reader device interface'
+    gui_name       = 'EEE Reader'
+    description    = _('Communicate with the EEE Reader')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'fb2', 'txt', 'pdf']
+
+    VENDOR_ID   = [0x0b05]
+    PRODUCT_ID  = [0x178f]
+    BCD         = [0x0319]
+
+    EBOOK_DIR_MAIN = 'Books'
+
+    VENDOR_NAME = 'LINUX'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
+
+class NEXTBOOK(USBMS):
+
+    name           = 'Nextbook device interface'
+    gui_name       = 'Nextbook'
+    description    = _('Communicate with the Nextbook Reader')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'fb2', 'txt', 'pdf']
+
+    VENDOR_ID   = [0x05e3]
+    PRODUCT_ID  = [0x0726]
+    BCD         = [0x021a]
+
+    EBOOK_DIR_MAIN = ''
+
+    VENDOR_NAME = 'NEXT2'
+    WINDOWS_MAIN_MEM = '1.0.14'
+
