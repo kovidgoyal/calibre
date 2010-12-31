@@ -1203,7 +1203,7 @@ class TagBrowserWidget(QWidget): # {{{
         self.not_found_label = l
         l.setFrameStyle(QFrame.StyledPanel)
         l.setAutoFillBackground(True)
-        l.setText('<p><b>'+_('No More Matches.</b><p>Click Find again to go to first match'))
+        l.setText('<p><b>'+_('No More Matches.</b><p> Click Find again to go to first match'))
         l.setAlignment(Qt.AlignVCenter)
         l.setWordWrap(True)
         l.resize(l.sizeHint())
@@ -1289,10 +1289,10 @@ class TagBrowserWidget(QWidget): # {{{
             model.show_item_at_path(self.current_find_position, box=True)
         elif self.item_search.text():
             self.not_found_label.setVisible(True)
-            width = self.width()-8
+            width = self.item_search.width()
             height = self.not_found_label.heightForWidth(width) + 20
             self.not_found_label.resize(width, height)
-            self.not_found_label.move(4, 10)
+            self.not_found_label.move(self.search_button.width()/3, 10)
             self.not_found_label_timer.start(2000)
 
     def not_found_label_timer_event(self):
