@@ -551,7 +551,10 @@ class HistoryLineEdit(QComboBox):
             item = unicode(self.itemText(i))
             if item not in items:
                 items.append(item)
-
+        self.blockSignals(True)
+        self.clear()
+        self.addItems(items)
+        self.blockSignals(False)
         history.set(self.store_name, items)
 
     def setText(self, t):

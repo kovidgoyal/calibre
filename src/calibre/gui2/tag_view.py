@@ -11,14 +11,13 @@ from itertools import izip
 from functools import partial
 
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
-                     QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox,\
-                     QAbstractItemModel, QVariant, QModelIndex, QMenu, \
-                     QPushButton, QWidget, QItemDelegate, QString
+                     QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,\
+                     QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,\
+                     QPushButton, QWidget, QItemDelegate, QString, QLabel
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE
 from calibre.library.field_metadata import TagsIcons, category_icon_map
-from calibre.library.database2 import Tag
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key, upper, lower
 from calibre.utils.search_query_parser import saved_searches
@@ -1179,6 +1178,20 @@ class TagBrowserWidget(QWidget): # {{{
         parent.tags_view = TagsView(parent)
         self.tags_view = parent.tags_view
         self._layout.addWidget(parent.tags_view)
+        l = QLabel(self.tags_view)
+        l.setFrameStyle(QFrame.StyledPanel)
+        l.setAutoFillBackground(True)
+        l.setText(_('No More Matches'))
+        l.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        l.resize(l.size() + QSize(20, 20))
+        l.move(20,20)
+        l.setVisible(False)
+        self.not_found_label = l
+
+        self.label_timer = QTimer()
+        self.label_timer.setSingleShot(True)
+        self.label_timer.timeout.connect(self.timer_event, type=Qt.QueuedConnection)
+
 
         parent.sort_by = QComboBox(parent)
         # Must be in the same order as db2.CATEGORY_SORTS
@@ -1234,20 +1247,6 @@ class TagBrowserWidget(QWidget): # {{{
         if not txt:
             return
 
-        self.item_search.blockSignals(True)
-        self.item_search.lineEdit().blockSignals(True)
-        self.search_button.setFocus(True)
-        idx = self.item_search.findText(txt, Qt.MatchFixedString)
-        if idx < 0:
-            self.item_search.insertItem(0, txt)
-        else:
-            t = self.item_search.itemText(idx)
-            self.item_search.removeItem(idx)
-            self.item_search.insertItem(0, t)
-        self.item_search.setCurrentIndex(0)
-        self.item_search.blockSignals(False)
-        self.item_search.lineEdit().blockSignals(False)
-
         colon = txt.find(':')
         key = None
         if colon > 0:
@@ -1259,10 +1258,11 @@ class TagBrowserWidget(QWidget): # {{{
         if self.current_position:
             model.show_item_at_index(self.current_position, box=True)
         elif self.item_search.text():
-            warning_dialog(self.tags_view, _('No item found'),
-                        _('No (more) matches for that search')).exec_()
+            self.not_found_label.setVisible(True)
+            self.label_timer.start(1000)
 
-
+    def timer_event(self):
+        self.not_found_label.setVisible(False)
 
 # }}}
 
