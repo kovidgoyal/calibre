@@ -1289,10 +1289,14 @@ class TagBrowserWidget(QWidget): # {{{
             model.show_item_at_path(self.current_find_position, box=True)
         elif self.item_search.text():
             self.not_found_label.setVisible(True)
-            width = self.item_search.width()
+            if self.tags_view.verticalScrollBar().isVisible():
+                sbw = self.tags_view.verticalScrollBar().width()
+            else:
+                sbw = 0
+            width = self.width() - 8 - sbw
             height = self.not_found_label.heightForWidth(width) + 20
             self.not_found_label.resize(width, height)
-            self.not_found_label.move(self.search_button.width()/3, 10)
+            self.not_found_label.move(4, 10)
             self.not_found_label_timer.start(2000)
 
     def not_found_label_timer_event(self):
