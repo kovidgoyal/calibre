@@ -2728,6 +2728,10 @@ books_series_link      feeds
                           (book_id, name))
         self.commit()
 
+    def get_ids_for_custom_book_data(self, name):
+        s = self.conn.get('''SELECT book FROM books_plugin_data WHERE name=?''', (name,))
+        return [x[0] for x in s]
+
     def get_custom_recipes(self):
         for id, title, script in self.conn.get('SELECT id,title,script FROM feeds'):
             yield id, title, script
