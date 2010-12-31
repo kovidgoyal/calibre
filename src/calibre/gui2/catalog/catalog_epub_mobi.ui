@@ -44,35 +44,35 @@
       <item row="0" column="0">
        <widget class="QCheckBox" name="generate_titles">
         <property name="text">
-         <string>Books by Title</string>
+         <string>Books by &amp;Title</string>
         </property>
        </widget>
       </item>
       <item row="4" column="0">
        <widget class="QCheckBox" name="generate_series">
         <property name="text">
-         <string>Books by Series</string>
+         <string>Books by &amp;Series</string>
         </property>
        </widget>
       </item>
       <item row="0" column="2">
        <widget class="QCheckBox" name="generate_recently_added">
         <property name="text">
-         <string>Recently Added</string>
+         <string>Recently &amp;Added</string>
         </property>
        </widget>
       </item>
       <item row="5" column="0">
        <widget class="QCheckBox" name="generate_genres">
         <property name="text">
-         <string>Books by Genre</string>
+         <string>Books by &amp;Genre</string>
         </property>
        </widget>
       </item>
       <item row="4" column="2">
        <widget class="QCheckBox" name="generate_descriptions">
         <property name="text">
-         <string>Descriptions</string>
+         <string>&amp;Descriptions</string>
         </property>
        </widget>
       </item>
@@ -133,7 +133,7 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="text">
-           <string>Tags to exclude</string>
+           <string>Tags to &amp;exclude</string>
           </property>
           <property name="textFormat">
            <enum>Qt::AutoText</enum>
@@ -143,6 +143,9 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="wordWrap">
            <bool>true</bool>
+          </property>
+          <property name="buddy">
+           <cstring>exclude_genre</cstring>
           </property>
          </widget>
         </item>
@@ -214,13 +217,16 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="text">
-           <string>Tags to exclude</string>
+           <string>Tags to &amp;exclude</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
+          </property>
+          <property name="buddy">
+           <cstring>exclude_tags</cstring>
           </property>
          </widget>
         </item>
@@ -261,13 +267,16 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="text">
-           <string>Column/value</string>
+           <string>&amp;Column/value</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
+          </property>
+          <property name="buddy">
+           <cstring>exclude_source_field</cstring>
           </property>
          </widget>
         </item>
@@ -349,13 +358,16 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="text">
-           <string>Column/value</string>
+           <string>&amp;Column/value</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
+          </property>
+          <property name="buddy">
+           <cstring>read_source_field</cstring>
           </property>
          </widget>
         </item>
@@ -443,13 +455,16 @@ p, li { white-space: pre-wrap; }
            <string/>
           </property>
           <property name="text">
-           <string>Wishlist tag</string>
+           <string>&amp;Wishlist tag</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
+          </property>
+          <property name="buddy">
+           <cstring>wishlist_tag</cstring>
           </property>
          </widget>
         </item>
@@ -479,13 +494,16 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="text">
-           <string>Thumbnail width</string>
+           <string>&amp;Thumbnail width</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
+          </property>
+          <property name="buddy">
+           <cstring>thumb_width</cstring>
           </property>
          </widget>
         </item>
@@ -501,7 +519,7 @@ p, li { white-space: pre-wrap; }
            <string>Size hint for Description cover thumbnails</string>
           </property>
           <property name="suffix">
-           <string>&quot;</string>
+           <string> inch</string>
           </property>
           <property name="decimals">
            <number>2</number>
@@ -545,10 +563,13 @@ p, li { white-space: pre-wrap; }
            <string/>
           </property>
           <property name="text">
-           <string>Description note</string>
+           <string>&amp;Description note</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buddy">
+           <cstring>header_note_source_field</cstring>
           </property>
          </widget>
         </item>
@@ -590,10 +611,13 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
           <property name="text">
-           <string>Merge with Comments</string>
+           <string>&amp;Merge with Comments</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buddy">
+           <cstring>merge_source_field</cstring>
           </property>
          </widget>
         </item>
@@ -623,7 +647,7 @@ p, li { white-space: pre-wrap; }
            <string>Merge additional content before Comments</string>
           </property>
           <property name="text">
-           <string>Before</string>
+           <string>&amp;Before</string>
           </property>
          </widget>
         </item>
@@ -633,7 +657,7 @@ p, li { white-space: pre-wrap; }
            <string>Merge additional content after Comments</string>
           </property>
           <property name="text">
-           <string>After</string>
+           <string>&amp;After</string>
           </property>
          </widget>
         </item>
@@ -650,7 +674,7 @@ p, li { white-space: pre-wrap; }
            <string>Separate Comments and additional content with horizontal rule</string>
           </property>
           <property name="text">
-           <string>&lt;hr /&gt;</string>
+           <string>&amp;Separator</string>
           </property>
          </widget>
         </item>

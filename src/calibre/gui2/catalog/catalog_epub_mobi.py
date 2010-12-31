@@ -97,7 +97,7 @@ class PluginWidget(QWidget,Ui_Form):
                 #self.read_source_field.setCurrentIndex(index)
                 getattr(self,c_name).setCurrentIndex(index)
             elif c_type in ['line_edit']:
-                getattr(self, c_name).setText(opt_value)
+                getattr(self, c_name).setText(opt_value if opt_value else '')
             elif c_type in ['radio_button'] and opt_value is not None:
                 getattr(self, c_name).setChecked(opt_value)
             elif c_type in ['spin_box']:
@@ -145,11 +145,11 @@ class PluginWidget(QWidget,Ui_Form):
             if c_type in ['check_box', 'radio_button']:
                 opt_value = getattr(self, c_name).isChecked()
             elif c_type in ['combo_box']:
-                opt_value = unicode(getattr(self,c_name).currentText())
+                opt_value = unicode(getattr(self,c_name).currentText()).strip()
             elif c_type in ['line_edit']:
-                opt_value = unicode(getattr(self, c_name).text())
+                opt_value = unicode(getattr(self, c_name).text()).strip()
             elif c_type in ['spin_box']:
-                opt_value = unicode(getattr(self, c_name).cleanText())
+                opt_value = unicode(getattr(self, c_name).value())
             gprefs.set(self.name + '_' + c_name, opt_value)
 
             # Construct opts object

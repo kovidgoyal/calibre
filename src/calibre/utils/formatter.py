@@ -371,6 +371,12 @@ class TemplateFormatter(string.Formatter):
         raise Exception('get_value must be implemented in the subclass')
 
     def format_field(self, val, fmt):
+        # ensure we are dealing with a string.
+        if isinstance(val, (int, float)):
+            if val:
+                val = unicode(val)
+            else:
+                val = ''
         # Handle conditional text
         fmt, prefix, suffix = self._explode_format_string(fmt)
 

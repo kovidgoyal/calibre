@@ -77,9 +77,9 @@ categories_use_field_for_author_name = 'author'
 #  sort: the sort value. For authors, this is the author_sort for that author
 #  category: the category (e.g., authors, series) that the item is in.
 categories_collapse_more_than = 50
-categories_collapsed_name_template = '{first.name:shorten(4,'',0)}{last.name::shorten(4,'',0)| - |}'
-categories_collapsed_rating_template = '{first.avg_rating:4.2f}{last.avg_rating:4.2f| - |}'
-categories_collapsed_popularity_template = '{first.count:d}{last.count:d| - |}'
+categories_collapsed_name_template = '{first.name:shorten(4,'',0)} - {last.name::shorten(4,'',0)}'
+categories_collapsed_rating_template = '{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
+categories_collapsed_popularity_template = '{first.count:d} - {last.count:d}'
 categories_collapse_model = 'first letter'
 
 # Set whether boolean custom columns are two- or three-valued.

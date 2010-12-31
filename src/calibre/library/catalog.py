@@ -148,7 +148,6 @@ class CSV_XML(CatalogPlugin):
             outfile.close()
 
         elif self.fmt == 'xml':
-            #from lxml import etree
             from lxml.builder import E
 
             root = E.calibredb()
@@ -1809,10 +1808,11 @@ class EPUB_MOBI(CatalogPlugin):
             if not self.useSeriesPrefixInTitlesSection:
                 title_list = self.booksByTitle_noSeriesPrefix
             drtc = 0
+            divRunningTag = None
             for book in title_list:
                 if self.letter_or_symbol(book['title_sort'][0]) != current_letter :
                     # Start a new letter
-                    if drtc:
+                    if drtc and divRunningTag is not None:
                         divTag.insert(dtc, divRunningTag)
                         dtc += 1
                     divRunningTag = Tag(soup, 'div')
@@ -1874,12 +1874,14 @@ class EPUB_MOBI(CatalogPlugin):
                 pBookTag.insert(ptc, emTag)
                 ptc += 1
 
-                divRunningTag.insert(drtc, pBookTag)
+                if divRunningTag is not None:
+                    divRunningTag.insert(drtc, pBookTag)
                 drtc += 1
 
             # Add the last divRunningTag to divTag
-            divTag.insert(dtc, divRunningTag)
-            dtc += 1
+            if divRunningTag is not None:
+                divTag.insert(dtc, divRunningTag)
+                dtc += 1
 
             # Add the divTag to the body
             body.insert(btc, divTag)
@@ -1938,6 +1940,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Loop through booksByAuthor
             book_count = 0
+            divRunningTag = None
             for book in self.booksByAuthor:
                 book_count += 1
                 if self.letter_or_symbol(book['author_sort'][0].upper()) != current_letter :
@@ -1964,7 +1967,7 @@ class EPUB_MOBI(CatalogPlugin):
                         # Add divOpeningTag to divTag
                         divTag.insert(dtc, divOpeningTag)
                         dtc += 1
-                    elif author_count > 2:
+                    elif author_count > 2 and divRunningTag is not None:
                         divTag.insert(dtc, divRunningTag)
                         dtc += 1
 
@@ -1983,7 +1986,7 @@ class EPUB_MOBI(CatalogPlugin):
                     if author_count == 1:
                         divOpeningTag.insert(dotc, pAuthorTag)
                         dotc += 1
-                    else:
+                    elif divRunningTag is not None:
                         divRunningTag.insert(drtc,pAuthorTag)
                         drtc += 1
 
@@ -2008,7 +2011,7 @@ class EPUB_MOBI(CatalogPlugin):
                     if author_count == 1:
                         divOpeningTag.insert(dotc, pSeriesTag)
                         dotc += 1
-                    else:
+                    elif divRunningTag is not None:
                         divRunningTag.insert(drtc,pSeriesTag)
                         drtc += 1
                 if current_series and not book['series']:
@@ -2056,7 +2059,7 @@ class EPUB_MOBI(CatalogPlugin):
                 if author_count == 1:
                     divOpeningTag.insert(dotc, pBookTag)
                     dotc += 1
-                else:
+                elif divRunningTag is not None:
                     divRunningTag.insert(drtc,pBookTag)
                     drtc += 1
 
@@ -4048,9 +4051,13 @@ class EPUB_MOBI(CatalogPlugin):
                                         field,
                                         index_is_id=True)
             if field_contents:
-                if re.search(pat, unicode(field_contents),
-                        re.IGNORECASE) is not None:
-                    return True
+                try:
+                    if re.search(pat, unicode(field_contents),
+                            re.IGNORECASE) is not None:
+                        return True
+                except:
+                    # Compiling of pat failed, ignore it
+                    pass
 
             return False
 
