@@ -1201,7 +1201,6 @@ class TagBrowserWidget(QWidget): # {{{
         self.expand_button.setFixedWidth(20)
         self.expand_button.setToolTip(_('Collapse all categories'))
         search_layout.addWidget(self.expand_button)
-        self.expand_button.clicked.connect(lambda: self.tags_view.collapseAll())
 
         self.current_find_position = None
         self.search_button.clicked.connect(self.find)
@@ -1213,6 +1212,7 @@ class TagBrowserWidget(QWidget): # {{{
 
         parent.tags_view = TagsView(parent)
         self.tags_view = parent.tags_view
+        self.expand_button.clicked.connect(self.tags_view.collapseAll)
         self._layout.addWidget(parent.tags_view)
 
         # Now the floating 'not found' box
