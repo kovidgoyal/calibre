@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-23 22:48+0000\n"
-"PO-Revision-Date: 2010-12-29 15:53+0000\n"
-"Last-Translator: Matthias Heisig <Unknown>\n"
+"PO-Revision-Date: 2010-12-30 12:45+0000\n"
+"Last-Translator: Manichean <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-30 04:49+0000\n"
+"X-Launchpad-Export-Date: 2010-12-31 05:11+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -802,7 +802,7 @@ msgstr "Kommunikation mit iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Kommunikation mit dem Sanda Bambook eBook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
@@ -813,15 +813,20 @@ msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"Kann keine Bücher direkt vom Bambook zur Bibliothek hinzufügen. Bitte "
+"speichen Sie das Buch auf einen Datenträger und fügen die Datei zur "
+"Bibliothek hinzu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:58
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Kann nicht mit dem Bambook verbinden, Sie müssen zuerst die Bambook "
+"Bibliothek installieren."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:66
 msgid "Unable to connect to Bambook."
-msgstr ""
+msgstr "Kann nicht mit dem Bambook verbinden"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:95
 msgid "Bambook"
@@ -886,7 +891,7 @@ msgstr "Metadaten ans Gerät senden ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:132
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDK ist nicht installiert."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -1112,11 +1117,11 @@ msgstr "Kommunikation mit dem Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:211
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Kommunikation mit dem Aluratek Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:231
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Kommunikation mit dem Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1164,7 +1169,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by author"
-msgstr ""
+msgstr "Alle nach Titel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:64
 msgid ""
@@ -1180,6 +1185,9 @@ msgid ""
 "to the list to enable them. The collections will be given the name provided "
 "after the \":\" character."
 msgstr ""
+". Zwei besondere Sammlungen sind verfügbar: %s:%s und %s:%s. Fügen Sie diese "
+"Werte zur Liste hinzu, um sie zu aktivieren. Die Sammlungen erhalten den "
+"nach dem Doppelpunkt \":\" stehenden Namen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1212,7 +1220,7 @@ msgstr "Kommunikation mit dem Sovos Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:78
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Kommunikation mit dem Sunstech EB700 Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:258
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1237,6 +1245,8 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"Kann den %s Datenträger nicht erkennen. Entweder wurde das Gerät bereits "
+"ausgeworfen, oder ihr Kernel exportiert eine veraltete Version von SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:617
 msgid "Unable to mount main memory (Error code: %d)"
@@ -2217,6 +2227,14 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents)."
 msgstr ""
+"Geben Sie die Sektionierung von Elementen an. Der Wert \"nothing\" erstellt "
+"das Buch als eine einzelne Sektion. Der Wert \"files\" erstellt eine "
+"separate Sektion für jede Datei; benutzen Sie diese Einstellung, wenn ihr "
+"Lesegerät Probleme bereitet. Der Wert \"Table of Contents\" konvertiert "
+"jeden Eintrag im Inhaltsverzeichnis in einen Titel und erstellt Sektionen; "
+"versagt dieses, passen Sie die \"Strukturerkennung\" und/oder "
+"\"Inhaltsverzeichnis\"- Einstellungen an (aktivieren Sie \"Verwendung des "
+"automatisch erstellen Inhaltsverzeichnisses erzwingen\")."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:249
 msgid ""
@@ -3129,6 +3147,16 @@ msgid ""
 "        It can also get covers if the option is activated.\n"
 "    "
 msgstr ""
+"        %prog [Optionen]\n"
+"\n"
+"        Hole die Metadaten des Buches von Nicebooks. Sie müssen einen Titel, "
+"Autor,\n"
+"        eine ISBN, einen Verlag oder Schlüsselwörter angeben. Es werden "
+"maximal 20 Treffer zurückgegeben.\n"
+"        Sie sollten Ihre Anfrage also so genau wie möglich machen.\n"
+"        Es können auch die Umschläge geholt werden, wenn die Option "
+"aktiviert ist.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:366
 msgid "Book ISBN"
@@ -3739,7 +3767,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:48
 msgid "Resize all the images for full screen view. "
-msgstr ""
+msgstr "Alle Bilder für Vollbildanzeige neu skalieren. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:125
 msgid "Start Page"
@@ -4271,7 +4299,7 @@ msgstr "Keine Fehler gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:143
 msgid "The integrity check completed with no uncorrectable errors found."
-msgstr ""
+msgstr "Die Integritätsüberprüfung wurde ohne unbehebbare Fehler beendet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
@@ -4629,6 +4657,8 @@ msgid ""
 "Some of the selected books are on the attached device. <b>Where</b> do you "
 "want the selected files deleted from?"
 msgstr ""
+"Einige der ausgewählten Bücher sind auf dem angeschlossenen Gerät vorhanden. "
+"<b>Wo</b> wollen Sie die Dateien löschen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:257
 msgid ""
@@ -5642,11 +5672,11 @@ msgstr "Tiefstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:80
 msgid "Ordered list"
-msgstr ""
+msgstr "Sortierte Liste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:82
 msgid "Unordered list"
-msgstr ""
+msgstr "Unsortierte Liste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:85
 msgid "Align left"
@@ -5959,7 +5989,7 @@ msgstr "FB2-Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:39
 msgid "Sectionize:"
-msgstr ""
+msgstr "Sektionieren:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -7379,7 +7409,7 @@ msgstr "Kommentare verändern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:62
 msgid "Where do you want to delete from?"
-msgstr ""
+msgstr "Von wo möchten Sie löschen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:63
@@ -7394,7 +7424,7 @@ msgstr "Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:65
 msgid "Library and Device"
-msgstr ""
+msgstr "Bibliothek und Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:55
 msgid "&Show this warning again"

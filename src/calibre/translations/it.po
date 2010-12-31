@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-12-23 22:48+0000\n"
-"PO-Revision-Date: 2010-12-28 22:21+0000\n"
+"PO-Revision-Date: 2010-12-30 16:01+0000\n"
 "Last-Translator: usa_getta <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-29 04:38+0000\n"
+"X-Launchpad-Export-Date: 2010-12-31 05:12+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -835,7 +835,7 @@ msgstr "Impossibile connettere il Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:95
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:201
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:217
@@ -4261,6 +4261,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:143
 msgid "The integrity check completed with no uncorrectable errors found."
 msgstr ""
+"Controllo di integrita' completato senza aver trovato errori incorregibili."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
@@ -4616,6 +4617,8 @@ msgid ""
 "Some of the selected books are on the attached device. <b>Where</b> do you "
 "want the selected files deleted from?"
 msgstr ""
+"Alcuni dei libri selezionati sono sul dispositivo connesso.<b>Da dove</b> si "
+"desidera che i file selezionati siano cancellati?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:257
 msgid ""
@@ -5741,7 +5744,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:172
 msgid "Enter URL"
-msgstr ""
+msgstr "Inserire l'indirizzo URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:498
 msgid "Normal view"
@@ -5749,7 +5752,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:499
 msgid "HTML Source"
-msgstr ""
+msgstr "Sorgente HTML"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
 msgid ""
@@ -7354,7 +7357,7 @@ msgstr "Modifica Commenti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:62
 msgid "Where do you want to delete from?"
-msgstr ""
+msgstr "Da dove si vuole cancellare?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:63
@@ -8666,7 +8669,7 @@ msgstr "&Autore:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:215
 msgid "Ta&gs:"
-msgstr ""
+msgstr "Ta&gs:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:216
 msgid "Enter an author's name. Only one author can be used."
@@ -8691,7 +8694,7 @@ msgstr "Cerca solo nei campi selezionati:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:221
 msgid "Titl&e/Author/Series ..."
-msgstr ""
+msgstr "Tit&olo/Autore/Serie ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
@@ -10146,7 +10149,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:176
 msgid "The value \"{0}\" is in the list more than once"
-msgstr ""
+msgstr "Il valore \"{0}\" e' nella lista piu' di una volta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:171
@@ -10231,7 +10234,7 @@ msgstr "&Modello"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:165
 msgid "Values"
-msgstr ""
+msgstr "Valori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:166
 msgid ""
@@ -11564,7 +11567,7 @@ msgstr "Lingua predefinita per le regole di sillabazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:58
 msgid "Save the current position in the document, when quitting"
-msgstr ""
+msgstr "Salva la posizione corrente nel documento all'uscita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:60
 msgid "Have the mouse wheel turn pages"
@@ -12224,7 +12227,7 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr ""
+msgstr "ATTENZIONE: Non usare alcuna crittografia e' altamente insicuro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
@@ -13784,15 +13787,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:147
 msgid "unknown id "
-msgstr ""
+msgstr "id sconosciuto "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:152
 msgid "unknown function {0}"
-msgstr ""
+msgstr "funzione sconosciuta {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:171
 msgid "missing closing parenthesis"
-msgstr ""
+msgstr "chiusura di parentesi mancante"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:189
 msgid "expression is not function or constant"
@@ -14153,7 +14156,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:121
 msgid "Main menu"
-msgstr ""
+msgstr "Menu' principale"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:125
 msgid "Previous section"
@@ -14165,7 +14168,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:217
 msgid "Main Menu"
-msgstr ""
+msgstr "Menu' Principale"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:303
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:393

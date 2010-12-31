@@ -8,14 +8,46 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-23 22:48+0000\n"
-"PO-Revision-Date: 2010-12-28 20:36+0000\n"
-"Last-Translator: Alberto Ferreira <Unknown>\n"
+"PO-Revision-Date: 2010-12-30 22:23+0000\n"
+"Last-Translator: Almufadado <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-29 04:39+0000\n"
+"X-Launchpad-Export-Date: 2010-12-31 05:12+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
+msgid "day"
+msgstr "dias"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:205
+msgid "Monday"
+msgstr "Segundas-Feiras"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
+msgid "Tuesday"
+msgstr "Terças-Feiras"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
+msgid "Wednesday"
+msgstr "Quartas-Feiras"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:208
+msgid "Thursday"
+msgstr "Quintas-Feiras"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:209
+msgid "Friday"
+msgstr "Sextas-Feiras"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
+msgid "Saturday"
+msgstr "Sábados"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
+msgid "Sunday"
+msgstr "Domingos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
@@ -686,11 +718,11 @@ msgstr "Desactivar o extra mencionado"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:148
 msgid "Debug log"
-msgstr ""
+msgstr "Debug log"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr "Comunica com telefones Android."
+msgstr "Estabelecer ligação a telefones Android."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:57
 msgid ""
@@ -702,7 +734,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:100
 msgid "Communicate with S60 phones."
-msgstr "Comunicação com telefones S60"
+msgstr "Estabelecer ligação a telefones S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:90
 msgid "Apple device"
@@ -710,7 +742,7 @@ msgstr "Dispositivo Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:92
 msgid "Communicate with iTunes/iBooks."
-msgstr "Comunicar com iTunes/iBooks"
+msgstr "Estabelecer ligação com o sistema iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:98
 msgid "Apple device detected, launching iTunes, please wait ..."
@@ -795,15 +827,15 @@ msgstr "Catálogo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2876
 msgid "Communicate with iTunes."
-msgstr "Comunicar com iTunes."
+msgstr "Estabelecer ligação com o sistema iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Estabelecer ligação com o dispositivo Sanda Bambook eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid ""
@@ -887,11 +919,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr "Comunicar com o leitor Binatone Readme."
+msgstr "Estabelecer ligação com o dispositivo Binatone Readme eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr "Comunicar com o smartphone Blackberry."
+msgstr "Estabelecer ligação com o dispositivo smartphone Blackberry."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:253
@@ -902,15 +934,15 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr "Comunicar com o leitor Cybook Gen 3 / Opus."
+msgstr "Estabelecer ligação com o dispositivo Cybook Gen 3 / Opus."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr "Comunicar com o leitor Cybook Orizon."
+msgstr "Estabelecer ligação com o dispositivo Cybook Orizon."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
-msgstr "Comunicar com o leitor EB600."
+msgstr "Estabelecer ligação com o dispositivo EB600 eBook reader.."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
@@ -926,7 +958,7 @@ msgstr "Comunicar com o leitor PocketBook 602."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "Estabelecer ligação com o dispositivo PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1113,15 +1145,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:231
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Estabelecer ligação com o dispositivo Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr ""
+msgstr "Estabelecer ligação com o dispositivo Nokia 770 Internet Tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr ""
+msgstr "Estabelecer ligação com o dispositivo Nokia 810/900 internet tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
@@ -1157,11 +1189,11 @@ msgstr "Comunicar com todos os leitores de livros Sony"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:61
 msgid "All by title"
-msgstr ""
+msgstr "Todos por titulo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by author"
-msgstr ""
+msgstr "Todos por Autor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:64
 msgid ""
@@ -1177,6 +1209,9 @@ msgid ""
 "to the list to enable them. The collections will be given the name provided "
 "after the \":\" character."
 msgstr ""
+"- Existem duas colecções especiais disponíveis: %s:%s e %s:%s. Adicione "
+"estes valores à lista para os activar. Às colecções será dado o nome "
+"existente a seguir aos dois pontos (caractere \":\")."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1209,7 +1244,7 @@ msgstr "Comunicar com o leitor Sovos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:78
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Estabelecer ligação com o dispositivo EB700 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:258
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1242,6 +1277,8 @@ msgid ""
 "The main memory of %s is read only. This usually happens because of file "
 "system errors."
 msgstr ""
+"A memória principal de %s é só de leitura. Isto acontece habitualmente "
+"devido a erros no sistema de ficheiros."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:816
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:818
@@ -2914,7 +2951,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:383
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:390
 msgid "No result found for this search!"
-msgstr ""
+msgstr "A procura não produziu resultados !"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:107
 msgid ""
@@ -2946,15 +2983,15 @@ msgstr "O ISBN do livro para o qual quer os metadados."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:120
 msgid "The author whose book to search for."
-msgstr "O autor do livro que procura."
+msgstr "O autor do livro que você está procura."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:122
 msgid "The title of the book to search for."
-msgstr "O título do livro que procura."
+msgstr "O título do livro que você está procura."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:124
 msgid "The publisher of the book to search for."
-msgstr "A editora do livro que procura."
+msgstr "A editora do livro que você está procura."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:77
 msgid " not found."
@@ -4157,7 +4194,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 msgid "Start backing up metadata of all books"
-msgstr ""
+msgstr "Começar a salvaguarda dos meta-dados de todos os livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:208
 msgid "Check library"
@@ -4965,11 +5002,11 @@ msgstr "Guardado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:57
 msgid "Searching for sub-folders"
-msgstr ""
+msgstr "À procura de sub-pastas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:62
 msgid "Searching for books"
-msgstr ""
+msgstr "À procura de livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:74
 msgid "Looking for duplicates based on file hash"
@@ -5028,6 +5065,14 @@ msgid ""
 "<p>Make sure that the folder you chose for your calibre library <b>is "
 "not</b> under the root folder you choose.</p>"
 msgstr ""
+"<p>O Calibre pode procurar automaticamente os livros existentes no seu "
+"computador. Estes livros serão <b>copiados</b> para a biblioteca do Calibre. "
+"Este assistente irá ajudá-lo(a) a personalizar o processo de procura e "
+"importação da sua actual colecção de livros electrónicos.</p>\n"
+"<p>Escolha uma pasta base. Os livros serão procurados apenas dentro dessa "
+"pasta e respectivas sub-pastas.</p>\n"
+"<p>Certifique-se que a pasta que contém a Biblioteca do Calibre <b>não está "
+"dentro</b> dessa pasta base.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:68
 msgid "&Root folder:"
@@ -7187,11 +7232,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:72
 msgid "Sort by author"
-msgstr ""
+msgstr "Ordenar por autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:73
 msgid "Sort by author sort"
-msgstr ""
+msgstr "Ordenar por ID de ordem de autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:74
 msgid ""
@@ -7325,7 +7370,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 msgid "Search/Replace"
-msgstr ""
+msgstr "Procurar/Substituir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:76
@@ -7392,6 +7437,12 @@ msgid ""
 "your library before proceeding.<p>Search and replace in text fields using "
 "character matching or regular expressions. "
 msgstr ""
+"<b>Atenção que pode destruir a sua Biblioteca ao usar esta "
+"funcionalidade.</b> As alterações efectuadas são permanentes. NÃO existe "
+"função DESFAZER. É altamente recomendável que crie uma cópia de segurança da "
+"sua Biblioteca antes de proceder às alterações.<p>Procurar e substituir "
+"dados em capos de texto usando correspondências de caracteres ou expressões "
+"regulares. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:361
 msgid ""
@@ -7430,7 +7481,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:628
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:723
 msgid "Search/replace invalid"
-msgstr ""
+msgstr "Procurar/Substituir Inválido !"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:621
 msgid ""
@@ -7443,7 +7494,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:724
 msgid "Search pattern is invalid: %s"
-msgstr ""
+msgstr "O padrão da procura é inválido: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:768
 msgid ""
@@ -7604,15 +7655,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:410
 msgid "Search &field:"
-msgstr ""
+msgstr "Procurar &campo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:411
 msgid "The name of the field that you want to search"
-msgstr ""
+msgstr "O Nome do campo que quer procurar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:412
 msgid "Search mode:"
-msgstr ""
+msgstr "Modo de procura:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:413
 msgid ""
@@ -7627,10 +7678,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:415
 msgid "Enter a template to be used as the source for the search/replace"
 msgstr ""
+"Indique um modelo para ser usado como origem para a procura/substituição."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:416
 msgid "&Search for:"
-msgstr ""
+msgstr "&Procurar por:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:417
 msgid ""
@@ -7643,6 +7695,9 @@ msgid ""
 "Check this box if the search string must match exactly upper and lower case. "
 "Uncheck it if case is to be ignored"
 msgstr ""
+"Marque esta caixa se a expressão procurada deve corresponder exactamente às "
+"maiúsculas/minúsculas. Desmarque para a procura ignorar a capitalização das "
+"palavras."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:419
 msgid "Case sensitive"
@@ -7657,6 +7712,8 @@ msgid ""
 "The replacement text. The matched search text will be replaced with this "
 "string"
 msgstr ""
+"O texto de substituição. As procuras correspondentes irão ser trocadas por "
+"esta expressão."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:422
 msgid "Apply function after replace:"
@@ -7713,7 +7770,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:436
 msgid "&Search and replace"
-msgstr ""
+msgstr "&Procurar e substituir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:98
 msgid "Last modified: %s"
@@ -8062,38 +8119,40 @@ msgstr "A cancelar..."
 msgid ""
 "The current saved search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"A procura actualmente guardada será <b>permanente apagada</b>. Tem a certeza "
+"?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:88
 msgid "Saved Search Editor"
-msgstr ""
+msgstr "Editor de Procuras Guardadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:89
 msgid "Saved Search: "
-msgstr ""
+msgstr "Procura Guardada: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:90
 msgid "Select a saved search to edit"
-msgstr ""
+msgstr "Seleccione uma procura guardada para editar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:91
 msgid "Delete this selected saved search"
-msgstr ""
+msgstr "Apagar a procura guardada seleccionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:93
 msgid "Enter a new saved search name."
-msgstr ""
+msgstr "Digite um novo nome para esta procura guardada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:94
 msgid "Add the new saved search"
-msgstr ""
+msgstr "Adicionar a nova procura guardada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:96
 msgid "Change the contents of the saved search"
-msgstr ""
+msgstr "Alterar o conteúdo da procura guardada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:35
 msgid "&Search:"
-msgstr "&Procura:"
+msgstr "&Procurar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:133
 msgid "Need username and password"
@@ -8180,38 +8239,6 @@ msgstr "&Programar o descarregamento"
 msgid "Every "
 msgstr "Todos/as "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
-msgid "day"
-msgstr "dias"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:205
-msgid "Monday"
-msgstr "Segundas-Feiras"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
-msgid "Tuesday"
-msgstr "Terças-Feiras"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
-msgid "Wednesday"
-msgstr "Quartas-Feiras"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:208
-msgid "Thursday"
-msgstr "Quintas-Feiras"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:209
-msgid "Friday"
-msgstr "Sextas-Feiras"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
-msgid "Saturday"
-msgstr "Sábados"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
-msgid "Sunday"
-msgstr "Domingos"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:212
 msgid "at"
 msgstr "às"
@@ -8272,11 +8299,12 @@ msgstr "Apagar as notícias mais antigas que "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:41
 msgid "contains"
-msgstr "contém"
+msgstr "contêm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:42
 msgid "The text to search for. It is interpreted as a regular expression."
-msgstr "O texto a procurar. É interpretado como uma expressão regular."
+msgstr ""
+"O texto a procurar. É interpretado como uma expressão regular (alfanumérica)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:43
 msgid ""
@@ -8340,10 +8368,12 @@ msgid ""
 "See the <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
 "interface\">User Manual</a> for more help"
 msgstr ""
+"Consulte o <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-"
+"search-interface\">User Manual</a> para obter mais ajuda (em inglês)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:210
 msgid "A&dvanced Search"
-msgstr ""
+msgstr "Procura Avança&da"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:212
 msgid "Enter the title."
@@ -8376,7 +8406,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:220
 msgid "Search only in specific fields:"
-msgstr ""
+msgstr "Procurar apenas no campos especificados:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:221
 msgid "Titl&e/Author/Series ..."
@@ -8479,8 +8509,8 @@ msgid ""
 "Delete tag from database. This will unapply the tag from all books and then "
 "remove it from the database."
 msgstr ""
-"Apagar a etiqueta da base de dados. Isto vai retirar a etiqueta de todos os "
-"livros e depois removê-la da base de dados."
+"Apagar a etiqueta existente na base de dados. Isto irá retirar a etiqueta de "
+"todos os livros e depois removê-la da base de dados."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:132
 msgid "Apply tag to current book"
@@ -8558,6 +8588,8 @@ msgid ""
 "Delete item from database. This will unapply the item from all books and "
 "then remove it from the database."
 msgstr ""
+"Apagar item existente na base de dados. Isto irá retirar o item de todos os "
+"livros e depois removê-lo da base de dados."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:81
 msgid "Rename the item in every book where it is used."
@@ -9107,6 +9139,8 @@ msgstr "disponível"
 msgid ""
 "Books display will be restricted to those matching the selected saved search"
 msgstr ""
+"A apresentação de livros será restringida àqueles que corresponderem ao "
+"termos da procura guardada escolhida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:170
 msgid "Shift+Ctrl+F"
@@ -9131,23 +9165,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:187
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr ""
+msgstr "Fazer uma Procura rápida (ou prima a tecla 'Enter')"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 msgid "Reset Quick Search"
-msgstr "Reiniciar a Procura Rápida"
+msgstr "Redefinir a Procura Rápida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:205
 msgid "Copy current search text (instead of search name)"
-msgstr ""
+msgstr "Copiar texto da procura actual (em vez do nome da procura)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:211
 msgid "Save current search under the name shown in the box"
-msgstr ""
+msgstr "Guardar a procura actual com o nome apresentado na caixa em baixo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:217
 msgid "Delete current saved search"
-msgstr ""
+msgstr "Apagar a Procura guardada actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:320
 msgid "N"
@@ -9179,7 +9213,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1216
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:477
 msgid "The lookup/search name is \"{0}\""
-msgstr ""
+msgstr "O nome da 'procura' é  \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:678
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1218
@@ -9815,6 +9849,8 @@ msgid ""
 "Used for searching the column. Must contain only digits and lower case "
 "letters."
 msgstr ""
+"Usado para procurar na coluna. Pode conter apenas números ou letras "
+"minúsculas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:149
 msgid ""
@@ -10461,7 +10497,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:133
 msgid "Restriction (saved search) to apply:"
-msgstr ""
+msgstr "Restrição (procura guardada) a aplicar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:134
 msgid ""
@@ -10469,6 +10505,10 @@ msgid ""
 "content server makes available to those matching the search. This setting is "
 "per library (i.e. you can have a different restriction per library)."
 msgstr ""
+"Esta restrição (baseada numa procura guardada) irá restringir os livros que "
+"o servidor de conteúdos disponibiliza àqueles que correspondem à procura. "
+"Esta definição é aplicada a esta biblioteca (ex. pode ter diferentes tipos "
+"de restrições para diferentes bibliotecas)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:135
 msgid "&Start Server"
@@ -10628,18 +10668,20 @@ msgstr "Procurar"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:314
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"A procura seleccionada será <b>permanentemente apagada</b>. Tem a certeza ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:357
 msgid "Search (For Advanced Search click the button to the left)"
-msgstr "Procura (Para a Procura Avançada clique no botão da esquerda)"
+msgstr "Procura (Para a Procura Avançada clique no botão à esquerda deste)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:419
 msgid "Saved Searches"
-msgstr ""
+msgstr "Procuras guardadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:421
 msgid "Choose saved search or enter name for new saved search"
 msgstr ""
+"Escolha uma Procura guardada ou digite um nome para guardar uma nova procura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:12
 msgid "Restrict to"
@@ -10648,7 +10690,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:68
 msgid "(all books)"
-msgstr ""
+msgstr "(todos os livros)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:62
 msgid "({0} of {1})"
@@ -10736,12 +10778,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:254
 msgid "Manage Saved Searches"
-msgstr ""
+msgstr "Gerir as Procuras guardadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:261
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:265
 msgid "Manage User Categories"
-msgstr ""
+msgstr "Gerir as Categorias do Utilizador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:272
 msgid "Show all categories"
@@ -10760,27 +10802,27 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:634
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:314
 msgid "Searches"
-msgstr ""
+msgstr "Procuras"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:719
 msgid "Duplicate search name"
-msgstr ""
+msgstr "Duplicar nome da procura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:720
 msgid "The saved search name %s is already used."
-msgstr ""
+msgstr "O nome da Procura guardada %s já está em uso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1006
 msgid "Sort by name"
-msgstr ""
+msgstr "Ordenar por nome"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1006
 msgid "Sort by popularity"
-msgstr ""
+msgstr "Ordenar por popularidade"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1007
 msgid "Sort by average rating"
-msgstr ""
+msgstr "Ordenar por Classificação média"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1010
 msgid "Set the sort order for entries in the Tag Browser"
@@ -10801,7 +10843,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1025
 msgid "Manage &user categories"
-msgstr ""
+msgstr "Gerir as categorias do &utilizador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1028
 msgid "Add your own categories to the Tag Browser"
@@ -12439,6 +12481,9 @@ msgid ""
 "If declared, --search is ignored.\n"
 "Default: all"
 msgstr ""
+"Catalogar lista separada por virgulas de base de dados de ID's.\n"
+"Se declarada, --search será ignorada.\n"
+"Predefinição: all (todas)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:660
 msgid ""
@@ -12446,6 +12491,10 @@ msgid ""
 "please see the search-related documentation in the User Manual.\n"
 "Default: no filtering"
 msgstr ""
+"Filtrar os resultados dos termos da procura. Para saber mais sobre o formato "
+"dos termos da procura, por favor consulte a documentação relacionada com a "
+"'procura' (search) no User Manual.\n"
+"Predefinição: sem filtragem"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:666
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:499
@@ -12540,11 +12589,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:851
 msgid "Search string:"
-msgstr ""
+msgstr "Expressão para procurar:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:857
 msgid "Error: You must specify a name and a search string"
-msgstr ""
+msgstr "Erro: Tem de especificar um nome e uma expressão de procura"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:860
 msgid "added"
@@ -12970,7 +13019,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:272
 msgid "Sort by"
-msgstr ""
+msgstr "Ordenar por"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:275
 msgid "library"
@@ -13186,7 +13235,7 @@ msgstr "Etiquetas a aplicar aos livros adicionados à biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:727
 msgid "List of named saved searches"
-msgstr "Lista de pesquisas gravadas"
+msgstr "Lista de 'Procuras guardadas' nomeadas"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:728
 msgid "User-created tag browser categories"
