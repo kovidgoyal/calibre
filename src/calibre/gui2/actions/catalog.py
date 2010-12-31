@@ -57,7 +57,7 @@ class GenerateCatalogAction(InterfaceAction):
         if job.result:
             # Search terms nulled catalog results
             return error_dialog(self.gui, _('No books found'),
-                    _("No books to catalog\nCheck exclude tags"),
+                    _("No books to catalog\nCheck exclusion criteria"),
                     show=True)
         if job.failed:
             return self.gui.job_exception(job)
