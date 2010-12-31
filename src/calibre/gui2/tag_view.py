@@ -1195,6 +1195,14 @@ class TagBrowserWidget(QWidget): # {{{
         self.search_button.setToolTip(_('Find the first/next matching item'))
         self.search_button.setFixedWidth(40)
         search_layout.addWidget(self.search_button)
+
+        self.expand_button = QPushButton()
+        self.expand_button.setText('-')
+        self.expand_button.setFixedWidth(20)
+        self.expand_button.setToolTip(_('Collapse all categories'))
+        search_layout.addWidget(self.expand_button)
+        self.expand_button.clicked.connect(lambda: self.tags_view.collapseAll())
+
         self.current_find_position = None
         self.search_button.clicked.connect(self.find)
         self.item_search.initialize('tag_browser_search')
