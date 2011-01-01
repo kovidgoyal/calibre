@@ -21,7 +21,7 @@
       tickets: [8052]
 
     - title: "Catalog generation: CSV/XML catalogs now support custom fields. Also write UTF-8 BOM to CSV output file."
-      tickets: [8014].
+      tickets: [8014]
 
     - title: "EPUB/MOBI catalogs: Various new features"
       description: "Added a custom field/value for excluding books, OR'd with existing tag list. Added a thumbnail width hint, from 1.0 - 2.0 inches. Deprecated support for special note tag '*', added support for custom column containing note to be inserted in Description header. Added 'Merge with comments' feature, which non-destructively combines Comments with a custom field when generating Descriptions. Moved Description header into a user-editable template file.  All fields except thumb and comments accessible to template."
