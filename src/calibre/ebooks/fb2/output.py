@@ -35,7 +35,7 @@ class FB2Output(OutputFormatPlugin):
             rasterizer = SVGRasterizer()
             rasterizer(oeb_book, opts)
         except Unavailable:
-            self.log.warn('SVG rasterizer unavailable, SVG will not be converted')
+            log.warn('SVG rasterizer unavailable, SVG will not be converted')
 
         linearize_jacket(oeb_book)
 
