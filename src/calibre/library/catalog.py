@@ -11,7 +11,7 @@ from xml.sax.saxutils import escape
 from lxml import etree
 
 from calibre import prints, prepare_string_for_xml, strftime
-from calibre.constants import preferred_encoding
+from calibre.constants import preferred_encoding, DEBUG
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
@@ -1917,34 +1917,36 @@ class EPUB_MOBI(CatalogPlugin):
             aTag['name'] = anchor_name.replace(" ","")
             body.insert(btc, aTag)
             btc += 1
-            '''
-            # We don't need this because the kindle inserts section titles
-            #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
-            h2Tag = Tag(soup, "h2")
-            aTag = Tag(soup, "a")
-            anchor_name = friendly_name.lower()
-            aTag['name'] = anchor_name.replace(" ","")
-            h2Tag.insert(0,aTag)
-            h2Tag.insert(1,NavigableString('%s' % friendly_name))
-            body.insert(btc,h2Tag)
-            btc += 1
-            '''
 
             # <p class="letter_index">
             # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
-            current_letter = ""
-            current_author = ""
-            current_series = None
+            divOpeningTag = None
+            dotc = 0
+            divRunningTag = None
+            drtc = 0
 
             # Loop through booksByAuthor
             book_count = 0
-            divRunningTag = None
+            current_author = ''
+            previous_author = ''
+            current_letter = ''
+            current_series = None
             for book in self.booksByAuthor:
                 book_count += 1
                 if self.letter_or_symbol(book['author_sort'][0].upper()) != current_letter :
                     # Start a new letter with Index letter
+                    if divOpeningTag is not None:
+                        divTag.insert(dtc, divOpeningTag)
+                        dtc += 1
+                        dotc = 0
+                    if divRunningTag is not None:
+                        divTag.insert(dtc, divRunningTag)
+                        dtc += 1
+                        drtc = 0
+                        divRunningTag = None
+
                     current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
                     author_count = 0
                     divOpeningTag = Tag(soup, 'div')
@@ -1964,16 +1966,16 @@ class EPUB_MOBI(CatalogPlugin):
                     current_author = book['author']
                     author_count += 1
                     if author_count == 2:
-                        # Add divOpeningTag to divTag
+                        # Add divOpeningTag to divTag, kill divOpeningTag
                         divTag.insert(dtc, divOpeningTag)
                         dtc += 1
-                    elif author_count > 2 and divRunningTag is not None:
-                        divTag.insert(dtc, divRunningTag)
-                        dtc += 1
+                        divOpeningTag = None
+                        dotc = 0
 
-                    divRunningTag = Tag(soup, 'div')
-                    divRunningTag['style'] = 'display:inline-block;width:100%'
-                    drtc = 0
+                        # Create a divRunningTag for the rest of the authors in this letter
+                        divRunningTag = Tag(soup, 'div')
+                        divRunningTag['style'] = 'display:inline-block;width:100%'
+                        drtc = 0
 
                     non_series_books = 0
                     current_series = None
@@ -1986,7 +1988,7 @@ class EPUB_MOBI(CatalogPlugin):
                     if author_count == 1:
                         divOpeningTag.insert(dotc, pAuthorTag)
                         dotc += 1
-                    elif divRunningTag is not None:
+                    else:
                         divRunningTag.insert(drtc,pAuthorTag)
                         drtc += 1
 
@@ -2059,9 +2061,11 @@ class EPUB_MOBI(CatalogPlugin):
                 if author_count == 1:
                     divOpeningTag.insert(dotc, pBookTag)
                     dotc += 1
-                elif divRunningTag is not None:
+                else:
                     divRunningTag.insert(drtc,pBookTag)
                     drtc += 1
+
+            # Loop ends here
 
             if not self.__generateForKindle:
                 # Insert the <h2> tag with book_count at the head
@@ -2079,6 +2083,9 @@ class EPUB_MOBI(CatalogPlugin):
 
             if author_count == 1:
                 divTag.insert(dtc, divOpeningTag)
+                dtc += 1
+            elif divRunningTag is not None:
+                divTag.insert(dtc, divRunningTag)
                 dtc += 1
 
             # Add the divTag to the body
@@ -5027,7 +5034,8 @@ class EPUB_MOBI(CatalogPlugin):
 
         if catalog_source_built:
             recommendations = []
-            recommendations.append(('comments', '\n'.join(line for line in build_log),
+            if DEBUG:
+                recommendations.append(('comments', '\n'.join(line for line in build_log),
                     OptionRecommendation.HIGH))
 
             dp = getattr(opts, 'debug_pipeline', None)
