@@ -4,7 +4,7 @@ from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialog
 
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
-from calibre.gui2 import question_dialog, error_dialog
+from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key
 
@@ -48,6 +48,10 @@ class TagEditor(QDialog, Ui_TagEditor):
         else:
             self.connect(self.available_tags, SIGNAL('itemActivated(QListWidgetItem*)'), self.apply_tags)
         self.connect(self.applied_tags,   SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
+
+        geom = gprefs.get('tag_editor_geometry', None)
+        if geom is not None:
+            self.restoreGeometry(geom)
 
 
     def delete_tags(self, item=None):
@@ -121,3 +125,15 @@ class TagEditor(QDialog, Ui_TagEditor):
             self.applied_tags.addItem(tag)
 
         self.add_tag_input.setText('')
+
+    def accept(self):
+        self.save_state()
+        return QDialog.accept(self)
+
+    def reject(self):
+        self.save_state()
+        return QDialog.reject(self)
+
+    def save_state(self):
+        gprefs['tag_editor_geometry'] = bytearray(self.saveGeometry())
+
