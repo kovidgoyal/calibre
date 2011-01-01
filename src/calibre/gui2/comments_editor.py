@@ -263,13 +263,13 @@ class EditorWidget(QWebView): # {{{
         if ev.key() in (Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
             ev.ignore()
         else:
-            return QWebView.keyPressed(self, ev)
+            return QWebView.keyPressEvent(self, ev)
 
     def keyReleaseEvent(self, ev):
         if ev.key() in (Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
             ev.ignore()
         else:
-            return QWebView.keyReleased(self, ev)
+            return QWebView.keyReleaseEvent(self, ev)
 
 
 # }}}
