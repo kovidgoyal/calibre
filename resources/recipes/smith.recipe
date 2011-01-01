@@ -17,8 +17,8 @@ class SmithsonianMagazine(BasicNewsRecipe):
     remove_tags = [
        dict(name='iframe'),
        dict(name='div', attrs={'class':'article_sidebar_border'}),
-       dict(name='div', attrs={'id':['article_sidebar_border', 'most-popular_large']}),
-       #dict(name='ul', attrs={'class':'article-tools'}),
+       dict(name='div', attrs={'id':['article_sidebar_border', 'most-popular_large', 'most-popular-body_large']}),
+       ##dict(name='ul', attrs={'class':'article-tools'}),
        dict(name='ul', attrs={'class':'cat-breadcrumb col three last'}),
     ]
 
@@ -37,16 +37,16 @@ class SmithsonianMagazine(BasicNewsRecipe):
 ]
 
     def preprocess_html(self, soup):
-        story = soup.find(name='div', attrs={'id':'article-left'})
-        #td = heading.findParent(name='td')
-        #td.extract()
+        story = soup.find(name='div', attrs={'id':'article-body'})
+        ##td = heading.findParent(name='td')
+        ##td.extract()
         soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
         body = soup.find(name='body')
         body.insert(0, story)
         return soup
 
-    def postprocess_html(self, soup, first):
-        for p in soup.findAll(id='articlePaginationWrapper'): p.extract()
-        if not first:
-             for div in soup.findAll(id='article-head'): div.extract()
-        return soup
+    #def postprocess_html(self, soup, first):
+        #for p in soup.findAll(id='articlePaginationWrapper'): p.extract()
+        #if not first:
+             #for div in soup.findAll(id='article-head'): div.extract()
+        #return soup
