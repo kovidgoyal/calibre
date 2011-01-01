@@ -200,8 +200,10 @@ class FB2MLizer(object):
                         im = Image()
                         im.load(item.data)
                         im.set_compression_quality(70)
-                        data = im.export('jpg')
-                    raw_data = b64encode(data)
+                        imdata = im.export('jpg')
+                        raw_data = b64encode(imdata)
+                    else:
+                        raw_data = b64encode(item.data)
                     # Don't put the encoded image on a single line.
                     data = ''
                     col = 1
