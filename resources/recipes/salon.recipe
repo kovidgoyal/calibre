@@ -25,22 +25,20 @@ class Salon_com(BasicNewsRecipe):
 
     feeds = [
         ('News & Politics', 'http://feeds.salon.com/salon/news'),
-        ('War Room', 'http://feeds.salon.com/salon/war_room'),
-        ('Arts & Entertainment', 'http://feeds.salon.com/salon/ent'),
-        ('I Like to Watch', 'http://feeds.salon.com/salon/iltw'),
-        ('Beyond Multiplex', 'http://feeds.salon.com/salon/btm'),
-        ('Book Reviews', 'http://feeds.salon.com/salon/books'),
-        ('All Life', 'http://feeds.salon.com/salon/mwt'),
-        ('All Opinion', 'http://feeds.salon.com/salon/opinion'),
-        ('Glenn Greenwald', 'http://feeds.salon.com/salon/greenwald'),
-        ('Garrison Keillor', 'http://dir.salon.com/topics/garrison_keillor/index.rss'),
-        ('Joan Walsh', 'http://www.salon.com/rss/walsh.rss'),
-        ('All Sports', 'http://feeds.salon.com/salon/sports'),
+        ('War Room', 'http://feeds.feedburner.com/salon/war_room'),
+        ('Joan Walsh', 'http://feeds.feedburner.com/Salon_Joan_Walsh'),
+        ('Glenn Greenwald', 'http://feeds.feedburner.com/salon/greenwald'),
         ('Tech & Business', 'http://feeds.salon.com/salon/tech'),
-        ('How World Works', 'http://feeds.salon.com/salon/htww')
+        ('Ask the Pilot', 'http://feeds.feedburner.com/salon/ask_the_pilot'),
+        ('How World Works', 'http://feeds.feedburner.com/salon/htww'),
+        ('Life', 'http://feeds.feedburner.com/salon/mwt'),
+        ('Broadsheet', 'http://feeds.feedburner.com/salon/broadsheet'),
+        ('Movie Reviews', 'http://feeds.feedburner.com/salon/movie_reviews'),
+        ('Film Salon', 'http://feeds.feedburner.com/Salon/Film_Salon'),
+        ('TV', 'http://feeds.feedburner.com/salon/tv'),
+        ('Books', 'http://feeds.feedburner.com/salon/books')
             ]
 
     def print_version(self, url):
         return url.replace('/index.html', '/print.html')
-
 

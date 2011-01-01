@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 The database used to store ebook metadata
 '''
-import os, sys, shutil, cStringIO, glob, time, functools, traceback, re
+import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, json
 from itertools import repeat
 from math import ceil
 from Queue import Queue
@@ -32,7 +32,7 @@ from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import prefs, tweaks, from_json, to_json
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
@@ -1243,7 +1243,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 else:
                     icon = icon_map[':custom']
                     icon_map[category] = icon
-                    tooltip = self.custom_column_label_map[label]['name']
 
             datatype = cat['datatype']
             avgr = lambda x: 0.0 if x.rc == 0 else x.rt/x.rc
@@ -2699,6 +2698,38 @@ books_series_link      feeds
                     break
 
         return duplicates
+
+    def add_custom_book_data(self, book_id, name, val):
+        x = self.conn.get('SELECT id FROM books WHERE ID=?', (book_id,), all=False)
+        if x is None:
+            raise ValueError('add_custom_book_data: no such book_id %d'%book_id)
+        # Do the json encode first, in case it throws an exception
+        s = json.dumps(val, default=to_json)
+        self.conn.execute('DELETE FROM books_plugin_data WHERE book=? AND name=?',
+                          (book_id, name))
+        self.conn.execute('''INSERT INTO books_plugin_data(book, name, val)
+                             VALUES(?, ?, ?)''', (book_id, name, s))
+        self.commit()
+
+    def get_custom_book_data(self, book_id, name, default=None):
+        try:
+            s = self.conn.get('''select val FROM books_plugin_data
+                    WHERE book=? AND name=?''', (book_id, name), all=False)
+            if s is None:
+                return default
+            return json.loads(s, object_hook=from_json)
+        except:
+            pass
+        return default
+
+    def delete_custom_book_data(self, book_id, name):
+        self.conn.execute('DELETE FROM books_plugin_data WHERE book=? AND name=?',
+                          (book_id, name))
+        self.commit()
+
+    def get_ids_for_custom_book_data(self, name):
+        s = self.conn.get('''SELECT book FROM books_plugin_data WHERE name=?''', (name,))
+        return [x[0] for x in s]
 
     def get_custom_recipes(self):
         for id, title, script in self.conn.get('SELECT id,title,script FROM feeds'):

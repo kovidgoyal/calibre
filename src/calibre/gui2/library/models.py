@@ -247,9 +247,10 @@ class BooksModel(QAbstractTableModel): # {{{
         if not self.db:
             return
         self.about_to_be_sorted.emit(self.db.id)
-        ascending = order == Qt.AscendingOrder
+        if not isinstance(order, bool):
+            order = order == Qt.AscendingOrder
         label = self.column_map[col]
-        self.db.sort(label, ascending)
+        self.db.sort(label, order)
         if reset:
             self.reset()
         self.sorted_on = (label, order)

@@ -59,7 +59,13 @@ def get_pdf_printer(opts, for_comic=False):
         dpi = opts.output_profile.dpi
         printer.setPaperSize(QSizeF(float(w) / dpi, float(h) / dpi), QPrinter.Inch)
 
-    printer.setPageMargins(opts.margin_left, opts.margin_top, opts.margin_right, opts.margin_bottom, QPrinter.Point)
+    if for_comic:
+        # Comic pages typically have their own margins, or their background
+        # color is not white, in which case the margin looks bad
+        printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
+    else:
+        printer.setPageMargins(opts.margin_left, opts.margin_top,
+                opts.margin_right, opts.margin_bottom, QPrinter.Point)
     printer.setOrientation(orientation(opts.orientation))
     printer.setOutputFormat(QPrinter.PdfFormat)
     printer.setFullPage(True)

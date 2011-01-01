@@ -66,6 +66,10 @@ class _Parser(object):
         template = template.replace('[[', '{').replace(']]', '}')
         return eval_formatter.safe_format(template, self.variables, 'EVAL', None)
 
+    def _print(self, *args):
+        print args
+        return None
+
     local_functions = {
             'add'      : (2, partial(_math, op='+')),
             'assign'   : (2, _assign),
@@ -74,6 +78,7 @@ class _Parser(object):
             'eval'     : (1, _eval),
             'field'    : (1, lambda s, x: s.parent.get_value(x, [], s.parent.kwargs)),
             'multiply' : (2, partial(_math, op='*')),
+            'print'    : (-1, _print),
             'strcat'   : (-1, _concat),
             'strcmp'   : (5, _strcmp),
             'substr'   : (3, lambda s, x, y, z: x[int(y): len(x) if int(z) == 0 else int(z)]),
@@ -143,12 +148,18 @@ class _Parser(object):
             if not self.token_op_is_a(';'):
                 return val
             self.consume()
+            if self.token_is_eof():
+                return val
 
     def expr(self):
         if self.token_is_id():
             # We have an identifier. Determine if it is a function
             id = self.token()
             if not self.token_op_is_a('('):
+                if self.token_op_is_a('='):
+                    # classic assignment statement
+                    self.consume()
+                    return self._assign(id, self.expr())
                 return self.variables.get(id, _('unknown id ') + id)
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
@@ -339,6 +350,7 @@ class TemplateFormatter(string.Formatter):
                 (r'\w+',                lambda x,t: (2, t)),
                 (r'".*?((?<!\\)")',     lambda x,t: (3, t[1:-1])),
                 (r'\'.*?((?<!\\)\')',   lambda x,t: (3, t[1:-1])),
+                (r'\n#.*?(?=\n)',       None),
                 (r'\s',                 None)
         ])
 
@@ -359,6 +371,12 @@ class TemplateFormatter(string.Formatter):
         raise Exception('get_value must be implemented in the subclass')
 
     def format_field(self, val, fmt):
+        # ensure we are dealing with a string.
+        if isinstance(val, (int, float)):
+            if val:
+                val = unicode(val)
+            else:
+                val = ''
         # Handle conditional text
         fmt, prefix, suffix = self._explode_format_string(fmt)
 
@@ -422,15 +440,15 @@ class TemplateFormatter(string.Formatter):
         self.kwargs = kwargs
         self.book = book
         self.composite_values = {}
-        if fmt.startswith('program:'):
-            ans = self._eval_program(None, fmt[8:])
-        else:
-            try:
+        try:
+            if fmt.startswith('program:'):
+                ans = self._eval_program(None, fmt[8:])
+            else:
                 ans = self.vformat(fmt, [], kwargs).strip()
-            except Exception, e:
-                if DEBUG:
-                    traceback.print_exc()
-                ans = error_value + ' ' + e.message
+        except Exception, e:
+            if DEBUG:
+                traceback.print_exc()
+            ans = error_value + ' ' + e.message
         return ans
 
 class ValidateFormatter(TemplateFormatter):

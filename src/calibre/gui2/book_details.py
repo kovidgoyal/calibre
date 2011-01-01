@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, collections, sys
 from Queue import Queue
 
-from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, \
+from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl, \
     QPropertyAnimation, QEasingCurve, QThread, QApplication, QFontInfo, \
     QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette
 from PyQt4.QtWebKit import QWebView
@@ -18,7 +18,7 @@ from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.constants import preferred_encoding
 from calibre.library.comments import comments_to_html
-from calibre.gui2 import config, open_local_file
+from calibre.gui2 import config, open_local_file, open_url
 from calibre.utils.icu import sort_key
 
 # render_rows(data) {{{
@@ -412,6 +412,12 @@ class BookDetails(QWidget): # {{{
             self.view_specific_format.emit(int(id_), fmt)
         elif typ == 'devpath':
             open_local_file(val)
+        else:
+            try:
+                open_url(QUrl(link, QUrl.TolerantMode))
+            except:
+                import traceback
+                traceback.print_exc()
 
 
     def mouseDoubleClickEvent(self, ev):

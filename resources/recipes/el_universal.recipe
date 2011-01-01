@@ -1,7 +1,5 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 eluniversal.com.mx
 '''
@@ -18,75 +16,25 @@ class ElUniversal(BasicNewsRecipe):
     category              = 'news, politics, Mexico'
     no_stylesheets        = True
     use_embedded_content  = False
-    encoding              = 'cp1252'
+    encoding              = 'utf8'
     remove_javascript     = True
-    language = 'es'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    language              = 'es'
 
     extra_css = '''
-                    body{font-family:Arial,Helvetica,sans-serif; font-size:x-small;}
-                    .geoGris30{font-family:Georgia,"Times New Roman",Times,serif; font-size:large; color:#003366; font-weight:bold;}
-                    .arnegro16{font-family:Georgia,"Times New Roman",Times,serif; font-weight:bold; font-size:small;}
-                    .tbazull2{font-family:"trebuchet ms",Arial,Helvetica,sans-serif; color:#336699; font-size:xx-small;}
-                    .tbgrisf11{font-family:"trebuchet ms",Arial,Helvetica,sans-serif; color: #666666; font-size:xx-small;}
-                    .verrojo13{font-family:"trebuchet ms",Arial,Helvetica,sans-serif; color: #CC0033; font-size:xx-small;}
-                    .trnegro13{font-family:"trebuchet ms",Arial,Helvetica,sans-serif; font-size:xx-small;}
-                    .txt-fotogaleria{font-family:"trebuchet ms",Arial,Helvetica,sans-serif; font-size:xx-small;}
+                    body{font-family:Arial,Helvetica,sans-serif}
+                    .noteTitle{font-family: Georgia,"Times New Roman",Times,serif; color: #336699; font-size: xx-large; font-weight: bold}
+                    .noteInfo{display: block; color: gray}
                 '''
-    keep_only_tags = [ dict(name='table', attrs={'width':"633"}),dict(name='table', attrs={'width':"629"}),]
-
+    keep_only_tags = [ dict(name='div', attrs={'id':'noteContent'})]
+    remove_tags_after = dict(attrs={'class':'noteText'})
     remove_tags  = [
-                    dict(name='table', attrs={'bgcolor':"#f5f5f5"}),
-                     dict(name='td', attrs={'bgcolor':"#f7f8f9"}),
-                    dict(name='td', attrs={'bgcolor':"#f5f5f5"}),
-                    dict(name='table', attrs={'width':"302"}),
-                    dict(name='table', attrs={'width':"214"}),
-                    dict(name='table', attrs={'width':"112"}),
-                    dict(name='table', attrs={'width':"980"}),
-                    dict(name='td', attrs={'height':"1"}),
-                    dict(name='td', attrs={'height':"4"}),
-                     dict(name='td', attrs={'height':"20"}),
-                     dict(name='td', attrs={'height':"10"}),
-                    dict(name='td', attrs={'class':["trrojo11","trbris11","trrojo12","arrojo12s","tbazul13"]}),
-                    dict(name='div', attrs={'id':["mapg","ver_off_todosloscom","todosloscom"]}),
-                    dict(name='span', attrs={'class':["trazul18b","trrojo11","trnaranja11","trbris11","georojo18b","geogris18"]}),
-                    dict(name='span', attrs={'class':["detalles-opinion"]}),
-                    dict(name='a', attrs={'class':["arnaranja12b","trbris11","arazul12rel","trrojo10"]}),
-                    dict(name='img', src = "/img/icono_imprimir.gif"),
-                    dict(name='img', src = "/img/icono_enviar_mail.gif"),
-                    dict(name='img', src = "/img/icono_fuente_g.gif"),
-                    dict(name='img', src = "/img/icono_fuente_m.gif"),
-                    dict(name='img', src = "/img/icono_fuente_c.gif"),
-                    dict(name='img', src = "/img/icono_compartir.gif"),
-                    dict(name='img', src = "/img/icono_enviar_coment.gif"),
-                     dict(name='img', src = "http://www.eluniversal.com.mx/n_img/bot-notasrel.gif"),
-                    dict(name='img', src = "http://www.eluniversal.com.mx/n_img/fr.gif"),
-                    dict(name='img', src = "/img/espiral2.gif"),
-                    dict(name='img', src = "http://www.eluniversal.com.mx/n_img/b"),
-                    dict(name='img', src = "/img/icono_enviar_coment.gifot-notasrel.gif"),
-                    dict(name='img', src = "/n_img/icono_tipo3.gif"),
-                    dict(name='img', src = "/n_img/icono_tipo2.gif"),
-                    dict(name='img', src = "/n_img/icono_print.gif"),
-                    dict(name='img', src = "/n_img/icono_mail2.gif"),
-                    dict(name='img', src = "/n_img/im-comentarios-2a.gif"),
-                    dict(name='img', src = "/n_img/im-comentarios-1a.gif"),
-                    dict(name='img', src = "/img/icono_coment.gif"),
-                     dict(name='img', src = "http://www.eluniversal.com.mx/n_img/bot-sitiosrel.gif"),
-                    dict(name='img', src = "/n_img/icono_tipomenos.gif"),
-                    dict(name='img', src = "/img/futbol/19.jpg"),
-                    dict(name='img', alt = "Facebook"),
-                    dict(name='img', alt = "Twitter"),
-                    dict(name='img', alt = "Google"),
-                    dict(name='img', alt = "LinkedIn"),
-                    dict(name='img', alt = "Viadeo"),
-                    dict(name='img', alt = "Digg"),
-                    dict(name='img', alt = "Delicious"),
-                    dict(name='img', alt = "Meneame"),
-                    dict(name='img', alt = "Yahoo"),
-                    dict(name='img', alt = "Technorati"),
-                    dict(name='a',text =["Compartir","Facebook","Twitter","Google","LinkedIn","Viadeo","Digg","Delicious","Meneame","Yahoo","Technorati"]),
-                    dict(name='select'),
-                    dict(name='a', attrs={'class':"tbgriscompartir"}),
-                    ]
+                     dict(attrs={'class':'noteExtras'}),
+                     dict(name=['meta','iframe','base','embed','object']),
+                     dict(attrs={'id':'tm_box'})
+                   ]
+    remove_attributes=['lang','onclick']
 
     feeds = [
               (u'Minuto por Minuto', u'http://www.eluniversal.com.mx/rss/universalmxm.xml' )
@@ -101,25 +49,3 @@ class ElUniversal(BasicNewsRecipe):
              ,(u'Computacion'      , u'http://www.eluniversal.com.mx/rss/computo.xml'      )
              ,(u'Sociedad'         , u'http://www.eluniversal.com.mx/rss/sociedad.xml'     )
             ]
-
-   # def print_version(self, url):
-   #     return url.replace('/notas/','/notas/vi_')
-
-    def preprocess_html(self, soup):
-       mtag = '<meta http-equiv="Content-Language" content="es-MX"/><meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
-       soup.head.insert(0,mtag)
-       for tag in soup.findAll(name='td',attrs={'class': 'arazul50'}):
-                 tag.insert(0,"<h1>")
-                 tag.insert(2,"</h1>")
-
-       return soup
-
-    def postprocess_html(self, soup,first):
-
-         for tag in soup.findAll(name=['table', 'span','i']):
-                tag.name = 'div'
-         for item in soup.findAll(align = "right"):
-                del item['align']
-
-         return soup
-
