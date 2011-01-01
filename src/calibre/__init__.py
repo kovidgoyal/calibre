@@ -254,7 +254,7 @@ def browser(honor_time=True, max_time=2, mobile_browser=False):
     opener.set_handle_refresh(True, max_time=max_time, honor_time=honor_time)
     opener.set_handle_robots(False)
     opener.addheaders = [('User-agent', ' Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016' if mobile_browser else \
-                          'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
+                          'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13')]
     http_proxy = get_proxies().get('http', None)
     if http_proxy:
         opener.set_proxies({'http':http_proxy})
