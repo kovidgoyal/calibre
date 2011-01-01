@@ -493,6 +493,9 @@ class Editor(QWidget): # {{{
         self.toolbar1 = QToolBar(self)
         self.toolbar2 = QToolBar(self)
         self.toolbar3 = QToolBar(self)
+        for i in range(1, 4):
+            t = getattr(self, 'toolbar%d'%i)
+            t.setIconSize(QSize(18, 18))
         self.editor = EditorWidget(self)
         self.tabs = QTabWidget(self)
         self.tabs.setTabPosition(self.tabs.South)

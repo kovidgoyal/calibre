@@ -1087,7 +1087,9 @@ class ZipFile:
                     with open(targetpath, 'wb') as target:
                         shutil.copyfileobj(source, target)
                 except:
-                    targetpath = sanitize_file_name(targetpath)
+                    components = list(os.path.split(targetpath))
+                    components[-1] = sanitize_file_name(components[-1])
+                    targetpath = os.sep.join(components)
                     with open(targetpath, 'wb') as target:
                         shutil.copyfileobj(source, target)
         self.extract_mapping[member.filename] = targetpath

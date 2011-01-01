@@ -612,8 +612,13 @@ class Py2App(object):
         dmg = os.path.join(destdir, volname+'.dmg')
         if os.path.exists(dmg):
             os.unlink(dmg)
-        subprocess.check_call(['/usr/bin/hdiutil', 'create', '-srcfolder', os.path.abspath(d),
+        tdir = tempfile.mkdtemp()
+        shutil.copytree(d, os.path.join(tdir, os.path.basename(d)),
+                symlinks=True)
+        os.symlink('/Applications', os.path.join(tdir, 'Applications'))
+        subprocess.check_call(['/usr/bin/hdiutil', 'create', '-srcfolder', tdir,
                                '-volname', volname, '-format', format, dmg])
+        shutil.rmtree(tdir)
         if internet_enable:
            subprocess.check_call(['/usr/bin/hdiutil', 'internet-enable', '-yes', dmg])
         size = os.stat(dmg).st_size/(1024*1024.)
