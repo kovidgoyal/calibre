@@ -4,7 +4,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
 import codecs, datetime, htmlentitydefs, os, re, shutil, time, zlib
-from contextlib import closing
 from collections import namedtuple
 from copy import deepcopy
 from xml.sax.saxutils import escape
@@ -33,7 +32,7 @@ FIELDS = ['all', 'author_sort', 'authors', 'comments',
 TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate',
     'publisher', 'series_index', 'series', 'tags', 'timestamp', 'title', 'uuid' ]
 
-class CSV_XML(CatalogPlugin):
+class CSV_XML(CatalogPlugin): # {{{
     'CSV/XML catalog generator'
 
     Option = namedtuple('Option', 'option, default, dest, action, help')
@@ -209,8 +208,9 @@ class CSV_XML(CatalogPlugin):
             with open(path_to_output, 'w') as f:
                 f.write(etree.tostring(root, encoding='utf-8',
                     xml_declaration=True, pretty_print=True))
+# }}}
 
-class BIBTEX(CatalogPlugin):
+class BIBTEX(CatalogPlugin): # {{{
     'BIBTEX catalog generator'
 
     Option = namedtuple('Option', 'option, default, dest, action, help')
@@ -535,6 +535,7 @@ class BIBTEX(CatalogPlugin):
                 bibtexc, citation_bibtex))
 
         outfile.close()
+# }}}
 
 class EPUB_MOBI(CatalogPlugin):
     'ePub catalog generator'
@@ -991,12 +992,10 @@ class EPUB_MOBI(CatalogPlugin):
                 if not os.path.exists(self.__archive_path):
                     self.opts.log.info(' creating thumbnail archive, thumb_width: %1.2f"' %
                                          float(self.opts.thumb_width))
-                    zfw = ZipFile(self.__archive_path, mode='w')
-                    zfw.writestr("Catalog Thumbs Archive",'')
-                    #zfw.comment = "thumb_width: %1.2f" % float(self.opts.thumb_width)
-                    zfw.close()
+                    with ZipFile(self.__archive_path, mode='w') as zfw:
+                        zfw.writestr("Catalog Thumbs Archive",'')
                 else:
-                    with closing(ZipFile(self.__archive_path, mode='r')) as zfr:
+                    with ZipFile(self.__archive_path, mode='r') as zfr:
                         try:
                             cached_thumb_width = zfr.read('thumb_width')
                         except:
@@ -1007,7 +1006,7 @@ class EPUB_MOBI(CatalogPlugin):
                         self.opts.log.warning('  thumb_width changed: %1.2f" => %1.2f"' %
                                             (float(cached_thumb_width),float(self.opts.thumb_width)))
                         os.remove(self.__archive_path)
-                        with closing(ZipFile(self.__archive_path, mode='w')) as zfw:
+                        with ZipFile(self.__archive_path, mode='w') as zfw:
                             zfw.writestr("Catalog Thumbs Archive",'')
                     else:
                         self.opts.log.info(' existing thumb cache at %s, cached_thumb_width: %1.2f"' %
@@ -2913,7 +2912,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Write the thumb_width to the file validating cache contents
             # Allows detection of aborted catalog builds
-            with closing(ZipFile(self.__archive_path, mode='a'))as zfw:
+            with ZipFile(self.__archive_path, mode='a') as zfw:
                 zfw.writestr('thumb_width', self.opts.thumb_width)
 
             self.thumbs = thumbs
@@ -4659,7 +4658,7 @@ class EPUB_MOBI(CatalogPlugin):
             cover_crc = hex(zlib.crc32(data))
 
             # Test cache for uuid
-            with closing(ZipFile(self.__archive_path, mode='r')) as zfr:
+            with ZipFile(self.__archive_path, mode='r') as zfr:
                 try:
                     t_info = zfr.getinfo(title['uuid'])
                 except:
@@ -4683,9 +4682,8 @@ class EPUB_MOBI(CatalogPlugin):
             # Save thumb to archive
             t_info = ZipInfo(title['uuid'],time.localtime()[0:6])
             t_info.comment = cover_crc
-            zfw = ZipFile(self.__archive_path, mode='a')
-            zfw.writestr(t_info, thumb_data)
-            zfw.close()
+            with ZipFile(self.__archive_path, mode='a') as zfw:
+                zfw.writestr(t_info, thumb_data)
 
         def getFriendlyGenreTag(self, genre):
             # Find the first instance of friendly_tag matching genre
