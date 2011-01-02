@@ -4826,6 +4826,8 @@ class EPUB_MOBI(CatalogPlugin):
                 addendum = self.__db.get_field(record['id'],
                                             self.__merge_comments['field'],
                                             index_is_id=True)
+                if addendum is None:
+                    addendum = ''
                 include_hr = eval(self.__merge_comments['hr'])
                 if self.__merge_comments['position'] == 'before':
                     merged = addendum
