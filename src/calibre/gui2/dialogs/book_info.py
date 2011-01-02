@@ -23,7 +23,7 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.cover_pixmap = None
         self.comments.sizeHint = self.comments_size_hint
         self.comments.page().setLinkDelegationPolicy(self.comments.page().DelegateAllLinks)
-        self.comments.linkClicked(self.link_clicked)
+        self.comments.linkClicked.connect(self.link_clicked)
         self.view_func = view_func
 
 

@@ -55,16 +55,9 @@ author_sort_copy_method = 'invert'
 #   categories_use_field_for_author_name = 'author_sort'
 categories_use_field_for_author_name = 'author'
 
-# Control how the tags pane displays categories containing many items. If the
-# number of items is larger than categories_collapse_more_than, a sub-category
-# will be added. If sorting by name, then the subcategories can be organized by
-# first letter (categories_collapse_model = 'first letter') or into equal-sized
-# groups (categories_collapse_model = 'partition'). If sorting by average rating
-# or by popularity, then 'partition' is always used. The addition of
-# subcategories can be disabled by setting categories_collapse_more_than = 0.
-# When using partition, the format of the subcategory label is controlled by a
-# template: categories_collapsed_name_template if sorting by name,
-# categories_collapsed_rating_template if sorting by average rating, and
+# When partitioning the tags browser, the format of the subcategory label is
+# controlled by a template: categories_collapsed_name_template if sorting by
+# name, categories_collapsed_rating_template if sorting by average rating, and
 # categories_collapsed_popularity_template if sorting by popularity. There are
 # two variables available to the template: first and last. The variable 'first'
 # is the initial item in the subcategory, and the variable 'last' is the final
@@ -76,11 +69,10 @@ categories_use_field_for_author_name = 'author'
 #  avg_rating: the averate rating of all the books referencing this item
 #  sort: the sort value. For authors, this is the author_sort for that author
 #  category: the category (e.g., authors, series) that the item is in.
-categories_collapse_more_than = 50
-categories_collapsed_name_template = '{first.name:shorten(4,'',0)} - {last.name::shorten(4,'',0)}'
+categories_collapsed_name_template = '{first.sort:shorten(4,'',0)} - {last.sort:shorten(4,'',0)}'
 categories_collapsed_rating_template = '{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = '{first.count:d} - {last.count:d}'
-categories_collapse_model = 'first letter'
+
 
 # Set whether boolean custom columns are two- or three-valued.
 #  Two-values for true booleans

@@ -4,14 +4,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
 import codecs, datetime, htmlentitydefs, os, re, shutil, time, zlib
-from contextlib import closing
 from collections import namedtuple
 from copy import deepcopy
 from xml.sax.saxutils import escape
 from lxml import etree
 
 from calibre import prints, prepare_string_for_xml, strftime
-from calibre.constants import preferred_encoding
+from calibre.constants import preferred_encoding, DEBUG
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
@@ -33,7 +32,7 @@ FIELDS = ['all', 'author_sort', 'authors', 'comments',
 TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate',
     'publisher', 'series_index', 'series', 'tags', 'timestamp', 'title', 'uuid' ]
 
-class CSV_XML(CatalogPlugin):
+class CSV_XML(CatalogPlugin): # {{{
     'CSV/XML catalog generator'
 
     Option = namedtuple('Option', 'option, default, dest, action, help')
@@ -209,8 +208,9 @@ class CSV_XML(CatalogPlugin):
             with open(path_to_output, 'w') as f:
                 f.write(etree.tostring(root, encoding='utf-8',
                     xml_declaration=True, pretty_print=True))
+# }}}
 
-class BIBTEX(CatalogPlugin):
+class BIBTEX(CatalogPlugin): # {{{
     'BIBTEX catalog generator'
 
     Option = namedtuple('Option', 'option, default, dest, action, help')
@@ -535,6 +535,7 @@ class BIBTEX(CatalogPlugin):
                 bibtexc, citation_bibtex))
 
         outfile.close()
+# }}}
 
 class EPUB_MOBI(CatalogPlugin):
     'ePub catalog generator'
@@ -991,12 +992,10 @@ class EPUB_MOBI(CatalogPlugin):
                 if not os.path.exists(self.__archive_path):
                     self.opts.log.info(' creating thumbnail archive, thumb_width: %1.2f"' %
                                          float(self.opts.thumb_width))
-                    zfw = ZipFile(self.__archive_path, mode='w')
-                    zfw.writestr("Catalog Thumbs Archive",'')
-                    #zfw.comment = "thumb_width: %1.2f" % float(self.opts.thumb_width)
-                    zfw.close()
+                    with ZipFile(self.__archive_path, mode='w') as zfw:
+                        zfw.writestr("Catalog Thumbs Archive",'')
                 else:
-                    with closing(ZipFile(self.__archive_path, mode='r')) as zfr:
+                    with ZipFile(self.__archive_path, mode='r') as zfr:
                         try:
                             cached_thumb_width = zfr.read('thumb_width')
                         except:
@@ -1006,8 +1005,7 @@ class EPUB_MOBI(CatalogPlugin):
                         self.opts.log.warning(" invalidating cache at '%s'" % self.__archive_path)
                         self.opts.log.warning('  thumb_width changed: %1.2f" => %1.2f"' %
                                             (float(cached_thumb_width),float(self.opts.thumb_width)))
-                        os.remove(self.__archive_path)
-                        with closing(ZipFile(self.__archive_path, mode='w')) as zfw:
+                        with ZipFile(self.__archive_path, mode='w') as zfw:
                             zfw.writestr("Catalog Thumbs Archive",'')
                     else:
                         self.opts.log.info(' existing thumb cache at %s, cached_thumb_width: %1.2f"' %
@@ -1917,34 +1915,35 @@ class EPUB_MOBI(CatalogPlugin):
             aTag['name'] = anchor_name.replace(" ","")
             body.insert(btc, aTag)
             btc += 1
-            '''
-            # We don't need this because the kindle inserts section titles
-            #<h2><a name="byalphaauthor" id="byalphaauthor"></a>By Author</h2>
-            h2Tag = Tag(soup, "h2")
-            aTag = Tag(soup, "a")
-            anchor_name = friendly_name.lower()
-            aTag['name'] = anchor_name.replace(" ","")
-            h2Tag.insert(0,aTag)
-            h2Tag.insert(1,NavigableString('%s' % friendly_name))
-            body.insert(btc,h2Tag)
-            btc += 1
-            '''
 
             # <p class="letter_index">
             # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
-            current_letter = ""
-            current_author = ""
-            current_series = None
+            divOpeningTag = None
+            dotc = 0
+            divRunningTag = None
+            drtc = 0
 
             # Loop through booksByAuthor
             book_count = 0
-            divRunningTag = None
+            current_author = ''
+            current_letter = ''
+            current_series = None
             for book in self.booksByAuthor:
                 book_count += 1
                 if self.letter_or_symbol(book['author_sort'][0].upper()) != current_letter :
                     # Start a new letter with Index letter
+                    if divOpeningTag is not None:
+                        divTag.insert(dtc, divOpeningTag)
+                        dtc += 1
+                        dotc = 0
+                    if divRunningTag is not None:
+                        divTag.insert(dtc, divRunningTag)
+                        dtc += 1
+                        drtc = 0
+                        divRunningTag = None
+
                     current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
                     author_count = 0
                     divOpeningTag = Tag(soup, 'div')
@@ -1964,16 +1963,16 @@ class EPUB_MOBI(CatalogPlugin):
                     current_author = book['author']
                     author_count += 1
                     if author_count == 2:
-                        # Add divOpeningTag to divTag
+                        # Add divOpeningTag to divTag, kill divOpeningTag
                         divTag.insert(dtc, divOpeningTag)
                         dtc += 1
-                    elif author_count > 2 and divRunningTag is not None:
-                        divTag.insert(dtc, divRunningTag)
-                        dtc += 1
+                        divOpeningTag = None
+                        dotc = 0
 
-                    divRunningTag = Tag(soup, 'div')
-                    divRunningTag['style'] = 'display:inline-block;width:100%'
-                    drtc = 0
+                        # Create a divRunningTag for the rest of the authors in this letter
+                        divRunningTag = Tag(soup, 'div')
+                        divRunningTag['style'] = 'display:inline-block;width:100%'
+                        drtc = 0
 
                     non_series_books = 0
                     current_series = None
@@ -1986,7 +1985,7 @@ class EPUB_MOBI(CatalogPlugin):
                     if author_count == 1:
                         divOpeningTag.insert(dotc, pAuthorTag)
                         dotc += 1
-                    elif divRunningTag is not None:
+                    else:
                         divRunningTag.insert(drtc,pAuthorTag)
                         drtc += 1
 
@@ -2059,9 +2058,11 @@ class EPUB_MOBI(CatalogPlugin):
                 if author_count == 1:
                     divOpeningTag.insert(dotc, pBookTag)
                     dotc += 1
-                elif divRunningTag is not None:
+                else:
                     divRunningTag.insert(drtc,pBookTag)
                     drtc += 1
+
+            # Loop ends here
 
             if not self.__generateForKindle:
                 # Insert the <h2> tag with book_count at the head
@@ -2079,6 +2080,9 @@ class EPUB_MOBI(CatalogPlugin):
 
             if author_count == 1:
                 divTag.insert(dtc, divOpeningTag)
+                dtc += 1
+            elif divRunningTag is not None:
+                divTag.insert(dtc, divRunningTag)
                 dtc += 1
 
             # Add the divTag to the body
@@ -2907,7 +2911,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Write the thumb_width to the file validating cache contents
             # Allows detection of aborted catalog builds
-            with closing(ZipFile(self.__archive_path, mode='a'))as zfw:
+            with ZipFile(self.__archive_path, mode='a') as zfw:
                 zfw.writestr('thumb_width', self.opts.thumb_width)
 
             self.thumbs = thumbs
@@ -4389,21 +4393,21 @@ class EPUB_MOBI(CatalogPlugin):
             '''
 
             # Publisher
-            publisher = NBSP
+            publisher = ''
             if 'publisher' in book:
                 publisher = book['publisher']
 
             # Rating
             stars = int(book['rating']) / 2
-            rating = NBSP
+            rating = ''
             if stars:
                 star_string = self.FULL_RATING_SYMBOL * stars
                 empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
                 rating = '%s%s <br/>' % (star_string,empty_stars)
 
             # Notes
-            note_source = NBSP
-            note_content = NBSP
+            note_source = ''
+            note_content = ''
             if 'notes' in book:
                 note_source = book['notes']['source']
                 note_content = book['notes']['content']
@@ -4445,7 +4449,7 @@ class EPUB_MOBI(CatalogPlugin):
                 formatsTag = body.find('p',attrs={'class':'formats'})
                 formatsTag.extract()
 
-            if note_content == NBSP:
+            if note_content == '':
                 tdTag = body.find('td', attrs={'class':'notes'})
                 tdTag.contents[0].replaceWith(NBSP)
 
@@ -4458,6 +4462,18 @@ class EPUB_MOBI(CatalogPlugin):
                 imgTag['src']  = "../images/thumbnail_default.jpg"
             imgTag['alt'] = "cover thumbnail"
             tdTag.insert(0,imgTag)
+
+            '''
+            # Rating
+            stars = int(book['rating']) / 2
+            rating = ''
+            if stars:
+                star_string = self.FULL_RATING_SYMBOL * stars
+                empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
+                rating = '%s%s <br/>' % (star_string,empty_stars)
+            ratingTag = body.find('td',attrs={'class':'rating'})
+            ratingTag.insert(0,NavigableString(rating))
+            '''
 
             # The Blurb
             if 'description' in book and book['description'] > '':
@@ -4653,7 +4669,7 @@ class EPUB_MOBI(CatalogPlugin):
             cover_crc = hex(zlib.crc32(data))
 
             # Test cache for uuid
-            with closing(ZipFile(self.__archive_path, mode='r')) as zfr:
+            with ZipFile(self.__archive_path, mode='r') as zfr:
                 try:
                     t_info = zfr.getinfo(title['uuid'])
                 except:
@@ -4677,9 +4693,8 @@ class EPUB_MOBI(CatalogPlugin):
             # Save thumb to archive
             t_info = ZipInfo(title['uuid'],time.localtime()[0:6])
             t_info.comment = cover_crc
-            zfw = ZipFile(self.__archive_path, mode='a')
-            zfw.writestr(t_info, thumb_data)
-            zfw.close()
+            with ZipFile(self.__archive_path, mode='a') as zfw:
+                zfw.writestr(t_info, thumb_data)
 
         def getFriendlyGenreTag(self, genre):
             # Find the first instance of friendly_tag matching genre
@@ -4822,6 +4837,8 @@ class EPUB_MOBI(CatalogPlugin):
                 addendum = self.__db.get_field(record['id'],
                                             self.__merge_comments['field'],
                                             index_is_id=True)
+                if addendum is None:
+                    addendum = ''
                 include_hr = eval(self.__merge_comments['hr'])
                 if self.__merge_comments['position'] == 'before':
                     merged = addendum
@@ -5027,8 +5044,11 @@ class EPUB_MOBI(CatalogPlugin):
 
         if catalog_source_built:
             recommendations = []
-            recommendations.append(('comments', '\n'.join(line for line in build_log),
+            if DEBUG:
+                recommendations.append(('comments', '\n'.join(line for line in build_log),
                     OptionRecommendation.HIGH))
+            else:
+                recommendations.append(('comments', '', OptionRecommendation.HIGH))
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:

@@ -102,7 +102,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if self.user_version == 0:
             self.initialize_database()
         # remember to add any filter to the connect method in sqlite.py as well
-        # so that various code taht connects directly will not complain about
+        # so that various code that connects directly will not complain about
         # missing functions
         self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
         # Store temporary tables in memory
@@ -113,7 +113,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def exists_at(cls, path):
         return path and os.path.exists(os.path.join(path, 'metadata.db'))
 
-    def __init__(self, library_path, row_factory=False, default_prefs=None):
+    def __init__(self, library_path, row_factory=False, default_prefs=None,
+            read_only=False):
         self.field_metadata = FieldMetadata()
         self.dirtied_queue = Queue()
         if not os.path.exists(library_path):
@@ -126,6 +127,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.dbpath)
         if isinstance(self.dbpath, unicode) and not iswindows:
             self.dbpath = self.dbpath.encode(filesystem_encoding)
+
+        if read_only and os.path.exists(self.dbpath):
+            # Work on only a copy of metadata.db to ensure that
+            # metadata.db is not changed
+            pt = PersistentTemporaryFile('_metadata_ro.db')
+            pt.close()
+            shutil.copyfile(self.dbpath, pt.name)
+            self.dbpath = pt.name
 
         apply_default_prefs = not os.path.exists(self.dbpath)
         self.connect()
@@ -2769,7 +2778,6 @@ books_series_link      feeds
                 os.remove(dest)
             raise
         else:
-            os.remove(self.dbpath)
             shutil.copyfile(dest, self.dbpath)
             self.connect()
             self.initialize_dynamic()

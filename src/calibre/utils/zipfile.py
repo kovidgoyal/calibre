@@ -1258,6 +1258,12 @@ class ZipFile:
         """Call the "close()" method in case the user forgot."""
         self.close()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, typ, value, traceback):
+        self.close()
+
     def close(self):
         """Close the file, and for mode "w" and "a" write the ending
         records."""
