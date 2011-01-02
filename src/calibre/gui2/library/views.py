@@ -386,7 +386,12 @@ class BooksView(QTableView): # {{{
             old_state = self.get_default_state()
 
         if tweaks['sort_columns_at_startup'] is not None:
-            old_state['sort_history'] = tweaks['sort_columns_at_startup']
+            sh = []
+            for c,d in tweaks['sort_columns_at_startup']:
+                if not isinstance(d, bool):
+                    d = True if d == 0 else False
+                sh.append((c, d))
+            old_state['sort_history'] = sh
 
         self.apply_state(old_state)
 

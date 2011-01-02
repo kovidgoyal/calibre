@@ -11,7 +11,7 @@ intended to be subclassed with the relevant parts implemented for a particular
 device. This class handles device detection.
 '''
 
-import os, subprocess, time, re, sys, glob, operator
+import os, subprocess, time, re, sys, glob
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
@@ -225,7 +225,7 @@ class Device(DeviceConfig, DevicePlugin):
         return False
 
     def open_windows(self):
-        from calibre.devices.scanner import win_pnp_drives
+        from calibre.devices.scanner import win_pnp_drives, drivecmp
 
         time.sleep(5)
         drives = {}
@@ -263,7 +263,7 @@ class Device(DeviceConfig, DevicePlugin):
         if self.WINDOWS_MAIN_MEM in (self.WINDOWS_CARD_A_MEM,
                 self.WINDOWS_CARD_B_MEM) or \
                 self.WINDOWS_CARD_A_MEM == self.WINDOWS_CARD_B_MEM:
-            letters = sorted(drives.values(), key=operator.attrgetter('order'))
+            letters = sorted(drives.values(), cmp=drivecmp)
             drives = {}
             for which, letter in zip(['main', 'carda', 'cardb'], letters):
                 drives[which] = letter

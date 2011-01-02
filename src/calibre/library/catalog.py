@@ -1930,7 +1930,6 @@ class EPUB_MOBI(CatalogPlugin):
             # Loop through booksByAuthor
             book_count = 0
             current_author = ''
-            previous_author = ''
             current_letter = ''
             current_series = None
             for book in self.booksByAuthor:
