@@ -178,7 +178,7 @@ if you never want subcategories</string>
       <widget class="QSpinBox" name="opt_tags_browser_collapse_at">
        <property name="toolTip">
            <string>If a Tag Browser category has more than this number of items, it is divided
-               up into sub-categories. If the partition method is set to disable, this value is ignored.</string>
+up into sub-categories. If the partition method is set to disable, this value is ignored.</string>
        </property>
        <property name="maximum">
         <number>10000</number>
