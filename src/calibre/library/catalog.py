@@ -5037,6 +5037,8 @@ class EPUB_MOBI(CatalogPlugin):
             if DEBUG:
                 recommendations.append(('comments', '\n'.join(line for line in build_log),
                     OptionRecommendation.HIGH))
+            else:
+                recommendations.append(('comments', '', OptionRecommendation.HIGH))
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:
