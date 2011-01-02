@@ -216,6 +216,8 @@ class TagsView(QTreeView): # {{{
                 item = item.parent
 
             if item.type == TagTreeItem.CATEGORY:
+                while item.parent != self._model.root_item:
+                    item = item.parent
                 category = unicode(item.name.toString())
                 key = item.category_key
                 # Verify that we are working with a field that we know something about
