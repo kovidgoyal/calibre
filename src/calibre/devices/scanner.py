@@ -30,6 +30,12 @@ class Drive(str):
         typ.order = order
         return typ
 
+def drivecmp(a, b):
+    ans = cmp(getattr(a, 'order', 0), getattr(b, 'order', 0))
+    if ans == 0:
+        ans = cmp(a, b)
+    return ans
+
 
 class WinPNPScanner(object):
 
