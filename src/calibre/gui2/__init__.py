@@ -53,6 +53,8 @@ gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['toolbar_text'] = 'auto'
 gprefs.defaults['show_child_bar'] = False
 gprefs.defaults['font'] = None
+gprefs.defaults['tags_browser_partition_method'] = 'first letter'
+gprefs.defaults['tags_browser_collapse_at'] = 50
 
 # }}}
 

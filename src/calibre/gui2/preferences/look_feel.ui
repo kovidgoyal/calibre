@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>670</width>
-    <height>385</height>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -141,7 +141,37 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0" colspan="2">
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Tags browser: partitioning method:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_tags_browser_partition_method</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QComboBox" name="opt_tags_browser_partition_method"/>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Tags browser - collapse when more items than:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_tags_browser_collapse_at</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QSpinBox" name="opt_tags_browser_collapse_at">
+     <property name="maximum">
+      <number>1000000</number>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>&amp;Toolbar</string>
@@ -183,7 +213,7 @@
      </layout>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="16" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="label_2">
@@ -204,14 +234,14 @@
      </item>
     </layout>
    </item>
-   <item row="8" column="1">
+   <item row="16" column="1">
     <widget class="QPushButton" name="change_font_button">
      <property name="text">
       <string>Change &amp;font (needs restart)</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="2">
+   <item row="17" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

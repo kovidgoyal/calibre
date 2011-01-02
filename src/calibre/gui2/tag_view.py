@@ -17,7 +17,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
                      QShortcut, QKeySequence, SIGNAL
 
 from calibre.ebooks.metadata import title_sort
-from calibre.gui2 import config, NONE
+from calibre.gui2 import config, NONE, gprefs
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key, upper, lower, strcmp
@@ -94,16 +94,23 @@ class TagsView(QTreeView): # {{{
         self.setDropIndicatorShown(True)
         self.setAutoExpandDelay(500)
         self.pane_is_visible = False
-        if tweaks['categories_collapse_more_than'] == 0:
+        if gprefs['tags_browser_collapse_at'] == 0:
             self.collapse_model = 'disable'
         else:
-            self.collapse_model = tweaks['categories_collapse_model']
+            self.collapse_model = gprefs['tags_browser_partition_method']
 
     def set_pane_is_visible(self, to_what):
         pv = self.pane_is_visible
         self.pane_is_visible = to_what
         if to_what and not pv:
             self.recount()
+
+    def reread_collapse_parameters(self):
+        if gprefs['tags_browser_collapse_at'] == 0:
+            self.collapse_model = 'disable'
+        else:
+            self.collapse_model = gprefs['tags_browser_partition_method']
+        self.set_new_model(self._model.get_filter_categories_by())
 
     def set_database(self, db, tag_match, sort_by):
         self.hidden_categories = config['tag_browser_hidden_categories']
@@ -204,6 +211,7 @@ class TagsView(QTreeView): # {{{
                 self.collapse_model = category
                 if changed:
                     self.set_new_model(self._model.get_filter_categories_by())
+                    gprefs['tags_browser_partition_method'] = category
             elif action == 'defaults':
                 self.hidden_categories.clear()
             config.set('tag_browser_hidden_categories', self.hidden_categories)
@@ -709,7 +717,7 @@ class TagsModel(QAbstractItemModel): # {{{
         if data is None:
             return False
         row_index = -1
-        collapse = tweaks['categories_collapse_more_than']
+        collapse = gprefs['tags_browser_collapse_at']
         collapse_model = self.collapse_model
         if collapse == 0:
             collapse_model = 'disable'

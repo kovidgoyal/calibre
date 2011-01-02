@@ -57,6 +57,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             (_('Never'), 'never')]
         r('toolbar_text', gprefs, choices=choices)
 
+        choices = [(_('Disabled'), 'disabled'), (_('By first letter'), 'first letter'),
+                   (_('Partitioned'), 'partition')]
+        r('tags_browser_partition_method', gprefs, choices=choices)
+        r('tags_browser_collapse_at', gprefs)
+
         self.current_font = None
         self.change_font_button.clicked.connect(self.change_font)
 
@@ -113,6 +118,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def refresh_gui(self, gui):
         gui.search.search_as_you_type(config['search_as_you_type'])
         self.update_font_display()
+        gui.tags_view.reread_collapse_parameters()
 
 if __name__ == '__main__':
     app = QApplication([])
