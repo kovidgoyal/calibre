@@ -1005,7 +1005,6 @@ class EPUB_MOBI(CatalogPlugin):
                         self.opts.log.warning(" invalidating cache at '%s'" % self.__archive_path)
                         self.opts.log.warning('  thumb_width changed: %1.2f" => %1.2f"' %
                                             (float(cached_thumb_width),float(self.opts.thumb_width)))
-                        os.remove(self.__archive_path)
                         with ZipFile(self.__archive_path, mode='w') as zfw:
                             zfw.writestr("Catalog Thumbs Archive",'')
                     else:
