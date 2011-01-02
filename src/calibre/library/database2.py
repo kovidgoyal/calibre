@@ -113,7 +113,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def exists_at(cls, path):
         return path and os.path.exists(os.path.join(path, 'metadata.db'))
 
-    def __init__(self, library_path, row_factory=False, default_prefs=None):
+    def __init__(self, library_path, row_factory=False, default_prefs=None,
+            read_only=False):
         self.field_metadata = FieldMetadata()
         self.dirtied_queue = Queue()
         if not os.path.exists(library_path):
@@ -124,6 +125,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dbpath = os.path.join(library_path, 'metadata.db')
         self.dbpath = os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH',
                 self.dbpath)
+        if read_only and os.path.exists(self.dbpath):
+            pt = PersistentTemporaryFile('_ro.db')
+            pt.close()
+            shutil.copyfile(self.dbpath, pt.name)
+            self.dbpath = pt.name
+
         if isinstance(self.dbpath, unicode) and not iswindows:
             self.dbpath = self.dbpath.encode(filesystem_encoding)
 
