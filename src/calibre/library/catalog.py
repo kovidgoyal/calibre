@@ -4393,21 +4393,21 @@ class EPUB_MOBI(CatalogPlugin):
             '''
 
             # Publisher
-            publisher = NBSP
+            publisher = ''
             if 'publisher' in book:
                 publisher = book['publisher']
 
             # Rating
             stars = int(book['rating']) / 2
-            rating = NBSP
+            rating = ''
             if stars:
                 star_string = self.FULL_RATING_SYMBOL * stars
                 empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
                 rating = '%s%s <br/>' % (star_string,empty_stars)
 
             # Notes
-            note_source = NBSP
-            note_content = NBSP
+            note_source = ''
+            note_content = ''
             if 'notes' in book:
                 note_source = book['notes']['source']
                 note_content = book['notes']['content']
@@ -4449,7 +4449,7 @@ class EPUB_MOBI(CatalogPlugin):
                 formatsTag = body.find('p',attrs={'class':'formats'})
                 formatsTag.extract()
 
-            if note_content == NBSP:
+            if note_content == '':
                 tdTag = body.find('td', attrs={'class':'notes'})
                 tdTag.contents[0].replaceWith(NBSP)
 
@@ -4462,6 +4462,18 @@ class EPUB_MOBI(CatalogPlugin):
                 imgTag['src']  = "../images/thumbnail_default.jpg"
             imgTag['alt'] = "cover thumbnail"
             tdTag.insert(0,imgTag)
+
+            '''
+            # Rating
+            stars = int(book['rating']) / 2
+            rating = ''
+            if stars:
+                star_string = self.FULL_RATING_SYMBOL * stars
+                empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
+                rating = '%s%s <br/>' % (star_string,empty_stars)
+            ratingTag = body.find('td',attrs={'class':'rating'})
+            ratingTag.insert(0,NavigableString(rating))
+            '''
 
             # The Blurb
             if 'description' in book and book['description'] > '':
