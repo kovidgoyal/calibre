@@ -650,4 +650,4 @@ if __name__ == '__main__':
     # sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonbis; calibre.ebooks.metadata.amazonbis.main()"))
     # sys.exit(cProfile.run("import calibre.ebooks.metadata.amazonbis; calibre.ebooks.metadata.amazonbis.main()", "profile"))
 
-# calibre-debug -e "H:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\amazon.py" -m 5 -a gore -v>data.html
+# calibre-debug -e "D:\Mes eBooks\Developpement\calibre\src\calibre\ebooks\metadata\amazon.py" -m 5 -a gore -v>data.html
