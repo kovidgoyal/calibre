@@ -4,6 +4,43 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.37
+  date: 2011-01-02
+
+  new features:
+    - title: "This realease is mostly a bug fix release to fix various things that got broken by all the changes in 0.7.36"
+
+    - title: "Tag browser: Move the configuration of the sub-category grouping from tweaks to the Preferences dialog"
+
+    - title: "Tag browser: Allow changing the sub-categorization scheme from the right click menu"
+
+  bug fixes:
+    - title: "Fix regression in 0.7.36 that caused the Tag Browser to break if you have items in it with empty sort values"
+
+    - title: "Catalog generation: Fix various regressions introduced in 0.7.36 on windows"
+      description: >
+        "Database integrity check not working after catalog generation. Catalog generation failing with a file in use error. Spurious question marks appearing in the catalog"
+
+    - title: "Catalog generation: Work on a copy of the library database so as not to lock it"
+
+    - title: "Catalog generation: Handle merge of comments + custom field when custom filed is None"
+
+    - title: "Fix regression that broke sort_columns_at_startup tweak in 0.7.36"
+
+    - title: "Tag Browser: Fix the Manage X items in the right click menu, which broke in 0.7.36"
+
+    - title: "Tag Browser: Fix grouping by name for authors"
+
+    - title: "Nook color: Fix main memory and SD card swapped in calibre"
+      tickets: [8159]
+
+    - title: "Fix regression in 0.7.36 that broke PDF Output when specifying a cover"
+
+    - title: "Catalog generation: Fix regression in MOBI catalog that caused it to not appear as periodical on Kindle"
+
+    - title: "Fix regression in 0.7.36 that broke opening the book details dialog by double clicking on the book details panel"
+
+
 - version: 0.7.36
   date: 2011-01-01
 

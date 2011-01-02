@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-12-23 22:48+0000\n"
+"POT-Creation-Date: 2011-01-01 19:43+0000\n"
 "PO-Revision-Date: 2010-12-17 01:06+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Korean <ko@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-24 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-01-02 04:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -38,8 +38,8 @@ msgstr "아무 것도 안함"
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/metadata.py:56
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:407
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:127
-#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:93
-#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:95
+#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:96
+#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:98
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:332
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:335
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1894
@@ -49,12 +49,12 @@ msgstr "아무 것도 안함"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:30
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:31
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:71
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:373
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:378
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:610
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:383
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:615
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:61
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:50
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:54
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:358
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:64
@@ -74,9 +74,9 @@ msgstr "아무 것도 안함"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:122
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:156
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:634
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:849
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:851
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:642
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:857
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:859
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:952
@@ -107,8 +107,8 @@ msgstr "아무 것도 안함"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:63
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:82
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:97
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:98
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:100
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:305
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:307
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:358
@@ -121,30 +121,30 @@ msgstr "아무 것도 안함"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:140
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:142
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1050
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1053
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1055
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1058
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:717
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:193
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:235
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:244
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:361
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:380
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:899
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1092
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:236
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:245
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:364
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:383
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:902
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1095
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:190
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:215
 #: /home/kovid/work/calibre/src/calibre/library/database.py:914
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:393
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:405
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1474
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1575
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2411
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2413
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2544
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1473
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1574
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2410
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2412
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2543
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:229
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:146
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:149
@@ -178,11 +178,11 @@ msgstr "메타 정보 쓰기"
 msgid "Catalog generator"
 msgstr "분류 생성기"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:397
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:405
 msgid "User Interface Action"
 msgstr "사용자 인터페이스 동작"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:423
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:431
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:23
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:189
@@ -261,172 +261,172 @@ msgstr "%s 파일에 메타데이터를 지정합니다."
 msgid "Set metadata from %s files"
 msgstr "%s 파일에서 메타 정보를 지정합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:721
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:723
 msgid "Look and Feel"
 msgstr "모양새"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:723
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:746
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:757
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:725
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:737
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:748
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:759
 msgid "Interface"
 msgstr "인터페이스"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:727
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
 msgstr "Calibre 인터페이스 모양새를 조정합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:733
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Behavior"
 msgstr "작동"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:739
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:741
 msgid "Change the way calibre behaves"
 msgstr "Calibre가 동작하는 방식을 변경합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:744
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:212
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:746
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:217
 msgid "Add your own columns"
 msgstr "사용자 정의 열 추가"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:752
 msgid "Add/remove your own columns to the calibre book list"
 msgstr "자신의 서평이나 시평을 Calibre 책 리스트에 첨가 또는 제거합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:757
 msgid "Customize the toolbar"
 msgstr "도구 모음 사용자 정의"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:763
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr "도구 모음과 마우스 우측 버튼 메뉴를 사용자 정의합니다."
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:769
 msgid "Input Options"
 msgstr "입력 옵션"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:769
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:771
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:782
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:793
 msgid "Conversion"
 msgstr "변환하기"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:773
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Set conversion options specific to each input format"
 msgstr "입력 형식마다 구체적인 변환 옵션을 지정합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:778
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Common Options"
 msgstr "공통 옵션"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:784
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
 msgid "Set conversion options common to all formats"
 msgstr "모든 형식에 공통적인 변환 옵션을 지정합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:789
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Output Options"
 msgstr "출력 옵션"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 msgid "Set conversion options specific to each output format"
 msgstr "출력 형식마다 구체적인 변환 옵션을 지정합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 msgid "Adding books"
 msgstr "책 추가하기"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:814
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:826
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:804
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:816
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:840
 msgid "Import/Export"
 msgstr "가져오기/내보내기"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:808
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr "Calibre에 책을 추가할때 파일에서 메타정보를 읽어오는 방법을 제어합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:814
 msgid "Saving books to disk"
 msgstr "책을 디스크에 저장하기"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:818
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:820
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr "저장시, Calibre의  데이타베이스로부터 디스크장치로 어떻게 변환되는지를 제어합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:824
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:826
 msgid "Sending books to devices"
 msgstr "책을 장치로 전송하기"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:832
 msgid "Control how calibre transfers files to your ebook reader"
 msgstr "Calibre가 화일을 ebook리더로의  전달을 제어합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:836
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Metadata plugboards"
 msgstr "메타정보 제어판"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:844
 msgid "Change metadata fields before saving/sending"
 msgstr "저장 또는 내보내기 전, 메타 정보 필드를 변환합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid "Sharing books by email"
 msgstr "전자우편으로 책 공유하기"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:861
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:851
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
 msgid "Sharing"
 msgstr "공유"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:855
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr "전자우편을 통해서 책 공유하기를 설정합니다. 다운로드한 뉴스를 자동으로 장치로 전송하기를 사용할 수 있습니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:861
 msgid "Sharing over the net"
 msgstr "네트워크로 공유하기"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:865
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:867
 msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
 "인터넷 상, 또는 어떤 장소나 장치로부터 Caiibre 도서관에 접속 가능하도록 도와주는  Calibre 컨텐츠 서버를 설정합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:872
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Plugins"
 msgstr "플러그인"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:886
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:897
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:876
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:888
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:899
 msgid "Advanced"
 msgstr "고급"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:878
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:880
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr "Calibre의 기능들은 다양한 방법으로 추가, 제거 또는 일부변경 될 수 있습니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:884
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:886
 msgid "Tweaks"
 msgstr "트윅"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:890
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:892
 msgid "Fine tune how calibre behaves in various contexts"
 msgstr "다양한 전후관계 내에서 Calibre가 어떻게 행동하는지를 조정합니다"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:897
 msgid "Miscellaneous"
 msgstr "기타"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:901
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:903
 msgid "Miscellaneous advanced configuration"
 msgstr "기타 전문가용 설정"
 
@@ -466,7 +466,7 @@ msgid ""
 msgstr "이 프로파일은 온전한 기본값을 제공하게 하며 입력 문서에 대해 전혀 모르는 경우에 유용합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:61
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:446
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:453
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr "이 프로파일은 SONY PRS 500/505/600/700에 사용됩니다."
@@ -476,62 +476,62 @@ msgid "This profile is intended for the SONY PRS 300."
 msgstr "이 프로파일은 SONY PRS 300에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:82
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:486
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:493
 msgid "This profile is intended for the SONY PRS-900."
 msgstr "이 프로파일은 SONY PRS-900에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:90
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:515
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:522
 msgid "This profile is intended for the Microsoft Reader."
 msgstr "이 프로파일은 Microsoft Reader에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:101
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:526
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:533
 msgid "This profile is intended for the Mobipocket books."
 msgstr "이 프로파일은 Mobipocket books에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:114
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:539
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:546
 msgid "This profile is intended for the Hanlin V3 and its clones."
 msgstr "이 프로파일은 Hanlin V3와 호환기종들에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:126
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:551
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:558
 msgid "This profile is intended for the Hanlin V5 and its clones."
 msgstr "이 프로파일은 Hanlin V5와 호환기종들에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:136
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:559
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:566
 msgid "This profile is intended for the Cybook G3."
 msgstr "이 프로파일은 Cybook G3에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:149
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:572
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:579
 msgid "This profile is intended for the Cybook Opus."
 msgstr "이 프로파일은 Cybook Opus에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:161
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:585
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:592
 msgid "This profile is intended for the Amazon Kindle."
 msgstr "이 프로파일은 Amazon Kindle에서 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:173
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:633
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:642
 msgid "This profile is intended for the Irex Illiad."
 msgstr "이 프로파일은 Irex Illiad에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:185
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:646
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:655
 msgid "This profile is intended for the IRex Digital Reader 1000."
 msgstr "이 프로파일은 IRex Digital Reader 1000에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:198
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:660
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:669
 msgid "This profile is intended for the IRex Digital Reader 800."
 msgstr "이 프로파일은 IRex Digital Reader 800에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:210
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:674
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:683
 msgid "This profile is intended for the B&N Nook."
 msgstr "이 프로파일은 B&N Nook에 사용됩니다."
 
@@ -555,33 +555,39 @@ msgstr "iPad와 768x1024의 해상도를 가진 유사한 장치들에 사용됩
 msgid "Intended for generic tablet devices, does no resizing of images"
 msgstr "일반적인 타불렛 장치를 위해 만들어짐, 이미지 크기조정 미지원"
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:464
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:445
+msgid ""
+"Intended for the Samsung Galaxy and similar tablet devices with a resolution "
+"of 600x1280"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
 msgstr "이 프로파일은 Kobo Reader에 사용됩니다."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:477
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the SONY PRS-300."
 msgstr "이 프로파일은 SONY PRS-300에 사용됩니다."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:495
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "This profile is intended for the 5-inch JetBook."
 msgstr "이 프로파일은 5-inch JetBook에 사용됩니다."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:504
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:511
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr "이 프로파일은 SONY PRS-500/505/700 등의 가로화면 모드에 사용됩니다. 만화보기에 적합합니다."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:611
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:618
 msgid "This profile is intended for the Amazon Kindle DX."
 msgstr "이 프로파일은 Amazon Kindle DX에 사용됩니다."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:686
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:695
 msgid "This profile is intended for the B&N Nook Color."
 msgstr "B&N Nook Color를 위한 개요"
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:697
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:706
 msgid "This profile is intended for the Sanda Bambook."
 msgstr "Sanda Bambook을 위한 개요"
 
@@ -665,7 +671,7 @@ msgid ""
 "first one that exists will be used"
 msgstr "장치에 전자책을 전송할 디렉토리의 목록입니다. 쉼표(,)로 구분합니다. 먼저 기존의 디렉토리를 사용됩니다."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:100
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:101
 msgid "Communicate with S60 phones."
 msgstr "S60 휴대폰과 통신합니다."
 
@@ -744,16 +750,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:264
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:207
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:220
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2275
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2274
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:150
 msgid "News"
 msgstr "뉴스"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2554
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:21
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:560
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2238
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2256
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:63
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:597
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2237
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2255
 msgid "Catalog"
 msgstr "분류"
 
@@ -769,27 +775,34 @@ msgstr ""
 msgid "Li Fanxi"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:41
+msgid "Device IP Address (restart calibre after changing)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:46
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:58
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:66
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:66
-msgid "Unable to connect to Bambook."
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:74
+msgid ""
+"Unable to connect to Bambook. \n"
+"If you are trying to connect via Wi-Fi, please make sure the IP address of "
+"Bambook has been correctly configured."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:95
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:111
 msgid "Bambook"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:201
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:217
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:233
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:67
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:73
@@ -803,16 +816,16 @@ msgstr ""
 msgid "Getting list of books on device..."
 msgstr "장치에 있는 책의 목록을 가져옵니다..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:247
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:251
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:262
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:263
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:267
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:278
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:195
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:197
 msgid "Transferring books to device..."
 msgstr "책을 장치로 전송합니다..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:268
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:282
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:284
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:298
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:327
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:362
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:219
@@ -820,8 +833,8 @@ msgstr "책을 장치로 전송합니다..."
 msgid "Adding books to device metadata listing..."
 msgstr "책을 장치의 메타 정보 목록으로 추가합니다..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:290
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:292
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:306
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:308
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:102
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:113
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:279
@@ -831,8 +844,8 @@ msgstr "책을 장치의 메타 정보 목록으로 추가합니다..."
 msgid "Removing books from device..."
 msgstr "장치에서 책을 삭제합니다..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:307
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:312
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:323
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:328
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:315
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:322
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:281
@@ -840,7 +853,7 @@ msgstr "장치에서 책을 삭제합니다..."
 msgid "Removing books from device metadata listing..."
 msgstr "장치의 메타 정보 목록에서 책을 삭제합니다..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:380
+#: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:396
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:316
 msgid "Sending metadata to device..."
 msgstr "메타 정보를 장치로 전송합니다..."
@@ -885,8 +898,8 @@ msgid "Communicate with the PocketBook 301 reader."
 msgstr "PocketBook 301 Reader와 통신합니다."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
-msgid "Communicate with the PocketBook 602 reader."
-msgstr "PocketBook 602 eBook 리더와 통신하다"
+msgid "Communicate with the PocketBook 602/603/902/903 reader."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
@@ -1073,6 +1086,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:231
 msgid "Communicate with the Trekstor"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/misc.py:251
+msgid "Communicate with the EEE Reader"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/misc.py:271
+msgid "Communicate with the Nextbook Reader"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
@@ -2352,96 +2373,96 @@ msgstr "압축파일(zip/rar)에서 전자책 파일을 추출합니다. 또한 
 msgid "TEMPLATE ERROR"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:535
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:492
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:62
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:494
 msgid "No"
 msgstr "아니오"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:535
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:492
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:62
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:494
 msgid "Yes"
 msgstr "예"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:609
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:614
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:45
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:107
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:108
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:65
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:358
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:904
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:361
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:907
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:304
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:576
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:578
 msgid "Title"
 msgstr "제목"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:610
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:615
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:363
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:905
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:366
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:908
 msgid "Author(s)"
 msgstr "저자"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:611
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:616
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:72
 msgid "Publisher"
 msgstr "출판사"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:612
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:617
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:49
 msgid "Producer"
 msgstr "제작자"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:613
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:618
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:40
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:189
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:79
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:323
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1111
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:324
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1114
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:188
 msgid "Comments"
 msgstr "설명"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:615
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:620
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:73
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:311
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1107
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:312
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1110
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:161
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:656
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:657
 msgid "Tags"
 msgstr "태그"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:617
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:622
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:164
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:74
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:328
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1116
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:329
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1119
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:109
 msgid "Series"
 msgstr "시리즈"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:618
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:623
 msgid "Language"
 msgstr "언어"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:620
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1099
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:625
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1102
 msgid "Timestamp"
 msgstr "시간 정보"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:622
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:627
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:163
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:70
@@ -2449,7 +2470,7 @@ msgstr "시간 정보"
 msgid "Published"
 msgstr "출판일자"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:624
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:629
 msgid "Rights"
 msgstr "권리"
 
@@ -2963,7 +2984,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:71
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:654
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:655
 msgid "Rating"
 msgstr "별점"
 
@@ -3024,7 +3045,7 @@ msgstr "출력 문서의 문자 인코딩을 지정합니다. 기본값은 cp125
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:32
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:37
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/output.py:21
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:36
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:35
 msgid "Add Table of Contents to beginning of the book."
 msgstr "책의 시작 부분에 목차를 추가합니다."
 
@@ -3321,12 +3342,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:31
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
 msgstr "출력 문서의 문자 인코딩을 지정합니다. 기본값은 utf-8입니다."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:29
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:39
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
 msgid ""
 "The maximum number of characters per line. This splits on the first space "
 "before the specified value. If no space is found the line will be broken at "
@@ -3371,15 +3393,6 @@ msgstr ""
 msgid " (Preface)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
-msgid ""
-"Specify the compression level to use. Scale 1 - 10. 1 being the lowest "
-"compression but the fastest and 10 being the highest compression but the "
-"slowest."
-msgstr ""
-"사용할 압축 수준을 지정합니다. 범위는 1 - 10 입니다. 1은 가장 낮은 압축률이지만 가장 빠르고 10은 가장 높은 압축률이지만 가장 "
-"느립니다."
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:34
 msgid ""
 "Normally extra spaces are condensed into a single space. With this option "
@@ -3405,30 +3418,24 @@ msgstr ""
 "줄넘김 방식입니다. 옵션은 %s 입니다. 기본값은 'system' 입니다. Mac OS 9 이전과 호환되게 하려면 'old_mac'을 "
 "사용합니다. Mac OS X에는 'unix'를 사용합니다. 'system'은 이 OS에 의해 사용중인 줄넘김 방식의 기본값입니다."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:31
-msgid ""
-"Specify the character encoding of the output document. The default is utf-8. "
-"Note: This option is not honored by all formats."
-msgstr "출력 문서의 문자 인코딩을 지정합니다. 기본값은 utf-8입니다. 주: 이 옵션은 모든 형식에 적용되지는 않습니다."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:46
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:45
 msgid ""
 "Force splitting on the max-line-length value when no space is present. Also "
 "allows max-line-length to be below the minimum"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:50
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:49
 msgid "Produce Markdown formatted text."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:53
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:52
 msgid ""
 "Do not remove links within the document. This is only useful when paired "
 "with the markdown-format option becauselinks are always removed with plain "
 "text output."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:58
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:57
 msgid ""
 "Do not remove image references within the document. This is only useful when "
 "paired with the markdown-format option becauseimage references are always "
@@ -3721,7 +3728,7 @@ msgid "Add books to your calibre library from the connected device"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:549
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:550
 msgid "Fetch annotations (experimental)"
 msgstr "주석 가져오기 (실험적임)"
 
@@ -3796,10 +3803,8 @@ msgstr "발견된 책이 없습니다"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:60
 msgid ""
 "No books to catalog\n"
-"Check exclude tags"
+"Check exclusion criteria"
 msgstr ""
-"분류할 책이 없습니다\n"
-"예외 태그를 검사하세요"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:70
 msgid "Catalog generated."
@@ -3818,7 +3823,7 @@ msgid "Checking database integrity"
 msgstr "데이터베이스 무결성을 검사합니다"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:599
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:600
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:41
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Error"
@@ -3992,7 +3997,7 @@ msgstr "기존의 Calibre 라이브러리가 %s에서 발견되지 않았습니�
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:416
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:101
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:750
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:759
 msgid "Not allowed"
 msgstr "허용안함"
 
@@ -4068,8 +4073,8 @@ msgid "Could not copy books: "
 msgstr "책을 복사할 수 없음: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:150
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:675
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:782
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:680
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:816
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:190
 msgid "Failed"
 msgstr "실패"
@@ -4154,14 +4159,14 @@ msgid "Main memory"
 msgstr "주 메모리"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:176
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:474
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:483
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:475
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:484
 msgid "Storage Card A"
 msgstr "저장 카드 A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:177
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:476
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:477
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:486
 msgid "Storage Card B"
 msgstr "저장 카드 B"
 
@@ -4196,46 +4201,50 @@ msgid ""
 "you sure?"
 msgstr "선택된 책을 장치에서 <b>영구적으로 삭제</b>합니다. 확실합니까?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:26
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:30
 msgid "Connect to folder"
 msgstr "폴더로 연결"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:35
 msgid "Connect to iTunes"
 msgstr "iTunes로 연결"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:40
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:41
+msgid "Connect to Bambook"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:55
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:63
 msgid "Start Content Server"
 msgstr "컨텐츠 서버 실행하기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:65
 msgid "Stop Content Server"
 msgstr "컨텐츠 서버 정지"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:61
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:69
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:76
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:82
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:84
 msgid "Email to"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:69
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:84
 msgid " and delete from library"
 msgstr " 그리고 라이브러리에서 삭제"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:81
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 msgid "Setup email based sharing of books"
 msgstr "전자우편을 기반으로 책 공유하기 설정"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:98
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:114
 msgid "D"
 msgstr "D"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:98
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:114
 msgid "Send to device"
 msgstr "장치로 전송하기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:117
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:133
 msgid "Connect/share"
 msgstr "연결/공유"
 
@@ -4502,7 +4511,7 @@ msgid "Click the show details button to see which ones."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:661
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:662
 msgid "Show book details"
 msgstr "책 상세정보 보기"
 
@@ -4650,7 +4659,7 @@ msgid "The specified directory could not be processed."
 msgstr "지정한 디렉토리는 처리할 수 없습니다."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:250
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:824
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:829
 msgid "No books"
 msgstr "책 없음"
 
@@ -4836,48 +4845,48 @@ msgid ""
 msgstr "폴더마다 여러권의 책, 모든 전자책 파일은 다른 책이라고 가정합니다(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:26
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:50
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:423
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:124
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:125
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:126
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:53
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:62
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:432
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:130
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:318
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1097
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:319
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1100
 msgid "Path"
 msgstr "경로"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:27
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:53
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:127
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:129
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:132
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:317
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:56
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:138
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:318
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:24
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:118
 msgid "Formats"
 msgstr "형식"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:28
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:908
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1100
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:911
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1103
 msgid "Collections"
 msgstr "모음집"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:52
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:61
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:55
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:64
 msgid "Click to open"
 msgstr "열려면 누르세요"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:53
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:310
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:316
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:322
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1106
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1110
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:56
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:311
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:317
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:323
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1109
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1113
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:83
@@ -4885,7 +4894,7 @@ msgstr "열려면 누르세요"
 msgid "None"
 msgstr "없음"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:431
 msgid "Double-click to open Book Details window"
 msgstr ""
 
@@ -4932,7 +4941,7 @@ msgstr "출력"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:42
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:95
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:290
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:54
@@ -4945,16 +4954,16 @@ msgstr "출력"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:36
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:40
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:47
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:36
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:33
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:51
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:59
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:82
@@ -5056,57 +5065,184 @@ msgstr "CSV/XML 옵션"
 msgid "E-book options"
 msgstr "전자책 옵션"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:96
-msgid "'Don't include this book' tag:"
-msgstr "'이 책을 포함하지 않음' 태그:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:97
-msgid "Additional note tag prefix:"
-msgstr "태그 접두사에 추가할 메모"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:98
-msgid "Regex pattern describing tags to exclude as genres:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:99
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:291
 msgid ""
-"Regex tips:\n"
-"- The default regex - \\[.+\\] - excludes genre tags of the form [tag], "
-"e.g., [Amazon Freebie]\n"
-"- A regex pattern of a single dot excludes all genre tags, generating no "
-"Genre Section"
+"Sections to include in catalog.  All catalogs include 'Books by Author'."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:102
-msgid "Include 'Titles' Section"
-msgstr "'제목' 구간 포함하기"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:103
-msgid "Include 'Recently Added' Section"
-msgstr "'최근 추가일' 구간 포함하기"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:104
-msgid "Sort numbers as text"
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:292
+msgid "Included sections"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:105
-msgid "Include 'Series' Section"
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:293
+msgid "Books by &Title"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:106
-msgid "Wishlist tag:"
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:294
+msgid "Books by &Series"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:107
-msgid "Source column for read book"
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:295
+msgid "Recently &Added"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:108
-msgid "Pattern for read book"
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
+msgid "Books by &Genre"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:109
-msgid "Books marked as read:"
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
+msgid "&Descriptions"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:13pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Default pattern </p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"family:'Courier New,courier';\">\\[.+\\]</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">excludes tags of the form "
+"[<span style=\" font-family:'Courier New,courier';\">tag</span>], </p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">e.g., [Project "
+"Gutenberg]</p></body></html>"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
+msgid "Excluded genres"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:310
+msgid "Tags to &exclude"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
+msgid ""
+"Books matching either pattern will not be included in generated catalog. "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
+msgid "Excluded books"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:311
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:13pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"size:12pt;\">Comma-separated list of tags to exclude.</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"size:12pt;\">Default:</span><span style=\" font-family:'Courier "
+"New,courier'; font-size:12pt;\"> ~,Catalog</span></p></body></html>"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
+msgid "&Column/value"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
+msgid "Column containing additional exclusion criteria"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
+msgid "Exclusion pattern"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
+msgid "Matching books will be displayed with ✓"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
+msgid "Read books"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
+msgid "Column containing 'read' status"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
+msgid "'read book' pattern"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
+msgid "Other options"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
+msgid "&Wishlist tag"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
+msgid "Books tagged as Wishlist items will be displayed with ✕"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
+msgid "&Thumbnail width"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
+msgid "Size hint for Description cover thumbnails"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
+msgid "\""
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
+msgid "&Description note"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:332
+msgid "Custom column source for note to include in Description header area"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:333
+msgid "&Merge with Comments"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:334
+msgid "Additional content merged with Comments during catalog generation"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:335
+msgid "Merge additional content before Comments"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:336
+msgid "&Before"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:337
+msgid "Merge additional content after Comments"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:338
+msgid "&After"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:339
+msgid "Separate Comments and additional content with horizontal rule"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:340
+msgid "&Separator"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
@@ -5262,11 +5398,11 @@ msgstr ""
 msgid "Enter URL"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:498
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:516
 msgid "Normal view"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:517
 msgid "HTML Source"
 msgstr ""
 
@@ -5733,7 +5869,7 @@ msgid "Change the title of this book"
 msgstr "이 책의 제목 변경하기"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:179
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:363
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:397
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:405
 msgid "&Author(s): "
 msgstr "저자(&A): "
@@ -5749,7 +5885,7 @@ msgid ""
 msgstr "이 책의 저자를 변경합니다. 여러명의 저자는 쉼표(,)로 구분해야 합니다."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:182
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:406
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:413
 msgid "&Publisher: "
 msgstr "출판사(&P): "
@@ -5760,7 +5896,7 @@ msgid "Ta&gs: "
 msgstr "태그(&G): "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:184
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:374
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:408
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:432
 msgid ""
 "Tags categorize the book. This is particularly useful while searching. "
@@ -5769,7 +5905,7 @@ msgstr ""
 "태그는 책을 분류합니다. 이것은 특히 검색하는데 유용합니다.<br><br>쉼표로 구분하며 어떠한 문장이나 문구일 수 있습니다."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:185
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:381
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:415
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:415
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:214
 msgid "&Series:"
@@ -5777,8 +5913,8 @@ msgstr "시리즈(&S):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:187
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:382
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:383
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:417
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:416
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:417
 msgid "List of known series. You can add new series."
@@ -5887,15 +6023,21 @@ msgstr "인쇄 서식으로 간주합니다"
 msgid "PDB Output"
 msgstr "PDB 출력"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:41
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:47
 msgid "&Format:"
 msgstr "형식(&F):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:42
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:34
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:61
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:67
 msgid "&Inline TOC"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:49
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:45
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:73
+msgid "Output Encoding:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
@@ -5930,7 +6072,7 @@ msgstr "표지의 종횡비를 유지(&A)"
 msgid "PMLZ Output"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:44
 msgid "Do not reduce image size and depth"
 msgstr ""
 
@@ -6156,27 +6298,27 @@ msgstr "공백을 유지(&S)"
 msgid "TXT Output"
 msgstr "TXT 출력"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:60
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:66
 msgid "&Line ending style:"
 msgstr "줄 종결 방식(&L):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:62
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:68
 msgid "&Maximum line length:"
 msgstr "최대 줄 길이(&M):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:63
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:69
 msgid "Force maximum line length"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:64
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:70
 msgid "Apply Markdown formatting to text"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:65
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:71
 msgid "Do not remove links (<a> tags) before processing"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:66
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:72
 msgid "Do not remove image references before processing"
 msgstr ""
 
@@ -6282,256 +6424,256 @@ msgstr ""
 msgid "Cover browser could not be loaded"
 msgstr "표지 탐색기를 불러올 수 없습니다"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:85
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:109
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:146
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:165
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:271
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:492
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:112
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:132
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:208
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:241
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:245
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:62
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:87
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:111
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:148
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:273
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:494
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:114
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:210
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:243
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:247
 msgid "Undefined"
 msgstr "정의되지 않음"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:123
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:125
 msgid "star(s)"
 msgstr "별"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:124
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:126
 msgid "Unrated"
 msgstr "별점 지정 안함"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:157
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:159
 msgid "Set '%s' to today"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:267
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:269
 msgid " index:"
 msgstr " 색인:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:333
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:335
 msgid ""
 "The enumeration \"{0}\" contains an invalid value that will be set to the "
 "default"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:492
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:494
 msgid "Do not change"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:541
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:543
 msgid "Remove series"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:544
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:546
 msgid "Automatically number books"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:547
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:394
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:549
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:428
 msgid "Force numbers to start with "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:605
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:607
 msgid ""
 "The enumeration \"{0}\" contains invalid values that will not appear in the "
 "list"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:661
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:663
 msgid "Remove all tags"
 msgstr "모든 태그 지우기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:682
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:684
 msgid "tags to add"
 msgstr "추가할 태그"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:687
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:689
 msgid "tags to remove"
 msgstr "제거할 태그"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:44
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:136
 msgid "No details available."
 msgstr "상세 정보가 없습니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:191
 msgid "Device no longer connected."
 msgstr "장치가 더이상 연결되지 않습니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:308
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:309
 msgid "Get device information"
 msgstr "장치 정보 가져오기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:319
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:320
 msgid "Get list of books on device"
 msgstr "장치에 있는 책의 목록 가져오기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:329
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:330
 msgid "Get annotations from device"
 msgstr "장치에서 주석 가져오기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:341
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:342
 msgid "Send metadata to device"
 msgstr "메타 정보를 장치로 전송"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:346
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:347
 msgid "Send collections to device"
 msgstr "모음집을 장치로 전송"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:381
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:382
 msgid "Upload %d books to device"
 msgstr "%d 권의 책을 장치에 올리기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:396
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:397
 msgid "Delete books from device"
 msgstr "장치에서 책 삭제하기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:413
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:414
 msgid "Download books from device"
 msgstr "장치로부터 책을 내려받습니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:423
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:424
 msgid "View book on device"
 msgstr "장치에서 책 보기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:457
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:458
 msgid "Set default send to device action"
 msgstr "장치로 전송하기 동작의 기본값 지정"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:463
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:464
 msgid "Send to main memory"
 msgstr "주 메모리로 보내기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:465
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:466
 msgid "Send to storage card A"
 msgstr "저장 카드 A로 보내기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:467
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:468
 msgid "Send to storage card B"
 msgstr "저장 카드 B로 보내기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:472
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:481
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:482
 msgid "Main Memory"
 msgstr "주 메모리"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:493
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:494
 msgid "Send specific format to"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:494
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:495
 msgid "Send and delete from library"
 msgstr "전송하고 라이브러리에서 삭제"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:537
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:538
 msgid "Eject device"
 msgstr "장치 연결 끊기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:600
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:601
 msgid "Error communicating with device"
 msgstr "장치와 통신 도중 오류"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:616
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1100
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:296
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:617
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1105
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:297
 msgid "No suitable formats"
 msgstr "적합한 형식이 아닙니다"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:634
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:635
 msgid "Select folder to open as device"
 msgstr "장치로서 열 폴더를 선택하세요"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:681
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:686
 msgid "Error talking to device"
 msgstr "장치와 교신 도중 오류"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:682
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:687
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
 msgstr "장치로부터 교신하는 중에 임시적으로 오류가 있었습니다. 장치를 뽑고 재연결하거나 재부팅해주세요."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:725
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:730
 msgid "Device: "
 msgstr "장치: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:727
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:732
 msgid " detected."
 msgstr " 탐지되었습니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:825
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:830
 msgid "selected to send"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:830
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:835
 msgid "Choose format to send to device"
 msgstr "장치로 전송할 형식을 선택하세요"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:839
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:844
 msgid "No device"
 msgstr "장치 없음"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:840
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:845
 msgid "Cannot send: No device is connected"
 msgstr "전송 불가: 연결된 장치가 없음"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:843
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:847
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:848
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:852
 msgid "No card"
 msgstr "카드 없음"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:844
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:848
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:849
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:853
 msgid "Cannot send: Device has no storage card"
 msgstr "전송 불가: 저장 카드가 없음"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:894
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:977
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1094
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:899
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:982
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1099
 msgid "Auto convert the following books before uploading to the device?"
 msgstr "다음의 책들을 장치에 올리기 전에 자동으로 변환합니까?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:923
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:928
 msgid "Sending catalogs to device."
 msgstr "분류를 장치로 전송합니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1008
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1013
 msgid "Sending news to device."
 msgstr "뉴스를 장치로 전송합니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1061
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1066
 msgid "Sending books to device."
 msgstr "책을 장치로 전송합니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1101
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1106
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1165
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1170
 msgid "No space on device"
 msgstr "장치에 공간이 없습니다"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1166
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1171
 msgid ""
 "<p>Cannot upload books to device there is no more free space available "
 msgstr "<p>장치에 남은 공간이 없어서 책을 올려보낼 수 없습니다 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:89
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:368
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:388
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:234
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:57
 msgid "Invalid template"
 msgstr "잘못된 템플릿입니다"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:90
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:369
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:389
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:235
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:58
 msgid "The template %s is invalid:"
@@ -6588,29 +6730,29 @@ msgstr "다음(&N)"
 msgid "My Books"
 msgstr "나의 책"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:74
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:308
 msgid "Generate catalog"
 msgstr "분류를 생성합니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:75
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:81
 msgid "Generate catalog for {0} books"
 msgstr "{0}권의 책을 위해 분류를 생성합니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:76
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:82
 msgid "Catalog &format:"
 msgstr "분류 형식(&F):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:77
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:83
 msgid ""
 "Catalog &title (existing catalog with the same title will be replaced):"
 msgstr "분류 제목(동일한 제목의 분류가 존재하면 교체합니다) (&T):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:78
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:84
 msgid "&Send catalog to device automatically"
 msgstr "분류를 장치에 자동적으로 보냄(&S)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:79
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:85
 msgid "Catalog options"
 msgstr "분류 옵션"
 
@@ -6777,17 +6919,20 @@ msgstr "저자(&A):"
 msgid "&Profile:"
 msgstr "프로파일(&P):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:23
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:24
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:23
 msgid "&OK"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:24
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:225
 msgid "&Cancel"
 msgstr "취소(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog_ui.py:43
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:43
 msgid "Edit Comments"
 msgstr "설명 수정하기"
 
@@ -6797,7 +6942,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:63
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:216
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:218
 msgid "Library"
 msgstr "라이브러리"
 
@@ -6830,15 +6975,15 @@ msgstr "위치"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:69
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:906
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:909
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:33
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:295
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:575
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:577
 msgid "Date"
 msgstr "날짜"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1096
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1099
 msgid "Format"
 msgstr "형식"
 
@@ -6851,12 +6996,12 @@ msgid "Author sort"
 msgstr "저자 분류"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:117
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:714
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:783
 msgid "Invalid author name"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:118
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:715
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:784
 msgid "Author names cannot contain & characters."
 msgstr ""
 
@@ -7096,114 +7241,114 @@ msgid ""
 "function."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:427
 msgid "S/R TEMPLATE ERROR"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:545
 msgid "You must specify a destination when source is a composite field"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:620
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:628
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:723
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:654
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:662
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:757
 msgid "Search/replace invalid"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:621
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:655
 msgid ""
 "Authors cannot be set to the empty string. Book title %s not processed"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:629
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:663
 msgid "Title cannot be set to the empty string. Book title %s not processed"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:724
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:758
 msgid "Search pattern is invalid: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:768
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:802
 msgid ""
 "Applying changes to %d books.\n"
 "Phase {0} {1}%%."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:362
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:396
 msgid "Edit Meta information"
 msgstr "메타 정보 수정하기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:364
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:398
 msgid "A&utomatically set author sort"
 msgstr "자동으로 저자 분류를 지정합니다(&U)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:365
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:399
 msgid "Author s&ort: "
 msgstr "저자 분류(&O): "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:366
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:400
 msgid ""
 "Specify how the author(s) of this book should be sorted. For example Charles "
 "Dickens should be sorted as Dickens, Charles."
 msgstr "이 책의 저자들을 분류하는 방법을 지정합니다. 예를 들어 찰스 디킨스는 디킨스, 찰스 같이 분류되어야 합니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:367
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:401
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:409
 msgid "&Rating:"
 msgstr "별점(&R):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:368
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:369
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:402
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:403
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:410
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:411
 msgid "Rating of this book. 0-5 stars"
 msgstr "이 책의 별점입니다. 0-5"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:370
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:404
 msgid "No change"
 msgstr "바꾸지 않음"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:371
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:405
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:412
 msgid " stars"
 msgstr " 별"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:373
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:407
 msgid "Add ta&gs: "
 msgstr "태그 추가(&G): "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:375
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:376
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:409
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:410
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:433
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:434
 msgid "Open Tag Editor"
 msgstr "태그 편집기 열기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:377
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:411
 msgid "&Remove tags:"
 msgstr "태그 지우기(&R):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:378
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:412
 msgid "Comma separated list of tags to remove from the books. "
 msgstr "책에서 지울 태그의 목록입니다. 쉼표(,)로 구분합니다. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:379
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:413
 msgid "Check this box to remove all tags from the books."
 msgstr "책에서 모든 태그를 지우려면 이 상자를 체크하세요."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:380
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:414
 msgid "Remove all"
 msgstr "모두 지우기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:384
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:418
 msgid "If checked, the series will be cleared"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:385
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:419
 msgid "Clear series"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:386
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:420
 msgid ""
 "If not checked, the series number for the books will be set to 1.\n"
 "If checked, selected books will be automatically numbered, in the order\n"
@@ -7211,37 +7356,37 @@ msgid ""
 "Book A will have series number 1 and Book B series number 2."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:424
 msgid "Automatically number books in this series"
 msgstr "이 시리즈의 책 번호를 자동으로 추가"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:425
 msgid ""
 "Series will normally be renumbered from the highest number in the database\n"
 "for that series. Checking this box will tell calibre to start numbering\n"
 "from the value in the box"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:395
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:429
 msgid "Remove &format:"
 msgstr "형식 지우기(&F):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:396
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:430
 msgid "&Swap title and author"
 msgstr "제목과 저자를 서로 바꾸기(&S)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:397
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:431
 msgid ""
 "Force the title to be in title case. If both this and swap authors are "
 "checked,\n"
 "title and author are swapped before the title case is set"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:399
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:433
 msgid "Change title to title case"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:400
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:434
 msgid ""
 "Remove stored conversion settings for the selected books.\n"
 "\n"
@@ -7251,97 +7396,97 @@ msgstr ""
 "\n"
 "앞으로 이 책의 변환은 기본 설정을 사용할 것입니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:403
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:437
 msgid "Remove &stored conversion settings for the selected books"
 msgstr "선택된 책에 대해 보관된 변환 설정을 지웁니다(&S)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:404
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:438
 msgid "Change &cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:405
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:439
 msgid "&Generate default cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:406
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:440
 msgid "&Remove cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:407
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:441
 msgid "Set from &ebook file(s)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:408
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:442
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:457
 msgid "&Basic metadata"
 msgstr "기본 메타 정보(&B)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:409
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:443
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:458
 msgid "&Custom metadata"
 msgstr "사용자 지정 메타 정보(&C)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:410
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:444
 msgid "Search &field:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:411
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:445
 msgid "The name of the field that you want to search"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:412
-msgid "Search mode:"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:446
+msgid "Search &mode:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:413
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:447
 msgid ""
 "Choose whether to use basic text matching or advanced regular expression "
 "matching"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:414
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:448
 msgid "Te&mplate:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:415
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:449
 msgid "Enter a template to be used as the source for the search/replace"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:450
 msgid "&Search for:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:417
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:451
 msgid ""
 "Enter the what you are looking for, either plain text or a regular "
 "expression, depending on the mode"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:452
 msgid ""
 "Check this box if the search string must match exactly upper and lower case. "
 "Uncheck it if case is to be ignored"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:419
-msgid "Case sensitive"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:453
+msgid "Cas&e sensitive"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:420
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:454
 msgid "&Replace with:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:421
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:455
 msgid ""
 "The replacement text. The matched search text will be replaced with this "
 "string"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:422
-msgid "Apply function after replace:"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:456
+msgid "&Apply function after replace:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:423
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:457
 msgid ""
 "Specify how the text is to be processed after matching and replacement. In "
 "character mode, the entire\n"
@@ -7349,48 +7494,67 @@ msgid ""
 "processed"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:425
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:459
 msgid "&Destination field:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:460
 msgid ""
 "The field that the text will be put into after all replacements.\n"
 "If blank, the source field is used if the field is modifiable"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:428
-msgid "Mode:"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:462
+msgid "M&ode:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:429
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:463
 msgid "Specify how the text should be copied into the destination."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:430
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:464
 msgid ""
-"If the replace mode is prepend or append, then this box indicates whether a "
-"comma or\n"
-"nothing should be put between the original text and the inserted text"
+"Specifies whether result items should be split into multiple values or\n"
+"left as single values. This option has the most effect when the source field "
+"is\n"
+"not multiple and the destination field is multiple"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:432
-msgid "use comma"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:467
+msgid "Split &result"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:433
-msgid "Test &text"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:468
+msgid "For multiple-valued fields, sho&w"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:434
-msgid "Test re&sult"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:469
+msgid "values starting a&t"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:435
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:470
+msgid "with values separated b&y"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:471
+msgid ""
+"Used when displaying test results to separate values in multiple-valued "
+"fields"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:472
+msgid "Test text"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:473
+msgid "Test result"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:474
 msgid "Your test:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:436
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:475
 msgid "&Search and replace"
 msgstr ""
 
@@ -7726,7 +7890,7 @@ msgstr "암호(&P):"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:130
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:169
 msgid "&Show password"
 msgstr "암호 표시(&S)"
 
@@ -8123,12 +8287,12 @@ msgstr "분류 필터: "
 msgid "Select the content kind of the new category"
 msgstr "새 분류의 종류를 선택합니다"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:66
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:105
 msgid "Are your sure?"
 msgstr "확실합니까?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:67
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:71
 msgid ""
 "The following tags are used by one or more books. Are you certain you want "
 "to delete them?"
@@ -8179,12 +8343,12 @@ msgid "%s (was %s)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:74
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:704
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:773
 msgid "Item is blank"
 msgstr "항목이 비어있음"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:75
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:705
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:774
 msgid "An item cannot be set to nothing. Delete it instead."
 msgstr ""
 
@@ -8449,57 +8613,57 @@ msgstr ""
 msgid "Recipe source code (python)"
 msgstr "레시피 소스 코드 (Python)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:145
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:146
 msgid "Email %s to %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:187
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:188
 msgid "News:"
 msgstr "뉴스:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:190
 msgid "Attached is the %s periodical downloaded by calibre."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:242
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:243
 msgid "E-book:"
 msgstr "전자책:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:245
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:246
 msgid "Attached, you will find the e-book"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:246
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:247
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:107
 msgid "by"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:247
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:248
 msgid "in the %s format."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:260
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:261
 msgid "Sending email to"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:290
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:291
 msgid "Auto convert the following books before sending via email?"
 msgstr "다음의 책들을 전자우편을 통해서 보내기 전에 자동으로 변환합니까?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:297
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:298
 msgid ""
 "Could not email the following books as no suitable formats were found:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:303
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:304
 msgid "Failed to email book"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:306
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:307
 msgid "sent"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:329
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:330
 msgid "Sent news to"
 msgstr ""
 
@@ -8793,15 +8957,15 @@ msgstr ""
 msgid "Delete current saved search"
 msgstr "현재의 저장된 검색 삭제"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:320
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:340
 msgid "N"
 msgstr "N"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:320
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:340
 msgid "Y"
 msgstr "Y"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:375
 msgid "Edit template"
 msgstr ""
 
@@ -8815,82 +8979,82 @@ msgstr "장치"
 msgid "Size (MB)"
 msgstr "용량 (MB)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:329
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:330
 msgid "Book %s of %s."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:672
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1216
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:477
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:675
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1219
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:499
 msgid "The lookup/search name is \"{0}\""
 msgstr "검색 이름은 \"{0}\"입니다"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:678
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1218
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:681
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1221
 msgid "This book's UUID is \"{0}\""
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:903
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:906
 msgid "In Library"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:907
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:910
 msgid "Size"
 msgstr "용량"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1116
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1119
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr "%s 제<font face=\"serif\">%s</font>권"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1196
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1199
 msgid "Marked for deletion"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1199
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1202
 msgid "Double click to <b>edit</b> me<br><br>"
 msgstr "<b>편집</b>하려면 더블클릭하세요<br><br>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:150
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:155
 msgid "Hide column %s"
 msgstr "%s 열을 숨김"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:160
 msgid "Sort on %s"
 msgstr "%s순으로 정렬"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:161
 msgid "Ascending"
 msgstr "오름차순"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:159
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:164
 msgid "Descending"
 msgstr "내림차순"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:171
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:176
 msgid "Change text alignment for %s"
 msgstr "%s에 대한 문자열 정렬을 변경"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:178
 msgid "Left"
 msgstr "왼쪽"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:178
 msgid "Right"
 msgstr "오른쪽"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:179
 msgid "Center"
 msgstr "중앙"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:193
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:198
 msgid "Show column"
 msgstr "열 표시"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:210
 msgid "Restore default layout"
 msgstr "기본 배치로 복원"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:751
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:760
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
@@ -9146,7 +9310,7 @@ msgid "Successfully downloaded metadata for %d out of %d books"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:291
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:660
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:661
 msgid "Details"
 msgstr ""
 
@@ -10232,7 +10396,7 @@ msgstr "현재의 트윅(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:270
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:580
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:584
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:277
 msgid "Search"
 msgstr "검색"
@@ -10325,97 +10489,131 @@ msgstr "누르면 바뀝니다"
 msgid "&Alternate shortcut:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:226
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:231
 msgid "Rename '%s'"
 msgstr "'%s' 이름 변경"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:230
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:235
 msgid "Edit sort for '%s'"
 msgstr "'%s'에 대한 분류 편집"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:235
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:240
 msgid "Hide category %s"
 msgstr "%s 분류 숨기기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:238
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:243
 msgid "Show category"
 msgstr "분류 보기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:247
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:251
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:252
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:256
 msgid "Manage %s"
 msgstr "%s 관리"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:254
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:259
 msgid "Manage Saved Searches"
 msgstr "저장된 검색 관리"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:261
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:265
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:266
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:270
 msgid "Manage User Categories"
 msgstr "사용자 분류 관리"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:272
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:277
 msgid "Show all categories"
 msgstr "모든 분류 보기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:572
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:586
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:577
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:591
 msgid ""
 "Changing the metadata for that many books can take a while. Are you sure?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:634
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:648
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:314
 msgid "Searches"
 msgstr "검색"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:719
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:788
 msgid "Duplicate search name"
 msgstr "검색 이름 중복"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:720
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:789
 msgid "The saved search name %s is already used."
 msgstr "저장된 검색 이름 %s은(는) 이미 사용중입니다."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1006
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1178
+msgid "Find item in tag browser"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1181
+msgid ""
+"Search for items. This is a \"contains\" search; items containing the\n"
+"text anywhere in the name will be found. You can limit the search\n"
+"to particular categories using syntax similar to search. For example,\n"
+"tags:foo will find foo in any tag, but not in authors etc. Entering\n"
+"*foo will filter all categories at once, showing only those items\n"
+"containing the text \"foo\""
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1190
+msgid "ALT+f"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1194
+msgid "F&ind"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1195
+msgid "Find the first/next matching item"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1202
+msgid "Collapse all categories"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1223
+msgid "No More Matches.</b><p> Click Find again to go to first match"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1236
 msgid "Sort by name"
 msgstr "이름순으로 정렬"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1006
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1236
 msgid "Sort by popularity"
 msgstr "인기도 순으로 정렬"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1007
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1237
 msgid "Sort by average rating"
 msgstr "평균 별점 순으로 정렬"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1010
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1240
 msgid "Set the sort order for entries in the Tag Browser"
 msgstr "태그 탐색기의 항목에 대한 정렬 방식을 지정합니다"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1016
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1246
 msgid "Match all"
 msgstr "모두 일치(AND)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1016
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1246
 msgid "Match any"
 msgstr "아무거나 일치(OR)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1021
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1251
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr "태그 탐색기에서 여러 항목을 선택할 때 아무거나 또는 모두 일치합니다"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1025
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1255
 msgid "Manage &user categories"
 msgstr "사용자 분류 관리(&U)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1028
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1258
 msgid "Add your own categories to the Tag Browser"
 msgstr "태그 탐색기로 자신의 분류를 추가합니다"
 
@@ -11077,19 +11275,19 @@ msgstr "대소문자 바꾸기"
 msgid "Swap Case"
 msgstr "대소문자 바꾸기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:864
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:868
 msgid "Drag to resize"
 msgstr "크기를 변경하려면 드래그하세요"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:899
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:903
 msgid "Show"
 msgstr "보기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:906
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:910
 msgid "Hide"
 msgstr "숨기기"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:943
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:947
 msgid "Toggle"
 msgstr ""
 
@@ -11260,44 +11458,48 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:147
+msgid "Setup sending email using"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:149
 msgid ""
-"You can sign up for a free {name} email account at <a "
-"href=\"http://{url}\">http://{url}</a>. {extra}"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
-msgid "Your %s &email address:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:155
-msgid "Your %s &username:"
+"If you don't have an account, you can sign up for a free {name} email "
+"account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:156
+msgid "Your %s &email address:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:157
+msgid "Your %s &username:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:158
 msgid "Your %s &password:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:176
 msgid ""
 "If you plan to use email to send books to your Kindle, remember to add the "
 "your %s email address to the allowed email addresses in your Amazon.com "
 "Kindle management page."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:181
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:183
 msgid "Setup"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:196
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:198
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:205
 msgid "Bad configuration"
 msgstr "잘못된 설정"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:197
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:199
 msgid "You must set the From email address"
 msgstr "이메일 주소의 보낸이를 지정해야 합니다"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:204
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:206
 msgid "You must set the username and password for the mail server."
 msgstr "메일 서버에 대한 사용자명과 암호를 지정해야 합니다."
 
@@ -11456,20 +11658,17 @@ msgstr "빈 칸"
 msgid "empty"
 msgstr "비어 있음"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:50
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:53
 msgid ""
 "The fields to output when cataloging books in the database.  Should be a "
 "comma-separated list of fields.\n"
-"Available fields: %s.\n"
+"Available fields: %s,\n"
+"plus user-created custom fields.\n"
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
-"데이터베이스의 책을 분류할 때 출력할 필드입니다. 필드의 목록은 쉼표로 구분해야 합니다.\n"
-"이용가능한 필드: %s.\n"
-"기본값: '%%default'\n"
-"적용 대상: CSV, XML 출력 형식"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:60
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:64
 msgid ""
 "Output field to sort on.\n"
 "Available fields: author_sort, id, rating, size, timestamp, title.\n"
@@ -11477,7 +11676,7 @@ msgid ""
 "Applies to: CSV, XML output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:214
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:230
 msgid ""
 "The fields to output when cataloging books in the database.  Should be a "
 "comma-separated list of fields.\n"
@@ -11490,7 +11689,7 @@ msgstr ""
 "기본값: '%%default'\n"
 "적용 대상: BIBTEX 출력 형식"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:224
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:240
 msgid ""
 "Output field to sort on.\n"
 "Available fields: author_sort, id, rating, size, timestamp, title.\n"
@@ -11498,7 +11697,7 @@ msgid ""
 "Applies to: BIBTEX output format"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:233
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:249
 msgid ""
 "Create a citation for BibTeX entries.\n"
 "Boolean value: True, False\n"
@@ -11506,7 +11705,7 @@ msgid ""
 "Applies to: BIBTEX output format"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:242
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:258
 msgid ""
 "The template for citation creation from database fields.\n"
 " Should be a template with {} enclosed fields.\n"
@@ -11515,7 +11714,7 @@ msgid ""
 "Applies to: BIBTEX output format"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:252
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:268
 msgid ""
 "BibTeX file encoding output.\n"
 "Available types: utf8, cp1252, ascii.\n"
@@ -11523,7 +11722,7 @@ msgid ""
 "Applies to: BIBTEX output format"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:261
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:277
 msgid ""
 "BibTeX file encoding flag.\n"
 "Available types: strict, replace, ignore, backslashreplace.\n"
@@ -11531,7 +11730,7 @@ msgid ""
 "Applies to: BIBTEX output format"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:270
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:286
 msgid ""
 "Entry type for BibTeX catalog.\n"
 "Available types: book, misc, mixed.\n"
@@ -11539,14 +11738,14 @@ msgid ""
 "Applies to: BIBTEX output format"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:540
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:570
 msgid ""
 "Title of generated catalog used as title in metadata.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:547
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:577
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
 "specified directory. Useful if you are unsure at which stage of the "
@@ -11555,14 +11754,22 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:557
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:587
+msgid ""
+"field:pattern specifying custom field/contents indicating book should be "
+"excluded.\n"
+"Default: '%default'\n"
+"Applies to ePub, MOBI output formats"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:594
 msgid ""
 "Regex describing tags to exclude as genres.\n"
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:563
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:600
 msgid ""
 "Comma-separated list of tag words indicating book should be excluded from "
 "output.  Case-insensitive.\n"
@@ -11571,7 +11778,21 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:571
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:608
+msgid ""
+"Include book descriptions in catalog.\n"
+"Default: '%default'\n"
+"Applies to: ePub, MOBI output formats"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:615
+msgid ""
+"Include 'Genres' section in catalog.\n"
+"Default: '%default'\n"
+"Applies to: ePub, MOBI output formats"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:622
 msgid ""
 "Include 'Titles' section in catalog.\n"
 "Default: '%default'\n"
@@ -11581,14 +11802,14 @@ msgstr ""
 "기본값: '%default'\n"
 "적용대상: ePub, MOBI 출력 형식"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:578
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:629
 msgid ""
 "Include 'Series' section in catalog.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:585
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:636
 msgid ""
 "Include 'Recently Added' section in catalog.\n"
 "Default: '%default'\n"
@@ -11598,31 +11819,24 @@ msgstr ""
 "기본값: '%default'\n"
 "적용대상: ePub, MOBI 출력 형식"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:592
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:643
 msgid ""
-"Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
+"Custom field containing note text to insert in Description header.\n"
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"사용자 주석에 대한 태그 접두사, 예. '*Jeff might enjoy reading this'.\n"
-"기본값: '%default'\n"
-"적용대상: ePub, MOBI 출력 형식"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:599
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:650
 msgid ""
-"Sort titles with leading numbers as text, e.g.,\n"
-"'2001: A Space Odyssey' sorts as \n"
-"'Two Thousand One: A Space Odyssey'.\n"
+"<custom field>:[before|after]:[True|False] specifying:\n"
+" <custom field> Custom field containing notes to merge with Comments\n"
+" [before|after] Placement of notes with respect to Comments\n"
+" [True|False] - A horizontal rule is inserted between notes and Comments\n"
 "Default: '%default'\n"
-"Applies to: ePub, MOBI output formats"
+"Applies to ePub, MOBI output formats"
 msgstr ""
-"숫자가 먼저 오는 제목일경우 문자열로서 정렬, 예,\n"
-"'2001: A Space Odyssey'을 \n"
-"'Two Thousand One: A Space Odyssey'로서 정렬합니다.\n"
-"기본값: '%default'\n"
-"적용대상: ePub, MOBI 출력 형식"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:606
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:660
 msgid ""
 "Specifies the output profile.  In some cases, an output profile is required "
 "to optimize the catalog for the device.  For example, 'kindle' or "
@@ -11632,14 +11846,22 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:613
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:667
 msgid ""
 "field:pattern indicating book has been read.\n"
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:619
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:673
+msgid ""
+"Size hint (in inches) for book covers in catalog.\n"
+"Range: 1.0 - 2.0\n"
+"Default: '%default'\n"
+"Applies to ePub, MOBI output formats"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:681
 msgid ""
 "Tag indicating book to be displayed as wishlist item.\n"
 "Default: '%default'\n"
@@ -12224,27 +12446,27 @@ msgstr "%s평균 별점은 %3.1f 입니다"
 msgid "Main"
 msgstr "주"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2570
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2569
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2599
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2598
 msgid "Copying <b>%s</b>"
 msgstr "<b>%s</b> 복사하는중"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2616
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2615
 msgid "Compacting database"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2709
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2740
 msgid "Checking SQL integrity..."
 msgstr "SQL 무결성을 검사합니다..."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2748
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2779
 msgid "Checking for missing files."
 msgstr "없어진 파일을 검사합니다."
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2776
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2807
 msgid "Checked id"
 msgstr "ID 검사"
 
@@ -12496,7 +12718,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:337
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:547
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:575
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:577
 msgid "Newest"
 msgstr ""
 
@@ -12521,43 +12743,43 @@ msgstr ""
 msgid "Up"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:580
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:581
 msgid "in"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:583
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:584
 msgid "Books in"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:635
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:636
 msgid "Other formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:642
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:643
 msgid "Read %s in the %s format"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:647
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:648
 msgid "Get"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:662
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:663
 msgid "Permalink"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:663
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:664
 msgid "A permanent link to this book"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:674
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:675
 msgid "This book has been deleted"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:758
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:759
 msgid "in search"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:760
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:761
 msgid "Matching books"
 msgstr ""
 
@@ -12614,15 +12836,15 @@ msgstr "태그: %s<br />"
 msgid "SERIES: %s [%s]<br />"
 msgstr "시리즈: %s [%s]<br />"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:255
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:257
 msgid "Books in your library"
 msgstr "라이브러리의 책"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:261
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:263
 msgid "By "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:262
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:264
 msgid "Books sorted by "
 msgstr ""
 
@@ -12704,52 +12926,56 @@ msgstr "사용자가 생성한 태그 탐색기의 분류"
 msgid "How and when calibre updates metadata on the device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:83
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:93
 msgid "failed to scan program. Invalid input {0}"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:88
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:98
 msgid " near "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:130
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:140
 msgid "syntax error - program ends before EOF"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:147
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:163
 msgid "unknown id "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:152
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:168
 msgid "unknown function {0}"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:171
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:187
 msgid "missing closing parenthesis"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:189
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:205
 msgid "expression is not function or constant"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:216
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:232
 msgid "lookup requires either 2 or an odd number of arguments"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:239
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:255
 msgid "switch requires an odd number of arguments"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:296
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:312
 msgid "format: type {0} requires an integer value, got {1}"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:302
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:318
 msgid "format: type {0} requires a decimal (float) value, got {1}"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:304
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:320
 msgid "format: unknown format type letter {0}"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:471
+msgid "No such variable "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
@@ -13223,6 +13449,9 @@ msgstr "CSS 스타일시트를 내려받지 않음"
 #~ msgid "Select visible &columns in library view"
 #~ msgstr "라이브러리 뷰에서 보여줄 열 선택(&C)"
 
+#~ msgid "Include 'Titles' Section"
+#~ msgstr "'제목' 구간 포함하기"
+
 #~ msgid ""
 #~ "No metadata found, try adjusting the title and author or the ISBN key."
 #~ msgstr "발견된 메타 정보가 없습니다. 제목과 저자또는 ISBN 키로 조정을 시도합니다."
@@ -13242,11 +13471,47 @@ msgstr "CSS 스타일시트를 내려받지 않음"
 #~ msgid "Sending to &device"
 #~ msgstr "장치로 전송하기(&D)"
 
+#~ msgid ""
+#~ "Specify the character encoding of the output document. The default is utf-8. "
+#~ "Note: This option is not honored by all formats."
+#~ msgstr "출력 문서의 문자 인코딩을 지정합니다. 기본값은 utf-8입니다. 주: 이 옵션은 모든 형식에 적용되지는 않습니다."
+
+#~ msgid ""
+#~ "Sort titles with leading numbers as text, e.g.,\n"
+#~ "'2001: A Space Odyssey' sorts as \n"
+#~ "'Two Thousand One: A Space Odyssey'.\n"
+#~ "Default: '%default'\n"
+#~ "Applies to: ePub, MOBI output formats"
+#~ msgstr ""
+#~ "숫자가 먼저 오는 제목일경우 문자열로서 정렬, 예,\n"
+#~ "'2001: A Space Odyssey'을 \n"
+#~ "'Two Thousand One: A Space Odyssey'로서 정렬합니다.\n"
+#~ "기본값: '%default'\n"
+#~ "적용대상: ePub, MOBI 출력 형식"
+
+#~ msgid ""
+#~ "Tag prefix for user notes, e.g. '*Jeff might enjoy reading this'.\n"
+#~ "Default: '%default'\n"
+#~ "Applies to: ePub, MOBI output formats"
+#~ msgstr ""
+#~ "사용자 주석에 대한 태그 접두사, 예. '*Jeff might enjoy reading this'.\n"
+#~ "기본값: '%default'\n"
+#~ "적용대상: ePub, MOBI 출력 형식"
+
 #~ msgid "Path to a txt file containing a comment."
 #~ msgstr "주석을 포함하는 텍스트 파일의 경로입니다."
 
 #~ msgid "Book Jacket"
 #~ msgstr "책 덮개"
+
+#~ msgid "Include 'Recently Added' Section"
+#~ msgstr "'최근 추가일' 구간 포함하기"
+
+#~ msgid "Additional note tag prefix:"
+#~ msgstr "태그 접두사에 추가할 메모"
+
+#~ msgid "'Don't include this book' tag:"
+#~ msgstr "'이 책을 포함하지 않음' 태그:"
 
 #~ msgid "Sent by email:"
 #~ msgstr "전자우편으로 전송:"
@@ -13276,6 +13541,18 @@ msgstr "CSS 스타일시트를 내려받지 않음"
 
 #~ msgid "Finish gmail setup"
 #~ msgstr "gmail 설정 완료"
+
+#~ msgid ""
+#~ "The fields to output when cataloging books in the database.  Should be a "
+#~ "comma-separated list of fields.\n"
+#~ "Available fields: %s.\n"
+#~ "Default: '%%default'\n"
+#~ "Applies to: CSV, XML output formats"
+#~ msgstr ""
+#~ "데이터베이스의 책을 분류할 때 출력할 필드입니다. 필드의 목록은 쉼표로 구분해야 합니다.\n"
+#~ "이용가능한 필드: %s.\n"
+#~ "기본값: '%%default'\n"
+#~ "적용 대상: CSV, XML 출력 형식"
 
 #~ msgid ""
 #~ "[options]\n"
@@ -13325,6 +13602,13 @@ msgstr "CSS 스타일시트를 내려받지 않음"
 #~ msgid ""
 #~ "Regular expression: the expression must match anywhere in the metadata"
 #~ msgstr "정규 표현식: 표현식은 메타정보의 어디에도 일치해야 합니다."
+
+#~ msgid ""
+#~ "No books to catalog\n"
+#~ "Check exclude tags"
+#~ msgstr ""
+#~ "분류할 책이 없습니다\n"
+#~ "예외 태그를 검사하세요"
 
 #~ msgid ""
 #~ "Dont forget to enter your gmail username and password. You can sign up for a "
@@ -13427,6 +13711,14 @@ msgstr "CSS 스타일시트를 내려받지 않음"
 #~ msgid "Communicate with the Promedia eBook reader"
 #~ msgstr "Promedia eBook Reader와 통신합니다"
 
+#~ msgid ""
+#~ "Specify the compression level to use. Scale 1 - 10. 1 being the lowest "
+#~ "compression but the fastest and 10 being the highest compression but the "
+#~ "slowest."
+#~ msgstr ""
+#~ "사용할 압축 수준을 지정합니다. 범위는 1 - 10 입니다. 1은 가장 낮은 압축률이지만 가장 빠르고 10은 가장 높은 압축률이지만 가장 "
+#~ "느립니다."
+
 #~ msgid "'Mark this book as read' tag:"
 #~ msgstr "'이 책을 읽은 것으로 표시' 태그:"
 
@@ -13517,6 +13809,9 @@ msgstr "CSS 스타일시트를 내려받지 않음"
 
 #~ msgid "%prog [options] mybook.chm"
 #~ msgstr "%prog [options] mybook.chm"
+
+#~ msgid "Communicate with the PocketBook 602 reader."
+#~ msgstr "PocketBook 602 eBook 리더와 통신하다"
 
 #~ msgid ""
 #~ "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
