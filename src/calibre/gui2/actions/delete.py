@@ -12,6 +12,7 @@ from PyQt4.Qt import QMenu, QObject, QTimer
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.delete_matching_from_device import DeleteMatchingFromDeviceDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.dialogs.confirm_delete_location import confirm_location
 from calibre.gui2.actions import InterfaceAction
 
 single_shot = partial(QTimer.singleShot, 10)
@@ -96,10 +97,15 @@ class DeleteAction(InterfaceAction):
         for action in list(self.delete_menu.actions())[1:]:
             action.setEnabled(enabled)
 
-    def _get_selected_formats(self, msg):
+    def _get_selected_formats(self, msg, ids):
         from calibre.gui2.dialogs.select_formats import SelectFormats
-        fmts = self.gui.library_view.model().db.all_formats()
-        d = SelectFormats([x.lower() for x in fmts], msg, parent=self.gui)
+        fmts = set([])
+        db = self.gui.library_view.model().db
+        for x in ids:
+            fmts_ = db.formats(x, index_is_id=True, verify_formats=False)
+            if fmts_:
+                fmts.update(frozenset([x.lower() for x in fmts_.split(',')]))
+        d = SelectFormats(list(sorted(fmts)), msg, parent=self.gui)
         if d.exec_() != d.Accepted:
             return None
         return d.selected_formats
@@ -117,7 +123,7 @@ class DeleteAction(InterfaceAction):
         if not ids:
             return
         fmts = self._get_selected_formats(
-            _('Choose formats to be deleted'))
+            _('Choose formats to be deleted'), ids)
         if not fmts:
             return
         for id in ids:
@@ -135,7 +141,7 @@ class DeleteAction(InterfaceAction):
         if not ids:
             return
         fmts = self._get_selected_formats(
-            '<p>'+_('Choose formats <b>not</b> to be deleted'))
+            '<p>'+_('Choose formats <b>not</b> to be deleted'), ids)
         if fmts is None:
             return
         for id in ids:
@@ -223,7 +229,31 @@ class DeleteAction(InterfaceAction):
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return
+        # Library view is visible.
         if self.gui.stack.currentIndex() == 0:
+            # Ask the user if they want to delete the book from the library or device if it is in both.
+            if self.gui.device_manager.is_device_connected:
+                on_device = False
+                on_device_ids = self._get_selected_ids()
+                for id in on_device_ids:
+                    res = self.gui.book_on_device(id)
+                    if res[0] or res[1] or res[2]:
+                        on_device = True
+                    if on_device:
+                        break
+                if on_device:
+                    loc = confirm_location('<p>' + _('Some of the selected books are on the attached device. '
+                                               '<b>Where</b> do you want the selected files deleted from?'),
+                                self.gui)
+                    if not loc:
+                        return
+                    elif loc == 'dev':
+                        self.remove_matching_books_from_device()
+                        return
+                    elif loc == 'both':
+                        self.remove_matching_books_from_device()
+            # The following will run if the selected books are not on a connected device.
+            # The user has selected to delete from the library or the device and library.
             if not confirm('<p>'+_('The selected books will be '
                                    '<b>permanently deleted</b> and the files '
                                    'removed from your calibre library. Are you sure?')
@@ -239,7 +269,7 @@ class DeleteAction(InterfaceAction):
             else:
                 self.__md = MultiDeleter(self.gui, rows,
                         partial(self.library_ids_deleted, current_row=row))
-
+        # Device view is visible.
         else:
             if not confirm('<p>'+_('The selected books will be '
                                    '<b>permanently deleted</b> '

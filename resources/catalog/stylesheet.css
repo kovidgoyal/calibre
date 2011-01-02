@@ -2,19 +2,29 @@ body { background-color: white; }
 
 p.title  {
 	margin-top:0em;
-	margin-bottom:1em;
+	margin-bottom:0em;
 	text-align:center;
 	font-style:italic;
 	font-size:xx-large;
-    border-bottom: solid black 2px;
+	}
+
+p.series_id {
+	margin-top:0em;
+	margin-bottom:0em;
+	text-align:center;
+	}
+
+a.series_id {
+	font-style:normal;
+	font-size:large;
 	}
 
 p.author {
+	font-size:large;
 	margin-top:0em;
 	margin-bottom:0em;
 	text-align: center;
 	text-indent: 0em;
-	font-size:large;
   	}
 
 p.author_index {
@@ -26,7 +36,8 @@ p.author_index {
 	text-indent: 0em;
 	}
 
-p.tags {
+p.genres {
+	font-style:normal;
 	margin-top:0.5em;
 	margin-bottom:0em;
 	text-align: left;
@@ -108,6 +119,13 @@ p.date_read {
 	text-indent:-6em;
 	}
 
+hr.annotations_divider {
+	width:50%;
+	margin-left:1em;
+	margin-top:0em;
+	margin-bottom:0em;
+	}
+
 hr.description_divider {
 	width:90%;
 	margin-left:5%;
@@ -117,20 +135,37 @@ hr.description_divider {
     border-left: solid white 0px;
 	}
 
-hr.annotations_divider {
-	width:50%;
-	margin-left:1em;
-	margin-top:0em;
-	margin-bottom:0em;
+hr.header_divider {
+	width:100%;
+	border-top: solid white 1px;
+	border-right: solid white 0px;
+    border-bottom: solid black 2px;
+    border-left: solid white 0px;
+	}
+
+hr.merged_comments_divider {
+	width:80%;
+	margin-left:10%;
+	border-top: solid white 0px;
+	border-right: solid white 0px;
+    border-bottom: dashed gray 2px;
+    border-left: solid white 0px;
 	}
 
 td.publisher, td.date {
 	font-weight:bold;
 	text-align:center;
 	}
-td.rating {
-	text-align: center;
+
+td.rating{
+	text-align:center;
 	}
+
+td.notes {
+	font-size: 100%;
+	text-align:center;
+	}
+
 td.thumbnail img {
 	-webkit-box-shadow: 4px 4px 12px #999;
 	}

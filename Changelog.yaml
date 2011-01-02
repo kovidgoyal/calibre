@@ -4,6 +4,192 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.36
+  date: 2011-01-01
+
+  new features:
+    - title: "Tag browser: Add subcategories and search"
+      description: "When a category has many items, it will be automatically split up. Also add a search to quickly find an item in the Tag Browser. The sub categories can be controlled via preferences->Tweaks. Also add a button to collapse all categories"
+      type: major
+
+    - title: "Device drivers for the Google Nexus S, Motorola Backflip, Samsung Galaxy Tablet, PocketBook 603/903, EEEReader DR900 and the NextBook"
+
+    - title: "Tag editor dialog now remebers its last used size"
+      tickets: [8063]
+
+    - title: "OS X dmg: Add a symlink pointing to the Applications folder for easy installation"
+      tickets: [8052]
+
+    - title: "Catalog generation: CSV/XML catalogs now support custom fields. Also write UTF-8 BOM to CSV output file."
+      tickets: [8014]
+
+    - title: "EPUB/MOBI catalogs: Various new features"
+      description: "Added a custom field/value for excluding books, OR'd with existing tag list. Added a thumbnail width hint, from 1.0 - 2.0 inches. Deprecated support for special note tag '*', added support for custom column containing note to be inserted in Description header. Added 'Merge with comments' feature, which non-destructively combines Comments with a custom field when generating Descriptions. Moved Description header into a user-editable template file.  All fields except thumb and comments accessible to template."
+      tickets: [7820, 5297, 6765]
+
+    - title: "SONY driver: Allow the creation of an All by Something category via the tweaks."
+
+    - title: "Add a tweak to control the delay when sending mails using gmail or hotmail."
+      tickets: [8064]
+
+    - title: "Add output encoding option for TXT/PDB/PMLX output plugins to the GUI"
+
+    - title: "Add an environment variable to control the temporary directory calibre uses"
+
+    - title: "Use the new HTML editor widget for comments custom columns as well"
+
+    - title: "Content server: Fix regression that broke saved searches"
+      tickets: [8047]
+
+    - title: "E-book viewer: Fix regression that broke previous page button"
+
+    - title: "Add a tweak to allow double clicking on the book list to open the edit metadata dialog"
+      tickets: [8032]
+
+    - title: "Add a tweak to use a template for formatting SONY collection names"
+      tickets: [8033]
+
+    - title: "Bulk edit metadata, search and replace: Show all values for multiple fields in the text region, separated by :::"
+      tickets: [8030]
+
+    - title: "Update user agent used by calibre when connecting to websites"
+
+  bug fixes:
+    - title: "FB2 Output: Fix regression that broke images in generated FB2 files"
+      tickets: [8142]
+
+    - title: "When unzipping zip files that contain filenames with unknown character encoding, sanitize the filenames correctly"
+      tickets: [8050]
+
+    - title: "TCR Output: Fix TCR compression adding junk to the end of the text. Remove compression level option."
+
+    - title: "PDF Output: Fix regression that broke the margin options."
+
+    - title: "FB2 Input: Handle non UTF-8 encodings on OS X"
+      tickets: [8115]
+
+    - title: "SNB Input: Better error handling if some metadata is missing in the SNB file. Add Wi-Fi connection support for the Bambook"
+
+    - title: "Allow hyperlinks to be clicked in comments metadata in the book details panel"
+      tickets: [8054]
+
+  improved recipes:
+    - Brand Eins
+    - Volksrant
+    - Smithsonian
+    - Business World
+    - El Universal
+    - Salon
+    - The Week
+    - EL Pais
+    - Wired Magazine
+    - Heraldo de Aragon
+
+  new recipes:
+    - title: "Karlsruhe News"
+      author: "tfeld"
+      
+    - title: "El Periodico and Red Aragon"
+      author: "desUBIKado"
+
+    - title: "Business Insider"
+      author: "Darko Miletic"
+
+- version: 0.7.35
+  date: 2010-12-23
+
+  new features:
+    - title: "Add a simple to use Rich text editor for comments to the edit metadata dialog."
+      description: >
+        "You can now easily add formatting like bold/italic/lists/headings/colors/etc. to book comments via the
+        edit metadata dialog"
+      type: major
+
+    - title: "E-book viewer: Add a right click menu item 'Inspect' that allows you to inspect the underlying HTML/CSS source of the currently displayed content"
+      type: major
+
+    - title: "When deleting books from the library if a device is connected and the books are also present on the device ask the user if the books should be deleted from the device, the library, or both."
+
+    - title: "Add device drivers for Trekstore eBook  Player 7, Sanda Bambook, ALuratek Color, Samsung Galaxy, LG Optimus, Motorola Droid 2 and Sunstech EB700"
+      tickets: [8021, 7966, 7973, 7956]
+
+    - title: "Add an entry to the menu of the calibre library button to select a random book from your calibre library"
+      tickets: [8010]
+
+    - title: "SONY driver: Add a couple of special extra collections for all books by author and all books by title, to workaround the broken sorting on newer SONY models. To enable these collections, go to Preferences->Plugins->Device Interface plugins and customize the SONY plugin."
+
+    - title: "Edit metadata dialog: When downloading metadata, make the table of matching books sortable"
+      tickets: [7951]
+
+    - title: "Add a success message after a database integrity check completes successfully"
+
+    - title: "Search and replace: When using regular expression mode, add a special input field '{template}' that allows use the templating language to create complex input fields. Also allow setting of series_index by search and replace using the same syntax as in the book list, namely, Series Name [series number]"
+
+    - title: "Bulk metadata edit: Add option to automatically set cover from the cover present in the actual ebook files"
+      tickets: [7947]
+
+    - title: "E-book viewer: Show format of current book in the title bar."
+      tickets: [7974]
+
+    - title: "Add a tweak to control how author names are displayed in the Tag Browser and Content Server"
+
+    - title: "FB2 Output: Restore sectionizing functionality"
+
+  bug fixes:
+    - title: "When in narrow layout, reserve 40% of available width in the book details panel for series/formats/etc and use the rest for comments"
+      tickets: [8028]
+
+    - title: "PDB Input: Fix failure to block-indent PML \t sections"
+      tickets: [8019]
+
+    - title: "Tag browser: When renaming items dont reset the library view and try not to scroll the Tag Browser itself"
+
+    - title: "Conversion pipeline: Fix broken link rewriting for inline CSS embedded in HTML"
+
+    - title: "Fix regression in 0.7.34 that broke recipes using extra_css to link to SONY device fonts"
+      tickets: [7995]
+
+    - title: "SONY driver: Don't upload thumbnails as they slow down post disconnect processing on older models"
+
+    - title: "Content server: Fix a bug that allowed remote users to read arbitrary png/gif/js/css/html files"
+      tickets: [7980]
+
+    - title: "On X11 initialize fontconfig in the GUI thread as Qt also uses fontconfig internally and fontconfig is not thread safe. Fixes a few random crashes on calibre strartup"
+
+    - title: "When using the remove specific format actions, only show available formats in the selected books"
+      tickets: [7967]
+
+    - title: "Linux binary build: If setting system default locale fails, try setting locale to en_US.UTF-8 instead"
+
+    - title: "Have the title sort tweak respected everywhere"
+
+    - title: "PocketBook 701 driver: Swap the main memory and card drives on windows"
+
+    - title: "Fix regression in templating that caused series_index to be shown even when book had no series"
+      tickets: [7949]
+
+    - title: "Content server: Fix regressiont hat broke browsing by rating"
+
+    - title: "Content server OPDS feeds: Fix parsing of author names as XML"
+      tickets: [7938]
+
+  improved recipes:
+    - Business Week Magazine 
+    - Gazet van Antwerpen
+    - La Nacion
+    - New England Journal of Medicine
+    - Journal of Hospital Medicine
+
+  new recipes:
+    - title: "NRC Handelsblad (EPUB version)"
+      author: "veezh"
+      
+    - title: "CND and wenxuecity - znjy"
+      author: "Derek Liang"
+
+    - title: "Mish's Global Economic Trend Analysis"
+      author: "Darko Miletic"
+
 - version: 0.7.34
   date: 2010-12-17
 

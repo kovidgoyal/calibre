@@ -22,6 +22,7 @@ from calibre.library.server.utils import format_tag_string, Offsets
 from calibre import guess_type, prepare_string_for_xml as xml
 from calibre.utils.icu import sort_key
 from calibre.utils.ordered_dict import OrderedDict
+from calibre.utils.config import tweaks
 
 BASE_HREFS = {
         0 : '/stanza',
@@ -113,8 +114,13 @@ def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
     count = (_('%d books') if item.count > 1 else _('%d book'))%item.count
     if ignore_count:
         count = ''
+    if item.category == 'authors' and \
+            tweaks['categories_use_field_for_author_name'] == 'author_sort':
+        name = xml(item.sort)
+    else:
+        name = xml(item.name)
     return E.entry(
-            TITLE(item.name + ('' if not add_kind else ' (%s)'%item_kind)),
+            TITLE(name + ('' if not add_kind else ' (%s)'%item_kind)),
             ID(id_),
             UPDATED(updated),
             E.content(count, type='text'),
@@ -167,6 +173,8 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
                 extra.append('%s: %s<br />'%(xml(name), xml(format_tag_string(val, ',',
                                                            ignore_max=True,
                                                            no_tag_count=True))))
+            elif datatype == 'comments':
+                extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode(val))))
             else:
                 extra.append('%s: %s<br />'%(xml(name), xml(unicode(val))))
     comments = item[FM['comments']]

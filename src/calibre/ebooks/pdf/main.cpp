@@ -1,3 +1,10 @@
+/**
+ * Copyright 2009 Kovid Goyal <kovid@kovidgoyal.net>
+ * License: GNU GPL v2+
+ */
+
+
+
 #ifndef PDF2XML
 #define UNICODE
 #define PY_SSIZE_T_CLEAN

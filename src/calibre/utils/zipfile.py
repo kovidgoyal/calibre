@@ -1087,7 +1087,9 @@ class ZipFile:
                     with open(targetpath, 'wb') as target:
                         shutil.copyfileobj(source, target)
                 except:
-                    targetpath = sanitize_file_name(targetpath)
+                    components = list(os.path.split(targetpath))
+                    components[-1] = sanitize_file_name(components[-1])
+                    targetpath = os.sep.join(components)
                     with open(targetpath, 'wb') as target:
                         shutil.copyfileobj(source, target)
         self.extract_mapping[member.filename] = targetpath
@@ -1254,6 +1256,12 @@ class ZipFile:
 
     def __del__(self):
         """Call the "close()" method in case the user forgot."""
+        self.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, typ, value, traceback):
         self.close()
 
     def close(self):

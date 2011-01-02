@@ -441,3 +441,31 @@ class SchemaUpgrade(object):
                          WHERE id=NEW.id AND OLD.title <> NEW.title;
             END;
         ''')
+
+    def upgrade_version_17(self):
+        'custom book data table (for plugins)'
+        script = '''
+        DROP TABLE IF EXISTS books_plugin_data;
+        CREATE TABLE books_plugin_data(id INTEGER PRIMARY KEY,
+                                     book INTEGER NON NULL,
+                                     name TEXT NON NULL,
+                                     val TEXT NON NULL,
+                                     UNIQUE(book,name));
+        DROP TRIGGER IF EXISTS books_delete_trg;
+        CREATE TRIGGER books_delete_trg
+            AFTER DELETE ON books
+            BEGIN
+                DELETE FROM books_authors_link WHERE book=OLD.id;
+                DELETE FROM books_publishers_link WHERE book=OLD.id;
+                DELETE FROM books_ratings_link WHERE book=OLD.id;
+                DELETE FROM books_series_link WHERE book=OLD.id;
+                DELETE FROM books_tags_link WHERE book=OLD.id;
+                DELETE FROM data WHERE book=OLD.id;
+                DELETE FROM comments WHERE book=OLD.id;
+                DELETE FROM conversion_options WHERE book=OLD.id;
+                DELETE FROM books_plugin_data WHERE book=OLD.id;
+        END;
+        '''
+        self.conn.executescript(script)
+
+

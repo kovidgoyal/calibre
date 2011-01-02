@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to edit metadata in bulk'''
 
-import re
+import re, os
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox
@@ -12,12 +12,42 @@ from PyQt4 import QtGui
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
+from calibre.ebooks.metadata.book.base import composite_formatter
+from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import sort_key, capitalize
+from calibre.utils.config import prefs
+from calibre.utils.magick.draw import identify_data
+
+def get_cover_data(path):
+    old = prefs['read_file_metadata']
+    if not old:
+        prefs['read_file_metadata'] = True
+    cdata = area = None
+
+    try:
+        mi = get_metadata(open(path, 'rb'),
+                os.path.splitext(path)[1][1:].lower())
+        if mi.cover and os.access(mi.cover, os.R_OK):
+            cdata = open(mi.cover).read()
+        elif mi.cover_data[1] is not None:
+            cdata = mi.cover_data[1]
+        if cdata:
+            width, height, fmt = identify_data(cdata)
+            area = width*height
+    except:
+        cdata = area = None
+
+    if old != prefs['read_file_metadata']:
+        prefs['read_file_metadata'] = old
+
+    return cdata, area
+
+
 
 class MyBlockingBusy(QDialog):
 
@@ -146,6 +176,20 @@ class MyBlockingBusy(QDialog):
                 cdata = calibre_cover(mi.title, mi.format_field('authors')[-1],
                         series_string=series_string)
                 self.db.set_cover(id, cdata)
+            elif cover_action == 'fromfmt':
+                fmts = self.db.formats(id, index_is_id=True, verify_formats=False)
+                if fmts:
+                    covers = []
+                    for fmt in fmts.split(','):
+                        fmt = self.db.format_abspath(id, fmt, index_is_id=True)
+                        if not fmt: continue
+                        cdata, area = get_cover_data(fmt)
+                        if cdata:
+                            covers.append((cdata, area))
+                    covers.sort(key=lambda x: x[1])
+                    if covers:
+                        self.db.set_cover(id, covers[-1][0])
+                    covers = []
         elif self.current_phase == 2:
             # All of these just affect the DB, so we can tolerate a total rollback
             if do_auto_author:
@@ -268,6 +312,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def prepare_search_and_replace(self):
         self.search_for.initialize('bulk_edit_search_for')
         self.replace_with.initialize('bulk_edit_replace_with')
+        self.s_r_template.initialize('bulk_edit_template')
         self.test_text.initialize('bulk_edit_test_test')
         self.all_fields = ['']
         self.writable_fields = ['']
@@ -282,9 +327,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if f in ['sort'] or fm[f]['datatype'] == 'composite':
                 self.all_fields.append(f)
         self.all_fields.sort()
+        self.all_fields.insert(1, '{template}')
         self.writable_fields.sort()
-        self.search_field.setMaxVisibleItems(20)
-        self.destination_field.setMaxVisibleItems(20)
+        self.search_field.setMaxVisibleItems(25)
+        self.destination_field.setMaxVisibleItems(25)
         offset = 10
         self.s_r_number_of_books = min(10, len(self.ids))
         for i in range(1,self.s_r_number_of_books+1):
@@ -360,22 +406,33 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
+        self.s_r_template.lost_focus.connect(self.s_r_template_changed)
         self.central_widget.setCurrentIndex(0)
 
         self.search_for.completer().setCaseSensitivity(Qt.CaseSensitive)
         self.replace_with.completer().setCaseSensitivity(Qt.CaseSensitive)
+        self.s_r_template.completer().setCaseSensitivity(Qt.CaseSensitive)
 
         self.s_r_search_mode_changed(self.search_mode.currentIndex())
+        self.multiple_separator.setFixedWidth(30)
+        self.multiple_separator.setText(' ::: ')
+        self.multiple_separator.textChanged.connect(self.s_r_separator_changed)
+        self.results_count.valueChanged[int].connect(self.s_r_display_bounds_changed)
+        self.starting_from.valueChanged[int].connect(self.s_r_display_bounds_changed)
 
     def s_r_get_field(self, mi, field):
         if field:
+            if field == '{template}':
+                v = composite_formatter.safe_format\
+                    (unicode(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
+                return [v]
             fm = self.db.metadata_for_field(field)
             if field == 'sort':
                 val = mi.get('title_sort', None)
             else:
                 val = mi.get(field, None)
             if val is None:
-                val = []
+                val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
                 val = [val]
             elif field == 'authors':
@@ -384,27 +441,41 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             val = []
         return val
 
+    def s_r_display_bounds_changed(self, i):
+        self.s_r_search_field_changed(self.search_field.currentIndex())
+
+    def s_r_template_changed(self):
+        self.s_r_search_field_changed(self.search_field.currentIndex())
+
     def s_r_search_field_changed(self, idx):
+        if self.search_mode.currentIndex() != 0 and idx == 1: # Template
+            self.s_r_template.setVisible(True)
+            self.template_label.setVisible(True)
+        else:
+            self.s_r_template.setVisible(False)
+            self.template_label.setVisible(False)
         for i in range(0, self.s_r_number_of_books):
             w = getattr(self, 'book_%d_text'%(i+1))
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
             src = unicode(self.search_field.currentText())
             t = self.s_r_get_field(mi, src)
-            w.setText(''.join(t[0:1]))
+            if len(t) > 1:
+                t = t[self.starting_from.value()-1:
+                      self.starting_from.value()-1 + self.results_count.value()]
+            w.setText(unicode(self.multiple_separator.text()).join(t))
 
         if self.search_mode.currentIndex() == 0:
             self.destination_field.setCurrentIndex(idx)
         else:
+            self.s_r_destination_field_changed(self.destination_field.currentText())
             self.s_r_paint_results(None)
 
     def s_r_destination_field_changed(self, txt):
         txt = unicode(txt)
-        self.comma_separated.setEnabled(True)
-        if txt:
-            fm = self.db.metadata_for_field(txt)
-            if fm['is_multiple']:
-                self.comma_separated.setEnabled(False)
-                self.comma_separated.setChecked(True)
+        if not txt:
+            txt = unicode(self.search_field.currentText())
+        if txt and txt in self.writable_fields:
+            self.destination_field_fm = self.db.metadata_for_field(txt)
         self.s_r_paint_results(None)
 
     def s_r_search_mode_changed(self, val):
@@ -431,6 +502,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.comma_separated.setVisible(True)
             self.s_r_heading.setText('<p>'+self.main_heading + self.regexp_heading)
         self.s_r_paint_results(None)
+
+    def s_r_separator_changed(self, txt):
+        self.s_r_search_field_changed(self.search_field.currentIndex())
 
     def s_r_set_colors(self):
         if self.s_r_error is not None:
@@ -471,6 +545,22 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 raise Exception(_('You must specify a destination when source is a composite field'))
             dest = src
         dest_mode = self.replace_mode.currentIndex()
+
+        if self.destination_field_fm['is_multiple']:
+            if self.comma_separated.isChecked():
+                if dest == 'authors':
+                    splitter = ' & '
+                else:
+                    splitter = ','
+
+                res = []
+                for v in val:
+                    for x in v.split(splitter):
+                        if x.strip():
+                            res.append(x.strip())
+                val = res
+            else:
+                val = [v.replace(',', '') for v in val]
 
         if dest_mode != 0:
             dest_val = mi.get(dest, '')
@@ -531,8 +621,13 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             wr = getattr(self, 'book_%d_result'%(i+1))
             try:
                 result = self.s_r_do_regexp(mi)
-                t = self.s_r_do_destination(mi, result[0:1])
-                t = self.s_r_replace_mode_separator().join(t)
+                t = self.s_r_do_destination(mi, result)
+                if len(t) > 1 and self.destination_field_fm['is_multiple']:
+                    t = t[self.starting_from.value()-1:
+                          self.starting_from.value()-1 + self.results_count.value()]
+                    t = unicode(self.multiple_separator.text()).join(t)
+                else:
+                    t = self.s_r_replace_mode_separator().join(t)
                 wr.setText(t)
             except Exception as e:
                 self.s_r_error = e
@@ -547,11 +642,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if not dest:
             dest = source
         dfm = self.db.field_metadata[dest]
-
         mi = self.db.get_metadata(id, index_is_id=True,)
-        val = mi.get(source)
-        if val is None:
-            return
         val = self.s_r_do_regexp(mi)
         val = self.s_r_do_destination(mi, val)
         if dfm['is_multiple']:
@@ -700,6 +791,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             cover_action = 'remove'
         elif self.cover_generate.isChecked():
             cover_action = 'generate'
+        elif self.cover_from_fmt.isChecked():
+            cover_action = 'fromfmt'
 
         args = (remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,

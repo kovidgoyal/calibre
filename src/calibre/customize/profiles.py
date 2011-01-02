@@ -439,6 +439,13 @@ class TabletOutput(iPadOutput):
     screen_size = (sys.maxint, sys.maxint)
     comic_screen_size = (sys.maxint, sys.maxint)
 
+class SamsungGalaxy(TabletOutput):
+    name = 'Samsung Galaxy'
+    shortname = 'galaxy'
+    description = _('Intended for the Samsung Galaxy and similar tablet devices with '
+            'a resolution of 600x1280')
+    screen_size = comic_screen_size = (600, 1280)
+
 class SonyReaderOutput(OutputProfile):
 
     name        = 'Sony Reader'
@@ -617,6 +624,8 @@ class KindleDXOutput(OutputProfile):
     #comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
+	missing_char = u'x\u2009'
+	empty_ratings_char = u'\u2606'
     ratings_char = u'\u2605'
     read_char = u'\u2713'
     mobi_ems_per_blockquote = 2.0
@@ -696,8 +705,9 @@ class BambookOutput(OutputProfile):
     short_name  = 'bambook'
     description = _('This profile is intended for the Sanda Bambook.')
 
-    # Screen size is a best guess
-    screen_size               = (600, 800)
+    # Screen size is for full screen display
+    screen_size               = (580, 780)
+    # Comic size is for normal display
     comic_screen_size         = (540, 700)
     dpi                       = 168.451
     fbase                     = 12
@@ -706,7 +716,7 @@ class BambookOutput(OutputProfile):
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
-        iPadOutput, KoboReaderOutput, TabletOutput,
+        iPadOutput, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
         BambookOutput, NookColorOutput]

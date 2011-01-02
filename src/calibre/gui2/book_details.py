@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, collections, sys
 from Queue import Queue
 
-from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, \
+from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl, \
     QPropertyAnimation, QEasingCurve, QThread, QApplication, QFontInfo, \
     QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette
 from PyQt4.QtWebKit import QWebView
@@ -18,7 +18,7 @@ from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.constants import preferred_encoding
 from calibre.library.comments import comments_to_html
-from calibre.gui2 import config, open_local_file
+from calibre.gui2 import config, open_local_file, open_url
 from calibre.utils.icu import sort_key
 
 # render_rows(data) {{{
@@ -44,7 +44,10 @@ def render_rows(data):
             key = key.decode(preferred_encoding, 'replace')
         if isinstance(txt, str):
             txt = txt.decode(preferred_encoding, 'replace')
-        if '</font>' not in txt:
+        if key.endswith(u':html'):
+            key = key[:-5]
+            txt = comments_to_html(txt)
+        elif '</font>' not in txt:
             txt = prepare_string_for_xml(txt)
         if 'id' in data:
             if key == _('Path'):
@@ -249,7 +252,7 @@ class BookInfo(QWebView):
             left_pane = u'<table>%s</table>'%rows
             right_pane = u'<div>%s</div>'%comments
             self.setHtml(templ%(u'<table><tr><td valign="top" '
-                    'style="padding-right:2em">%s</td><td valign="top">%s</td></tr></table>'
+                'style="padding-right:2em; width:40%%">%s</td><td valign="top">%s</td></tr></table>'
                     % (left_pane, right_pane)))
 
     def mouseDoubleClickEvent(self, ev):
@@ -409,6 +412,12 @@ class BookDetails(QWidget): # {{{
             self.view_specific_format.emit(int(id_), fmt)
         elif typ == 'devpath':
             open_local_file(val)
+        else:
+            try:
+                open_url(QUrl(link, QUrl.TolerantMode))
+            except:
+                import traceback
+                traceback.print_exc()
 
 
     def mouseDoubleClickEvent(self, ev):
