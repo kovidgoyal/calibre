@@ -175,7 +175,7 @@ class PDFWriter(QObject): # {{{
         if self.cover_data is None:
             return
         item_path = os.path.join(self.tmp_path, 'cover.pdf')
-        printer = self.get_printer()
+        printer = self.get_pdf_printer()
         printer.setOutputFileName(item_path)
         self.combine_queue.insert(0, item_path)
         p = QPixmap()
