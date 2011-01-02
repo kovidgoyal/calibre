@@ -125,14 +125,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dbpath = os.path.join(library_path, 'metadata.db')
         self.dbpath = os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH',
                 self.dbpath)
+        if isinstance(self.dbpath, unicode) and not iswindows:
+            self.dbpath = self.dbpath.encode(filesystem_encoding)
+
         if read_only and os.path.exists(self.dbpath):
-            pt = PersistentTemporaryFile('_ro.db')
+            # Work on only a copy of metadata.db to ensure that
+            # metadata.db is not changed
+            pt = PersistentTemporaryFile('_metadata_ro.db')
             pt.close()
             shutil.copyfile(self.dbpath, pt.name)
             self.dbpath = pt.name
-
-        if isinstance(self.dbpath, unicode) and not iswindows:
-            self.dbpath = self.dbpath.encode(filesystem_encoding)
 
         apply_default_prefs = not os.path.exists(self.dbpath)
         self.connect()
