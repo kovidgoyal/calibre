@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces
@@ -42,11 +43,19 @@ class TXTInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
-        ienc = stream.encoding if stream.encoding else 'utf-8'
+        log.debug('Reading text from file...')
+        
+        txt = stream.read()
         if options.input_encoding:
             ienc = options.input_encoding
-        log.debug('Reading text from file...')
-        txt = stream.read().decode(ienc, 'replace')
+            log.debug('Using user specified input encoding of %s' % ienc)
+        else:
+            ienc = detect(txt)['encoding']
+            log.debug('Detected input encoding as %s' % ienc)
+        if not ienc:
+            ienc = 'utf-8'
+            log.debug('No input encoding specified and could not auto detect using %s' % ienc)
+        txt = txt.decode(ienc, 'replace')
 
         # Adjust paragraph formatting as requested
         if options.single_line_paras:
@@ -85,11 +94,10 @@ class TXTInput(InputFormatPlugin):
         htmlfile = open(fname, 'wb')
         with htmlfile:
             htmlfile.write(html.encode('utf-8'))
-        cwd = os.getcwdu()
         odi = options.debug_pipeline
         options.debug_pipeline = None
-        oeb = html_input(open(htmlfile.name, 'rb'), options, 'html', log,
-                {}, cwd)
+        oeb = html_input.convert(open(htmlfile.name, 'rb'), options, 'html', log,
+                {})
         options.debug_pipeline = odi
         os.remove(htmlfile.name)
         return oeb

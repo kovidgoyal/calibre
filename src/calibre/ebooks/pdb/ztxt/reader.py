@@ -8,12 +8,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, struct, zlib
+import struct
+import zlib
+
+from cStringIO import StringIO
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ztxt import zTXTError
-from calibre.ebooks.txt.processor import convert_basic, opf_writer, \
-    separate_paragraphs_single_line, separate_paragraphs_print_formatted
 
 SUPPORTED_VERSION = (1, 40)
 
@@ -38,9 +39,7 @@ class Reader(FormatReader):
     def __init__(self, header, stream, log, options):
         self.stream = stream
         self.log = log
-        self.encoding = options.input_encoding
-        self.single_line_paras = options.single_line_paras
-        self.print_formatted_paras = options.print_formatted_paras
+        self.options = options
 
         self.sections = []
         for i in range(header.num_sections):
@@ -68,30 +67,19 @@ class Reader(FormatReader):
     def decompress_text(self, number):
         if number == 1:
             self.uncompressor = zlib.decompressobj()
-        return self.uncompressor.decompress(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
+        return self.uncompressor.decompress(self.section_data(number))
 
     def extract_content(self, output_dir):
-        txt = ''
+        raw_txt = ''
 
         self.log.info('Decompressing text...')
         for i in range(1, self.header_record.num_records + 1):
             self.log.debug('\tDecompressing text section %i' % i)
-            txt += self.decompress_text(i)
-
+            raw_txt += self.decompress_text(i)
+        
         self.log.info('Converting text to OEB...')
-        if self.single_line_paras:
-            txt = separate_paragraphs_single_line(txt)
-        if self.print_formatted_paras:
-            txt = separate_paragraphs_print_formatted(txt)
-        html = convert_basic(txt)
-        with open(os.path.join(output_dir, 'index.html'), 'wb') as index:
-            index.write(html.encode('utf-8'))
-
-        from calibre.ebooks.metadata.meta import get_metadata
-        mi = get_metadata(self.stream, 'pdb')
-        manifest = [('index.html', None)]
-        spine = ['index.html']
-        opf_writer(output_dir, 'metadata.opf', manifest, spine, mi)
-
-        return os.path.join(output_dir, 'metadata.opf')
-
+        stream = StringIO(raw_txt)
+        from calibre.customize.ui import plugin_for_input_format
+        stream.seek(0)
+        return plugin_for_input_format('txt').convert(stream, self.options,
+                'txt', self.log, {})

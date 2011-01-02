@@ -4,11 +4,9 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os
+from cStringIO import StringIO
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.ebooks.txt.processor import convert_basic, opf_writer, \
-    separate_paragraphs_single_line, separate_paragraphs_print_formatted
 from calibre.ebooks.compression.tcr import decompress
 
 class TCRInput(InputFormatPlugin):
@@ -29,26 +27,23 @@ class TCRInput(InputFormatPlugin):
                 'an indent (either a tab or 2+ spaces) represents a paragraph. '
                 'Paragraphs end when the next line that starts with an indent '
                 'is reached.')),
+        OptionRecommendation(name='preserve_spaces', recommended_value=False,
+            help=_('Normally extra spaces are condensed into a single space. '
+                'With this option all spaces will be displayed.')),
+        OptionRecommendation(name='markdown', recommended_value=False,
+            help=_('Run the text input through the markdown pre-processor. To '
+                'learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
+        OptionRecommendation(name="markdown_disable_toc", recommended_value=False,
+            help=_('Do not insert a Table of Contents into the output text.')),
     ])
 
     def convert(self, stream, options, file_ext, log, accelerators):
         log.info('Decompressing text...')
-        ienc = options.input_encoding if options.input_encoding else 'utf-8'
-        txt = decompress(stream).decode(ienc, 'replace')
+        raw_txt = decompress(stream)
 
         log.info('Converting text to OEB...')
-        if options.single_line_paras:
-            txt = separate_paragraphs_single_line(txt)
-        if options.print_formatted_paras:
-            txt = separate_paragraphs_print_formatted(txt)
-        html = convert_basic(txt)
-        with open(os.path.join(os.getcwd(), 'index.html'), 'wb') as index:
-            index.write(html.encode('utf-8'))
-
-        from calibre.ebooks.metadata.meta import get_metadata
-        mi = get_metadata(stream, 'tcr')
-        manifest = [('index.html', None)]
-        spine = ['index.html']
-        opf_writer(os.getcwd(), 'metadata.opf', manifest, spine, mi)
-
-        return os.path.join(os.getcwd(), 'metadata.opf')
+        stream = StringIO(raw_txt)
+        from calibre.customize.ui import plugin_for_input_format
+        stream.seek(0)
+        return plugin_for_input_format('txt').convert(stream, options,
+                'txt', log, accelerators)
