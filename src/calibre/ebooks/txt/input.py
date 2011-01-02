@@ -50,8 +50,9 @@ class TXTInput(InputFormatPlugin):
             ienc = options.input_encoding
             log.debug('Using user specified input encoding of %s' % ienc)
         else:
-            ienc = detect(txt)['encoding']
-            log.debug('Detected input encoding as %s' % ienc)
+            det_encoding = detect(txt)
+            ienc = det_encoding['encoding']
+            log.debug('Detected input encoding as %s with a confidence of %s%%' % (ienc, det_encoding['confidence'] * 100))
         if not ienc:
             ienc = 'utf-8'
             log.debug('No input encoding specified and could not auto detect using %s' % ienc)
