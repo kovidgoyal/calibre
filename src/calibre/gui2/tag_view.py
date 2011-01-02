@@ -738,7 +738,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                      category_key=category_node.category_key)
                     else:
                         if upper(tag.sort[0]) != collapse_letter:
-                            collapse_letter = upper(tag.name[0])
+                            collapse_letter = upper(tag.sort[0])
                             sub_cat = TagTreeItem(parent=category,
                                      data = collapse_letter,
                                      category_icon = category_node.icon,
