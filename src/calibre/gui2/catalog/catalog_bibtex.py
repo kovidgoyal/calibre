@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_bibtex_ui import Ui_Form
+from calibre.library import db as db_
 from PyQt4.Qt import QWidget, QListWidgetItem
 
 class PluginWidget(QWidget, Ui_Form):
@@ -28,11 +29,14 @@ class PluginWidget(QWidget, Ui_Form):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         from calibre.library.catalog import FIELDS
-        self.all_fields = []
-        for x in FIELDS :
-            if x != 'all':
-                self.all_fields.append(x)
-                QListWidgetItem(x, self.db_fields)
+        
+        self.all_fields = [x for x in FIELDS if x != 'all']
+        #add custom columns
+        db = db_()
+        self.all_fields.extend([x for x in sorted(db.custom_field_keys())])
+        #populate
+        for x in self.all_fields:
+            QListWidgetItem(x, self.db_fields)
 
     def initialize(self, name, db): #not working properly to update
         self.name = name
