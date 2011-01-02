@@ -94,6 +94,10 @@ class TagsView(QTreeView): # {{{
         self.setDropIndicatorShown(True)
         self.setAutoExpandDelay(500)
         self.pane_is_visible = False
+        if tweaks['categories_collapse_more_than'] == 0:
+            self.collapse_model = 'disable'
+        else:
+            self.collapse_model = tweaks['categories_collapse_model']
 
     def set_pane_is_visible(self, to_what):
         pv = self.pane_is_visible
@@ -106,7 +110,8 @@ class TagsView(QTreeView): # {{{
         self._model = TagsModel(db, parent=self,
                                 hidden_categories=self.hidden_categories,
                                 search_restriction=None,
-                                drag_drop_finished=self.drag_drop_finished)
+                                drag_drop_finished=self.drag_drop_finished,
+                                collapse_model=self.collapse_model)
         self.pane_is_visible = True # because TagsModel.init did a recount
         self.sort_by = sort_by
         self.tag_match = tag_match
@@ -194,6 +199,11 @@ class TagsView(QTreeView): # {{{
                 self.hidden_categories.add(category)
             elif action == 'show':
                 self.hidden_categories.discard(category)
+            elif action == 'categorization':
+                changed = self.collapse_model != category
+                self.collapse_model = category
+                if changed:
+                    self.set_new_model(self._model.get_filter_categories_by())
             elif action == 'defaults':
                 self.hidden_categories.clear()
             config.set('tag_browser_hidden_categories', self.hidden_categories)
@@ -279,6 +289,23 @@ class TagsView(QTreeView): # {{{
             self.context_menu.addAction(_('Show all categories'),
                         partial(self.context_menu_handler, action='defaults'))
 
+        m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
+        da = m.addAction('Disable',
+            partial(self.context_menu_handler, action='categorization', category='disable'))
+        fla = m.addAction('By first letter',
+            partial(self.context_menu_handler, action='categorization', category='first letter'))
+        pa = m.addAction('Partition',
+            partial(self.context_menu_handler, action='categorization', category='partition'))
+        if self.collapse_model == 'disable':
+            da.setCheckable(True)
+            da.setChecked(True)
+        elif self.collapse_model == 'first letter':
+            fla.setCheckable(True)
+            fla.setChecked(True)
+        else:
+            pa.setCheckable(True)
+            pa.setChecked(True)
+
         if not self.context_menu.isEmpty():
             self.context_menu.popup(self.mapToGlobal(point))
         return True
@@ -340,7 +367,8 @@ class TagsView(QTreeView): # {{{
                                     hidden_categories=self.hidden_categories,
                                     search_restriction=self.search_restriction,
                                     drag_drop_finished=self.drag_drop_finished,
-                                    filter_categories_by=filter_categories_by)
+                                    filter_categories_by=filter_categories_by,
+                                    collapse_model=self.collapse_model)
             self.setModel(self._model)
         except:
             # The DB must be gone. Set the model to None and hope that someone
@@ -469,7 +497,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def __init__(self, db, parent, hidden_categories=None,
             search_restriction=None, drag_drop_finished=None,
-            filter_categories_by=None):
+            filter_categories_by=None, collapse_model='disable'):
         QAbstractItemModel.__init__(self, parent)
 
         # must do this here because 'QPixmap: Must construct a QApplication
@@ -490,6 +518,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.search_restriction = search_restriction
         self.row_map = []
         self.filter_categories_by = filter_categories_by
+        self.collapse_model = collapse_model
 
         # get_node_tree cannot return None here, because row_map is empty
         data = self.get_node_tree(config['sort_tags_by'])
@@ -681,15 +710,18 @@ class TagsModel(QAbstractItemModel): # {{{
             return False
         row_index = -1
         collapse = tweaks['categories_collapse_more_than']
-        collapse_model = tweaks['categories_collapse_model']
-        if sort_by == 'name':
-            collapse_template = tweaks['categories_collapsed_name_template']
-        elif sort_by == 'rating':
-            collapse_model = 'partition'
-            collapse_template = tweaks['categories_collapsed_rating_template']
-        else:
-            collapse_model = 'partition'
-            collapse_template = tweaks['categories_collapsed_popularity_template']
+        collapse_model = self.collapse_model
+        if collapse == 0:
+            collapse_model = 'disable'
+        elif collapse_model != 'disable':
+            if sort_by == 'name':
+                collapse_template = tweaks['categories_collapsed_name_template']
+            elif sort_by == 'rating':
+                collapse_model = 'partition'
+                collapse_template = tweaks['categories_collapsed_rating_template']
+            else:
+                collapse_model = 'partition'
+                collapse_template = tweaks['categories_collapsed_popularity_template']
         collapse_letter = None
 
         for i, r in enumerate(self.row_map):
@@ -724,7 +756,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     tag.avg_rating = None
                 tag.state = state_map.get(tag.name, 0)
 
-                if collapse > 0 and cat_len > collapse:
+                if collapse_model != 'disable' and cat_len > collapse:
                     if collapse_model == 'partition':
                         if (idx % collapse) == 0:
                             d = {'first': tag}
