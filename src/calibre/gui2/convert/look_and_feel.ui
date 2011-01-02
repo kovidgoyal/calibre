@@ -84,7 +84,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../resources/images.qrc">
+        <iconset>
          <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
        </property>
        <property name="iconSize">
@@ -122,13 +122,7 @@
      <property name="text">
       <string>Input character &amp;encoding:</string>
      </property>
-     <property name="buddy">
-      <cstring>opt_input_encoding</cstring>
-     </property>
     </widget>
-   </item>
-   <item row="5" column="1" colspan="3">
-    <widget class="QLineEdit" name="opt_input_encoding"/>
    </item>
    <item row="6" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_remove_paragraph_spacing">
@@ -244,8 +238,22 @@
      </property>
     </widget>
    </item>
+   <item row="5" column="1" colspan="3">
+    <widget class="EncodingComboBox" name="opt_input_encoding">
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>EncodingComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../../resources/images.qrc"/>
   <include location="../../../../resources/images.qrc"/>

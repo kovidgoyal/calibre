@@ -191,7 +191,9 @@ class Widget(QWidget):
             if not val: val = ''
             getattr(g, 'setPlainText', g.setText)(val)
             getattr(g, 'setCursorPosition', lambda x: x)(0)
-        elif isinstance(g, QComboBox) and val:
+        elif isinstance(g, QComboBox):
+            if not val:
+                val = ''
             idx = g.findText(val, Qt.MatchFixedString)
             if idx < 0:
                 g.addItem(val)
