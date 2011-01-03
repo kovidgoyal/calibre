@@ -16,7 +16,8 @@ class PluginWidget(Widget, Ui_Form):
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
-            ['single_line_paras', 'print_formatted_paras', 'markdown',
-                'markdown_disable_toc', 'preserve_spaces'])
+            ['paragraph_format', 'markdown_disable_toc', 'preserve_spaces'])
         self.db, self.book_id = db, book_id
+        for x in get_option('paragraph_format').option.choices:
+            self.opt_paragraph_format.addItem(x)
         self.initialize_options(get_option, get_help, db, book_id)
