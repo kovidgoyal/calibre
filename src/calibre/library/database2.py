@@ -102,7 +102,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if self.user_version == 0:
             self.initialize_database()
         # remember to add any filter to the connect method in sqlite.py as well
-        # so that various code taht connects directly will not complain about
+        # so that various code that connects directly will not complain about
         # missing functions
         self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
         # Store temporary tables in memory
@@ -2778,7 +2778,6 @@ books_series_link      feeds
                 os.remove(dest)
             raise
         else:
-            os.remove(self.dbpath)
             shutil.copyfile(dest, self.dbpath)
             self.connect()
             self.initialize_dynamic()

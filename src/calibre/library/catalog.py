@@ -14,6 +14,7 @@ from calibre.constants import preferred_encoding, DEBUG
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
+from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.oeb.base import RECOVER_PARSER, XHTML_NS
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
@@ -1005,7 +1006,6 @@ class EPUB_MOBI(CatalogPlugin):
                         self.opts.log.warning(" invalidating cache at '%s'" % self.__archive_path)
                         self.opts.log.warning('  thumb_width changed: %1.2f" => %1.2f"' %
                                             (float(cached_thumb_width),float(self.opts.thumb_width)))
-                        os.remove(self.__archive_path)
                         with ZipFile(self.__archive_path, mode='w') as zfw:
                             zfw.writestr("Catalog Thumbs Archive",'')
                     else:
@@ -4285,12 +4285,11 @@ class EPUB_MOBI(CatalogPlugin):
             '''
             Generate description header from template
             '''
-            NBSP = '&#160;'
-            MIDDOT = '&#183;'
             def generate_html():
                 args = dict(
                             author=author,
                             author_prefix=author_prefix,
+                            comments=comments,
                             css=css,
                             formats=formats,
                             genres=genres,
@@ -4303,6 +4302,7 @@ class EPUB_MOBI(CatalogPlugin):
                             rating=rating,
                             series=series,
                             series_index=series_index,
+                            thumb=thumb,
                             title=title,
                             title_str=title_str,
                             xmlns=XHTML_NS,
@@ -4310,9 +4310,8 @@ class EPUB_MOBI(CatalogPlugin):
 
                 generated_html = P('catalog/template.xhtml',
                         data=True).decode('utf-8').format(**args)
-
-                soup = BeautifulSoup(generated_html)
-                return soup.renderContents(None)
+                generated_html = substitute_entites(generated_html)
+                return BeautifulSoup(generated_html)
 
             if False:
                 print "title metadata:\n%s" % ', '.join(sorted(book.keys()))
@@ -4366,7 +4365,7 @@ class EPUB_MOBI(CatalogPlugin):
                     genresTag.insert(gtc, aTag)
                     gtc += 1
                     if i < len(book['tags'])-1:
-                        genresTag.insert(gtc, NavigableString(' %s ' % MIDDOT))
+                        genresTag.insert(gtc, NavigableString(' &middot; '))
                         gtc += 1
                 genres = genresTag.renderContents()
 
@@ -4375,48 +4374,48 @@ class EPUB_MOBI(CatalogPlugin):
             if 'formats' in book:
                 for format in sorted(book['formats']):
                     formats.append(format.rpartition('.')[2].upper())
-                formats = ' %s ' % MIDDOT.join(formats)
+                formats = ' &middot; '.join(formats)
 
             pubdate = book['date']
             pubmonth, pubyear = pubdate.split(' ')
 
-            '''
             # Thumb
-            # This doesn't make it through the etree.fromstring parsing
-            _soup = BeautifulSoup('')
-            imgTag = Tag(_soup,"img")
+            _soup = BeautifulSoup('<html>',selfClosingTags=['img'])
+            thumb = Tag(_soup,"img")
             if 'cover' in book:
-                imgTag['src']  = "../images/thumbnail_%d.jpg" % int(book['id'])
+                thumb['src']  = "../images/thumbnail_%d.jpg" % int(book['id'])
             else:
-                imgTag['src']  = "../images/thumbnail_default.jpg"
-            imgTag['alt'] = "cover thumbnail"
-            thumb = imgTag.renderContents()
-            '''
+                thumb['src']  = "../images/thumbnail_default.jpg"
+            thumb['alt'] = "cover thumbnail"
 
             # Publisher
-            publisher = NBSP
+            publisher = ' '
             if 'publisher' in book:
                 publisher = book['publisher']
 
             # Rating
             stars = int(book['rating']) / 2
-            rating = NBSP
+            rating = ''
             if stars:
                 star_string = self.FULL_RATING_SYMBOL * stars
                 empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
                 rating = '%s%s <br/>' % (star_string,empty_stars)
 
             # Notes
-            note_source = NBSP
-            note_content = NBSP
+            note_source = ''
+            note_content = ''
             if 'notes' in book:
                 note_source = book['notes']['source']
                 note_content = book['notes']['content']
 
+            # Comments
+            comments = ''
+            if 'description' in book and book['description'] > '':
+                comments = book['description']
+
+
             # >>>> Populate the template <<<<
-            root = etree.fromstring(generate_html(), parser=RECOVER_PARSER)
-            header = etree.tostring(root, pretty_print=True, encoding='utf-8')
-            soup = BeautifulSoup(header, selfClosingTags=['mbp:pagebreak'])
+            soup = generate_html()
 
 
             # >>>> Post-process the template <<<<
@@ -4442,6 +4441,10 @@ class EPUB_MOBI(CatalogPlugin):
             aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
                                             self.generateAuthorAnchor(book['author']))
 
+            if publisher == ' ':
+                publisherTag = body.find('td', attrs={'class':'publisher'})
+                publisherTag.contents[0].replaceWith('&nbsp;')
+
             if not genres:
                 genresTag = body.find('p',attrs={'class':'genres'})
                 genresTag.extract()
@@ -4450,24 +4453,15 @@ class EPUB_MOBI(CatalogPlugin):
                 formatsTag = body.find('p',attrs={'class':'formats'})
                 formatsTag.extract()
 
-            if note_content == NBSP:
+            if note_content == '':
                 tdTag = body.find('td', attrs={'class':'notes'})
-                tdTag.contents[0].replaceWith(NBSP)
+                tdTag.contents[0].replaceWith('&nbsp;')
 
-            # Cover thumb
-            tdTag = body.find('td', attrs={'class':'thumbnail'})
-            imgTag = Tag(soup,"img")
-            if 'cover' in book:
-                imgTag['src']  = "../images/thumbnail_%d.jpg" % int(book['id'])
-            else:
-                imgTag['src']  = "../images/thumbnail_default.jpg"
-            imgTag['alt'] = "cover thumbnail"
-            tdTag.insert(0,imgTag)
-
-            # The Blurb
-            if 'description' in book and book['description'] > '':
-                blurbTag = body.find(attrs={'class':'description'})
-                blurbTag.insert(0,NavigableString(book['description']))
+            emptyTags = body.findAll('td', attrs={'class':'empty'})
+            for mt in emptyTags:
+                newEmptyTag = Tag(BeautifulSoup(),'td')
+                newEmptyTag.insert(0,NavigableString('&nbsp;'))
+                mt.replaceWith(newEmptyTag)
 
             if False:
                 print soup.prettify()
