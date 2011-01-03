@@ -273,7 +273,7 @@ will always be under /dev by examining the output of::
     mount
 
 
-Why does |app| not support collection on the Kindle or shelves on the Nook?
+Why does |app| not support collections on the Kindle or shelves on the Nook?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Neither the Kindle nor the Nook provide any way to manipulate collections over a USB connection.

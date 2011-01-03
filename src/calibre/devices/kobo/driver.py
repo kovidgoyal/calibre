@@ -33,7 +33,7 @@ class KOBO(USBMS):
     booklist_class = CollectionsBookList
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'pdf']
+    FORMATS     = ['epub', 'pdf', 'txt', 'cbz', 'cbr']
     CAN_SET_METADATA = ['collections']
 
     VENDOR_ID   = [0x2237]
@@ -409,7 +409,7 @@ class KOBO(USBMS):
             else:
                 ContentType = 901
         else: # if extension == '.html' or extension == '.txt':
-            ContentType = 999 # Yet another hack: to get around Kobo changing how ContentID is stored
+            ContentType = 901 # Yet another hack: to get around Kobo changing how ContentID is stored
         return ContentType
 
     def path_from_contentid(self, ContentID, ContentType, MimeType, oncard):
