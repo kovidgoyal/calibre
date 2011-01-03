@@ -353,7 +353,7 @@ class HTMLPreProcessor(object):
                   (re.compile(r'((?<=</a>)\s*file:////?[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
 
                   # Center separator lines
-                  (re.compile(u'<br>\s*(?P<break>([*#•]+\s*)+)\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group(1) + '</p>'),
+                  (re.compile(u'<br>\s*(?P<break>([*#•✦]+\s*)+)\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group(1) + '</p>'),
 
                   # Remove page links
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
@@ -567,6 +567,7 @@ class HTMLPreProcessor(object):
         html = html.replace(stop, '-->')
         # convert ellipsis to entities to prevent wrapping
         html = re.sub('(?u)(?<=\w)\s?(\.\s?){2}\.', '&hellip;', html)
-        # nbsp gets changed to space: html = re.sub('(?u)(?<=\w)\s(\.\s?){2}\.', '&nbsp;&hellip;', html)
+        # convert double dashes to em-dash
+        html = re.sub('\s--\s', u'\u2014', html)
         return substitute_entites(html)
 
