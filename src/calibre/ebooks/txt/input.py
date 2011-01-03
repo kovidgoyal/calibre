@@ -10,7 +10,7 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
-    preserve_spaces
+    preserve_spaces, detect_paragraph_formatting
 from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
@@ -21,22 +21,20 @@ class TXTInput(InputFormatPlugin):
     file_types  = set(['txt'])
 
     options = set([
-        OptionRecommendation(name='single_line_paras', recommended_value=False,
-            help=_('Normally calibre treats blank lines as paragraph markers. '
-                'With this option it will assume that every line represents '
-                'a paragraph instead.')),
-        OptionRecommendation(name='print_formatted_paras', recommended_value=False,
-            help=_('Normally calibre treats blank lines as paragraph markers. '
-                'With this option it will assume that every line starting with '
-                'an indent (either a tab or 2+ spaces) represents a paragraph. '
-                'Paragraphs end when the next line that starts with an indent '
-                'is reached.')),
+        OptionRecommendation(name='paragraph_format', recommended_value='auto',
+            choices=['auto', 'block', 'single', 'print', 'markdown'],
+            help=_('How calibre splits text into paragraphs.\n'
+                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'markdown\']\n'
+                   '* auto: Try to auto detect paragraph format.\n'
+                   '* block: Treat a blank line as a paragraph break.\n'
+                   '* single: Assume every line is a paragraph.\n'
+                   '* print:  Assume every line starting with 2+ spaces or a tab '
+                   'starts a paragraph.\n'
+                   '* markdown: Run the input though the markdown pre-processor. '
+                   'To learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
         OptionRecommendation(name='preserve_spaces', recommended_value=False,
             help=_('Normally extra spaces are condensed into a single space. '
                 'With this option all spaces will be displayed.')),
-        OptionRecommendation(name='markdown', recommended_value=False,
-            help=_('Run the text input through the markdown pre-processor. To '
-                'learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
         OptionRecommendation(name="markdown_disable_toc", recommended_value=False,
             help=_('Do not insert a Table of Contents into the output text.')),
     ])
@@ -46,6 +44,7 @@ class TXTInput(InputFormatPlugin):
         log.debug('Reading text from file...')
         
         txt = stream.read()
+        # Get the encoding of the document.
         if options.input_encoding:
             ienc = options.input_encoding
             log.debug('Using user specified input encoding of %s' % ienc)
@@ -58,17 +57,29 @@ class TXTInput(InputFormatPlugin):
             log.debug('No input encoding specified and could not auto detect using %s' % ienc)
         txt = txt.decode(ienc, 'replace')
 
-        # Adjust paragraph formatting as requested
-        if options.single_line_paras:
+        # Determine the formatting of the document.
+        if options.paragraph_format == 'auto':
+            options.paragraph_format = detect_paragraph_formatting(txt)
+            if options.paragraph_format == 'unknown':
+                log.debug('Could not reliably determine paragraph format using block format')
+                options.paragraph_format = 'block'
+            else:
+                log.debug('Auto detected paragraph format as %s' % options.paragraph_format) 
+        
+        # We don't check for block because the processor assumes block.
+        # single and print at transformed to block for processing.
+        if options.paragraph_format == 'single':
             txt = separate_paragraphs_single_line(txt)
-        if options.print_formatted_paras:
+        elif options.paragraph_format == 'print':
             txt = separate_paragraphs_print_formatted(txt)
+
+        txt = _ent_pat.sub(xml_entity_to_unicode, txt)
+        # Preserve spaces will replace multiple spaces to a space
+        # followed by the &nbsp; entity.
         if options.preserve_spaces:
             txt = preserve_spaces(txt)
 
-        txt = _ent_pat.sub(xml_entity_to_unicode, txt)
-
-        if options.markdown:
+        if options.paragraph_format == 'markdown':
             log.debug('Running text though markdown conversion...')
             try:
                 html = convert_markdown(txt, disable_toc=options.markdown_disable_toc)

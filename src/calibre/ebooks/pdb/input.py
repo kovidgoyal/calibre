@@ -19,26 +19,22 @@ class PDBInput(InputFormatPlugin):
     file_types  = set(['pdb'])
 
     options = set([
-        OptionRecommendation(name='single_line_paras', recommended_value=False,
-            help=_('Normally calibre treats blank lines as paragraph markers. '
-                'With this option it will assume that every line represents '
-                'a paragraph instead. This option is ignored by eReader format.')),
-        OptionRecommendation(name='print_formatted_paras', recommended_value=False,
-            help=_('Normally calibre treats blank lines as paragraph markers. '
-                'With this option it will assume that every line starting with '
-                'an indent (either a tab or 2+ spaces) represents a paragraph. '
-                'Paragraphs end when the next line that starts with an indent '
-                'is reached. This option is ignored by eReader format.')),
+        OptionRecommendation(name='paragraph_format', recommended_value='auto',
+            choices=['auto', 'block', 'single', 'print', 'markdown'],
+            help=_('How calibre splits text into paragraphs.\n'
+                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'markdown\']\n'
+                   '* auto: Try to auto detect paragraph format.\n'
+                   '* block: Treat a blank line as a paragraph break.\n'
+                   '* single: Assume every line is a paragraph.\n'
+                   '* print:  Assume every line starting with 2+ spaces or a tab '
+                   'starts a paragraph.\n'
+                   '* markdown: Run the input though the markdown pre-processor. '
+                   'To learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
         OptionRecommendation(name='preserve_spaces', recommended_value=False,
             help=_('Normally extra spaces are condensed into a single space. '
-                'With this option all spaces will be displayed. This option '
-                'is ignored by eReader format.')),
-        OptionRecommendation(name='markdown', recommended_value=False,
-            help=_('Run the text input through the markdown pre-processor. To '
-                'learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
+                'With this option all spaces will be displayed.')),
         OptionRecommendation(name="markdown_disable_toc", recommended_value=False,
-            help=_('Do not insert a Table of Contents into the output text. '
-                   'This option is ignored by eReader format.')),
+            help=_('Do not insert a Table of Contents into the output text.')),
     ])
 
     def convert(self, stream, options, file_ext, log,
