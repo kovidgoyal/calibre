@@ -168,7 +168,7 @@ class MetadataSource(Plugin): # {{{
             customize_plugin(self, sc)
 
     def customization_help(self):
-        return 'This plugin can only be customized using the GUI'
+        return _('This plugin can only be customized using the GUI')
 
     # }}}
 
@@ -433,7 +433,7 @@ def get_social_metadata(mi, verbose=0):
 
 
 def option_parser():
-    parser = OptionParser(textwrap.dedent(
+    parser = OptionParser(textwrap.dedent(_(
         '''\
         %prog [options]
 
@@ -441,19 +441,19 @@ def option_parser():
         of title, author, publisher or ISBN. If you specify ISBN, the others
         are ignored.
         '''
-    ))
-    parser.add_option('-t', '--title', help='Book title')
-    parser.add_option('-a', '--author', help='Book author(s)')
-    parser.add_option('-p', '--publisher', help='Book publisher')
-    parser.add_option('-i', '--isbn', help='Book ISBN')
+    )))
+    parser.add_option('-t', '--title', help=_('Book title'))
+    parser.add_option('-a', '--author', help=_('Book author(s)'))
+    parser.add_option('-p', '--publisher', help=_('Book publisher'))
+    parser.add_option('-i', '--isbn', help=_('Book ISBN'))
     parser.add_option('-m', '--max-results', default=10,
-                      help='Maximum number of results to fetch')
+                      help=_('Maximum number of results to fetch'))
     parser.add_option('-k', '--isbndb-key',
-                      help=('The access key for your ISBNDB.com account. '
+                      help=_('The access key for your ISBNDB.com account. '
                       'Only needed if you want to search isbndb.com '
                       'and you haven\'t customized the IsbnDB plugin.'))
     parser.add_option('-v', '--verbose', default=0, action='count',
-                      help='Be more verbose about errors')
+                      help=_('Be more verbose about errors'))
     return parser
 
 def main(args=sys.argv):
@@ -469,7 +469,7 @@ def main(args=sys.argv):
 
     for name, exception, tb in exceptions+social_exceptions:
         if exception is not None:
-            print 'WARNING: Fetching from', name, 'failed with error:'
+            print _('WARNING: Fetching from %s failed with error:') % (name)
             print exception
             print tb
 
