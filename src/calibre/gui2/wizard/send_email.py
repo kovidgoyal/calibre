@@ -144,8 +144,10 @@ class SendEmail(QWidget, Ui_Form):
         bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
-        d.tl = QLabel('<p>'+_('You can sign up for a free {name} email '
-            'account at <a href="http://{url}">http://{url}</a>. {extra}').format(
+        d.tl = QLabel(('<p>'+_('Setup sending email using') +
+                ' <b>{name}</b><p>' +
+            _('If you don\'t have an account, you can sign up for a free {name} email '
+            'account at <a href="http://{url}">http://{url}</a>. {extra}')).format(
                 **service))
         l.addWidget(d.tl, 0, 0, 3, 0)
         d.tl.setWordWrap(True)

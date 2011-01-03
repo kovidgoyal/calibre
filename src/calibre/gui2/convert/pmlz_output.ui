@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0">
+   <item row="3" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -27,19 +27,29 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="0">
+   <item row="1" column="0">
     <widget class="QCheckBox" name="opt_inline_toc">
      <property name="text">
       <string>&amp;Inline TOC</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QCheckBox" name="opt_full_image_depth">
      <property name="text">
       <string>Do not reduce image size and depth</string>
      </property>
     </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Output Encoding:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="opt_output_encoding"/>
    </item>
   </layout>
  </widget>

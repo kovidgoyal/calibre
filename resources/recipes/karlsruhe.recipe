@@ -1,0 +1,52 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class KANewsRecipe(BasicNewsRecipe):
+    title = u'KA-News.de'
+    description = u'Nachrichten aus Karlsruhe, Deutschland und der Welt.'
+    __author__ = 'tfeld'
+    lang='de'
+    no_stylesheets = True
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+
+    feeds = [
+                (u'News aus Karlsruhe', 'http://www.ka-news.de/storage/rss/rss/karlsruhe.xml'),
+                (u'Kulturnachrichten aus Karlsruhe', 'http://www.ka-news.de/storage/rss/rss/kultur.xml'),
+                (u'Durlach: News aus Durlach', 'http://www.ka-news.de/storage/rss/rss/durlach.xml'),
+                (u'Stutensee: News aus Stutensee Blankenloch, Büchig, Friedrichstal, Staffort, Spöck', 'http://www.ka-news.de/storage/rss/rss/stutensee.xml'),
+                (u'Bruchsal: News aus Bruchsal', 'http://www.ka-news.de/storage/rss/rss/bruchsal.xml'),
+                (u'Wirtschaftsnews aus Karlsruhe', 'http://www.ka-news.de/storage/rss/rss/wirtschaft.xml'),
+                (u'ka-news.de - Sport', 'http://www.ka-news.de/storage/rss/rss/sport.xml'),
+                (u'KSC-News - News rund um den KSC', 'http://www.ka-news.de/storage/rss/rss/ksc.xml'),
+                (u'ka-news.de - BG Karlsruhe', 'http://www.ka-news.de/storage/rss/rss/basketball.xml')
+            ]
+
+    preprocess_regexps = [
+        (re.compile(r'width:[0-9]*?px', re.DOTALL|re.IGNORECASE), lambda match: ''),
+    ]
+
+    remove_tags_before = dict(id='artdetail_ueberschrift')
+    remove_tags_after = dict(id='artdetail_unterzeile')
+    remove_tags = [dict(name=['div'], attrs={'class': 'lbx_table'}),
+         dict(name=['div'], attrs={'class': 'lk_zumthema'}),
+         dict(name=['div'], attrs={'class': 'lk_thumb'}),
+         dict(name=['div'], attrs={'class': 'lk_trenner'}),
+         dict(name=['div'], attrs={'class': 'lupen_container'}),
+         dict(name=['script']),
+         dict(name=['span'], attrs={'style': 'display:none;'}),
+         dict(name=['span'], attrs={'class': 'comm_info'}),
+         dict(name=['h3'], attrs={'id': 'artdetail_unterzeile'})]
+
+    # removing style attribute _after_ removing specifig tags above
+    remove_attributes = ['width','height','style']
+
+    extra_css = '''
+         h1{ font-size:large; font-weight:bold;  }
+         h2{ font-size:medium; font-weight:bold; }
+    '''
+
+    def get_cover_url(self):
+        return 'http://www.ka-news.de/storage/scl/techkanews/logos/434447_m1t1w250q75s1v29681_ka-news-Logo_mit_Schatten_transparent.png'
+

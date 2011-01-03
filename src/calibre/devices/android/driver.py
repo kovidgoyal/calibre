@@ -27,15 +27,15 @@ class ANDROID(USBMS):
             0x040d : { 0x8510 : [0x0001], 0x0851 : [0x1] },
 
             # Motorola
-            0x22b8 : { 0x41d9 : [0x216], 0x2d67 : [0x100], 0x41db : [0x216],
-                0x4285 : [0x216], 0x42a3 : [0x216] },
+            0x22b8 : { 0x41d9 : [0x216], 0x2d61: [0x100], 0x2d67 : [0x100],
+                0x41db : [0x216], 0x4285 : [0x216], 0x42a3 : [0x216] },
 
             # Sony Ericsson
             0xfce : { 0xd12e : [0x0100]},
 
             # Google
             0x18d1 : { 0x4e11 : [0x0100, 0x226, 0x227], 0x4e12: [0x0100, 0x226,
-                0x227]},
+                0x227], 0x4e21: [0x0100, 0x226, 0x227]},
 
             # Samsung
             0x04e8 : { 0x681d : [0x0222, 0x0223, 0x0224, 0x0400],
@@ -64,7 +64,8 @@ class ANDROID(USBMS):
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
-            'SCH-I500_CARD', 'SPH-D700_CARD', 'MB810', 'GT-P1000']
+            'SCH-I500_CARD', 'SPH-D700_CARD', 'MB810', 'GT-P1000', 'DESIRE',
+            'SGH-T849', '_MB300']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD']
 

@@ -55,6 +55,24 @@ author_sort_copy_method = 'invert'
 #   categories_use_field_for_author_name = 'author_sort'
 categories_use_field_for_author_name = 'author'
 
+# When partitioning the tags browser, the format of the subcategory label is
+# controlled by a template: categories_collapsed_name_template if sorting by
+# name, categories_collapsed_rating_template if sorting by average rating, and
+# categories_collapsed_popularity_template if sorting by popularity. There are
+# two variables available to the template: first and last. The variable 'first'
+# is the initial item in the subcategory, and the variable 'last' is the final
+# item in the subcategory. Both variables are 'objects'; they each have multiple
+# values that are obtained by using a suffix. For example, first.name for an
+# author category will be the name of the author. The sub-values available are:
+#  name: the printable name of the item
+#  count: the number of books that references this item
+#  avg_rating: the averate rating of all the books referencing this item
+#  sort: the sort value. For authors, this is the author_sort for that author
+#  category: the category (e.g., authors, series) that the item is in.
+categories_collapsed_name_template = '{first.sort:shorten(4,'',0)} - {last.sort:shorten(4,'',0)}'
+categories_collapsed_rating_template = '{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
+categories_collapsed_popularity_template = '{first.count:d} - {last.count:d}'
+
 
 # Set whether boolean custom columns are two- or three-valued.
 #  Two-values for true booleans
@@ -289,3 +307,11 @@ locale_for_sorting =  ''
 # metadata  one book at a time. If True, then the fields are laid out using two
 # columns. If False, one column is used.
 metadata_single_use_2_cols_for_custom_fields = True
+
+# The number of seconds to wait before sending emails when using a
+# public email server like gmail or hotmail. Default is: 5 minutes
+# Setting it to lower may cause the server's SPAM controls to kick in,
+# making email sending fail. Changes will take effect only after a restart of
+# calibre.
+public_smtp_relay_delay = 301
+

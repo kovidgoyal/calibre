@@ -259,6 +259,19 @@ class EditorWidget(QWebView): # {{{
 
         return property(fget=fget, fset=fset)
 
+    def keyPressEvent(self, ev):
+        if ev.key() in (Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
+            ev.ignore()
+        else:
+            return QWebView.keyPressEvent(self, ev)
+
+    def keyReleaseEvent(self, ev):
+        if ev.key() in (Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
+            ev.ignore()
+        else:
+            return QWebView.keyReleaseEvent(self, ev)
+
+
 # }}}
 
 # Highlighter {{{
@@ -480,6 +493,9 @@ class Editor(QWidget): # {{{
         self.toolbar1 = QToolBar(self)
         self.toolbar2 = QToolBar(self)
         self.toolbar3 = QToolBar(self)
+        for i in range(1, 4):
+            t = getattr(self, 'toolbar%d'%i)
+            t.setIconSize(QSize(18, 18))
         self.editor = EditorWidget(self)
         self.tabs = QTabWidget(self)
         self.tabs.setTabPosition(self.tabs.South)

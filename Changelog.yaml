@@ -4,6 +4,134 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.37
+  date: 2011-01-02
+
+  new features:
+    - title: "This realease is mostly a bug fix release to fix various things that got broken by all the changes in 0.7.36"
+
+    - title: "Tag browser: Move the configuration of the sub-category grouping from tweaks to the Preferences dialog"
+
+    - title: "Tag browser: Allow changing the sub-categorization scheme from the right click menu"
+
+  bug fixes:
+    - title: "Fix regression in 0.7.36 that caused the Tag Browser to break if you have items in it with empty sort values"
+
+    - title: "Catalog generation: Fix various regressions introduced in 0.7.36 on windows"
+      description: >
+        "Database integrity check not working after catalog generation. Catalog generation failing with a file in use error. Spurious question marks appearing in the catalog"
+
+    - title: "Catalog generation: Work on a copy of the library database so as not to lock it"
+
+    - title: "Catalog generation: Handle merge of comments + custom field when custom filed is None"
+
+    - title: "Fix regression that broke sort_columns_at_startup tweak in 0.7.36"
+
+    - title: "Tag Browser: Fix the Manage X items in the right click menu, which broke in 0.7.36"
+
+    - title: "Tag Browser: Fix grouping by name for authors"
+
+    - title: "Nook color: Fix main memory and SD card swapped in calibre"
+      tickets: [8159]
+
+    - title: "Fix regression in 0.7.36 that broke PDF Output when specifying a cover"
+
+    - title: "Catalog generation: Fix regression in MOBI catalog that caused it to not appear as periodical on Kindle"
+
+    - title: "Fix regression in 0.7.36 that broke opening the book details dialog by double clicking on the book details panel"
+
+
+- version: 0.7.36
+  date: 2011-01-01
+
+  new features:
+    - title: "Tag browser: Add subcategories and search"
+      description: "When a category has many items, it will be automatically split up. Also add a search to quickly find an item in the Tag Browser. The sub categories can be controlled via preferences->Tweaks. Also add a button to collapse all categories"
+      type: major
+
+    - title: "Device drivers for the Google Nexus S, Motorola Backflip, Samsung Galaxy Tablet, PocketBook 603/903, EEEReader DR900 and the NextBook"
+
+    - title: "Tag editor dialog now remebers its last used size"
+      tickets: [8063]
+
+    - title: "OS X dmg: Add a symlink pointing to the Applications folder for easy installation"
+      tickets: [8052]
+
+    - title: "Catalog generation: CSV/XML catalogs now support custom fields. Also write UTF-8 BOM to CSV output file."
+      tickets: [8014]
+
+    - title: "EPUB/MOBI catalogs: Various new features"
+      description: "Added a custom field/value for excluding books, OR'd with existing tag list. Added a thumbnail width hint, from 1.0 - 2.0 inches. Deprecated support for special note tag '*', added support for custom column containing note to be inserted in Description header. Added 'Merge with comments' feature, which non-destructively combines Comments with a custom field when generating Descriptions. Moved Description header into a user-editable template file.  All fields except thumb and comments accessible to template."
+      tickets: [7820, 5297, 6765]
+
+    - title: "SONY driver: Allow the creation of an All by Something category via the tweaks."
+
+    - title: "Add a tweak to control the delay when sending mails using gmail or hotmail."
+      tickets: [8064]
+
+    - title: "Add output encoding option for TXT/PDB/PMLX output plugins to the GUI"
+
+    - title: "Add an environment variable to control the temporary directory calibre uses"
+
+    - title: "Use the new HTML editor widget for comments custom columns as well"
+
+    - title: "Content server: Fix regression that broke saved searches"
+      tickets: [8047]
+
+    - title: "E-book viewer: Fix regression that broke previous page button"
+
+    - title: "Add a tweak to allow double clicking on the book list to open the edit metadata dialog"
+      tickets: [8032]
+
+    - title: "Add a tweak to use a template for formatting SONY collection names"
+      tickets: [8033]
+
+    - title: "Bulk edit metadata, search and replace: Show all values for multiple fields in the text region, separated by :::"
+      tickets: [8030]
+
+    - title: "Update user agent used by calibre when connecting to websites"
+
+  bug fixes:
+    - title: "FB2 Output: Fix regression that broke images in generated FB2 files"
+      tickets: [8142]
+
+    - title: "When unzipping zip files that contain filenames with unknown character encoding, sanitize the filenames correctly"
+      tickets: [8050]
+
+    - title: "TCR Output: Fix TCR compression adding junk to the end of the text. Remove compression level option."
+
+    - title: "PDF Output: Fix regression that broke the margin options."
+
+    - title: "FB2 Input: Handle non UTF-8 encodings on OS X"
+      tickets: [8115]
+
+    - title: "SNB Input: Better error handling if some metadata is missing in the SNB file. Add Wi-Fi connection support for the Bambook"
+
+    - title: "Allow hyperlinks to be clicked in comments metadata in the book details panel"
+      tickets: [8054]
+
+  improved recipes:
+    - Brand Eins
+    - Volksrant
+    - Smithsonian
+    - Business World
+    - El Universal
+    - Salon
+    - The Week
+    - EL Pais
+    - Wired Magazine
+    - Heraldo de Aragon
+
+  new recipes:
+    - title: "Karlsruhe News"
+      author: "tfeld"
+      
+    - title: "El Periodico and Red Aragon"
+      author: "desUBIKado"
+
+    - title: "Business Insider"
+      author: "Darko Miletic"
+
 - version: 0.7.35
   date: 2010-12-23
 

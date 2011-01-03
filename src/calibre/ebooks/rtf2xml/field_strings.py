@@ -402,7 +402,7 @@ class FieldStrings:
         Logic:
         self.__link_switch = re.compile(r'\\l\s{1,}(.*?)\s')
         """
-        self.__link_switch = re.compile(r'\\l\s{1,}(.*?)\s')
+        self.__link_switch = re.compile(r'\\l\s{1,}"{0,1}(.*?)"{0,1}\s')
         the_string = name
         match_group = re.search(self.__link_switch, line)
         if match_group:

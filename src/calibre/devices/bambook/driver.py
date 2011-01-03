@@ -37,7 +37,8 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
     BCD = None
     CAN_SET_METADATA = False
     THUMBNAIL_HEIGHT = 155
-    EXTRA_CUSTOMIZATION_MESSAGE = _("Device IP Address")
+    EXTRA_CUSTOMIZATION_MESSAGE = \
+        _("Device IP Address (restart calibre after changing)")
 
     icon = I("devices/bambook.png")
 #    OPEN_FEEDBACK_MESSAGE = _(
@@ -70,7 +71,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
         self.bambook.Connect(ip = self.ip, timeout = 10000)
         if self.bambook.GetState() != CONN_CONNECTED:
             self.bambook = None
-            raise OpenFeedback(_("Unable to connect to Bambook. \n" 
+            raise OpenFeedback(_("Unable to connect to Bambook. \n"
                                  "If you are trying to connect via Wi-Fi, "
                                  "please make sure the IP address of Bambook has been correctly configured."))
         self.is_connected = True

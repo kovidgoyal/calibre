@@ -42,8 +42,13 @@ class ShareConnMenu(QMenu): # {{{
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_bambook.emit())
         self.connect_to_bambook_action = mitem
-        if is_disabled(BAMBOOK):
-            mitem.setVisible(False)
+        bambook_visible = False
+        if not is_disabled(BAMBOOK):
+            device_ip = BAMBOOK.settings().extra_customization
+            if device_ip:
+                bambook_visible = True
+        self.connect_to_bambook_action.setVisible(bambook_visible)
+
         self.addSeparator()
         self.toggle_server_action = \
             self.addAction(QIcon(I('network-server.png')),
@@ -99,12 +104,6 @@ class ShareConnMenu(QMenu): # {{{
         self.connect_to_folder_action.setEnabled(not device_connected)
         self.connect_to_itunes_action.setEnabled(not device_connected)
         self.connect_to_bambook_action.setEnabled(not device_connected)
-        bambook_visible = False
-        if not is_disabled(BAMBOOK):
-            device_ip = BAMBOOK.settings().extra_customization
-            if device_ip != None and device_ip != '':
-                bambook_visible = True
-        self.connect_to_bambook_action.setVisible(bambook_visible)
 
 
 # }}}

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
@@ -29,13 +28,16 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
     language = 'nl'
 
     extra_css      = '''
-                        body{font-family:Arial,Helvetica,sans-serif; font-size:small;}
+                        body{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                         h1{font-size:large;}
                      '''
     '''
       Change Log:
         Date:       10/10/10  - Modified code to include obfuscated to get the print version
         Author:   Tony Stegall
+
+        Date:       01/01/11  - Modified for better results around December/January.
+        Author:   Martin Tarenskeen
     '''
    #######################################################################################################
     temp_files = []
@@ -48,11 +50,17 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
         year = date.today().year
 
         try:
-          response = br.follow_link(url_regex='.*?(%d)(\\/)(article)(\\/)(print)(\\/)'%year, nr = 0)
-          html = response.read()
+            response = br.follow_link(url_regex='.*?(%d)(\\/)(article)(\\/)(print)(\\/)'%year, nr = 0)
+            html = response.read()
         except:
-          response = br.open(url)
-          html = response.read()
+            year = year-1
+            try:
+                response = br.follow_link(url_regex='.*?(%d)(\\/)(article)(\\/)(print)(\\/)'%year, nr = 0)
+                html = response.read()
+            except:
+                response = br.open(url)
+                html = response.read()
+
 
         self.temp_files.append(PersistentTemporaryFile('_fa.html'))
         self.temp_files[-1].write(html)
@@ -76,10 +84,3 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
                       (u'Cultuur', u'http://www.volkskrant.nl/rss/kunst.rss'),
                       (u'Gezondheid & Wetenschap', u'http://www.volkskrant.nl/rss/wetenschap.rss'),
                       (u'Internet & Media', u'http://www.volkskrant.nl/rss/media.rss') ]
-
-
-'''
-example for formating
-'''
-# original url: http://www.volkskrant.nl/vk/nl/2668/Buitenland/article/detail/1031493/2010/10/10/Noord-Korea-ziet-nieuwe-leider.dhtml
-# print url :   http://www.volkskrant.nl/vk/nl/2668/2010/article/print/detail/1031493/Noord-Korea-ziet-nieuwe-leider.dhtml

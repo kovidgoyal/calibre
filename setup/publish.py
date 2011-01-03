@@ -43,8 +43,8 @@ class Stage3(Command):
 
    description = 'Stage 3 of the publish process'
    sub_commands = ['upload_user_manual', 'upload_demo', 'sdist',
-            'upload_to_google_code', 'tag_release', 'upload_to_server',
-            'upload_to_sourceforge', 'upload_to_mobileread',
+           'upload_to_mobileread', 'upload_to_google_code',
+           'tag_release', 'upload_to_server', 'upload_to_sourceforge',
    ]
 
 class Stage4(Command):

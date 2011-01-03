@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>670</width>
-    <height>385</height>
+    <height>392</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -142,6 +142,65 @@
     </widget>
    </item>
    <item row="7" column="0" colspan="2">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Tags browser category partitioning method:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_tags_browser_partition_method</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="opt_tags_browser_partition_method">
+       <property name="toolTip">
+        <string>Choose how tag browser subcategories are displayed when
+there are more items than the limit. Select by first
+letter to see an A, B, C list. Choose partitioned to
+have a list of fixed-sized groups. Set to disabled
+if you never want subcategories</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Collapse when more items than:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_tags_browser_collapse_at</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="opt_tags_browser_collapse_at">
+       <property name="toolTip">
+           <string>If a Tag Browser category has more than this number of items, it is divided
+up into sub-categories. If the partition method is set to disable, this value is ignored.</string>
+       </property>
+       <property name="maximum">
+        <number>10000</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>5</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="15" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>&amp;Toolbar</string>
@@ -183,7 +242,7 @@
      </layout>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="16" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="label_2">
@@ -204,14 +263,14 @@
      </item>
     </layout>
    </item>
-   <item row="8" column="1">
+   <item row="16" column="1">
     <widget class="QPushButton" name="change_font_button">
      <property name="text">
       <string>Change &amp;font (needs restart)</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="2">
+   <item row="17" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

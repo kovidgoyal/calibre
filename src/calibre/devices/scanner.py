@@ -30,6 +30,12 @@ class Drive(str):
         typ.order = order
         return typ
 
+def drivecmp(a, b):
+    ans = cmp(getattr(a, 'order', 0), getattr(b, 'order', 0))
+    if ans == 0:
+        ans = cmp(a, b)
+    return ans
+
 
 class WinPNPScanner(object):
 
@@ -57,7 +63,13 @@ class WinPNPScanner(object):
         order = 0
         match = re.search(r'REV_.*?&(\d+)#', pnp_id)
         if match is None:
-            match = re.search(r'REV_.*?&(\d+)', pnp_id)
+            # Windows XP
+            # On the Nook Color this is the last digit
+            #
+            # USBSTOR\DISK&VEN_B&N&PROD_EBOOK_DISK&REV_0100\7&13EAFDB8&0&2004760017462009&1
+            # USBSTOR\DISK&VEN_B&N&PROD_EBOOK_DISK&REV_0100\7&13EAFDB8&0&2004760017462009&0
+            #
+            match = re.search(r'REV_.*&(\d+)', pnp_id)
         if match is not None:
             order = int(match.group(1))
         return order
