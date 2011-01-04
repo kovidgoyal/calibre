@@ -1,0 +1,115 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.thesundaytimes.co.uk
+'''
+import urllib
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TimesOnline(BasicNewsRecipe):
+    title                 = 'The Sunday Times UK'
+    __author__            = 'Darko Miletic'
+    description           = 'news from United Kingdom and World'
+    language              = 'en_GB'
+    publisher             = 'Times Newspapers Ltd'
+    category              = 'news, politics, UK'
+    oldest_article        = 3
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf-8'
+    delay                 = 1
+    needs_subscription    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.thesundaytimes.co.uk/sto/public/images/logos/logo-home.gif'
+    INDEX                 = 'http://www.thesundaytimes.co.uk'
+    PREFIX                = u'http://www.thesundaytimes.co.uk/sto/'
+    extra_css             = """
+                                .author-name,.authorName{font-style: italic}
+                                .published-date,.multi-position-photo-text{font-family: Arial,Helvetica,sans-serif;
+                                                                           font-size: small; color: gray;
+                                                                           display:block; margin-bottom: 0.5em}
+                                body{font-family: Georgia,"Times New Roman",Times,serif}
+                            """
+
+    conversion_options = {
+                          'comment'    : description
+                        , 'tags'       : category
+                        , 'publisher'  : publisher
+                        , 'language'   : language
+                        }
+
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        br.open('http://www.timesplus.co.uk/tto/news/?login=false&url=http://www.thesundaytimes.co.uk/sto/')
+        if self.username is not None and self.password is not None:
+            data = urllib.urlencode({ 'userName':self.username
+                                     ,'password':self.password
+                                     ,'keepMeLoggedIn':'false'
+                                   })
+            br.open('https://www.timesplus.co.uk/iam/app/authenticate',data)
+        return br
+
+    remove_tags      = [
+                           dict(name=['object','link','iframe','base','meta'])
+                          ,dict(attrs={'class':'tools comments-parent' })
+                        ]
+    remove_attributes=['lang']
+    keep_only_tags   = [
+                          dict(attrs={'class':'standard-content'})
+                         ,dict(attrs={'class':'f-author'})
+                         ,dict(attrs={'id':'bodycopy'})
+                       ]
+    remove_tags_after=dict(attrs={'class':'tools_border'})
+
+    feeds = [
+                (u'UK News'     , PREFIX + u'news/uk_news/'        )
+               ,(u'World'       , PREFIX + u'news/world_news/'     )
+               ,(u'Politics'    , PREFIX + u'news/Politics/'       )
+               ,(u'Focus'       , PREFIX + u'news/focus/'          )
+               ,(u'Insight'     , PREFIX + u'news/insight/'        )
+               ,(u'Ireland'     , PREFIX + u'news/ireland/'        )
+               ,(u'Columns'     , PREFIX + u'comment/columns/'     )
+               ,(u'Arts'        , PREFIX + u'culture/arts/'        )
+               ,(u'Books'       , PREFIX + u'culture/books/'       )
+               ,(u'Film and TV' , PREFIX + u'culture/film_and_tv/' )
+               ,(u'Sport'       , PREFIX + u'sport/'               )
+               ,(u'Business'    , PREFIX + u'business'             )
+               ,(u'Money'       , PREFIX + u'business/money/'      )
+               ,(u'Style'       , PREFIX + u'style/'               )
+               ,(u'Travel'      , PREFIX + u'travel/'              )
+               ,(u'Clarkson'    , PREFIX + u'ingear/clarkson/'     )
+               ,(u'Cars'        , PREFIX + u'ingear/cars/'         )
+               ,(u'Bikes'       , PREFIX + u'ingear/2_Wheels/'     )
+               ,(u'Tech'        , PREFIX + u'ingear/Tech___Games/' )
+               ,(u'Magazine'    , PREFIX + u'Magazine/'            )
+            ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return self.adeify_images(soup)
+
+    def parse_index(self):
+        totalfeeds = []
+        lfeeds = self.get_feeds()
+        for feedobj in lfeeds:
+            feedtitle, feedurl = feedobj
+            self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
+            articles = []
+            soup = self.index_to_soup(feedurl)
+            for atag in soup.findAll('a',href=True):
+                parentName = atag.parent.name
+                title      = self.tag_to_string(atag).strip()
+                if (parentName == 'h2' or parentName == 'h3') and title is not None and title != '':
+                    url           = self.INDEX + atag['href']
+                    articles.append({
+                                          'title'      :title
+                                         ,'date'       :''
+                                         ,'url'        :url
+                                         ,'description':''
+                                        })
+            totalfeeds.append((feedtitle, articles))
+        return totalfeeds
