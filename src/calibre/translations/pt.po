@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-02 23:55+0000\n"
-"PO-Revision-Date: 2011-01-01 23:22+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-03 15:31+0000\n"
+"Last-Translator: David Rodrigues <david.rodrigues@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-03 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-01-04 13:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
@@ -618,6 +618,8 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Destinado ao Samsung Galaxy e dispositivos tablets similares com uma "
+"resolução de 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -845,7 +847,7 @@ msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:41
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "Endereço IP do dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:46
 msgid ""
@@ -869,6 +871,9 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"Não foi possível conectar ao Bambook\n"
+"Se está a tentar ligar através de Wi-fi, verifique se o endereço IP do "
+"Bambook foi configurado correctamente."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:111
 msgid "Bambook"
@@ -972,7 +977,7 @@ msgstr "Comunicar com o leitor  PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "Comunicar com o leitor PocketBook 602/603/902/903"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
@@ -1167,11 +1172,11 @@ msgstr "Estabelecer ligação com o dispositivo Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:251
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "Comunicar com o EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:271
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Comunicar com o Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1937,6 +1942,9 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
+"Converter aspas simples, hífens e reticências para os seus equivalentes "
+"tipográficos. Para detalhes, ver "
+"http://daringfireball.net/projects/smartypants"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:405
 msgid "Use a regular expression to try and remove the header."
@@ -2125,10 +2133,18 @@ msgid ""
 "By default, no fixing is done and messages are printed out for each error "
 "detected. Use the options to control which errors are automatically fixed."
 msgstr ""
+"%prog [opções] ficheiro.epub\n"
+"\n"
+"Corrige problemas comuns nos ficheiros EPUB que podem causar a sua rejeição "
+"por serviços de publicação mal desenhados\n"
+"\n"
+"Por defeito não é aplicada nenhuma correcção e são imprimidas mensagens para "
+"cada erro detectado. Utilize as opções para controlar que erros são "
+"automaticamente corrigidos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
-msgstr ""
+msgstr "Tem que específicar um ficheiro epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
@@ -2194,6 +2210,9 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"Não utilizar SVG para a capa do livro. Utilize esta opção se o seu EPUB for "
+"utilizado num dispositivo que não suporte SVG, como o iPhone o JetBook Lite. "
+"Sem esta opção estes dispositivos mostrarão uma capa em branco."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -2203,6 +2222,10 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
+"Quando utilizar uma capa SVG, esta opção permite esticar a capa para a área "
+"do ecrã preservando o aspecto (rácio largura / altura). Isto significa que "
+"podem surgir margens brancas nos lados ou no topo e fundo da imagem, mas a "
+"imagem nunca será distorcida."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:105
 msgid ""
@@ -2210,6 +2233,9 @@ msgid ""
 "will flatten the file system inside the EPUB, putting all files into the top "
 "level."
 msgstr ""
+"Esta opção só é necessária se pretende utilizar EPUB com o FBReaderJ. Vai "
+"remover a estrutura de ficheiros do formato EPUB colocando todas as imagens "
+"no nível de topo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:184
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:206
@@ -2264,24 +2290,31 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:33
 msgid "CSS file used for the output instead of the default file"
 msgstr ""
+"Folha de estílos (CSS) utilizada para output em vez da folha de estílos "
+"padrão"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:36
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
 msgstr ""
+"Template utilizado para gerar o ficheiro index html em vez do ficheiro padrão"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:39
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
+"Template utilizado para gerar os conteúdos html do livro em vez do ficheiro "
+"padrão"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:42
 msgid ""
 "Extract the contents of the generated ZIP file to the specified directory. "
 "WARNING: The contents of the directory will be deleted."
 msgstr ""
+"Extraír os conteúdos do ficheiro ZIP para a directoria especificada. AVISO: "
+"Os conteúdos da directoria serão apagados."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2580,23 +2613,23 @@ msgstr "Banda Desenhada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:26
 msgid "Downloads metadata from amazon.fr"
-msgstr ""
+msgstr "Descarregar os metadados da amazon.fr"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:43
 msgid "Downloads metadata from amazon.com in spanish"
-msgstr ""
+msgstr "Descarregar os metadados da amazon.com em espanhol"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:60
 msgid "Downloads metadata from amazon.com in english"
-msgstr ""
+msgstr "Descarregar os metadados da amazon.com em inglês"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:77
 msgid "Downloads metadata from amazon.de"
-msgstr ""
+msgstr "Descarregar os metadados da amazon.de"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:94
 msgid "Downloads metadata from amazon.com"
-msgstr ""
+msgstr "Descarregar os metadados da amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:474
 msgid ""
@@ -2610,16 +2643,27 @@ msgid ""
 "        All & english & french & german & spanish\n"
 "    "
 msgstr ""
+"        %prog [opções]\n"
+"\n"
+"        Obter os metadados da Amazon. Deve especificar o título, autor,\n"
+"        número ISBN, editora ou palavras-chave. Descarrega no máximo 10 "
+"respostas,\n"
+"        pelo que deve fazer a pesquisa mais especifica possível.\n"
+"        Pode escolher a língua para os metadados:\n"
+"        Todas & inglês & francês & alemão & espanhol\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/archive.py:41
 msgid ""
 "Extract common e-book formats from archives (zip/rar) files. Also try to "
 "autodetect if they are actually cbz/cbr files."
 msgstr ""
+"Extrair os formatos e-book dos ficheiros de arquivo (zip/rar). Também tenta "
+"detectar se são ficheiros cbz/cbr."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:114
 msgid "TEMPLATE ERROR"
-msgstr ""
+msgstr "ERRO DO TEMPLATE"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:540
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:62
@@ -2840,20 +2884,20 @@ msgstr "Não foi encontrada nenhuma capa"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:28
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:45
 msgid "Cover download"
-msgstr ""
+msgstr "Descarregar capa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:80
 msgid "Download covers from openlibrary.org"
-msgstr ""
+msgstr "Descarregar capas de openlibrary.org"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:108
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:137
 msgid "ISBN: %s not found"
-msgstr ""
+msgstr "ISBN: %s não encontrado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:118
 msgid "Download covers from librarything.com"
-msgstr ""
+msgstr "Descarregar capas de librarything.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:129
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:69
@@ -2877,23 +2921,23 @@ msgstr "Erro no servidor LibraryThing.com. Tente outra vez mais tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:226
 msgid "Download covers from Douban.com"
-msgstr ""
+msgstr "Descarregar capas de Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:235
 msgid "Douban.com API timed out. Try again later."
-msgstr ""
+msgstr "A ligação à API do Douban.com expirou. Tente novamente mais tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
-msgstr ""
+msgstr "Descarregar os metadados de Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:57
 msgid "Metadata download"
-msgstr ""
+msgstr "Descarregar metadados"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:141
 msgid "ratings"
-msgstr ""
+msgstr "Avaliações"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:141
 msgid "tags"
@@ -2905,29 +2949,31 @@ msgstr "descrições/revisões"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:143
 msgid "Download %s from %s"
-msgstr ""
+msgstr "Descarregar %s de %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:150
 msgid "Convert comments downloaded from %s to plain text"
-msgstr ""
+msgstr "Converter comentários descarregados de %s para texto simples"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:178
 msgid "Downloads metadata from Google Books"
-msgstr ""
+msgstr "Descarregar os metadados do Google Books."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:195
 msgid "Downloads metadata from isbndb.com"
-msgstr ""
+msgstr "Descarregar os metadados de isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:223
 msgid ""
 "To use isbndb.com you must sign up for a %sfree account%s and enter your "
 "access key below."
 msgstr ""
+"Para utilizar o isbndb.com tem primeiro que criar uma %sconta gratuíta%s e "
+"introduzir a sua chave de acesso aqui."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:233
 msgid "Downloads social metadata from amazon.com"
-msgstr ""
+msgstr "Descarregar metadados sociais da amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:254
 msgid "Downloads series/tags/rating information from librarything.com"
@@ -2937,17 +2983,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:25
 msgid "Downloads metadata from Fictionwise"
-msgstr ""
+msgstr "Descarregar os metadados da Fictionwise"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:90
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:108
 msgid "Query: %s"
-msgstr ""
+msgstr "Pesquisa: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:285
 msgid "Fictionwise timed out. Try again later."
-msgstr ""
+msgstr "A ligação do Fictionwise expirou. Tente novamente mais tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:286
@@ -2959,11 +3005,13 @@ msgid ""
 "SUMMARY:\n"
 " %s"
 msgstr ""
+"Sumário:\n"
+" %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:316
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:333
 msgid "Failed to get all details for an entry"
-msgstr ""
+msgstr "Não foi possível obter os detalhes para uma entrada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:354
 msgid ""
@@ -2976,36 +3024,44 @@ msgid ""
 "        so you should make your query as specific as possible.\n"
 "    "
 msgstr ""
+"        %prog [opções]\n"
+"\n"
+"        Obter os metadados do livro da Fictionwise. Deve especificar o "
+"título, autor,\n"
+"        ou palavras-chave. Não é possível especificar o ISBN. Obtém no "
+"máximo 20 registos,\n"
+"        pelo que deve fazer uma pesquisa tão especifica quanto possível\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:362
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:363
 msgid "Book title"
-msgstr ""
+msgstr "Título do livro"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:363
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:364
 msgid "Book author(s)"
-msgstr ""
+msgstr "Autor(es) do livro"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:364
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:365
 msgid "Book publisher"
-msgstr ""
+msgstr "Editora do livro"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:365
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:367
 msgid "Keywords"
-msgstr ""
+msgstr "Palavras-chave"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:367
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:373
 msgid "Maximum number of results to fetch"
-msgstr ""
+msgstr "Número máximo de registos a devolver"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:369
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:375
 msgid "Be more verbose about errors"
-msgstr ""
+msgstr "Ser mais desciptivo acerca dos erros"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:383
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:390
@@ -3064,33 +3120,38 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from "
 "LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [opções] ISBN\n"
+"\n"
+"Obter a imagem da capa/metadados socias para o livro identificado pelo ISBN "
+"a partir de LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:26
 msgid "Downloads metadata from french Nicebooks"
-msgstr ""
+msgstr "Descarregar os metadados a partir da Nicebooks francesa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:42
 msgid "Downloads covers from french Nicebooks"
-msgstr ""
+msgstr "Descarregar as capas a partir da Nicebooks francesa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:118
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:242
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:320
 msgid "Nicebooks timed out. Try again later."
-msgstr ""
+msgstr "A ligação à Nicebooks expirou. Tente novamente mais tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:119
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:243
 msgid "Nicebooks encountered an error."
-msgstr ""
+msgstr "A ligação à Nicebooks encontrou um erro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:323
 msgid "ISBN: %s not found."
-msgstr ""
+msgstr "ISBN: %s não encontrado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:324
 msgid "An errror occured with Nicebooks cover fetcher"
-msgstr ""
+msgstr "Aconteceu um erro ao tentar obter a capa a partir da Nicebooks"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:354
 msgid ""
@@ -3103,10 +3164,18 @@ msgid ""
 "        It can also get covers if the option is activated.\n"
 "    "
 msgstr ""
+"        %prog [opções]\n"
+"\n"
+"        Obter os metadados a partir da Nicebooks. Deve especificar o título, "
+"autor,\n"
+"        ISBN, editor ou palavras-chave. Obtêm no máximo 20 registos,\n"
+"        pelo que deve fazer a sua pesquisa o mais especifica possível.\n"
+"        Também permite obter as capas se esta opção estiver activa.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:366
 msgid "Book ISBN"
-msgstr ""
+msgstr "ISBN do Livro"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:369
 msgid "Covers: 1-Check/ 2-Download"
@@ -3114,19 +3183,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:371
 msgid "Covers files path"
-msgstr ""
+msgstr "Caminho para os ficheiros das Capas"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:396
 msgid "No cover found!"
-msgstr ""
+msgstr "Não foi encontrada nenhuma capa!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:398
 msgid "A cover was found for this book"
-msgstr ""
+msgstr "Foi encontrada uma capa para este livro"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:407
 msgid "Cover saved to file "
-msgstr ""
+msgstr "Capa guardada para o ficheiro "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1308
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1442
@@ -3169,6 +3238,9 @@ msgid ""
 "will try to convert margins specified in the input document, otherwise it "
 "will ignore them."
 msgstr ""
+"Ignorar as margens do documento de entrada. Se Falso, o plugin de saída MOBI "
+"tentará converter as margens especificadas no documento de entrada, caso "
+"contrário irá ignorá-las"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:113
 msgid "All articles"
@@ -3253,7 +3325,7 @@ msgstr "Os livros no formato %s não são suportados"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:171
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:218
 msgid "Book %s of %s"
-msgstr ""
+msgstr "Livro %s de %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."

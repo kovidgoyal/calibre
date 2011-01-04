@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-02 23:55+0000\n"
-"PO-Revision-Date: 2011-01-01 21:05+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-04 04:22+0000\n"
+"Last-Translator: Miguel A. Lopez-Molina <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-03 04:52+0000\n"
+"X-Launchpad-Export-Date: 2011-01-04 13:57+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:511
@@ -613,6 +613,8 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Pensado para el Samsung Galaxy y tabletas similares con una resolución de "
+"600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -5636,7 +5638,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Excluded genres"
-msgstr ""
+msgstr "Géneros excluídos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:310
@@ -5650,7 +5652,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 msgid "Excluded books"
-msgstr ""
+msgstr "Libros excluídos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:311
 msgid ""
@@ -5689,7 +5691,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Read books"
-msgstr ""
+msgstr "Leer libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Column containing 'read' status"
@@ -5701,7 +5703,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Other options"
-msgstr ""
+msgstr "Otras opciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Wishlist tag"

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-02 23:55+0000\n"
-"PO-Revision-Date: 2011-01-02 20:54+0000\n"
-"Last-Translator: sengian <Unknown>\n"
+"PO-Revision-Date: 2011-01-03 12:43+0000\n"
+"Last-Translator: Eric ALARD <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-03 04:46+0000\n"
+"X-Launchpad-Export-Date: 2011-01-04 13:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -594,6 +594,8 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Prévu pour le Samsung Galaxy et les tablettes similaires avec une résolution "
+"de 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -821,7 +823,7 @@ msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:41
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "Adresse IP du matériel (redémarrer calibre après la mise à jour)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:46
 msgid ""
@@ -5670,7 +5672,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Descriptions"
-msgstr ""
+msgstr "&Descriptions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid ""

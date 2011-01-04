@@ -10,13 +10,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-02 23:55+0000\n"
-"PO-Revision-Date: 2011-01-03 01:33+0000\n"
-"Last-Translator: Thruth Wang <wanglihao@gmail.com>\n"
+"PO-Revision-Date: 2011-01-03 13:10+0000\n"
+"Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-03 04:56+0000\n"
+"X-Launchpad-Export-Date: 2011-01-04 14:01+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -184,7 +184,7 @@ msgstr "分类生成器"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:405
 msgid "User Interface Action"
-msgstr "用户界面行为"
+msgstr "用户界面操作"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:431
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
@@ -266,7 +266,7 @@ msgstr "从 %s 文件设置元数据"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:723
 msgid "Look and Feel"
-msgstr "外观和感受"
+msgstr "外观和体验"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:725
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:737
@@ -3549,7 +3549,7 @@ msgstr "禁用系统托盘消息"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:104
 msgid "Default action to perform when send to device button is clicked"
-msgstr "当“传送到设备”按钮被按下时的默认动作"
+msgstr "当“传送到设备”按钮被按下时的默认操作"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:124
 msgid "Maximum number of waiting worker processes"
@@ -3834,6 +3834,8 @@ msgid ""
 "No books to catalog\n"
 "Check exclusion criteria"
 msgstr ""
+"分类无书籍\n"
+"检查排除条件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:70
 msgid "Catalog generated."
@@ -5156,6 +5158,24 @@ msgid ""
 "right:0px; -qt-block-indent:0; text-indent:0px;\">e.g., [Project "
 "Gutenberg]</p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:13pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Default pattern </p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"family:'Courier New,courier';\">\\[.+\\]</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">excludes tags of the form "
+"[<span style=\" font-family:'Courier New,courier';\">tag</span>], </p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">e.g., [Project "
+"Gutenberg]</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Excluded genres"
@@ -5192,6 +5212,20 @@ msgid ""
 "size:12pt;\">Default:</span><span style=\" font-family:'Courier "
 "New,courier'; font-size:12pt;\"> ~,Catalog</span></p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:13pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"size:12pt;\">Comma-separated list of tags to exclude.</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"size:12pt;\">Default:</span><span style=\" font-family:'Courier "
+"New,courier'; font-size:12pt;\"> ~,Catalog</span></p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
@@ -5236,7 +5270,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid "&Thumbnail width"
-msgstr ""
+msgstr "缩略图宽度(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "Size hint for Description cover thumbnails"
@@ -6586,7 +6620,7 @@ msgstr "查看设备上的书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:458
 msgid "Set default send to device action"
-msgstr "设置传送到设备的默认动作"
+msgstr "设置传送到设备的默认操作"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:464
 msgid "Send to main memory"
@@ -8425,7 +8459,7 @@ msgstr "使用中的项"
 msgid ""
 "Delete item from database. This will unapply the item from all books and "
 "then remove it from the database."
-msgstr ""
+msgstr "从数据库删除项目。这将取消项目对所有书籍的应用并从数据库中移除项目。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:81
 msgid "Rename the item in every book where it is used."
@@ -8657,6 +8691,8 @@ msgid ""
 "For help with writing advanced news recipes, please visit <a "
 "href=\"http://calibre-ebook.com/user_manual/news.html\">User Recipes</a>"
 msgstr ""
+"创造高级新闻清单，请访问 <a href=\"http://calibre-"
+"ebook.com/user_manual/news.html\">用户清单</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:282
 msgid "Recipe source code (python)"
@@ -10702,7 +10738,7 @@ msgstr "把你自定义的分类添加到标签浏览器"
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:183
 msgid "Convert book %d of %d (%s)"
-msgstr "转换 %2$d 本书中的第 %1$d 本 (%s)"
+msgstr "转换第 %d 本书 (共%d本) (%s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:203
@@ -10714,7 +10750,7 @@ msgstr "无法转换某些书籍"
 msgid ""
 "Could not convert %d of %d books, because no suitable source format was "
 "found."
-msgstr "由于未找到适用源格式，无法转换 %2$d 本书中的 %1$d 本。"
+msgstr "由于未找到适用源格式，无法转换第 %d 本书（共 %d 本）。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:121
 msgid "Queueing books for bulk conversion"
@@ -13495,75 +13531,3 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
 msgstr "不下载 CSS 样式表。"
-
-#~ msgid ""
-#~ "Specify the character encoding of the output document. The default is utf-8. "
-#~ "Note: This option is not honored by all formats."
-#~ msgstr "设置输出文件使用的编码格式. 默认使用utf-8. 注意: 该选项将应用于所有输出格式."
-
-#~ msgid ""
-#~ "Specify the compression level to use. Scale 1 - 10. 1 being the lowest "
-#~ "compression but the fastest and 10 being the highest compression but the "
-#~ "slowest."
-#~ msgstr "指定压缩级别。范围 1-10。1 为最低级别，压缩过程最快；10为最高压缩率，但压缩过程更长。"
-
-#~ msgid "'Don't include this book' tag:"
-#~ msgstr "\"不含此书\"标签："
-
-#~ msgid "Additional note tag prefix:"
-#~ msgstr "附加笔记标签前缀："
-
-#~ msgid "Include 'Titles' Section"
-#~ msgstr "包含\"标题\"部分"
-
-#~ msgid "Include 'Recently Added' Section"
-#~ msgstr "包含\"最近添加\"部分"
-
-#~ msgid ""
-#~ "No books to catalog\n"
-#~ "Check exclude tags"
-#~ msgstr ""
-#~ "没有书籍收入类目\n"
-#~ "检查不含标签"
-
-#~ msgid "Regex pattern describing tags to exclude as genres:"
-#~ msgstr "正则表达式描述标签，以排除体裁："
-
-#~ msgid "Sort numbers as text"
-#~ msgstr "将数字做文本处理"
-
-#~ msgid "Include 'Series' Section"
-#~ msgstr "包含'系列'节"
-
-#~ msgid "Case sensitive"
-#~ msgstr "区分大小写"
-
-#~ msgid "Search mode:"
-#~ msgstr "查找模式："
-
-#~ msgid "Mode:"
-#~ msgstr "模式："
-
-#~ msgid "use comma"
-#~ msgstr "使用逗号"
-
-#~ msgid "Communicate with the PocketBook 602 reader."
-#~ msgstr "和 PocketBook 602 阅读器进行交流"
-
-#~ msgid "Unable to connect to Bambook."
-#~ msgstr "无法连接锦书。"
-
-#~ msgid "Wishlist tag:"
-#~ msgstr "愿望列表标签："
-
-#~ msgid "Books marked as read:"
-#~ msgstr "标记已读书籍："
-
-#~ msgid "Apply function after replace:"
-#~ msgstr "替换后执行函数："
-
-#~ msgid "Test &text"
-#~ msgstr "测试文本(&T)"
-
-#~ msgid "Test re&sult"
-#~ msgstr "测试结果(&S)"

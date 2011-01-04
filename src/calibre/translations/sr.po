@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-02 23:55+0000\n"
-"PO-Revision-Date: 2011-01-01 20:38+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-03 09:18+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-03 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-01-04 13:57+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -583,6 +583,7 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Namenjeno Samsung Galaxy i sličnim uređajima s rezolucijom od 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -806,7 +807,7 @@ msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:41
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "IP adresa uređaja (posle promene ponovo pokrenite calibre)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:46
 msgid ""
@@ -829,6 +830,9 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"Nisam uspeo da se povežem s Bambook čitačem. \n"
+"Ako pokušavate da se povežete preko WiFi, molim vas da proverite da li je "
+"Bambook IP adresa ispravno unešena."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:111
 msgid "Bambook"
@@ -932,7 +936,7 @@ msgstr "Uspstavi vezu s PocketBook 301 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "Uspostavi vezu s PocketBook 602/603/902/903 čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
@@ -1126,11 +1130,11 @@ msgstr "Uspostavi vezu s Trekstor čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:251
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "Uspostavi vezu sa EEE čitačem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:271
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Uspostavi vezu s Nextbook čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -4162,6 +4166,8 @@ msgid ""
 "No books to catalog\n"
 "Check exclusion criteria"
 msgstr ""
+"Nema knjiga za katalog\n"
+"Proverite kriterijume za izostavljanje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:70
 msgid "Catalog generated."
@@ -4598,7 +4604,7 @@ msgstr "Uspostavi komunikaciju sa iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:41
 msgid "Connect to Bambook"
-msgstr ""
+msgstr "Uspostavi vezu s Bambook čitačem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:63
@@ -5511,30 +5517,32 @@ msgstr "Opcije za e-knjigu"
 msgid ""
 "Sections to include in catalog.  All catalogs include 'Books by Author'."
 msgstr ""
+"Odeljci koji će biti uključeni u katalog. Svi katalozi sadrže odeljak "
+"\"Knjige po autoru\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:292
 msgid "Included sections"
-msgstr ""
+msgstr "Uključeni odeljci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:293
 msgid "Books by &Title"
-msgstr ""
+msgstr "Knjige po &naslovu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:294
 msgid "Books by &Series"
-msgstr ""
+msgstr "Knjige po &seriji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:295
 msgid "Recently &Added"
-msgstr ""
+msgstr "Nedavno dod&ato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Books by &Genre"
-msgstr ""
+msgstr "Knji&ge po žanru"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Descriptions"
-msgstr ""
+msgstr "&Opisi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid ""
@@ -5557,24 +5565,45 @@ msgid ""
 "right:0px; -qt-block-indent:0; text-indent:0px;\">e.g., [Project "
 "Gutenberg]</p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:13pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Podrazumevani šablon </p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"family:'Courier New,courier';\">\\[.+\\]</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">ne uključuje etikete "
+"oblika [<span style=\" font-family:'Courier New,courier';\">tag</span>], "
+"</p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">npr., [Project "
+"Gutenberg]</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Excluded genres"
-msgstr ""
+msgstr "Izostavljeni žanrovi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:310
 msgid "Tags to &exclude"
-msgstr ""
+msgstr "&Etikete koje će biti isključene"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid ""
 "Books matching either pattern will not be included in generated catalog. "
 msgstr ""
+"Knjige koje odgovaraju bilo kom od šablona neće biti uključene u novi "
+"katalog. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 msgid "Excluded books"
-msgstr ""
+msgstr "Isključene knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:311
 msgid ""
@@ -5593,99 +5622,115 @@ msgid ""
 "size:12pt;\">Default:</span><span style=\" font-family:'Courier "
 "New,courier'; font-size:12pt;\"> ~,Catalog</span></p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:13pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"size:12pt;\">Zarezima razdvojena lista etiketa koje će biti "
+"isključene.</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"size:12pt;\">Podrazumeva se:</span><span style=\" font-family:'Courier "
+"New,courier'; font-size:12pt;\"> ~,Catalog</span></p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "&Column/value"
-msgstr ""
+msgstr "&Kolona/vrednost"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Column containing additional exclusion criteria"
-msgstr ""
+msgstr "Kolona koja sadrži dodatne kriterijume za isključivanje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Exclusion pattern"
-msgstr ""
+msgstr "Šablon za isključivanje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
 msgid "Matching books will be displayed with ✓"
-msgstr ""
+msgstr "Odgovarajuće knjige će biti prikazane sa ✓"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Read books"
-msgstr ""
+msgstr "Pročitane knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Column containing 'read' status"
-msgstr ""
+msgstr "Kolona koja sadrži status 'pročitano'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "'read book' pattern"
-msgstr ""
+msgstr "Šablon za 'knjiga pročitana'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Other options"
-msgstr ""
+msgstr "Ostale opcije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Wishlist tag"
-msgstr ""
+msgstr "Etiketa &za spisak želja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid "Books tagged as Wishlist items will be displayed with ✕"
-msgstr ""
+msgstr "Knjige na spisku želja će bit označene sa ✕"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid "&Thumbnail width"
-msgstr ""
+msgstr "Širi&na ikone"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "Size hint for Description cover thumbnails"
-msgstr ""
+msgstr "Predlog za veličinu ikone za omot opisa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
 msgid " inch"
-msgstr ""
+msgstr " inča"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Description note"
-msgstr ""
+msgstr "&Opis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:332
 msgid "Custom column source for note to include in Description header area"
-msgstr ""
+msgstr "Poseban izvor za belešku koja će biti uključena u zaglavlje opisa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:333
 msgid "&Merge with Comments"
-msgstr ""
+msgstr "Spoj s ko&mentarima"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:334
 msgid "Additional content merged with Comments during catalog generation"
 msgstr ""
+"Dodatni sadržaj koji će biti spojen s komentarima pri kreiranju kataloga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:335
 msgid "Merge additional content before Comments"
-msgstr ""
+msgstr "Dodaj ostali sadržaj pre komentara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:336
 msgid "&Before"
-msgstr ""
+msgstr "&Pre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:337
 msgid "Merge additional content after Comments"
-msgstr ""
+msgstr "Dodaj ostali sadržaj posle komentara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:338
 msgid "&After"
-msgstr ""
+msgstr "Posl&e"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:339
 msgid "Separate Comments and additional content with horizontal rule"
-msgstr ""
+msgstr "Razdvoj komentare i ostali sadržaj vodoravnom crtom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:340
 msgid "&Separator"
-msgstr ""
+msgstr "&Znak za razdvajanje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -6511,7 +6556,7 @@ msgstr "&Ugnežđeni Sadržaj"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:45
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:73
 msgid "Output Encoding:"
-msgstr ""
+msgstr "Izlazno kodiranje:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
@@ -7997,7 +8042,7 @@ msgstr "Naziv polja koje želite da pretražujete"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:446
 msgid "Search &mode:"
-msgstr ""
+msgstr "&Način pretraživanja:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:447
 msgid ""
@@ -8037,7 +8082,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:453
 msgid "Cas&e sensitive"
-msgstr ""
+msgstr "Razlikuj v&elika i mala slova"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:454
 msgid "&Replace with:"
@@ -8051,7 +8096,7 @@ msgstr "Tekst za zaemnu. Pronađeni tekst će biti zamenjen ovim"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:456
 msgid "&Apply function after replace:"
-msgstr ""
+msgstr "Primeni &funkiciju posle zamene:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:457
 msgid ""
@@ -8080,7 +8125,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:462
 msgid "M&ode:"
-msgstr ""
+msgstr "N&ačin:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:463
 msgid "Specify how the text should be copied into the destination."
@@ -8093,36 +8138,41 @@ msgid ""
 "is\n"
 "not multiple and the destination field is multiple"
 msgstr ""
+"Određuje da li će rezultat biti podeljen u više vrednosti, ili\n"
+"će ostati kao celina. Ova opcija ima najviše efekta kada izvorno\n"
+"polje nije višestruko, a kada ciljno jeste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:467
 msgid "Split &result"
-msgstr ""
+msgstr "Razdvoj &rezultate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:468
 msgid "For multiple-valued fields, sho&w"
-msgstr ""
+msgstr "Za polja s više vrednosti pri&kaži"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:469
 msgid "values starting a&t"
-msgstr ""
+msgstr "vrednosti koje počinju &na"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:470
 msgid "with values separated b&y"
-msgstr ""
+msgstr "vrednosti razdvojene &sa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:471
 msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
 msgstr ""
+"Koristi kada prikazuješ rezultate da bi razdvojio elemente u poljima s više "
+"vrednosti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:472
 msgid "Test text"
-msgstr ""
+msgstr "Test tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:473
 msgid "Test result"
-msgstr ""
+msgstr "Test rezultat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:474
 msgid "Your test:"
@@ -10487,15 +10537,15 @@ msgstr "Nikada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "By first letter"
-msgstr ""
+msgstr "Po prvom slovu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "Disabled"
-msgstr ""
+msgstr "Isključeno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:61
 msgid "Partitioned"
-msgstr ""
+msgstr "Podeljeno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:140
 msgid "User Interface &layout (needs restart):"
@@ -10552,7 +10602,7 @@ msgstr "Pretraga tokom kucanja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Tags browser category partitioning method:"
-msgstr ""
+msgstr "Način podele kategorija u izlogu etiketa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:153
 msgid ""
@@ -10562,10 +10612,15 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
+"Izaberite kako će biti prikazene podkategorije u izlogu etiketa kada\n"
+"ima više elemenata nego što je moguće prikazati. Izaberite 'po \n"
+"prvom slovu' da vidite abecednu listu. Izaberite 'podeljeno' da \n"
+"vidite grupe podjednake veličine. Postavite na 'isključeno'\n"
+"ako vam podkategorije nikada nisu potrebne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:158
 msgid "Collapse when more items than:"
-msgstr ""
+msgstr "Zatvori kada ima više elemenata od:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:159
 msgid ""
@@ -10573,6 +10628,8 @@ msgid ""
 "up into sub-categories. If the partition method is set to disable, this "
 "value is ignored."
 msgstr ""
+"Ako kategorija za Izlog etiketa ima više od ovog broja, biće podeljena\n"
+"na podkategorije. Ako je način deljenja isključen ova vrednost se ignoriše."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:161
 msgid "&Toolbar"
@@ -11336,7 +11393,7 @@ msgstr "Prikaži sve kategorije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:300
 msgid "Change sub-categorization scheme"
-msgstr ""
+msgstr "Promeni naćin kreiranja podkategorija"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:625
 msgid ""
@@ -11364,7 +11421,7 @@ msgstr "Naziv sačuvane pretrage %s je već u upotrebi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1223
 msgid "Find item in tag browser"
-msgstr ""
+msgstr "Pronađi stavku u izlogu etiketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1226
 msgid ""
@@ -11375,26 +11432,36 @@ msgid ""
 "*foo will filter all categories at once, showing only those items\n"
 "containing the text \"foo\""
 msgstr ""
+"Traži stavke. Ovo je pretraga tipa \"sadrži\"; biće pronađene stavke koje\n"
+"sadrže zadati tekst bilo gde u svom imenu. Možete ograničiti pertraživanje\n"
+"na odeređene kategorije koristeći sintaksu sličnu običnom pretraživanju.\n"
+"Na primer, tags:foo će pronaći 'foo' u bilo kojoj etiketi, ali ne i u "
+"autoru, itd.\n"
+"Unošenje *foo će pretražiti sve kategorije odjednom, prikazujući samo "
+"stavke\n"
+"koje sadrže tekst \"foo\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1235
 msgid "ALT+f"
-msgstr ""
+msgstr "ALT+f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1239
 msgid "F&ind"
-msgstr ""
+msgstr "Traž&i"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1240
 msgid "Find the first/next matching item"
-msgstr ""
+msgstr "Pronađi prvu/sledeću stavku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1247
 msgid "Collapse all categories"
-msgstr ""
+msgstr "Zatvori sve kategorije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1268
 msgid "No More Matches.</b><p> Click Find again to go to first match"
 msgstr ""
+"Nema više rezultata pretrage.</b><p> Kliknite na \"Traži ponovo\" da biste "
+"skočili na prvi rezultat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1281
 msgid "Sort by name"
@@ -12332,13 +12399,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:147
 msgid "Setup sending email using"
-msgstr ""
+msgstr "Podesi slanje elektronske pošte korišćenjem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:149
 msgid ""
 "If you don't have an account, you can sign up for a free {name} email "
 "account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
+"Ako nemate nalog, možete se prijaviti za novu besplatnu {name} adresu na <a "
+"href=\"http://{url}\">http://{url}</a>. {extra}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:156
 msgid "Your %s &email address:"
@@ -12555,6 +12624,12 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Izlazna polja kada se pravi katalog knjiga u bazi podataka. Trebalo bi da "
+"bude zarezima razdvojena lista polja.\n"
+"Polja na raspolaganju: %s,\n"
+"uz korisnička polja.\n"
+"Podrazumeva se: '%%default'\n"
+"Važi za: CSV i XML izlazne formate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:63
 msgid ""
@@ -12686,6 +12761,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"polje:šablon koji određuje korisničko polje/sadržaj koje određuje koje "
+"knjige će biti isključene.\n"
+"Podrazumeva se: '%default'\n"
+"Važi za ePub i MOBI izlazne formate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:595
 msgid ""
@@ -12717,6 +12796,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Uključi opis knjige u katalog.\n"
+"Podrazumeva se: '%default'\n"
+"Važi za ePub i MOBI izlazne formate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:616
 msgid ""
@@ -12724,6 +12806,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Uključi odeljak 'Žanroviž u katalog.\n"
+"Podrazumeva se: '%default'\n"
+"Važi za ePub i MOBI izlazne formate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:623
 msgid ""
@@ -12761,6 +12846,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Korisničko polje koje sadrži belešku koja će biti dodata u zaglavlje Opis.\n"
+"Podrazumeva se: '%default'\n"
+"Važi za ePub i MOBI izlazne formate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:651
 msgid ""
@@ -12771,6 +12859,13 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"<korisničko polje>:[before|after]:[True|False] koje određuje:\n"
+" <korisničko polje> Korisničko polje koje sadrži beleške koje će bit spojene "
+"s Komentarima\n"
+" [before|after] Mesto na koje će beleška biti priključena (pre/posle)\n"
+" [True|False] - Da li će beleške biti razdvojene vodoravnom crtom (da/ne)\n"
+"Podrazumeva se: '%default'\n"
+"Važi za ePub i MOBI izlazne formate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:661
 msgid ""
@@ -12804,6 +12899,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"Predlog veličine (u inčima) za omot knjiga u katalogu:\n"
+"Opseg: 1.0 - 2.0\n"
+"Podrazumeva se: '%default'\n"
+"Važi za ePub i MOBI izlazne formate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:682
 msgid ""
@@ -14121,7 +14220,7 @@ msgstr "format: nepoznata slovna oznaka formata {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:471
 msgid "No such variable "
-msgstr ""
+msgstr "Nema ovakve promenljive "
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
