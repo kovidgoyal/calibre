@@ -10,7 +10,21 @@ from calibre.utils.config import Config, ConfigProxy
 class DeviceConfig(object):
 
     HELP_MESSAGE = _('Configure Device')
+
+    #: Can be None, a string or a list of strings. When it is a string
+    #: that string is used for the help text and the actual customization value
+    #: can be read from ``dev.settings().extra_customization``.
+    #: If it a list of strings, then dev.settings().extra_customization will
+    #: also be a list. In this case, you *must* ensure that
+    #: EXTRA_CUSTOMIZATION_DEFAULT is also a list. The list can contain either
+    #: boolean values or strings, in which case a checkbox or line edit will be
+    #: used for them in the config widget, automatically.
+    #: If a string contains ::: then the text after it is interpreted as the
+    #: tooltip
     EXTRA_CUSTOMIZATION_MESSAGE = None
+
+    #: The default value for extra customization. If you set
+    #: EXTRA_CUSTOMIZATION_MESSAGE you *must* set this as well.
     EXTRA_CUSTOMIZATION_DEFAULT = None
 
     SUPPORTS_SUB_DIRS = False
@@ -73,16 +87,32 @@ class DeviceConfig(object):
         if cls.SUPPORTS_USE_AUTHOR_SORT:
             proxy['use_author_sort'] = config_widget.use_author_sort()
         if cls.EXTRA_CUSTOMIZATION_MESSAGE:
-            ec = unicode(config_widget.opt_extra_customization.text()).strip()
-            if not ec:
-                ec = None
+            if isinstance(cls.EXTRA_CUSTOMIZATION_MESSAGE, list):
+                ec = []
+                for i in range(0, len(cls.EXTRA_CUSTOMIZATION_MESSAGE)):
+                    if hasattr(config_widget.opt_extra_customization[i], 'isChecked'):
+                        ec.append(config_widget.opt_extra_customization[i].isChecked())
+                    else:
+                        ec.append(unicode(config_widget.opt_extra_customization[i].text()).strip())
+            else:
+                ec = unicode(config_widget.opt_extra_customization.text()).strip()
+                if not ec:
+                    ec = None
             proxy['extra_customization'] = ec
         st = unicode(config_widget.opt_save_template.text())
         proxy['save_template'] = st
 
     @classmethod
     def settings(cls):
-        return cls._config().parse()
+        opts = cls._config().parse()
+        if isinstance(cls.EXTRA_CUSTOMIZATION_DEFAULT, list):
+            if not isinstance(opts.extra_customization, list):
+                opts.extra_customization = [opts.extra_customization]
+            else:
+                for i,d in enumerate(cls.EXTRA_CUSTOMIZATION_DEFAULT):
+                    if i >= len(opts.extra_customization):
+                        opts.extra_customization.append(d)
+        return opts
 
     @classmethod
     def save_template(cls):
