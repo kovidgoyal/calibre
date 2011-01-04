@@ -38,15 +38,16 @@ class SafeFormat(TemplateFormatter):
 
     def get_value(self, key, args, kwargs):
         try:
+            key = key.lower()
             if key != 'title_sort':
-                key = field_metadata.search_term_to_field_key(key.lower())
+                key = field_metadata.search_term_to_field_key(key)
             b = self.book.get_user_metadata(key, False)
             if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
                 v = ''
             elif b and b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0:
                 v = ''
             else:
-                ign, v = self.book.format_field(key.lower(), series_with_index=False)
+                ign, v = self.book.format_field(key, series_with_index=False)
             if v is None:
                 return ''
             if v == '':
