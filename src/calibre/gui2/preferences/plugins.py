@@ -129,6 +129,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.plugin_view.setModel(self._plugin_model)
         self.plugin_view.setStyleSheet(
                 "QTreeView::item { padding-bottom: 10px;}")
+        self.plugin_view.doubleClicked.connect(self.double_clicked)
         self.toggle_plugin_button.clicked.connect(self.toggle_plugin)
         self.customize_plugin_button.clicked.connect(self.customize_plugin)
         self.remove_plugin_button.clicked.connect(self.remove_plugin)
@@ -137,6 +138,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def toggle_plugin(self, *args):
         self.modify_plugin(op='toggle')
+
+    def double_clicked(self, index):
+        if index.parent().isValid():
+            self.modify_plugin(op='customize')
 
     def customize_plugin(self, *args):
         self.modify_plugin(op='customize')
