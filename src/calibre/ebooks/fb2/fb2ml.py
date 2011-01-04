@@ -161,6 +161,17 @@ class FB2MLizer(object):
             text.append('<section>')
             self.section_level += 1
         
+        # Insert the title page / cover into the spine if it is not already referenced.
+        title_name = u''
+        if 'titlepage' in self.oeb_book.guide:
+            title_name = 'titlepage'
+        elif 'cover' in self.oeb_book.guide:
+            title_name = 'cover'
+        if title_name:
+            title_item = self.oeb_book.manifest.hrefs[self.oeb_book.guide[title_name].href]
+            if title_item.spine_position is None and title_item.media_type == 'application/xhtml+xml':
+                self.oeb_book.spine.insert(0, title_item, True)
+        
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
