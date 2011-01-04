@@ -15,8 +15,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os, re,  tempfile
+import os, re, tempfile
+
 from calibre.ebooks.rtf2xml import copy, check_brackets
+
 class ProcessTokens:
     """
     Process each token on a line and add information that will be useful for
@@ -41,9 +43,11 @@ class ProcessTokens:
         self.__bracket_count=0
         self.__exception_handler = exception_handler
         self.__bug_handler = bug_handler
+
     def compile_expressions(self):
         self.__num_exp = re.compile(r"([a-zA-Z]+)(.*)")
         self.__utf_exp = re.compile(r'(&.*?;)')
+
     def initiate_token_dict(self):
         self.__return_code = 0
         self.dict_token={
@@ -347,7 +351,7 @@ class ProcessTokens:
             10:     'Kanji numbering without the digit character',
             11:     'Kanji numbering with the digit character',
             1246:   'phonetic Katakana characters in aiueo order',
-            1346:    'phonetic katakana characters in iroha order',
+            1346:   'phonetic katakana characters in iroha order',
             14:     'double byte character',
             15:     'single byte character',
             16:     'Kanji numbering 3',
@@ -392,7 +396,7 @@ class ProcessTokens:
             5121 	:  'Arabic Algeria',
             15361 	:  'Arabic Bahrain',
             3073 	:  'Arabic Egypt',
-            1 	        :   'Arabic General',
+            1 	    :   'Arabic General',
             2049 	:  'Arabic Iraq',
             11265 	:  'Arabic Jordan',
             13313 	:  'Arabic Kuwait',
@@ -417,7 +421,7 @@ class ProcessTokens:
             1059 	:  'Byelorussian',
             1027 	:  'Catalan',
             2052 	:  'Chinese China',
-            4 	        :  'Chinese General',
+            4 	    :  'Chinese General',
             3076 	:  'Chinese Hong Kong',
             4100 	:  'Chinese Singapore',
             1028 	:  'Chinese Taiwan',
@@ -431,7 +435,7 @@ class ProcessTokens:
             2057 	:  'English British',
             4105 	:  'English Canada',
             9225 	:  'English Caribbean',
-            9 	        :  'English General',
+            9 	    :  'English General',
             6153 	:  'English Ireland',
             8201 	:  'English Jamaica',
             5129 	:  'English New Zealand',
@@ -595,12 +599,15 @@ class ProcessTokens:
         num = num[1:] # chop off leading 0, which I added
         num = num.upper() # the mappings store hex in caps
         return 'tx<hx<__________<\'%s\n' % num # add an ' for the mappings
+
     def ms_sub_func(self, pre, token, num):
         return 'tx<mc<__________<%s\n' % token
+
     def default_func(self, pre, token, num):
         if num == None:
             num = 'true'
         return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
+
     def __list_type_func(self, pre, token, num):
         type = 'arabic'
         if num == None:
@@ -610,15 +617,16 @@ class ProcessTokens:
                 num = int(num)
             except ValueError:
                 if self.__run_level > 3:
-                    msg = 'number "%s" cannot be converted to integer\n' % num
+                    msg = _('Number "%s" cannot be converted to integer\n') % num
                     raise self.__bug_handler, msg
             type = self.__number_type_dict.get(num)
             if type == None:
                 if self.__run_level > 3:
-                    msg = 'No type for "%s" in self.__number_type_dict\n'
+                    msg = _('No type for "%s" in self.__number_type_dict\n')
                     raise self.__bug_handler
                 type = 'Arabic'
         return 'cw<%s<%s<nu<%s\n' % (pre, token, type)
+
     def __language_func(self, pre, token, num):
         lang_name = self.__language_dict.get(int(re.search('[0-9]+', num).group()))
         if not lang_name:
@@ -627,31 +635,36 @@ class ProcessTokens:
                 msg = 'No entry for number "%s"' % num
                 raise self.__bug_handler, msg
         return 'cw<%s<%s<nu<%s\n' % (pre, token, lang_name)
+
     def two_part_func(self, pre, token, num):
         list = token.split("<")
         token = list[0]
         num = list[1]
         return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
         ##return 'cw<nu<nu<nu<%s>num<%s\n' % (token, num)
+
     def divide_by_2(self, pre, token, num):
         num = self.divide_num(num, 2)
         return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
         ##return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
+
     def divide_by_20(self, pre, token, num):
         num = self.divide_num(num, 20)
         return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
         ##return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
+
     def text_func(self, pre, token, num=None):
         return 'tx<nu<__________<%s\n' % token
+
     def ob_func(self, pre, token, num=None):
         self.__bracket_count += 1
-        ##return 'ob<%04d\n' % self.__bracket_count
         return 'ob<nu<open-brack<%04d\n' % self.__bracket_count
+
     def cb_func(self, pre, token, num=None):
-        ##line = 'cb<%04d\n' % self.__bracket_count
         line = 'cb<nu<clos-brack<%04d\n' % self.__bracket_count
         self.__bracket_count -= 1
         return line
+
     def color_func(self, pre, token, num):
         third_field = 'nu'
         if num[-1] == ';':
@@ -662,6 +675,7 @@ class ProcessTokens:
             num = "0" + num
         return 'cw<%s<%s<%s<%s\n' % (pre, token, third_field, num)
         ##return 'cw<cl<%s<nu<nu<%s>%s<%s\n' % (third_field, token, num, token)
+
     def bool_st_func(self, pre, token, num):
         if num is None or num == '' or num == '1':
             return 'cw<%s<%s<nu<true\n' % (pre, token)
@@ -674,13 +688,16 @@ class ProcessTokens:
             msg += 'token is ' + token + "\n"
             msg += "'" + num + "'" + "\n"
             raise self.__bug_handler, msg
+
     def __no_sup_sub_func(self, pre, token, num):
         the_string = 'cw<ci<subscript_<nu<false\n'
         the_string += 'cw<ci<superscrip<nu<false\n'
         return the_string
+
     def divide_num(self, numerator, denominator):
         try:
-            numerator = float(re.search('[0-9.]+', numerator).group())            
+            #calibre why ignore negative number? Wrong in case of \fi
+            numerator = float(re.search('[0-9.\-]+', numerator).group())
         except TypeError, msg:
             if self.__run_level > 3:
                 msg = 'no number to process?\n'
@@ -698,6 +715,7 @@ class ProcessTokens:
         if string_num[-2:] == ".0":
             string_num = string_num[:-2]
         return string_num
+
     def split_let_num(self, token):
         match_obj = re.search(self.__num_exp,token)
         if match_obj != None:
@@ -714,6 +732,7 @@ class ProcessTokens:
                 raise self.__bug_handler
             return token, 0
         return first, second
+
     def convert_to_hex(self,number):
         """Convert a string to uppercase hexidecimal"""
         num = int(number)
@@ -722,6 +741,7 @@ class ProcessTokens:
             return hex_num
         except:
             raise self.__bug_handler
+
     def process_cw(self, token):
         """Change the value of the control word by determining what dictionary
         it belongs to"""
@@ -737,92 +757,60 @@ class ProcessTokens:
         pre, token, action = self.dict_token.get(token, (None, None, None))
         if action:
             return action(pre, token, num)
-    # unused function
-    def initiate_token_actions(self):
-        self.action_for_token={
-        '{'     :   self.ob_func,
-        '}'     :   self.cb_func,
-        '\\'    :   self.process_cw,
-        }
-    # unused function
-    def evaluate_token(self,token):
-        """Evaluate tokens. Return a value if the token is not a
-        control word. Otherwise, pass token onto another method
-        for further evaluation."""
-        token, action = self.dict_token.get(token[0:1])
-        if action:
-            line = action(token)
-            return line
-        else :
-            return  'tx<nu<nu<nu<nu<%s\n' % token
+    
     def __check_brackets(self, in_file):
         self.__check_brack_obj = check_brackets.CheckBrackets\
             (file = in_file)
         good_br =  self.__check_brack_obj.check_brackets()[0]
         if not good_br:
             return 1
+
     def process_tokens(self):
         """Main method for handling other methods. """
-        first_token = 0
-        second_token = 0
-        read_obj = open(self.__file, 'r')
-        write_obj = open(self.__write_to, 'w')
-        line_to_read = "dummy"
         line_count = 0
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            token = line_to_read
-            token = token.replace("\n","")
-            if not token:
-                continue
-            line_count += 1
-            try:
-                token.decode('us-ascii')
-            except UnicodeError, msg:
-                msg = str(msg)
-                msg += 'Invalid RTF: File not ascii encoded.\n'
-                raise self.__exception_handler, msg
-            if not first_token:
-                if token != '\\{':
-                    msg = 'Invalid RTF: document doesn\'t start with {\n'
+        with open(self.__file, 'r') as read_obj, open(self.__write_to, 'wb') as write_obj:
+            for line in read_obj:
+                token = line.replace("\n","")
+                line_count += 1
+                if line_count == 1 and token != '\\{':
+                        msg = _('Invalid RTF: document doesn\'t start with {\n')
+                        raise self.__exception_handler, msg
+                elif line_count == 2 and token[0:4] != '\\rtf':
+                        msg =_('Invalid RTF: document doesn\'t start with \\rtf \n')
+                        raise self.__exception_handler, msg
+                
+                ##token = self.evaluate_token(token)
+                the_index = token.find('\\ ')
+                if token is not None and  the_index > -1:
+                    msg ='Invalid RTF: token "\\ " not valid.\n'
                     raise self.__exception_handler, msg
-                first_token = 1
-            elif first_token and not second_token:
-                if token[0:4] != '\\rtf':
-                    msg ='Invalid RTF: document doesn\'t start with \\rtf \n'
-                    raise self.__exception_handler, msg
-                second_token = 1
-            ##token = self.evaluate_token(token)
-            the_index = token.find('\\ ')
-            if token != None and  the_index > -1:
-                msg ='Invalid RTF: token "\\ " not valid. \n'
-                raise self.__exception_handler, msg
-            elif token[0:1] == "\\":
-                line = self.process_cw(token)
-                if line != None:
-                    write_obj.write(line)
-            else:
-                fields = re.split(self.__utf_exp, token)
-                for field in fields:
-                    if not field:
-                        continue
-                    if field[0:1] == '&':
-                        write_obj.write('tx<ut<__________<%s\n' % field)
-                    else:
-                        write_obj.write('tx<nu<__________<%s\n' % field)
-        read_obj.close()
-        write_obj.close()
+                elif token[:1] == "\\":
+                    line = self.process_cw(token)
+                    if line is not None:
+                        write_obj.write(line)
+                else:
+                    fields = re.split(self.__utf_exp, token)
+                    for field in fields:
+                        if not field:
+                            continue
+                        if field[0:1] == '&':
+                            write_obj.write('tx<ut<__________<%s\n' % field)
+                        else:
+                            write_obj.write('tx<nu<__________<%s\n' % field)
+
         if not line_count:
-            msg ='Invalid RTF: file appears to be empty. \n'
+            msg =_('Invalid RTF: file appears to be empty.\n')
             raise self.__exception_handler, msg
+        
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "processed_tokens.data")
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
+        
         bad_brackets = self.__check_brackets(self.__file)
         if bad_brackets:
-            msg = 'Invalid RTF: document does not have matching brackets.\n'
+            msg = _('Invalid RTF: document does not have matching brackets.\n')
             raise self.__exception_handler, msg
         else:
             return self.__return_code
