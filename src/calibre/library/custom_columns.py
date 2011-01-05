@@ -134,7 +134,15 @@ class CustomColumns(object):
 
         def adapt_bool(x, d):
             if isinstance(x, (str, unicode, bytes)):
-                x = bool(int(x))
+                x = x.lower()
+                if x == 'true':
+                    x = True
+                elif x == 'false':
+                    x = False
+                elif x == 'none':
+                    x = None
+                else:
+                    x = bool(int(x))
             return x
 
         def adapt_enum(x, d):
@@ -143,9 +151,17 @@ class CustomColumns(object):
                 v = None
             return v
 
+        def adapt_number(x, d):
+            if isinstance(x, (str, unicode, bytes)):
+                if x.lower() == 'none':
+                    return None
+            if d['datatype'] == 'int':
+                return int(x)
+            return float(x)
+
         self.custom_data_adapters = {
-                'float': lambda x,d : x if x is None else float(x),
-                'int':   lambda x,d : x if x is None else int(x),
+                'float': adapt_number,
+                'int':   adapt_number,
                 'rating':lambda x,d : x if x is None else min(10., max(0., float(x))),
                 'bool':  adapt_bool,
                 'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
