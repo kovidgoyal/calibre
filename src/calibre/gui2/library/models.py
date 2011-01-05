@@ -526,7 +526,7 @@ class BooksModel(QAbstractTableModel): # {{{
         def tags(r, idx=-1):
             tags = self.db.data[r][idx]
             if tags:
-                return QVariant(', '.join(tags.split(',')))
+                return QVariant(', '.join(sorted(tags.split(','), key=sort_key)))
             return None
 
         def series_type(r, idx=-1, siix=-1):
@@ -577,7 +577,7 @@ class BooksModel(QAbstractTableModel): # {{{
         def text_type(r, mult=False, idx=-1):
             text = self.db.data[r][idx]
             if text and mult:
-                return QVariant(', '.join(text.split('|')))
+                return QVariant(', '.join(sorted(text.split('|'),key=sort_key)))
             return QVariant(text)
 
         def number_type(r, idx=-1):

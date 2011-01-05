@@ -242,7 +242,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'timestamp',
              '(SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size',
             ('rating', 'ratings', 'rating', 'ratings.rating'),
-            ('tags', 'tags', 'tag', 'tags_sortconcat(name)'),
+            ('tags', 'tags', 'tag', 'group_concat(name)'),
              '(SELECT text FROM comments WHERE book=books.id) comments',
             ('series', 'series', 'series', 'name'),
             ('publisher', 'publishers', 'publisher', 'name'),

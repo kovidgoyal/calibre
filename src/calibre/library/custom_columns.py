@@ -14,7 +14,6 @@ from calibre.constants import preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date
 from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key
 
 class CustomColumns(object):
 
@@ -134,15 +133,7 @@ class CustomColumns(object):
 
         def adapt_bool(x, d):
             if isinstance(x, (str, unicode, bytes)):
-                x = x.lower()
-                if x == 'true':
-                    x = True
-                elif x == 'false':
-                    x = False
-                elif x == 'none':
-                    x = None
-                else:
-                    x = bool(int(x))
+                x = bool(int(x))
             return x
 
         def adapt_enum(x, d):
@@ -151,17 +142,9 @@ class CustomColumns(object):
                 v = None
             return v
 
-        def adapt_number(x, d):
-            if isinstance(x, (str, unicode, bytes)):
-                if x.lower() == 'none':
-                    return None
-            if d['datatype'] == 'int':
-                return int(x)
-            return float(x)
-
         self.custom_data_adapters = {
-                'float': adapt_number,
-                'int':   adapt_number,
+                'float': lambda x,d : x if x is None else float(x),
+                'int':   lambda x,d : x if x is None else int(x),
                 'rating':lambda x,d : x if x is None else min(10., max(0., float(x))),
                 'bool':  adapt_bool,
                 'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
@@ -198,8 +181,8 @@ class CustomColumns(object):
         ans = row[self.FIELD_MAP[data['num']]]
         if data['is_multiple'] and data['datatype'] == 'text':
             ans = ans.split('|') if ans else []
-            if data['display'].get('sort_alpha', True):
-                ans.sort(key=sort_key)
+            if data['display'].get('sort_alpha', False):
+                ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
         return ans
 
     def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
@@ -551,8 +534,8 @@ class CustomColumns(object):
             if data['normalized']:
                 query = '%s.value'
                 if data['is_multiple']:
-                    query = 'cc_sortconcat(%s.value)'
-                    if not display.get('sort_alpha', True):
+                    query = 'group_concat(%s.value, "|")'
+                    if not display.get('sort_alpha', False):
                         query = 'sort_concat(link.id, %s.value)'
                 line = '''(SELECT {query} FROM {lt} AS link INNER JOIN
                     {table} ON(link.value={table}.id) WHERE link.book=books.id)

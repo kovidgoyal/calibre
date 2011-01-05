@@ -19,7 +19,7 @@ from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.date import parse_date, isoformat
 from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG
-from calibre.utils.icu import strcmp, sort_key
+from calibre.utils.icu import strcmp
 
 global_lock = RLock()
 
@@ -68,25 +68,6 @@ class Concatenate(object):
         if not self.ans:
             return None
         return self.sep.join(self.ans)
-
-class TagsSortConcatenate(object):
-    '''Sorted string concatenation aggregator for sqlite'''
-    def __init__(self, sep=','):
-        self.sep = sep
-        self.ans = []
-
-    def step(self, value):
-        if value is not None:
-            self.ans.append(value)
-
-    def finalize(self):
-        if not self.ans:
-            return None
-        return self.sep.join(sorted(self.ans, key=sort_key))
-
-class CcSortConcatenate(TagsSortConcatenate):
-    def __init__(self):
-        TagsSortConcatenate.__init__(self, sep='|')
 
 class SortedConcatenate(object):
     '''String concatenation aggregator for sqlite, sorted by supplied index'''
@@ -174,8 +155,6 @@ class DBThread(Thread):
         c_ext_loaded = load_c_extensions(self.conn)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
-        self.conn.create_aggregate('tags_sortconcat', 1, TagsSortConcatenate)
-        self.conn.create_aggregate('cc_sortconcat', 1, CcSortConcatenate)
         if not c_ext_loaded:
             self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
             self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
