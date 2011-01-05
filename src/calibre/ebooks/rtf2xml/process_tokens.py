@@ -779,12 +779,16 @@ class ProcessTokens:
                         msg =_('Invalid RTF: document doesn\'t start with \\rtf \n')
                         raise self.__exception_handler, msg
                 
-                ##token = self.evaluate_token(token)
                 the_index = token.find('\\ ')
                 if token is not None and  the_index > -1:
-                    msg ='Invalid RTF: token "\\ " not valid.\n'
+                    msg =_('Invalid RTF: token "\\ " not valid.\n')
                     raise self.__exception_handler, msg
                 elif token[:1] == "\\":
+                    try:
+                        token.decode('us-ascii')
+                    except UnicodeError, msg:
+                        msg = _('Invalid RTF: Tokens not ascii encoded.\n%s') % str(msg)
+                        raise self.__exception_handler, msg
                     line = self.process_cw(token)
                     if line is not None:
                         write_obj.write(line)
