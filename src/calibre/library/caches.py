@@ -691,13 +691,7 @@ class ResultCache(SearchQueryParser): # {{{
             fields = [('timestamp', False)]
 
         keyg = SortKeyGenerator(fields, self.field_metadata, self._data)
-        # For efficiency, the key generator returns a plain value if only one
-        # field is in the sort field list. Because the normal cmp function will
-        # always assume asc, we must deal with asc/desc here.
-        if len(fields) == 1:
-            self._map.sort(key=keyg, reverse=not fields[0][1])
-        else:
-            self._map.sort(key=keyg)
+        self._map.sort(key=keyg)
 
         tmap = list(itertools.repeat(False, len(self._data)))
         for x in self._map_filtered:
@@ -730,8 +724,6 @@ class SortKeyGenerator(object):
 
     def __call__(self, record):
         values = tuple(self.itervals(self.data[record]))
-        if len(values) == 1:
-            return values[0]
         return SortKey(self.orders, values)
 
     def itervals(self, record):
@@ -754,6 +746,11 @@ class SortKeyGenerator(object):
                     val = (self.string_sort_key(val), sidx)
 
             elif dt in ('text', 'comments', 'composite', 'enumeration'):
+                if val:
+                    sep = fm['is_multiple']
+                    if sep:
+                        val = sep.join(sorted(val.split(sep),
+                                              key=self.string_sort_key))
                 val = self.string_sort_key(val)
 
             elif dt == 'bool':
