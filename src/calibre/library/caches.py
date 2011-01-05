@@ -132,47 +132,35 @@ def _match(query, value, matchkind):
             pass
     return False
 
-class CacheRow(object):
+class CacheRow(list):
 
     def __init__(self, db, composites, val):
         self.db = db
-        self.composites = composites
-        self._mydata = val
+        self._composites = composites
+        list.__init__(self, val)
         self._must_do = len(composites) > 0
 
     def __getitem__(self, col):
-        rec = self._mydata
-        if self._must_do and col in self.composites:
-            self._must_do = False
-            mi = self.db.get_metadata(rec[0], index_is_id=True)
-            for c in self.composites:
-                rec[c] = mi.get(self.composites[c])
-        return rec[col]
+        if self._must_do:
+            is_comp = False
+            if isinstance(col, slice):
+                for c in range(col.start, col.stop):
+                    if c in self._composites:
+                        is_comp = True
+                        break
+            elif col in self._composites:
+                is_comp = True
+            if is_comp:
+                id = list.__getitem__(self, 0)
+                self._must_do = False
+                mi = self.db.get_metadata(id, index_is_id=True)
+                for c in self._composites:
+                    self[c] =  mi.get(self._composites[c])
+        return list.__getitem__(self, col)
 
-    def __setitem__ (self, col, val):
-        self._mydata[col] = val
+    def __getslice__(self, i, j):
+        return self.__getitem__(slice(i, j))
 
-    def append(self, val):
-        self._mydata.append(val)
-
-    def get(self, col, default):
-        try:
-            return self.__getitem__(col)
-        except:
-            return default
-
-    def __len__(self):
-        return len(self._mydata)
-
-    def __iter__(self):
-        for v in self._mydata:
-            yield v
-
-    def __str__(self):
-        return self.__unicode__()
-
-    def __unicode__(self):
-        return unicode(self._mydata)
 
 class ResultCache(SearchQueryParser): # {{{
 
