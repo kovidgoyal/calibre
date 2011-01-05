@@ -14,6 +14,7 @@ from calibre.constants import preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date
 from calibre.utils.config import tweaks
+from calibre.utils.icu import sort_key
 
 class CustomColumns(object):
 
@@ -181,8 +182,8 @@ class CustomColumns(object):
         ans = row[self.FIELD_MAP[data['num']]]
         if data['is_multiple'] and data['datatype'] == 'text':
             ans = ans.split('|') if ans else []
-            if data['display'].get('sort_alpha', False):
-                ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
+            if data['display'].get('sort_alpha', True):
+                ans.sort(key=sort_key)
         return ans
 
     def get_custom_extra(self, idx, label=None, num=None, index_is_id=False):
@@ -534,8 +535,8 @@ class CustomColumns(object):
             if data['normalized']:
                 query = '%s.value'
                 if data['is_multiple']:
-                    query = 'group_concat(%s.value, "|")'
-                    if not display.get('sort_alpha', False):
+                    query = 'cc_sortconcat(%s.value)'
+                    if not display.get('sort_alpha', True):
                         query = 'sort_concat(link.id, %s.value)'
                 line = '''(SELECT {query} FROM {lt} AS link INNER JOIN
                     {table} ON(link.value={table}.id) WHERE link.book=books.id)
