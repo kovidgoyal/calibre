@@ -10,13 +10,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-02 23:55+0000\n"
-"PO-Revision-Date: 2011-01-03 13:10+0000\n"
-"Last-Translator: Li Fanxi <Unknown>\n"
+"PO-Revision-Date: 2011-01-04 17:30+0000\n"
+"Last-Translator: Thruth Wang <wanglihao@gmail.com>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-04 14:01+0000\n"
+"X-Launchpad-Export-Date: 2011-01-05 04:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -338,7 +338,7 @@ msgstr "设置针对特定输出格式的转换选项"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 msgid "Adding books"
-msgstr "增加图书"
+msgstr "添加图书"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:804
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:816
@@ -863,7 +863,7 @@ msgstr "未安装锦书 SDK。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr "与 Binatone Readme eBook reader 通信。"
+msgstr "与 Binatone Readme 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
@@ -878,15 +878,15 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr "与  通信。"
+msgstr "与 Cybook Gen 3 / Opus 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr "和 CyBook Orizon eBook 阅读器进行交流"
+msgstr "与 CyBook Orizon 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 msgid "Communicate with the EB600 eBook reader."
-msgstr "与 EB600 eBook reader 通信。"
+msgstr "与 EB600 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
@@ -902,7 +902,7 @@ msgstr "与 PocketBook 602/603/902/903 阅读器通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
-msgstr "与 PocketBook 701通信"
+msgstr "与 PocketBook 701 通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -914,11 +914,11 @@ msgstr "与 Entourage Edge 通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr "与 ESlick eBook reader 通信。"
+msgstr "与 ESlick 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr "与 Sigmatek eBook 阅读器通信。"
+msgstr "与 Sigmatek 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:32
@@ -932,15 +932,15 @@ msgstr "设备界面"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr "与翰林 V3 电子书通信。"
+msgstr "与翰林 V3 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:96
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr "与翰林 V5 电子书通信。"
+msgstr "与翰林 V5 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:115
 msgid "Communicate with the BOOX eBook reader."
-msgstr "与 BOOX eBook reader 通信。"
+msgstr "与 BOOX 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:132
 msgid ""
@@ -950,7 +950,7 @@ msgstr "以逗号分隔目录列表来发送电子书到设备上。第一个存
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:22
 msgid "Communicate with the Hanvon N520 eBook reader."
-msgstr "与 Hanvon N520 eBook reader 通信。"
+msgstr "与 Hanvon N520 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:47
 msgid "Communicate with The Book reader."
@@ -958,7 +958,7 @@ msgstr "与 The Book 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:59
 msgid "Communicate with the SpringDesign Alex eBook reader."
-msgstr "与 SpringDesign Alex 通信。"
+msgstr "与 SpringDesign Alex 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:119
 msgid "Communicate with the Azbooka"
@@ -966,11 +966,11 @@ msgstr "与 Azbooka 通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:138
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr "与 Elonex EB 511 eBook reader 通信。"
+msgstr "与 Elonex EB 511 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
-msgstr "与 IRex Iliad eBook reader 通信。"
+msgstr "与 IRex Iliad 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
@@ -980,11 +980,11 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:44
 msgid "Cannot get files from this device"
-msgstr "无法从该设备获取文件"
+msgstr "无法从此设备获取文件"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
-msgstr "与 IRex Digital Reader 1000 eBook reader 通信。"
+msgstr "与 IRex Digital Reader 1000 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
@@ -996,7 +996,7 @@ msgstr "与 Iriver Story 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:20
 msgid "Communicate with the JetBook eBook reader."
-msgstr "与 JetBook eBook reader 通信。"
+msgstr "与 JetBook 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:88
 msgid "Communicate with the MiBuk Wolder reader."
@@ -1008,7 +1008,7 @@ msgstr "与 JetBook Mini 阅读器通讯。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:43
 msgid "Communicate with the Kindle eBook reader."
-msgstr "与 Kindle eBook reader 通信。"
+msgstr "与 Kindle 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:170
 msgid "Communicate with the Kindle 2/3 eBook reader."
@@ -1016,11 +1016,11 @@ msgstr "与 Kindle 2/3 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:211
 msgid "Communicate with the Kindle DX eBook reader."
-msgstr "与 Kindle DX 通信。"
+msgstr "与 Kindle DX 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:23
 msgid "Communicate with the Kobo Reader"
-msgstr "与 Kobo 阅读器通信"
+msgstr "与 Kobo Reader 通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:51
 msgid ""
@@ -1086,11 +1086,11 @@ msgstr "与 Trekstor 通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:251
 msgid "Communicate with the EEE Reader"
-msgstr "与 EEE 阅读器通信"
+msgstr "与 EEE Reeder 通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:271
 msgid "Communicate with the Nextbook Reader"
-msgstr "与 Nextbook 阅读器通信"
+msgstr "与 Nextbook Reader 通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1122,7 +1122,7 @@ msgstr "与 Nook Color 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr "与 Nuut2 阅读器通信。"
+msgstr "与 Nuut2 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
@@ -1188,7 +1188,7 @@ msgstr "与 Sunstech EB700 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:258
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr "无法检测到 %s 磁盘，请重启后重试。"
+msgstr "无法检测到 %s 磁盘，请尝试重启。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:438
 msgid "Unable to detect the %s mount point. Try rebooting."
@@ -1359,7 +1359,7 @@ msgstr "转换的电子书中所含图像格式。您可以试验几种格式，
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
 msgid "Apply no processing to the image"
-msgstr "不对图片进行处理"
+msgstr "不处理图片"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:294
 msgid "Do not convert the image to grayscale (black and white)"
@@ -1454,7 +1454,7 @@ msgstr "列出公告板订阅清单"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:256
 msgid "Output saved to"
-msgstr "输出到"
+msgstr "输出保存到"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:99
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
@@ -1482,8 +1482,8 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
-"设置输出配置文件. 该配置文件让程序了解如何转换输出目标文件并为目标设备进行优化. 在某些情况下, "
-"特定设备的文件格式需要该输出配置文件来定义如何生成其特定格式. 例如EPUB文件在SONY reader设备上. 可选项有:"
+"设置输出配置文件。该配置文件让程序了解如何转换输出目标文件并为目标设备进行优化。在某些情况下，特定设备的文件格式需要该输出配置文件来定义如何生成其特定格式"
+"、例如 EPUB 文件在 SONY reader 设备上。可选项有："
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:137
 msgid ""
@@ -1782,7 +1782,7 @@ msgstr "用作排序的书籍标题序列数字。 "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:479
 msgid "String to be used when sorting by author. "
-msgstr "用以进行按作者排序的关键字符串. "
+msgstr "用以进行按作者排序的关键字符串。 "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:483
 msgid "Set the cover to the specified file or URL"
@@ -1871,11 +1871,11 @@ msgstr "分析失败：%s存在错误为：%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
-msgstr "ePub修复器"
+msgstr "ePub 修复器"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
-msgstr "暂时避开epub检查漏洞"
+msgstr "暂时避开 epubcheck 漏洞"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:22
 msgid ""
@@ -1906,7 +1906,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
-msgstr "你必须指定一个epub文件"
+msgstr "必须指定一个 epub 文件"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
@@ -1916,7 +1916,7 @@ msgstr "修复未显化状态的文件"
 msgid ""
 "Fix unmanifested files. epub-fix can either add them to the manifest or "
 "delete them as specified by the delete unmanifested option."
-msgstr "修复未的显化的文件。 epub-fix能添加它们到显化状态或通过指定删除未显化状态选项来删除它们。"
+msgstr "修复未显化的文件。 epub-fix能添加它们到显化状态或通过指定删除未显化状态选项来删除它们。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:32
 msgid "Delete unmanifested files instead of adding them to the manifest"
@@ -1962,7 +1962,7 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
-"请不要使用SVG作为书籍封面。如果你的EPUB打算用到不支持SVG的设备(像iPhone或JetBook "
+"请不要使用 SVG 作为书籍封面。如果你的 EPUB 打算用到不支持 SVG 的设备(像 iPhone 或 JetBook "
 "Lite)上的话,请使用该选项。不选中这个选项的话，这类设备将只能把封面显示为一个空白页。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
@@ -1973,8 +1973,9 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
-"当使用SVG封面时，该选项会导致封面平铺满有效的屏幕区域，但仍会保持它的纵宽比(宽度和高度的比例)。意思就是说，这可能会在图像顶边或底边处产生空白边界，但"
-"是图像本身不会被扭曲变形。不选该选项的话，图像可能会产生轻微的扭曲变形，但优点是不会出现空白边界。"
+"当使用 SVG "
+"封面时，该选项会导致封面平铺满有效的屏幕区域，但仍会保持它的纵宽比(宽度和高度的比例)。意思就是说，这可能会在图像顶边或底边处产生空白边界，但是图像本身不"
+"会被扭曲变形。不选该选项的话，图像可能会产生轻微的扭曲变形，但优点是不会出现空白边界。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:105
 msgid ""
@@ -2009,14 +2010,14 @@ msgstr ""
 msgid ""
 "Traverse links in HTML files breadth first. Normally, they are traversed "
 "depth first."
-msgstr "在HTML文件中超链接遍历时使用广度优先算法. 默认情况下, 程序适用深度优先算法."
+msgstr "在 HTML 文件中超链接遍历时使用广度优先算法. 默认情况下, 程序适用深度优先算法."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:256
 msgid ""
 "Maximum levels of recursion when following links in HTML files. Must be non-"
 "negative. 0 implies that no links in the root HTML file are followed. "
 "Default is %default."
-msgstr "HTML文件中超链接遍历的最大深度. 该值必须为非负整数. 0 表示不进行超链接遍历. 默认值为 %default."
+msgstr "HTML 文件中超链接遍历的最大深度. 该值必须为非负整数. 0 表示不进行超链接遍历. 默认值为 %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:265
 msgid ""
@@ -2030,29 +2031,29 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:33
 msgid "CSS file used for the output instead of the default file"
-msgstr "用于代替默认输出样式的CSS文件"
+msgstr "用于代替默认输出样式的 CSS 文件"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:36
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
-msgstr "用于生成HTML索引文件的模版(取代默认模版)"
+msgstr "用于生成 HTML 索引文件的模版(取代默认模版)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:39
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
-msgstr "用于生成HTML内容文件的模版(取代默认模版)"
+msgstr "用于生成 HTML 内容文件的模版(取代默认模版)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:42
 msgid ""
 "Extract the contents of the generated ZIP file to the specified directory. "
 "WARNING: The contents of the directory will be deleted."
-msgstr "把生成的ZIP文件的内容解压缩到指定目录。注意：该目录中的文件将被删除。"
+msgstr "把生成的 ZIP 文件的内容解压缩到指定目录。注意：该目录中的文件将被删除。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
-msgstr "从EPUB文件创建LIT文件..."
+msgstr "从 EPUB 文件创建 LIT 文件..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:320
 msgid "\tBook Designer file detected."
@@ -2064,7 +2065,7 @@ msgstr "\t正在解析 HTML..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:345
 msgid "\tBaen file detected. Re-parsing..."
-msgstr "\t检测到Baen文件. 重新分析处理中..."
+msgstr "\t检测到 Baen 文件。重新分析处理中..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:361
 msgid "Written preprocessed HTML to "
@@ -5278,7 +5279,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
 msgid " inch"
-msgstr ""
+msgstr " 英寸"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Description note"
@@ -7739,19 +7740,19 @@ msgstr " 绿色表示当前作者排序匹配当前的作者"
 msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author. No action is required if this is what you want."
-msgstr ""
+msgstr " 红色表示当前作者排序不匹配当前作者。若是期望结果，则无需其它操作。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:459
 msgid ""
 " The green color indicates that the current title sort matches the current "
 "title"
-msgstr ""
+msgstr " 绿色表示当前标题排序匹配当前标题"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:462
 msgid ""
 " The red color warns that the current title sort does not match the current "
 "title. No action is required if this is what you want."
-msgstr ""
+msgstr " 红色表示当前标题排序不匹配当前标题。若是期望结果，则无需其它操作。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:468
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:102
@@ -7789,7 +7790,7 @@ msgstr "改变的标签"
 msgid ""
 "You have changed the tags. In order to use the tags editor, you must either "
 "discard or apply these changes"
-msgstr ""
+msgstr "您改变了标签。要编辑标签，必须取消或者应用这些变更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:796
 msgid "There were errors"
@@ -8445,7 +8446,7 @@ msgstr "必须从列表选定一项。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:106
 msgid "Are you certain you want to delete the following items?"
-msgstr ""
+msgstr "确定删除下列项？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:77
 msgid "Category Editor"
@@ -9860,15 +9861,15 @@ msgstr "从不"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "By first letter"
-msgstr ""
+msgstr "首字母"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "Disabled"
-msgstr ""
+msgstr "已禁用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:61
 msgid "Partitioned"
-msgstr ""
+msgstr "已分区"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:140
 msgid "User Interface &layout (needs restart):"
@@ -12555,7 +12556,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1048
 msgid "The string used to separate fields in CSV mode. Default is a comma."
-msgstr ""
+msgstr "CSV 模式下字符串分隔符。默认逗号。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1086
 msgid "CATEGORY ITEMS"
@@ -12809,7 +12810,7 @@ msgstr ""
 msgid ""
 "Prefix to prepend to all URLs. Useful for reverseproxying to this server "
 "from Apache/nginx/etc."
-msgstr ""
+msgstr "所有 URL 的前缀。用于 Apache/nginx 等反向代理。"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:60
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:436
@@ -13066,7 +13067,7 @@ msgstr "已存搜索列表"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:728
 msgid "User-created tag browser categories"
-msgstr ""
+msgstr "用户创建标签浏览器分类"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:730
 msgid "How and when calibre updates metadata on the device."
