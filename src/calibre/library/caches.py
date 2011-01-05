@@ -144,7 +144,9 @@ class CacheRow(list):
         if self._must_do:
             is_comp = False
             if isinstance(col, slice):
-                for c in range(col.start, col.stop):
+                start = 0 if col.start is None else col.start
+                step = 1 if col.stop is None else col.stop
+                for c in range(start, col.stop, step):
                     if c in self._composites:
                         is_comp = True
                         break
