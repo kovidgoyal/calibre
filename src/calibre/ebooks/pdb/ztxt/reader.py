@@ -79,7 +79,13 @@ class Reader(FormatReader):
         
         self.log.info('Converting text to OEB...')
         stream = StringIO(raw_txt)
+
         from calibre.customize.ui import plugin_for_input_format
+        
+        txt_plugin = plugin_for_input_format('txt')
+        for option in txt_plugin.options:
+            if not hasattr(self.options, option.option.name):
+                setattr(self.options, option.name, option.recommend_val)        
+        
         stream.seek(0)
-        return plugin_for_input_format('txt').convert(stream, self.options,
-                'txt', self.log, {})
+        return txt_plugin.convert(stream, self.options, 'txt', self.log, {})

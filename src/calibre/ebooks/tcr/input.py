@@ -41,7 +41,14 @@ class TCRInput(InputFormatPlugin):
 
         log.info('Converting text to OEB...')
         stream = StringIO(raw_txt)
+        
         from calibre.customize.ui import plugin_for_input_format
+        
+        txt_plugin = plugin_for_input_format('txt')
+        for option in txt_plugin.options:
+            if not hasattr(options, option.option.name):
+                setattr(options, option.name, option.recommend_val)        
+        
         stream.seek(0)
-        return plugin_for_input_format('txt').convert(stream, options,
+        return txt_plugin.convert(stream, options,
                 'txt', log, accelerators)
