@@ -74,9 +74,9 @@ class DefaultEncoding:
             self.__datafetched = True
         if self.__platform == 'Macintosh':
             code_page = self.__code_page
-        else
+        else:
             code_page = 'ansicpg' + self.__code_page
-        return platform, code_page, self.__default_num
+        return self.__platform, code_page, self.__default_num
     
     def get_codepage(self):
         if not self.__datafetched:
