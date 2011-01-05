@@ -193,6 +193,14 @@ class ParseRtf:
             copy_obj.set_dir(self.__debug_dir)
             copy_obj.remove_files()
             copy_obj.copy_file(self.__temp_file, "original_file")
+        #Check to see if the file is correct ascii
+        check_encoding_obj = check_encoding.CheckEncoding(
+                bug_handler = RtfInvalidCodeException,
+                    )
+        if check_encoding_obj.check_encoding(self.__file):
+            file_name = self.__file if isinstance(self.__file, str) else self.__file.encode('utf-8')
+            msg = _('File %s does not appear to be ascii.\n') % file_name 
+            raise InvalidRtfException, msg
         # Function to check if bracket are well handled
         if self.__debug_dir or self.__run_level > 2:
             self.__check_brack_obj = check_brackets.CheckBrackets\
@@ -230,13 +238,6 @@ class ParseRtf:
                 os.remove(self.__temp_file)
             except OSError:
                 pass
-            #Check to see if the file is correct ascii
-            check_encoding_obj = check_encoding.CheckEncoding(
-                    bug_handler = RtfInvalidCodeException,
-                        )
-            if check_encoding_obj.check_encoding(self.__file):
-                sys.stderr.write(_('File "%s" does not appear to be ascii.\n') \
-                     % self.__file if isinstance(self.__file, str) else self.__file.encode('utf-8'))
             raise InvalidRtfException, msg
         delete_info_obj = delete_info.DeleteInfo(
             in_file = self.__temp_file,
