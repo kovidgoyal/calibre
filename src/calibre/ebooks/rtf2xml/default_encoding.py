@@ -72,7 +72,7 @@ class DefaultEncoding:
         if not self.__datafetched:
             self._encoding()
             self.__datafetched = True
-        if self.__platform = 'Macintosh':
+        if self.__platform == 'Macintosh':
             code_page = self.__code_page
         else
             code_page = 'ansicpg' + self.__code_page
@@ -111,8 +111,8 @@ class DefaultEncoding:
                     #cw<ri<deflt-font<nu<0
         if self.__platform == 'Macintosh':
             self.__code_page = 'mac_roman'
-        elif self.__platform = 'IBMPC':
+        elif self.__platform == 'IBMPC':
             self.__code_page = '437'
-        elif self.__platform = 'OS/2':
+        elif self.__platform == 'OS/2':
             self.__code_page = '850'
 
