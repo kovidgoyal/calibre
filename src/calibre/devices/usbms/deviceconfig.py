@@ -106,12 +106,13 @@ class DeviceConfig(object):
     def settings(cls):
         opts = cls._config().parse()
         if isinstance(cls.EXTRA_CUSTOMIZATION_DEFAULT, list):
+            if opts.extra_customization is None:
+                opts.extra_customization = []
             if not isinstance(opts.extra_customization, list):
                 opts.extra_customization = [opts.extra_customization]
-            else:
-                for i,d in enumerate(cls.EXTRA_CUSTOMIZATION_DEFAULT):
-                    if i >= len(opts.extra_customization):
-                        opts.extra_customization.append(d)
+            for i,d in enumerate(cls.EXTRA_CUSTOMIZATION_DEFAULT):
+                if i >= len(opts.extra_customization):
+                    opts.extra_customization.append(d)
         return opts
 
     @classmethod
