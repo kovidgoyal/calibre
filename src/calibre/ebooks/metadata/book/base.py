@@ -16,6 +16,7 @@ from calibre.ebooks.metadata.book import TOP_LEVEL_CLASSIFIERS
 from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date
+from calibre.utils.icu import sort_key
 from calibre.utils.formatter import TemplateFormatter
 
 
@@ -490,7 +491,7 @@ class Metadata(object):
         return authors_to_string(self.authors)
 
     def format_tags(self):
-        return u', '.join([unicode(t) for t in self.tags])
+        return u', '.join([unicode(t) for t in sorted(self.tags, key=sort_key)])
 
     def format_rating(self):
         return unicode(self.rating)
@@ -530,7 +531,7 @@ class Metadata(object):
             orig_res = res
             datatype = cmeta['datatype']
             if datatype == 'text' and cmeta['is_multiple']:
-                res = u', '.join(res)
+                res = u', '.join(sorted(res, key=sort_key))
             elif datatype == 'series' and series_with_index:
                 if self.get_extra(key) is not None:
                     res = res + \
@@ -560,7 +561,7 @@ class Metadata(object):
             elif key == 'series_index':
                 res = self.format_series_index(res)
             elif datatype == 'text' and fmeta['is_multiple']:
-                res = u', '.join(res)
+                res = u', '.join(sorted(res, key=sort_key))
             elif datatype == 'series' and series_with_index:
                 res = res + ' [%s]'%self.format_series_index()
             elif datatype == 'datetime':

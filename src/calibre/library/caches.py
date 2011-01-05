@@ -132,6 +132,38 @@ def _match(query, value, matchkind):
             pass
     return False
 
+class CacheRow(list):
+
+    def __init__(self, db, composites, val):
+        self.db = db
+        self._composites = composites
+        list.__init__(self, val)
+        self._must_do = len(composites) > 0
+
+    def __getitem__(self, col):
+        if self._must_do:
+            is_comp = False
+            if isinstance(col, slice):
+                start = 0 if col.start is None else col.start
+                step = 1 if col.stop is None else col.stop
+                for c in range(start, col.stop, step):
+                    if c in self._composites:
+                        is_comp = True
+                        break
+            elif col in self._composites:
+                is_comp = True
+            if is_comp:
+                id = list.__getitem__(self, 0)
+                self._must_do = False
+                mi = self.db.get_metadata(id, index_is_id=True)
+                for c in self._composites:
+                    self[c] =  mi.get(self._composites[c])
+        return list.__getitem__(self, col)
+
+    def __getslice__(self, i, j):
+        return self.__getitem__(slice(i, j))
+
+
 class ResultCache(SearchQueryParser): # {{{
 
     '''
@@ -139,7 +171,12 @@ class ResultCache(SearchQueryParser): # {{{
     '''
     def __init__(self, FIELD_MAP, field_metadata):
         self.FIELD_MAP = FIELD_MAP
-        self._map = self._data = self._map_filtered = []
+        self.composites = {}
+        for key in field_metadata:
+            if field_metadata[key]['datatype'] == 'composite':
+                self.composites[field_metadata[key]['rec_index']] = key
+        self._data = []
+        self._map = self._map_filtered = []
         self.first_sort = True
         self.search_restriction = ''
         self.field_metadata = field_metadata
@@ -148,10 +185,6 @@ class ResultCache(SearchQueryParser): # {{{
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
 
-        self.composites = []
-        for key in field_metadata:
-            if field_metadata[key]['datatype'] == 'composite':
-                self.composites.append((key, field_metadata[key]['rec_index']))
 
     def __getitem__(self, row):
         return self._data[self._map_filtered[row]]
@@ -583,13 +616,10 @@ class ResultCache(SearchQueryParser): # {{{
         '''
         for id in ids:
             try:
-                self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
+                self._data[id] = CacheRow(db, self.composites,
+                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
                 self._data[id].append(db.book_on_device_string(id))
                 self._data[id].append(None)
-                if len(self.composites) > 0:
-                    mi = db.get_metadata(id, index_is_id=True)
-                    for k,c in self.composites:
-                        self._data[id][c] = mi.get(k, None)
             except IndexError:
                 return None
         try:
@@ -603,13 +633,10 @@ class ResultCache(SearchQueryParser): # {{{
             return
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
-            self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
+            self._data[id] = CacheRow(db, self.composites,
+                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
             self._data[id].append(db.book_on_device_string(id))
             self._data[id].append(None)
-            if len(self.composites) > 0:
-                mi = db.get_metadata(id, index_is_id=True)
-                for k,c in self.composites:
-                    self._data[id][c] = mi.get(k)
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -630,16 +657,11 @@ class ResultCache(SearchQueryParser): # {{{
         temp = db.conn.get('SELECT * FROM meta2')
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
-            self._data[r[0]] = r
+            self._data[r[0]] = CacheRow(db, self.composites, r)
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
                 item.append(None)
-                if len(self.composites) > 0:
-                    mi = db.get_metadata(item[0], index_is_id=True)
-                    for k,c in self.composites:
-                        item[c] = mi.get(k)
-
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)
@@ -669,13 +691,7 @@ class ResultCache(SearchQueryParser): # {{{
             fields = [('timestamp', False)]
 
         keyg = SortKeyGenerator(fields, self.field_metadata, self._data)
-        # For efficiency, the key generator returns a plain value if only one
-        # field is in the sort field list. Because the normal cmp function will
-        # always assume asc, we must deal with asc/desc here.
-        if len(fields) == 1:
-            self._map.sort(key=keyg, reverse=not fields[0][1])
-        else:
-            self._map.sort(key=keyg)
+        self._map.sort(key=keyg)
 
         tmap = list(itertools.repeat(False, len(self._data)))
         for x in self._map_filtered:
@@ -708,8 +724,6 @@ class SortKeyGenerator(object):
 
     def __call__(self, record):
         values = tuple(self.itervals(self.data[record]))
-        if len(values) == 1:
-            return values[0]
         return SortKey(self.orders, values)
 
     def itervals(self, record):
@@ -732,6 +746,11 @@ class SortKeyGenerator(object):
                     val = (self.string_sort_key(val), sidx)
 
             elif dt in ('text', 'comments', 'composite', 'enumeration'):
+                if val:
+                    sep = fm['is_multiple']
+                    if sep:
+                        val = sep.join(sorted(val.split(sep),
+                                              key=self.string_sort_key))
                 val = self.string_sort_key(val)
 
             elif dt == 'bool':
