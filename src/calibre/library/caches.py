@@ -132,6 +132,48 @@ def _match(query, value, matchkind):
             pass
     return False
 
+class CacheRow(object):
+
+    def __init__(self, db, composites, val):
+        self.db = db
+        self.composites = composites
+        self._mydata = val
+        self._must_do = len(composites) > 0
+
+    def __getitem__(self, col):
+        rec = self._mydata
+        if self._must_do and col in self.composites:
+            self._must_do = False
+            mi = self.db.get_metadata(rec[0], index_is_id=True)
+            for c in self.composites:
+                rec[c] = mi.get(self.composites[c])
+        return rec[col]
+
+    def __setitem__ (self, col, val):
+        self._mydata[col] = val
+
+    def append(self, val):
+        self._mydata.append(val)
+
+    def get(self, col, default):
+        try:
+            return self.__getitem__(col)
+        except:
+            return default
+
+    def __len__(self):
+        return len(self._mydata)
+
+    def __iter__(self):
+        for v in self._mydata:
+            yield v
+
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return unicode(self._mydata)
+
 class ResultCache(SearchQueryParser): # {{{
 
     '''
@@ -139,7 +181,12 @@ class ResultCache(SearchQueryParser): # {{{
     '''
     def __init__(self, FIELD_MAP, field_metadata):
         self.FIELD_MAP = FIELD_MAP
-        self._map = self._data = self._map_filtered = []
+        self.composites = {}
+        for key in field_metadata:
+            if field_metadata[key]['datatype'] == 'composite':
+                self.composites[field_metadata[key]['rec_index']] = key
+        self._data = []
+        self._map = self._map_filtered = []
         self.first_sort = True
         self.search_restriction = ''
         self.field_metadata = field_metadata
@@ -148,10 +195,6 @@ class ResultCache(SearchQueryParser): # {{{
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
 
-        self.composites = []
-        for key in field_metadata:
-            if field_metadata[key]['datatype'] == 'composite':
-                self.composites.append((key, field_metadata[key]['rec_index']))
 
     def __getitem__(self, row):
         return self._data[self._map_filtered[row]]
@@ -583,13 +626,10 @@ class ResultCache(SearchQueryParser): # {{{
         '''
         for id in ids:
             try:
-                self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
+                self._data[id] = CacheRow(db, self.composites,
+                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
                 self._data[id].append(db.book_on_device_string(id))
                 self._data[id].append(None)
-                if len(self.composites) > 0:
-                    mi = db.get_metadata(id, index_is_id=True)
-                    for k,c in self.composites:
-                        self._data[id][c] = mi.get(k, None)
             except IndexError:
                 return None
         try:
@@ -603,13 +643,10 @@ class ResultCache(SearchQueryParser): # {{{
             return
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
-            self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
+            self._data[id] = CacheRow(db, self.composites,
+                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
             self._data[id].append(db.book_on_device_string(id))
             self._data[id].append(None)
-            if len(self.composites) > 0:
-                mi = db.get_metadata(id, index_is_id=True)
-                for k,c in self.composites:
-                    self._data[id][c] = mi.get(k)
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -630,16 +667,11 @@ class ResultCache(SearchQueryParser): # {{{
         temp = db.conn.get('SELECT * FROM meta2')
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
-            self._data[r[0]] = r
+            self._data[r[0]] = CacheRow(db, self.composites, r)
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
                 item.append(None)
-                if len(self.composites) > 0:
-                    mi = db.get_metadata(item[0], index_is_id=True)
-                    for k,c in self.composites:
-                        item[c] = mi.get(k)
-
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)
