@@ -257,7 +257,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'flags',
              'uuid',
              'has_cover',
-             '''(SELECT group_concat(authors.name || ':::' || authors.sort, ':#:')
+             '''(SELECT sortconcat(bl.id, authors.name || ':::' || REPLACE(authors.sort, ',','|'))
                  FROM authors, books_authors_link as bl
                  WHERE bl.book=books.id and authors.id=bl.author
                  ORDER BY bl.id) au_map''',
@@ -710,12 +710,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.data.set(idx, fm['all_metadata'], mi, row_is_id = index_is_id)
 
         aut_list = row[fm['au_map']]
-        aut_list = [p.split(':::') for p in aut_list.split(':#:')]
+        aut_list = [p.split(':::') for p in aut_list.split(',')]
         aum = []
         aus = {}
         for (author, author_sort) in aut_list:
             aum.append(author)
-            aus[author] = author_sort
+            aus[author] = author_sort.replace('|', ',')
         mi.title       = row[fm['title']]
         mi.authors     = aum
         mi.author_sort = row[fm['author_sort']]
