@@ -17,15 +17,20 @@ class TCRInput(InputFormatPlugin):
     file_types  = set(['tcr'])
 
     options = set([
-        OptionRecommendation(name='paragraph_format', recommended_value='auto',
-            choices=['auto', 'block', 'single', 'print', 'markdown'],
-            help=_('How calibre splits text into paragraphs.\n'
+        OptionRecommendation(name='paragraph_type', recommended_value='auto',
+            choices=['auto', 'block', 'single', 'print'],
+            help=_('Paragraph structure.\n'
                    'choices are [\'auto\', \'block\', \'single\', \'print\', \'markdown\']\n'
-                   '* auto: Try to auto detect paragraph format.\n'
+                   '* auto: Try to auto detect paragraph type.\n'
                    '* block: Treat a blank line as a paragraph break.\n'
                    '* single: Assume every line is a paragraph.\n'
                    '* print:  Assume every line starting with 2+ spaces or a tab '
-                   'starts a paragraph.\n'
+                   'starts a paragraph.')),
+        OptionRecommendation(name='formatting_type', recommended_value='auto',
+            choices=['auto', 'none', 'markdown'],
+            help=_('Formatting used within the document.'
+                   '* auto: Try to auto detect the document formatting.\n'
+                   '* none: Do not modify the paragraph formatting. Everything is a paragraph.\n'
                    '* markdown: Run the input though the markdown pre-processor. '
                    'To learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
         OptionRecommendation(name='preserve_spaces', recommended_value=False,

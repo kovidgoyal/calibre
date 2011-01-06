@@ -93,7 +93,7 @@ def split_string_separator(txt, size) :
             xrange(0, len(txt), size)])
     return txt
 
-def detect_paragraph_formatting(txt):
+def detect_paragraph_type(txt):
     '''
     Tries to determine the formatting of the document.
     
@@ -109,6 +109,20 @@ def detect_paragraph_formatting(txt):
     txt = txt.replace('\r', '\n')
     txt_line_count = len(re.findall('(?mu)^\s*.+$', txt))
     
+    # Check for print
+    tab_line_count = len(re.findall('(?mu)^(\t|\s{2,}).+$', txt))
+    if tab_line_count / float(txt_line_count) >= .25:
+        return 'print'
+    
+    # Check for block
+    empty_line_count = len(re.findall('(?mu)^\s*$', txt))
+    if empty_line_count / float(txt_line_count) >= .25:
+        return 'block'
+    
+    # Nothing else matched to assume single.
+    return 'single'
+
+def detect_formatting_type(txt):
     # Check for markdown
     # Headings
     if len(re.findall('(?mu)^#+', txt)) >= 5:
@@ -129,16 +143,4 @@ def detect_paragraph_formatting(txt):
         if txt.count('\\'+c) > 10:
             return 'markdown'
     
-    # Check for print
-    tab_line_count = len(re.findall('(?mu)^(\t|\s{2,}).+$', txt))
-    if tab_line_count / float(txt_line_count) >= .25:
-        return 'print'
-    
-    # Check for block
-    empty_line_count = len(re.findall('(?mu)^\s*$', txt))
-    if empty_line_count / float(txt_line_count) >= .25:
-        return 'block'
-    
-    # Nothing else matched to assume single.
-    return 'single'
-
+    return 'none'

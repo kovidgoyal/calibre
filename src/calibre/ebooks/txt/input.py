@@ -10,7 +10,7 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
-    preserve_spaces, detect_paragraph_formatting
+    preserve_spaces, detect_paragraph_type, detect_formatting_type
 from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
@@ -21,15 +21,20 @@ class TXTInput(InputFormatPlugin):
     file_types  = set(['txt'])
 
     options = set([
-        OptionRecommendation(name='paragraph_format', recommended_value='auto',
-            choices=['auto', 'block', 'single', 'print', 'markdown'],
-            help=_('How calibre splits text into paragraphs.\n'
+        OptionRecommendation(name='paragraph_type', recommended_value='auto',
+            choices=['auto', 'block', 'single', 'print'],
+            help=_('Paragraph structure.\n'
                    'choices are [\'auto\', \'block\', \'single\', \'print\', \'markdown\']\n'
-                   '* auto: Try to auto detect paragraph format.\n'
+                   '* auto: Try to auto detect paragraph type.\n'
                    '* block: Treat a blank line as a paragraph break.\n'
                    '* single: Assume every line is a paragraph.\n'
                    '* print:  Assume every line starting with 2+ spaces or a tab '
-                   'starts a paragraph.\n'
+                   'starts a paragraph.')),
+        OptionRecommendation(name='formatting_type', recommended_value='auto',
+            choices=['auto', 'none', 'markdown'],
+            help=_('Formatting used within the document.'
+                   '* auto: Try to auto detect the document formatting.\n'
+                   '* none: Do not modify the paragraph formatting. Everything is a paragraph.\n'
                    '* markdown: Run the input though the markdown pre-processor. '
                    'To learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
         OptionRecommendation(name='preserve_spaces', recommended_value=False,
@@ -57,29 +62,16 @@ class TXTInput(InputFormatPlugin):
             log.debug('No input encoding specified and could not auto detect using %s' % ienc)
         txt = txt.decode(ienc, 'replace')
 
-        # Determine the formatting of the document.
-        if options.paragraph_format == 'auto':
-            options.paragraph_format = detect_paragraph_formatting(txt)
-            if options.paragraph_format == 'unknown':
-                log.debug('Could not reliably determine paragraph format using block format')
-                options.paragraph_format = 'block'
-            else:
-                log.debug('Auto detected paragraph format as %s' % options.paragraph_format) 
-        
-        # We don't check for block because the processor assumes block.
-        # single and print at transformed to block for processing.
-        if options.paragraph_format == 'single':
-            txt = separate_paragraphs_single_line(txt)
-        elif options.paragraph_format == 'print':
-            txt = separate_paragraphs_print_formatted(txt)
-
         txt = _ent_pat.sub(xml_entity_to_unicode, txt)
         # Preserve spaces will replace multiple spaces to a space
         # followed by the &nbsp; entity.
         if options.preserve_spaces:
             txt = preserve_spaces(txt)
+            
+        if options.formatting_type == 'auto':
+            options.formatting_type = detect_formatting_type(txt)
 
-        if options.paragraph_format == 'markdown':
+        if options.formatting_type == 'markdown':
             log.debug('Running text though markdown conversion...')
             try:
                 html = convert_markdown(txt, disable_toc=options.markdown_disable_toc)
@@ -87,6 +79,22 @@ class TXTInput(InputFormatPlugin):
                 raise ValueError('This txt file has malformed markup, it cannot be'
                     ' converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
         else:
+            # Determine the paragraph type of the document.
+            if options.paragraph_type == 'auto':
+                options.paragraph_type = detect_paragraph_type(txt)
+                if options.paragraph_type == 'unknown':
+                    log.debug('Could not reliably determine paragraph type using block')
+                    options.paragraph_type = 'block'
+                else:
+                    log.debug('Auto detected paragraph type as %s' % options.paragraph_type) 
+            
+            # We don't check for block because the processor assumes block.
+            # single and print at transformed to block for processing.
+            if options.paragraph_type == 'single':
+                txt = separate_paragraphs_single_line(txt)
+            elif options.paragraph_type == 'print':
+                txt = separate_paragraphs_print_formatted(txt)
+
             flow_size = getattr(options, 'flow_size', 0)
             html = convert_basic(txt, epub_split_size_kb=flow_size)
 
