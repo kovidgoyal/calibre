@@ -26,7 +26,7 @@ class TXTOutput(OutputFormatPlugin):
                 'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
                 'For Mac OS X use \'unix\'. \'system\' will default to the newline '
                 'type used by this OS.') % sorted(TxtNewlines.NEWLINE_TYPES.keys())),
-        OptionRecommendation(name='output_encoding', recommended_value='utf-8',
+        OptionRecommendation(name='txt_output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \
             'The default is utf-8.')),
@@ -64,7 +64,7 @@ class TXTOutput(OutputFormatPlugin):
             writer = MarkdownMLizer(log)
         else:
             writer = TXTMLizer(log)
-        
+
         txt = writer.extract_content(oeb_book, opts)
 
         log.debug('\tReplacing newlines with selected type...')
@@ -81,7 +81,7 @@ class TXTOutput(OutputFormatPlugin):
 
         out_stream.seek(0)
         out_stream.truncate()
-        out_stream.write(txt.encode(opts.output_encoding, 'replace'))
+        out_stream.write(txt.encode(opts.txt_output_encoding, 'replace'))
 
         if close:
             out_stream.close()

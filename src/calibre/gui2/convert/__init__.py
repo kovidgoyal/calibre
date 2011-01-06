@@ -192,6 +192,11 @@ class Widget(QWidget):
             if not val: val = ''
             getattr(g, 'setPlainText', g.setText)(val)
             getattr(g, 'setCursorPosition', lambda x: x)(0)
+        elif isinstance(g, EncodingComboBox):
+            if val:
+                g.setEditText(val)
+            else:
+                g.setCurrentIndex(0)
         elif isinstance(g, QComboBox) and val:
             idx = g.findText(val, Qt.MatchFixedString)
             if idx < 0:
@@ -202,8 +207,6 @@ class Widget(QWidget):
             g.setCheckState(Qt.Checked if bool(val) else Qt.Unchecked)
         elif isinstance(g, (XPathEdit, RegexEdit)):
             g.edit.setText(val if val else '')
-        elif isinstance(g, EncodingComboBox):
-            g.setEditText(val if val else '')
         else:
             raise Exception('Can\'t set value %s in %s'%(repr(val),
                 unicode(g.objectName())))

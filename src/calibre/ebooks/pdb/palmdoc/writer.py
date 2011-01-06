@@ -50,7 +50,8 @@ class Writer(FormatWriter):
         txt = writer.extract_content(oeb_book, self.opts)
 
         self.log.debug('\tReplacing newlines with selected type...')
-        txt = specified_newlines(TxtNewlines('windows').newline, txt).encode(self.opts.output_encoding, 'replace')
+        txt = specified_newlines(TxtNewlines('windows').newline,
+                txt).encode(self.opts.pdb_output_encoding, 'replace')
 
         txt_length = len(txt)
 

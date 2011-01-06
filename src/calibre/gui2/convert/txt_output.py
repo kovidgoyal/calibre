@@ -22,7 +22,7 @@ class PluginWidget(Widget, Ui_Form):
         Widget.__init__(self, parent,
         ['newline', 'max_line_length', 'force_max_line_length',
         'inline_toc', 'markdown_format', 'keep_links', 'keep_image_references',
-        'output_encoding'])
+        'txt_output_encoding'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
 

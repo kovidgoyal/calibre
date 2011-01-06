@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class NewJournalOfPhysics(BasicNewsRecipe):
     title          = u'New Journal of Physics'
-    __author__     = u'Chema Cortés'
+    __author__     = u'Chema Cort\xe9s'
     description    = u'The open-access journal for physics'
     publisher      = u'IOP (Institute of Physics)'
     category       = 'physics, journal, science'
