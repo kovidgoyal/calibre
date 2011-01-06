@@ -131,6 +131,8 @@ class SafeFormat(TemplateFormatter):
                 return self.composite_values[key]
             if key in kwargs:
                 val = kwargs[key]
+                if isinstance(val, list):
+                    val = ','.join(val)
                 return val.replace('/', '_').replace('\\', '_')
             return ''
         except:

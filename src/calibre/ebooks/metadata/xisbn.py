@@ -18,7 +18,6 @@ class xISBN(object):
         self._data = []
         self._map = {}
 
-        self.br = browser()
         self.isbn_pat = re.compile(r'[^0-9X]', re.IGNORECASE)
 
     def purify(self, isbn):
@@ -26,7 +25,7 @@ class xISBN(object):
 
     def fetch_data(self, isbn):
         url = self.QUERY%isbn
-        data = self.br.open_novisit(url).read()
+        data = browser().open_novisit(url).read()
         data = json.loads(data)
         if data.get('stat', None) != 'ok':
             return []

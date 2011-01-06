@@ -431,7 +431,10 @@ class TemplateFormatter(string.Formatter):
         return prefix + val + suffix
 
     def vformat(self, fmt, args, kwargs):
-        ans = string.Formatter.vformat(self, fmt, args, kwargs)
+        if fmt.startswith('program:'):
+            ans = self._eval_program(None, fmt[8:])
+        else:
+            ans = string.Formatter.vformat(self, fmt, args, kwargs)
         return self.compress_spaces.sub(' ', ans).strip()
 
     ########## a formatter guaranteed not to throw and exception ############
@@ -441,10 +444,7 @@ class TemplateFormatter(string.Formatter):
         self.book = book
         self.composite_values = {}
         try:
-            if fmt.startswith('program:'):
-                ans = self._eval_program(None, fmt[8:])
-            else:
-                ans = self.vformat(fmt, [], kwargs).strip()
+            ans = self.vformat(fmt, [], kwargs).strip()
         except Exception, e:
             if DEBUG:
                 traceback.print_exc()
@@ -468,6 +468,7 @@ class EvalFormatter(TemplateFormatter):
     A template formatter that uses a simple dict instead of an mi instance
     '''
     def get_value(self, key, args, kwargs):
+        key = key.lower()
         return kwargs.get(key, _('No such variable ') + key)
 
 eval_formatter = EvalFormatter()
