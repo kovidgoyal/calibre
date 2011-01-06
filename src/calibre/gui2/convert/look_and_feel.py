@@ -56,6 +56,9 @@ class LookAndFeelWidget(Widget, Ui_Form):
                     g.setCurrentIndex(i)
                     break
             return True
+        if g is self.opt_input_encoding:
+            g.setEditText(val if val else '')
+            return True
 
     def font_key_wizard(self):
         from calibre.gui2.convert.font_key import FontKeyChooser
