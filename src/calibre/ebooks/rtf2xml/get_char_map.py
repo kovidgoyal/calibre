@@ -43,16 +43,16 @@ class GetCharMap:
     def get_char_map(self, map):
         if map == 'ansicpg0':
             map = 'ansicpg1250'
-        found_map = 0
+        found_map = False
         map_dict = {}
         self.__char_file.seek(0)
-        for line in self.__char_file.readlines():
+        for line in self.__char_file:
             if not line.strip(): continue
             begin_element = '<%s>' % map;
             end_element = '</%s>' % map
             if not found_map:
                 if begin_element in line:
-                    found_map = 1
+                    found_map = True
             else:
                 if end_element in line:
                     break
@@ -62,8 +62,7 @@ class GetCharMap:
             
         
         if not found_map:
-            msg = 'no map found\n'
-            msg += 'map is "%s"\n'%(map,)
+            msg = _('no map found\nmap is "%s"\n') %(map,)
             raise self.__bug_handler, msg
         return map_dict
 
