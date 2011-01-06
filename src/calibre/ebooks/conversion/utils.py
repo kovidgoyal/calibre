@@ -234,8 +234,11 @@ class PreProcessor(object):
             self.log("replaced "+unicode(self.found_indents)+ " nbsp indents with inline styles")
         # remove remaining non-breaking spaces
         html = re.sub(ur'\u00a0', ' ', html)
+        # Get rid of various common microsoft specific tags which can cause issues later
         # Get rid of empty <o:p> tags to simplify other processing
         html = re.sub(ur'\s*<o:p>\s*</o:p>', ' ', html)
+        # Delete microsoft 'smart' tags
+        html = re.sub('(?i)</?st1:\w+>', '', html)
         # Get rid of empty span, bold, & italics tags
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
         html = re.sub(r"\s*<[ibu][^>]*>\s*(<[ibu][^>]*>\s*</[ibu]>\s*){0,2}\s*</[ibu]>", " ", html)
