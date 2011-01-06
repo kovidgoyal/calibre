@@ -324,14 +324,16 @@ class Metadata(object):
             if metadata is None:
                 traceback.print_stack()
                 return
-            metadata = copy.deepcopy(metadata)
-            if '#value#' not in metadata:
-                if metadata['datatype'] == 'text' and metadata['is_multiple']:
-                    metadata['#value#'] = []
+            m = {}
+            for k in metadata:
+                m[k] = copy.copy(metadata[k])
+            if '#value#' not in m:
+                if m['datatype'] == 'text' and m['is_multiple']:
+                    m['#value#'] = []
                 else:
-                    metadata['#value#'] = None
+                    m['#value#'] = None
             _data = object.__getattribute__(self, '_data')
-            _data['user_metadata'][field] = metadata
+            _data['user_metadata'][field] = m
 
     def template_to_attribute(self, other, ops):
         '''
