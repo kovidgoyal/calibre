@@ -117,8 +117,8 @@ class RTFInput(InputFormatPlugin):
             empty_paragraphs = 1,
             
             #debug
-            # deb_dir = "D:\\Mes eBooks\\Developpement\\debug\\rtfdebug",
-            # run_level = 3
+            deb_dir = "D:\\Mes eBooks\\Developpement\\debug\\rtfdebug",
+            run_level = 3
         )
         parser.parse_rtf()
         ans = open('out.xml').read()
@@ -260,8 +260,8 @@ class RTFInput(InputFormatPlugin):
             raise ValueError(_('This RTF file has a feature calibre does not '
             'support. Convert it to HTML first and then try it.\n%s')%e)
 
-        # with open('dataxml.xml', 'w') as dataxml:
-            # dataxml.write(xml)
+        with open('dataxml.xml', 'w') as dataxml:
+            dataxml.write(xml)
 
         d = glob.glob(os.path.join('*_rtf_pict_dir', 'picts.rtf'))
         if d:
