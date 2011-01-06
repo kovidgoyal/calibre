@@ -1,0 +1,32 @@
+#!/usr/bin/env  python
+# -*- coding: utf-8 -*-
+
+__license__     = 'GPL v3'
+__copyright__   = 'Chema Cortés - 2011-01-05'
+__version__     = 'v0.01'
+__date__        = '2011-01-05'
+'''
+njp.org
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class NewJournalOfPhysics(BasicNewsRecipe):
+    title          = u'New Journal of Physics'
+    __author__     = u'Chema Cortés'
+    description    = u'The open-access journal for physics'
+    publisher      = u'IOP (Institute of Physics)'
+    category       = 'physics, journal, science'
+    language       = 'en'
+
+    oldest_article = 30
+    max_articles_per_feed = 100
+
+    keep_only_tags = [dict(id=['fulltextContainer'])]
+    no_stylesheets=True
+    use_embedded_content=False
+
+    feeds          = [(u'Latest Papers', u'http://iopscience.iop.org/1367-2630/?rss=1')]
+
+    def print_version(self, url):
+        return url+"/fulltext"
