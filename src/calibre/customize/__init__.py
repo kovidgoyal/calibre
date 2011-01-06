@@ -110,9 +110,20 @@ class Plugin(object): # {{{
         '''
         from PyQt4.Qt import QDialog, QDialogButtonBox, QVBoxLayout, \
                 QLabel, Qt, QLineEdit
+        from calibre.gui2 import gprefs
+
+        prefname = 'plugin config dialog:'+self.type + ':' + self.name
+        geom = gprefs.get(prefname, None)
+
         config_dialog = QDialog(parent)
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         v = QVBoxLayout(config_dialog)
+
+        def size_dialog():
+            if geom is None:
+                config_dialog.resize(config_dialog.sizeHint())
+            else:
+                config_dialog.restoreGeometry(geom)
 
         button_box.accepted.connect(config_dialog.accept)
         button_box.rejected.connect(config_dialog.reject)
@@ -125,6 +136,7 @@ class Plugin(object): # {{{
         if config_widget is not None:
             v.addWidget(config_widget)
             v.addWidget(button_box)
+            size_dialog()
             config_dialog.exec_()
 
             if config_dialog.result() == QDialog.Accepted:
@@ -150,11 +162,15 @@ class Plugin(object): # {{{
             sc = QLineEdit(sc, config_dialog)
             v.addWidget(sc)
             v.addWidget(button_box)
+            size_dialog()
             config_dialog.exec_()
 
             if config_dialog.result() == QDialog.Accepted:
                 sc = unicode(sc.text()).strip()
                 customize_plugin(self, sc)
+
+        geom = bytearray(config_dialog.saveGeometry())
+        gprefs[prefname] = geom
 
         return config_dialog.result()
 
