@@ -174,7 +174,7 @@ class CybookOrizon(CybookOpus):
 class PocketBook360(CybookOpus):
 
     manufacturer = 'PocketBook'
-    name = 'PocketBook 360'
+    name = 'PocketBook 360 and newer models'
     id = 'pocketbook360'
     output_profile = 'cybook_opus'
 

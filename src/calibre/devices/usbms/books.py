@@ -14,6 +14,7 @@ from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import strcmp
+from calibre.utils.formatter import eval_formatter
 
 class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -107,23 +108,25 @@ class CollectionsBookList(BookList):
                 return sortattr
         return None
 
-    def compute_category_name(self, attr, category, field_meta):
+    def compute_category_name(self, field_key, field_value, field_meta):
         renames = tweaks['sony_collection_renaming_rules']
-        attr_name = renames.get(attr, None)
-        if attr_name is None:
+        field_name = renames.get(field_key, None)
+        if field_name is None:
             if field_meta['is_custom']:
-                attr_name = '(%s)'%field_meta['name']
+                field_name = field_meta['name']
             else:
-                attr_name = ''
-        elif attr_name != '':
-            attr_name = '(%s)'%attr_name
-        cat_name = '%s %s'%(category, attr_name)
+                field_name = ''
+        cat_name = eval_formatter.safe_format(
+                        fmt=tweaks['sony_collection_name_template'],
+                        kwargs={'category':field_name, 'value':field_value},
+                        error_value='GET_CATEGORY', book=None)
         return cat_name.strip()
 
     def get_collections(self, collection_attributes):
         from calibre.devices.usbms.driver import debug_print
         debug_print('Starting get_collections:', prefs['manage_device_metadata'])
         debug_print('Renaming rules:', tweaks['sony_collection_renaming_rules'])
+        debug_print('Formatting template:', tweaks['sony_collection_name_template'])
         debug_print('Sorting rules:', tweaks['sony_collection_sorting_rules'])
 
         # Complexity: we can use renaming rules only when using automatic
@@ -132,9 +135,32 @@ class CollectionsBookList(BookList):
         use_renaming_rules = prefs['manage_device_metadata'] == 'on_connect'
 
         collections = {}
-        # This map of sets is used to avoid linear searches when testing for
-        # book equality
+
+        # get the special collection names
+        all_by_author = ''
+        all_by_title = ''
+        ca = []
+        all_by_something = []
+        for c in collection_attributes:
+            if c.startswith('aba:') and c[4:].strip():
+                all_by_author = c[4:].strip()
+            elif c.startswith('abt:') and c[4:].strip():
+                all_by_title = c[4:].strip()
+            elif c.startswith('abs:') and c[4:].strip():
+                name = c[4:].strip()
+                sby = self.in_category_sort_rules(name)
+                if sby is None:
+                    sby = name
+                if name and sby:
+                    all_by_something.append((name, sby))
+            else:
+                ca.append(c.lower())
+        collection_attributes = ca
+
         for book in self:
+            tsval = book.get('_pb_title_sort',
+                             book.get('title_sort', book.get('title', 'zzzz')))
+            asval = book.get('_pb_author_sort', book.get('author_sort', ''))
             # Make sure we can identify this book via the lpath
             lpath = getattr(book, 'lpath', None)
             if lpath is None:
@@ -211,22 +237,33 @@ class CollectionsBookList(BookList):
                         collections[cat_name] = {}
                     if use_renaming_rules and sort_attr:
                         sort_val = book.get(sort_attr, None)
-                        collections[cat_name][lpath] = \
-                                (book, sort_val, book.get('title_sort', 'zzzz'))
+                        collections[cat_name][lpath] = (book, sort_val, tsval)
                     elif is_series:
                         if doing_dc:
                             collections[cat_name][lpath] = \
-                                (book, book.get('series_index', sys.maxint),
-                                 book.get('title_sort', 'zzzz'))
+                                (book, book.get('series_index', sys.maxint), tsval)
                         else:
                             collections[cat_name][lpath] = \
-                                (book, book.get(attr+'_index', sys.maxint),
-                                 book.get('title_sort', 'zzzz'))
+                                (book, book.get(attr+'_index', sys.maxint), tsval)
                     else:
                         if lpath not in collections[cat_name]:
-                            collections[cat_name][lpath] = \
-                                (book, book.get('title_sort', 'zzzz'),
-                                 book.get('title_sort', 'zzzz'))
+                            collections[cat_name][lpath] = (book, tsval, tsval)
+
+            # All books by author
+            if all_by_author:
+                if all_by_author not in collections:
+                    collections[all_by_author] = {}
+                collections[all_by_author][lpath] = (book, asval, tsval)
+            # All books by title
+            if all_by_title:
+                if all_by_title not in collections:
+                    collections[all_by_title] = {}
+                collections[all_by_title][lpath] = (book, tsval, asval)
+            for (n, sb) in all_by_something:
+                if n not in collections:
+                    collections[n] = {}
+                collections[n][lpath] = (book, book.get(sb, ''), tsval)
+
         # Sort collections
         result = {}
 

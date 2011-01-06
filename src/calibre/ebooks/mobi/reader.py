@@ -513,11 +513,14 @@ class MobiReader(object):
         mobi_version = self.book_header.mobi_version
         for x in root.xpath('//ncx'):
             x.getparent().remove(x)
+        svg_tags = []
         for i, tag in enumerate(root.iter(etree.Element)):
             tag.attrib.pop('xmlns', '')
             for x in tag.attrib:
                 if ':' in x:
                     del tag.attrib[x]
+            if tag.tag and barename(tag.tag) == 'svg':
+                svg_tags.append(tag)
             if tag.tag and barename(tag.tag.lower()) in \
                 ('country-region', 'place', 'placetype', 'placename',
                     'state', 'city', 'street', 'address', 'content', 'form'):
@@ -627,6 +630,11 @@ class MobiReader(object):
                 cls = attrib.get('class', '')
                 cls = cls + (' ' if cls else '') + ncls
                 attrib['class'] = cls
+
+        for tag in svg_tags:
+            p = tag.getparent()
+            if hasattr(p, 'remove'):
+                p.remove(tag)
 
     def create_opf(self, htmlfile, guide=None, root=None):
         mi = getattr(self.book_header.exth, 'mi', self.embedded_mi)

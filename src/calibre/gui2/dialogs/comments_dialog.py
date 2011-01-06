@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 
 from PyQt4.Qt import Qt, QDialog, QDialogButtonBox
 from calibre.gui2.dialogs.comments_dialog_ui import Ui_CommentsDialog
+from calibre.library.comments import comments_to_html
 
 class CommentsDialog(QDialog, Ui_CommentsDialog):
 
@@ -18,8 +19,8 @@ class CommentsDialog(QDialog, Ui_CommentsDialog):
         self.setWindowIcon(icon)
 
         if text is not None:
-            self.textbox.setPlainText(text)
-        self.textbox.setTabChangesFocus(True)
+            self.textbox.html = comments_to_html(text)
+        # self.textbox.setTabChangesFocus(True)
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
 

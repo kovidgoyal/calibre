@@ -1,86 +1,95 @@
-# -*- coding: utf-8 -*-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
-www.elpais.com/diario/
+www.elpais.com
 '''
 
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class ElPaisImpresa(BasicNewsRecipe):
-    title                 = u'El Pa\xeds - edicion impresa'
+class ElPais_RSS(BasicNewsRecipe):
+    title                 = 'El Pais'
     __author__            = 'Darko Miletic'
-    description           = u'el periodico global en Espa\xf1ol'
+    description           = 'el periodico global en Castellano'
     publisher             = 'EDICIONES EL PAIS, S.L.'
-    category              = 'news, politics,Spain,actualidad,noticias,informacion,videos,fotografias,audios,graficos,nacional,internacional,deportes,economia,tecnologia,cultura,gente,television,sociedad,opinion,blogs,foros,chats,encuestas,entrevistas,participacion'
+    category              = 'news, politics, finances, world, spain'
+    oldest_article        = 2
+    max_articles_per_feed = 200
     no_stylesheets        = True
-    encoding              = 'latin1'
+    encoding              = 'cp1252'
     use_embedded_content  = False
-    language              = 'es'
+    language              = 'es_ES'
+    remove_empty_feeds    = True
     publication_type      = 'newspaper'
-    masthead_url          = 'http://www.elpais.com/im/tit_logo_global.gif'
-    index                 = 'http://www.elpais.com/diario/'
-    extra_css             = ' p{text-align: justify} body{ text-align: left; font-family: Georgia,"Times New Roman",Times,serif } h2{font-family: Arial,Helvetica,sans-serif} img{margin-bottom: 0.4em} '
+    masthead_url          = 'http://www.elpais.com/im/tit_logo.gif'
+    extra_css             = """
+                               body{font-family: Georgia,"Times New Roman",Times,serif }
+                               h3{font-family: Arial,Helvetica,sans-serif}
+                               img{margin-bottom: 0.4em; display:block}
+                            """
 
     conversion_options = {
-                          'comment'      : description
-                        , 'tags'         : category
-                        , 'publisher'    : publisher
-                        , 'language'     : language
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
                         }
 
-    feeds          = [
-                        (u'Internacional'     , index + u'internacional/'     )
-                       ,(u'Espa\xf1a'            , index + u'espana/'            )
-                       ,(u'Economia'          , index + u'economia/'          )
-                       ,(u'Opinion'           , index + u'opinion/'           )
-                       ,(u'Vi\xf1etas'           , index + u'vineta/'            )
-                       ,(u'Sociedad'          , index + u'sociedad/'          )
-                       ,(u'Cultura'           , index + u'cultura/'           )
-                       ,(u'Tendencias'        , index + u'tendencias/'        )
-                       ,(u'Gente'             , index + u'gente/'             )
-                       ,(u'Obituarios'        , index + u'obituarios/'        )
-                       ,(u'Deportes'          , index + u'deportes/'          )
-                       ,(u'Pantallas'         , index + u'radioytv/'          )
-                       ,(u'Ultima'            , index + u'ultima/'            )
-                       ,(u'Educacion'         , index + u'educacion/'         )
-                       ,(u'Saludo'            , index + u'salud/'             )
-                       ,(u'Ciberpais'         , index + u'ciberpais/'         )
-                       ,(u'EP3'               , index + u'ep3/'               )
-                       ,(u'Cine'              , index + u'cine/'              )
-                       ,(u'Babelia'           , index + u'babelia/'           )
-                       ,(u'El viajero'        , index + u'viajero/'           )
-                       ,(u'Negocios'          , index + u'negocios/'          )
-                       ,(u'Domingo'           , index + u'domingo/'           )
-                       ,(u'El Pais semanal'   , index + u'eps/'               )
-                       ,(u'Quadern Catalunya' , index + u'quadern-catalunya/' )
-                     ]
+    keep_only_tags    = [dict(attrs={'class':['cabecera_noticia estirar','cabecera_noticia','','contenido_noticia']})]
+    remove_tags       = [
+                           dict(name=['meta','link','base','iframe','embed','object'])
+                          ,dict(attrs={'class':['info_complementa','estructura_2col_der','votos estirar','votos']})
+                          ,dict(attrs={'id':'utilidades'})
+                        ]
+    remove_tags_after = dict(attrs={'id':'utilidades'})
+    remove_attributes = ['lang','border','width','height']
 
-    keep_only_tags=[dict(attrs={'class':['cabecera_noticia','contenido_noticia']})]
-    remove_attributes=['width','height']
-    remove_tags=[dict(name='link')]
-
-    def parse_index(self):
-        totalfeeds = []
-        lfeeds = self.get_feeds()
-        for feedobj in lfeeds:
-            feedtitle, feedurl = feedobj
-            self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
-            articles = []
-            soup = self.index_to_soup(feedurl)
-            for item in soup.findAll('a',attrs={'class':['g19r003','g19i003','g17r003','g17i003']}):
-                url   = 'http://www.elpais.com' + item['href'].rpartition('/')[0]
-                title = self.tag_to_string(item)
-                date  = strftime(self.timefmt)
-                articles.append({
-                                      'title'      :title
-                                     ,'date'       :date
-                                     ,'url'        :url
-                                     ,'description':''
-                                    })
-            totalfeeds.append((feedtitle, articles))
-        return totalfeeds
+    feeds = [
+              (u'Lo ultimo'            , u'http://www.elpais.com/rss/feed.html?feedId=17046')
+             ,(u'America Latina'       , u'http://www.elpais.com/rss/feed.html?feedId=17041')
+             ,(u'Mexico'               , u'http://www.elpais.com/rss/feed.html?feedId=17042')
+             ,(u'Europa'               , u'http://www.elpais.com/rss/feed.html?feedId=17043')
+             ,(u'Estados Unidos'       , u'http://www.elpais.com/rss/feed.html?feedId=17044')
+             ,(u'Oriente proximo'      , u'http://www.elpais.com/rss/feed.html?feedId=17045')
+             ,(u'Espana'               , u'http://www.elpais.com/rss/feed.html?feedId=1002' )
+             ,(u'Andalucia'            , u'http://www.elpais.com/rss/feed.html?feedId=17057')
+             ,(u'Catalunia'            , u'http://www.elpais.com/rss/feed.html?feedId=17059')
+             ,(u'Comunidad Valenciana' , u'http://www.elpais.com/rss/feed.html?feedId=17061')
+             ,(u'Madrid'               , u'http://www.elpais.com/rss/feed.html?feedId=1016' )
+             ,(u'Pais Vasco'           , u'http://www.elpais.com/rss/feed.html?feedId=17062')
+             ,(u'Galicia'              , u'http://www.elpais.com/rss/feed.html?feedId=17063')
+             ,(u'Opinion'              , u'http://www.elpais.com/rss/feed.html?feedId=1003' )             
+             ,(u'Sociedad'             , u'http://www.elpais.com/rss/feed.html?feedId=1004' )             
+             ,(u'Deportes'             , u'http://www.elpais.com/rss/feed.html?feedId=1007' )
+             ,(u'Cultura'              , u'http://www.elpais.com/rss/feed.html?feedId=1008' )
+             ,(u'Cine'                 , u'http://www.elpais.com/rss/feed.html?feedId=17052')
+             ,(u'Literatura'           , u'http://www.elpais.com/rss/feed.html?feedId=17053')
+             ,(u'Musica'               , u'http://www.elpais.com/rss/feed.html?feedId=17051')
+             ,(u'Arte'                 , u'http://www.elpais.com/rss/feed.html?feedId=17060')             
+             ,(u'Tecnologia'           , u'http://www.elpais.com/rss/feed.html?feedId=1005' )
+             ,(u'Economia'             , u'http://www.elpais.com/rss/feed.html?feedId=1006' )
+             ,(u'Ciencia'              , u'http://www.elpais.com/rss/feed.html?feedId=17068')
+             ,(u'Salud'                , u'http://www.elpais.com/rss/feed.html?feedId=17074')
+             ,(u'Ocio'                 , u'http://www.elpais.com/rss/feed.html?feedId=17075')
+             ,(u'Justicia y Leyes'     , u'http://www.elpais.com/rss/feed.html?feedId=17069')
+             ,(u'Guerras y conflictos' , u'http://www.elpais.com/rss/feed.html?feedId=17070')
+             ,(u'Politica'             , u'http://www.elpais.com/rss/feed.html?feedId=17073')
+            ]
 
     def print_version(self, url):
         return url + '?print=1'
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            if item.string is not None:
+               tstr = item.string
+               item.replaceWith(tstr)
+            else:
+               item.name='span'
+               for atrs in ['href','target','alt','title']:
+                   if item.has_key(atrs):
+                      del item[atrs]
+        for item in soup.findAll('img',alt=False):
+            item['alt'] = 'image'
+        return soup

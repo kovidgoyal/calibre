@@ -46,14 +46,27 @@ class SNBInput(InputFormatPlugin):
         meta = snbFile.GetFileStream('snbf/book.snbf')
         if meta != None:
             meta = etree.fromstring(meta)
-            oeb.metadata.add('title', meta.find('.//head/name').text)
-            oeb.metadata.add('creator', meta.find('.//head/author').text, attrib={'role':'aut'})
-            oeb.metadata.add('language', meta.find('.//head/language').text.lower().replace('_', '-'))
-            oeb.metadata.add('creator', meta.find('.//head/generator').text)
-            oeb.metadata.add('publisher', meta.find('.//head/publisher').text)
-            cover = meta.find('.//head/cover')
-            if cover != None and cover.text != None:
-                oeb.guide.add('cover', 'Cover', cover.text)
+            l = { 'title'    : './/head/name',
+                  'creator'  : './/head/author',
+                  'language' : './/head/language',
+                  'generator': './/head/generator',
+                  'publisher': './/head/publisher',
+                  'cover'    : './/head/cover', }
+            d = {}
+            for item in l:
+                node = meta.find(l[item])
+                if node != None:
+                    d[item] = node.text if node.text != None else ''
+                else:
+                    d[item] = ''
+
+            oeb.metadata.add('title', d['title'])
+            oeb.metadata.add('creator', d['creator'], attrib={'role':'aut'})
+            oeb.metadata.add('language', d['language'].lower().replace('_', '-'))
+            oeb.metadata.add('generator', d['generator'])
+            oeb.metadata.add('publisher', d['publisher'])
+            if d['cover'] != '':
+                oeb.guide.add('cover', 'Cover', d['cover'])
 
         bookid = str(uuid.uuid4())
         oeb.metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
@@ -62,7 +75,7 @@ class SNBInput(InputFormatPlugin):
                 oeb.uid = oeb.metadata.identifier[0]
                 break
 
-        with TemporaryDirectory('_chm2oeb', keep=True) as tdir:
+        with TemporaryDirectory('_snb2oeb', keep=True) as tdir:
             log.debug('Process TOC ...')
             toc = snbFile.GetFileStream('snbf/toc.snbf')
             oeb.container = DirContainer(tdir, log)
@@ -74,17 +87,18 @@ class SNBInput(InputFormatPlugin):
                     chapterSrc = ch.get('src')
                     fname = 'ch_%d.htm' % i
                     data = snbFile.GetFileStream('snbc/' + chapterSrc)
-                    if data != None:
-                        snbc = etree.fromstring(data)
-                        outputFile = open(os.path.join(tdir, fname), 'wb')
-                        lines = []
-                        for line in snbc.find('.//body'):
-                            if line.tag == 'text':
-                                lines.append(u'<p>%s</p>' % html_encode(line.text))
-                            elif line.tag == 'img':
-                                lines.append(u'<p><img src="%s" /></p>' % html_encode(line.text))
-                        outputFile.write((HTML_TEMPLATE % (chapterName, u'\n'.join(lines))).encode('utf-8', 'replace'))
-                        outputFile.close()
+                    if data == None:
+                        continue
+                    snbc = etree.fromstring(data)
+                    outputFile = open(os.path.join(tdir, fname), 'wb')
+                    lines = []
+                    for line in snbc.find('.//body'):
+                        if line.tag == 'text':
+                            lines.append(u'<p>%s</p>' % html_encode(line.text))
+                        elif line.tag == 'img':
+                            lines.append(u'<p><img src="%s" /></p>' % html_encode(line.text))
+                    outputFile.write((HTML_TEMPLATE % (chapterName, u'\n'.join(lines))).encode('utf-8', 'replace'))
+                    outputFile.close()
                     oeb.toc.add(ch.text, fname)
                     id, href = oeb.manifest.generate(id='html',
                         href=ascii_filename(fname))

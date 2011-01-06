@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>994</width>
-    <height>726</height>
+    <height>716</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -44,7 +44,7 @@
         <x>0</x>
         <y>0</y>
         <width>986</width>
-        <height>687</height>
+        <height>677</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -494,6 +494,22 @@ Using this button to create author sort will change author sort from red to gree
                   <string>&amp;Fetch metadata from server</string>
                  </property>
                 </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_5">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </widget>

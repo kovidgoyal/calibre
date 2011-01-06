@@ -53,6 +53,8 @@ gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['toolbar_text'] = 'auto'
 gprefs.defaults['show_child_bar'] = False
 gprefs.defaults['font'] = None
+gprefs.defaults['tags_browser_partition_method'] = 'first letter'
+gprefs.defaults['tags_browser_collapse_at'] = 100
 
 # }}}
 
@@ -83,7 +85,7 @@ def _config():
     c.add_opt('LRF_ebook_viewer_options', default=None,
               help=_('Options for the LRF ebook viewer'))
     c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT',
-        'MOBI', 'PRC', 'HTML', 'FB2', 'PDB', 'RB'],
+        'MOBI', 'PRC', 'HTML', 'FB2', 'PDB', 'RB', 'SNB'],
               help=_('Formats that are viewed using the internal viewer'))
     c.add_opt('column_map', default=ALL_COLUMNS,
               help=_('Columns to be displayed in the book list'))

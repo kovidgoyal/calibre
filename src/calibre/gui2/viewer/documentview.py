@@ -3,8 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-'''
-'''
+# Imports {{{
 import os, math, re, glob, sys
 from base64 import b64encode
 from functools import partial
@@ -19,10 +18,13 @@ from calibre.utils.config import Config, StringConfig
 from calibre.utils.localization import get_language
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.flip import SlideFlip
+from calibre.gui2.viewer.gestures import Gestures
 from calibre.gui2.shortcuts import Shortcuts, ShortcutConfig
 from calibre.constants import iswindows
 from calibre import prints, guess_type
 from calibre.gui2.viewer.keys import SHORTCUTS
+
+# }}}
 
 bookmarks = referencing = hyphenation = jquery = jquery_scrollTo = \
         hyphenator = images = hyphen_pats = None
@@ -33,6 +35,7 @@ def load_builtin_fonts():
         QFontDatabase.addApplicationFont(f)
     return 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'
 
+# Config {{{
 def config(defaults=None):
     desc = _('Options to customize the ebook viewer')
     if defaults is None:
@@ -137,8 +140,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 str(self.hyphenate_default_lang.itemData(idx).toString()))
         return QDialog.accept(self, *args)
 
+# }}}
 
-class Document(QWebPage):
+class Document(QWebPage): # {{{
 
     def set_font_settings(self):
         opts = config().parse()
@@ -449,7 +453,9 @@ class Document(QWebPage):
                 self.height+amount)
         self.setPreferredContentsSize(s)
 
-class EntityDeclarationProcessor(object):
+# }}}
+
+class EntityDeclarationProcessor(object): # {{{
 
     def __init__(self, html):
         self.declared_entities = {}
@@ -460,14 +466,16 @@ class EntityDeclarationProcessor(object):
         self.processed_html = html
         for key, val in self.declared_entities.iteritems():
             self.processed_html = self.processed_html.replace('&%s;'%key, val)
+# }}}
 
-class DocumentView(QWebView):
+class DocumentView(QWebView): # {{{
 
     DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern)
 
     def __init__(self, *args):
         QWebView.__init__(self, *args)
         self.flipper = SlideFlip(self)
+        self.gestures = Gestures()
         self.is_auto_repeat_event = False
         self.debug_javascript = False
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
@@ -761,7 +769,7 @@ class DocumentView(QWebView):
                 self.to_bottom = True
                 if epf:
                     self.flipper.initialize(self.current_page_image(), False)
-                    self.manager.previous_document()
+                self.manager.previous_document()
         else:
             opos = self.document.ypos
             upper_limit = opos - delta_y
@@ -775,8 +783,8 @@ class DocumentView(QWebView):
                 if epf:
                     self.flipper(self.current_page_image(),
                             duration=self.document.page_flip_duration)
-            if self.manager is not None:
-                self.manager.scrolled(self.scroll_fraction)
+                if self.manager is not None:
+                    self.manager.scrolled(self.scroll_fraction)
 
     def next_page(self):
         if self.flipper.running and not self.is_auto_repeat_event:
@@ -953,6 +961,29 @@ class DocumentView(QWebView):
             self.manager.viewport_resized(self.scroll_fraction)
         return ret
 
+    def event(self, ev):
+        typ = ev.type()
+        if typ == ev.TouchBegin:
+            try:
+                self.gestures.start_gesture('touch', ev)
+            except:
+                import traceback
+                traceback.print_exc()
+        elif typ == ev.TouchEnd:
+            try:
+                gesture = self.gestures.end_gesture('touch', ev, self.rect())
+            except:
+                import traceback
+                traceback.print_exc()
+            if gesture is not None:
+                ev.accept()
+                if gesture == 'lineleft':
+                    self.next_page()
+                elif gesture == 'lineright':
+                    self.previous_page()
+                return True
+        return QWebView.event(self, ev)
+
     def mouseReleaseEvent(self, ev):
         opos = self.document.ypos
         ret = QWebView.mouseReleaseEvent(self, ev)
@@ -961,4 +992,5 @@ class DocumentView(QWebView):
             self.manager.scrolled(self.scroll_fraction)
         return ret
 
+# }}}
 

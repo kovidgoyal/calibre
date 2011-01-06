@@ -11,12 +11,11 @@ import os, re, uuid, logging
 from mimetypes import types_map
 from collections import defaultdict
 from itertools import count
-from urlparse import urldefrag, urlparse, urlunparse
+from urlparse import urldefrag, urlparse, urlunparse, urljoin
 from urllib import unquote as urlunquote
-from urlparse import urljoin
 
 from lxml import etree, html
-from cssutils import CSSParser
+from cssutils import CSSParser, parseString, parseStyle, replaceUrls
 from cssutils.css import CSSRule
 
 import calibre
@@ -88,11 +87,11 @@ def XLINK(name):
 def CALIBRE(name):
     return '{%s}%s' % (CALIBRE_NS, name)
 
-_css_url_re = re.compile(r'url\((.*?)\)', re.I)
+_css_url_re = re.compile(r'url\s*\((.*?)\)', re.I)
 _css_import_re = re.compile(r'@import "(.*?)"')
 _archive_re = re.compile(r'[^ ]+')
 
-def iterlinks(root):
+def iterlinks(root, find_links_in_css=True):
     '''
     Iterate over all links in a OEB Document.
 
@@ -134,6 +133,8 @@ def iterlinks(root):
                     yield (el, attr, attribs[attr], 0)
 
 
+        if not find_links_in_css:
+            continue
         if tag == XHTML('style') and el.text:
             for match in _css_url_re.finditer(el.text):
                 yield (el, None, match.group(1), match.start(1))
@@ -180,7 +181,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
     '''
     if resolve_base_href:
         resolve_base_href(root)
-    for el, attrib, link, pos in iterlinks(root):
+    for el, attrib, link, pos in iterlinks(root, find_links_in_css=False):
         new_link = link_repl_func(link.strip())
         if new_link == link:
             continue
@@ -202,6 +203,40 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
             else:
                 new = cur[:pos] + new_link + cur[pos+len(link):]
                 el.attrib[attrib] = new
+
+    def set_property(v):
+        if v.CSS_PRIMITIVE_VALUE == v.cssValueType and \
+           v.CSS_URI == v.primitiveType:
+                v.setStringValue(v.CSS_URI,
+                        link_repl_func(v.getStringValue()))
+
+    for el in root.iter():
+        try:
+            tag = el.tag
+        except UnicodeDecodeError:
+            continue
+
+        if tag == XHTML('style') and el.text and \
+                (_css_url_re.search(el.text) is not None or '@import' in
+                        el.text):
+            stylesheet = parseString(el.text)
+            replaceUrls(stylesheet, link_repl_func)
+            el.text = '\n'+stylesheet.cssText + '\n'
+
+        if 'style' in el.attrib:
+            text = el.attrib['style']
+            if _css_url_re.search(text) is not None:
+                stext = parseStyle(text)
+                for p in stext.getProperties(all=True):
+                    v = p.cssValue
+                    if v.CSS_VALUE_LIST == v.cssValueType:
+                        for item in v:
+                            set_property(item)
+                    elif v.CSS_PRIMITIVE_VALUE == v.cssValueType:
+                        set_property(v)
+                el.attrib['style'] = stext.cssText.replace('\n', ' ').replace('\r',
+                        ' ')
+
 
 
 EPUB_MIME      = types_map['.epub']
@@ -622,7 +657,10 @@ class Metadata(object):
                 attrib[key] = prefixname(value, nsrmap)
             if namespace(self.term) == DC11_NS:
                 elem = element(parent, self.term, attrib=attrib)
-                elem.text = self.value
+                try:
+                    elem.text = self.value
+                except:
+                    elem.text = repr(self.value)
             else:
                 elem = element(parent, OPF('meta'), attrib=attrib)
                 elem.attrib['name'] = prefixname(self.term, nsrmap)

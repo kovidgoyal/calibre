@@ -307,6 +307,14 @@ class CatalogPlugin(Plugin): # {{{
     #:  cli_options parsed in library.cli:catalog_option_parser()
     cli_options = []
 
+    def _field_sorter(self, key):
+        '''
+        Custom fields sort after standard fields
+        '''
+        if key.startswith('#'):
+            return '~%s' % key[1:]
+        else:
+            return key
 
     def search_sort_db(self, db, opts):
 
@@ -315,18 +323,18 @@ class CatalogPlugin(Plugin): # {{{
         if opts.sort_by:
             # 2nd arg = ascending
             db.sort(opts.sort_by, True)
-
         return db.get_data_as_dict(ids=opts.ids)
 
-    def get_output_fields(self, opts):
+    def get_output_fields(self, db, opts):
         # Return a list of requested fields, with opts.sort_by first
-        all_fields = set(
+        all_std_fields = set(
                           ['author_sort','authors','comments','cover','formats',
                            'id','isbn','ondevice','pubdate','publisher','rating',
                            'series_index','series','size','tags','timestamp',
                            'title','uuid'])
+        all_custom_fields = set(db.custom_field_keys())
+        all_fields = all_std_fields.union(all_custom_fields)
 
-        fields = all_fields
         if opts.fields != 'all':
             # Make a list from opts.fields
             requested_fields = set(opts.fields.split(','))
@@ -337,7 +345,7 @@ class CatalogPlugin(Plugin): # {{{
         if not opts.connected_device['is_device_connected'] and 'ondevice' in fields:
             fields.pop(int(fields.index('ondevice')))
 
-        fields.sort()
+        fields = sorted(fields, key=self._field_sorter)
         if opts.sort_by and opts.sort_by in fields:
             fields.insert(0,fields.pop(int(fields.index(opts.sort_by))))
         return fields

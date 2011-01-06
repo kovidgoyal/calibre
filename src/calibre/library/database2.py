@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 The database used to store ebook metadata
 '''
-import os, sys, shutil, cStringIO, glob, time, functools, traceback, re
+import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, json
 from itertools import repeat
 from math import ceil
 from Queue import Queue
@@ -32,7 +32,7 @@ from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import prefs, tweaks, from_json, to_json
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
@@ -102,7 +102,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if self.user_version == 0:
             self.initialize_database()
         # remember to add any filter to the connect method in sqlite.py as well
-        # so that various code taht connects directly will not complain about
+        # so that various code that connects directly will not complain about
         # missing functions
         self.books_list_filter = self.conn.create_dynamic_filter('books_list_filter')
         # Store temporary tables in memory
@@ -113,7 +113,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def exists_at(cls, path):
         return path and os.path.exists(os.path.join(path, 'metadata.db'))
 
-    def __init__(self, library_path, row_factory=False, default_prefs=None):
+    def __init__(self, library_path, row_factory=False, default_prefs=None,
+            read_only=False):
         self.field_metadata = FieldMetadata()
         self.dirtied_queue = Queue()
         if not os.path.exists(library_path):
@@ -126,6 +127,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.dbpath)
         if isinstance(self.dbpath, unicode) and not iswindows:
             self.dbpath = self.dbpath.encode(filesystem_encoding)
+
+        if read_only and os.path.exists(self.dbpath):
+            # Work on only a copy of metadata.db to ensure that
+            # metadata.db is not changed
+            pt = PersistentTemporaryFile('_metadata_ro.db')
+            pt.close()
+            shutil.copyfile(self.dbpath, pt.name)
+            self.dbpath = pt.name
 
         apply_default_prefs = not os.path.exists(self.dbpath)
         self.connect()
@@ -1243,7 +1252,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 else:
                     icon = icon_map[':custom']
                     icon_map[category] = icon
-                    tooltip = self.custom_column_label_map[label]['name']
 
             datatype = cat['datatype']
             avgr = lambda x: 0.0 if x.rc == 0 else x.rt/x.rc
@@ -2133,9 +2141,27 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
                 self.conn.commit()
 
+    series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
+
+    def _get_series_values(self, val):
+        if not val:
+            return (val, None)
+        match = self.series_index_pat.match(val.strip())
+        if match is not None:
+            idx = match.group(2)
+            try:
+                idx = float(idx)
+                return (match.group(1).strip(), idx)
+            except:
+                pass
+        return (val, None)
+
     def set_series(self, id, series, notify=True, commit=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
-        self.conn.execute('DELETE FROM series WHERE (SELECT COUNT(id) FROM books_series_link WHERE series=series.id) < 1')
+        self.conn.execute('''DELETE FROM series
+                             WHERE (SELECT COUNT(id) FROM books_series_link
+                                    WHERE series=series.id) < 1''')
+        (series, idx) = self._get_series_values(series)
         if series:
             if not isinstance(series, unicode):
                 series = series.decode(preferred_encoding, 'replace')
@@ -2147,6 +2173,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
+            if idx:
+                self.set_series_index(id, idx, notify=notify, commit=commit)
         self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
@@ -2680,6 +2708,38 @@ books_series_link      feeds
 
         return duplicates
 
+    def add_custom_book_data(self, book_id, name, val):
+        x = self.conn.get('SELECT id FROM books WHERE ID=?', (book_id,), all=False)
+        if x is None:
+            raise ValueError('add_custom_book_data: no such book_id %d'%book_id)
+        # Do the json encode first, in case it throws an exception
+        s = json.dumps(val, default=to_json)
+        self.conn.execute('DELETE FROM books_plugin_data WHERE book=? AND name=?',
+                          (book_id, name))
+        self.conn.execute('''INSERT INTO books_plugin_data(book, name, val)
+                             VALUES(?, ?, ?)''', (book_id, name, s))
+        self.commit()
+
+    def get_custom_book_data(self, book_id, name, default=None):
+        try:
+            s = self.conn.get('''select val FROM books_plugin_data
+                    WHERE book=? AND name=?''', (book_id, name), all=False)
+            if s is None:
+                return default
+            return json.loads(s, object_hook=from_json)
+        except:
+            pass
+        return default
+
+    def delete_custom_book_data(self, book_id, name):
+        self.conn.execute('DELETE FROM books_plugin_data WHERE book=? AND name=?',
+                          (book_id, name))
+        self.commit()
+
+    def get_ids_for_custom_book_data(self, name):
+        s = self.conn.get('''SELECT book FROM books_plugin_data WHERE name=?''', (name,))
+        return [x[0] for x in s]
+
     def get_custom_recipes(self):
         for id, title, script in self.conn.get('SELECT id,title,script FROM feeds'):
             yield id, title, script
@@ -2718,7 +2778,6 @@ books_series_link      feeds
                 os.remove(dest)
             raise
         else:
-            os.remove(self.dbpath)
             shutil.copyfile(dest, self.dbpath)
             self.connect()
             self.initialize_dynamic()

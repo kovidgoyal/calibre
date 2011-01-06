@@ -23,7 +23,6 @@ from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
     REGEXP_MATCH, MetadataBackup
-from calibre.library.cli import parse_series_string
 from calibre import strftime, isbytestring, prepare_string_for_xml
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.gui2.library import DEFAULT_SORT
@@ -248,9 +247,10 @@ class BooksModel(QAbstractTableModel): # {{{
         if not self.db:
             return
         self.about_to_be_sorted.emit(self.db.id)
-        ascending = order == Qt.AscendingOrder
+        if not isinstance(order, bool):
+            order = order == Qt.AscendingOrder
         label = self.column_map[col]
-        self.db.sort(label, ascending)
+        self.db.sort(label, order)
         if reset:
             self.reset()
         self.sorted_on = (label, order)
@@ -335,6 +335,8 @@ class BooksModel(QAbstractTableModel): # {{{
             if key not in cf_to_display:
                 continue
             name, val = mi.format_field(key)
+            if mi.metadata_for_field(key)['datatype'] == 'comments':
+                name += ':html'
             if val:
                 data[name] = val
         return data
@@ -725,9 +727,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     return False
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
-            val, s_index = parse_series_string(self.db, label, value.toString())
-            if not val:
-                val = s_index = None
+            val = unicode(value.toString()).strip()
         elif typ == 'composite':
             tmpl = unicode(value.toString()).strip()
             disp = cc['display']

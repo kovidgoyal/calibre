@@ -809,7 +809,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             self.pubdate.setDate(QDate(dt.year, dt.month, dt.day))
                         summ = book.comments
                         if summ:
-                            prefix = self.comment.html
+                            prefix = self.comments.html
                             if prefix:
                                 prefix += '\n'
                             self.comments.html = prefix + comments_to_html(summ)
