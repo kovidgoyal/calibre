@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-02 23:55+0000\n"
-"PO-Revision-Date: 2011-01-03 15:31+0000\n"
+"PO-Revision-Date: 2011-01-05 20:34+0000\n"
 "Last-Translator: David Rodrigues <david.rodrigues@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-04 13:56+0000\n"
+"X-Launchpad-Export-Date: 2011-01-06 04:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
@@ -2998,7 +2998,7 @@ msgstr "A ligação do Fictionwise expirou. Tente novamente mais tarde."
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:286
 msgid "Fictionwise encountered an error."
-msgstr ""
+msgstr "Foi encontrado um erro na Fictionwise"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:219
 msgid ""
@@ -3179,7 +3179,7 @@ msgstr "ISBN do Livro"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:369
 msgid "Covers: 1-Check/ 2-Download"
-msgstr ""
+msgstr "Capas: 1-Verificar/ 2-Descarregar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:371
 msgid "Covers files path"
@@ -3333,7 +3333,7 @@ msgstr "Opções de geração do Índice em HTML."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:130
 msgid "Unknown publisher"
-msgstr ""
+msgstr "Editora desconhecida"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:71
@@ -3429,7 +3429,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Utilizar o novo motor de conversão de PDF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -3689,6 +3689,8 @@ msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "ull first page of the generated pdf."
 msgstr ""
+"Manter o aspecto da capa em vez de a esticar para preencher a página inteira "
+"no ficheiro pdf gerado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -3707,6 +3709,9 @@ msgid ""
 "depth reduced by default to accommodate applications that can not convert "
 "images on their own such as Dropbook."
 msgstr ""
+"Não reduzir o tamanho ou a profundidade de cor das imagens. O tamanho e "
+"profundidade de cor são reduzidas por defeito para permitir utilizar "
+"aplicações que não convertem imagens por defeito, como no caso do Dropbook."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:78
@@ -3719,6 +3724,9 @@ msgid ""
 "first and then try it.\n"
 "%s"
 msgstr ""
+"Este ficheiro RTF tem uma propriedade que o calibre não suporta. Por favor "
+"converta-o para HTML primeiro e tente novamente.\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -3746,42 +3754,49 @@ msgstr ""
 msgid ""
 "Specify whether or not to insert an empty line between two paragraphs."
 msgstr ""
+"Especifique se se deve inserir uma linha em branco entre dois parágrafos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:40
 msgid ""
 "Specify whether or not to insert two space characters to indent the first "
 "line of each paragraph."
 msgstr ""
+"Especifique se se devem inserir dois espaços para indentar a primeira linha "
+"de cada parágrafo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:44
 msgid ""
 "Specify whether or not to hide the chapter title for each chapter. Useful "
 "for image-only output (eg. comics)."
 msgstr ""
+"Especifique se se deve esconder o título dos capítulos para todos os "
+"capítulos. Útil para outputs de imagens (ex. comics)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:48
 msgid "Resize all the images for full screen view. "
-msgstr ""
+msgstr "Redimensionar todas as imagens para vizualisação em ecrã completo. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:125
 msgid "Start Page"
-msgstr ""
+msgstr "Página Inicial"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:135
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:137
 msgid "Cover Pages"
-msgstr ""
+msgstr "Capas"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:150
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:153
 msgid " (Preface)"
-msgstr ""
+msgstr " (Prefácio)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:34
 msgid ""
 "Normally extra spaces are condensed into a single space. With this option "
 "all spaces will be displayed."
 msgstr ""
+"Normalmente vários espaços são condensados num único espaço. Com esta opção "
+"todos os espaços serão mostrados."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:37
 msgid ""
@@ -3793,7 +3808,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:40
 msgid "Do not insert a Table of Contents into the output text."
-msgstr ""
+msgstr "Não inserir o índice no texto final"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:25
 msgid ""
@@ -3817,7 +3832,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:49
 msgid "Produce Markdown formatted text."
-msgstr ""
+msgstr "Produzir texto formatado com Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:52
 msgid ""
@@ -3825,6 +3840,9 @@ msgid ""
 "with the markdown-format option becauselinks are always removed with plain "
 "text output."
 msgstr ""
+"Não remover as hiperligações do documento. Isto só é útil quando em "
+"simultâneo com a formatação Markdown uma vez que os links são sempre "
+"removidos em outputs de texto simples."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:57
 msgid ""
@@ -3832,6 +3850,9 @@ msgid ""
 "paired with the markdown-format option becauseimage references are always "
 "removed with plain text output."
 msgstr ""
+"Não remover as referências de imagens no documento. Isto só é útil quando em "
+"simultâneo com a formatação Markdown uma vez que as referências de imagens "
+"são sempre removidas em outputs de texto simples."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:70
 msgid "Send file to storage card instead of main memory by default"
@@ -3928,16 +3949,16 @@ msgstr "Transferir meta-dados sociais (etiquetas/classificações/etc)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:128
 msgid "Overwrite author and title with new metadata"
-msgstr ""
+msgstr "Substituir o autor e o título nos novos metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:130
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:101
 msgid "Automatically download the cover, if available"
-msgstr ""
+msgstr "Se possível, descarregar automaticamente a capa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:132
 msgid "Limit max simultaneous jobs to number of CPUs"
-msgstr ""
+msgstr "Limitar o número máximo de tarefa simultâneas ao número de CPUs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:134
 msgid "tag browser categories not to display"
@@ -4179,32 +4200,32 @@ msgstr "%s<br />Última página lida: %d (%d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:124
 msgid "%s<br />Last Page Read: Location %d (%d%%)"
-msgstr ""
+msgstr "%s<br />Ultima Página Lida: Localização %d (%d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:143
 msgid "<b>Location %d &bull; %s</b><br />%s<br />"
-msgstr ""
+msgstr "<b>Localização %d &bull; %s</b><br />%s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:152
 msgid "<b>Page %d &bull; %s</b><br />"
-msgstr ""
+msgstr "<b>Página %d &bull; %s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid "<b>Location %d &bull; %s</b><br />"
-msgstr ""
+msgstr "<b>Localização %d &bull; %s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:34
 msgid "Create catalog of books in your calibre library"
-msgstr ""
+msgstr "Criar um catálogo dos livros da sua biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:31
 msgid "No books selected to generate catalog for"
-msgstr ""
+msgstr "Não há livros para gerar o catálogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:54
 msgid "Generating %s catalog..."
-msgstr ""
+msgstr "Gerando o catálogo %s ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:251
@@ -4216,18 +4237,20 @@ msgid ""
 "No books to catalog\n"
 "Check exclusion criteria"
 msgstr ""
+"Sem livros para catalogar\n"
+"Verifique o critério de exclusão"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:70
 msgid "Catalog generated."
-msgstr ""
+msgstr "Catálogo gerado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:73
 msgid "Export Catalog Directory"
-msgstr ""
+msgstr "Exportar a directoria do catálogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:74
 msgid "Select destination for %s.%s"
-msgstr ""
+msgstr "Seleccione o destino para %s.%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:112
 msgid "Checking database integrity"
@@ -4255,56 +4278,60 @@ msgid ""
 "removed. You should check them manually. This can happen if you manipulate "
 "the files in the library folder directly."
 msgstr ""
+"Os seguintes livros tem formatos e capas listadas na base de dados que não "
+"estão disponíveis. As entradas para estes formatos/capas foram removidas. "
+"Deve verificá-las manualmente. Esta situação pode ocorrer se manipular "
+"directamente os ficheiros da biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:142
 msgid "No errors found"
-msgstr ""
+msgstr "Não foram encontrados erros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:143
 msgid "The integrity check completed with no uncorrectable errors found."
-msgstr ""
+msgstr "O teste de integridade terminou sem encontrar erros incorrigíveis."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:51
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:167
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:114
 msgid "%d books"
-msgstr ""
+msgstr "%d livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:153
 msgid "Choose calibre library to work with"
-msgstr ""
+msgstr "Escolha a biblioteca calibre para utilizar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:162
 msgid "Switch/create library..."
-msgstr ""
+msgstr "Mudar/crear biblioteca..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
 msgid "Quick switch"
-msgstr ""
+msgstr "Mudar rapidamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:175
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:78
 msgid "Rename library"
-msgstr ""
+msgstr "Renomear a biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
 msgid "Delete library"
-msgstr ""
+msgstr "Apagar a biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:180
 msgid "Pick a random book"
-msgstr ""
+msgstr "Escolher um livro aleatoriamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:199
 msgid "Library Maintenance"
-msgstr ""
+msgstr "Manutenção da biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:200
 msgid "Library metadata backup status"
-msgstr ""
+msgstr "Estado dos backups dos metadados da biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 msgid "Start backing up metadata of all books"
@@ -4312,28 +4339,28 @@ msgstr "Começar a salvaguarda dos meta-dados de todos os livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:208
 msgid "Check library"
-msgstr ""
+msgstr "Verificar biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:212
 msgid "Check database integrity"
-msgstr ""
+msgstr "Verificar a integridade da base de dados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:216
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:363
 msgid "Recover database"
-msgstr ""
+msgstr "Recuperar a base de dados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:289
 msgid "Rename"
-msgstr ""
+msgstr "Renomear"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:290
 msgid "Choose a new name for the library <b>%s</b>. "
-msgstr ""
+msgstr "Escolher um nome novo para a biblioteca <b>%s</b>. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:291
 msgid "Note that the actual library folder will be renamed."
-msgstr ""
+msgstr "Repare que o nome da pasta da biblioteca actual será renomeada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:298
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:191
@@ -4342,17 +4369,19 @@ msgstr "Já existe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:299
 msgid "The folder %s already exists. Delete it first."
-msgstr ""
+msgstr "A pasta %s já existe. Apague-a primeiro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:305
 msgid "Rename failed"
-msgstr ""
+msgstr "A renomeação falhou"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:306
 msgid ""
 "Failed to rename the library at %s. The most common cause for this is if one "
 "of the files in the library is open in another program."
 msgstr ""
+"Não foi possível renomear a biblioteca %s. A causa mais comum para esta "
+"situação é um dos ficheiros da biblioteca estar aberto por outro programa."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:316
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:53
@@ -4363,6 +4392,8 @@ msgstr "Tem a certeza?"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:317
 msgid "All files from %s will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"Todos os ficheiros de %s serão <b>removidos permanentemente</b>. Tem a "
+"certeza?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:336
 msgid "none"
@@ -4370,7 +4401,7 @@ msgstr "nenhum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:337
 msgid "Backup status"
-msgstr ""
+msgstr "Estatísticas da cópia de segurança"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:338
 msgid "Book metadata files remaining to be written: %s"
