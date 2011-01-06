@@ -363,11 +363,6 @@ class HTMLPreProcessor(object):
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
 
-                  # Detect Chapters to match default XPATH in GUI
-                  #(re.compile(r'<br>\s*(?P<chap>(<[ibu]>){0,2}\s*.?(Introduction|Chapter|Kapitel|Epilogue|Prologue|Book|Part|Dedication|Volume|Preface|Acknowledgments)\s*([\d\w-]+\s*){0,3}\s*(</[ibu]>){0,2})\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<br>)?', re.IGNORECASE), chap_head),
-                  # Cover the case where every letter in a chapter title is separated by a space
-                  #(re.compile(r'<br>\s*(?P<chap>([A-Z]\s+){4,}\s*([\d\w-]+\s*){0,3}\s*)\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*(<br>))?'), chap_head),
-
                   # Convert line breaks to paragraphs
                   (re.compile(r'<br[^>]*>\s*'), lambda match : '</p>\n<p>'),
                   (re.compile(r'<body[^>]*>\s*'), lambda match : '<body>\n<p>'),
