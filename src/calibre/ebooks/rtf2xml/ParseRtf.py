@@ -230,14 +230,21 @@ class ParseRtf:
                 os.remove(self.__temp_file)
             except OSError:
                 pass
-             #Check to see if the file is correctly encoded
+            #Check to see if the file is correctly encoded
+            encode_obj = default_encoding.DefaultEncoding(
+            in_file = self.__temp_file,
+            run_level = self.__run_level,
+            bug_handler = RtfInvalidCodeException,
+            check_raw = True,
+            )
+            platform, code_page, default_font_num = encode_obj.find_default_encoding()
             check_encoding_obj = check_encoding.CheckEncoding(
                     bug_handler = RtfInvalidCodeException,
                         )
-            if check_encoding_obj.check_encoding(self.__file, 'cp1252') and \
-                    check_encoding_obj.check_encoding(self.__file, 'cp437') and \
-                        check_encoding_obj.check_encoding(self.__file, 'cp850') and \
-                            check_encoding_obj.check_encoding(self.__file, 'mac_roman'):
+            enc = encode_obj.get_codepage()
+            if enc != 'mac_roman':
+                enc = 'cp' + enc
+            if check_encoding_obj.check_encoding(self.__file, enc):
                 file_name = self.__file if isinstance(self.__file, str) \
                                     else self.__file.encode('utf-8')
                 msg = _('File %s does not appear to be correctly encoded.\n') % file_name 
