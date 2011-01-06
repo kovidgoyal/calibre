@@ -183,6 +183,7 @@ class Widget(QWidget):
     def set_value(self, g, val):
         from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.convert.regex_builder import RegexEdit
+        from calibre.gui2.widgets import EncodingComboBox
         if self.set_value_handler(g, val):
             return
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
@@ -201,6 +202,8 @@ class Widget(QWidget):
             g.setCheckState(Qt.Checked if bool(val) else Qt.Unchecked)
         elif isinstance(g, (XPathEdit, RegexEdit)):
             g.edit.setText(val if val else '')
+        elif isinstance(g, EncodingComboBox):
+            g.setEditText(val if val else '')
         else:
             raise Exception('Can\'t set value %s in %s'%(repr(val),
                 unicode(g.objectName())))
