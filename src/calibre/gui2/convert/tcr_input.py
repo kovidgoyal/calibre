@@ -9,9 +9,9 @@ from calibre.gui2.convert import Widget
 
 class PluginWidget(Widget, Ui_Form):
 
-    TITLE = _('PDB Input')
-    HELP = _('Options specific to')+' PDB '+_('input')
-    COMMIT_NAME = 'pdb_input'
+    TITLE = _('TCR Input')
+    HELP = _('Options specific to')+' TCR '+_('input')
+    COMMIT_NAME = 'tcr_input'
     ICON = I('mimetypes/txt.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):

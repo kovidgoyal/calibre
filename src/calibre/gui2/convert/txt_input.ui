@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
+    <width>518</width>
     <height>300</height>
    </rect>
   </property>
@@ -15,47 +15,23 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QCheckBox" name="opt_single_line_paras">
+    <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Treat each &amp;line as a paragraph</string>
+      <string>Paragraph style:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="opt_print_formatted_paras">
+   <item row="0" column="1">
+    <widget class="QComboBox" name="opt_paragraph_type"/>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_preserve_spaces">
      <property name="text">
-      <string>Assume print formatting</string>
+      <string>Preserve &amp;spaces</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="opt_markdown">
-     <property name="text">
-      <string>Process using markdown</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>&lt;p&gt;Markdown is a simple markup language for text files, that allows for advanced formatting. To learn more visit &lt;a href=&quot;http://daringfireball.net/projects/markdown&quot;&gt;markdown&lt;/a&gt;.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-     <property name="openExternalLinks">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QCheckBox" name="opt_markdown_disable_toc">
-     <property name="text">
-      <string>Do not insert Table of Contents into output text when using markdown</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
+   <item row="6" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -68,32 +44,47 @@
      </property>
     </spacer>
    </item>
-   <item row="5" column="0">
-    <widget class="QCheckBox" name="opt_preserve_spaces">
+   <item row="1" column="1">
+    <widget class="QComboBox" name="opt_formatting_type"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Preserve &amp;spaces</string>
+      <string>Formatting style:</string>
      </property>
+    </widget>
+   </item>
+   <item row="2" column="0" rowspan="2" colspan="2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Markdown Options</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>&lt;p&gt;Markdown is a simple markup language for text files, that allows for advanced formatting. To learn more visit &lt;a href=&quot;http://daringfireball.net/projects/markdown&quot;&gt;markdown&lt;/a&gt;.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="openExternalLinks">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_markdown_disable_toc">
+        <property name="text">
+         <string>Do not insert Table of Contents into output text when using markdown</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>opt_markdown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>opt_markdown_disable_toc</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>76</x>
-     <y>80</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>418</x>
-     <y>105</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

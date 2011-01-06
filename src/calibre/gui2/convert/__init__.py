@@ -183,6 +183,7 @@ class Widget(QWidget):
     def set_value(self, g, val):
         from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.convert.regex_builder import RegexEdit
+        from calibre.gui2.widgets import EncodingComboBox
         if self.set_value_handler(g, val):
             return
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
@@ -191,6 +192,11 @@ class Widget(QWidget):
             if not val: val = ''
             getattr(g, 'setPlainText', g.setText)(val)
             getattr(g, 'setCursorPosition', lambda x: x)(0)
+        elif isinstance(g, EncodingComboBox):
+            if val:
+                g.setEditText(val)
+            else:
+                g.setCurrentIndex(0)
         elif isinstance(g, QComboBox) and val:
             idx = g.findText(val, Qt.MatchFixedString)
             if idx < 0:
