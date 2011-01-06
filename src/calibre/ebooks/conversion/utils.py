@@ -117,7 +117,7 @@ class PreProcessor(object):
         self.min_chapters = 1
         if wordcount > 7000:
             self.min_chapters = wordcount / 7000
-        print "minimum chapters required are: "+str(self.min_chapters)
+        #print "minimum chapters required are: "+str(self.min_chapters)
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
         self.log("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
@@ -180,7 +180,7 @@ class PreProcessor(object):
         words_per_chptr = wordcount
         if words_per_chptr > 0 and self.html_preprocess_sections > 0:
             words_per_chptr = wordcount / self.html_preprocess_sections
-        print "Total wordcount is: "+ str(wordcount)+", Average words per section is: "+str(words_per_chptr)+", Marked up "+str(self.html_preprocess_sections)+" chapters"            
+        self.log("Total wordcount is: "+ str(wordcount)+", Average words per section is: "+str(words_per_chptr)+", Marked up "+str(self.html_preprocess_sections)+" chapters")        
         return html
 
 
