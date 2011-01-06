@@ -8,13 +8,12 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os
 
 from PyQt4.Qt import Qt, QModelIndex, QAbstractItemModel, QVariant, QIcon, \
-        QBrush, QDialog, QDialogButtonBox, QVBoxLayout, QLabel, QLineEdit
+        QBrush
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugins_ui import Ui_Form
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
-                                 disable_plugin, customize_plugin, \
-                                 plugin_customization, add_plugin, \
+                                 disable_plugin, plugin_customization, add_plugin, \
                                  remove_plugin
 from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files
 
@@ -189,49 +188,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         _('Plugin: %s does not need customization')%plugin.name).exec_()
                     return
                 self.changed_signal.emit()
-
-                config_dialog = QDialog(self)
-                button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-                v = QVBoxLayout(config_dialog)
-
-                button_box.accepted.connect(config_dialog.accept)
-                button_box.rejected.connect(config_dialog.reject)
-                config_dialog.setWindowTitle(_('Customize') + ' ' + plugin.name)
-
-                if hasattr(plugin, 'config_widget'):
-                    config_widget = plugin.config_widget()
-                    v.addWidget(config_widget)
-                    v.addWidget(button_box)
-                    config_dialog.exec_()
-
-                    if config_dialog.result() == QDialog.Accepted:
-                        if hasattr(config_widget, 'validate'):
-                            if config_widget.validate():
-                                plugin.save_settings(config_widget)
-                        else:
-                            plugin.save_settings(config_widget)
-                        self._plugin_model.refresh_plugin(plugin)
-                else:
-                    help_text = plugin.customization_help(gui=True)
-                    help_text = QLabel(help_text, config_dialog)
-                    help_text.setWordWrap(True)
-                    help_text.setTextInteractionFlags(Qt.LinksAccessibleByMouse
-                            | Qt.LinksAccessibleByKeyboard)
-                    help_text.setOpenExternalLinks(True)
-                    v.addWidget(help_text)
-                    sc = plugin_customization(plugin)
-                    if not sc:
-                        sc = ''
-                    sc = sc.strip()
-                    sc = QLineEdit(sc, config_dialog)
-                    v.addWidget(sc)
-                    v.addWidget(button_box)
-                    config_dialog.exec_()
-
-                    if config_dialog.result() == QDialog.Accepted:
-                        sc = unicode(sc.text()).strip()
-                        customize_plugin(plugin, sc)
-
+                if plugin.do_user_config():
                     self._plugin_model.refresh_plugin(plugin)
             elif op == 'remove':
                 if remove_plugin(plugin):
