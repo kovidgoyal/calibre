@@ -57,7 +57,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             (_('Never'), 'never')]
         r('toolbar_text', gprefs, choices=choices)
 
-        choices = [(_('Disabled'), 'disabled'), (_('By first letter'), 'first letter'),
+        choices = [(_('Disabled'), 'disable'), (_('By first letter'), 'first letter'),
                    (_('Partitioned'), 'partition')]
         r('tags_browser_partition_method', gprefs, choices=choices)
         r('tags_browser_collapse_at', gprefs)

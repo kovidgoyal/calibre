@@ -55,10 +55,10 @@ class Query(object):
     BASE_URL = 'http://isbndb.com/api/books.xml?'
 
     def __init__(self, key, title=None, author=None, publisher=None, isbn=None,
-                    keywords=None, max_results=40):
+                    keywords=None, max_results=30):
         assert not(title is None and author is None and publisher is None and \
                    isbn is None and keywords is None)
-        assert (max_results < 41)
+        assert (max_results < 31)
         
         if title == _('Unknown'):
             title=None

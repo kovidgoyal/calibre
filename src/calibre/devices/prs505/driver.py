@@ -61,14 +61,26 @@ class PRS505(USBMS):
     ALL_BY_TITLE  = _('All by title')
     ALL_BY_AUTHOR = _('All by author')
 
-    EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of metadata fields '
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+        _('Comma separated list of metadata fields '
             'to turn into collections on the device. Possibilities include: ')+\
                     'series, tags, authors' +\
             _('. Two special collections are available: %s:%s and %s:%s. Add  '
             'these values to the list to enable them. The collections will be '
             'given the name provided after the ":" character.')%(
-                                    'abt', ALL_BY_TITLE, 'aba', ALL_BY_AUTHOR)
-    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags'])
+                                    'abt', ALL_BY_TITLE, 'aba', ALL_BY_AUTHOR),
+            _('Upload separate cover thumbnails for books (newer readers)') +
+            ':::'+_('Normally, the SONY readers get the cover image from the'
+                ' ebook file itself. With this option, calibre will send a '
+                'separate cover image to the reader, useful if you are '
+                'sending DRMed books in which you cannot change the cover.'
+                ' WARNING: This option should only be used with newer '
+                'SONY readers: 350, 650, 950 and newer.'),
+    ]
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+                ', '.join(['series', 'tags']),
+                False
+    ]
 
     plugboard = None
     plugboard_func = None
@@ -159,7 +171,7 @@ class PRS505(USBMS):
         opts = self.settings()
         if opts.extra_customization:
             collections = [x.strip() for x in
-                    opts.extra_customization.split(',')]
+                    opts.extra_customization[0].split(',')]
         else:
             collections = []
         debug_print('PRS505: collection fields:', collections)
@@ -186,8 +198,12 @@ class PRS505(USBMS):
         self.plugboard_func = pb_func
 
     def upload_cover(self, path, filename, metadata, filepath):
-        return # Disabled as the SONY's don't need this thumbnail anyway and
-               # older models don't auto delete it
+        opts = self.settings()
+        if not opts.extra_customization[1]:
+            # Building thumbnails disabled
+            debug_print('PRS505: not uploading covers')
+            return
+        debug_print('PRS505: uploading covers')
         if metadata.thumbnail and metadata.thumbnail[-1]:
             path = path.replace('/', os.sep)
             is_main = path.startswith(self._main_prefix)

@@ -103,7 +103,7 @@ class CoverManager(object):
             from calibre.ebooks import calibre_cover
             img_data = calibre_cover(title, authors_to_string(authors),
                     series_string=series_string)
-            id, href = self.oeb.manifest.generate('cover_image',
+            id, href = self.oeb.manifest.generate('cover',
                     'cover_image.jpg')
             item = self.oeb.manifest.add(id, href, guess_type('t.jpg')[0],
                         data=img_data)
