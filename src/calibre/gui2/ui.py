@@ -105,6 +105,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         for action in interface_actions():
             ac = action.load_actual_plugin(self)
             ac.plugin_path = action.plugin_path
+            ac.interface_action_base_plugin = action
             if ac.name in acmap:
                 if ac.priority >= acmap[ac.name].priority:
                     acmap[ac.name] = ac

@@ -453,7 +453,7 @@ class TemplateFormatter(string.Formatter):
 
 class ValidateFormatter(TemplateFormatter):
     '''
-    Provides a format function that substitutes '' for any missing value
+    Provides a formatter that substitutes the validation string for every value
     '''
     def get_value(self, key, args, kwargs):
         return self._validation_string
