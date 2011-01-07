@@ -353,7 +353,7 @@ class HTMLPreProcessor(object):
                   (re.compile(r'((?<=</a>)\s*file:////?[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
 
                   # Center separator lines
-                  (re.compile(u'<br>\s*(?P<break>([*#•]+\s*)+)\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group(1) + '</p>'),
+                  (re.compile(u'<br>\s*(?P<break>([*#•✦]+\s*)+)\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group(1) + '</p>'),
 
                   # Remove page links
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
@@ -363,13 +363,11 @@ class HTMLPreProcessor(object):
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
 
-                  # Detect Chapters to match default XPATH in GUI
-                  (re.compile(r'<br>\s*(?P<chap>(<[ibu]>){0,2}\s*.?(Introduction|Chapter|Kapitel|Epilogue|Prologue|Book|Part|Dedication|Volume|Preface|Acknowledgments)\s*([\d\w-]+\s*){0,3}\s*(</[ibu]>){0,2})\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<br>)?', re.IGNORECASE), chap_head),
-                  # Cover the case where every letter in a chapter title is separated by a space
-                  (re.compile(r'<br>\s*(?P<chap>([A-Z]\s+){4,}\s*([\d\w-]+\s*){0,3}\s*)\s*(<br>\s*){1,3}\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*(<br>))?'), chap_head),
+                  # Convert line breaks to paragraphs
+                  (re.compile(r'<br[^>]*>\s*'), lambda match : '</p>\n<p>'),
+                  (re.compile(r'<body[^>]*>\s*'), lambda match : '<body>\n<p>'),
+                  (re.compile(r'\s*</body>'), lambda match : '</p>\n</body>'),
 
-                  # Have paragraphs show better
-                  (re.compile(r'<br.*?>'), lambda match : '<p>'),
                   # Clean up spaces
                   (re.compile(u'(?<=[\.,;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
                   # Add space before and after italics
@@ -455,9 +453,9 @@ class HTMLPreProcessor(object):
         # delete soft hyphens - moved here so it's executed after header/footer removal
         if is_pdftohtml:
             # unwrap/delete soft hyphens
-            end_rules.append((re.compile(u'[­](\s*<p>)+\s*(?=[[a-z\d])'), lambda match: ''))
+            end_rules.append((re.compile(u'[­](</p>\s*<p>\s*)+\s*(?=[[a-z\d])'), lambda match: ''))
             # unwrap/delete soft hyphens with formatting
-            end_rules.append((re.compile(u'[­]\s*(</(i|u|b)>)+(\s*<p>)+\s*(<(i|u|b)>)+\s*(?=[[a-z\d])'), lambda match: ''))
+            end_rules.append((re.compile(u'[­]\s*(</(i|u|b)>)+(</p>\s*<p>\s*)+\s*(<(i|u|b)>)+\s*(?=[[a-z\d])'), lambda match: ''))
 
         # Make the more aggressive chapter marking regex optional with the preprocess option to
         # reduce false positives and move after header/footer removal
@@ -475,7 +473,7 @@ class HTMLPreProcessor(object):
                 end_rules.append((re.compile(u'(?<=.{%i}[–—])\s*<p>\s*(?=[[a-z\d])' % length), lambda match: ''))
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(u'(?<=.{%i}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężı,:)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(u'(?<=.{%i}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðß,:)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + start_rules:
@@ -508,7 +506,15 @@ class HTMLPreProcessor(object):
         if is_pdftohtml and length > -1:
             # Dehyphenate
             dehyphenator = Dehyphenator()
-            html = dehyphenator(html,'pdf', length)
+            html = dehyphenator(html,'html', length)
+
+        if is_pdftohtml:
+            from calibre.ebooks.conversion.utils import PreProcessor
+            pdf_markup = PreProcessor(self.extra_opts, None)
+            totalwords = 0
+            totalwords = pdf_markup.get_word_count(html)
+            if totalwords > 7000:
+                html = pdf_markup.markup_chapters(html, totalwords, True)
 
         #dump(html, 'post-preprocess')
 
@@ -554,5 +560,9 @@ class HTMLPreProcessor(object):
         html = smartyPants(html)
         html = html.replace(start, '<!--')
         html = html.replace(stop, '-->')
+        # convert ellipsis to entities to prevent wrapping
+        html = re.sub('(?u)(?<=\w)\s?(\.\s?){2}\.', '&hellip;', html)
+        # convert double dashes to em-dash
+        html = re.sub('\s--\s', u'\u2014', html)
         return substitute_entites(html)
 
