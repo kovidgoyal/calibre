@@ -18,7 +18,7 @@
 
 __version__ = "1.0"
 
-import re
+import re, codecs
 
 def detect(aBuf):
     import calibre.ebooks.chardet.universaldetector as universaldetector
@@ -83,9 +83,11 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
     if not raw:
         return u'', encoding
     if not isinstance(raw, unicode):
-        if raw.startswith('\xff\xfe'):
+        if raw.startswith(codecs.BOM_UTF8):
+            raw, encoding = raw.decode('utf-8')[1:], 'utf-8'
+        elif raw.startswith(codecs.BOM_UTF16_LE):
             raw, encoding = raw.decode('utf-16-le')[1:], 'utf-16-le'
-        elif raw.startswith('\xfe\xff'):
+        elif raw.startswith(codecs.BOM_UTF16_BE):
             raw, encoding = raw.decode('utf-16-be')[1:], 'utf-16-be'
     if not isinstance(raw, unicode):
         for pat in ENCODING_PATS:
