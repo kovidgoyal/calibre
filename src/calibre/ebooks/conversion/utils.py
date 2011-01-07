@@ -113,24 +113,24 @@ class PreProcessor(object):
         # some lit files don't have any <p> tags or equivalent (generally just plain text between
         # <pre> tags), check and  mark up line endings if required before proceeding
         if self.no_markup(html, 0.1):
-             self.log("not enough paragraph markers, adding now")
-             # check if content is in pre tags, use txt processor to mark up if so
-             pre = re.compile(r'<pre>', re.IGNORECASE)
-             if len(pre.findall(html)) == 1:
-                 self.log("Running Text Processing")
-                 from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
-                 separate_paragraphs_single_line
-                 outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
-                 html = outerhtml.sub('\g<text>', html)
-                 html = separate_paragraphs_single_line(html)
-                 html = preserve_spaces(html)
-                 html = convert_basic(html, epub_split_size_kb=0)
-             else:
-                 # Add markup naively
-                 # TODO - find out if there are cases where there are more than one <pre> tag or
-                 # other types of unmarked html and handle them in some better fashion
-                 add_markup = re.compile('(?<!>)(\n)')
-                 html = add_markup.sub('</p>\n<p>', html)
+            self.log("not enough paragraph markers, adding now")
+            # check if content is in pre tags, use txt processor to mark up if so
+            pre = re.compile(r'<pre>', re.IGNORECASE)
+            if len(pre.findall(html)) == 1:
+                self.log("Running Text Processing")
+                from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
+                separate_paragraphs_single_line
+                outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
+                html = outerhtml.sub('\g<text>', html)
+                html = separate_paragraphs_single_line(html)
+                html = preserve_spaces(html)
+                html = convert_basic(html, epub_split_size_kb=0)
+            else:
+                # Add markup naively
+                # TODO - find out if there are cases where there are more than one <pre> tag or
+                # other types of unmarked html and handle them in some better fashion
+                add_markup = re.compile('(?<!>)(\n)')
+                html = add_markup.sub('</p>\n<p>', html)
 
         ###### Mark Indents/Cleanup ######
         #
@@ -164,8 +164,8 @@ class PreProcessor(object):
                 self.log("deleting blank lines")
                 html = blankreg.sub('', html)
             elif float(len(blanklines)) / float(len(lines)) > 0.40:
-               blanks_between_paragraphs = True
-               #print "blanks between paragraphs is marked True"
+                blanks_between_paragraphs = True
+                #print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
         #self.dump(html, 'before_chapter_markup')
