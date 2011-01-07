@@ -46,15 +46,19 @@ class FB2Input(InputFormatPlugin):
         log.debug('Parsing XML...')
         raw = stream.read().replace('\0', '')
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
-            assume_utf8=True)[0]
+            assume_utf8=True, resolve_entities=True)[0]
         try:
             doc = etree.fromstring(raw)
         except etree.XMLSyntaxError:
             try:
                 doc = etree.fromstring(raw, parser=RECOVER_PARSER)
+                if doc is None:
+                    raise Exception('parse failed')
             except:
                 doc = etree.fromstring(raw.replace('& ', '&amp;'),
                         parser=RECOVER_PARSER)
+        if doc is None:
+            raise ValueError('The FB2 file is not valid XML')
         stylesheets = doc.xpath('//*[local-name() = "stylesheet" and @type="text/css"]')
         css = ''
         for s in stylesheets:
