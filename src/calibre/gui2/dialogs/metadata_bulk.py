@@ -321,7 +321,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if (f in ['author_sort'] or
                     (fm[f]['datatype'] in ['text', 'series', 'enumeration']
                      and fm[f].get('search_terms', None)
-                     and f not in ['formats', 'ondevice', 'sort'])):
+                     and f not in ['formats', 'ondevice', 'sort']) or
+                    fm[f]['datatype'] in ['int', 'float', 'bool'] ):
                 self.all_fields.append(f)
                 self.writable_fields.append(f)
             if f in ['sort'] or fm[f]['datatype'] == 'composite':
@@ -431,12 +432,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 val = mi.get('title_sort', None)
             else:
                 val = mi.get(field, None)
+            if isinstance(val, (int, float, bool)):
+                val = str(val)
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
                 val = [val]
             elif field == 'authors':
-                val = [v.replace(',', '|') for v in val]
+                val = [v.replace('|', ',') for v in val]
         else:
             val = []
         return val
@@ -566,17 +569,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             dest_val = mi.get(dest, '')
             if dest_val is None:
                 dest_val = []
-            elif isinstance(dest_val, list):
-                if dest == 'authors':
-                    dest_val = [v.replace(',', '|') for v in dest_val]
-            else:
+            elif not isinstance(dest_val, list):
                 dest_val = [dest_val]
         else:
             dest_val = []
 
-        if len(val) > 0:
-            if src == 'authors':
-                val = [v.replace(',', '|') for v in val]
         if dest_mode == 1:
             val.extend(dest_val)
         elif dest_mode == 2:

@@ -8,7 +8,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os
 import struct
 
 from cStringIO import StringIO
@@ -62,13 +61,13 @@ class Reader(FormatReader):
 
         self.log.info('Converting text to OEB...')
         stream = StringIO(raw_txt)
-        
+
         from calibre.customize.ui import plugin_for_input_format
-        
+
         txt_plugin = plugin_for_input_format('txt')
         for option in txt_plugin.options:
             if not hasattr(self.options, option.option.name):
-                setattr(self.options, option.name, option.recommend_val)        
-        
+                setattr(self.options, option.name, option.recommended_value)
+
         stream.seek(0)
         return txt_plugin.convert(stream, self.options, 'txt', self.log, {})

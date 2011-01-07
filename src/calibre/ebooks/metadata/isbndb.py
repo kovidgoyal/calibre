@@ -17,10 +17,10 @@ BASE_URL = 'http://isbndb.com/api/books.xml?access_key=%(key)s&page_number=1&res
 class ISBNDBError(Exception):
     pass
 
-def fetch_metadata(url, max=100, timeout=5.):
+def fetch_metadata(url, max=3, timeout=5.):
     books = []
     page_number = 1
-    total_results = sys.maxint
+    total_results = 31
     br = browser()
     while len(books) < total_results and max > 0:
         try:

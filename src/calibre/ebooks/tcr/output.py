@@ -18,7 +18,7 @@ class TCROutput(OutputFormatPlugin):
     file_type = 'tcr'
 
     options = set([
-        OptionRecommendation(name='output_encoding', recommended_value='utf-8',
+        OptionRecommendation(name='tcr_output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \
             'The default is utf-8.')),
@@ -40,7 +40,7 @@ class TCROutput(OutputFormatPlugin):
         setattr(opts, 'indent_paras', False)
 
         writer = TXTMLizer(log)
-        txt = writer.extract_content(oeb_book, opts).encode(opts.output_encoding, 'replace')
+        txt = writer.extract_content(oeb_book, opts).encode(opts.tcr_output_encoding, 'replace')
 
         log.info('Compressing text...')
         txt = compress(txt)

@@ -51,7 +51,7 @@
       </widget>
      </item>
      <item>
-      <widget class="EncodingComboBox" name="opt_output_encoding">
+      <widget class="EncodingComboBox" name="opt_pml_output_encoding">
        <property name="editable">
         <bool>true</bool>
        </property>

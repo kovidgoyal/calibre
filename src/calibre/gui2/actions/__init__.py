@@ -36,6 +36,11 @@ class InterfaceAction(QObject):
 
         self.gui.iactions['Save To Disk']
 
+    To access the actual plugin, use the :attr:`interface_action_base_plugin`
+    attribute, this attribute only becomes available after the plugin has been
+    initialized. Useful if you want to use methods from the plugin class like
+    do_user_config().
+
     The QAction specified by :attr:`action_spec` is automatically create and
     made available as ``self.qaction``.
 
@@ -83,6 +88,7 @@ class InterfaceAction(QObject):
         self.setObjectName(self.name)
         self.gui = parent
         self.site_customization = site_customization
+        self.interface_action_base_plugin = None
 
     def do_genesis(self):
         self.Dispatcher = partial(Dispatcher, parent=self)

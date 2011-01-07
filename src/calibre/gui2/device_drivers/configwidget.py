@@ -4,7 +4,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QWidget, QListWidgetItem, Qt, QVariant, SIGNAL
+import textwrap
+
+from PyQt4.Qt import QWidget, QListWidgetItem, Qt, QVariant, SIGNAL, \
+                     QLabel, QLineEdit, QCheckBox
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
@@ -46,12 +49,38 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         else:
             self.opt_use_author_sort.hide()
         if extra_customization_message:
-            self.extra_customization_label.setText(extra_customization_message)
-            if settings.extra_customization:
-                self.opt_extra_customization.setText(settings.extra_customization)
-        else:
-            self.extra_customization_label.setVisible(False)
-            self.opt_extra_customization.setVisible(False)
+            def parse_msg(m):
+                msg, _, tt = m.partition(':::') if m else ('', '', '')
+                return msg.strip(), textwrap.fill(tt.strip(), 100)
+
+            if isinstance(extra_customization_message, list):
+                self.opt_extra_customization = []
+                for i, m in enumerate(extra_customization_message):
+                    label_text, tt = parse_msg(m)
+                    if isinstance(settings.extra_customization[i], bool):
+                        self.opt_extra_customization.append(QCheckBox(label_text))
+                        self.opt_extra_customization[-1].setToolTip(tt)
+                        self.opt_extra_customization[i].setChecked(bool(settings.extra_customization[i]))
+                    else:
+                        self.opt_extra_customization.append(QLineEdit(self))
+                        l = QLabel(label_text)
+                        l.setToolTip(tt)
+                        l.setBuddy(self.opt_extra_customization[i])
+                        l.setWordWrap(True)
+                        self.opt_extra_customization[i].setText(settings.extra_customization[i])
+                        self.extra_layout.addWidget(l)
+                    self.extra_layout.addWidget(self.opt_extra_customization[i])
+            else:
+                self.opt_extra_customization = QLineEdit()
+                label_text, tt = parse_msg(extra_customization_message)
+                l = QLabel(label_text)
+                l.setToolTip(tt)
+                l.setBuddy(self.opt_extra_customization)
+                l.setWordWrap(True)
+                if settings.extra_customization:
+                    self.opt_extra_customization.setText(settings.extra_customization)
+                self.extra_layout.addWidget(l)
+                self.extra_layout.addWidget(self.opt_extra_customization)
         self.opt_save_template.setText(settings.save_template)
 
 
