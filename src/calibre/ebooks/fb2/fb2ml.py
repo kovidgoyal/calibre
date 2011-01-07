@@ -173,7 +173,7 @@ class FB2MLizer(object):
             if title_item.spine_position is None and title_item.media_type == 'application/xhtml+xml':
                 self.oeb_book.spine.insert(0, title_item, True)
         # Create xhtml page to reference cover image so it can be used.
-        if self.oeb_book.metadata.cover and unicode(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
+        if not title_name and self.oeb_book.metadata.cover and unicode(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
             id = unicode(self.oeb_book.metadata.cover[0])
             cover_item = self.oeb_book.manifest.ids[id]
             if cover_item.media_type in OEB_RASTER_IMAGES:
