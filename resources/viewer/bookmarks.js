@@ -41,7 +41,7 @@ function scroll_to_bookmark(bookmark) {
     $.scrollTo($(bm[0]), 1000,
         {
             over:ratio,
-            axis: 'y',
+            axis: 'y', // Do not scroll in the x direction
             onAfter:function(){window.py_bridge.animated_scroll_done()}
         }
     );
