@@ -128,9 +128,9 @@ def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
         count = ''
     if item.category == 'authors' and \
             tweaks['categories_use_field_for_author_name'] == 'author_sort':
-        name = xml(item.sort)
+        name = item.sort
     else:
-        name = xml(item.name)
+        name = item.name
     return E.entry(
             TITLE(name + ('' if not add_kind else ' (%s)'%item_kind)),
             ID(id_),
