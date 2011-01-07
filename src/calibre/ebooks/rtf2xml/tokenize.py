@@ -117,7 +117,7 @@ class Tokenize:
         input_file = self.__utf_ud.sub("\\{\\uc0 \g<1>\\}", input_file)
         #remove \n in bin data
         input_file = self.__bin_exp.sub(lambda x: \
-                                        x.group().replace('\n', '') +'\n', input_file)
+                                        x.group().replace('\n', '') + '\n', input_file)
         #split
         tokens = re.split(self.__splitexp, input_file)
         #remove empty tokens and \n

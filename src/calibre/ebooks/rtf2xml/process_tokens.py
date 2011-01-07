@@ -622,7 +622,7 @@ class ProcessTokens:
                     msg = _('Number "%s" cannot be converted to integer\n') % num
                     raise self.__bug_handler, msg
             type = self.__number_type_dict.get(num)
-            if type == None:
+            if type is None:
                 if self.__run_level > 3:
                     msg = _('No type for "%s" in self.__number_type_dict\n')
                     raise self.__bug_handler
@@ -634,7 +634,7 @@ class ProcessTokens:
         if not lang_name:
             lang_name = "not defined"
             if self.__run_level > 3:
-                msg = 'No entry for number "%s"' % num
+                msg = _('No entry for number "%s"') % num
                 raise self.__bug_handler, msg
         return 'cw<%s<%s<nu<%s\n' % (pre, token, lang_name)
 
@@ -686,9 +686,7 @@ class ProcessTokens:
             return 'cw<%s<%s<nu<false\n' % (pre, token)
                 ##return 'cw<nu<nu<nu<%s>false<%s\n' % (token, token)
         else:
-            msg = 'boolean should have some value module process tokens\n'
-            msg += 'token is ' + token + "\n"
-            msg += "'" + num + "'" + "\n"
+            msg = _("boolean should have some value module process tokens\ntoken is %s\n'%s'\n") % (token, num)
             raise self.__bug_handler, msg
 
     def __no_sup_sub_func(self, pre, token, num):
@@ -702,11 +700,9 @@ class ProcessTokens:
             numerator = float(re.search('[0-9.\-]+', numerator).group())
         except TypeError, msg:
             if self.__run_level > 3:
-                msg = 'no number to process?\n'
-                msg += 'this indicates that the token '
-                msg += ' \(\\li\) should have a number and does not\n'
-                msg += 'numerator is "%s"\n' % numerator
-                msg += 'denominator is "%s"\n' % denominator
+                msg = _('No number to process?\nthis indicates that the token \(\\li\) \
+                should have a number and does not\nnumerator is \
+                "%s"\ndenominator is "%s"\n') % (numerator, denominator)
                 raise self.__bug_handler, msg
             if 5 > self.__return_code:
                 self.__return_code = 5
@@ -720,17 +716,17 @@ class ProcessTokens:
 
     def split_let_num(self, token):
         match_obj = re.search(self.__num_exp,token)
-        if match_obj != None:
+        if match_obj is not None:
             first = match_obj.group(1)
             second = match_obj.group(2)
             if not second:
                 if self.__run_level > 3:
-                    msg = "token is '%s' \n" % token
+                    msg = _("token is '%s' \n") % token
                     raise self.__bug_handler, msg
                 return first, 0
         else:
             if self.__run_level > 3:
-                msg = "token is '%s' \n" % token
+                msg = _("token is '%s' \n") % token
                 raise self.__bug_handler
             return token, 0
         return first, second

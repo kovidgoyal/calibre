@@ -249,7 +249,6 @@ class ParseRtf:
                                     else self.__file.encode('utf-8')
                 msg = _('File %s does not appear to be correctly encoded.\n') % file_name 
                 raise InvalidRtfException, msg
-       
         delete_info_obj = delete_info.DeleteInfo(
             in_file = self.__temp_file,
             copy = self.__copy,
