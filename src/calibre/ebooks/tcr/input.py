@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 from cStringIO import StringIO
 
-from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.compression.tcr import decompress
 
 class TCRInput(InputFormatPlugin):
