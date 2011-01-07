@@ -1,6 +1,9 @@
 import os, tempfile
-from calibre.ebooks.rtf2xml import copy
+
+from calibre.ebooks.rtf2xml import copy, check_encoding
+
 public_dtd = 'rtf2xml1.0.dtd'
+
 class ConvertToTags:
     """
     Convert file to XML
@@ -10,6 +13,7 @@ class ConvertToTags:
             bug_handler,
             dtd_path,
             no_dtd,
+            encoding,
             indent = None,
             copy = None,
             run_level = 1,
@@ -29,9 +33,14 @@ class ConvertToTags:
         self.__copy = copy
         self.__dtd_path = dtd_path
         self.__no_dtd = no_dtd
+        if encoding != 'mac_roman':
+            self.__encoding = 'cp' + encoding
+        else:
+            self.__encoding = 'mac_roman'
         self.__indent = indent
         self.__run_level = run_level
         self.__write_to = tempfile.mktemp()
+
     def __initiate_values(self):
         """
         Set values, including those for the dictionary.
@@ -61,6 +70,7 @@ class ConvertToTags:
         'tx<ut<__________'  :   self.__text_func,
         'mi<tg<empty_____'  :   self.__empty_func,
         }
+
     def __open_func(self, line):
         """
         Print the opening tag and newlines when needed.
@@ -73,6 +83,7 @@ class ConvertToTags:
         if info in self.__two_new_line:
             self.__write_extra_new_line()
         self.__write_obj.write('<%s>' % info)
+
     def __empty_func(self, line):
         """
         Print out empty tag and newlines when needed.
@@ -85,6 +96,7 @@ class ConvertToTags:
             self.__write_new_line()
         if info in self.__two_new_line:
             self.__write_extra_new_line()
+
     def __open_att_func(self, line):
         """
         Process lines for open tags that have attributes.
@@ -119,6 +131,7 @@ class ConvertToTags:
             self.__write_new_line()
         if element_name in self.__two_new_line:
             self.__write_extra_new_line()
+
     def __empty_att_func(self, line):
         """
         Same as the __open_att_func, except a '/' is placed at the end of the tag.
@@ -143,6 +156,7 @@ class ConvertToTags:
             self.__write_new_line()
         if element_name in self.__two_new_line:
             self.__write_extra_new_line()
+
     def __close_func(self, line):
         """
         Print out the closed tag and new lines, if appropriate.
@@ -156,6 +170,7 @@ class ConvertToTags:
             self.__write_new_line()
         if info in self.__two_new_line:
             self.__write_extra_new_line()
+
     def __text_func(self, line):
         """
         Simply print out the information between [17:-1]
@@ -163,6 +178,7 @@ class ConvertToTags:
         #tx<nu<__________<Normal;
         # change this!
         self.__write_obj.write(line[17:-1])
+
     def __write_extra_new_line(self):
         """
         Print out extra new lines if the new lines have not exceeded two. If
@@ -172,8 +188,10 @@ class ConvertToTags:
             return
         if self.__new_line < 2:
             self.__write_obj.write('\n')
+
     def __default_func(self, line):
         pass
+
     def __write_new_line(self):
         """
         Print out a new line if a new line has not already been printed out.
@@ -183,11 +201,22 @@ class ConvertToTags:
         if not self.__new_line:
             self.__write_obj.write('\n')
             self.__new_line += 1
+
     def __write_dec(self):
         """
         Write the XML declaration at the top of the document.
         """
-        self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
+        #keep maximum compatibility with previous version
+        check_encoding_obj = check_encoding.CheckEncoding(
+                    bug_handler = self.__bug_handler,
+                        )
+        if not check_encoding_obj.check_encoding(self.__file):
+            self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
+        elif not check_encoding_obj.check_encoding(self.__file, self.__encoding):
+            self.__write_obj.write('<?xml version="1.0" encoding="%s" ?>' % self.__encoding)
+        else:
+            self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
+            sys.stderr.write(_('Bad RTF encoding, revert to US-ASCII chars and hope for the best'))
         self.__new_line = 0
         self.__write_new_line()
         if self.__no_dtd:
@@ -207,6 +236,7 @@ class ConvertToTags:
             )
         self.__new_line = 0
         self.__write_new_line()
+
     def convert_to_tags(self):
         """
         Read in the file one line at a time. Get the important info, between
@@ -222,18 +252,14 @@ class ConvertToTags:
             an empty tag function.
             """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
         self.__write_obj = open(self.__write_to, 'w')
         self.__write_dec()
-        line_to_read = 1
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            self.__token_info = line[:16]
-            action = self.__state_dict.get(self.__token_info)
-            if action != None:
-                action(line)
-        read_obj.close()
+        with open(self.__file, 'r') as read_obj:
+            for line in read_obj:
+                self.__token_info = line[:16]
+                action = self.__state_dict.get(self.__token_info)
+                if action is not None:
+                    action(line)
         self.__write_obj.close()
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:

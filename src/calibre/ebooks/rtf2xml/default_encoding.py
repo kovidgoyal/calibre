@@ -132,8 +132,7 @@ class DefaultEncoding:
                             self.__code_page = '850'
 
 # if __name__ == '__main__':
-    # from calibre.ebooks.rtf2xml import default_encoding
-    # encode_obj = default_encoding.DefaultEncoding(
+    # encode_obj = DefaultEncoding(
             # in_file = sys.argv[1],
             # bug_handler = Exception,
             # check_raw = True,

@@ -326,7 +326,6 @@ class ParseRtf:
                 invalid_rtf_handler = InvalidRtfException,
                 )
         hex2utf_obj.convert_hex_2_utf8()
-        # raise RtfInvalidCodeException, 'stop'
         self.__bracket_match('hex_2_utf_preamble')
         fonts_obj = fonts.Fonts(
             in_file = self.__temp_file,
@@ -523,6 +522,7 @@ class ParseRtf:
                 indent = self.__indent,
                 run_level = self.__run_level,
                 no_dtd = self.__no_dtd,
+                encoding = encode_obj.get_codepage(),
                 bug_handler = RtfInvalidCodeException,
                 )
         tags_obj.convert_to_tags()
