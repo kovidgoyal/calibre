@@ -54,10 +54,10 @@ class Hex2Utf8:
             'convert_to_caps'--wether to convert caps to utf-8
         Returns:
             nothing
-            """
+        """
         self.__file = in_file
         self.__copy = copy
-        if area_to_convert != 'preamble' and area_to_convert != 'body':
+        if area_to_convert not in ('preamble', 'body'):
             msg = (
             'Developer error! Wrong flag.\n'
             'in module "hex_2_utf8.py\n'
@@ -79,7 +79,8 @@ class Hex2Utf8:
         self.__write_to = tempfile.mktemp()
         self.__bug_handler = bug_handler
         self.__invalid_rtf_handler = invalid_rtf_handler
-    def update_values(  self,
+
+    def update_values(self,
                         file,
                         area_to_convert,
                         char_file,
@@ -132,6 +133,7 @@ class Hex2Utf8:
         # self.__convert_symbol = 0
         # self.__convert_wingdings = 0
         # self.__convert_zapf = 0
+
     def __initiate_values(self):
         """
         Required:
@@ -191,6 +193,7 @@ class Hex2Utf8:
             'body'          :       self.__body_func,
             'mi<mk<body-open_'  :   self.__found_body_func,
             'tx<hx<__________'  :   self.__hex_text_func,
+            # 'tx<nu<__________'  :   self.__text_func,
             }
         self.__body_state_dict = {
             'preamble'      :       self.__preamble_for_body_func,
@@ -209,6 +212,7 @@ class Hex2Utf8:
         }
         self.__caps_list = ['false']
         self.__font_list = ['not-defined']
+
     def __hex_text_func(self, line):
         """
         Required:
@@ -218,12 +222,12 @@ class Hex2Utf8:
             token is in the dictionary, then check if the value starts with a
             "&". If it does, then tag the result as utf text. Otherwise, tag it
             as normal text.
-            If the nex_num is not in the dictionary, then a mistake has been
+            If the hex_num is not in the dictionary, then a mistake has been
             made.
             """
         hex_num = line[17:-1]
         converted = self.__current_dict.get(hex_num)
-        if converted != None:
+        if converted is not None:
             # tag as utf-8
             if converted[0:1] == "&":
                 font = self.__current_dict_name
@@ -261,44 +265,45 @@ class Hex2Utf8:
                     # msg = 'no dictionary entry for %s\n'
                     # msg += 'the hexidecimal num is "%s"\n' % (hex_num)
                     # msg += 'dictionary is %s\n' % self.__current_dict_name
-                    msg = 'Character "&#x%s;" does not appear to be valid (or is a control character)\n' % token
+                    msg = _('Character "&#x%s;" does not appear to be valid (or is a control character)\n') % token
                     raise self.__bug_handler, msg
+
     def __found_body_func(self, line):
         self.__state = 'body'
         self.__write_obj.write(line)
+
     def __body_func(self, line):
         """
         When parsing preamble
         """
         self.__write_obj.write(line)
+
     def __preamble_func(self, line):
         action = self.__preamble_state_dict.get(self.__token_info)
-        if action != None:
+        if action is not None:
             action(line)
         else:
             self.__write_obj.write(line)
+
     def __convert_preamble(self):
         self.__state = 'preamble'
-        read_obj = open(self.__file, 'r')
         self.__write_obj = open(self.__write_to, 'w')
-        line_to_read = 1
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            self.__token_info = line[:16]
-            action = self.__preamble_state_dict.get(self.__state)
-            if action == None:
-                sys.stderr.write('error no state found in hex_2_utf8',
-                self.__state
-                )
-            action(line)
-        read_obj.close()
+        with open(self.__file, 'r') as read_obj:
+           for line in read_obj:
+                self.__token_info = line[:16]
+                action = self.__preamble_state_dict.get(self.__state)
+                if action is None:
+                    sys.stderr.write(_('error no state found in hex_2_utf8'),
+                    self.__state
+                    )
+                action(line)
         self.__write_obj.close()
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "preamble_utf_convert.data")
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
+
     def __preamble_for_body_func(self, line):
         """
         Required:
@@ -311,6 +316,7 @@ class Hex2Utf8:
         if self.__token_info == 'mi<mk<body-open_':
             self.__found_body_func(line)
         self.__write_obj.write(line)
+
     def __body_for_body_func(self, line):
         """
         Required:
@@ -321,10 +327,11 @@ class Hex2Utf8:
             Used when parsing the body.
         """
         action = self.__in_body_dict.get(self.__token_info)
-        if action != None:
+        if action is not None:
             action(line)
         else:
             self.__write_obj.write(line)
+
     def __start_font_func(self, line):
         """
         Required:
@@ -348,6 +355,7 @@ class Hex2Utf8:
         else:
             self.__current_dict_name = 'default'
             self.__current_dict = self.__def_dict
+
     def __end_font_func(self, line):
         """
         Required:
@@ -376,6 +384,7 @@ class Hex2Utf8:
         else:
             self.__current_dict_name = 'default'
             self.__current_dict = self.__def_dict
+
     def __start_special_font_func_old(self, line):
         """
         Required:
@@ -398,6 +407,7 @@ class Hex2Utf8:
             self.__current_dict.append(self.__dingbats_dict)
             self.__special_fonts_found += 1
             self.__current_dict_name = 'Zapf Dingbats'
+
     def __end_special_font_func(self, line):
         """
         Required:
@@ -416,6 +426,7 @@ class Hex2Utf8:
             self.__current_dict.pop()
             self.__special_fonts_found -= 1
             self.__dict_name = 'default'
+
     def __start_caps_func_old(self, line):
         """
         Required:
@@ -427,6 +438,7 @@ class Hex2Utf8:
             self.__in_caps to 1
         """
         self.__in_caps = 1
+
     def __start_caps_func(self, line):
         """
         Required:
@@ -440,6 +452,7 @@ class Hex2Utf8:
         self.__in_caps = 1
         value = line[17:-1]
         self.__caps_list.append(value)
+
     def __end_caps_func(self, line):
         """
         Required:
@@ -455,7 +468,8 @@ class Hex2Utf8:
         else:
             sys.stderr.write('Module is hex_2_utf8\n')
             sys.stderr.write('method is __end_caps_func\n')
-            sys.stderr.write('caps list should be more than one?\n')
+            sys.stderr.write('caps list should be more than one?\n') #self.__in_caps not set
+
     def __text_func(self, line):
         """
         Required:
@@ -466,9 +480,8 @@ class Hex2Utf8:
             if in caps, convert. Otherwise, print out.
         """
         text = line[17:-1]
-        if self.__current_dict_name == 'Symbol'\
-          or self.__current_dict_name == 'Wingdings'\
-          or self.__current_dict_name == 'Zapf Dingbats':
+        # print line
+        if self.__current_dict_name in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
             the_string = ''
             for letter in text:
                 hex_num = hex(ord(letter))
@@ -477,21 +490,21 @@ class Hex2Utf8:
                 hex_num = hex_num[2:]
                 hex_num = '\'%s' % hex_num
                 converted = self.__current_dict.get(hex_num)
-                if converted == None:
+                if converted is None:
                     sys.stderr.write('module is hex_2_ut8\n')
                     sys.stderr.write('method is __text_func\n')
                     sys.stderr.write('no hex value for "%s"\n' % hex_num)
                 else:
                     the_string += converted
             self.__write_obj.write('tx<nu<__________<%s\n' % the_string)
+            # print the_string
         else:
             if self.__caps_list[-1] == 'true' \
                 and self.__convert_caps\
-                and self.__current_dict_name != 'Symbol'\
-                and self.__current_dict_name != 'Wingdings'\
-                and self.__current_dict_name != 'Zapf Dingbats':
+                and self.__current_dict_name not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
                 text = text.upper()
             self.__write_obj.write('tx<nu<__________<%s\n' % text)
+
     def __utf_to_caps_func(self, line):
         """
         Required:
@@ -506,6 +519,7 @@ class Hex2Utf8:
             # utf_text = utf_text.upper()
             utf_text = self.__utf_token_to_caps_func(utf_text)
         self.__write_obj.write('tx<ut<__________<%s\n' % utf_text)
+
     def __utf_token_to_caps_func(self, char_entity):
         """
         Required:
@@ -530,28 +544,26 @@ class Hex2Utf8:
             return char_entity
         else:
             return converted
+
     def __convert_body(self):
         self.__state = 'body'
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
-        line_to_read = 1
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            self.__token_info = line[:16]
-            action = self.__body_state_dict.get(self.__state)
-            if action == None:
-                sys.stderr.write('error no state found in hex_2_utf8',
-                self.__state
-                )
-            action(line)
-        read_obj.close()
+        with open(self.__file, 'r') as read_obj:
+            self.__write_obj = open(self.__write_to, 'w')
+            for line in read_obj:
+                self.__token_info = line[:16]
+                action = self.__body_state_dict.get(self.__state)
+                if action is None:
+                    sys.stderr.write(_('error no state found in hex_2_utf8'),
+                    self.__state
+                    )
+                action(line)
         self.__write_obj.close()
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "body_utf_convert.data")
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
+
     def convert_hex_2_utf8(self):
         self.__initiate_values()
         if self.__area_to_convert == 'preamble':

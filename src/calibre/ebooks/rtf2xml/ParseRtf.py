@@ -326,6 +326,7 @@ class ParseRtf:
                 invalid_rtf_handler = InvalidRtfException,
                 )
         hex2utf_obj.convert_hex_2_utf8()
+        # raise RtfInvalidCodeException, 'stop'
         self.__bracket_match('hex_2_utf_preamble')
         fonts_obj = fonts.Fonts(
             in_file = self.__temp_file,
@@ -381,7 +382,7 @@ class ParseRtf:
                 msg += 'self.__run_level is "%s"\n' % self.__run_level
                 raise RtfInvalidCodeException, msg
             if self.__run_level > 1:
-                sys.stderr.write('File could be older RTF...\n')
+                sys.stderr.write(_('File could be older RTF...\n'))
             if found_destination:
                 if self.__run_level > 1:
                     sys.stderr.write(_(

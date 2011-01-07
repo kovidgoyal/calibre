@@ -606,13 +606,13 @@ class ProcessTokens:
         return 'tx<mc<__________<%s\n' % token
 
     def default_func(self, pre, token, num):
-        if num == None:
+        if num is None:
             num = 'true'
         return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
 
     def __list_type_func(self, pre, token, num):
         type = 'arabic'
-        if num == None:
+        if num is None:
             type = 'Arabic'
         else:
             try:
