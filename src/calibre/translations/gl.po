@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-02 23:55+0000\n"
-"PO-Revision-Date: 2011-01-02 13:21+0000\n"
-"Last-Translator: Calidonia Hibernia <Unknown>\n"
+"PO-Revision-Date: 2011-01-06 14:46+0000\n"
+"Last-Translator: Antón Méixome <meixome@gmail.com>\n"
 "Language-Team: dev@gl.openoffice.org\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-04 13:52+0000\n"
+"X-Launchpad-Export-Date: 2011-01-07 04:58+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: gl\n"
 
@@ -5749,7 +5749,7 @@ msgstr "Tamaño da mensaxe para a descrición das miniaturas de portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
 msgid " inch"
-msgstr ""
+msgstr " polgada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Description note"
@@ -10645,15 +10645,15 @@ msgstr "Nunca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "By first letter"
-msgstr ""
+msgstr "Pola primeira letra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "Disabled"
-msgstr ""
+msgstr "Desactivado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:61
 msgid "Partitioned"
-msgstr ""
+msgstr "Particionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:140
 msgid "User Interface &layout (needs restart):"
@@ -10709,7 +10709,7 @@ msgstr "Buscar mentres se escribe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Tags browser category partitioning method:"
-msgstr ""
+msgstr "Método de particionado con categorías de etiquetas de navegación:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:153
 msgid ""
@@ -10719,10 +10719,15 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
+"Escoller como as subcategorías de etiquetas de navegación se amosan cando\n"
+"hai máis ítems que os do límite. Seleccione por primeira\n"
+"letra para ver unha lista A, B, C. Escolla particionado para\n"
+"ter unha lista de grupos de tamaño fixo. Escolla desactivado\n"
+"se non vai querer nunca subcategorías"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:158
 msgid "Collapse when more items than:"
-msgstr ""
+msgstr "Colapsar cando os ítems son máis de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:159
 msgid ""
@@ -10730,6 +10735,10 @@ msgid ""
 "up into sub-categories. If the partition method is set to disable, this "
 "value is ignored."
 msgstr ""
+"Se unha categoría de etiquetas de navegación ten máis ca este número de "
+"ítems, divídese\n"
+"en subcategorías. Se o método de partición se pon como desactivado, "
+"ignorarase este valor."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:161
 msgid "&Toolbar"
@@ -11494,7 +11503,7 @@ msgstr "Mostrar todas as categorías"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:300
 msgid "Change sub-categorization scheme"
-msgstr ""
+msgstr "Cambiar o esquema de subcategorización"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:625
 msgid ""
