@@ -257,11 +257,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'flags',
              'uuid',
              'has_cover',
-             '''(SELECT sortconcat(bl.id, authors.name || ':::' || REPLACE(authors.sort, ',','|'))
-                 FROM authors, books_authors_link as bl
-                 WHERE bl.book=books.id and authors.id=bl.author
-                 ORDER BY bl.id) au_map''',
-             '(SELECT group_concat(format) FROM data WHERE book=books.id) formats'
+            ('au_map', 'authors', 'author', 'aum_sortconcat(link.id, authors.name, authors.sort)')
             ]
         lines = []
         for col in columns:
@@ -278,10 +274,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'timestamp':3,
              'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
-             'publisher':9, 'series_index':10,
-             'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15,
-             'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19, 'cover':20,
-             'au_map':21, 'formats':22}
+             'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
+             'formats':13, 'isbn':14, 'path':15, 'lccn':16, 'pubdate':17,
+             'flags':18, 'uuid':19, 'cover':20, 'au_map':21}
 
         for k,v in self.FIELD_MAP.iteritems():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
@@ -710,7 +705,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.data.set(idx, fm['all_metadata'], mi, row_is_id = index_is_id)
 
         aut_list = row[fm['au_map']]
-        aut_list = [p.split(':::') for p in aut_list.split(',')]
+        aut_list = [p.split(':::') for p in aut_list.split(':#:')]
         aum = []
         aus = {}
         for (author, author_sort) in aut_list:
