@@ -210,7 +210,7 @@ class ConvertToTags:
         check_encoding_obj = check_encoding.CheckEncoding(
                     bug_handler = self.__bug_handler,
                         )
-        if not check_encoding_obj.check_encoding(self.__file):
+        if not check_encoding_obj.check_encoding(self.__file, verbose = False):
             self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
         elif not check_encoding_obj.check_encoding(self.__file, self.__encoding):
             self.__write_obj.write('<?xml version="1.0" encoding="%s" ?>' % self.__encoding)
