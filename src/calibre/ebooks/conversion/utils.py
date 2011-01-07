@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
+from math import ceil
 from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.utils.logging import default_log
 from calibre.utils.wordcount import get_wordcount_obj
@@ -112,11 +113,11 @@ class PreProcessor(object):
         return wordcount.words
 
     def markup_chapters(self, html, wordcount, blanks_between_paragraphs):
-        # Typical chapters are between 2000 and 7000 words, use the larger number to decide the 
+        # Typical chapters are between 2000 and 7000 words, use the larger number to decide the
         # minimum of chapters to search for
         self.min_chapters = 1
         if wordcount > 7000:
-            self.min_chapters = wordcount / 7000
+            self.min_chapters = int(ceil(wordcount / 7000.))
         #print "minimum chapters required are: "+str(self.min_chapters)
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
@@ -151,7 +152,7 @@ class PreProcessor(object):
         n_lookahead_close = ")"
 
         default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\'\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
-        
+
         chapter_types = [
             [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, "Searching for common Chapter Headings"],
             [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, "Searching for emphasized lines"], # Emphasized lines
@@ -174,13 +175,13 @@ class PreProcessor(object):
                 chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
             else:
                 chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
-                chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)               
+                chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
             html = chapdetect.sub(self.chapter_head, html)
 
         words_per_chptr = wordcount
         if words_per_chptr > 0 and self.html_preprocess_sections > 0:
             words_per_chptr = wordcount / self.html_preprocess_sections
-        self.log("Total wordcount is: "+ str(wordcount)+", Average words per section is: "+str(words_per_chptr)+", Marked up "+str(self.html_preprocess_sections)+" chapters")        
+        self.log("Total wordcount is: "+ str(wordcount)+", Average words per section is: "+str(words_per_chptr)+", Marked up "+str(self.html_preprocess_sections)+" chapters")
         return html
 
 
@@ -192,7 +193,7 @@ class PreProcessor(object):
         # other types of processing are attempted
         totalwords = 0
         totalwords = self.get_word_count(html)
-        
+
         if totalwords < 20:
             self.log("not enough text, not preprocessing")
             return html
@@ -200,30 +201,30 @@ class PreProcessor(object):
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = re.sub(r"\s*</(?P<tag>p|div)>", "</"+"\g<tag>"+">\n", html)
         html = re.sub(r"\s*<(?P<tag>p|div)(?P<style>[^>]*)>\s*", "\n<"+"\g<tag>"+"\g<style>"+">", html)
-        
+
         ###### Check Markup ######
         #
         # some lit files don't have any <p> tags or equivalent (generally just plain text between
         # <pre> tags), check and  mark up line endings if required before proceeding
         if self.no_markup(html, 0.1):
-             self.log("not enough paragraph markers, adding now")
-             # check if content is in pre tags, use txt processor to mark up if so
-             pre = re.compile(r'<pre>', re.IGNORECASE)
-             if len(pre.findall(html)) == 1:
-                 self.log("Running Text Processing")
-                 from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
-                 separate_paragraphs_single_line
-                 outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
-                 html = outerhtml.sub('\g<text>', html)
-                 html = separate_paragraphs_single_line(html)
-                 html = preserve_spaces(html)
-                 html = convert_basic(html, epub_split_size_kb=0)
-             else:
-                 # Add markup naively
-                 # TODO - find out if there are cases where there are more than one <pre> tag or
-                 # other types of unmarked html and handle them in some better fashion
-                 add_markup = re.compile('(?<!>)(\n)')
-                 html = add_markup.sub('</p>\n<p>', html)
+            self.log("not enough paragraph markers, adding now")
+            # check if content is in pre tags, use txt processor to mark up if so
+            pre = re.compile(r'<pre>', re.IGNORECASE)
+            if len(pre.findall(html)) == 1:
+                self.log("Running Text Processing")
+                from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
+                separate_paragraphs_single_line
+                outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
+                html = outerhtml.sub('\g<text>', html)
+                html = separate_paragraphs_single_line(html)
+                html = preserve_spaces(html)
+                html = convert_basic(html, epub_split_size_kb=0)
+            else:
+                # Add markup naively
+                # TODO - find out if there are cases where there are more than one <pre> tag or
+                # other types of unmarked html and handle them in some better fashion
+                add_markup = re.compile('(?<!>)(\n)')
+                html = add_markup.sub('</p>\n<p>', html)
 
         ###### Mark Indents/Cleanup ######
         #
@@ -244,7 +245,7 @@ class PreProcessor(object):
         html = re.sub(r"\s*<[ibu][^>]*>\s*(<[ibu][^>]*>\s*</[ibu]>\s*){0,2}\s*</[ibu]>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
         # ADE doesn't render <br />, change to empty paragraphs
-        html = re.sub('<br[^>]*>', u'<p>\u00a0</p>', html)
+        #html = re.sub('<br[^>]*>', u'<p>\u00a0</p>', html)
 
         # If more than 40% of the lines are empty paragraphs and the user has enabled remove
         # paragraph spacing then delete blank lines to clean up spacing
@@ -262,11 +263,11 @@ class PreProcessor(object):
                 self.log("deleting blank lines")
                 html = blankreg.sub('', html)
             elif float(len(blanklines)) / float(len(lines)) > 0.40:
-               blanks_between_paragraphs = True
-               #print "blanks between paragraphs is marked True"
+                blanks_between_paragraphs = True
+                #print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
-                
+
         #self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
         #

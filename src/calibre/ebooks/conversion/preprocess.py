@@ -51,16 +51,16 @@ def chap_head(match):
     chap = match.group('chap')
     title = match.group('title')
     if not title:
-               return '<h1>'+chap+'</h1><br/>\n'
+        return '<h1>'+chap+'</h1><br/>\n'
     else:
-               return '<h1>'+chap+'</h1>\n<h3>'+title+'</h3>\n'
+        return '<h1>'+chap+'</h1>\n<h3>'+title+'</h3>\n'
 
 def wrap_lines(match):
     ital = match.group('ital')
     if not ital:
-               return ' '
+        return ' '
     else:
-               return ital+' '
+        return ital+' '
 
 class DocAnalysis(object):
     '''
@@ -191,7 +191,7 @@ class Dehyphenator(object):
         dehyphenated = unicode(firsthalf) + unicode(secondhalf)
         lookupword = self.removesuffixes.sub('', dehyphenated)
         if self.prefixes.match(firsthalf) is None:
-           lookupword = self.removeprefix.sub('', lookupword)
+            lookupword = self.removeprefix.sub('', lookupword)
         #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
         try:
             searchresult = self.html.find(lookupword.lower())
@@ -367,7 +367,7 @@ class HTMLPreProcessor(object):
                   (re.compile(r'<br[^>]*>\s*'), lambda match : '</p>\n<p>'),
                   (re.compile(r'<body[^>]*>\s*'), lambda match : '<body>\n<p>'),
                   (re.compile(r'\s*</body>'), lambda match : '</p>\n</body>'),
-                  
+
                   # Clean up spaces
                   (re.compile(u'(?<=[\.,;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
                   # Add space before and after italics
