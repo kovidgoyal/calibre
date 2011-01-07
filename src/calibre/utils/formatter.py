@@ -281,19 +281,30 @@ class TemplateFormatter(string.Formatter):
     def _count(self, val, sep):
         return unicode(len(val.split(sep)))
 
+    def _list_item(self, val, index, sep):
+        if not val:
+            return ''
+        index = int(index)
+        val = val.split(sep)
+        try:
+            return val[index]
+        except:
+            return ''
+
     functions = {
                     'uppercase'     : (0, lambda s,x: x.upper()),
                     'lowercase'     : (0, lambda s,x: x.lower()),
                     'titlecase'     : (0, lambda s,x: titlecase(x)),
                     'capitalize'    : (0, lambda s,x: capitalize(x)),
                     'contains'      : (3, _contains),
+                    'count'         : (1, _count),
                     'ifempty'       : (1, _ifempty),
+                    'list_item'     : (2, _list_item),
                     'lookup'        : (-1, _lookup),
                     're'            : (2, _re),
                     'shorten'       : (3, _shorten),
                     'switch'        : (-1, _switch),
-                    'test'          : (2, _test),
-                    'count'         : (1, _count),
+                    'test'          : (2, _test)
         }
 
     def _do_format(self, val, fmt):
