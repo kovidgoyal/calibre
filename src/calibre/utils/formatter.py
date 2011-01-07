@@ -316,8 +316,6 @@ class TemplateFormatter(string.Formatter):
             except:
                 raise ValueError(
                     _('format: type {0} requires a decimal (float) value, got {1}').format(typ, val))
-        else:
-            raise ValueError(_('format: unknown format type letter {0}').format(typ))
         return unicode(('{0:'+fmt+'}').format(val))
 
     def _explode_format_string(self, fmt):
