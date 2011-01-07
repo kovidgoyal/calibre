@@ -640,8 +640,8 @@ class BrowseServer(object):
             if fmt:
                 href = self.opts.url_prefix + '/get/%s/%s_%d.%s'%(
                         fmt, fname, id_, fmt)
-                rt = xml(_('Read %s in the %s format')%(args['title'],
-                        fmt.upper()), True)
+                rt = xml(_('Read %(title)s in the %(fmt)s format')% \
+                        {'title':args['title'], 'fmt':fmt.upper()}, True)
 
                 args['get_button'] = \
                         '<a href="%s" class="read" title="%s">%s</a>' % \

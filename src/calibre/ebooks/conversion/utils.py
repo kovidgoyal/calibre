@@ -6,8 +6,10 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
+from math import ceil
 from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.utils.logging import default_log
+from calibre.utils.wordcount import get_wordcount_obj
 
 class PreProcessor(object):
 
@@ -16,6 +18,9 @@ class PreProcessor(object):
         self.html_preprocess_sections = 0
         self.found_indents = 0
         self.extra_opts = extra_opts
+
+    def is_pdftohtml(self, src):
+        return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
 
     def chapter_head(self, match):
         chap = match.group('chap')
@@ -64,7 +69,7 @@ class PreProcessor(object):
         inspect.  Percent is the minimum percent of line endings which should
         be marked up to return true.
         '''
-        htm_end_ere = re.compile('</p>', re.DOTALL)
+        htm_end_ere = re.compile('</(p|div)>', re.DOTALL)
         line_end_ere = re.compile('(\n|\r|\r\n)', re.DOTALL)
         htm_end = htm_end_ere.findall(raw)
         line_end = line_end_ere.findall(raw)
@@ -101,36 +106,125 @@ class PreProcessor(object):
                 with open(os.path.join(odir, name), 'wb') as f:
                     f.write(raw.encode('utf-8'))
 
+    def get_word_count(self, html):
+        word_count_text = re.sub(r'(?s)<head[^>]*>.*?</head>', '', html)
+        word_count_text = re.sub(r'<[^>]*>', '', word_count_text)
+        wordcount = get_wordcount_obj(word_count_text)
+        return wordcount.words
+
+    def markup_chapters(self, html, wordcount, blanks_between_paragraphs):
+        # Typical chapters are between 2000 and 7000 words, use the larger number to decide the
+        # minimum of chapters to search for
+        self.min_chapters = 1
+        if wordcount > 7000:
+            self.min_chapters = int(ceil(wordcount / 7000.))
+        #print "minimum chapters required are: "+str(self.min_chapters)
+        heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
+        self.html_preprocess_sections = len(heading.findall(html))
+        self.log("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
+
+        # Build the Regular Expressions in pieces
+        init_lookahead = "(?=<(p|div))"
+        chapter_line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
+        title_line_open = "<(?P<outer2>p|div)[^>]*>\s*(<(?P<inner4>font|span|[ibu])[^>]*>)?\s*(<(?P<inner5>font|span|[ibu])[^>]*>)?\s*(<(?P<inner6>font|span|[ibu])[^>]*>)?\s*"
+        chapter_header_open = r"(?P<chap>"
+        title_header_open = r"(?P<title>"
+        chapter_header_close = ")\s*"
+        title_header_close = ")"
+        chapter_line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
+        title_line_close = "(</(?P=inner6)>)?\s*(</(?P=inner5)>)?\s*(</(?P=inner4)>)?\s*</(?P=outer2)>"
+
+        is_pdftohtml = self.is_pdftohtml(html)
+        if is_pdftohtml:
+            chapter_line_open = "<(?P<outer>p)[^>]*>(\s*<[ibu][^>]*>)?\s*"
+            chapter_line_close = "\s*(</[ibu][^>]*>\s*)?</(?P=outer)>"
+            title_line_open = "<(?P<outer2>p)[^>]*>\s*"
+            title_line_close = "\s*</(?P=outer2)>"
+
+
+        if blanks_between_paragraphs:
+            blank_lines = "(\s*<p[^>]*>\s*</p>){0,2}\s*"
+        else:
+            blank_lines = ""
+        opt_title_open = "("
+        opt_title_close = ")?"
+        n_lookahead_open = "\s+(?!"
+        n_lookahead_close = ")"
+
+        default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\'\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
+
+        chapter_types = [
+            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\s*){0,4}", True, "Searching for common Chapter Headings"],
+            [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, "Searching for emphasized lines"], # Emphasized lines
+            [r"[^'\"]?(\d+(\.|:)|CHAPTER)\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
+            [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, "Searching for letter spaced headings"],  # Spaced Lettering
+            [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles"], # Numeric Titles
+            [r"[^'\"]?(\d+|CHAPTER)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, "Searching for simple numeric chapter headings"],  # Numeric Chapters, no dot or colon
+            [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters" ] # Uppercase Chapters
+            ]
+
+        # Start with most typical chapter headings, get more aggressive until one works
+        for [chapter_type, lookahead_ignorecase, log_message] in chapter_types:
+            if self.html_preprocess_sections >= self.min_chapters:
+                break
+            full_chapter_line = chapter_line_open+chapter_header_open+chapter_type+chapter_header_close+chapter_line_close
+            n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
+            self.log("Marked " + unicode(self.html_preprocess_sections) + " headings, " + log_message)
+            if lookahead_ignorecase:
+                chapter_marker = init_lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
+                chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
+            else:
+                chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
+                chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
+            html = chapdetect.sub(self.chapter_head, html)
+
+        words_per_chptr = wordcount
+        if words_per_chptr > 0 and self.html_preprocess_sections > 0:
+            words_per_chptr = wordcount / self.html_preprocess_sections
+        self.log("Total wordcount is: "+ str(wordcount)+", Average words per section is: "+str(words_per_chptr)+", Marked up "+str(self.html_preprocess_sections)+" chapters")
+        return html
+
+
+
     def __call__(self, html):
         self.log("*********  Preprocessing HTML  *********")
 
+        # Count the words in the document to estimate how many chapters to look for and whether
+        # other types of processing are attempted
+        totalwords = 0
+        totalwords = self.get_word_count(html)
+
+        if totalwords < 20:
+            self.log("not enough text, not preprocessing")
+            return html
+
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
-        html = re.sub(r"\s*</p>", "</p>\n", html)
-        html = re.sub(r"\s*<p(?P<style>[^>]*)>\s*", "\n<p"+"\g<style>"+">", html)
+        html = re.sub(r"\s*</(?P<tag>p|div)>", "</"+"\g<tag>"+">\n", html)
+        html = re.sub(r"\s*<(?P<tag>p|div)(?P<style>[^>]*)>\s*", "\n<"+"\g<tag>"+"\g<style>"+">", html)
 
         ###### Check Markup ######
         #
         # some lit files don't have any <p> tags or equivalent (generally just plain text between
         # <pre> tags), check and  mark up line endings if required before proceeding
         if self.no_markup(html, 0.1):
-             self.log("not enough paragraph markers, adding now")
-             # check if content is in pre tags, use txt processor to mark up if so
-             pre = re.compile(r'<pre>', re.IGNORECASE)
-             if len(pre.findall(html)) == 1:
-                 self.log("Running Text Processing")
-                 from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
-                 separate_paragraphs_single_line
-                 outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
-                 html = outerhtml.sub('\g<text>', html)
-                 html = separate_paragraphs_single_line(html)
-                 html = preserve_spaces(html)
-                 html = convert_basic(html, epub_split_size_kb=0)
-             else:
-                 # Add markup naively
-                 # TODO - find out if there are cases where there are more than one <pre> tag or
-                 # other types of unmarked html and handle them in some better fashion
-                 add_markup = re.compile('(?<!>)(\n)')
-                 html = add_markup.sub('</p>\n<p>', html)
+            self.log("not enough paragraph markers, adding now")
+            # check if content is in pre tags, use txt processor to mark up if so
+            pre = re.compile(r'<pre>', re.IGNORECASE)
+            if len(pre.findall(html)) == 1:
+                self.log("Running Text Processing")
+                from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
+                separate_paragraphs_single_line
+                outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
+                html = outerhtml.sub('\g<text>', html)
+                html = separate_paragraphs_single_line(html)
+                html = preserve_spaces(html)
+                html = convert_basic(html, epub_split_size_kb=0)
+            else:
+                # Add markup naively
+                # TODO - find out if there are cases where there are more than one <pre> tag or
+                # other types of unmarked html and handle them in some better fashion
+                add_markup = re.compile('(?<!>)(\n)')
+                html = add_markup.sub('</p>\n<p>', html)
 
         ###### Mark Indents/Cleanup ######
         #
@@ -141,12 +235,17 @@ class PreProcessor(object):
             self.log("replaced "+unicode(self.found_indents)+ " nbsp indents with inline styles")
         # remove remaining non-breaking spaces
         html = re.sub(ur'\u00a0', ' ', html)
+        # Get rid of various common microsoft specific tags which can cause issues later
         # Get rid of empty <o:p> tags to simplify other processing
         html = re.sub(ur'\s*<o:p>\s*</o:p>', ' ', html)
+        # Delete microsoft 'smart' tags
+        html = re.sub('(?i)</?st1:\w+>', '', html)
         # Get rid of empty span, bold, & italics tags
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
         html = re.sub(r"\s*<[ibu][^>]*>\s*(<[ibu][^>]*>\s*</[ibu]>\s*){0,2}\s*</[ibu]>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
+        # ADE doesn't render <br />, change to empty paragraphs
+        #html = re.sub('<br[^>]*>', u'<p>\u00a0</p>', html)
 
         # If more than 40% of the lines are empty paragraphs and the user has enabled remove
         # paragraph spacing then delete blank lines to clean up spacing
@@ -164,63 +263,16 @@ class PreProcessor(object):
                 self.log("deleting blank lines")
                 html = blankreg.sub('', html)
             elif float(len(blanklines)) / float(len(lines)) > 0.40:
-               blanks_between_paragraphs = True
-               #print "blanks between paragraphs is marked True"
+                blanks_between_paragraphs = True
+                #print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
+
         #self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
         #
-        # Build the Regular Expressions in pieces
-        init_lookahead = "(?=<(p|div))"
-        chapter_line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
-        title_line_open = "<(?P<outer2>p|div)[^>]*>\s*(<(?P<inner4>font|span|[ibu])[^>]*>)?\s*(<(?P<inner5>font|span|[ibu])[^>]*>)?\s*(<(?P<inner6>font|span|[ibu])[^>]*>)?\s*"
-        chapter_header_open = r"(?P<chap>"
-        title_header_open = r"(?P<title>"
-        chapter_header_close = ")\s*"
-        title_header_close = ")"
-        chapter_line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
-        title_line_close = "(</(?P=inner6)>)?\s*(</(?P=inner5)>)?\s*(</(?P=inner4)>)?\s*</(?P=outer2)>"
 
-        if blanks_between_paragraphs:
-            blank_lines = "(\s*<p[^>]*>\s*</p>){0,2}\s*"
-        else:
-            blank_lines = ""
-        opt_title_open = "("
-        opt_title_close = ")?"
-        n_lookahead_open = "\s+(?!"
-        n_lookahead_close = ")"
-
-        default_title = r"\s{0,3}([\w\'\"-]+\s{0,3}){1,5}?(?=<)"
-
-        min_chapters = 10
-        heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
-        self.html_preprocess_sections = len(heading.findall(html))
-        self.log("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
-
-        chapter_types = [
-            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication)\s*([\d\w-]+\:?\s*){0,4}", True, "Searching for common Chapter Headings"],
-            [r"[^'\"]?(\d+\.?|CHAPTER)\s*([\dA-Z\-\'\"\?\.!#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
-            [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\w#\-*\s]+<)([\w#-*]+\s*){1,5}\s*)(</span>)?\s*</b>", True, "Searching for emphasized lines"], # Emphasized lines
-            [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles"], # Numeric Titles
-            [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters" ] # Uppercase Chapters
-            ]
-
-        # Start with most typical chapter headings, get more aggressive until one works
-        for [chapter_type, lookahead_ignorecase, log_message] in chapter_types:
-            if self.html_preprocess_sections >= min_chapters:
-                break
-            full_chapter_line = chapter_line_open+chapter_header_open+chapter_type+chapter_header_close+chapter_line_close
-            n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-            self.log("Marked " + unicode(self.html_preprocess_sections) + " headings, " + log_message)
-            if lookahead_ignorecase:
-                chapter_marker = init_lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-                chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
-            else:
-                chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
-                chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
-
-            html = chapdetect.sub(self.chapter_head, html)
+        html = self.markup_chapters(html, totalwords, blanks_between_paragraphs)
 
 
         ###### Unwrap lines ######
@@ -247,7 +299,7 @@ class PreProcessor(object):
         # Calculate Length
         unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
         length = docanalysis.line_length(unwrap_factor)
-        self.log("*** Median line length is " + unicode(length) + ", calculated with " + format + " format ***")
+        self.log("Median line length is " + unicode(length) + ", calculated with " + format + " format")
         # only go through unwrapping code if the histogram shows unwrapping is required or if the user decreased the default unwrap_factor
         if hardbreaks or unwrap_factor < 0.4:
             self.log("Unwrapping required, unwrapping Lines")
@@ -260,7 +312,7 @@ class PreProcessor(object):
             self.log("Done dehyphenating")
             # Unwrap lines using punctation and line length
             #unwrap_quotes = re.compile(u"(?<=.{%i}\"')\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*(?=[a-z])" % length, re.UNICODE)
-            unwrap = re.compile(u"(?<=.{%i}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężı,:)\IA\u00DF]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
+            unwrap = re.compile(u"(?<=.{%i}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðß,:)\IA\u00DF]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
             html = unwrap.sub(' ', html)
             #check any remaining hyphens, but only unwrap if there is a match
             dehyphenator = Dehyphenator()
@@ -276,7 +328,7 @@ class PreProcessor(object):
         html = re.sub(u'\xad\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
 
         # If still no sections after unwrapping mark split points on lines with no punctuation
-        if self.html_preprocess_sections < 5:
+        if self.html_preprocess_sections < self.min_chapters:
             self.log("Looking for more split points based on punctuation,"
                     " currently have " + unicode(self.html_preprocess_sections))
             chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)

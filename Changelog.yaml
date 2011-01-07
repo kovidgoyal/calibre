@@ -4,6 +4,100 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.38
+  date: 2011-01-07
+
+  new features:
+    - title: "Reduce startup time when using a composite custom column"
+
+    - title: "Template language: Add a list_item function for use with tags like columns. See User Manual for details"
+
+    - title: "TXT Input: Attempt to detect the input encoding when not specified. Auto detect paragraph structure and formatting markup."
+
+    - title: "Search & replace: Add ability to manipulate number and boolean columns."
+
+    - title: "Add type ahead completion to the advanced search dialog."
+      tickets: [8035]
+
+    - title: "Double click on plugin in Preferences dialog to customize"
+      tickets: [8175]
+
+    - title: "Allow customization of the SONY driver to send thumbnail to the device. Useful with newer SONY readers"
+      tickets: [8161]
+
+    - title: "Smarten punctuation: Convert double dashes to em dashes. Preprocessing: Various tweaks"
+
+  bug fixes:
+    - title: "Fix regression causing the template formatter to intepret a missing format letter as ERROR instead of 's'."
+
+    - title: "Fix regression that broke conversion of PNG images in PDF files on OS X."
+      tickets: [8215]
+
+    - title: "Content server: Fix improper XML escaping of category titles in the OPDS feeds"
+      tickets: [8225]
+
+    - title: "When decoding XML if the XML starts with a UTF-8 BOM decode as UTF-8. Fixes parsing of FB2 files with UTF-8 BOMs"
+
+    - title: "E-book viewer: When scrolling to a bookmark and the content is wider than the window, do not scroll in the horizontal direction"
+
+    - title: "E-book viewer: Fix next page skipping the bottom of chapters when the content is wider than the window."
+      tickets: [8153]
+
+    - title: " FB2 Output: Insert covers."
+      tickets: [8172]
+
+    - title: "Content server: When serving OPDS feeds handle html descriptions that have namespaced attributes."
+      tickets: [7938]
+
+    - title: "When downloading metadata from isbndb.com, download a maximum of 30 results rather than 1000"
+
+    - title: "Fix sorting of tags column"
+
+    - title: "Change search/replace to show commas instead of vertical bars as the separator for multiple authors"
+
+    - title: "Template language: Make all column names case insensitive"
+
+    - title: "Fix bug that prevent the Disabled option for Tag Browser partiotining from working in the Preferences dialog"
+
+    - title: "Fix bug when using tags like custom column in the template language"
+
+    - title: "Fix bug where composite custom columns using general_program_mode fields are not evaluated correctly when used in a template."
+
+    - title: "ImageMagick interface: Don't crash when asked to open empty image files"
+
+    - title: "Kobo driver: Add TXT,CBZ,CBR to supported formats list"
+      tickets: [8124]
+
+    - title: "Don't uneccessarily scroll the book list horizontally when re-selcting previously selected rows."
+
+  new recipes:
+    - title: "New London Day"
+      author: "Being"
+      
+    - title: "Walla"
+      author: "marbs"
+
+    - title: "New Journal of Physics"
+      author: "Chema Cortes"
+
+    - title: "The Baltimore Sun"
+      author: "Josh Hall"
+
+    - title: "Arabian Business and Sunday Times (UK)"
+      author: "Darko Miletic"
+
+    - title: "Deia"
+      author: "Gerardo Diez"
+
+    - title: "Smarter Planet"
+      author: "Jack Mason"
+
+
+  improved recipes:
+    - The Atlantic
+    - Danas
+    - Ledevoir
+
 - version: 0.7.37
   date: 2011-01-02
 

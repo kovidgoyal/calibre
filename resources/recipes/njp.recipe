@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__     = 'GPL v3'
-__copyright__   = 'Chema Cortés - 2011-01-05'
+__copyright__   = u'Chema Cort\xe9s - 2011-01-05'
 __version__     = 'v0.01'
 __date__        = '2011-01-05'
 '''
