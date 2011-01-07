@@ -31,9 +31,9 @@ class Reader(FormatReader):
         from calibre.customize.ui import plugin_for_input_format
 
         pdf_plugin = plugin_for_input_format('pdf')
-        for option in pdf_plugin.options:
-            if not hasattr(self.options, option.option.name):
-                setattr(self.options, option.name, option.recommended_value)
+        for opt in pdf_plugin.options:
+            if not hasattr(self.options, opt.option.name):
+                setattr(self.options, opt.option.name, opt.recommended_value)
 
         pdf.seek(0)
         return pdf_plugin.convert(pdf, self.options, 'pdf', self.log, {})
