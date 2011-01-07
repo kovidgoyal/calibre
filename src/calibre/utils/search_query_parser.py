@@ -118,8 +118,9 @@ class SearchQueryParser(object):
                 failed.append(test[0])
         return failed
 
-    def __init__(self, locations, test=False):
+    def __init__(self, locations, test=False, optimize=False):
         self._tests_failed = False
+        self.optimize = optimize
         # Define a token
         standard_locations = map(lambda x : CaselessLiteral(x)+Suppress(':'),
                 locations)
@@ -182,38 +183,50 @@ class SearchQueryParser(object):
         # empty the list of searches used for recursion testing
         self.recurse_level = 0
         self.searches_seen = set([])
-        return self._parse(query)
+        candidates = self.universal_set()
+        return self._parse(query, candidates)
 
     # this parse is used internally because it doesn't clear the
     # recursive search test list. However, we permit seeing the
     # same search a few times because the search might appear within
     # another search.
-    def _parse(self, query):
+    def _parse(self, query, candidates):
         self.recurse_level += 1
         res = self._parser.parseString(query)[0]
-        t = self.evaluate(res)
+        t = self.evaluate(res, candidates)
         self.recurse_level -= 1
         return t
 
     def method(self, group_name):
         return getattr(self, 'evaluate_'+group_name)
 
-    def evaluate(self, parse_result):
-        return self.method(parse_result.getName())(parse_result)
+    def evaluate(self, parse_result, candidates):
+        return self.method(parse_result.getName())(parse_result, candidates)
 
-    def evaluate_and(self, argument):
-        return self.evaluate(argument[0]).intersection(self.evaluate(argument[1]))
+    def evaluate_and(self, argument, candidates):
+        # RHS checks only those items matched by LHS
+        # returns result of RHS check: RHmatches(LHmatches(c))
+        #  return self.evaluate(argument[0]).intersection(self.evaluate(argument[1]))
+        l = self.evaluate(argument[0], candidates)
+        return l.intersection(self.evaluate(argument[1], l))
 
-    def evaluate_or(self, argument):
-        return self.evaluate(argument[0]).union(self.evaluate(argument[1]))
+    def evaluate_or(self, argument, candidates):
+        # RHS checks only those elements not matched by LHS
+        # returns LHS union RHS: LHmatches(c) + RHmatches(c-LHmatches(c))
+        #  return self.evaluate(argument[0]).union(self.evaluate(argument[1]))
+        l = self.evaluate(argument[0], candidates)
+        return l.union(self.evaluate(argument[1], candidates.difference(l)))
 
-    def evaluate_not(self, argument):
-        return self.universal_set().difference(self.evaluate(argument[0]))
+    def evaluate_not(self, argument, candidates):
+        # unary op checks only candidates. Result: list of items matching
+        # returns: c - matches(c)
+        #  return self.universal_set().difference(self.evaluate(argument[0]))
+        return candidates.difference(self.evaluate(argument[0], candidates))
 
-    def evaluate_parenthesis(self, argument):
-        return self.evaluate(argument[0])
+    def evaluate_parenthesis(self, argument, candidates):
+        return self.evaluate(argument[0], candidates)
 
-    def evaluate_token(self, argument):
+    def evaluate_token(self, argument, candidates):
         location = argument[0]
         query = argument[1]
         if location.lower() == 'search':
@@ -224,17 +237,26 @@ class SearchQueryParser(object):
                     raise ParseException(query, len(query), 'undefined saved search', self)
                 if self.recurse_level > 5:
                     self.searches_seen.add(query)
-                return self._parse(saved_searches().lookup(query))
+                return self._parse(saved_searches().lookup(query), candidates)
             except: # convert all exceptions (e.g., missing key) to a parse error
                 raise ParseException(query, len(query), 'undefined saved search', self)
-        return self.get_matches(location, query)
+        return self._get_matches(location, query, candidates)
+
+    def _get_matches(self, location, query, candidates):
+        if self.optimize:
+            return self.get_matches(location, query, candidates=candidates)
+        else:
+            return self.get_matches(location, query)
 
     def get_matches(self, location, query):
         '''
         Should return the set of matches for :param:'location` and :param:`query`.
+        If you set the optimized parameter in __init__, this method must accept
+        a named parameter 'candidates'
 
         :param:`location` is one of the items in :member:`SearchQueryParser.DEFAULT_LOCATIONS`.
         :param:`query` is a string literal.
+        :param: optional named parameter candidates, a set of items to check.
         '''
         return set([])
 
@@ -561,7 +583,7 @@ class Tester(SearchQueryParser):
     def universal_set(self):
         return self._universal_set
 
-    def get_matches(self, location, query):
+    def get_matches(self, location, query, candidates=None):
         location = location.lower()
         if location in self.fields.keys():
             getter = operator.itemgetter(self.fields[location])
@@ -573,8 +595,13 @@ class Tester(SearchQueryParser):
         if not query:
             return set([])
         query = query.lower()
-        return set(key for key, val in self.texts.items() \
-            if query and query in getattr(getter(val), 'lower', lambda : '')())
+        if candidates:
+            return set(key for key, val in self.texts.items() \
+                if key in candidates and query and query
+                        in getattr(getter(val), 'lower', lambda : '')())
+        else:
+            return set(key for key, val in self.texts.items() \
+                if query and query in getattr(getter(val), 'lower', lambda : '')())
 
 
 
@@ -592,10 +619,21 @@ class Tester(SearchQueryParser):
 
 
 def main(args=sys.argv):
+    print 'testing unoptimized'
     tester = Tester(['authors', 'author', 'series', 'formats', 'format',
         'publisher', 'rating', 'tags', 'tag', 'comments', 'comment', 'cover',
         'isbn', 'ondevice', 'pubdate', 'size', 'date', 'title', u'#read',
         'all', 'search'], test=True)
+    failed = tester.run_tests()
+    if tester._tests_failed or failed:
+        print '>>>>>>>>>>>>>> Tests Failed <<<<<<<<<<<<<<<'
+        return 1
+
+    print '\n\ntesting optimized'
+    tester = Tester(['authors', 'author', 'series', 'formats', 'format',
+        'publisher', 'rating', 'tags', 'tag', 'comments', 'comment', 'cover',
+        'isbn', 'ondevice', 'pubdate', 'size', 'date', 'title', u'#read',
+        'all', 'search'], test=True, optimize=True)
     failed = tester.run_tests()
     if tester._tests_failed or failed:
         print '>>>>>>>>>>>>>> Tests Failed <<<<<<<<<<<<<<<'
