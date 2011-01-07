@@ -19,9 +19,6 @@ class Reader(FormatReader):
         self.stream = stream
         self.log = log
         self.options = options
-        setattr(self.options, 'new_pdf_engine', False)
-        setattr(self.options, 'no_images', False)
-        setattr(self.options, 'unwrap_factor', 0.45)
 
     def extract_content(self, output_dir):
         self.log.info('Extracting PDF...')
@@ -31,7 +28,12 @@ class Reader(FormatReader):
             for x in xrange(self.header.section_count()):
                 pdf.write(self.header.section_data(x))
 
-            from calibre.customize.ui import plugin_for_input_format
-            pdf.seek(0)
-            return plugin_for_input_format('pdf').convert(pdf, self.options,
-                'pdf', self.log, [])
+        from calibre.customize.ui import plugin_for_input_format
+
+        pdf_plugin = plugin_for_input_format('pdf')
+        for option in pdf_plugin.options:
+            if not hasattr(self.options, option.option.name):
+                setattr(self.options, option.name, option.recommended_value)
+
+        pdf.seek(0)
+        return pdf_plugin.convert(pdf, self.options, 'pdf', self.log, {})

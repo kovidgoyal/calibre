@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import QWidget, pyqtSignal
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.preferences.save_template_ui import Ui_Form
 from calibre.library.save_to_disk import FORMAT_ARG_DESCS, preprocess_template
 from calibre.utils.formatter import validation_formatter
@@ -52,7 +52,11 @@ class SaveTemplate(QWidget, Ui_Form):
         '''
         tmpl = preprocess_template(self.opt_template.text())
         try:
-            validation_formatter.validate(tmpl)
+            t = validation_formatter.validate(tmpl)
+            if t.find(validation_formatter._validation_string) < 0:
+                return question_dialog(self, _('Constant template'),
+                    _('The template contains no {fields}, so all '
+                      'books will have the same name. Is this OK?'))
         except Exception, err:
             error_dialog(self, _('Invalid template'),
                     '<p>'+_('The template %s is invalid:')%tmpl + \

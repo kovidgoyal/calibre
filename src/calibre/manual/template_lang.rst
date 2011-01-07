@@ -150,7 +150,7 @@ The example shows several things:
 
     * program mode is used if the expression begins with ``:'`` and ends with ``'``. Anything else is assumed to be single-function.
     * the variable ``$`` stands for the field the expression is operating upon, ``#series`` in this case.
-    * functions must be given all their arguments. There is no default value. This is true for the standard builtin functions, and is a significant difference from single-function mode.
+    * functions must be given all their arguments. There is no default value. For example, the standard builtin functions must be given an additional initial parameter indicating the source field, which is a significant difference from single-function mode.
     * white space is ignored and can be used anywhere within the expression.
     * constant strings are enclosed in matching quotes, either ``'`` or ``"``.
     
@@ -204,7 +204,7 @@ For various values of series_index, the program returns:
 
 All the functions listed under single-function mode can be used in program mode, noting that unlike the functions described below you must supply a first parameter providing the value the function is to act upon. 
 
-The following functions are available in addition to those described in single-function mode. With the exception of the ``id`` parameter of assign, all parameters can be statements (sequences of expressions):
+The following functions are available in addition to those described in single-function mode. Remember from the example above that the single-function mode functions require an additional first parameter specifying the field to operate on. With the exception of the ``id`` parameter of assign, all parameters can be statements (sequences of expressions):
 
     * ``add(x, y)`` -- returns x + y. Throws an exception if either x or y are not numbers.
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression

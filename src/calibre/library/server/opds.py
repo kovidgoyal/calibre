@@ -101,7 +101,19 @@ def html_to_lxml(raw):
     root = html.fragment_fromstring(raw)
     root.set('xmlns', "http://www.w3.org/1999/xhtml")
     raw = etree.tostring(root, encoding=None)
-    return etree.fromstring(raw)
+    try:
+        return etree.fromstring(raw)
+    except:
+        for x in root.iterdescendants():
+            remove = []
+            for attr in x.attrib:
+                if ':' in attr:
+                    remove.append(attr)
+            for a in remove:
+                del x.attrib[a]
+        raw = etree.tostring(root, encoding=None)
+        return etree.fromstring(raw)
+
 
 def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
                   ignore_count=False, add_kind=False):
