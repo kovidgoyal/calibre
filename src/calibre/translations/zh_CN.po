@@ -12904,7 +12904,7 @@ msgstr "其它格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:643
 msgid "Read %s in the %s format"
-msgstr "用 %2$s 格式阅读 %1$s"
+msgstr "用 %s 格式阅读 %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:648
 msgid "Get"
