@@ -256,8 +256,10 @@ class BookInfo(QWebView):
                     % (left_pane, right_pane)))
 
     def mouseDoubleClickEvent(self, ev):
-        if self.width() - ev.x() < 25 or \
-            self.height() - ev.y() < 25:
+        swidth = self.page().mainFrame().scrollBarGeometry(Qt.Vertical).width()
+        sheight = self.page().mainFrame().scrollBarGeometry(Qt.Horizontal).height()
+        if self.width() - ev.x() < swidth or \
+            self.height() - ev.y() < sheight:
             # Filter out double clicks on the scroll bar
             ev.accept()
         else:
