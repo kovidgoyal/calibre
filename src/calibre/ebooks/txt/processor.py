@@ -9,6 +9,7 @@ import os, re
 from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.markdown import markdown
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.conversion.preprocess import DocAnalysis
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -102,25 +103,35 @@ def detect_paragraph_type(txt):
     print: Each paragraph starts with a 2+ spaces or a tab
            and ends when a new paragraph is reached.
     markdown: Markdown formatting is in the document.
+    unformatted: most lines have hard line breaks, few/no spaces or indents
     
-    returns block, single, print, markdown
+    returns block, single, print, markdown, unformatted
     '''
     txt = txt.replace('\r\n', '\n')
     txt = txt.replace('\r', '\n')
     txt_line_count = len(re.findall('(?mu)^\s*.+$', txt))
     
-    # Check for print
-    tab_line_count = len(re.findall('(?mu)^(\t|\s{2,}).+$', txt))
-    if tab_line_count / float(txt_line_count) >= .25:
-        return 'print'
+    # Check for hard line breaks - true if 55% of the doc breaks in the same region
+    docanalysis = DocAnalysis('txt', txt)
+    hardbreaks = docanalysis.line_histogram(.55)
     
-    # Check for block
-    empty_line_count = len(re.findall('(?mu)^\s*$', txt))
-    if empty_line_count / float(txt_line_count) >= .25:
-        return 'block'
+    if hardbreaks:
+        # Check for print
+        tab_line_count = len(re.findall('(?mu)^(\t|\s{2,}).+$', txt))
+        if tab_line_count / float(txt_line_count) >= .25:
+            return 'print'
+        
+        # Check for block
+        empty_line_count = len(re.findall('(?mu)^\s*$', txt))
+        if empty_line_count / float(txt_line_count) >= .25:
+            return 'block'
+
+        # Assume unformatted text with hardbreaks if nothing else matches        
+        return 'unformatted'
     
-    # Nothing else matched to assume single.
+    # return single if hardbreaks is false
     return 'single'
+
 
 def detect_formatting_type(txt):
     # Check for markdown
