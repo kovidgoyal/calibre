@@ -16,6 +16,7 @@ import uuid
 
 from lxml import etree
 
+from calibre import guess_type
 from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
@@ -161,6 +162,23 @@ class FB2MLizer(object):
             text.append('<section>')
             self.section_level += 1
         
+        # Insert the title page / cover into the spine if it is not already referenced.
+        title_name = u''
+        if 'titlepage' in self.oeb_book.guide:
+            title_name = 'titlepage'
+        elif 'cover' in self.oeb_book.guide:
+            title_name = 'cover'
+        if title_name:
+            title_item = self.oeb_book.manifest.hrefs[self.oeb_book.guide[title_name].href]
+            if title_item.spine_position is None and title_item.media_type == 'application/xhtml+xml':
+                self.oeb_book.spine.insert(0, title_item, True)
+        # Create xhtml page to reference cover image so it can be used.
+        if not title_name and self.oeb_book.metadata.cover and unicode(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
+            id = unicode(self.oeb_book.metadata.cover[0])
+            cover_item = self.oeb_book.manifest.ids[id]
+            if cover_item.media_type in OEB_RASTER_IMAGES:
+                self.insert_image_cover(cover_item.href)
+        
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
@@ -184,6 +202,17 @@ class FB2MLizer(object):
             self.section_level -= 1
 
         return ''.join(text) + '</body>'
+
+    def insert_image_cover(self, image_href):
+        from calibre.ebooks.oeb.base import RECOVER_PARSER
+        try:
+            root = etree.fromstring(u'<html xmlns="%s"><body><img src="%s" /></body></html>' % (XHTML_NS, image_href), parser=RECOVER_PARSER)
+        except:
+            root = etree.fromstring(u'', parser=RECOVER_PARSER)
+        
+        id, href = self.oeb_book.manifest.generate('fb2_cover', 'fb2_cover.xhtml')
+        item = self.oeb_book.manifest.add(id, href, guess_type(href)[0], data=root)
+        self.oeb_book.spine.insert(0, item, True)
 
     def fb2mlize_images(self):
         '''

@@ -48,7 +48,6 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     if isbytestring(txt):
         txt = txt.decode('utf-8')
 
-
     lines = []
     # Split into paragraphs based on having a blank line between text.
     for line in txt.split('\n\n'):
@@ -93,3 +92,54 @@ def split_string_separator(txt, size) :
             xrange(0, len(txt), size)])
     return txt
 
+def detect_paragraph_type(txt):
+    '''
+    Tries to determine the formatting of the document.
+    
+    block: Paragraphs are separated by a blank line.
+    single: Each line is a paragraph.
+    print: Each paragraph starts with a 2+ spaces or a tab
+           and ends when a new paragraph is reached.
+    markdown: Markdown formatting is in the document.
+    
+    returns block, single, print, markdown
+    '''
+    txt = txt.replace('\r\n', '\n')
+    txt = txt.replace('\r', '\n')
+    txt_line_count = len(re.findall('(?mu)^\s*.+$', txt))
+    
+    # Check for print
+    tab_line_count = len(re.findall('(?mu)^(\t|\s{2,}).+$', txt))
+    if tab_line_count / float(txt_line_count) >= .25:
+        return 'print'
+    
+    # Check for block
+    empty_line_count = len(re.findall('(?mu)^\s*$', txt))
+    if empty_line_count / float(txt_line_count) >= .25:
+        return 'block'
+    
+    # Nothing else matched to assume single.
+    return 'single'
+
+def detect_formatting_type(txt):
+    # Check for markdown
+    # Headings
+    if len(re.findall('(?mu)^#+', txt)) >= 5:
+        return 'markdown'
+    if len(re.findall('(?mu)^=+$', txt)) >= 5:
+        return 'markdown'
+    if len(re.findall('(?mu)^-+$', txt)) >= 5:
+        return 'markdown'
+    # Images
+    if len(re.findall('(?u)!\[.*?\]\(.+?\)', txt)) >= 5:
+        return 'markdown'
+    # Links
+    if len(re.findall('(?u)(^|(?P<pre>[^!]))\[.*?\]\([^)]+\)', txt)) >= 5:
+        return 'markdown'
+    # Escaped characters
+    md_escapted_characters = ['\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!']
+    for c in md_escapted_characters:
+        if txt.count('\\'+c) > 10:
+            return 'markdown'
+    
+    return 'none'
