@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, copy
 
-from PyQt4.QtGui import QDialog, QDialogButtonBox
+from PyQt4.Qt import QDialog, QDialogButtonBox, QCompleter, Qt
 
 from calibre.gui2.dialogs.search_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
@@ -21,6 +21,28 @@ class SearchDialog(QDialog, Ui_Dialog):
         searchables = sorted(db.field_metadata.searchable_fields(),
                              key=lambda x: sort_key(x if x[0] != '#' else x[1:]))
         self.general_combo.addItems(searchables)
+
+        all_authors = db.all_authors()
+        all_authors.sort(key=lambda x : sort_key(x[1]))
+        for i in all_authors:
+            id, name = i
+            name = name.strip().replace('|', ',')
+            self.authors_box.addItem(name)
+        self.authors_box.setEditText('')
+        self.authors_box.completer().setCompletionMode(QCompleter.PopupCompletion)
+        self.authors_box.setAutoCompletionCaseSensitivity(Qt.CaseInsensitive)
+
+        all_series = db.all_series()
+        all_series.sort(key=lambda x : sort_key(x[1]))
+        for i in all_series:
+            id, name = i
+            self.series_box.addItem(name)
+        self.series_box.setEditText('')
+        self.series_box.completer().setCompletionMode(QCompleter.PopupCompletion)
+        self.series_box.setAutoCompletionCaseSensitivity(Qt.CaseInsensitive)
+
+        all_tags = db.all_tags()
+        self.tags_box.update_tags_cache(all_tags)
 
         self.box_last_values = copy.deepcopy(box_values)
         if self.box_last_values:
@@ -121,26 +143,34 @@ class SearchDialog(QDialog, Ui_Dialog):
             return tok
 
     def box_search_string(self):
+        mk = self.matchkind.currentIndex()
+        if mk == CONTAINS_MATCH:
+            self.mc = ''
+        elif mk == EQUALS_MATCH:
+            self.mc = '='
+        else:
+            self.mc = '~'
+
         ans = []
         self.box_last_values = {}
         title = unicode(self.title_box.text()).strip()
         self.box_last_values['title_box'] = title
         if title:
-            ans.append('title:"' + title + '"')
+            ans.append('title:"' + self.mc + title + '"')
         author = unicode(self.authors_box.text()).strip()
         self.box_last_values['authors_box'] = author
         if author:
-            ans.append('author:"' + author + '"')
+            ans.append('author:"' + self.mc + author + '"')
         series = unicode(self.series_box.text()).strip()
         self.box_last_values['series_box'] = series
         if series:
-            ans.append('series:"' + series + '"')
-        self.mc = '='
+            ans.append('series:"' + self.mc + series + '"')
+
         tags = unicode(self.tags_box.text())
         self.box_last_values['tags_box'] = tags
-        tags = self.tokens(tags)
+        tags = [t.strip() for t in tags.split(',') if t.strip()]
         if tags:
-            tags = ['tags:' + t for t in tags]
+            tags = ['tags:"=' + t + '"' for t in tags]
             ans.append('(' + ' or '.join(tags) + ')')
         general = unicode(self.general_box.text())
         self.box_last_values['general_box'] = general

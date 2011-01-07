@@ -21,7 +21,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>What kind of match to use:</string>
+      <string>&amp;What kind of match to use:</string>
      </property>
      <property name="buddy">
       <cstring>matchkind</cstring>
@@ -228,7 +228,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="title_box">
+        <widget class="EnLineEdit" name="title_box">
          <property name="toolTip">
           <string>Enter the title.</string>
          </property>
@@ -265,21 +265,21 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QLineEdit" name="authors_box">
+        <widget class="EnComboBox" name="authors_box">
          <property name="toolTip">
           <string>Enter an author's name. Only one author can be used.</string>
          </property>
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="series_box">
+        <widget class="EnComboBox" name="series_box">
          <property name="toolTip">
           <string>Enter a series name, without an index. Only one series name can be used.</string>
          </property>
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QLineEdit" name="tags_box">
+        <widget class="TagsLineEdit" name="tags_box">
          <property name="toolTip">
           <string>Enter tags separated by spaces</string>
          </property>
@@ -348,6 +348,23 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>EnLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>EnComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TagsLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>all</tabstop>
   <tabstop>phrase</tabstop>

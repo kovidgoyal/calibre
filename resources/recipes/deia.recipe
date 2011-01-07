@@ -1,0 +1,70 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__author__    = 'Gerardo Diez'
+__copyright__ = 'Gerardo Diez<gerardo.diez.garcia@gmail.com>'
+description   = 'Main daily newspaper from Spain - v1.00 (05, Enero 2011)'
+__docformat__ = 'restructuredtext en'
+
+'''
+deia.com
+'''
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class Deia(BasicNewsRecipe):
+	title			='Deia'
+	__author__		='Gerardo Diez'
+	publisher		='Editorial Iparraguirre, S.A'
+	category             	='news, politics, finances, world, spain, euskadi'
+	publication_type      	='newspaper'
+	oldest_article		=1
+	max_articles_per_feed	=100
+	simultaneous_downloads	=10
+	cover_url		='http://2.bp.blogspot.com/_RjrWzC6tI14/TM6jrPLaBZI/AAAAAAAAFaI/ayffwxidFEY/s1600/2009-10-13-logo-deia.jpg'
+	timefmt			='[%a, %d %b, %Y]'
+	encoding		='utf8'
+	language		='es_ES'
+	remove_javascript	=True
+	remove_tags_after	=dict(id='Texto')
+	remove_tags_before	=dict(id='Texto')
+	remove_tags		=[dict(name='div', attrs={'class':['Herramientas ', 'Multimedia']})]
+	no_stylesheets		=True
+	extra_css		='h1 {margin-bottom: .15em;font-size: 2.7em; font-family: Georgia, "Times New Roman", Times, serif;} .Antetitulo {margin: 1em 0;text-transform: uppercase;color: #999;} .PieFoto {margin: .1em 0;padding: .5em .5em .5em .5em;background: #F0F0F0;} .PieFoto p {margin-bottom: 0;font-family: Georgia,"Times New Roman",Times,serif;font-weight: bold; font-style: italic; color: #666;}'
+	keep_only_tags		=[dict(name='div', attrs={'class':['Texto ', 'NoticiaFicha ']})]
+	feeds          		= [
+					(u'Bizkaia' ,u'http://www.deia.com/index.php/services/rss?seccion=bizkaia'),
+					(u'Bilbao' ,u'http://www.deia.com/index.php/services/rss?seccion=bilbao'),
+					(u'Hemendik eta Handik' ,u'http://www.deia.com/index.php/services/rss?seccion=hemendik-eta-handik'),
+					(u'Margen Derecha' ,u'http://www.deia.com/index.php/services/rss?seccion=margen-derecha'),
+					(u'Encartaciones y Margen Izquierda' ,u'http://www.deia.com/index.php/services/rss?seccion=margen-izquierda-encartaciones'),
+					(u'Costa' ,u'http://www.deia.com/index.php/services/rss?seccion=costa'),
+					(u'Duranguesado' ,u'http://www.deia.com/index.php/services/rss?seccion=duranguesado'),
+					(u'Llodio-Nervión' ,u'http://www.deia.com/index.php/services/rss?seccion=llodio-nervion'),
+					(u'Arratia-Nervión' ,u'http://www.deia.com/index.php/services/rss?seccion=arratia-nervion'),
+					(u'Uribe-Txorierri' ,u'http://www.deia.com/index.php/services/rss?seccion=uribe-txorierri'),
+					(u'Ecos de sociedad' ,u'http://www.deia.com/index.php/services/rss?seccion=ecos-de-sociedad'),
+					(u'Sucesos' ,u'http://www.deia.com/index.php/services/rss?seccion=sucesos'),
+					(u'Política' ,u'http://www.deia.com/index.php/services/rss?seccion=politica'),
+					(u'Euskadi' ,u'http://www.deia.com/index.php/services/rss?seccion=politica/euskadi'),
+					(u'España' ,u'http://www.deia.com/index.php/services/rss?seccion=politica/espana'),
+					(u'Sociedad',u'http://www.deia.com/index.php/services/rss?seccion=sociedad'),
+					(u'Euskadi' ,u'http://www.deia.com/index.php/services/rss?seccion=socidad/euskadi'),
+					(u'Sociedad.España' ,u'http://www.deia.com/index.php/services/rss?seccion=sociedad/espana'),
+					(u'Ocio y Cultura' ,u'http://www.deia.com/index.php/services/rss?seccion=ocio-y-cultura'),
+					#(u'Cultura' ,u'http://www.deia.com/index.php/services/rss?seccion=cultura'),
+					#(u'Ocio' ,u'http://www.deia.com/index.php/services/rss?seccion=ocio'),
+					(u'On' ,u'http://www.deia.com/index.php/services/rss?seccion=on'),
+					(u'Agenda' ,u'http://www.deia.com/index.php/services/rss?seccion=agenda'),
+					(u'Comunicación' ,u'http://www.deia.com/index.php/services/rss?seccion=comunicacion'),
+					(u'Viajes' ,u'http://www.deia.com/index.php/services/rss?seccion=viajes'),
+					(u'¡Mundo!' ,u'http://www.deia.com/index.php/services/rss?seccion=que-mundo'),
+					(u'Humor' ,u'http://www.deia.com/index.php/services/rss?seccion=humor'),
+					(u'Opinión' ,u'http://www.deia.com/index.php/services/rss?seccion=opinion'),
+					(u'Editorial' ,u'http://www.deia.com/index.php/services/rss?seccion=editorial'),
+					(u'Tribuna abierta' ,u'http://www.deia.com/index.php/services/rss?seccion=tribuna-abierta'),
+					(u'Colaboración' ,u'http://www.deia.com/index.php/services/rss?seccion=colaboracion'),
+					(u'Columnistas' ,u'http://www.deia.com/index.php/services/rss?seccion=columnistas'),
+					(u'Deportes' ,u'http://www.deia.com/index.php/services/rss?seccion=deportes'),
+					(u'Athletic' ,u'http://www.deia.com/index.php/services/rss?seccion=athletic'),
+					(u'Economía' ,'http://www.deia.com/index.php/services/rss?seccion=economia'),
+					(u'Mundo' ,u'http://www.deia.com/index.php/services/rss?seccion=mundo')]
+

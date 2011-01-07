@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap
+import textwrap, codecs
 from functools import partial
 
 from PyQt4.Qt import QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit, \
@@ -128,6 +128,7 @@ class Widget(QWidget):
     def get_value(self, g):
         from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.convert.regex_builder import RegexEdit
+        from calibre.gui2.widgets import EncodingComboBox
         ret = self.get_value_handler(g)
         if ret != 'this is a dummy return value, xcswx1avcx4x':
             return ret
@@ -138,6 +139,13 @@ class Widget(QWidget):
             ans = unicode(func).strip()
             if not ans:
                 ans = None
+            return ans
+        elif isinstance(g, EncodingComboBox):
+            ans = unicode(g.currentText()).strip()
+            try:
+                codecs.lookup(ans)
+            except:
+                ans = ''
             return ans
         elif isinstance(g, QComboBox):
             return unicode(g.currentText())
@@ -183,6 +191,7 @@ class Widget(QWidget):
     def set_value(self, g, val):
         from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.convert.regex_builder import RegexEdit
+        from calibre.gui2.widgets import EncodingComboBox
         if self.set_value_handler(g, val):
             return
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
@@ -191,6 +200,11 @@ class Widget(QWidget):
             if not val: val = ''
             getattr(g, 'setPlainText', g.setText)(val)
             getattr(g, 'setCursorPosition', lambda x: x)(0)
+        elif isinstance(g, EncodingComboBox):
+            if val:
+                g.setEditText(val)
+            else:
+                g.setCurrentIndex(0)
         elif isinstance(g, QComboBox) and val:
             idx = g.findText(val, Qt.MatchFixedString)
             if idx < 0:
