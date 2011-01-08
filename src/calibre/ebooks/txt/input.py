@@ -10,7 +10,8 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
-    preserve_spaces, detect_paragraph_type, detect_formatting_type
+    preserve_spaces, detect_paragraph_type, detect_formatting_type, \
+    convert_heuristic
 from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
@@ -31,7 +32,7 @@ class TXTInput(InputFormatPlugin):
                    '* print:  Assume every line starting with 2+ spaces or a tab '
                    'starts a paragraph.')),
         OptionRecommendation(name='formatting_type', recommended_value='auto',
-            choices=['auto', 'none', 'markdown'],
+            choices=['auto', 'none', 'heuristic', 'markdown'],
             help=_('Formatting used within the document.'
                    '* auto: Try to auto detect the document formatting.\n'
                    '* none: Do not modify the paragraph formatting. Everything is a paragraph.\n'
@@ -96,7 +97,12 @@ class TXTInput(InputFormatPlugin):
                 txt = separate_paragraphs_print_formatted(txt)
 
             flow_size = getattr(options, 'flow_size', 0)
-            html = convert_basic(txt, epub_split_size_kb=flow_size)
+            
+            if options.formatting_type == 'heuristic':
+                html = convert_heuristic(txt, epub_split_size_kb=flow_size)
+            else:
+                html = convert_basic(txt, epub_split_size_kb=flow_size)
+            
 
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')
