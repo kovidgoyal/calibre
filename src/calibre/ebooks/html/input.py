@@ -119,7 +119,7 @@ class HTMLFile(object):
 
         self.is_binary = level > 0 and not bool(self.HTML_PAT.search(src[:4096]))
         if not self.is_binary:
-            if encoding is None:
+            if not encoding:
                 encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]
                 self.encoding = encoding
             else:
