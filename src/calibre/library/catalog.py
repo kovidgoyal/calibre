@@ -21,7 +21,7 @@ from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, isoformat, now as nowf
 from calibre.utils.logging import default_log as log
 from calibre.utils.zipfile import ZipFile, ZipInfo
-from calibre.utils.magick.draw import identify_data, thumbnail
+from calibre.utils.magick.draw import thumbnail
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'ondevice', 'pubdate', 'publisher', 'rating',
@@ -2863,32 +2863,15 @@ class EPUB_MOBI(CatalogPlugin):
                         i/float(len(self.booksByTitle)))
 
                 thumb_file = 'thumbnail_%d.jpg' % int(title['id'])
-                valid_cover = True
+                thumb_generated = True
                 try:
-                    _w, _h, _fmt = identify_data(open(title['cover'], 'rb').read())
-                except:
-                    valid_cover = False
-
-                if valid_cover:
-                    # Add the thumb spec to thumbs[]
-                    thumbs.append("thumbnail_%d.jpg" % int(title['id']))
                     self.generateThumbnail(title, image_dir, thumb_file)
-                    '''
-                    # Check to see if thumbnail exists
-                    thumb_fp = "%s/thumbnail_%d.jpg" % (image_dir,int(title['id']))
-                    thumb_file = 'thumbnail_%d.jpg' % int(title['id'])
-                    if os.path.isfile(thumb_fp):
-                        # Check to see if cover is newer than thumbnail
-                        # os.path.getmtime() = modified time
-                        # os.path.ctime() = creation time
-                        cover_timestamp = os.path.getmtime(title['cover'])
-                        thumb_timestamp = os.path.getmtime(thumb_fp)
-                        if thumb_timestamp < cover_timestamp:
-                           self.generateThumbnail(title, image_dir, thumb_file)
-                    else:
-                        self.generateThumbnail(title, image_dir, thumb_file)
-                    '''
-                else:
+                    thumbs.append("thumbnail_%d.jpg" % int(title['id']))
+                except:
+                    thumb_generated = False
+
+
+                if not thumb_generated:
                     # Use default cover
                     if False and self.verbose:
                         self.opts.log.warn(" using default cover for '%s'" % \

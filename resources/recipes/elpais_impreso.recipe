@@ -17,7 +17,7 @@ class ElPais_RSS(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'cp1252'
     use_embedded_content  = False
-    language              = 'es_ES'
+    language              = 'es'
     remove_empty_feeds    = True
     publication_type      = 'newspaper'
     masthead_url          = 'http://www.elpais.com/im/tit_logo.gif'
@@ -57,14 +57,14 @@ class ElPais_RSS(BasicNewsRecipe):
              ,(u'Madrid'               , u'http://www.elpais.com/rss/feed.html?feedId=1016' )
              ,(u'Pais Vasco'           , u'http://www.elpais.com/rss/feed.html?feedId=17062')
              ,(u'Galicia'              , u'http://www.elpais.com/rss/feed.html?feedId=17063')
-             ,(u'Opinion'              , u'http://www.elpais.com/rss/feed.html?feedId=1003' )             
-             ,(u'Sociedad'             , u'http://www.elpais.com/rss/feed.html?feedId=1004' )             
+             ,(u'Opinion'              , u'http://www.elpais.com/rss/feed.html?feedId=1003' )
+             ,(u'Sociedad'             , u'http://www.elpais.com/rss/feed.html?feedId=1004' )
              ,(u'Deportes'             , u'http://www.elpais.com/rss/feed.html?feedId=1007' )
              ,(u'Cultura'              , u'http://www.elpais.com/rss/feed.html?feedId=1008' )
              ,(u'Cine'                 , u'http://www.elpais.com/rss/feed.html?feedId=17052')
              ,(u'Literatura'           , u'http://www.elpais.com/rss/feed.html?feedId=17053')
              ,(u'Musica'               , u'http://www.elpais.com/rss/feed.html?feedId=17051')
-             ,(u'Arte'                 , u'http://www.elpais.com/rss/feed.html?feedId=17060')             
+             ,(u'Arte'                 , u'http://www.elpais.com/rss/feed.html?feedId=17060')
              ,(u'Tecnologia'           , u'http://www.elpais.com/rss/feed.html?feedId=1005' )
              ,(u'Economia'             , u'http://www.elpais.com/rss/feed.html?feedId=1006' )
              ,(u'Ciencia'              , u'http://www.elpais.com/rss/feed.html?feedId=17068')

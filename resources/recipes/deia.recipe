@@ -22,7 +22,7 @@ class Deia(BasicNewsRecipe):
 	cover_url		='http://2.bp.blogspot.com/_RjrWzC6tI14/TM6jrPLaBZI/AAAAAAAAFaI/ayffwxidFEY/s1600/2009-10-13-logo-deia.jpg'
 	timefmt			='[%a, %d %b, %Y]'
 	encoding		='utf8'
-	language		='es_ES'
+	language		='es'
 	remove_javascript	=True
 	remove_tags_after	=dict(id='Texto')
 	remove_tags_before	=dict(id='Texto')
