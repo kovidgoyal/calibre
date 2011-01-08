@@ -16,7 +16,7 @@ from PyQt4.Qt import QWidget, pyqtSignal, QDialog, Qt, QLabel, \
 from calibre.gui2.wizard.send_email_ui import Ui_Form
 from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2.dialogs.test_email_ui import Ui_Dialog as TE_Dialog
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, question_dialog
 
 class TestEmail(QDialog, TE_Dialog):
 
@@ -92,7 +92,10 @@ class SendEmail(QWidget, Ui_Form):
         pa = self.preferred_to_address()
         to_set = pa is not None
         if self.set_email_settings(to_set):
-          TestEmail(pa, self).exec_()
+            if question_dialog(self, _('OK to proceed?'),
+                    _('This will display your email password on the screen'
+                    '. Is it OK to proceed?'), show_copy_button=False):
+                TestEmail(pa, self).exec_()
 
     def test_email_settings(self, to):
         opts = smtp_prefs().parse()
