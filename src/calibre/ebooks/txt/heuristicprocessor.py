@@ -21,15 +21,15 @@ class TXTHeuristicProcessor(object):
         ]
         self.ITALICIZE_STYLE_PATS = [
             r'(?msu)_(?P<words>.+?)_',
-            r'(?msu)/(?P<words>.+?)/',
+            r'(?msu)/(?P<words>[^<>]+?)/',
             r'(?msu)~~(?P<words>.+?)~~',
             r'(?msu)\*(?P<words>.+?)\*',
             r'(?msu)~(?P<words>.+?)~',
-            r'(?msu)_/(?P<words>.+?)/_',
+            r'(?msu)_/(?P<words>[^<>]+?)/_',
             r'(?msu)_\*(?P<words>.+?)\*_',
-            r'(?msu)\*/(?P<words>.+?)/\*',
-            r'(?msu)_\*/(?P<words>.+?)/\*_',
-            r'(?msu)/:(?P<words>.+?):/',
+            r'(?msu)\*/(?P<words>[^<>]+?)/\*',
+            r'(?msu)_\*/(?P<words>[^<>]+?)/\*_',
+            r'(?msu)/:(?P<words>[^<>]+?):/',
             r'(?msu)\|:(?P<words>.+?):\|',
         ]
 
@@ -84,5 +84,6 @@ class TXTHeuristicProcessor(object):
                 
         txt = u'\n'.join(processed)
         txt = re.sub('[ ]{2,}', ' ', txt)
+        print txt
 
         return HTML_TEMPLATE % (title, txt)
