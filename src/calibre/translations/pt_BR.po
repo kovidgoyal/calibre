@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-02 23:55+0000\n"
-"PO-Revision-Date: 2010-12-18 05:47+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-06 13:01+0000\n"
+"Last-Translator: MoroniGranja <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-04 14:00+0000\n"
+"X-Launchpad-Export-Date: 2011-01-07 04:59+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -172,7 +172,7 @@ msgstr "Leitor de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:266
 msgid "Metadata writer"
-msgstr ""
+msgstr "Escritor de metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:296
 msgid "Catalog generator"
@@ -589,6 +589,8 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Planejado para o Samsung Galaxy e tablets similares com uma resolução "
+"de600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -695,7 +697,7 @@ msgstr "Desabilitar a extensão com nome"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:148
 msgid "Debug log"
-msgstr ""
+msgstr "Log de Debug"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -808,7 +810,7 @@ msgstr "Comunicar com iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Comunicar com o leitor de eBooks Sanda Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
@@ -817,17 +819,22 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:41
 msgid "Device IP Address (restart calibre after changing)"
 msgstr ""
+"Endereço IP do dispositivo (é necessário reiniciar calibre após modificar)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:46
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"Impossível adicionar livro a biblioteca diretamente do Bambook. Favor salvar "
+"o livro no disco e adicionar o arquivo do disco a biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:66
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Não foi possível conectar ao Bambook, é necessário instalar a biblioteca "
+"Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:74
 msgid ""
@@ -835,10 +842,13 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"Não foi possível conectar ao Bambook. \n"
+"Se você está tentando conectar por Wi-Fi, favor confirmar se o endereço IP "
+"do Bambook foi configurado corretamente."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:111
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:217
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:233
@@ -899,7 +909,7 @@ msgstr "Enviando metadados ao dispositivo..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:132
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDK não foi instalado."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -938,11 +948,11 @@ msgstr "Comunica-se com o leitor PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "Comunicar-se com o PocketBook 602/603/902/903 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "Comunicar-se com o PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1069,6 +1079,8 @@ msgid ""
 "The Kobo supports only one collection currently: the \"Im_Reading\" list.  "
 "Create a tag called \"Im_Reading\" "
 msgstr ""
+"O Kobo aceita apenas uma coleção atualmente: a lista \"Estou_Lendo\". Crie "
+"uma tag chamada \"Estou_Lendo\" "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:446
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:279
@@ -1097,7 +1109,7 @@ msgstr "Comunicar com o Sweex MM300"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:79
 msgid "Communicate with the Digma Q600"
-msgstr ""
+msgstr "Comunicar-se com o Digma Q600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:88
 msgid "Communicate with the Kogan"
@@ -1110,7 +1122,7 @@ msgstr "Comunicar com o Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:142
 msgid "Communicate with the VelocityMicro"
-msgstr ""
+msgstr "Comunicar-se com o VelocityMicro"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:160
 msgid "Communicate with the GM2000"
@@ -1118,23 +1130,23 @@ msgstr "Comunicar com o GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:180
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Comunicar-se com o Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:211
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Comunicar-se com o Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:231
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Comunicar-se com o Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:251
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "Comunicar-se com o EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:271
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Comunicar-se com o Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1142,7 +1154,7 @@ msgstr "Comunica-se com o Nokia 770 Internet Tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr ""
+msgstr "Comunicar-se com o internet tablet Nokia 810/900."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
@@ -1158,11 +1170,11 @@ msgstr "Comunica-se com o leitor Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Nook Color"
-msgstr ""
+msgstr "Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
 msgid "Communicate with the Nook Color eBook reader."
-msgstr ""
+msgstr "Comunicar-se com o Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1178,11 +1190,11 @@ msgstr "Comunica-se com todos os leitores da Sony."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:61
 msgid "All by title"
-msgstr ""
+msgstr "Todos por título"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by author"
-msgstr ""
+msgstr "Todos por autor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:64
 msgid ""
@@ -1198,6 +1210,9 @@ msgid ""
 "to the list to enable them. The collections will be given the name provided "
 "after the \":\" character."
 msgstr ""
+". Duas coleções especiais estão disponíveis: %s:%s e %s:%s. Adicione estes "
+"valores à lista para habilita-los. As coleções receberão o nome após os dois "
+"pontos (\":\")."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1218,7 +1233,7 @@ msgstr "Comunica-se com o leitor Newsmy."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Pico reader."
-msgstr ""
+msgstr "Comunicar-se com o Pico reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the iPapyrus reader."
@@ -1230,7 +1245,7 @@ msgstr "Comunicar com o leitor Sovos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:78
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Comunicar-se com o Sunstech EB700 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:258
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1254,6 +1269,8 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"Não foi possível detectar o disco %s. O dispositivo já foi ejetado, ou o seu "
+"kernel está exportando uma versão deprecada do SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:617
 msgid "Unable to mount main memory (Error code: %d)"
@@ -1264,6 +1281,8 @@ msgid ""
 "The main memory of %s is read only. This usually happens because of file "
 "system errors."
 msgstr ""
+"A memória principal de %s é somente leitura. Isto normalmente acontece "
+"devido a erros no sistema de arquivos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:816
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:818
@@ -1693,6 +1712,9 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
 msgstr ""
+"Número máximo de links para inserir no sumário. Use 0 para desabilitar. O "
+"padrão é: %default. Links serão adicionados ao sumário somente se o número "
+"encontrado for menor que o limite máximo de capítulos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:256
 msgid ""
@@ -2076,7 +2098,7 @@ msgstr "Você deve especificar um arquivo do tipo epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
-msgstr ""
+msgstr "Conserte arquivos sem manifesto."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:21
 msgid ""

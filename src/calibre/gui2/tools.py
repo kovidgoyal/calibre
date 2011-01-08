@@ -61,7 +61,8 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
                     dtitle = unicode(mi.title)
                 except:
                     dtitle = repr(mi.title)
-                desc = _('Convert book %d of %d (%s)') % (i + 1, total, dtitle)
+                desc = _('Convert book %(num)d of %(total)d (%(title)s)') % \
+                        {'num':i + 1, 'total':total, 'title':dtitle}
 
                 recs = cPickle.loads(d.recommendations)
                 if d.opf_file is not None:
