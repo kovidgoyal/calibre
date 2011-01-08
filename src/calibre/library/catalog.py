@@ -21,7 +21,7 @@ from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, isoformat, now as nowf
 from calibre.utils.logging import default_log as log
 from calibre.utils.zipfile import ZipFile, ZipInfo
-from calibre.utils.magick.draw import thumbnail
+from calibre.utils.magick.draw import identify_data, thumbnail
 
 FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'ondevice', 'pubdate', 'publisher', 'rating',
@@ -2861,11 +2861,19 @@ class EPUB_MOBI(CatalogPlugin):
                 self.updateProgressMicroStep("Thumbnail %d of %d" % \
                     (i,len(self.booksByTitle)),
                         i/float(len(self.booksByTitle)))
-                # Check to see if source file exists
-                if 'cover' in title and os.path.isfile(title['cover']):
+
+                # Confirm existence, integrity of cover image
+                valid_cover = True
+                try:
+                    _w, _h, _fmt = identify_data(open(title['cover'], 'rb').read())
+                except:
+                    valid_cover = False
+
+                if valid_cover:
                     # Add the thumb spec to thumbs[]
                     thumbs.append("thumbnail_%d.jpg" % int(title['id']))
-
+                    self.generateThumbnail(title, image_dir, thumb_file)
+                    '''
                     # Check to see if thumbnail exists
                     thumb_fp = "%s/thumbnail_%d.jpg" % (image_dir,int(title['id']))
                     thumb_file = 'thumbnail_%d.jpg' % int(title['id'])
@@ -2879,6 +2887,7 @@ class EPUB_MOBI(CatalogPlugin):
                            self.generateThumbnail(title, image_dir, thumb_file)
                     else:
                         self.generateThumbnail(title, image_dir, thumb_file)
+                    '''
                 else:
                     # Use default cover
                     if False and self.verbose:
