@@ -35,11 +35,12 @@ class TXTInput(InputFormatPlugin):
         OptionRecommendation(name='formatting_type', recommended_value='auto',
             choices=['auto', 'none', 'heuristic', 'markdown'],
             help=_('Formatting used within the document.'
-                   '* auto: Try to auto detect the document formatting.\n'
-                   '* none: Do not modify the paragraph formatting. Everything is a paragraph.\n'
-                   '* heuristic: Try to detect formatting for elements such as chapter headings '
-                   'and style the elements appropriately.\n'
-                   '* markdown: Run the input though the markdown pre-processor. '
+                   '* auto: Automatically decide which formatting processor to use.\n'
+                   '* none: Do not process the document formatting. Everything is a '
+                   'paragraph and no styling is applied.\n'
+                   '* heuristic: Process using heuristics to determine formatting such '
+                   'as chapter headings and italic text.\n'
+                   '* markdown: Processing using markdown formatting. '
                    'To learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
         OptionRecommendation(name='preserve_spaces', recommended_value=False,
             help=_('Normally extra spaces are condensed into a single space. '
