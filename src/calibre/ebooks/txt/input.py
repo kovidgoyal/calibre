@@ -90,7 +90,7 @@ class TXTInput(InputFormatPlugin):
             
             # We don't check for block because the processor assumes block.
             # single and print at transformed to block for processing.
-            if options.paragraph_type == 'single' or 'unformatted':
+            if options.paragraph_type in ('single', 'unformatted'):
                 txt = separate_paragraphs_single_line(txt)
             elif options.paragraph_type == 'print':
                 txt = separate_paragraphs_print_formatted(txt)
