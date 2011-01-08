@@ -2861,25 +2861,17 @@ class EPUB_MOBI(CatalogPlugin):
                 self.updateProgressMicroStep("Thumbnail %d of %d" % \
                     (i,len(self.booksByTitle)),
                         i/float(len(self.booksByTitle)))
-                # Check to see if source file exists
-                if 'cover' in title and os.path.isfile(title['cover']):
-                    # Add the thumb spec to thumbs[]
-                    thumbs.append("thumbnail_%d.jpg" % int(title['id']))
 
-                    # Check to see if thumbnail exists
-                    thumb_fp = "%s/thumbnail_%d.jpg" % (image_dir,int(title['id']))
-                    thumb_file = 'thumbnail_%d.jpg' % int(title['id'])
-                    if os.path.isfile(thumb_fp):
-                        # Check to see if cover is newer than thumbnail
-                        # os.path.getmtime() = modified time
-                        # os.path.ctime() = creation time
-                        cover_timestamp = os.path.getmtime(title['cover'])
-                        thumb_timestamp = os.path.getmtime(thumb_fp)
-                        if thumb_timestamp < cover_timestamp:
-                           self.generateThumbnail(title, image_dir, thumb_file)
-                    else:
-                        self.generateThumbnail(title, image_dir, thumb_file)
-                else:
+                thumb_file = 'thumbnail_%d.jpg' % int(title['id'])
+                thumb_generated = True
+                try:
+                    self.generateThumbnail(title, image_dir, thumb_file)
+                    thumbs.append("thumbnail_%d.jpg" % int(title['id']))
+                except:
+                    thumb_generated = False
+
+
+                if not thumb_generated:
                     # Use default cover
                     if False and self.verbose:
                         self.opts.log.warn(" using default cover for '%s'" % \

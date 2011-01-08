@@ -25,12 +25,13 @@ class TXTInput(InputFormatPlugin):
         OptionRecommendation(name='paragraph_type', recommended_value='auto',
             choices=['auto', 'block', 'single', 'print'],
             help=_('Paragraph structure.\n'
-                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'markdown\']\n'
+                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'unformatted\']\n'
                    '* auto: Try to auto detect paragraph type.\n'
                    '* block: Treat a blank line as a paragraph break.\n'
                    '* single: Assume every line is a paragraph.\n'
                    '* print:  Assume every line starting with 2+ spaces or a tab '
-                   'starts a paragraph.')),
+                   'starts a paragraph.'
+                   '* unformatted: Most lines have hard line breaks, few/no spaces or indents.')),
         OptionRecommendation(name='formatting_type', recommended_value='auto',
             choices=['auto', 'none', 'heuristic', 'markdown'],
             help=_('Formatting used within the document.'
@@ -91,10 +92,20 @@ class TXTInput(InputFormatPlugin):
             
             # We don't check for block because the processor assumes block.
             # single and print at transformed to block for processing.
-            if options.paragraph_type == 'single':
+            if options.paragraph_type == 'single' or options.paragraph_type == 'unformatted':
                 txt = separate_paragraphs_single_line(txt)
             elif options.paragraph_type == 'print':
                 txt = separate_paragraphs_print_formatted(txt)
+
+            if options.paragraph_type == 'unformatted':
+                from calibre.ebooks.conversion.utils import PreProcessor
+                from calibre.ebooks.conversion.preprocess import DocAnalysis
+                # get length
+                docanalysis = DocAnalysis('txt', txt)
+                length = docanalysis.line_length(.5)
+                # unwrap lines based on punctuation
+                preprocessor = PreProcessor(options, log=getattr(self, 'log', None))
+                txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
 
             flow_size = getattr(options, 'flow_size', 0)
             
