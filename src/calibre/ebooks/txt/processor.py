@@ -9,11 +9,8 @@ import os, re
 from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.markdown import markdown
 from calibre.ebooks.metadata.opf2 import OPFCreator
-<<<<<<< TREE
 from calibre.ebooks.txt.heuristicprocessor import TXTHeuristicProcessor
-=======
 from calibre.ebooks.conversion.preprocess import DocAnalysis
->>>>>>> MERGE-SOURCE
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'

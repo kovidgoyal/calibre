@@ -33,30 +33,6 @@ class TXTHeuristicProcessor(object):
             r'(?msu)\|:(?P<words>.+?):\|',
         ]
 
-    def del_maketrans(self, deletechars):
-        return dict([(ord(x), u'') for x in deletechars])
-
-    def is_heading(self, line):
-        if not line:
-            return False
-        if len(line) > 40:
-            return False
-        
-        line = Unidecoder().decode(line)
-
-        # punctuation.
-        if line.translate(self.del_maketrans(string.letters + string.digits + ' :-')):
-            return False
-        
-        # All upper case.
-        #if line.isupper():
-        #    return True
-        # Roman numerals.
-        #if not line.translate(self.del_maketrans('IVXYCivxyc ')):
-        #    return True
-        
-        return True
-
     def process_paragraph(self, paragraph):
         for word in self.ITALICIZE_WORDS:
             paragraph = paragraph.replace(word, '<i>%s</i>' % word)
@@ -70,20 +46,15 @@ class TXTHeuristicProcessor(object):
         txt = split_txt(txt, epub_split_size_kb)
         
         processed = []
-        last_was_heading = False
         for line in txt.split('\n\n'):
-            if self.is_heading(line):
-                if not last_was_heading:
-                    processed.append(u'<h1>%s</h1>' % prepare_string_for_xml(line.replace('\n', ' ')))
-                else:
-                    processed.append(u'<h2>%s</h2>' % prepare_string_for_xml(line.replace('\n', ' ')))
-                last_was_heading = True
-            else:
-                processed.append(u'<p>%s</p>' % self.process_paragraph(prepare_string_for_xml(line.replace('\n', ' '))))
-                last_was_heading = False
+            processed.append(u'<p>%s</p>' % self.process_paragraph(prepare_string_for_xml(line.replace('\n', ' '))))
                 
         txt = u'\n'.join(processed)
         txt = re.sub('[ ]{2,}', ' ', txt)
-        print txt
+        html = HTML_TEMPLATE % (title, txt)
+        
+        from calibre.ebooks.conversion.utils import PreProcessor
+        pp = PreProcessor()
+        html = pp.markup_chapters(html, pp.get_word_count(html), False)
 
-        return HTML_TEMPLATE % (title, txt)
+        return html
