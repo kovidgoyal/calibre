@@ -2862,7 +2862,7 @@ class EPUB_MOBI(CatalogPlugin):
                     (i,len(self.booksByTitle)),
                         i/float(len(self.booksByTitle)))
 
-                # Confirm existence, integrity of cover image
+                thumb_file = 'thumbnail_%d.jpg' % int(title['id'])
                 valid_cover = True
                 try:
                     _w, _h, _fmt = identify_data(open(title['cover'], 'rb').read())
