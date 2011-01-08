@@ -139,7 +139,7 @@ class BookHeader(object):
                     65001: 'utf-8',
                     }[self.codepage]
             except (IndexError, KeyError):
-                self.codec = 'cp1252' if user_encoding is None else user_encoding
+                self.codec = 'cp1252' if not user_encoding else user_encoding
                 log.warn('Unknown codepage %d. Assuming %s' % (self.codepage,
                     self.codec))
             if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length \
