@@ -194,7 +194,7 @@ class PreProcessor(object):
         totalwords = 0
         totalwords = self.get_word_count(html)
 
-        if totalwords < 20:
+        if totalwords < 50:
             self.log("not enough text, not preprocessing")
             return html
 
