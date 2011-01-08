@@ -90,10 +90,20 @@ class TXTInput(InputFormatPlugin):
             
             # We don't check for block because the processor assumes block.
             # single and print at transformed to block for processing.
-            if options.paragraph_type == 'single':
+            if options.paragraph_type == 'single' or 'unformatted':
                 txt = separate_paragraphs_single_line(txt)
             elif options.paragraph_type == 'print':
                 txt = separate_paragraphs_print_formatted(txt)
+
+            if options.paragraph_type == 'unformatted':
+                from calibre.ebooks.conversion.utils import PreProcessor
+                from calibre.ebooks.conversion.preprocess import DocAnalysis
+                # get length
+                docanalysis = DocAnalysis('txt', txt)
+                length = docanalysis.line_length(.5)
+                # unwrap lines based on punctuation
+                preprocessor = PreProcessor(options, log=getattr(self, 'log', None))
+                txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
 
             flow_size = getattr(options, 'flow_size', 0)
             html = convert_basic(txt, epub_split_size_kb=flow_size)
