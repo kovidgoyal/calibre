@@ -5,7 +5,6 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import string
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.unidecode.unidecoder import Unidecoder
@@ -48,7 +47,7 @@ class TXTHeuristicProcessor(object):
         processed = []
         for line in txt.split('\n\n'):
             processed.append(u'<p>%s</p>' % self.process_paragraph(prepare_string_for_xml(line.replace('\n', ' '))))
-                
+
         txt = u'\n'.join(processed)
         txt = re.sub('[ ]{2,}', ' ', txt)
         html = HTML_TEMPLATE % (title, txt)
