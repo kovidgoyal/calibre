@@ -184,7 +184,22 @@ class PreProcessor(object):
         self.log("Total wordcount is: "+ str(wordcount)+", Average words per section is: "+str(words_per_chptr)+", Marked up "+str(self.html_preprocess_sections)+" chapters")
         return html
 
-
+    def punctuation_unwrap(self, length, content, format):
+        # define the pieces of the regex
+        lookahead = "(?<=.{"+str(length)+"}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðß,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
+        line_ending = "\s*</(span|p|div)>\s*(</(p|span|div)>)?"
+        blanklines = "\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*"
+        line_opening = "<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*"
+        txt_line_wrap = u"(\u0020|\u0009)*\n"
+        
+        unwrap_regex = lookahead+line_ending+blanklines+line_opening
+        if format == 'txt':
+            unwrap_regex = lookahead+txt_line_wrap
+        
+        unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
+        content = unwrap.sub(' ', content)
+        return content
+       
 
     def __call__(self, html):
         self.log("*********  Preprocessing HTML  *********")
@@ -312,8 +327,7 @@ class PreProcessor(object):
             self.log("Done dehyphenating")
             # Unwrap lines using punctation and line length
             #unwrap_quotes = re.compile(u"(?<=.{%i}\"')\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*(?=[a-z])" % length, re.UNICODE)
-            unwrap = re.compile(u"(?<=.{%i}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðß,:)\IA\u00DF]|(?<!\&\w{4});))\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*" % length, re.UNICODE)
-            html = unwrap.sub(' ', html)
+            html = self.punctuation_unwrap(length, html, 'html')
             #check any remaining hyphens, but only unwrap if there is a match
             dehyphenator = Dehyphenator()
             html = dehyphenator(html,'html_cleanup', length)
