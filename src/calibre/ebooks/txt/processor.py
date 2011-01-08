@@ -102,10 +102,9 @@ def detect_paragraph_type(txt):
     single: Each line is a paragraph.
     print: Each paragraph starts with a 2+ spaces or a tab
            and ends when a new paragraph is reached.
-    markdown: Markdown formatting is in the document.
     unformatted: most lines have hard line breaks, few/no spaces or indents
     
-    returns block, single, print, markdown, unformatted
+    returns block, single, print, unformatted
     '''
     txt = txt.replace('\r\n', '\n')
     txt = txt.replace('\r', '\n')
