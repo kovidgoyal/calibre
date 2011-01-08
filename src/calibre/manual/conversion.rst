@@ -533,17 +533,22 @@ PDF documents are one of the worst formats to convert from. They are a fixed pag
 Meaning, it is very difficult to determine where one paragraph ends and another begins. |app| will try to unwrap
 paragraphs using a configurable, :guilabel:`Line Un-Wrapping Factor`. This is a scale used to determine the length
 at which a line should be unwrapped. Valid values are a decimal
-between 0 and 1. The default is 0.5, this is the median line length. Lower this value to include more
-text in the unwrapping. Increase to include less. You can adjust this value in the conversion settings under PDF Input.
+between 0 and 1. The default is 0.45, just under the median line length. Lower this value to include more
+text in the unwrapping. Increase to include less. You can adjust this value in the conversion settings under :guilabel:`PDF Input`.
 
 Also, they often have headers and footers as part of the document that will become included with the text.
 Use the options to remove headers and footers to mitigate this issue. If the headers and footers are not
 removed from the text it can throw off the paragraph unwrapping.
 
-Some limitations of PDF input is complex, multi-column, and image based documents are not supported.
-Extraction of vector images and tables from within the document is also not supported. Some PDFs use special glyphs to
-represent double ll or doubfle ff or fi,etc. Conversion of these may or may not work depending on jusy how they are 
-represented internally in the PDF.
+Some limitations of PDF input are: 
+    
+    * Complex, multi-column, and image based documents are not supported.
+    * Extraction of vector images and tables from within the document is also not supported.
+    * Some PDFs use special glyphs to represent ll or ff or fi, etc. Conversion of these may or may not work depending on just how they are represented internally in the PDF.
+    * Some PDFs store their images upside down with a rotation instruction, |app| currently doesn't support that instruction, so the images will be rotated in the output as well. 
+
+To re-iterate **PDF is a really, really bad** format to use as input. If you absolutely must use PDF, then be prepared for an
+output ranging anywhere from decent to unusable, depending on the input PDF.
 
 Comic Book Collections
 ~~~~~~~~~~~~~~~~~~~~~~~~~
