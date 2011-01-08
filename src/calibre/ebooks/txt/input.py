@@ -37,6 +37,8 @@ class TXTInput(InputFormatPlugin):
             help=_('Formatting used within the document.'
                    '* auto: Try to auto detect the document formatting.\n'
                    '* none: Do not modify the paragraph formatting. Everything is a paragraph.\n'
+                   '* heuristic: Try to detect formatting for elements such as chapter headings '
+                   'and style the elements appropriately.\n'
                    '* markdown: Run the input though the markdown pre-processor. '
                    'To learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
         OptionRecommendation(name='preserve_spaces', recommended_value=False,
