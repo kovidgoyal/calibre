@@ -16,7 +16,9 @@
 #                                                                       #
 #########################################################################
 import os, tempfile
+
 from calibre.ebooks.rtf2xml import copy
+
 class Footnote:
     """
     Two public methods are available. The first separates all of the
@@ -35,6 +37,7 @@ class Footnote:
         self.__copy = copy
         self.__write_to = tempfile.mktemp()
         self.__found_a_footnote = 0
+
     def __first_line_func(self, line):
         """
         Print the tag info for footnotes.  Check whether footnote is an
@@ -47,6 +50,7 @@ class Footnote:
             self.__write_to_foot_obj.write(
             'mi<tg<open-att__<footnote<num>%s\n' % self.__footnote_count)
         self.__first_line = 0
+
     def __in_footnote_func(self, line):
         """Handle all tokens that are part of footnote"""
         if self.__first_line:
@@ -68,6 +72,7 @@ class Footnote:
             'mi<mk<footnt-clo\n')
         else:
             self.__write_to_foot_obj.write(line)
+
     def __found_footnote(self, line):
         """ Found a footnote"""
         self.__found_a_footnote = 1
@@ -81,6 +86,7 @@ class Footnote:
         'mi<mk<footnt-ind<%04d\n' % self.__footnote_count)
         self.__write_to_foot_obj.write(
         'mi<mk<footnt-ope<%04d\n' % self.__footnote_count)
+
     def __default_sep(self, line):
         """Handle all tokens that are not footnote tokens"""
         if self.__token_info == 'cw<nt<footnote__':
@@ -91,6 +97,7 @@ class Footnote:
             self.__write_obj.write(
                 'tx<nu<__________<%s\n' % num
             )
+
     def __initiate_sep_values(self):
         """
         initiate counters for separate_footnotes method.
@@ -102,6 +109,7 @@ class Footnote:
         self.__in_footnote = 0
         self.__first_line = 0 #have not processed the first line of footnote
         self.__footnote_count = 0
+
     def separate_footnotes(self):
         """
         Separate all the footnotes in an RTF file and put them at the bottom,
@@ -111,58 +119,55 @@ class Footnote:
         bottom of the main file.
         """
         self.__initiate_sep_values()
-        read_obj = open(self.__file)
         self.__write_obj = open(self.__write_to, 'w')
-        self.__footnote_holder = tempfile.mktemp()
-        self.__write_to_foot_obj = open(self.__footnote_holder, 'w')
-        line_to_read = 1
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            self.__token_info = line[:16]
-            # keep track of opening and closing brackets
-            if self.__token_info == 'ob<nu<open-brack':
-                self.__ob_count = line[-5:-1]
-            if self.__token_info == 'cb<nu<clos-brack':
-                self.__cb_count = line[-5:-1]
-            # In the middle of footnote text
-            if self.__in_footnote:
-                self.__in_footnote_func(line)
-            # not in the middle of footnote text
-            else:
-                self.__default_sep(line)
+        with open(self.__file) as read_obj:
+            self.__footnote_holder = tempfile.mktemp()
+            self.__write_to_foot_obj = open(self.__footnote_holder, 'w')
+            line_to_read = 1
+            while line_to_read:
+                line_to_read = read_obj.readline()
+                line = line_to_read
+                self.__token_info = line[:16]
+                # keep track of opening and closing brackets
+                if self.__token_info == 'ob<nu<open-brack':
+                    self.__ob_count = line[-5:-1]
+                if self.__token_info == 'cb<nu<clos-brack':
+                    self.__cb_count = line[-5:-1]
+                # In the middle of footnote text
+                if self.__in_footnote:
+                    self.__in_footnote_func(line)
+                # not in the middle of footnote text
+                else:
+                    self.__default_sep(line)
         self.__write_obj.close()
-        read_obj.close()
         self.__write_to_foot_obj.close()
-        read_obj = open(self.__footnote_holder, 'r')
-        write_obj = open(self.__write_to, 'a')
-        write_obj.write(
-        'mi<mk<sect-close\n'
-        'mi<mk<body-close\n'
-        'mi<tg<close_____<section\n'
-        'mi<tg<close_____<body\n'
-        'mi<tg<close_____<doc\n'
-        'mi<mk<footnt-beg\n')
-        line = 1
-        while line:
-            line = read_obj.readline()
-            write_obj.write(line)
-        write_obj.write(
-        'mi<mk<footnt-end\n')
-        read_obj.close()
-        write_obj.close()
+        with open(self.__footnote_holder, 'r') as read_obj,
+                open(self.__write_to, 'a') as write_obj:
+            write_obj.write(
+                'mi<mk<sect-close\n'
+                'mi<mk<body-close\n'
+                'mi<tg<close_____<section\n'
+                'mi<tg<close_____<body\n'
+                'mi<tg<close_____<doc\n'
+                'mi<mk<footnt-beg\n')
+            for line in read_obj:
+                write_obj.write(line)
+            write_obj.write(
+            'mi<mk<footnt-end\n')
         os.remove(self.__footnote_holder)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "footnote_separate.data")
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
+
     def update_info(self, file, copy):
         """
         Unused method
         """
         self.__file = file
         self.__copy = copy
+
     def __get_foot_body_func(self, line):
         """
         Process lines in main body and look for beginning of footnotes.
@@ -172,6 +177,7 @@ class Footnote:
             self.__state = 'foot'
         else:
             self.__write_obj.write(line)
+
     def __get_foot_foot_func(self, line):
         """
         Copy footnotes from bottom of file to a separate, temporary file.
@@ -180,6 +186,7 @@ class Footnote:
             self.__state = 'body'
         else:
             self.__write_to_foot_obj.write(line)
+
     def __get_footnotes(self):
         """
         Private method to remove footnotes from main file.  Read one line from
@@ -203,6 +210,7 @@ class Footnote:
         read_obj.close()
         self.__write_obj.close()
         self.__write_to_foot_obj.close()
+
     def __get_foot_from_temp(self, num):
         """
         Private method for joining footnotes to body. This method reads from
@@ -223,6 +231,7 @@ class Footnote:
             else:
                 if line == look_for:
                     found_foot = 1
+
     def __join_from_temp(self):
         """
         Private method for rejoining footnotes to body.  Read from the
@@ -242,6 +251,7 @@ class Footnote:
                 line = self.__get_foot_from_temp(line[17:-1])
             self.__write_obj.write(line)
         read_obj.close()
+
     def join_footnotes(self):
         """
         Join the footnotes from the bottom of the file and put them in their
