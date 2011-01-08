@@ -9,6 +9,7 @@ import os, re
 from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.markdown import markdown
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.txt.heuristicprocessor import TXTHeuristicProcessor
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 
 __license__   = 'GPL v3'
@@ -17,7 +18,7 @@ __docformat__ = 'restructuredtext en'
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
-def convert_basic(txt, title='', epub_split_size_kb=0):
+def clean_txt(txt):
     if isbytestring(txt):
         txt = txt.decode('utf-8', 'replace')
     # Strip whitespace from the beginning and end of the line. Also replace
@@ -36,6 +37,10 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     chars = list(range(8)) + [0x0B, 0x0E, 0x0F] + list(range(0x10, 0x19))
     illegal_chars = re.compile(u'|'.join(map(unichr, chars)))
     txt = illegal_chars.sub('', txt)
+    
+    return txt
+
+def split_txt(txt, epub_split_size_kb=0):
     #Takes care if there is no point to split
     if epub_split_size_kb > 0:
         if isinstance(txt, unicode):
@@ -50,6 +55,12 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     if isbytestring(txt):
         txt = txt.decode('utf-8')
 
+    return txt
+
+def convert_basic(txt, title='', epub_split_size_kb=0):
+    txt = clean_txt(txt)
+    txt = split_txt(txt, epub_split_size_kb)
+
     lines = []
     # Split into paragraphs based on having a blank line between text.
     for line in txt.split('\n\n'):
@@ -57,6 +68,10 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
             lines.append(u'<p>%s</p>' % prepare_string_for_xml(line.replace('\n', ' ')))
 
     return HTML_TEMPLATE % (title, u'\n'.join(lines))
+
+def convert_heuristic(txt, title='', epub_split_size_kb=0):
+    tp = TXTHeuristicProcessor()
+    return tp.convert(txt, title, epub_split_size_kb)
 
 def convert_markdown(txt, title='', disable_toc=False):
     md = markdown.Markdown(
@@ -117,12 +132,12 @@ def detect_paragraph_type(txt):
     if hardbreaks:
         # Check for print
         tab_line_count = len(re.findall('(?mu)^(\t|\s{2,}).+$', txt))
-        if tab_line_count / float(txt_line_count) >= .25:
+        if tab_line_count / float(txt_line_count) >= .15:
             return 'print'
         
         # Check for block
         empty_line_count = len(re.findall('(?mu)^\s*$', txt))
-        if empty_line_count / float(txt_line_count) >= .25:
+        if empty_line_count / float(txt_line_count) >= .15:
             return 'block'
 
         # Assume unformatted text with hardbreaks if nothing else matches        
@@ -153,4 +168,4 @@ def detect_formatting_type(txt):
         if txt.count('\\'+c) > 10:
             return 'markdown'
     
-    return 'none'
+    return 'heuristic'
