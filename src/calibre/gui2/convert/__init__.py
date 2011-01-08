@@ -146,6 +146,8 @@ class Widget(QWidget):
                 codecs.lookup(ans)
             except:
                 ans = ''
+            if not ans:
+                ans = None
             return ans
         elif isinstance(g, QComboBox):
             return unicode(g.currentText())
