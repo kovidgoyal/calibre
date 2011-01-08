@@ -538,7 +538,8 @@ text in the unwrapping. Increase to include less. You can adjust this value in t
 
 Also, they often have headers and footers as part of the document that will become included with the text.
 Use the options to remove headers and footers to mitigate this issue. If the headers and footers are not
-removed from the text it can throw off the paragraph unwrapping.
+removed from the text it can throw off the paragraph unwrapping. To learn how to use the header and footer removal options, read 
+:ref:`regexptutorial`.
 
 Some limitations of PDF input are: 
     
