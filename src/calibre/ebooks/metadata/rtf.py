@@ -10,7 +10,7 @@ from calibre.ebooks.metadata import MetaInformation, string_to_authors
 title_pat    = re.compile(r'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
 author_pat   = re.compile(r'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)
 comment_pat  = re.compile(r'\{\\info.*?\{\\subject(.*?)(?<!\\)\}', re.DOTALL)
-tags_pat = re.compile(r'\{\\info.*?\{\\keywords(.*?)(?<!\\)\}', re.DOTALL)
+tags_pat = re.compile(r'\{\\info.*?\{\\category(.*?)(?<!\\)\}', re.DOTALL)
 publisher_pat = re.compile(r'\{\\info.*?\{\\manager(.*?)(?<!\\)\}', re.DOTALL)
 
 def get_document_info(stream):
@@ -144,7 +144,7 @@ def create_metadata(stream, options):
     if options.tags:
         tags = u', '.join(options.tags)
         tags = tags.encode('ascii', 'ignore')
-        md.append(r'{\keywords %s}'%(tags,))
+        md.append(r'{\category %s}'%(tags,))
     if len(md) > 1:
         md.append('}')
         stream.seek(0)
@@ -198,11 +198,11 @@ def set_metadata(stream, options):
         if tags is not None:
             tags =  ', '.join(tags)
             tags = tags.encode('ascii', 'ignore')
-            pat = re.compile(base_pat.replace('name', 'keywords'), re.DOTALL)
+            pat = re.compile(base_pat.replace('name', 'category'), re.DOTALL)
             if pat.search(src):
-                src = pat.sub(r'{\\keywords ' + tags + r'}', src)
+                src = pat.sub(r'{\\category ' + tags + r'}', src)
             else:
-                src = add_metadata_item(src, 'keywords', tags)
+                src = add_metadata_item(src, 'category', tags)
         publisher = options.publisher
         if publisher is not None:
             publisher = publisher.encode('ascii', 'replace')
