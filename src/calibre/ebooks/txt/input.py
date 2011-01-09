@@ -80,7 +80,6 @@ class TXTInput(InputFormatPlugin):
         # Get length for hyphen removal and punctuation unwrap
         docanalysis = DocAnalysis('txt', txt)
         length = docanalysis.line_length(.5)
-        print "length is "+str(length)
             
         if options.formatting_type == 'auto':
             options.formatting_type = detect_formatting_type(txt)
@@ -130,7 +129,6 @@ class TXTInput(InputFormatPlugin):
                 html = convert_basic(txt, epub_split_size_kb=flow_size)
 
         # Dehyphenate in cleanup mode for missed txt and markdown conversion
-        print "going through final dehyphenation"
         dehyphenator = Dehyphenator()
         html = dehyphenator(html,'txt_cleanup', length)
         html = dehyphenator(html,'html_cleanup', length)
