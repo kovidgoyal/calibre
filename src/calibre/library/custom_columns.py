@@ -151,6 +151,8 @@ class CustomColumns(object):
             return v
 
         def adapt_number(x, d):
+            if x is None:
+                return None
             if isinstance(x, (str, unicode, bytes)):
                 if x.lower() == 'none':
                     return None
