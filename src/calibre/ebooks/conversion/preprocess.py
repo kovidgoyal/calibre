@@ -201,15 +201,15 @@ class Dehyphenator(object):
             searchresult = self.html.find(lookupword.lower())
         except:
             return hyphenated
-        if self.format == 'html_cleanup':
+        if self.format == 'html_cleanup' or self.format == 'txt_cleanup':
             if self.html.find(lookupword) != -1 or searchresult != -1:
-                #print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
+                print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
                 return dehyphenated
             elif self.html.find(hyphenated) != -1:
-                #print "Cleanup:returned hyphenated word: " + str(hyphenated)
+                print "Cleanup:returned hyphenated word: " + str(hyphenated)
                 return hyphenated
             else:
-                #print "Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf)
+                print "Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf)
                 return firsthalf+u'\u2014'+wraptags+secondhalf
 
         else:
@@ -230,12 +230,12 @@ class Dehyphenator(object):
         elif format == 'txt':
             intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)(\u0020|\u0009)*(?P<wraptags>(\n(\u0020|\u0009)*)+)(?P<secondpart>[\w\d]+)'% length)
         elif format == 'individual_words':
-            intextmatch = re.compile(u'>[^<]*\b(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)"\s>]+)(-|‐)\u0020?(?P<secondpart>\w+)\b[^<]*<') # for later, not called anywhere yet
-        elif format == 'individual_words_txt':
-            intextmatch = re.compile(u'\b(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)"\s>]+)(-|‐)\u0020*(?P<secondpart>\w+)\b')
-
+            intextmatch = re.compile(u'>[^<]*\b(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)"\s>]+)(-|‐)\u0020*(?P<secondpart>\w+)\b[^<]*<') # for later, not called anywhere yet
         elif format == 'html_cleanup':
             intextmatch = re.compile(u'(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)')
+        elif format == 'txt_cleanup':
+            intextmatch = re.compile(u'(?P<firstpart>\w+)(-|‐)(?P<wraptags>\s+)(?P<secondpart>[\w\d]+)')
+
 
         html = intextmatch.sub(self.dehyphenate, html)
         return html

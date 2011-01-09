@@ -73,6 +73,14 @@ class TXTInput(InputFormatPlugin):
         # followed by the &nbsp; entity.
         if options.preserve_spaces:
             txt = preserve_spaces(txt)
+
+        # Normalize line endings
+        txt = normalize_line_endings(txt)
+
+        # Get length for hyphen removal and punctuation unwrap
+        docanalysis = DocAnalysis('txt', txt)
+        length = docanalysis.line_length(.5)
+        print "length is "+str(length)
             
         if options.formatting_type == 'auto':
             options.formatting_type = detect_formatting_type(txt)
@@ -93,14 +101,6 @@ class TXTInput(InputFormatPlugin):
                     options.paragraph_type = 'block'
                 else:
                     log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
-
-            # Normalize line endings
-            txt = normalize_line_endings(txt)
-
-            # Get length for hyphen removal and punctuation unwrap
-            docanalysis = DocAnalysis('txt', txt)
-            length = docanalysis.line_length(.5)
-            print "length is "+str(length)
 
             # Dehyphenate
             dehyphenator = Dehyphenator()
@@ -128,6 +128,12 @@ class TXTInput(InputFormatPlugin):
                 html = convert_heuristic(txt, epub_split_size_kb=flow_size)
             else:
                 html = convert_basic(txt, epub_split_size_kb=flow_size)
+
+        # Dehyphenate in cleanup mode for missed txt and markdown conversion
+        print "going through final dehyphenation"
+        dehyphenator = Dehyphenator()
+        html = dehyphenator(html,'txt_cleanup', length)
+        html = dehyphenator(html,'html_cleanup', length)
 
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')
