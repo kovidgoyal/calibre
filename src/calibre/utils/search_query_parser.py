@@ -190,9 +190,11 @@ class SearchQueryParser(object):
     # recursive search test list. However, we permit seeing the
     # same search a few times because the search might appear within
     # another search.
-    def _parse(self, query, candidates):
+    def _parse(self, query, candidates=None):
         self.recurse_level += 1
         res = self._parser.parseString(query)[0]
+        if candidates is None:
+            candidates = self.universal_set()
         t = self.evaluate(res, candidates)
         self.recurse_level -= 1
         return t
@@ -248,15 +250,16 @@ class SearchQueryParser(object):
         else:
             return self.get_matches(location, query)
 
-    def get_matches(self, location, query):
+    def get_matches(self, location, query, candidates=None):
         '''
         Should return the set of matches for :param:'location` and :param:`query`.
-        If you set the optimized parameter in __init__, this method must accept
-        a named parameter 'candidates'
+
+        The search must be performed over all entries is :param:`candidates` is
+        None otherwise only over the items in candidates.
 
         :param:`location` is one of the items in :member:`SearchQueryParser.DEFAULT_LOCATIONS`.
         :param:`query` is a string literal.
-        :param: optional named parameter candidates, a set of items to check.
+        :param: None or a subset of the set returned by :meth:`universal_set`.
         '''
         return set([])
 

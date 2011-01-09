@@ -274,13 +274,15 @@ class ResultCache(SearchQueryParser): # {{{
         loc = self.field_metadata[location]['rec_index']
 
         if query == 'false':
-            for item in [self._data[id] for id in candidates]:
+            for id_ in candidates:
+                item = self._data[id_]
                 if item is None: continue
                 if item[loc] is None or item[loc] <= UNDEFINED_DATE:
                     matches.add(item[0])
             return matches
         if query == 'true':
-            for item in [self._data[id] for id in candidates]:
+            for id_ in candidates:
+                item = self._data[id_]
                 if item is None: continue
                 if item[loc] is not None and item[loc] > UNDEFINED_DATE:
                     matches.add(item[0])
@@ -319,7 +321,8 @@ class ResultCache(SearchQueryParser): # {{{
                 field_count = query.count('-') + 1
             else:
                 field_count = query.count('/') + 1
-        for item in [self._data[id] for id in candidates]:
+        for id_ in candidates:
+            item = self._data[id_]
             if item is None or item[loc] is None: continue
             if relop(item[loc], qd, field_count):
                 matches.add(item[0])
@@ -381,7 +384,8 @@ class ResultCache(SearchQueryParser): # {{{
         except:
             return matches
 
-        for item in [self._data[id] for id in candidates]:
+        for id_ in candidates:
+            item = self._data[id_]
             if item is None:
                 continue
             v = val_func(item)
@@ -481,7 +485,8 @@ class ResultCache(SearchQueryParser): # {{{
                 else:
                     q = query
 
-                for item in [self._data[id] for id in candidates]:
+                for id_ in candidates:
+                    item = self._data[id_]
                     if item is None: continue
 
                     if col_datatype[loc] == 'bool': # complexity caused by the two-/three-value tweak

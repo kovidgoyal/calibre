@@ -977,6 +977,8 @@ def create_oebbook(log, path_or_stream, opts, input_plugin, reader=None,
     from calibre.ebooks.oeb.base import OEBBook
     html_preprocessor = HTMLPreProcessor(input_plugin.preprocess_html,
             opts.preprocess_html, opts)
+    if not encoding:
+        encoding = None
     oeb = OEBBook(log, html_preprocessor,
             pretty_print=opts.pretty_print, input_encoding=encoding)
     if not populate:

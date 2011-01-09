@@ -722,10 +722,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
         formats = row[fm['formats']]
-        if hasattr(formats, 'split'):
-            mi.formats = formats.split(',')
-        else:
-            mi.formats = None
+        if not formats:
+            formats = None
+        mi.formats = formats
         tags = row[fm['tags']]
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
@@ -737,7 +736,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         id = idx if index_is_id else self.id(idx)
         mi.application_id = id
         mi.id = id
-        for key,meta in self.field_metadata.custom_iteritems():
+        for key, meta in self.field_metadata.custom_iteritems():
             mi.set_user_metadata(key, meta)
             mi.set(key, val=self.get_custom(idx, label=meta['label'],
                                             index_is_id=index_is_id),
@@ -878,16 +877,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def formats(self, index, index_is_id=False, verify_formats=True):
         ''' Return available formats as a comma separated list or None if there are no available formats '''
-        id = index if index_is_id else self.id(index)
-        formats = self.data.get(id, self.FIELD_MAP['formats'], row_is_id = True)
+        id_ = index if index_is_id else self.id(index)
+        formats = self.data.get(id_, self.FIELD_MAP['formats'], row_is_id=True)
         if not formats:
             return None
         if not verify_formats:
-            return ','.join(formats)
+            return formats
+        formats = formats.split(',')
         ans = []
-        for format in formats:
-            if self.format_abspath(id, format, index_is_id=True) is not None:
-                ans.append(format)
+        for fmt in formats:
+            if self.format_abspath(id_, fmt, index_is_id=True) is not None:
+                ans.append(fmt)
         if not ans:
             return None
         return ','.join(ans)

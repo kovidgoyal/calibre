@@ -83,9 +83,9 @@ class Reader(FormatReader):
         from calibre.customize.ui import plugin_for_input_format
 
         txt_plugin = plugin_for_input_format('txt')
-        for option in txt_plugin.options:
-            if not hasattr(self.options, option.option.name):
-                setattr(self.options, option.name, option.recommended_value)
+        for opt in txt_plugin.options:
+            if not hasattr(self.options, opt.option.name):
+                setattr(self.options, opt.option.name, opt.recommended_value)
 
         stream.seek(0)
         return txt_plugin.convert(stream, self.options, 'txt', self.log, {})
