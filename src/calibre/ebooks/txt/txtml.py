@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into plain text
 '''
 
-import os
 import re
 
 from lxml import etree
@@ -33,6 +32,15 @@ BLOCK_STYLES = [
     'block',
 ]
 
+HEADING_TAGS = [
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+]
+
 SPACE_TAGS = [
     'td',
     'br',
@@ -47,6 +55,10 @@ class TXTMLizer(object):
         self.log.info('Converting XHTML to TXT...')
         self.oeb_book = oeb_book
         self.opts = opts
+        self.toc_ids = []
+        self.last_was_heading = False
+        
+        self.create_flat_toc(self.oeb_book.toc)
 
         return self.mlize_spine()
 
@@ -58,8 +70,11 @@ class TXTMLizer(object):
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
             content = self.remove_newlines(content)
-            output += self.dump_text(etree.fromstring(content), stylizer)
-        output = self.cleanup_text(u''.join(output))
+            output += self.dump_text(etree.fromstring(content), stylizer, item)
+            output += '\n\n\n\n\n\n'
+        output = u''.join(output)
+        output = u'\n'.join(l.rstrip() for l in output.splitlines())
+        output = self.cleanup_text(output)
 
         return output
 
@@ -68,6 +83,8 @@ class TXTMLizer(object):
         text = text.replace('\r\n', ' ')
         text = text.replace('\n', ' ')
         text = text.replace('\r', ' ')
+        # Condense redundant spaces created by replacing newlines with spaces.
+        text = re.sub(r'[ ]{2,}', ' ', text)
 
         return text
 
@@ -79,6 +96,14 @@ class TXTMLizer(object):
             for item in self.oeb_book.toc:
                 toc.append(u'* %s\n\n' % item.title)
         return ''.join(toc)
+
+    def create_flat_toc(self, nodes):
+        '''
+        Turns a hierarchical list of TOC href's into a flat list.
+        '''
+        for item in nodes:
+            self.toc_ids.append(item.href)
+            self.create_flat_toc(item.nodes)
 
     def cleanup_text(self, text):
         self.log.debug('\tClean up text...')
@@ -92,7 +117,7 @@ class TXTMLizer(object):
         text = text.replace('\f+', ' ')
 
         # Single line paragraph.
-        text = re.sub('(?<=.)%s(?=.)' % os.linesep, ' ', text)
+        text = re.sub('(?<=.)\n(?=.)', ' ', text)
 
         # Remove multiple spaces.
         text = re.sub('[ ]{2,}', ' ', text)
@@ -101,13 +126,19 @@ class TXTMLizer(object):
         text = re.sub('\n[ ]+\n', '\n\n', text)
         if self.opts.remove_paragraph_spacing:
             text = re.sub('\n{2,}', '\n', text)
-            text = re.sub('(?imu)^(?=.)', '\t', text)
+            text = re.sub(r'(?msu)^(?P<t>[^\t\n]+?)$', lambda mo: u'%s\n\n' % mo.group('t'), text)
+            text = re.sub(r'(?msu)(?P<b>[^\n])\n+(?P<t>[^\t\n]+?)(?=\n)', lambda mo: '%s\n\n\n\n\n\n%s' % (mo.group('b'), mo.group('t')), text)
         else:
-            text = re.sub('\n{3,}', '\n\n', text)
+            text = re.sub('\n{7,}', '\n\n\n\n\n\n', text)
 
         # Replace spaces at the beginning and end of lines
+        # We don't replace tabs because those are only added
+        # when remove paragraph spacing is enabled.
         text = re.sub('(?imu)^[ ]+', '', text)
         text = re.sub('(?imu)[ ]+$', '', text)
+        
+        # Remove empty space and newlines at the beginning of the document.
+        text = re.sub(r'(?u)^[ \n]+', '', text)
 
         if self.opts.max_line_length:
             max_length = self.opts.max_line_length
@@ -145,13 +176,11 @@ class TXTMLizer(object):
 
         return text
 
-    def dump_text(self, elem, stylizer, end=''):
+    def dump_text(self, elem, stylizer, page):
         '''
         @elem: The element in the etree that we are working on.
         @stylizer: The style information attached to the element.
-        @end: The last two characters of the text from the previous element.
-              This is used to determine if a blank line is needed when starting
-              a new block element.
+        @page: OEB page used to determine absolute urls.
         '''
 
         if not isinstance(elem.tag, basestring) \
@@ -170,13 +199,22 @@ class TXTMLizer(object):
             return ['']
 
         tag = barename(elem.tag)
+        tag_id = elem.attrib.get('id', None)
         in_block = False
+        in_heading = False
+
+        # Are we in a heading?
+        # This can either be a heading tag or a TOC item.
+        if tag in HEADING_TAGS or '%s#%s' % (page.href, tag_id) in self.toc_ids:
+            in_heading = True
+            if not self.last_was_heading:
+                text.append('\n\n\n\n\n\n')
 
         # Are we in a paragraph block?
         if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
+            if self.opts.remove_paragraph_spacing and not in_heading:
+                text.append(u'\t')
             in_block = True
-            if not end.endswith(u'\n\n') and hasattr(elem, 'text') and elem.text:
-                text.append(u'\n\n')
 
         if tag in SPACE_TAGS:
             text.append(u' ')
@@ -185,14 +223,17 @@ class TXTMLizer(object):
         if hasattr(elem, 'text') and elem.text:
             text.append(elem.text)
 
+        # Recurse down into tags within the tag we are in.
         for item in elem:
-            en = u''
-            if len(text) >= 2:
-                en = text[-1][-2:]
-            text += self.dump_text(item, stylizer, en)
+            text += self.dump_text(item, stylizer, page)
 
         if in_block:
             text.append(u'\n\n')
+        if in_heading:
+            text.append(u'\n')
+            self.last_was_heading = True
+        else:
+            self.last_was_heading = False
 
         if hasattr(elem, 'tail') and elem.tail:
             text.append(elem.tail)
