@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-01-07 21:06+0000\n"
-"PO-Revision-Date: 2011-01-07 22:24+0000\n"
+"POT-Creation-Date: 2011-01-09 01:59+0000\n"
+"PO-Revision-Date: 2011-01-08 09:08+0000\n"
 "Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-08 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-01-09 04:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3731,27 +3731,31 @@ msgstr "Naslovne strane"
 msgid " (Preface)"
 msgstr " (Predgovor)"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:26
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:27
 msgid ""
 "Paragraph structure.\n"
-"choices are ['auto', 'block', 'single', 'print', 'markdown']\n"
+"choices are ['auto', 'block', 'single', 'print', 'unformatted']\n"
 "* auto: Try to auto detect paragraph type.\n"
 "* block: Treat a blank line as a paragraph break.\n"
 "* single: Assume every line is a paragraph.\n"
 "* print:  Assume every line starting with 2+ spaces or a tab starts a "
-"paragraph."
+"paragraph.* unformatted: Most lines have hard line breaks, few/no spaces or "
+"indents."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:35
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:37
 msgid ""
-"Formatting used within the document.* auto: Try to auto detect the document "
-"formatting.\n"
-"* none: Do not modify the paragraph formatting. Everything is a paragraph.\n"
-"* markdown: Run the input though the markdown pre-processor. To learn more "
-"about markdown see"
+"Formatting used within the document.* auto: Automatically decide which "
+"formatting processor to use.\n"
+"* none: Do not process the document formatting. Everything is a paragraph "
+"and no styling is applied.\n"
+"* heuristic: Process using heuristics to determine formatting such as "
+"chapter headings and italic text.\n"
+"* markdown: Processing using markdown formatting. To learn more about "
+"markdown see"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:41
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:46
 msgid ""
 "Normally extra spaces are condensed into a single space. With this option "
 "all spaces will be displayed."
@@ -3759,7 +3763,7 @@ msgstr ""
 "Obično se višestruki razmaci sažmu u samo jedan. Ova opcija omogućava "
 "prikazivanje svih razmaka."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:44
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:49
 msgid "Do not insert a Table of Contents into the output text."
 msgstr "Nemoj da dodaješ Sadržaj u izlazni tekst."
 
@@ -6799,7 +6803,7 @@ msgstr "TXT ulaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:59
 msgid "Paragraph style:"
-msgstr ""
+msgstr "Stil za pasus:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:60
 msgid "Preserve &spaces"
@@ -6807,11 +6811,11 @@ msgstr "&Sačuvaj razmake"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:61
 msgid "Formatting style:"
-msgstr ""
+msgstr "Stil za formatiranje:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:62
 msgid "Markdown Options"
-msgstr ""
+msgstr "Opcije za markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:63
 msgid ""
@@ -8551,7 +8555,7 @@ msgstr "&Lozinka:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:130
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:172
 msgid "&Show password"
 msgstr "&Prikaži lozinku"
 
@@ -8798,7 +8802,7 @@ msgstr "Napredna pretraga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:199
 msgid "&What kind of match to use:"
-msgstr ""
+msgstr "&Način analize:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
@@ -10940,13 +10944,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:57
 msgid "Constant template"
-msgstr ""
+msgstr "Stalni šablon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:58
 msgid ""
 "The template contains no {fields}, so all books will have the same name. Is "
 "this OK?"
 msgstr ""
+"Šablon ne sadrži nijedno od polja {fields}, pa će sve knjige imati isti "
+"naziv. Da li je ovo u redu?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
@@ -11517,7 +11523,7 @@ msgstr "Dodajte sopstvene kategorije u Izlog etiketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:64
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
-msgstr ""
+msgstr "Konvertuj knjigu %(num)d od %(total)d (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:204
@@ -12406,7 +12412,16 @@ msgstr "Šaljem..."
 msgid "Mail successfully sent"
 msgstr "Pošta je uspešno poslata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
+msgid "OK to proceed?"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:96
+msgid ""
+"This will display your email password on the screen. Is it OK to proceed?"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:139
 msgid ""
 "If you are setting up a new hotmail account, you must log in to it  once "
 "before you will be able to send mails."
@@ -12414,11 +12429,11 @@ msgstr ""
 "Ako podešavate novi Hotmail nalog morate se prvo prijaviti na njega bar "
 "jednom pre nego što s njega možete da šaljete poštu."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:147
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:150
 msgid "Setup sending email using"
 msgstr "Podesi slanje elektronske pošte korišćenjem"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:149
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:152
 msgid ""
 "If you don't have an account, you can sign up for a free {name} email "
 "account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
@@ -12426,19 +12441,19 @@ msgstr ""
 "Ako nemate nalog, možete se prijaviti za novu besplatnu {name} adresu na <a "
 "href=\"http://{url}\">http://{url}</a>. {extra}"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:159
 msgid "Your %s &email address:"
 msgstr "Vaša %s &elektronska adresa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:157
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:160
 msgid "Your %s &username:"
 msgstr "Vaše %s &korisničko ime:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:158
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:161
 msgid "Your %s &password:"
 msgstr "Vaša %s &lozinka:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:176
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:179
 msgid ""
 "If you plan to use email to send books to your Kindle, remember to add the "
 "your %s email address to the allowed email addresses in your Amazon.com "
@@ -12448,20 +12463,20 @@ msgstr ""
 "Kindle, ne zaboravite da dodate vašu %s elektronsku adresu na vašoj Amazon "
 "Kindle internet stranici"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:183
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:186
 msgid "Setup"
 msgstr "Podešavanje"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:198
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:208
 msgid "Bad configuration"
 msgstr "Loša konfiguracija"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:202
 msgid "You must set the From email address"
 msgstr "Morate postaviti elektronsku adresu pošiljaoca"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:209
 msgid "You must set the username and password for the mail server."
 msgstr ""
 "Morate postaviti korisničko ime i lozinku za server elektronske pošte."
@@ -13997,7 +14012,7 @@ msgstr "Drugi formati"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:643
 msgid "Read %(title)s in the %(fmt)s format"
-msgstr ""
+msgstr "Čitaj %(title)s u formatu %(fmt)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:648
 msgid "Get"
