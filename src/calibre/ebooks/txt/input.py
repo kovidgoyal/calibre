@@ -23,7 +23,7 @@ class TXTInput(InputFormatPlugin):
 
     options = set([
         OptionRecommendation(name='paragraph_type', recommended_value='auto',
-            choices=['auto', 'block', 'single', 'print'],
+            choices=['auto', 'block', 'single', 'print', 'unformatted'],
             help=_('Paragraph structure.\n'
                    'choices are [\'auto\', \'block\', \'single\', \'print\', \'unformatted\']\n'
                    '* auto: Try to auto detect paragraph type.\n'
