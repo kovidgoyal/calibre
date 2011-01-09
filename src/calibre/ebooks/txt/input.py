@@ -31,7 +31,7 @@ class TXTInput(InputFormatPlugin):
                    '* single: Assume every line is a paragraph.\n'
                    '* print:  Assume every line starting with 2+ spaces or a tab '
                    'starts a paragraph.'
-                   '* unformatted: Most lines have hard line breaks, few/no spaces or indents.')),
+                   '* unformatted: Most lines have hard line breaks, few/no blank lines or indents.')),
         OptionRecommendation(name='formatting_type', recommended_value='auto',
             choices=['auto', 'none', 'heuristic', 'markdown'],
             help=_('Formatting used within the document.'
