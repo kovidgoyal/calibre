@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
@@ -91,8 +92,16 @@ class TXTInput(InputFormatPlugin):
                     log.debug('Could not reliably determine paragraph type using block')
                     options.paragraph_type = 'block'
                 else:
-                    log.debug('Auto detected paragraph type as %s' % options.paragraph_type) 
-            
+                    log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
+
+            # Get length for hyphen removal and punctuation unwrap
+            docanalysis = DocAnalysis('txt', txt)
+            length = docanalysis.line_length(.5)
+
+            # Dehyphenate
+            dehyphenator = Dehyphenator()
+            html = dehyphenator(txt,'txt', length)
+
             # We don't check for block because the processor assumes block.
             # single and print at transformed to block for processing.
 
@@ -103,10 +112,8 @@ class TXTInput(InputFormatPlugin):
 
             if options.paragraph_type == 'unformatted':
                 from calibre.ebooks.conversion.utils import PreProcessor
-                from calibre.ebooks.conversion.preprocess import DocAnalysis
                 # get length
-                docanalysis = DocAnalysis('txt', txt)
-                length = docanalysis.line_length(.5)
+
                 # unwrap lines based on punctuation
                 preprocessor = PreProcessor(options, log=getattr(self, 'log', None))
                 txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
@@ -117,7 +124,6 @@ class TXTInput(InputFormatPlugin):
                 html = convert_heuristic(txt, epub_split_size_kb=flow_size)
             else:
                 html = convert_basic(txt, epub_split_size_kb=flow_size)
-            
 
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')

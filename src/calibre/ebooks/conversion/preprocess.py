@@ -72,6 +72,8 @@ class DocAnalysis(object):
 
     def __init__(self, format='html', raw=''):
         raw = raw.replace('&nbsp;', ' ')
+        raw = raw.replace('\r\n', '\n')
+        raw = raw.replace('\r', '\n')
         if format == 'html':
             linere = re.compile('(?<=<p)(?![^>]*>\s*</p>).*?(?=</p>)', re.DOTALL)
         elif format == 'pdf':
@@ -79,7 +81,7 @@ class DocAnalysis(object):
         elif format == 'spanned_html':
             linere = re.compile('(?<=<span).*?(?=</span>)', re.DOTALL)
         elif format == 'txt':
-            linere = re.compile('.*?\n', re.DOTALL)
+            linere = re.compile('.*?\n')
         self.lines = linere.findall(raw)
 
     def line_length(self, percent):
@@ -177,7 +179,7 @@ class Dehyphenator(object):
     def __init__(self):
         # Add common suffixes to the regex below to increase the likelihood of a match -
         # don't add suffixes which are also complete words, such as 'able' or 'sex'
-        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|ment(s)?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex)$", re.IGNORECASE)
+        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|m?ents?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex|ian)$", re.IGNORECASE)
         # remove prefixes if the prefix was not already the point of hyphenation
         self.prefixes = re.compile(r'^(dis|re|un|in|ex)$', re.IGNORECASE)
         self.removeprefix = re.compile(r'^(dis|re|un|in|ex)', re.IGNORECASE)
@@ -194,7 +196,7 @@ class Dehyphenator(object):
         lookupword = self.removesuffixes.sub('', dehyphenated)
         if self.prefixes.match(firsthalf) is None:
             lookupword = self.removeprefix.sub('', lookupword)
-        #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
+        print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
         try:
             searchresult = self.html.find(lookupword.lower())
         except:
@@ -225,8 +227,13 @@ class Dehyphenator(object):
             intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)\s*(?=<)(?P<wraptags>(</span>)?\s*(</[iubp]>\s*){1,2}(?P<up2threeblanks><(p|div)[^>]*>\s*(<p[^>]*>\s*</p>\s*)?</(p|div)>\s+){0,3}\s*(<[iubp][^>]*>\s*){1,2}(<span[^>]*>)?)\s*(?P<secondpart>[\w\d]+)' % length)
         elif format == 'pdf':
             intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)\s*(?P<wraptags><p>|</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)'% length)
+        elif format == 'txt':
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)(\u0020|\u0009)*(?P<wraptags>((\n|\r|\r\n)(\u0020|\u0009)*)+)(?P<secondpart>[\w\d]+)'% length)
         elif format == 'individual_words':
-            intextmatch = re.compile(u'>[^<]*\b(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)"\s>]+)(-|‐)(?P<secondpart)\w+)\b[^<]*<') # for later, not called anywhere yet
+            intextmatch = re.compile(u'>[^<]*\b(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)"\s>]+)(-|‐)\u0020?(?P<secondpart>\w+)\b[^<]*<') # for later, not called anywhere yet
+        elif format == 'individual_words_txt':
+            intextmatch = re.compile(u'\b(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)"\s>]+)(-|‐)\u0020*(?P<secondpart>\w+)\b')
+
         elif format == 'html_cleanup':
             intextmatch = re.compile(u'(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)')
 
