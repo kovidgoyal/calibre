@@ -192,7 +192,7 @@ if not magick_inc_dirs or not os.path.exists(os.path.join(magick_inc_dirs[0],
     'wand')):
     magick_error = ('ImageMagick not found on your system. '
             'Try setting the environment variables MAGICK_INC '
-            'and MAGICK_LIB to help calibre locate the inclue and libbrary '
+            'and MAGICK_LIB to help calibre locate the include and library '
             'files.')
 
 podofo_lib = os.environ.get('PODOFO_LIB_DIR', podofo_lib)
