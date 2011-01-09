@@ -117,7 +117,6 @@ if iswindows:
     poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
             r'%s\poppler;%s'%(sw_inc_dir, sw_inc_dir))
 
-    popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[1]+r'\qt4']
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR', sw_lib_dir)
     popplerqt4_lib_dirs = poppler_lib_dirs
     poppler_libs = ['poppler']
@@ -131,7 +130,6 @@ elif isosx:
     fc_lib = '/sw/lib'
     poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
             '/sw/build/poppler-0.14.5/poppler:/sw/build/poppler-0.14.5')
-    popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[0]+'/qt4']
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
             '/sw/lib')
     poppler_libs = ['poppler']
@@ -150,9 +148,6 @@ else:
     # Include directories
     poppler_inc_dirs = pkgconfig_include_dirs('poppler',
         'POPPLER_INC_DIR', '/usr/include/poppler')
-    popplerqt4_inc_dirs = pkgconfig_include_dirs('poppler-qt4', '', '')
-    if not popplerqt4_inc_dirs:
-        popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[0]+'/qt4']
     png_inc_dirs = pkgconfig_include_dirs('libpng', 'PNG_INC_DIR',
         '/usr/include')
     magick_inc_dirs = pkgconfig_include_dirs('MagickWand', 'MAGICK_INC', '/usr/include/ImageMagick')
@@ -187,13 +182,10 @@ if not poppler_inc_dirs or not os.path.exists(
     poppler_error = \
     ('Poppler not found on your system. Various PDF related',
     ' functionality will not work. Use the POPPLER_INC_DIR and',
-    ' POPPLER_LIB_DIR environment variables.')
-
-popplerqt4_error = None
-if not popplerqt4_inc_dirs or not os.path.exists(
-        os.path.join(popplerqt4_inc_dirs[-1], 'poppler-qt4.h')):
-    popplerqt4_error = \
-            ('Poppler Qt4 bindings not found on your system.')
+    ' POPPLER_LIB_DIR environment variables. calibre requires '
+    ' the poppler XPDF headers. If your distro does not '
+    ' include them you will have to re-compile poppler '
+    ' by hand with --enable-xpdf-headers')
 
 magick_error = None
 if not magick_inc_dirs or not os.path.exists(os.path.join(magick_inc_dirs[0],
