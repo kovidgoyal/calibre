@@ -195,8 +195,8 @@ class CustomColumns(object):
             data = self.custom_column_num_map[num]
         row = self.data._data[idx] if index_is_id else self.data[idx]
         ans = row[self.FIELD_MAP[data['num']]]
-        if data['is_multiple'] and data['datatype'] == 'text':
-            ans = ans.split('|') if ans else []
+        if ans and data['is_multiple'] and data['datatype'] == 'text':
+            ans = ans.split('|')
             if data['display'].get('sort_alpha', False):
                 ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
         return ans
