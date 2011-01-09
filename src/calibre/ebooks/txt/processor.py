@@ -133,15 +133,21 @@ def detect_paragraph_type(txt):
     hardbreaks = docanalysis.line_histogram(.55)
     
     if hardbreaks:
-        # Check for print
+        # Determine print percentage
         tab_line_count = len(re.findall('(?mu)^(\t|\s{2,}).+$', txt))
-        if tab_line_count / float(txt_line_count) >= .15:
-            return 'print'
-        
-        # Check for block
+        print_percent = tab_line_count / float(txt_line_count)
+     
+        # Determine block percentage
         empty_line_count = len(re.findall('(?mu)^\s*$', txt))
-        if empty_line_count / float(txt_line_count) >= .15:
-            return 'block'
+        block_percent = empty_line_count / float(txt_line_count)
+        
+        # Compare the two types - the type with the larger number of instances wins
+        # in cases where only one or the other represents the vast majority of the document neither wins
+        if print_percent >= block_percent:
+            if .15 <= print_percent <= .75:
+                return 'print'
+        elif .15 <= block_percent <= .75:
+            return 'block'     
 
         # Assume unformatted text with hardbreaks if nothing else matches        
         return 'unformatted'
