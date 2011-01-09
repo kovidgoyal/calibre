@@ -127,35 +127,52 @@ class RTFInput(InputFormatPlugin):
 
     def extract_images(self, picts):
         self.log('Extracting images...')
-
-        count = 0
+        
         raw = open(picts, 'rb').read()
-        starts = []
-        for match in re.finditer(r'\{\\pict([^}]+)\}', raw):
-            starts.append(match.start(1))
-
+        picts = filter(len, re.findall(r'\{\\pict([^}]+)\}', raw))
+        hex = re.compile(r'[^a-zA-Z0-9]')
+        encs = [hex.sub('', pict) for pict in picts]
+        
+        count = 0
         imap = {}
-
-        for start in starts:
-            pos, bc = start, 1
-            while bc > 0:
-                if raw[pos] == '}': bc -= 1
-                elif raw[pos] == '{': bc += 1
-                pos += 1
-            pict = raw[start:pos+1]
-            enc = re.sub(r'[^a-zA-Z0-9]', '', pict)
+        for enc in encs:
             if len(enc) % 2 == 1:
                 enc = enc[:-1]
             data = enc.decode('hex')
             count += 1
-            name = (('%4d'%count).replace(' ', '0'))+'.wmf'
+            name = '%04d.wmf' % count
             open(name, 'wb').write(data)
             imap[count] = name
             #open(name+'.hex', 'wb').write(enc)
         return self.convert_images(imap)
 
+        # count = 0
+        # raw = open(picts, 'rb').read()
+        # starts = []
+        # for match in re.finditer(r'\{\\pict([^}]+)\}', raw):
+            # starts.append(match.start(1))
+
+        # imap = {}
+        # for start in starts:
+            # pos, bc = start, 1
+            # while bc > 0:
+                # if raw[pos] == '}': bc -= 1
+                # elif raw[pos] == '{': bc += 1
+                # pos += 1
+            # pict = raw[start:pos+1]
+            # enc = re.sub(r'[^a-zA-Z0-9]', '', pict)
+            # if len(enc) % 2 == 1:
+                # enc = enc[:-1]
+            # data = enc.decode('hex')
+            # count += 1
+            # name = (('%4d'%count).replace(' ', '0'))+'.wmf'
+            # open(name, 'wb').write(data)
+            # imap[count] = name
+            # #open(name+'.hex', 'wb').write(enc)
+        # return self.convert_images(imap)
+
     def convert_images(self, imap):
-        for count, val in imap.items():
+        for count, val in imap.iteritems():
             try:
                 imap[count] = self.convert_image(val)
             except:

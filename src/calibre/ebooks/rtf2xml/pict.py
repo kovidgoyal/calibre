@@ -146,7 +146,8 @@ class Pict:
 
     def process_pict(self):
         self.__make_dir()
-        with open(self.__file) as read_obj, open(self.__write_to, 'w') as write_obj:
+        with open(self.__file) as read_obj, \
+            open(self.__write_to, 'w') as write_obj:
             for line in read_obj:
                 self.__token_info = line[:16]
                 if self.__token_info == 'ob<nu<open-brack':
@@ -167,6 +168,7 @@ class Pict:
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "pict.data")
+            copy_obj.copy_file(self.__pict_file, "pict.rtf")
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
         if self.__pict_count == 0:
