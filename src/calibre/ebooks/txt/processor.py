@@ -80,9 +80,12 @@ def convert_markdown(txt, title='', disable_toc=False):
           safe_mode=False)
     return HTML_TEMPLATE % (title, md.convert(txt))
 
-def separate_paragraphs_single_line(txt):
+def normalize_line_endings(txt):
     txt = txt.replace('\r\n', '\n')
     txt = txt.replace('\r', '\n')
+    return txt
+
+def separate_paragraphs_single_line(txt):
     txt = re.sub(u'(?<=.)\n(?=.)', '\n\n', txt)
     return txt
 

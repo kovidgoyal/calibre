@@ -12,7 +12,7 @@ from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
-    convert_heuristic
+    convert_heuristic, normalize_line_endings
 from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
@@ -94,13 +94,17 @@ class TXTInput(InputFormatPlugin):
                 else:
                     log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
 
+            # Normalize line endings
+            txt = normalize_line_endings(txt)
+
             # Get length for hyphen removal and punctuation unwrap
             docanalysis = DocAnalysis('txt', txt)
             length = docanalysis.line_length(.5)
+            print "length is "+str(length)
 
             # Dehyphenate
             dehyphenator = Dehyphenator()
-            html = dehyphenator(txt,'txt', length)
+            txt = dehyphenator(txt,'txt', length)
 
             # We don't check for block because the processor assumes block.
             # single and print at transformed to block for processing.

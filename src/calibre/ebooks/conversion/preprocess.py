@@ -72,8 +72,8 @@ class DocAnalysis(object):
 
     def __init__(self, format='html', raw=''):
         raw = raw.replace('&nbsp;', ' ')
-        raw = raw.replace('\r\n', '\n')
-        raw = raw.replace('\r', '\n')
+        #raw = raw.replace('\r\n', '\n')
+        #raw = raw.replace('\r', '\n')
         if format == 'html':
             linere = re.compile('(?<=<p)(?![^>]*>\s*</p>).*?(?=</p>)', re.DOTALL)
         elif format == 'pdf':
@@ -214,10 +214,10 @@ class Dehyphenator(object):
 
         else:
             if self.html.find(lookupword) != -1 or searchresult != -1:
-                #print "returned dehyphenated word: " + str(dehyphenated)
+                print "returned dehyphenated word: " + str(dehyphenated)
                 return dehyphenated
             else:
-                #print "           returned hyphenated word: " + str(hyphenated)
+                print "           returned hyphenated word: " + str(hyphenated)
                 return hyphenated
 
     def __call__(self, html, format, length=1):
@@ -228,7 +228,7 @@ class Dehyphenator(object):
         elif format == 'pdf':
             intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)\s*(?P<wraptags><p>|</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)'% length)
         elif format == 'txt':
-            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)(\u0020|\u0009)*(?P<wraptags>((\n|\r|\r\n)(\u0020|\u0009)*)+)(?P<secondpart>[\w\d]+)'% length)
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)(\u0020|\u0009)*(?P<wraptags>(\n(\u0020|\u0009)*)+)(?P<secondpart>[\w\d]+)'% length)
         elif format == 'individual_words':
             intextmatch = re.compile(u'>[^<]*\b(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)"\s>]+)(-|‐)\u0020?(?P<secondpart>\w+)\b[^<]*<') # for later, not called anywhere yet
         elif format == 'individual_words_txt':
