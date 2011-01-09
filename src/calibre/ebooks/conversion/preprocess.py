@@ -563,8 +563,8 @@ class HTMLPreProcessor(object):
         html = html.replace(start, '<!--')
         html = html.replace(stop, '-->')
         # convert ellipsis to entities to prevent wrapping
-        html = re.sub('(?u)(?<=\w)\s?(\.\s?){2}\.', '&hellip;', html)
+        html = re.sub(r'(?u)(?<=\w)\s?(\.\s?){2}\.', '&hellip;', html)
         # convert double dashes to em-dash
-        html = re.sub('\s--\s', u'\u2014', html)
+        html = re.sub(r'\s--\s', u'\u2014', html)
         return substitute_entites(html)
 
