@@ -72,8 +72,6 @@ class DocAnalysis(object):
 
     def __init__(self, format='html', raw=''):
         raw = raw.replace('&nbsp;', ' ')
-        #raw = raw.replace('\r\n', '\n')
-        #raw = raw.replace('\r', '\n')
         if format == 'html':
             linere = re.compile('(?<=<p)(?![^>]*>\s*</p>).*?(?=</p>)', re.DOTALL)
         elif format == 'pdf':
