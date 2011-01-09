@@ -180,6 +180,15 @@ class FieldMetadata(dict):
                            'search_terms':['author_sort'],
                            'is_custom':False,
                            'is_category':False}),
+            ('au_map',    {'table':None,
+                           'column':None,
+                           'datatype':'text',
+                           'is_multiple':',',
+                           'kind':'field',
+                           'name':None,
+                           'search_terms':[],
+                           'is_custom':False,
+                           'is_category':False}),
             ('comments',  {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -399,6 +408,12 @@ class FieldMetadata(dict):
     def iteritems(self):
         for key in self._tb_cats:
             yield (key, self._tb_cats[key])
+
+    def custom_iteritems(self):
+        for key in self._tb_cats:
+            fm = self._tb_cats[key]
+            if fm['is_custom']:
+                yield (key, self._tb_cats[key])
 
     def items(self):
         return list(self.iteritems())
