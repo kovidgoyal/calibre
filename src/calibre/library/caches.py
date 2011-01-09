@@ -486,7 +486,7 @@ class ResultCache(SearchQueryParser): # {{{
                     q = query
 
                 for id_ in candidates:
-                    item = self._data[id]
+                    item = self._data[id_]
                     if item is None: continue
 
                     if col_datatype[loc] == 'bool': # complexity caused by the two-/three-value tweak
