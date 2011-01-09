@@ -10,7 +10,6 @@ from calibre.ebooks.metadata import MetaInformation, string_to_authors
 title_pat    = re.compile(r'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
 author_pat   = re.compile(r'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)
 comment_pat  = re.compile(r'\{\\info.*?\{\\subject(.*?)(?<!\\)\}', re.DOTALL)
-category_pat = re.compile(r'\{\\info.*?\{\\category(.*?)(?<!\\)\}', re.DOTALL)
 tags_pat = re.compile(r'\{\\info.*?\{\\keywords(.*?)(?<!\\)\}', re.DOTALL)
 publisher_pat = re.compile(r'\{\\info.*?\{\\manager(.*?)(?<!\\)\}', re.DOTALL)
 
@@ -84,13 +83,12 @@ def decode(raw, codec):
 
 def get_metadata(stream):
     """ Return metadata as a L{MetaInfo} object """
-    title, author, comment, category = None, None, None, None
     stream.seek(0)
     if stream.read(5) != r'{\rtf':
-        return MetaInformation(None, None)
+        return MetaInformation(_('Unknown'), None)
     block = get_document_info(stream)[0]
     if not block:
-        return MetaInformation(None, None)
+        return MetaInformation(_('Unknown'), None)
 
     stream.seek(0)
     cpg = detect_codepage(stream)
@@ -114,10 +112,6 @@ def get_metadata(stream):
     if comment_match:
         comment = decode(comment_match.group(1).strip(), cpg)
         mi.comments = comment
-    category_match = category_pat.search(block)
-    if category_match:
-        category = decode(category_match.group(1).strip(), cpg)
-        mi.category = category
     tags_match = tags_pat.search(block)
     if tags_match:
         tags = decode(tags_match.group(1).strip(), cpg)
@@ -140,9 +134,6 @@ def create_metadata(stream, options):
             au = u', '.join(au)
         author = au.encode('ascii', 'ignore')
         md.append(r'{\author %s}'%(author,))
-    if options.get('category', None):
-        category = options.category.encode('ascii', 'ignore')
-        md.append(r'{\category %s}'%(category,))
     comp = options.comment if hasattr(options, 'comment') else options.comments
     if comp:
         comment = comp.encode('ascii', 'ignore')
@@ -203,14 +194,6 @@ def set_metadata(stream, options):
                 src = pat.sub(r'{\\author ' + author + r'}', src)
             else:
                 src = add_metadata_item(src, 'author', author)
-        category = options.get('category', None)
-        if category is not None:
-            category = category.encode('ascii', 'replace')
-            pat = re.compile(base_pat.replace('name', 'category'), re.DOTALL)
-            if pat.search(src):
-                src = pat.sub(r'{\\category ' + category + r'}', src)
-            else:
-                src = add_metadata_item(src, 'category', category)
         tags = options.tags
         if tags is not None:
             tags =  ', '.join(tags)
