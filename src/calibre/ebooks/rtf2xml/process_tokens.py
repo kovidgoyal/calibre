@@ -52,7 +52,7 @@ class ProcessTokens:
         self.__return_code = 0
         self.dict_token={
         # unicode
-        'mshex'             :   ('nu', '__________', self.__ms_hex_func),
+        'mshex'              :  ('nu', '__________', self.__ms_hex_func),
         # brackets
         '{'                  :	('nu', '{', self.ob_func),
         '}'                  :	('nu', '}', self.cb_func),

@@ -143,7 +143,7 @@ class Inline:
         action = self.__default_dict.get(self.__token_info)
         if action:
             action(line)
-            self.__write_obj.write(line)
+        self.__write_obj.write(line)
 
     def __found_open_bracket_func(self, line):
         """
@@ -410,7 +410,7 @@ class Inline:
                     self.__token_info = line[:16]
                 self.__set_list_func(line)
                 action = self.__state_dict.get(self.__state)
-                if action == None:
+                if action is None:
                     sys.stderr.write(_('No matching state in module inline_for_lists.py\n'))
                     sys.stderr.write(self.__state + '\n')
                 action(line)
