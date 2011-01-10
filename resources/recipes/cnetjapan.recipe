@@ -11,7 +11,7 @@ class CNetJapan(BasicNewsRecipe):
                       (u'CNet Blog', u'http://feed.japan.cnet.com/rss/blog/index.rdf')
                         ]
     language       = 'ja'
-    encoding       = 'Shift_JIS'
+    encoding       = 'utf-8'
     remove_javascript = True
 
     preprocess_regexps = [
