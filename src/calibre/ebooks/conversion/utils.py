@@ -191,15 +191,15 @@ class PreProcessor(object):
         blanklines = "\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*"
         line_opening = "<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*"
         txt_line_wrap = u"((\u0020|\u0009)*\n){1,4}"
-        
+
         unwrap_regex = lookahead+line_ending+blanklines+line_opening
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
-        
+
         unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
         content = unwrap.sub(' ', content)
         return content
-       
+
 
     def __call__(self, html):
         self.log("*********  Preprocessing HTML  *********")
