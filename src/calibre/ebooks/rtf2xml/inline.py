@@ -51,7 +51,6 @@ class Inline:
             'tx<ut<__________'  :       self.__found_text_func,
             'mi<mk<inline-fld'  :       self.__found_text_func,
             'text'              :       self.__found_text_func,
-            'cw<nu<hard-lineb'  :       self.__found_text_func, #calibre
             'cb<nu<clos-brack'  :       self.__close_bracket_func,
             'mi<mk<par-end___'  :       self.__end_para_func,
             'mi<mk<footnt-ope'  :       self.__end_para_func,
@@ -63,7 +62,6 @@ class Inline:
             'tx<hx<__________'  :       self.__found_text_func,
             'tx<ut<__________'  :       self.__found_text_func,
             'text'              :       self.__found_text_func,
-            'cw<nu<hard-lineb'  :       self.__found_text_func, #calibre
             'mi<mk<inline-fld'  :       self.__found_text_func,
             'ob<nu<open-brack':         self.__found_open_bracket_func,
             'mi<mk<par-end___'  :       self.__end_para_func,
@@ -257,7 +255,6 @@ class Inline:
                 Text can mark the start of a paragraph.
                 If already in a paragraph, check to see if any groups are waiting
                 to be added. If so, use another method to write these groups.
-            3. If not check if hardline break, then write
         """
         if self.__place == 'in_list':
             self.__write_inline()
@@ -265,10 +262,7 @@ class Inline:
             if not self.__in_para:
                 self.__in_para = 1
                 self.__start_para_func(line)
-            else:
-                if self.__token_info == 'cw<nu<hard-lineb': #calibre
-                    self.__write_obj.write('mi<tg<empty_____<hardline-break\n')
-                if self.__groups_in_waiting[0] != 0:
+            elif self.__groups_in_waiting[0] != 0:
                     self.__write_inline()
                 
     def __write_inline(self):

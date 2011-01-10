@@ -70,6 +70,7 @@ class ProcessTokens:
         ';'                  :	('mc', ';', self.ms_sub_func),
         # this must be wrong
         '-'                  :	('mc', '-', self.ms_sub_func),
+        'line'               :  ('mi', 'hardline-break', self.hardline_func), #calibre
         # misc => ml
         '*'                  :	('ml', 'asterisk__', self.default_func),
         ':'                  :	('ml', 'colon_____', self.default_func),
@@ -77,7 +78,6 @@ class ProcessTokens:
         'backslash'          :	('nu', '\\', self.text_func),
         'ob'                 :	('nu', '{', self.text_func),
         'cb'                 :	('nu', '}', self.text_func),
-        'line'               :  ('nu', 'hard-lineb', self.default_func), #calibre
         #'line'               :  ('nu', ' ', self.text_func), calibre
         # paragraph formatting => pf
         'page'               :  ('pf', 'page-break', self.default_func),
@@ -604,6 +604,9 @@ class ProcessTokens:
 
     def ms_sub_func(self, pre, token, num):
         return 'tx<mc<__________<%s\n' % token
+
+    def hardline_func(self, pre, token, num):
+        return 'mi<tg<empty_____<%s\n' % token
 
     def default_func(self, pre, token, num):
         if num is None:
