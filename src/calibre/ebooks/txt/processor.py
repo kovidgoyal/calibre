@@ -147,7 +147,7 @@ def detect_paragraph_type(txt):
             if .15 <= print_percent <= .75:
                 return 'print'
         elif .15 <= block_percent <= .75:
-            return 'block'     
+            return 'block'
 
         # Assume unformatted text with hardbreaks if nothing else matches        
         return 'unformatted'
