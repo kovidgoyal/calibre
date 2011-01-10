@@ -218,6 +218,10 @@ class TXTMLizer(object):
 
         if tag in SPACE_TAGS:
             text.append(u' ')
+            
+        # Scene breaks.
+        if tag == 'hr':
+            text.append('\n\n* * *\n\n')
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
