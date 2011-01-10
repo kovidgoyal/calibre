@@ -101,7 +101,7 @@ class DefaultEncoding:
                         break
                     if self.__token_info == 'cw<ri<ansi-codpg':
                         #cw<ri<ansi-codpg<nu<10000
-                        self.__code_page = line[20:-1] if line[20:-1] \
+                        self.__code_page = line[20:-1] if int(line[20:-1]) \
                                             else '1252'
                     if self.__token_info == 'cw<ri<macintosh_':
                         self.__platform = 'Macintosh'
@@ -120,7 +120,9 @@ class DefaultEncoding:
                 fenccp = re.compile(r'\\ansicpg(\d+)[\\ \{\}\t\n]+')
                 for line in read_obj:
                     if fenccp.search(line):
-                        self.__code_page = fenccp.search(line).group(1)
+                        cp = fenccp.search(line).group(1)
+                        if not int(cp):
+                            self.__code_page = cp
                         break
                     if fenc.search(line):
                         enc = fenc.search(line).group(1)

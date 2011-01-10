@@ -168,7 +168,10 @@ class Pict:
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "pict.data")
-            copy_obj.copy_file(self.__pict_file, "pict.rtf")
+            try:
+                copy_obj.copy_file(self.__pict_file, "pict.rtf")
+            except:
+                pass
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
         if self.__pict_count == 0:
