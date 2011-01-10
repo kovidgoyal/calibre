@@ -76,11 +76,22 @@ class PRS505(USBMS):
                 'sending DRMed books in which you cannot change the cover.'
                 ' WARNING: This option should only be used with newer '
                 'SONY readers: 350, 650, 950 and newer.'),
+            _('Refresh separate covers when using automatic management (newer readers)') +
+                ':::' +
+                _('Set this option to have separate book covers uploaded '
+                  'every time you connect your device. Unset this option if '
+                  'you have so many books on the reader that performance is '
+                  'unacceptable.')
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 ', '.join(['series', 'tags']),
+                False,
                 False
     ]
+
+    OPT_COLLECTIONS    = 0
+    OPT_UPLOAD_COVERS  = 1
+    OPT_REFRESH_COVERS = 2
 
     plugboard = None
     plugboard_func = None
@@ -171,7 +182,7 @@ class PRS505(USBMS):
         opts = self.settings()
         if opts.extra_customization:
             collections = [x.strip() for x in
-                    opts.extra_customization[0].split(',')]
+                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
         else:
             collections = []
         debug_print('PRS505: collection fields:', collections)
@@ -182,6 +193,20 @@ class PRS505(USBMS):
         debug_print('PRS505: use plugboards', pb)
         c.update(blists, collections, pb)
         c.write()
+
+        if opts.extra_customization[self.OPT_REFRESH_COVERS]:
+            debug_print('PRS505: uploading covers in sync_booklists')
+            for idx,bl in blists.items():
+                prefix = self._card_a_prefix if idx == 1 else \
+                                self._card_b_prefix if idx == 2 \
+                                    else self._main_prefix
+                for book in bl:
+                    p = os.path.join(prefix, book.lpath)
+                    self._upload_cover(os.path.dirname(p),
+                                      os.path.splitext(os.path.basename(p))[0],
+                                      book, p)
+        else:
+            debug_print('PRS505: NOT uploading covers in sync_booklists')
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
         debug_print('PRS505: finished sync_booklists')
@@ -199,11 +224,14 @@ class PRS505(USBMS):
 
     def upload_cover(self, path, filename, metadata, filepath):
         opts = self.settings()
-        if not opts.extra_customization[1]:
+        if not opts.extra_customization[self.OPT_UPLOAD_COVERS]:
             # Building thumbnails disabled
-            debug_print('PRS505: not uploading covers')
+            debug_print('PRS505: not uploading cover')
             return
-        debug_print('PRS505: uploading covers')
+        debug_print('PRS505: uploading cover')
+        self._upload_cover(path, filename, metadata, filepath)
+
+    def _upload_cover(self, path, filename, metadata, filepath):
         if metadata.thumbnail and metadata.thumbnail[-1]:
             path = path.replace('/', os.sep)
             is_main = path.startswith(self._main_prefix)
