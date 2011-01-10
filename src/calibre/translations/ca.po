@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-09 01:59+0000\n"
-"PO-Revision-Date: 2011-01-01 21:35+0000\n"
-"Last-Translator: FerranRius <frius64@hotmail.com>\n"
+"PO-Revision-Date: 2011-01-09 16:02+0000\n"
+"Last-Translator: Jeremy Lynton <lynton@lyndev.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-09 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-01-10 05:01+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -5701,7 +5701,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Other options"
-msgstr ""
+msgstr "Altres opcions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Wishlist tag"
@@ -5721,7 +5721,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
 msgid " inch"
-msgstr ""
+msgstr " polsada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Description note"

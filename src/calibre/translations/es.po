@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-09 01:59+0000\n"
-"PO-Revision-Date: 2011-01-08 01:05+0000\n"
-"Last-Translator: suidaso <Unknown>\n"
+"PO-Revision-Date: 2011-01-09 19:50+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-09 04:46+0000\n"
+"X-Launchpad-Export-Date: 2011-01-10 05:10+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:511
@@ -1231,7 +1231,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:72
 msgid "Upload separate cover thumbnails for books (newer readers)"
-msgstr ""
+msgstr "Enviar miniaturas de portadas para los libros (lectores recientes)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid ""
@@ -1241,6 +1241,11 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"Normalmente los lectores de SONY obtienen la portada del fichero del libro "
+"electrónico. Con esta opción, calibre enviará una portada aparte al lector. "
+"Es útil si está enviando libros con DRM en los que no se puede cambiar la "
+"portada. ADVERTENCIA: Esta opción sólo puede ser usada con los nuevos "
+"lectores de SONY: 350, 650, 950 y más recientes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -3795,6 +3800,15 @@ msgid ""
 "paragraph.* unformatted: Most lines have hard line breaks, few/no spaces or "
 "indents."
 msgstr ""
+"Estructura de párrafos.\n"
+"las opciones son [«auto», «block», «single», «print», «unformatted»]\n"
+"* auto: Intenta detectar automáticamente el tipo de párrafo.\n"
+"* block: Considera cada línea en blanco como un salto de párrafo.\n"
+"* single: Considera cada línea como un párrafo distinto.\n"
+"* print: Considera que cada línea que comienza con dos o más espacios o una "
+"tabulación empieza un párrafo.\n"
+"* unformatted: Casi todas las líneas tienen saltos forzados, con poca o "
+"ninguna sangría."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:37
 msgid ""
@@ -3807,6 +3821,13 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Formato usado en el documento.\n"
+"* auto: Decide automáticamente el procesador de formato que se usa.\n"
+"* none: No procesar el formato del documento. Todo es un párrafo y no se "
+"aplica ningún estilo.\n"
+"* heuristic: Procesar con heurística para determinar formatos como títulos "
+"de capítulo o cursivas.\n"
+"* markdown: Procesar formato markdown. Para aprender más sobre markdown vea"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:46
 msgid ""
@@ -4247,6 +4268,8 @@ msgid ""
 "No books to catalog\n"
 "Check exclusion criteria"
 msgstr ""
+"No hay libros en el catálogo\n"
+"Compruebe los criterios de exclusión"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:70
 msgid "Catalog generated."
@@ -5647,6 +5670,26 @@ msgid ""
 "right:0px; -qt-block-indent:0; text-indent:0px;\">e.g., [Project "
 "Gutenberg]</p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:13pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Patrón predeterminado "
+"</p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"family:'Courier New,courier';\">\\[.+\\]</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">excluye etiquetas de la "
+"forma [<span style=\" font-family:'Courier New,courier';\">etiqueta</span>], "
+"</p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">por ejemplo: [Project "
+"Gutenberg]</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Excluded genres"
@@ -5661,6 +5704,8 @@ msgstr "Etiquetas a &excluir"
 msgid ""
 "Books matching either pattern will not be included in generated catalog. "
 msgstr ""
+"Los libros que coincidan con alguno de los patrones no se incluirán en el "
+"catálogo generado. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 msgid "Excluded books"
@@ -5683,6 +5728,20 @@ msgid ""
 "size:12pt;\">Default:</span><span style=\" font-family:'Courier "
 "New,courier'; font-size:12pt;\"> ~,Catalog</span></p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:13pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"size:12pt;\">Lista de etiquetas a excluir, separadas por comas.</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"size:12pt;\">Valor predeterminado:</span><span style=\" font-family:'Courier "
+"New,courier'; font-size:12pt;\"> ~,Catalog</span></p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
@@ -5695,11 +5754,11 @@ msgstr "Columna conteniendo criterios de exclusión adicionales"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Exclusion pattern"
-msgstr ""
+msgstr "Patrón de exclusión"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
 msgid "Matching books will be displayed with ✓"
-msgstr ""
+msgstr "Los libros que coincidan se marcarán con ✓"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Read books"
@@ -5707,11 +5766,11 @@ msgstr "Leer libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Column containing 'read' status"
-msgstr ""
+msgstr "Columna que contiene la condición de «leído»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "'read book' pattern"
-msgstr ""
+msgstr "Patrón de «libro leído»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Other options"
@@ -5719,63 +5778,67 @@ msgstr "Otras opciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Wishlist tag"
-msgstr ""
+msgstr "Etiqueta de «deseado»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid "Books tagged as Wishlist items will be displayed with ✕"
-msgstr ""
+msgstr "Los libros marcados como «deseado» se mostrarán con ✕"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid "&Thumbnail width"
-msgstr ""
+msgstr "&Ancho de la miniatura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "Size hint for Description cover thumbnails"
-msgstr ""
+msgstr "Tamaño para las miniaturas de portadas en Descripción"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
 msgid " inch"
-msgstr ""
+msgstr " pulgadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Description note"
-msgstr ""
+msgstr "&Nota en Descripción"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:332
 msgid "Custom column source for note to include in Description header area"
 msgstr ""
+"Columna personalizada de origen para la nota que se incluirá en el área de "
+"cabecera de Descripción"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:333
 msgid "&Merge with Comments"
-msgstr ""
+msgstr "&Añadir a Comentarios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:334
 msgid "Additional content merged with Comments during catalog generation"
 msgstr ""
+"Contenido que se añadirá a los Comentarios en la generación del catálogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:335
 msgid "Merge additional content before Comments"
-msgstr ""
+msgstr "Poner el contenido adicional delante de los Comentarios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:336
 msgid "&Before"
-msgstr ""
+msgstr "&Delante"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:337
 msgid "Merge additional content after Comments"
-msgstr ""
+msgstr "Poner el contenido adicional detrás de los Comentarios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:338
 msgid "&After"
-msgstr ""
+msgstr "&Detrás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:339
 msgid "Separate Comments and additional content with horizontal rule"
 msgstr ""
+"Separar los Comentarios y el contenido adicional con una barra horizontal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:340
 msgid "&Separator"
-msgstr ""
+msgstr "&Separador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -6597,7 +6660,7 @@ msgstr "Índice &interno"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:74
 msgid "Output Encoding:"
-msgstr ""
+msgstr "Codificación de salida:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
@@ -6842,7 +6905,7 @@ msgstr "Entrada TXT"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:59
 msgid "Paragraph style:"
-msgstr ""
+msgstr "Estilo de párrafo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:60
 msgid "Preserve &spaces"
@@ -6850,11 +6913,11 @@ msgstr "Mantener &espacios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:61
 msgid "Formatting style:"
-msgstr ""
+msgstr "Estilo de formato:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:62
 msgid "Markdown Options"
-msgstr ""
+msgstr "Opciones de markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:63
 msgid ""
@@ -8114,7 +8177,7 @@ msgstr "El nombre del campo en el que desea buscar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:446
 msgid "Search &mode:"
-msgstr ""
+msgstr "Modo de &búsqueda:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:447
 msgid ""
@@ -8156,7 +8219,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:453
 msgid "Cas&e sensitive"
-msgstr ""
+msgstr "Distinguir &mayúsculas y minúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:454
 msgid "&Replace with:"
@@ -8172,7 +8235,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:456
 msgid "&Apply function after replace:"
-msgstr ""
+msgstr "&Aplicar función después de sustituir:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:457
 msgid ""
@@ -8199,7 +8262,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:462
 msgid "M&ode:"
-msgstr ""
+msgstr "M&odo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:463
 msgid "Specify how the text should be copied into the destination."
@@ -8212,14 +8275,17 @@ msgid ""
 "is\n"
 "not multiple and the destination field is multiple"
 msgstr ""
+"Especifica si los resultados se dividen en múltiples valores o se dejan\n"
+"como uno solo. Esta opción tiene más efectos cuando el camp de origen\n"
+"no es múltiple y el de destino sí lo es."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:467
 msgid "Split &result"
-msgstr ""
+msgstr "Dividir &resultado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:468
 msgid "For multiple-valued fields, sho&w"
-msgstr ""
+msgstr "Para campos con &valores múltiples, mostrar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:469
 msgid "values starting a&t"
@@ -8227,21 +8293,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:470
 msgid "with values separated b&y"
-msgstr ""
+msgstr "con valores separados &por"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:471
 msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
 msgstr ""
+"Usado cuando se muestran resultados de prueba para separar los valores de "
+"campos con valores múltiples"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:472
 msgid "Test text"
-msgstr ""
+msgstr "Texto de prueba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:473
 msgid "Test result"
-msgstr ""
+msgstr "Resultado de prueba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:474
 msgid "Your test:"
@@ -8865,7 +8933,7 @@ msgstr "Búsqueda avanzada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:199
 msgid "&What kind of match to use:"
-msgstr ""
+msgstr "&Tipo de coincidencia:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
