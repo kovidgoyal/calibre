@@ -8,6 +8,7 @@ import os, re
 
 from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.markdown import markdown
+from calibre.ebooks.textile import textile
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.txt.heuristicprocessor import TXTHeuristicProcessor
 from calibre.ebooks.conversion.preprocess import DocAnalysis
@@ -79,6 +80,10 @@ def convert_markdown(txt, title='', disable_toc=False):
           extension_configs={"toc": {"disable_toc": disable_toc}},
           safe_mode=False)
     return HTML_TEMPLATE % (title, md.convert(txt))
+
+def convert_textile(txt, title=''):
+    html = textile(txt, encoding='utf-8')
+    return HTML_TEMPLATE % (title, html)
 
 def normalize_line_endings(txt):
     txt = txt.replace('\r\n', '\n')
@@ -176,5 +181,19 @@ def detect_formatting_type(txt):
     for c in md_escapted_characters:
         if txt.count('\\'+c) > 10:
             return 'markdown'
+        
+    # Check for textile
+    # Headings
+    if len(re.findall(r'h[1-6]\.', txt)) >= 5:
+        return 'textile'
+    # Block quote.
+    if len(re.findall(r'bq\.', txt)) >= 5:
+        return 'textile'
+    # Images
+    if len(re.findall(r'\![^\s]+(:[^\s]+)*', txt)) >= 5:
+        return 'textile'
+    # Links
+    if len(re.findall(r'"(\(.+?\))*[^\(]+?(\(.+?\))*":[^\s]+', txt)) >= 5:
+        return 'textile'
     
     return 'heuristic'

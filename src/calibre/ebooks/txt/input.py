@@ -12,7 +12,7 @@ from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
-    convert_heuristic, normalize_line_endings
+    convert_heuristic, normalize_line_endings, convert_textile
 from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
@@ -41,6 +41,7 @@ class TXTInput(InputFormatPlugin):
                    'paragraph and no styling is applied.\n'
                    '* heuristic: Process using heuristics to determine formatting such '
                    'as chapter headings and italic text.\n'
+                   '* textile: Processing using textile formatting.\n'
                    '* markdown: Processing using markdown formatting. '
                    'To learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
         OptionRecommendation(name='preserve_spaces', recommended_value=False,
@@ -91,6 +92,13 @@ class TXTInput(InputFormatPlugin):
             except RuntimeError:
                 raise ValueError('This txt file has malformed markup, it cannot be'
                     ' converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
+        elif options.formatting_type == 'textile':
+            log.debug('Running text though textile conversion...')
+            try:
+                html = convert_textile(txt)
+            except RuntimeError:
+                raise ValueError('This txt file has malformed markup, it cannot be'
+                    ' converted by calibre.')
         else:
             # Determine the paragraph type of the document.
             if options.paragraph_type == 'auto':
