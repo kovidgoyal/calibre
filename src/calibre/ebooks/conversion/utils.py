@@ -151,11 +151,11 @@ class PreProcessor(object):
         n_lookahead_open = "\s+(?!"
         n_lookahead_close = ")"
 
-        default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\'\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
+        default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\:\'\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
 
         chapter_types = [
             [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, "Searching for common Chapter Headings"],
-            [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, "Searching for letter spaced headings"],  # Spaced Lettering
+            [r"([A-Z-]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, "Searching for letter spaced headings"],  # Spaced Lettering
             [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, "Searching for emphasized lines"], # Emphasized lines
             [r"[^'\"]?(\d+(\.|:)|CHAPTER)\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
             [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles"], # Numeric Titles
