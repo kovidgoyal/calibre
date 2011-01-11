@@ -279,7 +279,7 @@ class Document(QWebPage): # {{{
 
     @pyqtSignature("")
     def init_hyphenate(self):
-        if self.hyphenate:
+        if self.hyphenate and getattr(self, 'loaded_lang', ''):
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
 
     def after_load(self):
