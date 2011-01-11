@@ -298,10 +298,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             base,
                             prefer_custom=True)
 
-        self.FIELD_MAP['ondevice'] = base+1
-        self.field_metadata.set_field_record_index('ondevice', base+1, prefer_custom=False)
-        self.FIELD_MAP['all_metadata'] = base+2
-        self.field_metadata.set_field_record_index('all_metadata', base+2, prefer_custom=False)
+        self.FIELD_MAP['ondevice'] = base = base+1
+        self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -690,19 +688,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         row = self.data._data[idx] if index_is_id else self.data[idx]
         fm = self.FIELD_MAP
-
-        self.gm_count += 1
-        mi = row[self.FIELD_MAP['all_metadata']]
-        if mi is not None:
-            if get_cover:
-                # Always get the cover, because the value can be wrong if the
-                # original mi was from the OPF
-                mi.cover = self.cover(idx, index_is_id=index_is_id, as_path=True)
-            return mi
-
-        self.gm_missed += 1
         mi = Metadata(None)
-        self.data.set(idx, fm['all_metadata'], mi, row_is_id = index_is_id)
 
         aut_list = row[fm['au_map']]
         aut_list = [p.split(':::') for p in aut_list.split(':#:')]
@@ -1387,7 +1373,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if r is not None:
                 if (now - r[self.FIELD_MAP['timestamp']]) > delta:
                     tags = r[self.FIELD_MAP['tags']]
-                    if tags and tag in tags.lower():
+                    if tags and tag in [x.strip() for x in
+                            tags.lower().split(',')]:
                         yield r[self.FIELD_MAP['id']]
 
     def get_next_series_num_for(self, series):
