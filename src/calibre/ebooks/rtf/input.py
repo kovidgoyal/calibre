@@ -77,18 +77,19 @@ class RTFInput(InputFormatPlugin):
 
     def generate_xml(self, stream):
         from calibre.ebooks.rtf2xml.ParseRtf import ParseRtf
-        debug_dir = getattr(self.opts, 'debug_pipeline', None)
+        ofile = 'dataxml.xml' 
         run_lev = 1
-        if debug_dir is not None:
+        if hasattr(self.opts, 'debug_pipeline'):
             try:
-                debug_dir = os.path.normpath('rtfdebug/')
+                debug_dir = 'rtfdebug'
                 os.mkdir(debug_dir)
                 run_lev = 4
             except OSError, ( errno, strerror ):
                 print strerror
                 print errno
                 debug_dir = None
-        ofile = 'dataxml.xml'
+        else:
+            debug_dir = None
         parser = ParseRtf(
             in_file    = stream,
             out_file   = ofile,
