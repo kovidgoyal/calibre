@@ -98,9 +98,10 @@ class AumSortedConcatenate(object):
 
     def finalize(self):
         keys = self.ans.keys()
-        if len(keys) == 0:
+        l = len(keys)
+        if l == 0:
             return 'Unknown:::Unknown'
-        if len(keys) == 1:
+        if l == 1:
             return self.ans[keys[0]]
         return ':#:'.join([self.ans[v] for v in sorted(keys)])
 

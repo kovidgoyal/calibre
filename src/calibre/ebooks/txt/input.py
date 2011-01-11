@@ -53,7 +53,7 @@ class TXTInput(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         log.debug('Reading text from file...')
-        
+
         txt = stream.read()
         # Get the encoding of the document.
         if options.input_encoding:
@@ -80,7 +80,7 @@ class TXTInput(InputFormatPlugin):
         # Get length for hyphen removal and punctuation unwrap
         docanalysis = DocAnalysis('txt', txt)
         length = docanalysis.line_length(.5)
-            
+
         if options.formatting_type == 'auto':
             options.formatting_type = detect_formatting_type(txt)
 
@@ -122,7 +122,7 @@ class TXTInput(InputFormatPlugin):
                 txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
 
             flow_size = getattr(options, 'flow_size', 0)
-            
+
             if options.formatting_type == 'heuristic':
                 html = convert_heuristic(txt, epub_split_size_kb=flow_size)
             else:
