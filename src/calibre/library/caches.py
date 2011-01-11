@@ -598,7 +598,6 @@ class ResultCache(SearchQueryParser): # {{{
 
     def set(self, row, col, val, row_is_id=False):
         id = row if row_is_id else self._map_filtered[row]
-        self._data[id][self.FIELD_MAP['all_metadata']] = None
         self._data[id][col] = val
 
     def get(self, row, col, row_is_id=False):
@@ -629,7 +628,6 @@ class ResultCache(SearchQueryParser): # {{{
                 self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
                 self._data[id].append(db.book_on_device_string(id))
-                self._data[id].append(None)
             except IndexError:
                 return None
         try:
@@ -646,7 +644,6 @@ class ResultCache(SearchQueryParser): # {{{
             self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
             self._data[id].append(db.book_on_device_string(id))
-            self._data[id].append(None)
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -671,7 +668,6 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
-                item.append(None)
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)

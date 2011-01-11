@@ -582,9 +582,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             # Goes here, because if cf is valid, db is valid.
             db.prefs['field_metadata'] = db.field_metadata.all_metadata()
             db.commit_dirty_cache()
-            if DEBUG and db.gm_count > 0:
-                print 'get_metadata cache: {0:d} calls, {1:4.2f}% misses'.format(
-                        db.gm_count, (db.gm_missed*100.0)/db.gm_count)
         for action in self.iactions.values():
             if not action.shutting_down():
                 return
