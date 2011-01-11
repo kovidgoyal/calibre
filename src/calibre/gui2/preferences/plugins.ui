@@ -76,6 +76,10 @@
      <property name="text">
       <string>&amp;Add a new plugin</string>
      </property>
+     <property name="icon">
+      <iconset resource="../../../../resources/images.qrc">
+       <normaloff>:/images/plugins.png</normaloff>:/images/plugins.png</iconset>
+     </property>
     </widget>
    </item>
   </layout>
