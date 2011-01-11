@@ -34,14 +34,14 @@ class DeleteInfo:
         self.__bracket_count= 0
         self.__ob_count = 0
         self.__cb_count = 0
-        self.__after_asterisk = False
-        self.__delete = 0
+        # self.__after_asterisk = False
+        # self.__delete = 0
         self.__initiate_allow()
         self.__ob = 0
-        self.__write_cb = 0
+        self.__write_cb = False
         self.__run_level = run_level
         self.__found_delete = False
-        self.__list = False
+        # self.__list = False
 
     def __initiate_allow(self):
         """
@@ -69,7 +69,7 @@ class DeleteInfo:
         self.__state_dict = {
             'default'           : self.__default_func,
             'after_asterisk'    : self.__asterisk_func,
-            'delete'           : self.__delete_func,
+            'delete'            : self.__delete_func,
             'list'              : self.__list_func,
         }
 
@@ -99,7 +99,7 @@ class DeleteInfo:
         if self.__delete_count == self.__cb_count:
             self.__state = 'default'
             if self.__write_cb:
-                self.__write_cb = 0
+                self.__write_cb = True
                 return True
             return False
 
@@ -116,7 +116,7 @@ class DeleteInfo:
         """
         # Test for {\*}, in which case don't enter
         # delete state
-        self.__after_asterisk = False # only enter this function once
+        # self.__after_asterisk = False # only enter this function once
         self.__found_delete = True
         if self.__token_info == 'cb<nu<clos-brack':
             if self.__delete_count == self.__cb_count:
@@ -128,7 +128,7 @@ class DeleteInfo:
                 # not sure what happens here!
                 # believe I have a '{\*}
                 if self.__run_level > 3:
-                    msg = 'flag problem\n'
+                    msg = _('flag problem\n')
                     raise self.__bug_handler, msg
                 return True
         elif self.__token_info in self.__allowable :
@@ -144,18 +144,18 @@ class DeleteInfo:
             self.__found_list_func(line)
         elif self.__token_info in self.__not_allowable:
             if not self.__ob:
-                self.__write_cb = 1
+                self.__write_cb = False
             self.__ob = 0
             self.__state = 'delete'
             self.__cb_count = 0
             return False
         else:
             if self.__run_level > 5:
-                msg = _('After an asterisk, and found neither an allowable or non-allowble token\n\
+                msg = _('After an asterisk, and found neither an allowable or non-allowable token\n\
                             token is "%s"\n') % self.__token_info
-                raise self.__bug_handler
+                raise self.__bug_handler, msg
             if not self.__ob:
-                self.__write_cb = 1
+                self.__write_cb = True
             self.__ob = 0
             self.__state = 'delete'
             self.__cb_count = 0
@@ -177,7 +177,7 @@ class DeleteInfo:
             'cb<nu<clos-brack':
             self.__state = 'default'
             if self.__write_cb:
-                self.__write_cb = 0
+                self.__write_cb = False
                 return True
             return False
         elif line[0:2] == 'cw':
@@ -188,8 +188,8 @@ class DeleteInfo:
     def delete_info(self):
         """Main method for handling other methods. Read one line in at
         a time, and determine wheter to print the line based on the state."""
-        self.__write_obj = open(self.__write_to, 'w')
-        with open(self.__file, 'r') as read_obj:
+        with open(self.__file, 'r') as read_obj, \
+            open(self.__write_to, 'w') as self.__write_obj:
             for line in read_obj:
                 #ob<nu<open-brack<0001
                 to_print = True
@@ -203,19 +203,16 @@ class DeleteInfo:
                     sys.stderr.write(_('No action in dictionary state is "%s" \n')
                             % self.__state)
                 to_print = action(line)
-                """
-                if self.__after_asterisk:
-                    to_print = self.__asterisk_func(line)
-                elif self.__list:
-                    self.__in_list_func(line)
-                elif self.__delete:
-                    to_print = self.__delete_func(line)
-                else:
-                    to_print = self.__default_func(line)
-                """
+                # if self.__after_asterisk:
+                    # to_print = self.__asterisk_func(line)
+                # elif self.__list:
+                    # self.__in_list_func(line)
+                # elif self.__delete:
+                    # to_print = self.__delete_func(line)
+                # else:
+                    # to_print = self.__default_func(line)
                 if to_print:
                     self.__write_obj.write(line)
-        self.__write_obj.close()
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "delete_info.data")

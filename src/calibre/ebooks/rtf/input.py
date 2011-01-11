@@ -133,8 +133,6 @@ class RTFInput(InputFormatPlugin):
         )
         parser.parse_rtf()
         ans = open('dataxml.xml').read()
-        if debug_dir is None:
-            os.remove('dataxml.xml')
         return ans
 
     def extract_images(self, picts):
