@@ -81,9 +81,9 @@ class RTFInput(InputFormatPlugin):
         run_lev = 1
         if debug_dir is not None:
             try:
-                debug_dir = os.path.abspath(os.path.normpath(debug_dir + u'/rtfdebug/'))
-                os.makedirs(debug_dir)
-                run_lev = 6
+                debug_dir = os.path.normpath('rtfdebug/')
+                os.mkdir(debug_dir)
+                run_lev = 4
             except OSError, ( errno, strerror ):
                 print strerror
                 print errno
