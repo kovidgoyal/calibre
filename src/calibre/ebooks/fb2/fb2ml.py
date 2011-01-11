@@ -102,6 +102,7 @@ class FB2MLizer(object):
         metadata['date'] = '%i.%i.%i' % (datetime.now().day, datetime.now().month, datetime.now().year)
         metadata['lang'] = u''.join(self.oeb_book.metadata.lang) if self.oeb_book.metadata.lang else 'en'
         metadata['id'] = None
+        metadata['cover'] = self.get_cover()
 
         author_parts = self.oeb_book.metadata.creator[0].value.split(' ')
         if len(author_parts) == 1:
@@ -124,7 +125,8 @@ class FB2MLizer(object):
             metadata['id'] = str(uuid.uuid4()) 
 
         for key, value in metadata.items():
-            metadata[key] = prepare_string_for_xml(value)
+            if not key == 'cover':
+                metadata[key] = prepare_string_for_xml(value)
 
         return u'<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">' \
                 '<description>' \
@@ -136,6 +138,7 @@ class FB2MLizer(object):
                             '<last-name>%(author_last)s</last-name>' \
                         '</author>' \
                         '<book-title>%(title)s</book-title>' \
+                        '%(cover)s' \
                         '<lang>%(lang)s</lang>' \
                     '</title-info>' \
                     '<document-info>' \
@@ -154,6 +157,41 @@ class FB2MLizer(object):
     def fb2_footer(self):
         return u'</FictionBook>'
 
+    def get_cover(self):
+        cover_href = None
+        
+        # Get the raster cover if it's available.
+        if self.oeb_book.metadata.cover and unicode(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
+            id = unicode(self.oeb_book.metadata.cover[0])
+            cover_item = self.oeb_book.manifest.ids[id]
+            if cover_item.media_type in OEB_RASTER_IMAGES:
+                cover_href = cover_item.href
+            print 1
+        else:
+            # Figure out if we have a title page or a cover page
+            page_name = ''
+            if 'titlepage' in self.oeb_book.guide:
+                page_name = 'titlepage'
+            elif 'cover' in self.oeb_book.guide:
+                page_name = 'cover'
+
+            if page_name:
+                cover_item = self.oeb_book.manifest.hrefs[self.oeb_book.guide[page_name].href]
+                # Get the first image in the page
+                for img in cover_item.xpath('//img'):
+                    cover_href = cover_item.abshref(img.get('src'))
+                    print cover_href
+                    break
+                
+        if cover_href:
+            # Only write the image tag if it is in the manifest.
+            if cover_href in self.oeb_book.manifest.hrefs.keys():
+                if cover_href not in self.image_hrefs.keys():
+                    self.image_hrefs[cover_href] = '_%s.jpg' % len(self.image_hrefs.keys())
+            return u'<coverpage><image xlink:href="#%s" /></coverpage>' % self.image_hrefs[cover_href]
+        
+        return u'' 
+
     def get_text(self):
         text = ['<body>']
         
@@ -161,23 +199,6 @@ class FB2MLizer(object):
         if self.opts.sectionize == 'nothing':
             text.append('<section>')
             self.section_level += 1
-        
-        # Insert the title page / cover into the spine if it is not already referenced.
-        title_name = u''
-        if 'titlepage' in self.oeb_book.guide:
-            title_name = 'titlepage'
-        elif 'cover' in self.oeb_book.guide:
-            title_name = 'cover'
-        if title_name:
-            title_item = self.oeb_book.manifest.hrefs[self.oeb_book.guide[title_name].href]
-            if title_item.spine_position is None and title_item.media_type == 'application/xhtml+xml':
-                self.oeb_book.spine.insert(0, title_item, True)
-        # Create xhtml page to reference cover image so it can be used.
-        if not title_name and self.oeb_book.metadata.cover and unicode(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
-            id = unicode(self.oeb_book.metadata.cover[0])
-            cover_item = self.oeb_book.manifest.ids[id]
-            if cover_item.media_type in OEB_RASTER_IMAGES:
-                self.insert_image_cover(cover_item.href)
         
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
@@ -202,17 +223,6 @@ class FB2MLizer(object):
             self.section_level -= 1
 
         return ''.join(text) + '</body>'
-
-    def insert_image_cover(self, image_href):
-        from calibre.ebooks.oeb.base import RECOVER_PARSER
-        try:
-            root = etree.fromstring(u'<html xmlns="%s"><body><img src="%s" /></body></html>' % (XHTML_NS, image_href), parser=RECOVER_PARSER)
-        except:
-            root = etree.fromstring(u'', parser=RECOVER_PARSER)
-        
-        id, href = self.oeb_book.manifest.generate('fb2_cover', 'fb2_cover.xhtml')
-        item = self.oeb_book.manifest.add(id, href, guess_type(href)[0], data=root)
-        self.oeb_book.spine.insert(0, item, True)
 
     def fb2mlize_images(self):
         '''
