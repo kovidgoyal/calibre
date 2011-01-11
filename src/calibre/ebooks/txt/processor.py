@@ -162,38 +162,33 @@ def detect_paragraph_type(txt):
 
 
 def detect_formatting_type(txt):
+    markdown_count = 0
+    textile_count = 0
+    
     # Check for markdown
     # Headings
-    if len(re.findall('(?mu)^#+', txt)) >= 5:
-        return 'markdown'
-    if len(re.findall('(?mu)^=+$', txt)) >= 5:
-        return 'markdown'
-    if len(re.findall('(?mu)^-+$', txt)) >= 5:
-        return 'markdown'
+    markdown_count += len(re.findall('(?mu)^#+', txt)) 
+    markdown_count += len(re.findall('(?mu)^=+$', txt))
+    markdown_count += len(re.findall('(?mu)^-+$', txt))
     # Images
-    if len(re.findall('(?u)!\[.*?\]\(.+?\)', txt)) >= 5:
-        return 'markdown'
+    markdown_count += len(re.findall('(?u)!\[.*?\]\(.+?\)', txt))
     # Links
-    if len(re.findall('(?u)(^|(?P<pre>[^!]))\[.*?\]\([^)]+\)', txt)) >= 5:
-        return 'markdown'
-    # Escaped characters
-    md_escapted_characters = ['\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!']
-    for c in md_escapted_characters:
-        if txt.count('\\'+c) > 10:
-            return 'markdown'
+    markdown_count += len(re.findall('(?u)(^|(?P<pre>[^!]))\[.*?\]\([^)]+\)', txt))
         
     # Check for textile
     # Headings
-    if len(re.findall(r'h[1-6]\.', txt)) >= 5:
-        return 'textile'
+    textile_count += len(re.findall(r'(?mu)^h[1-6]\.', txt))
     # Block quote.
-    if len(re.findall(r'bq\.', txt)) >= 5:
-        return 'textile'
+    textile_count += len(re.findall(r'(?mu)^bq\.', txt))
     # Images
-    if len(re.findall(r'\![^\s]+(:[^\s]+)*', txt)) >= 5:
-        return 'textile'
+    textile_count += len(re.findall(r'\![^\s]+(:[^\s]+)*', txt))
     # Links
-    if len(re.findall(r'"(\(.+?\))*[^\(]+?(\(.+?\))*":[^\s]+', txt)) >= 5:
-        return 'textile'
+    textile_count += len(re.findall(r'"(\(.+?\))*[^\(]+?(\(.+?\))*":[^\s]+', txt))
+    
+    if markdown_count > 5 or textile_count > 5:
+        if markdown_count > textile_count:
+            return 'markdown'
+        else:
+            return 'textile'
     
     return 'heuristic'

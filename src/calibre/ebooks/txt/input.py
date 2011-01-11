@@ -94,11 +94,7 @@ class TXTInput(InputFormatPlugin):
                     ' converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
         elif options.formatting_type == 'textile':
             log.debug('Running text though textile conversion...')
-            try:
-                html = convert_textile(txt)
-            except RuntimeError:
-                raise ValueError('This txt file has malformed markup, it cannot be'
-                    ' converted by calibre.')
+            html = convert_textile(txt)
         else:
             # Determine the paragraph type of the document.
             if options.paragraph_type == 'auto':
