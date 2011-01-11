@@ -15,7 +15,8 @@ from calibre.gui2.preferences.plugins_ui import Ui_Form
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
                                  disable_plugin, plugin_customization, add_plugin, \
                                  remove_plugin
-from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files
+from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files, \
+        question_dialog
 
 class PluginModel(QAbstractItemModel): # {{{
 
@@ -132,7 +133,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.toggle_plugin_button.clicked.connect(self.toggle_plugin)
         self.customize_plugin_button.clicked.connect(self.customize_plugin)
         self.remove_plugin_button.clicked.connect(self.remove_plugin)
-        self.button_plugin_browse.clicked.connect(self.find_plugin)
         self.button_plugin_add.clicked.connect(self.add_plugin)
 
     def toggle_plugin(self, *args):
@@ -149,23 +149,33 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.modify_plugin(op='remove')
 
     def add_plugin(self):
-        path = unicode(self.plugin_path.text())
-        if path and os.access(path, os.R_OK) and path.lower().endswith('.zip'):
-            add_plugin(path)
+        path = choose_files(self, 'add a plugin dialog', _('Add plugin'),
+                filters=[(_('Plugins'), ['zip'])], all_files=False,
+                    select_only_single_file=True)
+        if not path:
+            return
+        path = path[0]
+        if path and  os.access(path, os.R_OK) and path.lower().endswith('.zip'):
+            if not question_dialog(self, _('Are you sure?'), '<p>' + \
+                    _('Installing plugins is a <b>security risk</b>. '
+                    'Plugins can contain a virus/malware. '
+                        'Only install it if you got it from a trusted source.'
+                        ' Are you sure you want to proceed?'),
+                    show_copy_button=False):
+                return
+            plugin = add_plugin(path)
             self._plugin_model.populate()
             self._plugin_model.reset()
             self.changed_signal.emit()
-            self.plugin_path.setText('')
+            info_dialog(self, _('Success'),
+                    _('Plugin <b>{0}</b> successfully installed under <b>'
+                        ' {1} plugins</b>. You may have to restart calibre '
+                        'for the plugin to take effect.').format(plugin.name, plugin.type),
+                    show=True)
         else:
             error_dialog(self, _('No valid plugin path'),
                          _('%s is not a valid plugin path')%path).exec_()
 
-    def find_plugin(self):
-        path = choose_files(self, 'choose plugin dialog', _('Choose plugin'),
-                            filters=[('Plugins', ['zip'])], all_files=False,
-                            select_only_single_file=True)
-        if path:
-            self.plugin_path.setText(path[0])
 
     def modify_plugin(self, op=''):
         index = self.plugin_view.currentIndex()
