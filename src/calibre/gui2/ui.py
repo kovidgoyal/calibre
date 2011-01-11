@@ -19,7 +19,7 @@ from PyQt4.Qt import Qt, SIGNAL, QTimer, \
                      QMessageBox, QHelpEvent
 
 from calibre import  prints
-from calibre.constants import __appname__, isosx, DEBUG
+from calibre.constants import __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server

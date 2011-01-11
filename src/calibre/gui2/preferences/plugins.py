@@ -77,6 +77,16 @@ class PluginModel(QAbstractItemModel): # {{{
                     return self.index(j, 0, parent)
         return QModelIndex()
 
+    def plugin_to_index_by_properties(self, plugin):
+        for i, category in enumerate(self.categories):
+            parent = self.index(i, 0, QModelIndex())
+            for j, p in enumerate(self._data[category]):
+                if plugin.name == p.name and plugin.type == p.type and \
+                        plugin.author == p.author and plugin.version == p.version:
+                    return self.index(j, 0, parent)
+        return QModelIndex()
+
+
     def refresh_plugin(self, plugin, rescan=False):
         if rescan:
             self.populate()
@@ -171,7 +181,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     _('Plugin <b>{0}</b> successfully installed under <b>'
                         ' {1} plugins</b>. You may have to restart calibre '
                         'for the plugin to take effect.').format(plugin.name, plugin.type),
-                    show=True)
+                    show=True, show_copy_button=False)
+            idx = self._plugin_model.plugin_to_index_by_properties(plugin)
+            if idx.isValid():
+                self.plugin_view.scrollTo(idx,
+                        self.plugin_view.PositionAtCenter)
+                self.plugin_view.scrollTo(idx,
+                        self.plugin_view.PositionAtCenter)
         else:
             error_dialog(self, _('No valid plugin path'),
                          _('%s is not a valid plugin path')%path).exec_()
@@ -201,10 +217,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if plugin.do_user_config():
                     self._plugin_model.refresh_plugin(plugin)
             elif op == 'remove':
+                msg = _('Plugin {0} successfully removed').format(plugin.name)
                 if remove_plugin(plugin):
                     self._plugin_model.populate()
                     self._plugin_model.reset()
                     self.changed_signal.emit()
+                    info_dialog(self, _('Success'), msg, show=True,
+                            show_copy_button=False)
                 else:
                     error_dialog(self, _('Cannot remove builtin plugin'),
                          plugin.name + _(' cannot be removed. It is a '

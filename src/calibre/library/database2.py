@@ -298,8 +298,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             base,
                             prefer_custom=True)
 
-        self.FIELD_MAP['ondevice'] = base+1
-        self.field_metadata.set_field_record_index('ondevice', base+1, prefer_custom=False)
+        self.FIELD_MAP['ondevice'] = base = base+1
+        self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -1373,9 +1373,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if r is not None:
                 if (now - r[self.FIELD_MAP['timestamp']]) > delta:
                     tags = r[self.FIELD_MAP['tags']]
-                    tags = tags.lower().split(',') if tags else []
-                    tags = [tag.strip() for tag in tags if tag.strip()]
-                    if tag in tags:
+                    if tags and tag in [x.strip() for x in
+                            tags.lower().split(',')]:
                         yield r[self.FIELD_MAP['id']]
 
     def get_next_series_num_for(self, series):
