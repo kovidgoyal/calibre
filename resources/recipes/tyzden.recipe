@@ -1,0 +1,80 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__copyright__ = '2011, Miroslav Vasko zemiak@gmail.com'
+
+'''
+.tyzden, a weekly news magazine (a week old issue)
+'''
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+from datetime import date
+import re
+
+class TyzdenRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'zemiak'
+    language = 'sk'
+    version = 1
+
+    publisher = u'www.tyzden.sk'
+    category = u'Magazine'
+    description = u'A conservative weekly magazine. The latest free issue'
+
+    today = date.today()
+    iso = today.isocalendar()
+    year = iso[0]
+    weeknum = iso[1]
+
+    if (weeknum > 1):
+        weeknum -= 1
+
+    title = u'.tyzden ' + str(weeknum) + '/' + str(year)
+
+    base_url_path = 'http://www.tyzden.sk/casopis/' + str(year) + '/' + str(weeknum)
+    base_url = base_url_path + '.html'
+
+    oldest_article = 20
+    max_articles_per_feed = 100
+    remove_javascript = True
+
+    use_embedded_content    = False
+    no_stylesheets = True
+
+    keep_only_tags = []
+    keep_only_tags.append(dict(name = 'h1'))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'text_area top_nofoto'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'text_block'}))
+
+    remove_tags_after = [dict(name = 'div', attrs = {'class': 'text_block'})]
+
+    def find_sections(self):
+        soup = self.index_to_soup(self.base_url)
+        # find cover pic
+	imgdiv = soup.find('div', attrs = {'class': 'foto'})
+	if imgdiv is not None:
+            img = imgdiv.find('img')
+            if img is not None:
+                self.cover_url = 'http://www.tyzden.sk/' + img['src']
+        # end find cover pic
+
+        for s in soup.findAll('a', attrs={'href': re.compile(r'rubrika/.*')}):
+            yield (self.tag_to_string(s), s)
+
+    def find_articles(self, soup):
+        for art in soup.findAllNext('a'):
+            if (not art['href'].startswith('casopis/')):
+                break;
+
+            url = art['href']
+            title = self.tag_to_string(art)
+            yield {
+                    'title': title, 'url':self.base_url_path + '/' + url, 'description':title,
+                    'date' : strftime('%a, %d %b'),
+                    }
+
+    def parse_index(self):
+        feeds = []
+        for title, soup in self.find_sections():
+            feeds.append((title, list(self.find_articles(soup))))
+
+        return feeds

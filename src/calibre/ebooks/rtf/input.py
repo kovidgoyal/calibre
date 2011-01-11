@@ -296,7 +296,7 @@ class RTFInput(InputFormatPlugin):
                         u'<p>\u00a0</p>\n'.encode('utf-8'), res)
             if self.opts.preprocess_html:
                 preprocessor = PreProcessor(self.opts, log=getattr(self, 'log', None))
-                res = preprocessor(res)
+                res = preprocessor(res.decode('utf-8')).encode('utf-8')
             f.write(res)
         self.write_inline_css(inline_class, border_styles)
         stream.seek(0)
