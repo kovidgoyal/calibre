@@ -1373,7 +1373,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if r is not None:
                 if (now - r[self.FIELD_MAP['timestamp']]) > delta:
                     tags = r[self.FIELD_MAP['tags']]
-                    tags = tags.lower().split() if tags else []
+                    tags = tags.lower().split(',') if tags else []
                     tags = [tag.strip() for tag in tags if tag.strip()]
                     if tag in tags:
                         yield r[self.FIELD_MAP['id']]
