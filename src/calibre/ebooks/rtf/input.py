@@ -77,7 +77,18 @@ class RTFInput(InputFormatPlugin):
 
     def generate_xml(self, stream):
         from calibre.ebooks.rtf2xml.ParseRtf import ParseRtf
-        ofile = 'out.xml'
+        debug_dir = getattr(self.opts, 'debug_pipeline', None)
+        run_lev = 1
+        if debug_dir is not None:
+            try:
+                debug_dir = os.path.abspath(os.path.normpath(debug_dir + u'/rtfdebug/'))
+                os.makedirs(debug_dir)
+                run_lev = 6
+            except OSError, ( errno, strerror ):
+                print strerror
+                print errno
+                debug_dir = None
+        ofile = 'dataxml.xml'
         parser = ParseRtf(
             in_file    = stream,
             out_file   = ofile,
@@ -117,12 +128,13 @@ class RTFInput(InputFormatPlugin):
             empty_paragraphs = 1,
             
             #debug
-            deb_dir = "D:\\Mes eBooks\\Developpement\\debug\\rtfdebug",
-            run_level = 3
+            deb_dir = debug_dir,
+            run_level = run_lev,
         )
         parser.parse_rtf()
-        ans = open('out.xml').read()
-        os.remove('out.xml')
+        ans = open('dataxml.xml').read()
+        if debug_dir is None:
+            os.remove('dataxml.xml')
         return ans
 
     def extract_images(self, picts):
@@ -213,7 +225,7 @@ class RTFInput(InputFormatPlugin):
         css += '\n'+'\n'.join(font_size_classes)
         css += '\n' +'\n'.join(color_classes)
 
-        for cls, val in border_styles.items():
+        for cls, val in border_styles.iteritems():
             css += '\n\n.%s {\n%s\n}'%(cls, val)
 
         with open('styles.css', 'ab') as f:
@@ -276,9 +288,6 @@ class RTFInput(InputFormatPlugin):
         except RtfInvalidCodeException, e:
             raise ValueError(_('This RTF file has a feature calibre does not '
             'support. Convert it to HTML first and then try it.\n%s')%e)
-
-        with open('dataxml.xml', 'w') as dataxml:
-            dataxml.write(xml)
 
         d = glob.glob(os.path.join('*_rtf_pict_dir', 'picts.rtf'))
         if d:
