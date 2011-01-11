@@ -87,6 +87,24 @@ class SortedConcatenate(object):
 class SafeSortedConcatenate(SortedConcatenate):
     sep = '|'
 
+class AumSortedConcatenate(object):
+    '''String concatenation aggregator for the author sort map'''
+    def __init__(self):
+        self.ans = {}
+
+    def step(self, ndx, author, sort):
+        if author is not None:
+            self.ans[ndx] = author + ':::' + sort
+
+    def finalize(self):
+        keys = self.ans.keys()
+        l = len(keys)
+        if l == 0:
+            return 'Unknown:::Unknown'
+        if l == 1:
+            return self.ans[keys[0]]
+        return ':#:'.join([self.ans[v] for v in sorted(keys)])
+
 class Connection(sqlite.Connection):
 
     def get(self, *args, **kw):
@@ -155,6 +173,7 @@ class DBThread(Thread):
         c_ext_loaded = load_c_extensions(self.conn)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
+        self.conn.create_aggregate('aum_sortconcat', 3, AumSortedConcatenate)
         if not c_ext_loaded:
             self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
             self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)

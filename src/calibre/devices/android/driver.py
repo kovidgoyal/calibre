@@ -29,7 +29,7 @@ class ANDROID(USBMS):
             # Motorola
             0x22b8 : { 0x41d9 : [0x216], 0x2d61 : [0x100], 0x2d67 : [0x100],
                        0x41db : [0x216], 0x4285 : [0x216], 0x42a3 : [0x216],
-                       0x4286 : [0x216] },
+                       0x4286 : [0x216], 0x42b3 : [0x216] },
 
             # Sony Ericsson
             0xfce : { 0xd12e : [0x0100]},
@@ -53,6 +53,9 @@ class ANDROID(USBMS):
             # LG
             0x1004 : { 0x61cc : [0x100] },
 
+            # Archos
+            0x0e79 : { 0x1420 : [0x0216]},
+
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
@@ -61,18 +64,19 @@ class ANDROID(USBMS):
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
 
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
-            'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE']
+            'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
             'SCH-I500_CARD', 'SPH-D700_CARD', 'MB810', 'GT-P1000', 'DESIRE',
-            'SGH-T849', '_MB300']
+            'SGH-T849', '_MB300', 'A70S']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
-            'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD']
+            'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
+            'A70S']
 
-    OSX_MAIN_MEM = 'HTC Android Phone Media'
+    OSX_MAIN_MEM = 'Android Device Main Memory'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'Android Phone Internal Memory'
+    MAIN_MEMORY_VOLUME_LABEL  = 'Android Device Main Memory'
 
     SUPPORTS_SUB_DIRS = True
 
