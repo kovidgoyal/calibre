@@ -16,7 +16,6 @@ import uuid
 
 from lxml import etree
 
-from calibre import guess_type
 from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
@@ -41,7 +40,7 @@ class FB2MLizer(object):
         # in different directories. FB2 images are all in a flat layout so we rename all images
         # into a sequential numbering system to ensure there are no collisions between image names.
         self.image_hrefs = {}
-        # Mapping of toc items and their 
+        # Mapping of toc items and their
         self.toc = {}
         # Used to see whether a new <section> needs to be opened
         self.section_level = 0
@@ -51,7 +50,7 @@ class FB2MLizer(object):
         self.oeb_book = oeb_book
         self.opts = opts
         self.reset_state()
-        
+
         # Used for adding <section>s and <title>s to allow readers
         # to generate toc from the document.
         if self.opts.sectionize == 'toc':
@@ -75,20 +74,20 @@ class FB2MLizer(object):
         text = re.sub(r'(?miu)<p>\s*</p>', '', text)
         text = re.sub(r'(?miu)\s*</p>', '</p>', text)
         text = re.sub(r'(?miu)</p>\s*<p>', '</p>\n\n<p>', text)
-        
+
         text = re.sub(r'(?miu)<title>\s*</title>', '', text)
         text = re.sub(r'(?miu)\s+</title>', '</title>', text)
-        
+
         text = re.sub(r'(?miu)<section>\s*</section>', '', text)
         text = re.sub(r'(?miu)\s*</section>', '\n</section>', text)
         text = re.sub(r'(?miu)</section>\s*', '</section>\n\n', text)
         text = re.sub(r'(?miu)\s*<section>', '\n<section>', text)
         text = re.sub(r'(?miu)<section>\s*', '<section>\n', text)
         text = re.sub(r'(?miu)</section><section>', '</section>\n\n<section>', text)
-        
+
         if self.opts.insert_blank_line:
             text = re.sub(r'(?miu)</p>', '</p><empty-line />', text)
-        
+
         return text
 
     def fb2_header(self):
@@ -102,6 +101,7 @@ class FB2MLizer(object):
         metadata['date'] = '%i.%i.%i' % (datetime.now().day, datetime.now().month, datetime.now().year)
         metadata['lang'] = u''.join(self.oeb_book.metadata.lang) if self.oeb_book.metadata.lang else 'en'
         metadata['id'] = None
+        metadata['cover'] = self.get_cover()
 
         author_parts = self.oeb_book.metadata.creator[0].value.split(' ')
         if len(author_parts) == 1:
@@ -121,10 +121,11 @@ class FB2MLizer(object):
                 break
         if metadata['id'] is None:
             self.log.warn('No UUID identifier found')
-            metadata['id'] = str(uuid.uuid4()) 
+            metadata['id'] = str(uuid.uuid4())
 
         for key, value in metadata.items():
-            metadata[key] = prepare_string_for_xml(value)
+            if not key == 'cover':
+                metadata[key] = prepare_string_for_xml(value)
 
         return u'<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">' \
                 '<description>' \
@@ -136,6 +137,7 @@ class FB2MLizer(object):
                             '<last-name>%(author_last)s</last-name>' \
                         '</author>' \
                         '<book-title>%(title)s</book-title>' \
+                        '%(cover)s' \
                         '<lang>%(lang)s</lang>' \
                     '</title-info>' \
                     '<document-info>' \
@@ -154,65 +156,72 @@ class FB2MLizer(object):
     def fb2_footer(self):
         return u'</FictionBook>'
 
+    def get_cover(self):
+        cover_href = None
+
+        # Get the raster cover if it's available.
+        if self.oeb_book.metadata.cover and unicode(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
+            id = unicode(self.oeb_book.metadata.cover[0])
+            cover_item = self.oeb_book.manifest.ids[id]
+            if cover_item.media_type in OEB_RASTER_IMAGES:
+                cover_href = cover_item.href
+            print 1
+        else:
+            # Figure out if we have a title page or a cover page
+            page_name = ''
+            if 'titlepage' in self.oeb_book.guide:
+                page_name = 'titlepage'
+            elif 'cover' in self.oeb_book.guide:
+                page_name = 'cover'
+
+            if page_name:
+                cover_item = self.oeb_book.manifest.hrefs[self.oeb_book.guide[page_name].href]
+                # Get the first image in the page
+                for img in cover_item.xpath('//img'):
+                    cover_href = cover_item.abshref(img.get('src'))
+                    print cover_href
+                    break
+
+        if cover_href:
+            # Only write the image tag if it is in the manifest.
+            if cover_href in self.oeb_book.manifest.hrefs.keys():
+                if cover_href not in self.image_hrefs.keys():
+                    self.image_hrefs[cover_href] = '_%s.jpg' % len(self.image_hrefs.keys())
+            return u'<coverpage><image xlink:href="#%s" /></coverpage>' % self.image_hrefs[cover_href]
+
+        return u''
+
     def get_text(self):
         text = ['<body>']
-        
+
         # Create main section if there are no others to create
         if self.opts.sectionize == 'nothing':
             text.append('<section>')
             self.section_level += 1
-        
-        # Insert the title page / cover into the spine if it is not already referenced.
-        title_name = u''
-        if 'titlepage' in self.oeb_book.guide:
-            title_name = 'titlepage'
-        elif 'cover' in self.oeb_book.guide:
-            title_name = 'cover'
-        if title_name:
-            title_item = self.oeb_book.manifest.hrefs[self.oeb_book.guide[title_name].href]
-            if title_item.spine_position is None and title_item.media_type == 'application/xhtml+xml':
-                self.oeb_book.spine.insert(0, title_item, True)
-        # Create xhtml page to reference cover image so it can be used.
-        if not title_name and self.oeb_book.metadata.cover and unicode(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
-            id = unicode(self.oeb_book.metadata.cover[0])
-            cover_item = self.oeb_book.manifest.ids[id]
-            if cover_item.media_type in OEB_RASTER_IMAGES:
-                self.insert_image_cover(cover_item.href)
-        
+
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
-            
+
             # Start a <section> if we must sectionize each file or if the TOC references this page
             page_section_open = False
             if self.opts.sectionize == 'files' or self.toc.get(item.href) == 'page':
                 text.append('<section>')
                 page_section_open = True
                 self.section_level += 1
-            
+
             text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
-            
+
             if page_section_open:
                 text.append('</section>')
                 self.section_level -= 1
-                
+
         # Close any open sections
         while self.section_level > 0:
             text.append('</section>')
             self.section_level -= 1
 
         return ''.join(text) + '</body>'
-
-    def insert_image_cover(self, image_href):
-        from calibre.ebooks.oeb.base import RECOVER_PARSER
-        try:
-            root = etree.fromstring(u'<html xmlns="%s"><body><img src="%s" /></body></html>' % (XHTML_NS, image_href), parser=RECOVER_PARSER)
-        except:
-            root = etree.fromstring(u'', parser=RECOVER_PARSER)
-        
-        id, href = self.oeb_book.manifest.generate('fb2_cover', 'fb2_cover.xhtml')
-        item = self.oeb_book.manifest.add(id, href, guess_type(href)[0], data=root)
-        self.oeb_book.spine.insert(0, item, True)
 
     def fb2mlize_images(self):
         '''
@@ -345,7 +354,7 @@ class FB2MLizer(object):
                         self.toc[page.href] = None
                 elif toc_entry and elem_tree.attrib.get('id', None):
                     newlevel = toc_entry.get(elem_tree.attrib.get('id', None), None)
-                    
+
                 # Start a new section if necessary
                 if newlevel:
                     if not (newlevel > self.section_level):
