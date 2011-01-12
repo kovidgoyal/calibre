@@ -159,11 +159,31 @@ class RTFInput(InputFormatPlugin):
         return imap
 
     def convert_image(self, name):
-        from calibre.utils.magick import Image
-        img = Image()
-        img.open(name)
+        try:
+            return self.rasterize_wmf(name)
+        except:
+            self.log.exception('Failed to convert WMF image %r'%name)
+        return self.replace_wmf(name)
+
+    def replace_wmf(self, name):
+        from calibre.ebooks import calibre_cover
+        data = calibre_cover('Conversion of WMF images is not supported',
+            'Use Microsoft Word or OpenOffice to save this RTF file'
+            ' as HTML and convert that in calibre.', title_size=36,
+            author_size=20)
         name = name.replace('.wmf', '.jpg')
-        img.save(name)
+        with open(name, 'wb') as f:
+            f.write(data)
+        return name
+
+    def rasterize_wmf(self, name):
+        from calibre.utils.wmf import extract_raster_image
+        with open(name, 'rb') as f:
+            data = f.read()
+        data = extract_raster_image(data)
+        name = name.replace('.wmf', '.jpg')
+        with open(name, 'wb') as f:
+            f.write(data)
         return name
 
 
