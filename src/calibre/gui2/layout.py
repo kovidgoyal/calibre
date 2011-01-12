@@ -8,9 +8,9 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, \
-    pyqtSignal, QToolButton, QPushButton, \
-    QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup, \
-    QMenu
+    pyqtSignal, QToolButton, QMenu, QCheckBox, \
+    QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup
+
 
 from calibre.constants import __appname__
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
@@ -178,7 +178,9 @@ class SearchBar(QWidget): # {{{
         x.setToolTip(_("<p>Search the list of books by title, author, publisher, tags, comments, etc.<br><br>Words separated by spaces are ANDed"))
         l.addWidget(x)
 
-        self.search_button = QPushButton(_('&Go!'))
+        self.search_button = QToolButton()
+        self.search_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.search_button.setText(_('&Go!'))
         l.addWidget(self.search_button)
         self.search_button.setSizePolicy(QSizePolicy.Minimum,
                 QSizePolicy.Minimum)
@@ -191,6 +193,12 @@ class SearchBar(QWidget): # {{{
         x.setObjectName("clear_button")
         l.addWidget(x)
         x.setToolTip(_("Reset Quick Search"))
+
+        x = parent.search_highlight_only = QCheckBox()
+        x.setText(_('&Highlight'))
+        x.setToolTip(_('Highlight matched books in the book list, instead '
+            'of restricting the book list to the matches.'))
+        l.addWidget(x)
 
         x = parent.saved_search = SavedSearchBox(self)
         x.setMaximumSize(QSize(150, 16777215))
