@@ -94,6 +94,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.bool_blank_icon = QIcon(I('blank.png'))
         self.device_connected = False
         self.rows_matching = set()
+        self.lowest_row_matching = None
         self.highlight_only = False
         self.read_config()
 
@@ -233,7 +234,8 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_highlight_only(self, toWhat):
         self.highlight_only = toWhat
-        self.research()
+        if self.last_search:
+            self.research()
 
     def search(self, text, reset=True):
         try:
@@ -241,11 +243,15 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.db.search('')
                 if not text:
                     self.rows_matching = set()
+                    self.lowest_row_matching = None
                 else:
-                    self.rows_matching = set(self.db.search(text,
-                                                            return_matches=True))
+                    self.rows_matching = self.db.search(text, return_matches=True)
+                    if self.rows_matching:
+                        self.lowest_row_matching = self.db.row(self.rows_matching[0])
+                    self.rows_matching = set(self.rows_matching)
             else:
                 self.rows_matching = set()
+                self.lowest_row_matching = None
                 self.db.search(text)
         except ParseException as e:
             self.searched.emit(e.msg)

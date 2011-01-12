@@ -16,6 +16,7 @@ from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
+from calibre.utils.config import dynamic
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
 
@@ -376,6 +377,8 @@ class SearchBoxMixin(object): # {{{
         self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
         self.clear_button.setStatusTip(self.clear_button.toolTip())
         self.search_highlight_only.stateChanged.connect(self.highlight_only_changed)
+        self.search_highlight_only.setChecked(
+                            dynamic.get('search_highlight_only', False))
 
     def focus_search_box(self, *args):
         self.search.setFocus(Qt.OtherFocusReason)
@@ -403,6 +406,7 @@ class SearchBoxMixin(object): # {{{
         self.current_view().setFocus(Qt.OtherFocusReason)
 
     def highlight_only_changed(self, toWhat):
+        dynamic.set('search_highlight_only', toWhat)
         self.current_view().model().set_highlight_only(toWhat)
         self.focus_to_library()
 
