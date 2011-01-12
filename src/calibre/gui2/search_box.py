@@ -375,6 +375,7 @@ class SearchBoxMixin(object): # {{{
             unicode(self.search.toolTip())))
         self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
         self.clear_button.setStatusTip(self.clear_button.toolTip())
+        self.search_highlight_only.stateChanged.connect(self.highlight_only_changed)
 
     def focus_search_box(self, *args):
         self.search.setFocus(Qt.OtherFocusReason)
@@ -400,6 +401,9 @@ class SearchBoxMixin(object): # {{{
 
     def focus_to_library(self):
         self.current_view().setFocus(Qt.OtherFocusReason)
+
+    def highlight_only_changed(self, toWhat):
+        self.current_view().model().set_highlight_only(toWhat)
 
     # }}}
 
