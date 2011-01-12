@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>752</width>
-    <height>633</height>
+    <width>819</width>
+    <height>650</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
     <widget class="QLabel" name="box_title">
      <property name="text">
       <string/>
@@ -28,818 +28,836 @@
      </property>
     </widget>
    </item>
-   <item>
-    <layout class="QVBoxLayout">
-     <property name="spacing">
-      <number>6</number>
+   <item row="1" column="0">
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
      </property>
-     <property name="margin">
+     <property name="lineWidth">
       <number>0</number>
      </property>
-     <item>
-      <widget class="QTabWidget" name="central_widget">
-       <property name="currentIndex">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>811</width>
+        <height>589</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="margin">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="tabWidgetPage1">
-        <attribute name="title">
-         <string>&amp;Basic metadata</string>
-        </attribute>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>&amp;Author(s): </string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="buddy">
-            <cstring>authors</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QCheckBox" name="auto_author_sort">
-           <property name="text">
-            <string>A&amp;utomatically set author sort</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Author s&amp;ort: </string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="buddy">
-            <cstring>author_sort</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" colspan="2">
-          <widget class="EnLineEdit" name="author_sort">
-           <property name="toolTip">
-            <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>&amp;Rating:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="buddy">
-            <cstring>rating</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1" colspan="2">
-          <widget class="QSpinBox" name="rating">
-           <property name="toolTip">
-            <string>Rating of this book. 0-5 stars</string>
-           </property>
-           <property name="whatsThis">
-            <string>Rating of this book. 0-5 stars</string>
-           </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::PlusMinus</enum>
-           </property>
-           <property name="specialValueText">
-            <string>No change</string>
-           </property>
-           <property name="suffix">
-            <string> stars</string>
-           </property>
-           <property name="minimum">
-            <number>-1</number>
-           </property>
-           <property name="maximum">
-            <number>5</number>
-           </property>
-           <property name="value">
-            <number>-1</number>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>&amp;Publisher: </string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="buddy">
-            <cstring>publisher</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1" colspan="2">
-          <widget class="EnComboBox" name="publisher">
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Add ta&amp;gs: </string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="buddy">
-            <cstring>tags</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="TagsLineEdit" name="tags">
-           <property name="toolTip">
-            <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="2">
-          <widget class="QToolButton" name="tag_editor_button">
-           <property name="toolTip">
-            <string>Open Tag Editor</string>
-           </property>
-           <property name="text">
-            <string>Open Tag Editor</string>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../../resources/images.qrc">
-             <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>&amp;Remove tags:</string>
-           </property>
-           <property name="buddy">
-            <cstring>remove_tags</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="TagsLineEdit" name="remove_tags">
-           <property name="toolTip">
-            <string>Comma separated list of tags to remove from the books. </string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="2">
-          <widget class="QCheckBox" name="remove_all_tags">
-           <property name="toolTip">
-            <string>Check this box to remove all tags from the books.</string>
-           </property>
-           <property name="text">
-            <string>Remove all</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>&amp;Series:</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::PlainText</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="buddy">
-            <cstring>series</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <layout class="QHBoxLayout" name="HLayout_34">
-           <item>
-            <widget class="EnComboBox" name="series">
+       <item>
+        <widget class="QTabWidget" name="central_widget">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="tabWidgetPage1">
+          <attribute name="title">
+           <string>&amp;Basic metadata</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>&amp;Author(s): </string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>authors</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="auto_author_sort">
+             <property name="text">
+              <string>A&amp;utomatically set author sort</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Author s&amp;ort: </string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>author_sort</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" colspan="2">
+            <widget class="EnLineEdit" name="author_sort">
              <property name="toolTip">
-              <string>List of known series. You can add new series.</string>
+              <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>&amp;Rating:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>rating</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1" colspan="2">
+            <widget class="QSpinBox" name="rating">
+             <property name="toolTip">
+              <string>Rating of this book. 0-5 stars</string>
              </property>
              <property name="whatsThis">
-              <string>List of known series. You can add new series.</string>
+              <string>Rating of this book. 0-5 stars</string>
              </property>
+             <property name="buttonSymbols">
+              <enum>QAbstractSpinBox::PlusMinus</enum>
+             </property>
+             <property name="specialValueText">
+              <string>No change</string>
+             </property>
+             <property name="suffix">
+              <string> stars</string>
+             </property>
+             <property name="minimum">
+              <number>-1</number>
+             </property>
+             <property name="maximum">
+              <number>5</number>
+             </property>
+             <property name="value">
+              <number>-1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>&amp;Publisher: </string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>publisher</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1" colspan="2">
+            <widget class="EnComboBox" name="publisher">
              <property name="editable">
               <bool>true</bool>
              </property>
-             <property name="insertPolicy">
-              <enum>QComboBox::InsertAlphabetically</enum>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Add ta&amp;gs: </string>
              </property>
-             <property name="sizeAdjustPolicy">
-              <enum>QComboBox::AdjustToContents</enum>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>tags</cstring>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QCheckBox" name="clear_series">
+           <item row="5" column="1">
+            <widget class="TagsLineEdit" name="tags">
              <property name="toolTip">
-              <string>If checked, the series will be cleared</string>
+              <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2">
+            <widget class="QToolButton" name="tag_editor_button">
+             <property name="toolTip">
+              <string>Open Tag Editor</string>
              </property>
              <property name="text">
-              <string>Clear series</string>
+              <string>Open Tag Editor</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../../resources/images.qrc">
+               <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
              </property>
             </widget>
            </item>
-           <item>
-            <spacer name="HSpacer_344">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>&amp;Remove tags:</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>0</height>
-              </size>
+             <property name="buddy">
+              <cstring>remove_tags</cstring>
              </property>
-            </spacer>
+            </widget>
            </item>
-          </layout>
-         </item>
-         <item row="8" column="1" colspan="2">
-          <layout class="QHBoxLayout" name="HLayout_3">
-           <item>
-            <widget class="QCheckBox" name="autonumber_series">
+           <item row="6" column="1">
+            <widget class="TagsLineEdit" name="remove_tags">
              <property name="toolTip">
-              <string>If not checked, the series number for the books will be set to 1.
+              <string>Comma separated list of tags to remove from the books. </string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="2">
+            <widget class="QCheckBox" name="remove_all_tags">
+             <property name="toolTip">
+              <string>Check this box to remove all tags from the books.</string>
+             </property>
+             <property name="text">
+              <string>Remove all</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>&amp;Series:</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>series</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <layout class="QHBoxLayout" name="HLayout_34">
+             <item>
+              <widget class="EnComboBox" name="series">
+               <property name="toolTip">
+                <string>List of known series. You can add new series.</string>
+               </property>
+               <property name="whatsThis">
+                <string>List of known series. You can add new series.</string>
+               </property>
+               <property name="editable">
+                <bool>true</bool>
+               </property>
+               <property name="insertPolicy">
+                <enum>QComboBox::InsertAlphabetically</enum>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::AdjustToContents</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="clear_series">
+               <property name="toolTip">
+                <string>If checked, the series will be cleared</string>
+               </property>
+               <property name="text">
+                <string>Clear series</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="HSpacer_344">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="8" column="1" colspan="2">
+            <layout class="QHBoxLayout" name="HLayout_3">
+             <item>
+              <widget class="QCheckBox" name="autonumber_series">
+               <property name="toolTip">
+                <string>If not checked, the series number for the books will be set to 1.
 If checked, selected books will be automatically numbered, in the order
 you selected them. So if you selected Book A and then Book B,
 Book A will have series number 1 and Book B series number 2.</string>
-             </property>
-             <property name="text">
-              <string>Automatically number books in this series</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="series_numbering_restarts">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="toolTip">
-              <string>Series will normally be renumbered from the highest number in the database
+               </property>
+               <property name="text">
+                <string>Automatically number books in this series</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="series_numbering_restarts">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>Series will normally be renumbered from the highest number in the database
 for that series. Checking this box will tell calibre to start numbering
 from the value in the box</string>
+               </property>
+               <property name="text">
+                <string>Force numbers to start with </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="series_start_number">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>990000</number>
+               </property>
+               <property name="value">
+                <number>1</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="HSpacer_34">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>10</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="9" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Remove &amp;format:</string>
+             </property>
+             <property name="buddy">
+              <cstring>remove_format</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QComboBox" name="remove_format"/>
+           </item>
+           <item row="0" column="1">
+            <widget class="EnComboBox" name="authors">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="0" colspan="2">
+            <widget class="QCheckBox" name="swap_title_and_author">
+             <property name="text">
+              <string>&amp;Swap title and author</string>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="0" colspan="2">
+            <widget class="QCheckBox" name="change_title_to_title_case">
+             <property name="toolTip">
+              <string>Force the title to be in title case. If both this and swap authors are checked,
+title and author are swapped before the title case is set</string>
              </property>
              <property name="text">
-              <string>Force numbers to start with </string>
+              <string>Change title to title case</string>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QSpinBox" name="series_start_number">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>990000</number>
-             </property>
-             <property name="value">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="HSpacer_34">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>10</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item row="9" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Remove &amp;format:</string>
-           </property>
-           <property name="buddy">
-            <cstring>remove_format</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="1">
-          <widget class="QComboBox" name="remove_format"/>
-         </item>
-         <item row="0" column="1">
-          <widget class="EnComboBox" name="authors">
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="11" column="0" colspan="2">
-          <widget class="QCheckBox" name="swap_title_and_author">
-           <property name="text">
-            <string>&amp;Swap title and author</string>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="0" colspan="2">
-          <widget class="QCheckBox" name="change_title_to_title_case">
-           <property name="toolTip">
-            <string>Force the title to be in title case. If both this and swap authors are checked,
-title and author are swapped before the title case is set</string>
-           </property>
-           <property name="text">
-            <string>Change title to title case</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="0" colspan="2">
-          <widget class="QCheckBox" name="remove_conversion_settings">
-           <property name="toolTip">
-            <string>Remove stored conversion settings for the selected books.
+           <item row="10" column="0" colspan="2">
+            <widget class="QCheckBox" name="remove_conversion_settings">
+             <property name="toolTip">
+              <string>Remove stored conversion settings for the selected books.
 
 Future conversion of these books will use the default settings.</string>
-           </property>
-           <property name="text">
-            <string>Remove &amp;stored conversion settings for the selected books</string>
-           </property>
-          </widget>
-         </item>
-         <item row="14" column="0" colspan="3">
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="13" column="0" colspan="3">
-          <widget class="QGroupBox" name="groupBox">
-           <property name="title">
-            <string>Change &amp;cover</string>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <item>
-             <widget class="QRadioButton" name="cover_generate">
-              <property name="text">
-               <string>&amp;Generate default cover</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="cover_remove">
-              <property name="text">
-               <string>&amp;Remove cover</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="cover_from_fmt">
-              <property name="text">
-               <string>Set from &amp;ebook file(s)</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="tab">
-        <attribute name="title">
-         <string>&amp;Custom metadata</string>
-        </attribute>
-       </widget>
-       <widget class="QWidget" name="tabWidgetPage3">
-        <attribute name="title">
-         <string>&amp;Search and replace</string>
-        </attribute>
-        <layout class="QGridLayout" name="vargrid">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetMinimumSize</enum>
-         </property>
-         <item row="1" column="0" colspan="3">
-          <widget class="QLabel" name="s_r_heading">
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-           <property name="openExternalLinks">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="filler">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="xlabel_21">
-           <property name="text">
-            <string>Search &amp;field:</string>
-           </property>
-           <property name="buddy">
-            <cstring>search_field</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QComboBox" name="search_field">
-           <property name="toolTip">
-            <string>The name of the field that you want to search</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <layout class="QHBoxLayout" name="HLayout_3">
-           <item>
-            <widget class="QLabel" name="xlabel_24">
+             </property>
              <property name="text">
-              <string>Search &amp;mode:</string>
-             </property>
-             <property name="buddy">
-              <cstring>search_mode</cstring>
+              <string>Remove &amp;stored conversion settings for the selected books</string>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QComboBox" name="search_mode">
-             <property name="toolTip">
-              <string>Choose whether to use basic text matching or advanced regular expression matching</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="HSpacer_2">
+           <item row="14" column="0" colspan="3">
+            <spacer name="verticalSpacer_2">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>10</height>
+               <height>40</height>
               </size>
              </property>
             </spacer>
            </item>
-          </layout>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="template_label">
-           <property name="text">
-            <string>Te&amp;mplate:</string>
-           </property>
-           <property name="buddy">
-            <cstring>s_r_template</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="HistoryLineEdit" name="s_r_template">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>100</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Enter a template to be used as the source for the search/replace</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="xlabel_2">
-           <property name="text">
-            <string>&amp;Search for:</string>
-           </property>
-           <property name="buddy">
-            <cstring>search_for</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="HistoryLineEdit" name="search_for">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>100</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Enter the what you are looking for, either plain text or a regular expression, depending on the mode</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="2">
-          <widget class="QCheckBox" name="case_sensitive">
-           <property name="toolTip">
-            <string>Check this box if the search string must match exactly upper and lower case. Uncheck it if case is to be ignored</string>
-           </property>
-           <property name="text">
-            <string>Cas&amp;e sensitive</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="xlabel_4">
-           <property name="text">
-            <string>&amp;Replace with:</string>
-           </property>
-           <property name="buddy">
-            <cstring>replace_with</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="HistoryLineEdit" name="replace_with">
-           <property name="toolTip">
-            <string>The replacement text. The matched search text will be replaced with this string</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="2">
-          <layout class="QHBoxLayout" name="verticalLayout">
-           <item>
-            <widget class="QLabel" name="label_41">
-             <property name="text">
-              <string>&amp;Apply function after replace:</string>
+           <item row="13" column="0" colspan="3">
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
+              <string>Change &amp;cover</string>
              </property>
-             <property name="buddy">
-              <cstring>replace_func</cstring>
-             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QRadioButton" name="cover_generate">
+                <property name="text">
+                 <string>&amp;Generate default cover</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="cover_remove">
+                <property name="text">
+                 <string>&amp;Remove cover</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="cover_from_fmt">
+                <property name="text">
+                 <string>Set from &amp;ebook file(s)</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="replace_func">
-             <property name="toolTip">
-              <string>Specify how the text is to be processed after matching and replacement. In character mode, the entire
-field is processed. In regular expression mode, only the matched text is processed</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="HSpacer_1">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>10</height>
-              </size>
-             </property>
-            </spacer>
            </item>
           </layout>
-         </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="destination_field_label">
-           <property name="text">
-            <string>&amp;Destination field:</string>
+         </widget>
+         <widget class="QWidget" name="tab">
+          <attribute name="title">
+           <string>&amp;Custom metadata</string>
+          </attribute>
+         </widget>
+         <widget class="QWidget" name="tabWidgetPage3">
+          <attribute name="title">
+           <string>&amp;Search and replace</string>
+          </attribute>
+          <layout class="QGridLayout" name="vargrid">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinimumSize</enum>
            </property>
-           <property name="buddy">
-            <cstring>destination_field</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <widget class="QComboBox" name="destination_field">
-           <property name="toolTip">
-            <string>The field that the text will be put into after all replacements.
-If blank, the source field is used if the field is modifiable</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="2">
-          <layout class="QHBoxLayout" name="verticalLayout">
-           <item>
-            <widget class="QLabel" name="replace_mode_label">
+           <item row="1" column="0" colspan="3">
+            <widget class="QLabel" name="s_r_heading">
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="openExternalLinks">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="filler">
              <property name="text">
-              <string>M&amp;ode:</string>
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="xlabel_21">
+             <property name="text">
+              <string>Search &amp;field:</string>
              </property>
              <property name="buddy">
-              <cstring>replace_mode</cstring>
+              <cstring>search_field</cstring>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QComboBox" name="replace_mode">
+           <item row="3" column="1">
+            <widget class="QComboBox" name="search_field">
              <property name="toolTip">
-              <string>Specify how the text should be copied into the destination.</string>
+              <string>The name of the field that you want to search</string>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QCheckBox" name="comma_separated">
+           <item row="3" column="2">
+            <layout class="QHBoxLayout" name="HLayout_3">
+             <item>
+              <widget class="QLabel" name="xlabel_24">
+               <property name="text">
+                <string>Search &amp;mode:</string>
+               </property>
+               <property name="buddy">
+                <cstring>search_mode</cstring>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="search_mode">
+               <property name="toolTip">
+                <string>Choose whether to use basic text matching or advanced regular expression matching</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="HSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>10</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="template_label">
+             <property name="text">
+              <string>Te&amp;mplate:</string>
+             </property>
+             <property name="buddy">
+              <cstring>s_r_template</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="HistoryLineEdit" name="s_r_template">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>100</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="toolTip">
-              <string>Specifies whether result items should be split into multiple values or
-left as single values. This option has the most effect when the source field is
-not multiple and the destination field is multiple</string>
+              <string>Enter a template to be used as the source for the search/replace</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="xlabel_2">
+             <property name="text">
+              <string>&amp;Search for:</string>
+             </property>
+             <property name="buddy">
+              <cstring>search_for</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="HistoryLineEdit" name="search_for">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>100</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Enter the what you are looking for, either plain text or a regular expression, depending on the mode</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2">
+            <widget class="QCheckBox" name="case_sensitive">
+             <property name="toolTip">
+              <string>Check this box if the search string must match exactly upper and lower case. Uncheck it if case is to be ignored</string>
              </property>
              <property name="text">
-              <string>Split &amp;result</string>
+              <string>Cas&amp;e sensitive</string>
              </property>
              <property name="checked">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item>
-            <spacer name="zHSpacer_1">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>10</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item row="8" column="1" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_21">
-           <item>
-            <spacer name="HSpacer_347">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>0</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLabel" name="xlabel_412">
+           <item row="6" column="0">
+            <widget class="QLabel" name="xlabel_4">
              <property name="text">
-              <string>For multiple-valued fields, sho&amp;w</string>
+              <string>&amp;Replace with:</string>
              </property>
              <property name="buddy">
-              <cstring>results_count</cstring>
+              <cstring>replace_with</cstring>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QSpinBox" name="results_count">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>999</number>
-             </property>
-             <property name="value">
-              <number>999</number>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="xlabel_412">
-             <property name="text">
-              <string>values starting a&amp;t</string>
-             </property>
-             <property name="buddy">
-              <cstring>starting_from</cstring>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="starting_from">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>999</number>
-             </property>
-             <property name="value">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="xlabel_41">
-             <property name="text">
-              <string>with values separated b&amp;y</string>
-             </property>
-             <property name="buddy">
-              <cstring>multiple_separator</cstring>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="multiple_separator">
+           <item row="6" column="1">
+            <widget class="HistoryLineEdit" name="replace_with">
              <property name="toolTip">
-              <string>Used when displaying test results to separate values in multiple-valued fields</string>
+              <string>The replacement text. The matched search text will be replaced with this string</string>
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item row="9" column="0" colspan="4">
-          <widget class="QScrollArea" name="scrollArea11">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="widgetResizable">
-            <bool>true</bool>
-           </property>
-           <widget class="QWidget" name="gridLayoutWidget_2">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>726</width>
-              <height>334</height>
-             </rect>
-            </property>
-            <layout class="QGridLayout" name="testgrid">
-             <item row="7" column="1">
-              <widget class="QLabel" name="xlabel_3">
+           <item row="6" column="2">
+            <layout class="QHBoxLayout" name="verticalLayout">
+             <item>
+              <widget class="QLabel" name="label_41">
                <property name="text">
-                <string>Test text</string>
+                <string>&amp;Apply function after replace:</string>
+               </property>
+               <property name="buddy">
+                <cstring>replace_func</cstring>
                </property>
               </widget>
              </item>
-             <item row="7" column="2">
-              <widget class="QLabel" name="xlabel_3">
-               <property name="text">
-                <string>Test result</string>
+             <item>
+              <widget class="QComboBox" name="replace_func">
+               <property name="toolTip">
+                <string>Specify how the text is to be processed after matching and replacement. In character mode, the entire
+field is processed. In regular expression mode, only the matched text is processed</string>
                </property>
               </widget>
              </item>
-             <item row="8" column="0">
-              <widget class="QLabel" name="label_31">
-               <property name="text">
-                <string>Your test:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="1">
-              <widget class="HistoryLineEdit" name="test_text"/>
-             </item>
-             <item row="8" column="2">
-              <widget class="QLineEdit" name="test_result"/>
-             </item>
-             <item row="25" column="0" colspan="2">
-              <spacer name="verticalSpacer_2">
+             <item>
+              <spacer name="HSpacer_1">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>20</width>
-                 <height>5</height>
+                 <height>10</height>
                 </size>
                </property>
               </spacer>
              </item>
             </layout>
-           </widget>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-    </layout>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="destination_field_label">
+             <property name="text">
+              <string>&amp;Destination field:</string>
+             </property>
+             <property name="buddy">
+              <cstring>destination_field</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QComboBox" name="destination_field">
+             <property name="toolTip">
+              <string>The field that the text will be put into after all replacements.
+If blank, the source field is used if the field is modifiable</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="2">
+            <layout class="QHBoxLayout" name="verticalLayout">
+             <item>
+              <widget class="QLabel" name="replace_mode_label">
+               <property name="text">
+                <string>M&amp;ode:</string>
+               </property>
+               <property name="buddy">
+                <cstring>replace_mode</cstring>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="replace_mode">
+               <property name="toolTip">
+                <string>Specify how the text should be copied into the destination.</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="comma_separated">
+               <property name="toolTip">
+                <string>Specifies whether result items should be split into multiple values or
+left as single values. This option has the most effect when the source field is
+not multiple and the destination field is multiple</string>
+               </property>
+               <property name="text">
+                <string>Split &amp;result</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="zHSpacer_1">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>10</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="8" column="1" colspan="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_21">
+             <item>
+              <spacer name="HSpacer_347">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="xlabel_412">
+               <property name="text">
+                <string>For multiple-valued fields, sho&amp;w</string>
+               </property>
+               <property name="buddy">
+                <cstring>results_count</cstring>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="results_count">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>999</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="xlabel_412">
+               <property name="text">
+                <string>values starting a&amp;t</string>
+               </property>
+               <property name="buddy">
+                <cstring>starting_from</cstring>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="starting_from">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+               <property name="value">
+                <number>1</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="xlabel_41">
+               <property name="text">
+                <string>with values separated b&amp;y</string>
+               </property>
+               <property name="buddy">
+                <cstring>multiple_separator</cstring>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="multiple_separator">
+               <property name="toolTip">
+                <string>Used when displaying test results to separate values in multiple-valued fields</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="9" column="0" colspan="4">
+            <widget class="QScrollArea" name="scrollArea11">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="gridLayoutWidget_2">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>197</width>
+                <height>60</height>
+               </rect>
+              </property>
+              <layout class="QGridLayout" name="testgrid">
+               <item row="7" column="1">
+                <widget class="QLabel" name="xlabel_3">
+                 <property name="text">
+                  <string>Test text</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="2">
+                <widget class="QLabel" name="xlabel_3">
+                 <property name="text">
+                  <string>Test result</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="0">
+                <widget class="QLabel" name="label_31">
+                 <property name="text">
+                  <string>Your test:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="1">
+                <widget class="HistoryLineEdit" name="test_text"/>
+               </item>
+               <item row="8" column="2">
+                <widget class="QLineEdit" name="test_result"/>
+               </item>
+               <item row="25" column="0" colspan="2">
+                <spacer name="verticalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>5</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
-   <item>
+   <item row="2" column="0">
     <widget class="QDialogButtonBox" name="button_box">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -893,7 +911,6 @@ not multiple and the destination field is multiple</string>
   <tabstop>swap_title_and_author</tabstop>
   <tabstop>change_title_to_title_case</tabstop>
   <tabstop>button_box</tabstop>
-  <tabstop>central_widget</tabstop>
   <tabstop>search_field</tabstop>
   <tabstop>search_mode</tabstop>
   <tabstop>s_r_template</tabstop>
