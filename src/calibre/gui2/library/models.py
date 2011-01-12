@@ -93,8 +93,9 @@ class BooksModel(QAbstractTableModel): # {{{
         self.bool_no_icon = QIcon(I('list_remove.png'))
         self.bool_blank_icon = QIcon(I('blank.png'))
         self.device_connected = False
-        self.rows_matching = set()
-        self.lowest_row_matching = None
+        self.rows_to_highlight = []
+        self.rows_to_highlight_set = set()
+        self.current_highlighted_row = None
         self.highlight_only = False
         self.read_config()
 
@@ -130,6 +131,9 @@ class BooksModel(QAbstractTableModel): # {{{
         self.book_on_device = func
 
     def set_database(self, db):
+        self.rows_to_highlight = []
+        self.rows_to_highlight_set = set()
+        self.current_highlighted_row = None
         self.db = db
         self.custom_columns = self.db.field_metadata.custom_field_metadata()
         self.column_map = list(self.orig_headers.keys()) + \
@@ -237,21 +241,43 @@ class BooksModel(QAbstractTableModel): # {{{
         if self.last_search:
             self.research()
 
+    def get_current_highlighted_row(self):
+        if len(self.rows_to_highlight) == 0 or self.current_highlighted_row is None:
+            return None
+        try:
+            return self.rows_to_highlight[self.current_highlighted_row]
+        except:
+            return None
+
+    def get_next_highlighted_row(self, forward):
+        if len(self.rows_to_highlight) == 0 or self.current_highlighted_row is None:
+            return None
+        self.current_highlighted_row += 1 if forward else -1
+        if self.current_highlighted_row < 0:
+            self.current_highlighted_row = len(self.rows_to_highlight) - 1;
+        elif self.current_highlighted_row >= len(self.rows_to_highlight):
+            self.current_highlighted_row = 0
+        return self.get_current_highlighted_row()
+
     def search(self, text, reset=True):
         try:
             if self.highlight_only:
                 self.db.search('')
                 if not text:
-                    self.rows_matching = set()
-                    self.lowest_row_matching = None
+                    self.rows_to_highlight = []
+                    self.rows_to_highlight_set = set()
+                    self.current_highlighted_row = None
                 else:
-                    self.rows_matching = self.db.search(text, return_matches=True)
-                    if self.rows_matching:
-                        self.lowest_row_matching = self.db.row(self.rows_matching[0])
-                    self.rows_matching = set(self.rows_matching)
+                    self.rows_to_highlight = self.db.search(text, return_matches=True)
+                    self.rows_to_highlight_set = set(self.rows_to_highlight)
+                    if self.rows_to_highlight:
+                        self.current_highlighted_row = 0
+                    else:
+                        self.current_highlighted_row = None
             else:
-                self.rows_matching = set()
-                self.lowest_row_matching = None
+                self.rows_to_highlight = []
+                self.rows_to_highlight_set = set()
+                self.current_highlighted_row = None
                 self.db.search(text)
         except ParseException as e:
             self.searched.emit(e.msg)
@@ -673,7 +699,7 @@ class BooksModel(QAbstractTableModel): # {{{
         if role in (Qt.DisplayRole, Qt.EditRole):
             return self.column_to_dc_map[col](index.row())
         elif role == Qt.BackgroundColorRole:
-            if self.id(index) in self.rows_matching:
+            if self.id(index) in self.rows_to_highlight_set:
                 return QColor('lightgreen')
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
