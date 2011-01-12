@@ -88,6 +88,7 @@ class Plumber(object):
         self.ui_reporter = report_progress
         self.abort_after_input_dump = abort_after_input_dump
 
+        # Pipeline options {{{
         # Initialize the conversion options that are independent of input and
         # output formats. The input and output plugins can still disable these
         # options via recommendations.
@@ -527,6 +528,7 @@ OptionRecommendation(name='timestamp',
     help=_('Set the book timestamp (used by the date column in calibre).')),
 
 ]
+        # }}}
 
         input_fmt = os.path.splitext(self.input)[1]
         if not input_fmt:
