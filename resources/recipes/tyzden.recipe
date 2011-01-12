@@ -28,7 +28,7 @@ class TyzdenRecipe(BasicNewsRecipe):
     if (weeknum > 1):
         weeknum -= 1
 
-    title = u'.tyzden ' + str(weeknum) + '/' + str(year)
+    title = u'tyzden'
 
     base_url_path = 'http://www.tyzden.sk/casopis/' + str(year) + '/' + str(weeknum)
     base_url = base_url_path + '.html'
