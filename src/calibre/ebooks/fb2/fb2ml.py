@@ -165,7 +165,6 @@ class FB2MLizer(object):
             cover_item = self.oeb_book.manifest.ids[id]
             if cover_item.media_type in OEB_RASTER_IMAGES:
                 cover_href = cover_item.href
-            print 1
         else:
             # Figure out if we have a title page or a cover page
             page_name = ''
@@ -179,7 +178,6 @@ class FB2MLizer(object):
                 # Get the first image in the page
                 for img in cover_item.xpath('//img'):
                     cover_href = cover_item.abshref(img.get('src'))
-                    print cover_href
                     break
 
         if cover_href:
