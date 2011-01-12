@@ -680,8 +680,12 @@ class BooksView(QTableView): # {{{
     def set_editable(self, editable, supports_backloading):
         self._model.set_editable(editable)
 
+    def search_proxy(self, txt):
+        self._model.search(txt)
+        self.setFocus(Qt.OtherFocusReason)
+
     def connect_to_search_box(self, sb, search_done):
-        sb.search.connect(self._model.search)
+        sb.search.connect(self.search_proxy)
         self._search_done = search_done
         self._model.searched.connect(self.search_done)
 

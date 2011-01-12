@@ -404,6 +404,7 @@ class SearchBoxMixin(object): # {{{
 
     def highlight_only_changed(self, toWhat):
         self.current_view().model().set_highlight_only(toWhat)
+        self.focus_to_library()
 
     # }}}
 
