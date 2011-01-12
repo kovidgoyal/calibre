@@ -682,6 +682,8 @@ class BooksView(QTableView): # {{{
 
     def search_proxy(self, txt):
         self._model.search(txt)
+        if self._model.lowest_row_matching is not None:
+            self.select_rows([self._model.lowest_row_matching], using_ids=False)
         self.setFocus(Qt.OtherFocusReason)
 
     def connect_to_search_box(self, sb, search_done):
