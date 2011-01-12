@@ -459,6 +459,18 @@ def force_unicode(obj, enc=preferred_encoding):
                         obj = obj.decode('utf-8')
     return obj
 
+def as_unicode(obj, enc=preferred_encoding):
+    if not isbytestring(obj):
+        try:
+            obj = unicode(obj)
+        except:
+            try:
+                obj = str(obj)
+            except:
+                obj = repr(obj)
+    return force_unicode(obj, enc=enc)
+
+
 
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
