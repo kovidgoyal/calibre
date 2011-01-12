@@ -1524,19 +1524,19 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['formats'] = formats
 
                 # Add user notes to be displayed in header
-                # Special case handling for datetime fields
+                # Special case handling for datetime fields and lists
                 if self.opts.header_note_source_field:
                     field_md = self.__db.metadata_for_field(self.opts.header_note_source_field)
                     notes = self.__db.get_field(record['id'],
                                         self.opts.header_note_source_field,
                                         index_is_id=True)
-                    if notes and field_md['datatype'] == 'datetime':
-                        # Reformat date fields to match UI presentation: dd MMM YYYY
-                        notes = format_date(notes,'dd MMM yyyy')
-
                     if notes:
+                        if field_md['datatype'] == 'text' and isinstance(notes,list):
+                            notes = ' &middot; '.join(notes)
+                        elif field_md['datatype'] == 'datetime':
+                            notes = format_date(notes,'dd MMM yyyy')
                         this_title['notes'] = {'source':field_md['name'],
-                                               'content':notes}
+                                                   'content':notes}
 
                 titles.append(this_title)
 

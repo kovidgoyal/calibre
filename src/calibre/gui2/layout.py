@@ -195,7 +195,9 @@ class SearchBar(QWidget): # {{{
         x.setToolTip(_("Reset Quick Search"))
 
         x = parent.search_highlight_only = QCheckBox()
-        x.setText(_('Highlight'))
+        x.setText(_('&Highlight'))
+        x.setToolTip(_('Highlight matched books in the book list, instead '
+            'of restricting the book list to the matches.'))
         l.addWidget(x)
 
         x = parent.saved_search = SavedSearchBox(self)

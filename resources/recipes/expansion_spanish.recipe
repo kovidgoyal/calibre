@@ -1,59 +1,79 @@
 #!/usr/bin/env  python
-# -*- coding: utf-8 -*-
-
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__author__    = 'Gerardo Diez'
+__copyright__ = 'Gerardo Diez<gerardo.diez.garcia@gmail.com>'
+description   = 'Main daily newspaper from Spain - v1.00 (05, Enero 2011)'
+__docformat__ = 'restructuredtext en'
+
 '''
-www.expansion.com
+expansion.es
 '''
+from calibre.web.feeds.recipes import BasicNewsRecipe
+class Publico(BasicNewsRecipe):
+    title               =u'Expansion.com'
+    __author__      ='Gerardo Diez'
+    publisher       =u'Unidad Editorial Información Económica, S.L.'
+    category                ='finances, catalunya'
+    oldest_article      =1
+    max_articles_per_feed   =100
+    simultaneous_downloads  =10
+    cover_url       =u'http://estaticos01.expansion.com/iconos/v2.x/v2.0/cabeceras/logo_expansion.png'
+    timefmt         ='[%A, %d %B, %Y]'
+    encoding        ='latin'
+    language        ='es'
+    remove_javascript   =True
+    no_stylesheets      =True
+    keep_only_tags      =dict(name='div', attrs={'class':['noticia primer_elemento']})
+    remove_tags         =[
+                dict(name='div', attrs={'class':['compartir', 'metadata_desarrollo_noticia', 'relacionadas', 'mas_info','publicidad publicidad_textlink', 'ampliarfoto']}),
+                dict(name='ul', attrs={'class':['bolos_desarrollo_noticia']}),
+                dict(name='span', attrs={'class':['comentarios']}),
+                dict(name='p', attrs={'class':['cintillo_comentarios', 'cintillo_comentarios formulario']}),
+                dict(name='div', attrs={'id':['comentarios_lectores_listado']})
+                            ]
+    feeds               =[
+                (u'Portada', u'http://estaticos.expansion.com/rss/portada.xml'),
+                (u'Portada: Bolsas', u'http://estaticos.expansion.com/rss/mercados.xml'),
+                (u'Divisas', u'http://estaticos.expansion.com/rss/mercadosdivisas.xml'),
+                (u'Euribor', u'http://estaticos.expansion.com/rss/mercadoseuribor.xml'),
+                (u'Materias Primas', u'http://estaticos.expansion.com/rss/mercadosmateriasprimas.xml'),
+                (u'Renta Fija', u'http://estaticos.expansion.com/rss/mercadosrentafija.xml'),
 
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
+                (u'Portada: Mi Dinero', u'http://estaticos.expansion.com/rss/midinero.xml'),
+                (u'Hipotecas', u'http://estaticos.expansion.com/rss/midinerohipotecas.xml'),
+                (u'Créditos', u'http://estaticos.expansion.com/rss/midinerocreditos.xml'),
+                (u'Pensiones', u'http://estaticos.expansion.com/rss/midineropensiones.xml'),
+                (u'Fondos de Inversión', u'http://estaticos.expansion.com/rss/midinerofondos.xml'),
+                (u'Motor', u'http://estaticos.expansion.com/rss/midineromotor.xml'),
 
-class Expansion(BasicNewsRecipe):
-    title                 = 'Diario Expansion'
-    __author__            = 'Darko Miletic'
-    description           = 'Lider de informacion de mercados, economica y politica'
-    publisher             = 'expansion.com'
-    category              = 'news, politics, Spain'
-    oldest_article        = 2
-    max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    delay                 = 1
-    encoding              = 'iso-8859-15'
-    language = 'es'
+                (u'Portada: Empresas', u'http://estaticos.expansion.com/rss/empresas.xml'),
+                (u'Banca', u'http://estaticos.expansion.com/rss/empresasbanca.xml'),
+                (u'TMT', u'http://estaticos.expansion.com/rss/empresastmt.xml'),
+                (u'Energía', u'http://estaticos.expansion.com/rss/empresasenergia.xml'),
+                (u'Inmobiliario y Construcción', u'http://estaticos.expansion.com/rss/empresasinmobiliario.xml'),
+                (u'Transporte y Turismo', u'http://estaticos.expansion.com/rss/empresastransporte.xml'),
+                (u'Automoción e Industria', u'http://estaticos.expansion.com/rss/empresasauto-industria.xml'),
+                (u'Distribución', u'http://estaticos.expansion.com/rss/empresasdistribucion.xml'),
+                (u'Deporte y Negocio', u' http://estaticos.expansion.com/rss/empresasdeporte.xml'),
+                (u'Mi Negocio', u'http://estaticos.expansion.com/rss/empresasminegocio.xml'),
+                (u'Interiores', u'http://estaticos.expansion.com/rss/empresasinteriores.xml'),
+                (u'Digitech', u'http://estaticos.expansion.com/rss/empresasdigitech.xml'),
 
-    direction             = 'ltr'
+                (u'Portada: Economía y Política', u'http://estaticos.expansion.com/rss/economiapolitica.xml'),
+                (u'Política', u'http://estaticos.expansion.com/rss/economia.xml'),
+                (u'Portada: Sociedad', u'http://estaticos.expansion.com/rss/entorno.xml'),
 
-    html2lrf_options = [
-                          '--comment'  , description
-                        , '--category' , category
-                        , '--publisher', publisher
-                        ]
+                (u'Portada: Opinión', u'http://estaticos.expansion.com/rss/opinion.xml'),
+                (u'Llaves y editoriales', u'http://estaticos.expansion.com/rss/opinioneditorialyllaves.xml'),
+                (u'Tribunas', u'http://estaticos.expansion.com/rss/opiniontribunas.xml'),
 
-    html2epub_options  = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+                (u'Portada: Jurídico', u'http://estaticos.expansion.com/rss/juridico.xml'),
+                (u'Entrevistas', u'http://estaticos.expansion.com/rss/juridicoentrevistas.xml'),
+                (u'Opinión', u'http://estaticos.expansion.com/rss/juridicoopinion.xml'),
+                (u'Sentencias', u'http://estaticos.expansion.com/rss/juridicosentencias.xml'),
 
-    feeds              = [
-                            (u'Ultimas noticias', u'http://rss.expansion.com/rss/descarga.htm?data2=178')
-                           ,(u'Temas del dia'   , u'http://rss.expansion.com/rss/descarga.htm?data2=178')
-                         ]
-
-
-    keep_only_tags = [dict(name='div', attrs={'id':'principal'})]
-
-    remove_tags        = [
-                             dict(name=['object','link','script'])
-                            ,dict(name='div', attrs={'class':['utilidades','tit_relacionadas']})
-                         ]
-
-    remove_tags_after = [dict(name='div', attrs={'class':'tit_relacionadas'})]
-
-    def preprocess_html(self, soup):
-        soup.html['dir' ] = self.direction
-        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
-        soup.head.insert(0,mcharset)
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
+                (u'Mujer', u'http://estaticos.expansion.com/rss/mujer-empresa.xml'),
+                (u'Catalu&ntilde;a', u'http://estaticos.expansion.com/rss/catalunya.xml'),
+                (u'Función pública', u'http://estaticos.expansion.com/rss/funcion-publica.xml')
+                ]
 
