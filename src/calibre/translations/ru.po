@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-09 01:59+0000\n"
-"PO-Revision-Date: 2011-01-10 21:33+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-11 17:55+0000\n"
+"Last-Translator: Konstantin <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-11 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-01-12 04:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -587,12 +587,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:437
 msgid "Intended for generic tablet devices, does no resizing of images"
 msgstr ""
+"Предназначено для планшетных устройств, размер изображений не меняется"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:445
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Предназначено для Samsung Galaxy и похожих планшетных устройств  с "
+"разрешением 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -611,8 +614,8 @@ msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
-"Профиль для линейки SONY PRS: 500/505/700 - в ландшафтном режиме. Полезен "
-"для комиксов."
+"Профиль для линейки SONY PRS: 500/505/700 - в ландшафтном режиме. В основном "
+"подходит для комиксов."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:618
 msgid "This profile is intended for the Amazon Kindle DX."
@@ -695,7 +698,7 @@ msgstr "Отключить указанный плагин"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:148
 msgid "Debug log"
-msgstr ""
+msgstr "Журнал ошибок"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -816,12 +819,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:41
 msgid "Device IP Address (restart calibre after changing)"
 msgstr ""
+"IP адрес устройства  (надо перезапустить calibre после внесения изменений)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:46
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"Не получается добавить книгу с устройства Bambook на прямую. Пожалуйста "
+"скопируйте книгу на диск, а затем добавьте книгу в библиотеку с диска."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:66
 msgid ""
@@ -840,7 +846,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:111
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:217
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:233
@@ -901,7 +907,7 @@ msgstr "Отправка метаданные на устройство..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:132
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDK не установлен"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -940,11 +946,11 @@ msgstr "Соединиться с PocketBook 301."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "Связь с PocketBook 602/603/902/903."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "Связь с PocketBook 701."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1071,6 +1077,8 @@ msgid ""
 "The Kobo supports only one collection currently: the \"Im_Reading\" list.  "
 "Create a tag called \"Im_Reading\" "
 msgstr ""
+"Kobo сейчас поддерживает только одну коллекцию: \"Im_Reading\". Создайте "
+"метку \"Im_Reading\" "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:446
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:279
@@ -1185,7 +1193,7 @@ msgstr "по названию"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by author"
-msgstr ""
+msgstr "Все, автор которых"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:65
 msgid ""
@@ -1204,7 +1212,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:72
 msgid "Upload separate cover thumbnails for books (newer readers)"
-msgstr ""
+msgstr "Загрузите разные иконки обложек для книг (новые ридеры)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid ""
@@ -1214,6 +1222,11 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"Обычно ридеры SONY находят картинки обложек в файлах книг. С этой настройкой "
+"Calibre будет отправлять отдельный файл с обложкой на ридер; удобно при "
+"чтении защищенных DRM книг, у которых нельзя поменять обложку. ВНИМАНИЕ: "
+"настройку можно использовать только с новыми ридерами SNOY 350, 650 и 950 "
+"или новее."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1270,6 +1283,8 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"Не обнаружен диск %s. Устройство либо уже отключено, или ядро получает "
+"усеченную версию SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:617
 msgid "Unable to mount main memory (Error code: %d)"
@@ -1627,6 +1642,13 @@ msgid ""
 "line height specification, unless you know what you are doing. For example, "
 "you can achieve \"double spaced\" text by setting this to 240."
 msgstr ""
+"Минимальная высота строки в процентах от вычисленного размера шрифта "
+"элемента. Calibre позаботится о том, чтобы каждый элемент имел высоту строки "
+"не менее заданной, независимо от того, что указано во входящем документе. "
+"Для отключения задайте ноль. По умолчанию - 120%. Использование данной "
+"настройки предпочтительнее, чем прямое указание высоты строки, кроме случая, "
+"когда Вы точно понимаете свои действия. Например, \"двойной интервал\" "
+"получается при значении 240."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:180
 msgid ""
@@ -1635,6 +1657,10 @@ msgid ""
 "cases, the minimum line height option is more useful. By default no line "
 "height manipulation is performed."
 msgstr ""
+"Высота строки в пунктах. Определяет расстояние между двумя соседними "
+"строками текста. Применяется только к элементам, у которых не определена "
+"высота строки. В большинстве случаев лучше всего оставлять минимальное "
+"значение. По умолчанию никаих действий с высотой строк не производятся."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:191
 msgid ""
@@ -1749,8 +1775,9 @@ msgid ""
 "the style rules from the source file, so it can be used to override those "
 "rules."
 msgstr ""
-"Введите путь к CSS. Эта CSS будет включена в правила стиля исходного файла, "
-"поэтому она может быть использована для переопределения этих правил."
+"Введите путь к балице стилей CSS или чистый CSS. Эта CSS будет включена в "
+"правила стиля исходного файла, поэтому она может быть использована для "
+"переопределения этих правил."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:300
 msgid ""
@@ -2242,6 +2269,8 @@ msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
+"Шаблон используется для генерации HTML-содержания книги вместо файла по "
+"умолчанию"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:42
 msgid ""
@@ -2553,7 +2582,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:60
 msgid "Downloads metadata from amazon.com in english"
-msgstr ""
+msgstr "Загрузить метаданные c amazon.com на английском"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:77
 msgid "Downloads metadata from amazon.de"
@@ -2561,7 +2590,7 @@ msgstr "Загрузить метаданные из amazon.de"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:94
 msgid "Downloads metadata from amazon.com"
-msgstr ""
+msgstr "Загрузить метаданные c amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:474
 msgid ""
@@ -2934,6 +2963,8 @@ msgid ""
 "SUMMARY:\n"
 " %s"
 msgstr ""
+"Сводка:\n"
+" %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:316
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:333
@@ -3065,7 +3096,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:323
 msgid "ISBN: %s not found."
-msgstr ""
+msgstr "ISBN %s не найден"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:324
 msgid "An errror occured with Nicebooks cover fetcher"

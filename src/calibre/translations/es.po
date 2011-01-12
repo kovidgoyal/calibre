@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-09 01:59+0000\n"
-"PO-Revision-Date: 2011-01-10 15:09+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-12 04:39+0000\n"
+"Last-Translator: Fitoschido <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-11 04:52+0000\n"
+"X-Launchpad-Export-Date: 2011-01-12 04:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:511
@@ -8289,7 +8289,7 @@ msgstr "Para campos con &valores múltiples, mostrar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:469
 msgid "values starting a&t"
-msgstr ""
+msgstr "valores empezando por"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:470
 msgid "with values separated b&y"
@@ -10713,15 +10713,15 @@ msgstr "Nunca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "By first letter"
-msgstr ""
+msgstr "Pôr la primera letra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "Disabled"
-msgstr ""
+msgstr "Desactivado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:61
 msgid "Partitioned"
-msgstr ""
+msgstr "Particionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:140
 msgid "User Interface &layout (needs restart):"
@@ -10775,7 +10775,7 @@ msgstr "&Buscar mientras se escribe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Tags browser category partitioning method:"
-msgstr ""
+msgstr "Metodo de división de categorías en el navegador de etiquetas:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:153
 msgid ""
@@ -10785,10 +10785,15 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
+"Elija cómo se muestran las subcategorías en el navegador\n"
+"de etiquetas cuando hay más elementos que el límite.\n"
+"Seleccione por inicial para ver una lista de iniciales. Seleccione\n"
+"dividido para que se muestre una lista de grupos de tamaño\n"
+"fijo. Desactívelo si no quiere que se muestren nunca las subcategorías."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:158
 msgid "Collapse when more items than:"
-msgstr ""
+msgstr "Contraer cuando items mayor que:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:159
 msgid ""
@@ -10796,6 +10801,10 @@ msgid ""
 "up into sub-categories. If the partition method is set to disable, this "
 "value is ignored."
 msgstr ""
+"Si una categoría del navegador de etiquetas tiene más de este número de "
+"elementos,\n"
+"se divide en subcategorías. Si el método de división es desactivado, este "
+"valor no tiene función."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:161
 msgid "&Toolbar"
@@ -11098,13 +11107,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:57
 msgid "Constant template"
-msgstr ""
+msgstr "Plantilla constante"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:58
 msgid ""
 "The template contains no {fields}, so all books will have the same name. Is "
 "this OK?"
 msgstr ""
+"Esta plantilla no contiene {campos}, así que todos los libros tendrán el "
+"mismo nombre. ¿Es esto correcto?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
@@ -11570,7 +11581,7 @@ msgstr "Ver todas las categorias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:300
 msgid "Change sub-categorization scheme"
-msgstr ""
+msgstr "Cambiar el método de división de categorías"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:625
 msgid ""
@@ -11599,7 +11610,7 @@ msgstr "El nombre guardado buscado %s está en uso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1223
 msgid "Find item in tag browser"
-msgstr ""
+msgstr "Buscar elemento en el navegador de entiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1226
 msgid ""
@@ -11610,26 +11621,34 @@ msgid ""
 "*foo will filter all categories at once, showing only those items\n"
 "containing the text \"foo\""
 msgstr ""
+"Buscar elementos. Se buscan elementos que contengan el texto en\n"
+"cualquier parte del nombre. Puede limitar la búsqueda a categorías\n"
+"específicas usando una sintaxis similar a buscar. Por ejemplo, «tags:bla»\n"
+"buscará «bla» en cualquier etiqueta, pero no en los autores, etc.\n"
+"Si introduce «*bla» se filtrarán todas las categorías a la vez, mostrando\n"
+"sólo los elementos que contienen el texto «bla»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1235
 msgid "ALT+f"
-msgstr ""
+msgstr "ALT+f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1239
 msgid "F&ind"
-msgstr ""
+msgstr "Buscar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1240
 msgid "Find the first/next matching item"
-msgstr ""
+msgstr "Buscar el primer/siguiente item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1247
 msgid "Collapse all categories"
-msgstr ""
+msgstr "Contrae todas las categorías"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1268
 msgid "No More Matches.</b><p> Click Find again to go to first match"
 msgstr ""
+"No hay más coincidencias. </b><p> Click en Buscar para volver a la primera "
+"coincidencia."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1281
 msgid "Sort by name"
@@ -11672,7 +11691,7 @@ msgstr "Añada sus propias categorías al navegador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:64
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
-msgstr ""
+msgstr "Convertido el libro %(num)d de %(total)d (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:204
@@ -12571,12 +12590,12 @@ msgstr "Correo enviado con éxito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
 msgid "OK to proceed?"
-msgstr ""
+msgstr "¿Continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:96
 msgid ""
 "This will display your email password on the screen. Is it OK to proceed?"
-msgstr ""
+msgstr "Se mostrará la contraseña de tu email en la pantalla. ¿Continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:139
 msgid ""
@@ -12588,13 +12607,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:150
 msgid "Setup sending email using"
-msgstr ""
+msgstr "Configurar envío de correo electrónico con"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:152
 msgid ""
 "If you don't have an account, you can sign up for a free {name} email "
 "account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
+"Si no tiene una cuenta, puede solicitar una cuenta gratuita de correo "
+"electrónico {name} en <a href=\"http://{url}\">http://{url}</a>. {extra}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:159
 msgid "Your %s &email address:"
@@ -12815,6 +12836,12 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Los campos que aparecen en la salida al crear un catálogo de la base de "
+"datos. Debe ser una lista de campos separados por comas.\n"
+"Campos disponibles: %s,\n"
+"y cualquier campo personalizado creado por el usuario.\n"
+"Valor predeterminado: '%%default'\n"
+"Se aplica a: formatos de salida CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:64
 msgid ""
@@ -12950,6 +12977,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"campo:patrón que especifica el campo personalizado y contenido que indica "
+"que un libro debe excluirse.\n"
+"Valor predeterminado: '%default'\n"
+"Se aplica a: formatos de salida ePub, MOB I"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:596
 msgid ""
@@ -12983,6 +13014,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Incluir las descripciones de los libros en el catálogo.\n"
+"Valor predeterminado: '%default'\n"
+"Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:617
 msgid ""
@@ -12990,6 +13024,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Incluir una sección Géneros en el catálogo.\n"
+"Valor predeterminado: '%default'\n"
+"Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:624
 msgid ""
@@ -13027,6 +13064,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Campo personalizado que incluye el texto que se insertará en la cabecera de "
+"Descripción.\n"
+"Valor predeterminado: '%default'\n"
+"Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:652
 msgid ""
@@ -13037,6 +13078,15 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"<campo personalizado>:[before|after]:[True|False] que especifica:\n"
+" <campo personalizado> El campo personalizado que contiene las notas a unir "
+"con los Comentarios\n"
+" [before|after] La posición de las notas con respecto a los comentarios "
+"(before: antes, after: después)\n"
+" [True|False] Insertar (True) o no (False) una línea horizontal entre notas "
+"y Comentarios\n"
+"Valor predeterminado: '%default'\n"
+"Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:662
 msgid ""
@@ -13070,6 +13120,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"Tamaño preferido (en pulgadas) para las portadas en el catálogo.\n"
+"Rango: 1.0 - 2.0\n"
+"Valor predeterminado: '%default'\n"
+"Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:683
 msgid ""
@@ -14165,7 +14219,7 @@ msgstr "Otros formatos"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:643
 msgid "Read %(title)s in the %(fmt)s format"
-msgstr ""
+msgstr "Leer %(title)s en el formato %(fmt)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:648
 msgid "Get"
@@ -14402,7 +14456,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:481
 msgid "No such variable "
-msgstr ""
+msgstr "No existe la variable "
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
