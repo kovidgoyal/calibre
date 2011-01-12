@@ -1531,10 +1531,23 @@ class EPUB_MOBI(CatalogPlugin):
                                         self.opts.header_note_source_field,
                                         index_is_id=True)
                     if notes:
-                        if field_md['datatype'] == 'text' and isinstance(notes,list):
-                            notes = ' &middot; '.join(notes)
+                        if field_md['datatype'] == 'text':
+                            print "\n inner notes: %s\n" % repr(notes)
+                            if isinstance(notes,list):
+                                notes = ' &middot; '.join(notes)
                         elif field_md['datatype'] == 'datetime':
                             notes = format_date(notes,'dd MMM yyyy')
+                        elif field_md['datatype'] == 'composite':
+                            if re.match(r'\[(.*)\]$', notes):
+                                # Sniff for special pseudo-list string "[<item, item>]"
+                                bracketed_content = re.match(r'\[(.*)\]$', notes).group(1)
+                                if re.search(',',bracketed_content):
+                                    # Recast the comma-separated items as a list
+                                    items = bracketed_content.split(',')
+                                    items = [i.strip() for i in items]
+                                    notes = ' &middot; '.join(items)
+                                else:
+                                    notes = bracketed_content
                         this_title['notes'] = {'source':field_md['name'],
                                                    'content':notes}
 

@@ -110,6 +110,7 @@ class cmd_commit(_cmd_commit):
             suffix = 'The fix will be in the next release.'
         action = action+'ed'
         msg = '%s in branch %s. %s'%(action, nick, suffix)
+        msg = msg.replace('Fixesed', 'Fixed')
         server = xmlrpclib.ServerProxy(url)
         server.ticket.update(int(bug), msg,
                              {'status':'closed', 'resolution':'fixed'},

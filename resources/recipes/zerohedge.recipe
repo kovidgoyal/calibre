@@ -1,0 +1,33 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.zerohedge.com
+'''
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class ZeroHedge(BasicNewsRecipe):
+    title                  = 'Zero Hedge'
+    __author__             = 'Darko Miletic'
+    description            = 'On a long enough timeline the survival rate for everyone drops to zero'
+    oldest_article         = 10
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    use_embedded_content   = True
+    encoding               = 'utf8'
+    publisher              = 'zero hedge'
+    category               = 'news, USA, world, economy, politics'
+    language               = 'en'
+    masthead_url           = 'http://www.zerohedge.com/themes/newsflash/logo.png'
+    publication_type       = 'blog'
+    extra_css              = 'body{ font-family: sans-serif }'
+
+    conversion_options = {
+                             'comments' : description
+                            ,'tags'     : category
+                            ,'language' : language
+                            ,'publisher': publisher
+                         }
+
+
+    feeds = [(u'Articles', u'http://feeds.feedburner.com/zerohedge/feed')]

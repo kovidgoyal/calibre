@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+__license__   = 'GPL v3'
+__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__docformat__ = 'restructuredtext en'
+
 
 '''
 Read content from txt file.
@@ -10,10 +14,7 @@ from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.txt.heuristicprocessor import TXTHeuristicProcessor
 from calibre.ebooks.conversion.preprocess import DocAnalysis
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+from calibre.utils.cleantext import clean_ascii_chars
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
@@ -33,9 +34,7 @@ def clean_txt(txt):
     # Remove excessive line breaks.
     txt = re.sub('\n{3,}', '\n\n', txt)
     #remove ASCII invalid chars : 0 to 8 and 11-14 to 24
-    chars = list(range(8)) + [0x0B, 0x0E, 0x0F] + list(range(0x10, 0x19))
-    illegal_chars = re.compile(u'|'.join(map(unichr, chars)))
-    txt = illegal_chars.sub('', txt)
+    txt = clean_ascii_chars(txt)
 
     return txt
 

@@ -26,6 +26,7 @@ from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
 from calibre.customize.ui import available_input_formats
 from calibre.gui2.viewer.dictionary import Lookup
+from calibre import as_unicode
 
 class TOCItem(QStandardItem):
 
@@ -632,7 +633,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             else:
                 r = getattr(worker.exception, 'reason', worker.exception)
                 error_dialog(self, _('Could not open ebook'),
-                        unicode(r), det_msg=worker.traceback, show=True)
+                        as_unicode(r), det_msg=worker.traceback, show=True)
             self.close_progress_indicator()
         else:
             self.metadata.show_opf(self.iterator.opf, os.path.splitext(pathtoebook)[1][1:])
