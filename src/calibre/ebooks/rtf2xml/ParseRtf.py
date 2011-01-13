@@ -17,7 +17,8 @@
 #########################################################################
 # $Revision: 1.41 $
 # $Date: 2006/03/24 23:50:07 $
-import sys,os
+import sys, os
+
 from calibre.ebooks.rtf2xml import headings_to_sections, \
     line_endings, footnote, fields_small, default_encoding, \
     make_lists, preamble_div, header, colors, group_borders, \
@@ -90,7 +91,6 @@ class ParseRtf:
                 out_file = '',
                 out_dir = None,
                 dtd = '',
-                #debug = 0, #why? calibre
                 deb_dir = None,
                 convert_symbol = None,
                 convert_wingdings = None,
@@ -107,6 +107,7 @@ class ParseRtf:
                 no_dtd = 0,
                 char_data = '',
                 ):
+
         """
         Requires:
         'file' --file to parse
@@ -119,12 +120,11 @@ class ParseRtf:
             script tries to output to directory where is script is exectued.)
             'deb_dir' --debug directory. If a debug_dir is provided, the script
             will copy each run through as a file to examine in the debug_dir
-            'perl_script'--use perl to make tokens. This runs just a bit faster.
-            (I will probably phase this out.)
             'check_brackets' -- make sure the brackets match up after each run
             through a file. Only for debugging.
         Returns: Nothing
         """
+
         self.__file = in_file
         self.__out_file = out_file
         self.__out_dir = out_dir
@@ -132,7 +132,7 @@ class ParseRtf:
         self.__dtd_path = dtd
         self.__check_file(in_file,"file_to_parse")
         self.__char_data = char_data
-        self.__debug_dir = deb_dir #self.__debug_dir = debug calibre
+        self.__debug_dir = deb_dir
         self.__check_dir(self.__temp_dir)
         self.__copy = self.__check_dir(self.__debug_dir)
         self.__convert_caps = convert_caps
@@ -155,25 +155,24 @@ class ParseRtf:
         if hasattr(the_file, 'read'): return
         if the_file == None:
             if type == "file_to_parse":
-                message = "You must provide a file for the script to work"
-            msg = message
+                msg = "\nYou must provide a file for the script to work"
             raise RtfInvalidCodeException, msg
         elif os.path.exists(the_file):
             pass # do nothing
         else:
-            message = "The file '%s' cannot be found" % the_file
-            msg = message
+            msg = "\nThe file '%s' cannot be found" % the_file
             raise RtfInvalidCodeException, msg
+
     def __check_dir(self, the_dir):
         """Check to see if directory exists"""
         if not the_dir :
             return
         dir_exists = os.path.isdir(the_dir)
         if not dir_exists:
-            message = "%s is not a directory" % the_dir
-            msg = message
+            msg = "\n%s is not a directory" % the_dir
             raise RtfInvalidCodeException, msg
         return 1
+
     def parse_rtf(self):
         """
         Parse the file by calling on other classes.
@@ -194,13 +193,14 @@ class ParseRtf:
             copy_obj.set_dir(self.__debug_dir)
             copy_obj.remove_files()
             copy_obj.copy_file(self.__temp_file, "original_file")
-        # new as of 2005-08-02. Do I want this?
+        # Function to check if bracket are well handled
         if self.__debug_dir or self.__run_level > 2:
             self.__check_brack_obj = check_brackets.CheckBrackets\
             (file = self.__temp_file,
                 bug_handler = RtfInvalidCodeException,
                     )
-        # convert Macintosh line endings to Unix line endings
+        #convert Macintosh and Windows line endings to Unix line endings
+        #why do this if you don't wb after?
         line_obj = line_endings.FixLineEndings(
                 in_file = self.__temp_file,
                 bug_handler = RtfInvalidCodeException,
@@ -208,13 +208,13 @@ class ParseRtf:
                 run_level = self.__run_level,
                 replace_illegals = self.__replace_illegals,
                 )
-        return_value = line_obj.fix_endings()
+        return_value = line_obj.fix_endings() #calibre return what?
         self.__return_code(return_value)
         tokenize_obj = tokenize.Tokenize(
                 bug_handler = RtfInvalidCodeException,
                 in_file = self.__temp_file,
                 copy = self.__copy,
-                run_level = self.__run_level,)
+                run_level = self.__run_level)
         tokenize_obj.tokenize()
         process_tokens_obj = process_tokens.ProcessTokens(
             in_file = self.__temp_file,
@@ -230,12 +230,25 @@ class ParseRtf:
                 os.remove(self.__temp_file)
             except OSError:
                 pass
+            #Check to see if the file is correctly encoded
+            encode_obj = default_encoding.DefaultEncoding(
+            in_file = self.__temp_file,
+            run_level = self.__run_level,
+            bug_handler = RtfInvalidCodeException,
+            check_raw = True,
+            )
+            platform, code_page, default_font_num = encode_obj.find_default_encoding()
             check_encoding_obj = check_encoding.CheckEncoding(
-                bug_handler = RtfInvalidCodeException,
-                    )
-            check_encoding_obj.check_encoding(self.__file)
-            sys.stderr.write('File "%s" does not appear to be RTF.\n' % self.__file if isinstance(self.__file, str) else self.__file.encode('utf-8'))
-            raise InvalidRtfException, msg
+                    bug_handler = RtfInvalidCodeException,
+                        )
+            enc = encode_obj.get_codepage()
+            if enc != 'mac_roman':
+                enc = 'cp' + enc
+            if check_encoding_obj.check_encoding(self.__file, enc):
+                file_name = self.__file if isinstance(self.__file, str) \
+                                    else self.__file.encode('utf-8')
+                msg = 'File %s does not appear to be correctly encoded.\n' % file_name
+                raise InvalidRtfException, msg
         delete_info_obj = delete_info.DeleteInfo(
             in_file = self.__temp_file,
             copy = self.__copy,
@@ -508,6 +521,7 @@ class ParseRtf:
                 indent = self.__indent,
                 run_level = self.__run_level,
                 no_dtd = self.__no_dtd,
+                encoding = encode_obj.get_codepage(),
                 bug_handler = RtfInvalidCodeException,
                 )
         tags_obj.convert_to_tags()
@@ -520,35 +534,28 @@ class ParseRtf:
         output_obj.output()
         os.remove(self.__temp_file)
         return self.__exit_level
+
     def __bracket_match(self, file_name):
         if self.__run_level > 2:
             good_br, msg =  self.__check_brack_obj.check_brackets()
             if good_br:
                 pass
-                # sys.stderr.write( msg + ' in ' + file_name + "\n")
+                #sys.stderr.write( msg + ' in ' + file_name + "\n")
             else:
-                msg += msg +  " in file '" + file_name + "'\n"
+                msg = '%s in file %s\n' % (msg, file_name)
                 raise RtfInvalidCodeException, msg
+
     def __return_code(self, num):
-        if num == None:
-            return
-        if int(num) > self.__exit_level:
-            self.__exit_level = num
+      if num == None:
+          return
+      if int(num) > self.__exit_level:
+          self.__exit_level = num
+
     def __make_temp_file(self,file):
         """Make a temporary file to parse"""
         write_file="rtf_write_file"
         read_obj = file if hasattr(file, 'read') else open(file,'r')
-        write_obj = open(write_file, 'w')
-        line = "dummy"
-        while line:
-            line = read_obj.read(1000)
-            write_obj.write(line )
-        write_obj.close()
+        with open(write_file, 'wb') as write_obj:
+            for line in read_obj:
+                write_obj.write(line)
         return write_file
-    """
-mi<tg<open______<style-sheet\n
-mi<tg<close_____<style-sheet\n
-mi<tg<open-att__<footnote<num>1\n
-mi<tg<empty-att_<page-definition<margin>33\n
-mi<tg<empty_____<para\n
-"""

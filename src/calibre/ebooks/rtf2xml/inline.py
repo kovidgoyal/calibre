@@ -1,5 +1,7 @@
 import sys, os, tempfile
+
 from calibre.ebooks.rtf2xml import copy
+
 """
 States.
 1. default
@@ -36,6 +38,7 @@ class Inline:
         self.__copy = copy
         self.__run_level = run_level
         self.__write_to = tempfile.mktemp()
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -51,7 +54,6 @@ class Inline:
             'tx<ut<__________'  :       self.__found_text_func,
             'mi<mk<inline-fld'  :       self.__found_text_func,
             'text'              :       self.__found_text_func,
-            'cw<nu<hard-lineb'  :       self.__found_text_func, #calibre
             'cb<nu<clos-brack'  :       self.__close_bracket_func,
             'mi<mk<par-end___'  :       self.__end_para_func,
             'mi<mk<footnt-ope'  :       self.__end_para_func,
@@ -63,7 +65,6 @@ class Inline:
             'tx<hx<__________'  :       self.__found_text_func,
             'tx<ut<__________'  :       self.__found_text_func,
             'text'              :       self.__found_text_func,
-            'cw<nu<hard-lineb'  :       self.__found_text_func, #calibre
             'mi<mk<inline-fld'  :       self.__found_text_func,
             'ob<nu<open-brack':         self.__found_open_bracket_func,
             'mi<mk<par-end___'  :       self.__end_para_func,
@@ -83,12 +84,12 @@ class Inline:
         self.__in_para = 0 #  not in paragraph
         self.__char_dict = {
             # character info => ci
-            'annotation'    :       'annotation',
+            'annotation'    :   'annotation',
             'blue______'    :   'blue',
             'bold______'    :   'bold',
-            'caps______'    :       'caps',
-            'char-style'    :       'character-style',
-            'dbl-strike'    :    'double-strike-through',
+            'caps______'    :   'caps',
+            'char-style'    :   'character-style',
+            'dbl-strike'    :   'double-strike-through',
             'emboss____'    :   'emboss',
             'engrave___'    :   'engrave',
             'font-color'    :   'font-color',
@@ -96,7 +97,7 @@ class Inline:
             'font-size_'    :   'font-size',
             'font-style'    :   'font-style',
             'font-up___'    :   'superscript',
-            'footnot-mk'    :       'footnote-marker',
+            'footnot-mk'    :   'footnote-marker',
             'green_____'    :   'green',
             'hidden____'    :   'hidden',
             'italics___'    :   'italics',
@@ -107,9 +108,10 @@ class Inline:
             'strike-thr'    :   'strike-through',
             'subscript_'    :   'subscript',
             'superscrip'    :   'superscript',
-            'underlined'    :       'underlined',
+            'underlined'    :   'underlined',
         }
         self.__caps_list = ['false']
+
     def __set_list_func(self, line):
         """
         Requires:
@@ -128,6 +130,7 @@ class Inline:
                 self.__place = 'in_list'
                 self.__inline_list = self.__list_inline_list
                 self.__groups_in_waiting = self.__groups_in_waiting_list
+
     def __default_func(self, line):
         """
         Requires:
@@ -140,8 +143,8 @@ class Inline:
         action = self.__default_dict.get(self.__token_info)
         if action:
             action(line)
-        if self.__token_info != 'cw<nu<hard-lineb': #calibre
-            self.__write_obj.write(line)
+        self.__write_obj.write(line)
+
     def __found_open_bracket_func(self, line):
         """
         Requires:
@@ -156,6 +159,7 @@ class Inline:
         self.__groups_in_waiting[0] += 1
         self.__inline_list.append({})
         self.__inline_list[-1]['contains_inline'] = 0
+
     def __after_open_bracket_func(self, line):
         """
         Requires:
@@ -176,6 +180,7 @@ class Inline:
                 self.__state = 'default' #  a non control word?
                 action(line)
         self.__write_obj.write(line)
+
     def __handle_control_word(self, line):
         """
         Required:
@@ -206,6 +211,7 @@ class Inline:
                 elif char_value == 'Zapf Dingbats':
                     self.__write_obj.write('mi<mk<font-dingb\n')
             """
+
     def __close_bracket_func(self, line):
         """
         Requires:
@@ -244,6 +250,7 @@ class Inline:
         self.__inline_list.pop()
         if self.__groups_in_waiting[0] != 0:
             self.__groups_in_waiting[0] -= 1
+
     def __found_text_func(self, line):
         """
         Required:
@@ -257,7 +264,6 @@ class Inline:
                 Text can mark the start of a paragraph.
                 If already in a paragraph, check to see if any groups are waiting
                 to be added. If so, use another method to write these groups.
-            3. If not check if hardline break, then write
         """
         if self.__place == 'in_list':
             self.__write_inline()
@@ -265,12 +271,9 @@ class Inline:
             if not self.__in_para:
                 self.__in_para = 1
                 self.__start_para_func(line)
-            else:
-                if self.__token_info == 'cw<nu<hard-lineb': #calibre
-                    self.__write_obj.write('mi<tg<empty_____<hardline-break\n')
-                if self.__groups_in_waiting[0] != 0:
+            elif self.__groups_in_waiting[0] != 0:
                     self.__write_inline()
-                
+
     def __write_inline(self):
         """
         Required:
@@ -314,6 +317,7 @@ class Inline:
                             self.__write_obj.write('<%s>%s' % (the_key, the_dict[the_key]))
                     self.__write_obj.write('\n')
         self.__groups_in_waiting[0] = 0
+
     def __end_para_func(self, line):
         """
         Requires:
@@ -342,6 +346,7 @@ class Inline:
                     self.__write_obj.write('mi<mk<caps-end__\n')
                 self.__write_obj.write('mi<tg<close_____<inline\n')
         self.__in_para = 0
+
     def __start_para_func(self, line):
         """
         Requires:
@@ -369,12 +374,14 @@ class Inline:
                         self.__write_obj.write('<%s>%s' % (the_key, the_dict[the_key]))
                 self.__write_obj.write('\n')
         self.__groups_in_waiting[0] = 0
+
     def __found_field_func(self, line):
         """
         Just a default function to make sure I don't prematurely exit
         default state
         """
         pass
+
     def form_tags(self):
         """
         Requires:
@@ -386,32 +393,27 @@ class Inline:
             the state.
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
-        line_to_read = 1
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            token = line[0:-1]
-            self.__token_info = ''
-            if token == 'tx<mc<__________<rdblquote'\
-                or token == 'tx<mc<__________<ldblquote'\
-                or token == 'tx<mc<__________<lquote'\
-                or token == 'tx<mc<__________<rquote'\
-                or token == 'tx<mc<__________<emdash'\
-                or token == 'tx<mc<__________<endash'\
-                or token == 'tx<mc<__________<bullet':
-                self.__token_info = 'text'
-            else:
-                self.__token_info = line[:16]
-            self.__set_list_func(line)
-            action = self.__state_dict.get(self.__state)
-            if action == None:
-                sys.stderr.write('No matching state in module inline_for_lists.py\n')
-                sys.stderr.write(self.__state + '\n')
-            action(line)
-        read_obj.close()
-        self.__write_obj.close()
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'w') as self.__write_obj:
+                for line in read_obj:
+                    token = line[0:-1]
+                    self.__token_info = ''
+                    if token == 'tx<mc<__________<rdblquote'\
+                        or token == 'tx<mc<__________<ldblquote'\
+                        or token == 'tx<mc<__________<lquote'\
+                        or token == 'tx<mc<__________<rquote'\
+                        or token == 'tx<mc<__________<emdash'\
+                        or token == 'tx<mc<__________<endash'\
+                        or token == 'tx<mc<__________<bullet':
+                        self.__token_info = 'text'
+                    else:
+                        self.__token_info = line[:16]
+                    self.__set_list_func(line)
+                    action = self.__state_dict.get(self.__state)
+                    if action is None:
+                        sys.stderr.write('No matching state in module inline_for_lists.py\n')
+                        sys.stderr.write(self.__state + '\n')
+                    action(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "inline.data")
