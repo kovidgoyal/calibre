@@ -709,6 +709,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         formats = row[fm['formats']]
         if not formats:
             formats = None
+        else:
+            formats = formats.split(',')
         mi.formats = formats
         tags = row[fm['tags']]
         if tags:

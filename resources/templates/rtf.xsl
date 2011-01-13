@@ -287,7 +287,7 @@
                 <xsl:value-of select="count(preceding::rtf:footnote) + 1"/>
                 <xsl:text>]</xsl:text>
             </xsl:when>
-            <xsl:when test="(@superscript = 'true')">
+            <xsl:when test="(@superscript)">
                 <xsl:element name="sup">
                     <xsl:element name="span">
                         <xsl:attribute name="class">
@@ -297,7 +297,7 @@
                     </xsl:element>
                 </xsl:element>
             </xsl:when>
-            <xsl:when test="(@underscript = 'true')">
+            <xsl:when test="(@underscript or @subscript)">
                 <xsl:element name="sub">
                     <xsl:element name="span">
                         <xsl:attribute name="class">

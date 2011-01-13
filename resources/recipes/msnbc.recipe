@@ -4,7 +4,6 @@ __copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
 msnbc.msn.com
 '''
 
-import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class MsNBC(BasicNewsRecipe):
@@ -19,7 +18,7 @@ class MsNBC(BasicNewsRecipe):
     publisher              = 'msnbc.com'
     category               = 'news, USA, world'
     language               = 'en'
-    extra_css              = """ 
+    extra_css              = """
                                 body{ font-family: Georgia,Times,serif }
                                 .hide{display: none}
                                 .caption{font-family: Arial,sans-serif; font-size: x-small}
@@ -44,7 +43,7 @@ class MsNBC(BasicNewsRecipe):
                      ,dict(attrs={'class':['gl_headline','articleText','drawer-content Linear','v-center3','byline','textBodyBlack']})
                    ]
     remove_attributes=['property','lang','rel','xmlns:fb','xmlns:v','xmlns:dc','xmlns:dcmitype','xmlns:og','xmlns:media','xmlns:vcard','typeof','itemscope','itemtype','itemprop','about','type','size','width','height','onreadystatechange','data','border','hspace','vspace']
-    
+
     remove_tags      = [
                           dict(name=['iframe','object','link','embed','meta','table'])
                          ,dict(name='span', attrs={'class':['copyright','Linear copyright']})
@@ -70,7 +69,7 @@ class MsNBC(BasicNewsRecipe):
             if item.has_key('id') and item['id'].startswith('vine-'):
                item.extract()
             if item.has_key('class') and ( item['class'].startswith('ad') or item['class'].startswith('vine')):
-               item.extract()            
+               item.extract()
         for item in soup.body.findAll('img'):
             if not item.has_key('alt'):
                item['alt'] = 'image'
@@ -83,6 +82,6 @@ class MsNBC(BasicNewsRecipe):
         for alink in soup.findAll('a'):
             if alink.string is not None:
                tstr = alink.string
-               alink.replaceWith(tstr)    
+               alink.replaceWith(tstr)
         return soup
 

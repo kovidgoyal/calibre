@@ -468,12 +468,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         try:
             if 'calibre.ebooks.DRMError' in job.details:
                 if not minz:
-                    d = error_dialog(self, _('Conversion Error'),
-                        _('<p>Could not convert: %s<p>It is a '
-                        '<a href="%s">DRM</a>ed book. You must first remove the '
-                        'DRM using third party tools.')%\
-                            (job.description.split(':')[-1],
-                                'http://bugs.calibre-ebook.com/wiki/DRM'))
+                    from calibre.gui2.dialogs.drm_error import DRMErrorMessage
+                    d = DRMErrorMessage(self, job.description.split(':')[-1])
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)

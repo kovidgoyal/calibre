@@ -92,7 +92,10 @@ def identify_data(data):
     or raises an Exception if data is not an image.
     '''
     img = Image()
-    img.load(data)
+    if hasattr(img, 'identify'):
+        img.identify(data)
+    else:
+        img.load(data)
     width, height = img.size
     fmt = img.format
     return (width, height, fmt)

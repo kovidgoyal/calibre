@@ -384,8 +384,9 @@ class BooksModel(QAbstractTableModel): # {{{
             name, val = mi.format_field(key)
             if mi.metadata_for_field(key)['datatype'] == 'comments':
                 name += ':html'
-            if val:
+            if val and name not in data:
                 data[name] = val
+
         return data
 
 
