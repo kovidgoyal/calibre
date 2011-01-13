@@ -3250,7 +3250,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Loop over the series titles, find start of each letter, add description_preview_count books
             # Special switch for using different title list
             title_list = self.booksBySeries
-            current_letter = self.letter_or_symbol(title_list[0]['series'][0])
+            current_letter = self.letter_or_symbol(self.generateSortTitle(title_list[0]['series'])[0])
             title_letters = [current_letter]
             current_series_list = []
             current_series = ""
