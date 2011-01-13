@@ -6,66 +6,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import traceback
 
 from calibre.ebooks.conversion.config import load_defaults
 from calibre.gui2 import gprefs
 
 from catalog_epub_mobi_ui import Ui_Form
-from PyQt4.Qt import QWidget, QLineEdit
+from PyQt4.Qt import QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QGroupBox, QHBoxLayout, QLineEdit, \
+                     QRadioButton, QRegExp, QSound, QTextEdit, QWidget, SIGNAL, SLOT
 
 class PluginWidget(QWidget,Ui_Form):
 
     TITLE = _('E-book options')
     HELP  = _('Options specific to')+' EPUB/MOBI '+_('output')
-
-    CheckBoxControls = [
-                        'generate_titles',
-                        'generate_series',
-                        'generate_genres',
-                        'generate_recently_added',
-                        'generate_descriptions',
-                        'include_hr'
-                        ]
-    ComboBoxControls = [
-                        'read_source_field',
-                        'exclude_source_field',
-                        'header_note_source_field',
-                        'merge_source_field'
-                        ]
-    LineEditControls = [
-                        'exclude_genre',
-                        'exclude_pattern',
-                        'exclude_tags',
-                        'read_pattern',
-                        'wishlist_tag'
-                        ]
-    RadioButtonControls = [
-                        'merge_before',
-                        'merge_after'
-                        ]
-    SpinBoxControls = [
-                        'thumb_width'
-                        ]
-
-    OPTION_FIELDS = zip(CheckBoxControls,
-                        [True for i in CheckBoxControls],
-                        ['check_box' for i in CheckBoxControls])
-    OPTION_FIELDS += zip(ComboBoxControls,
-                        [None for i in ComboBoxControls],
-                        ['combo_box' for i in ComboBoxControls])
-    OPTION_FIELDS += zip(RadioButtonControls,
-                        [None for i in RadioButtonControls],
-                        ['radio_button' for i in RadioButtonControls])
-
-    # LineEditControls
-    OPTION_FIELDS += zip(['exclude_genre'],['\[.+\]'],['line_edit'])
-    OPTION_FIELDS += zip(['exclude_pattern'],[None],['line_edit'])
-    OPTION_FIELDS += zip(['exclude_tags'],['~,'+_('Catalog')],['line_edit'])
-    OPTION_FIELDS += zip(['read_pattern'],['+'],['line_edit'])
-    OPTION_FIELDS += zip(['wishlist_tag'],['Wishlist'],['line_edit'])
-
-    # SpinBoxControls
-    OPTION_FIELDS += zip(['thumb_width'],[1.00],['spin_box'])
 
     # Output synced to the connected device?
     sync_enabled = True
@@ -76,8 +29,69 @@ class PluginWidget(QWidget,Ui_Form):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
+        self._initControlArrays()
+
+    def _initControlArrays(self):
+
+        CheckBoxControls = []
+        ComboBoxControls = []
+        DoubleSpinBoxControls = []
+        LineEditControls = []
+        RadioButtonControls = []
+
+        for item in self.__dict__:
+            if type(self.__dict__[item]) is QCheckBox:
+                CheckBoxControls.append(str(self.__dict__[item].objectName()))
+            elif type(self.__dict__[item]) is QComboBox:
+                ComboBoxControls.append(str(self.__dict__[item].objectName()))
+            elif type(self.__dict__[item]) is QDoubleSpinBox:
+                DoubleSpinBoxControls.append(str(self.__dict__[item].objectName()))
+            elif type(self.__dict__[item]) is QLineEdit:
+                LineEditControls.append(str(self.__dict__[item].objectName()))
+            elif type(self.__dict__[item]) is QRadioButton:
+                RadioButtonControls.append(str(self.__dict__[item].objectName()))
+
+        option_fields = zip(CheckBoxControls,
+                            [True for i in CheckBoxControls],
+                            ['check_box' for i in CheckBoxControls])
+        option_fields += zip(ComboBoxControls,
+                            [None for i in ComboBoxControls],
+                            ['combo_box' for i in ComboBoxControls])
+        option_fields += zip(RadioButtonControls,
+                            [None for i in RadioButtonControls],
+                            ['radio_button' for i in RadioButtonControls])
+
+        # LineEditControls
+        option_fields += zip(['exclude_genre'],['\[.+\]'],['line_edit'])
+        option_fields += zip(['exclude_pattern'],[None],['line_edit'])
+        option_fields += zip(['exclude_tags'],['~,'+_('Catalog')],['line_edit'])
+        option_fields += zip(['read_pattern'],['+'],['line_edit'])
+        option_fields += zip(['wishlist_tag'],['Wishlist'],['line_edit'])
+
+        # SpinBoxControls
+        option_fields += zip(['thumb_width'],[1.00],['spin_box'])
+
+        self.OPTION_FIELDS = option_fields
 
     def initialize(self, name, db):
+        '''
+
+        CheckBoxControls (c_type: check_box):
+            ['generate_titles','generate_series','generate_genres',
+                            'generate_recently_added','generate_descriptions','include_hr']
+        ComboBoxControls (c_type: combo_box):
+            ['read_source_field','exclude_source_field','header_note_source_field',
+                            'merge_source_field']
+        LineEditControls (c_type: line_edit):
+            ['exclude_genre','exclude_pattern','exclude_tags','read_pattern',
+                            'wishlist_tag']
+        RadioButtonControls (c_type: radio_button):
+            ['merge_before','merge_after']
+        SpinBoxControls (c_type: spin_box):
+            ['thumb_width']
+
+        '''
+
         self.name = name
         self.db = db
         self.populateComboBoxes()
@@ -135,7 +149,7 @@ class PluginWidget(QWidget,Ui_Form):
     def options(self):
         # Save/return the current options
         # exclude_genre stores literally
-        # generate_titles, generate_recently_added, numbers_as_text stores as True/False
+        # generate_titles, generate_recently_added store as True/False
         # others store as lists
 
         opts_dict = {}
