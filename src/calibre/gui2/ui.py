@@ -256,6 +256,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.height())
         self.resize(self.width(), self._calculated_available_height)
 
+        for ac in self.iactions.values():
+            try:
+                ac.gui_layout_complete()
+            except:
+                import traceback
+                traceback.print_exc()
+                if ac.plugin_path is None:
+                    raise
 
         if config['autolaunch_server']:
             self.start_content_server()

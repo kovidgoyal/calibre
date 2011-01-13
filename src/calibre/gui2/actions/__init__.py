@@ -111,7 +111,10 @@ class InterfaceAction(QObject):
         action.setWhatsThis(text)
         action.setAutoRepeat(False)
         if shortcut:
-            action.setShortcut(shortcut)
+            if isinstance(shortcut, list):
+                action.setShortcuts(shortcut)
+            else:
+                action.setShortcut(shortcut)
         setattr(self, attr, action)
         return action
 
@@ -167,6 +170,14 @@ class InterfaceAction(QObject):
 
         :param db: The LibraryDatabase corresponding to the current library.
 
+        '''
+        pass
+
+    def gui_layout_complete(self):
+        '''
+        Called once per action when the layout of the main GUI is
+        completed. If your action needs to make changes to the layout, they
+        should be done here, rather than in :meth:`initialization_complete`.
         '''
         pass
 

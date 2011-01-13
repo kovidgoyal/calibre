@@ -196,9 +196,11 @@ class SearchBar(QWidget): # {{{
 
         x = parent.search_highlight_only = QCheckBox()
         x.setText(_('&Highlight'))
-        x.setToolTip(_('Highlight matched books in the book list, instead '
-            'of restricting the book list to the matches.'))
+        x.setToolTip('<p>'+_('When searching, highlight matched books, instead '
+            'of restricting the book list to the matches.<p> You can use the '
+            'N or F3 keys to go to the next match.'))
         l.addWidget(x)
+        x.setVisible(False)
 
         x = parent.saved_search = SavedSearchBox(self)
         x.setMaximumSize(QSize(150, 16777215))
