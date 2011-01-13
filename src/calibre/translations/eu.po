@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-09 01:59+0000\n"
-"PO-Revision-Date: 2011-01-11 22:48+0000\n"
+"PO-Revision-Date: 2011-01-12 22:07+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-12 04:43+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-01-13 04:38+0000\n"
+"X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
@@ -601,8 +601,6 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
-"Samsung Galaxy eta antzeko tablet gailuentzat prestatua, 600x1280 "
-"bereizmenarekin."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -835,7 +833,7 @@ msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:41
 msgid "Device IP Address (restart calibre after changing)"
-msgstr "Gailuaren IP helbidea (aldatu eta gero, berrabiarazi calibre)"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:46
 msgid ""
@@ -858,9 +856,6 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
-"Ezin izan da Bambook horrekin konektatu. \n"
-"Wi-Fi-aren bidez saiatzen ari bazara, konprobatu Bambook horren IP helbidea "
-"behar bezala zehaztu dela."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:111
 msgid "Bambook"
@@ -964,7 +959,7 @@ msgstr "Komunikatu \"PocketBook 301 reader\" horrekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr "Kontaktatu PocketBook 602/603/902/903 reader horrekin."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
@@ -1165,11 +1160,11 @@ msgstr "Komunikatu \"Trekstor\" enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:251
 msgid "Communicate with the EEE Reader"
-msgstr "Kontaktatu EEE Reader horrekin"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:271
 msgid "Communicate with the Nextbook Reader"
-msgstr "Kontaktatu Nextbook Reader horrekin"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1247,7 +1242,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:72
 msgid "Upload separate cover thumbnails for books (newer readers)"
 msgstr ""
-"Kargatu liburu-azalen argazki txikiak (irakurgailu berrienekin egin daiteke)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid ""
@@ -1257,12 +1251,6 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
-"Normalean, SONY irakurgailuek lortzen dute liburuaren azaleko irudia liburu-"
-"e fitxategitik zuzenean. Aukera honekin, calibrek bidaliko dio irakurleari "
-"beste liburu-azal bat. Hau erabilgarria izan daiteke DRM duten liburak "
-"bidaltzen ari bazara non ezin duzu azala aldatu. ABISUA: Aukera hau SONY "
-"reader gailu berri-berriekin bakarrik erabil daiteke, hau da: SONY 350, 650, "
-"950 eta geroagokoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -4370,8 +4358,6 @@ msgid ""
 "No books to catalog\n"
 "Check exclusion criteria"
 msgstr ""
-"Libururik ez katalogoan\n"
-"aztertu baztertze irizpideak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:70
 msgid "Catalog generated."
@@ -4811,7 +4797,7 @@ msgstr "Connect to iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:41
 msgid "Connect to Bambook"
-msgstr "Konektatu Bambook horrekin"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:63
@@ -5734,32 +5720,30 @@ msgstr "E-liburu aukerak"
 msgid ""
 "Sections to include in catalog.  All catalogs include 'Books by Author'."
 msgstr ""
-"Katalogoan gehitzeko atalak. Katalogo guztiek dauzkate 'Egilearen arabera' "
-"liburuak."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:292
 msgid "Included sections"
-msgstr "Barnean sartzen diren atalak"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:293
 msgid "Books by &Title"
-msgstr "Liburuak &Izenburuaren arabera"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:294
 msgid "Books by &Series"
-msgstr "Liburuak &Sailaren arabera"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:295
 msgid "Recently &Added"
-msgstr "Duela gutxi &Gehituak"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Books by &Genre"
-msgstr "Liburuak &Generoaren arabera"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Descriptions"
-msgstr "&Deskripzioak"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid ""
@@ -5785,12 +5769,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Excluded genres"
-msgstr "Baztertutako generoak"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:310
 msgid "Tags to &exclude"
-msgstr "&Baztertzeko etiketak"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid ""
@@ -5799,7 +5783,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 msgid "Excluded books"
-msgstr "Baztertutako liburuak"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:311
 msgid ""
@@ -5822,23 +5806,23 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "&Column/value"
-msgstr "&Zutabea/balioa"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Column containing additional exclusion criteria"
-msgstr "Baztertzeko irizpide gehigarriak dauzkan zutabea"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Exclusion pattern"
-msgstr "Baztertzeko patroia"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
 msgid "Matching books will be displayed with ✓"
-msgstr "Bat egiten duten liburuak horrela markatuko: ✓"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Read books"
-msgstr "Irakurri liburuak"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Column containing 'read' status"
