@@ -15,7 +15,7 @@ from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import composite_formatter
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, ResizableDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic
 from calibre.utils.titlecase import titlecase
@@ -49,7 +49,7 @@ def get_cover_data(path):
 
 
 
-class MyBlockingBusy(QDialog):
+class MyBlockingBusy(QDialog): # {{{
 
     do_one_signal = pyqtSignal()
 
@@ -241,8 +241,9 @@ class MyBlockingBusy(QDialog):
         self.current_index += 1
         self.do_one_signal.emit()
 
+    # }}}
 
-class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
+class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
     s_r_functions = {       ''              : lambda x: x,
                             _('Lower Case') : lambda x: icu_lower(x),
@@ -261,9 +262,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                         ]
 
     def __init__(self, window, rows, model, tab):
-        QDialog.__init__(self, window)
+        ResizableDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
-        self.setupUi(self)
         self.model = model
         self.db = model.db
         self.ids = [self.db.id(r) for r in rows]

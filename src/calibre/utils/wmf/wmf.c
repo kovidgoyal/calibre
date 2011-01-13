@@ -4,6 +4,7 @@
 
 #include <libwmf/api.h>
 #include <libwmf/svg.h>
+//#include <libwmf/gd.h>
 
 typedef struct {
     char *data;
@@ -13,7 +14,7 @@ typedef struct {
 
 //This code is taken mostly from the Abiword wmf plugin
 
-
+// Buffer read {{{
 // returns unsigned char cast to int, or EOF
 static int wmf_WMF_read(void * context) {
     char c;
@@ -22,11 +23,11 @@ static int wmf_WMF_read(void * context) {
 	if (info->pos == info->len)
 		return EOF;
 
-	c = info->data[pos];
+	c = info->data[info->pos];
 
 	info->pos++;
 
-	return (int)c;
+	return (int)((unsigned char)c);
 }
 
 // returns (-1) on error, else 0
@@ -44,7 +45,16 @@ static long wmf_WMF_tell(void * context) {
 
 	return (long) info->pos;
 }
+// }}}
 
+
+char _png_name_buf[100];
+char *wmf_png_name(void *ctxt) {
+    int *num = (int*)ctxt;
+    *num = *num + 1;
+    snprintf(_png_name_buf, 90, "%04d.png", *num);
+    return _png_name_buf;
+}
 
 #define CLEANUP if(API) { if (stream) wmf_free(API, stream); wmf_api_destroy(API); };
 
@@ -66,9 +76,9 @@ wmf_render(PyObject *self, PyObject *args) {
 
 	unsigned int max_width  = 1600;
 	unsigned int max_height = 1200;
-	unsigned long max_flags = 0;
 
 	static const char* Default_Description = "wmf2svg";
+    int fname_counter = 0;
 
 	wmf_error_t err;
 
@@ -125,6 +135,8 @@ wmf_render(PyObject *self, PyObject *args) {
 	ddata->Description = (char *)Default_Description;
 
 	ddata->bbox = bbox;
+    ddata->image.context = (void *)&fname_counter;
+    ddata->image.name = wmf_png_name;
 
 	wmf_display_size(API, &disp_width, &disp_height, 96, 96);
 
@@ -156,9 +168,9 @@ wmf_render(PyObject *self, PyObject *args) {
 		ddata->height = (unsigned int) ceil ((double) wmf_height);
 	}
 
-	ddata->flags |= WMF_SVG_INLINE_IMAGES;
-
-	ddata->flags |= WMF_GD_OUTPUT_MEMORY | WMF_GD_OWN_BUFFER;
+    // Needs GD
+	//ddata->flags |= WMF_SVG_INLINE_IMAGES;
+	//ddata->flags |= WMF_GD_OUTPUT_MEMORY | WMF_GD_OWN_BUFFER;
 
     err = wmf_play(API, 0, &(bbox));
 
@@ -178,11 +190,32 @@ wmf_render(PyObject *self, PyObject *args) {
     return ans;
 }
 
+#ifdef _WIN32
+void set_libwmf_fontdir(const char *);
+
+static PyObject *
+wmf_setfontdir(PyObject *self, PyObject *args) {
+    char *path;
+    if (!PyArg_ParseTuple(args, "s", &path))
+        return NULL;
+    set_libwmf_fontdir(path);
+
+    Py_RETURN_NONE;
+}
+#endif
+
+
+
 
 static PyMethodDef wmf_methods[] = {
     {"render", wmf_render, METH_VARARGS,
-        "render(path) -> Render wmf as svg."
+        "render(data) -> Render wmf as svg."
     },
+#ifdef _WIN32
+    {"set_font_dir", wmf_setfontdir, METH_VARARGS,
+        "set_font_dir(path) -> Set the path to the fonts dir on windows, must be called at least once before using render()"
+    },
+#endif
 
     {NULL}  /* Sentinel */
 };

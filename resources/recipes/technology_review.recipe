@@ -35,7 +35,6 @@ class TechnologyReview(BasicNewsRecipe):
     def get_article_url(self, article):
         return article.get('guid', article.get('id', None))
 
-
     def print_version(self, url):
         baseurl='http://www.technologyreview.com/printer_friendly_article.aspx?id='
         split1 = string.split(url,"/")
@@ -43,3 +42,25 @@ class TechnologyReview(BasicNewsRecipe):
         split2= string.split(xxx,"/")
         s =  baseurl + split2[0]
         return s
+
+
+    def postprocess_html(self,soup, True):
+        #remove picture
+        headerhtml = soup.find(True, {'class':'header'})
+        headerhtml.replaceWith("")
+
+        #remove close button
+        closehtml = soup.find(True, {'class':'close'})
+        closehtml.replaceWith("")
+
+        #remove banner advertisement
+        bannerhtml = soup.find(True, {'class':'bannerad'})
+        bannerhtml.replaceWith("")
+
+        #thanks kiklop74!  This code removes all links from the text
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+
+        return soup

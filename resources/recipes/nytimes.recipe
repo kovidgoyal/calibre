@@ -685,3 +685,28 @@ class NYTimes(BasicNewsRecipe):
             divTag.replaceWith(tag)
 
         return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        shortparagraph = ""
+        try:
+            if len(article.text_summary.strip()) == 0:
+                articlebodies = soup.findAll('div',attrs={'class':'articleBody'})
+                if articlebodies:
+                    for articlebody in articlebodies:
+                        if articlebody:
+                            paras = articlebody.findAll('p')
+                            for p in paras:
+                                refparagraph = self.massageNCXText(self.tag_to_string(p,use_alt=False)).strip()
+                                #account for blank paragraphs and short paragraphs by appending them to longer ones
+                                if len(refparagraph) > 0:
+                                    if len(refparagraph) > 70: #approximately one line of text
+                                        article.summary = article.text_summary = shortparagraph + refparagraph
+                                        return
+                                    else:
+                                        shortparagraph = refparagraph + " "
+                                        if shortparagraph.strip().find(" ") == -1 and not shortparagraph.strip().endswith(":"):
+                                            shortparagraph = shortparagraph + "- "
+        except:
+            self.log("Error creating article descriptions")
+            return
+

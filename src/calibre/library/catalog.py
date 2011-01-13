@@ -1524,19 +1524,32 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['formats'] = formats
 
                 # Add user notes to be displayed in header
-                # Special case handling for datetime fields
+                # Special case handling for datetime fields and lists
                 if self.opts.header_note_source_field:
                     field_md = self.__db.metadata_for_field(self.opts.header_note_source_field)
                     notes = self.__db.get_field(record['id'],
                                         self.opts.header_note_source_field,
                                         index_is_id=True)
-                    if notes and field_md['datatype'] == 'datetime':
-                        # Reformat date fields to match UI presentation: dd MMM YYYY
-                        notes = format_date(notes,'dd MMM yyyy')
-
                     if notes:
+                        if field_md['datatype'] == 'text':
+                            if isinstance(notes,list):
+                                notes = ' &middot; '.join(notes)
+                        elif field_md['datatype'] == 'datetime':
+                            notes = format_date(notes,'dd MMM yyyy')
+                        elif field_md['datatype'] == 'composite':
+                            m = re.match(r'\[(.+)\]$', notes)
+                            if m is not None:
+                                # Sniff for special pseudo-list string "[<item, item>]"
+                                bracketed_content = m.group(1)
+                                if ',' in bracketed_content:
+                                    # Recast the comma-separated items as a list
+                                    items = bracketed_content.split(',')
+                                    items = [i.strip() for i in items]
+                                    notes = ' &middot; '.join(items)
+                                else:
+                                    notes = bracketed_content
                         this_title['notes'] = {'source':field_md['name'],
-                                               'content':notes}
+                                                   'content':notes}
 
                 titles.append(this_title)
 

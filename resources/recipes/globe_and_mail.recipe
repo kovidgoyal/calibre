@@ -8,12 +8,13 @@ __docformat__ = 'restructuredtext en'
 globeandmail.com
 '''
 
+import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1287083651(BasicNewsRecipe):
     title          = u'Globe & Mail'
-    __license__   = 'GPL v3'
-    __author__ = 'Szing'
+    __author__ = 'Kovid Goyal'
     oldest_article = 2
     no_stylesheets = True
     max_articles_per_feed = 100
@@ -38,24 +39,19 @@ class AdvancedUserRecipe1287083651(BasicNewsRecipe):
       (u'Sports', u'http://www.theglobeandmail.com/auto/?service=rss')
     ]
 
-    keep_only_tags = [
-      dict(name='h1'),
-      dict(name='h2', attrs={'id':'articletitle'}),
-      dict(name='p', attrs={'class':['leadText', 'meta', 'leadImage', 'redtext byline', 'bodyText']}),
-      dict(name='div', attrs={'class':['news','articlemeta','articlecopy']}),
-      dict(name='id', attrs={'class':'article'}),
-      dict(name='table', attrs={'class':'todays-market'}),
-      dict(name='header', attrs={'id':'leadheader'})
-    ]
+    preprocess_regexps = [
+        (re.compile(r'<head.*?</head>', re.DOTALL), lambda m: '<head></head>'),
+        (re.compile(r'<script.*?</script>', re.DOTALL), lambda m: ''),
+        ]
 
+    remove_tags_before = dict(name='h1')
     remove_tags = [
-      dict(name='div', attrs={'id':['tabInside', 'ShareArticles', 'topStories']})
-    ]
-
-    #this has to be here or the text in the article appears twice.
-    remove_tags_after = [dict(id='article')]
+            dict(name='div', attrs={'id':['ShareArticles', 'topStories']}),
+            dict(href=lambda x: x and 'tracking=' in x),
+            {'class':['articleTools', 'pagination', 'Ads', 'topad',
+                'breadcrumbs', 'footerNav', 'footerUtil', 'downloadlinks']}]
 
     #Use the mobile version rather than the web version
     def print_version(self, url):
-        return url + '&service=mobile'
+        return url.rpartition('?')[0] + '?service=mobile'
 
