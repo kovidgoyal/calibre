@@ -847,6 +847,17 @@ class Plugboard(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.plugboard'
     description = _('Change metadata fields before saving/sending')
 
+class TemplateFunctions(PreferencesPlugin):
+    name = 'TemplateFunctions'
+    icon = I('template_funcs.png')
+    gui_name = _('Template Functions')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.template_functions'
+    description = _('Create your own template functions')
+
 class Email(PreferencesPlugin):
     name = 'Email'
     icon = I('mail.png')
@@ -908,6 +919,6 @@ class Misc(PreferencesPlugin):
 
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
-        Email, Server, Plugins, Tweaks, Misc]
+        Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
 
 #}}}
