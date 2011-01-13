@@ -1532,16 +1532,16 @@ class EPUB_MOBI(CatalogPlugin):
                                         index_is_id=True)
                     if notes:
                         if field_md['datatype'] == 'text':
-                            print "\n inner notes: %s\n" % repr(notes)
                             if isinstance(notes,list):
                                 notes = ' &middot; '.join(notes)
                         elif field_md['datatype'] == 'datetime':
                             notes = format_date(notes,'dd MMM yyyy')
                         elif field_md['datatype'] == 'composite':
-                            if re.match(r'\[(.*)\]$', notes):
+                            m = re.match(r'\[(.+)\]$', notes)
+                            if m is not None:
                                 # Sniff for special pseudo-list string "[<item, item>]"
-                                bracketed_content = re.match(r'\[(.*)\]$', notes).group(1)
-                                if re.search(',',bracketed_content):
+                                bracketed_content = m.group(1)
+                                if ',' in bracketed_content:
                                     # Recast the comma-separated items as a list
                                     items = bracketed_content.split(',')
                                     items = [i.strip() for i in items]
