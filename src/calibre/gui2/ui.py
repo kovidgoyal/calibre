@@ -269,7 +269,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.set_window_title()
 
         for ac in self.iactions.values():
-            ac.initialization_complete()
+            try:
+                ac.initialization_complete()
+            except:
+                import traceback
+                traceback.print_exc()
+                if ac.plugin_path is None:
+                    raise
 
         if show_gui and self.gui_debug is not None:
             info_dialog(self, _('Debug mode'), '<p>' +
