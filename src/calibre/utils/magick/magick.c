@@ -456,6 +456,26 @@ magick_Image_load(magick_Image *self, PyObject *args, PyObject *kwargs) {
 
 // }}}
 
+// Image.identify {{{
+static PyObject *
+magick_Image_identify(magick_Image *self, PyObject *args, PyObject *kwargs) {
+    const char *data;
+	Py_ssize_t dlen;
+    MagickBooleanType res;
+    
+    NULL_CHECK(NULL)
+    if (!PyArg_ParseTuple(args, "s#", &data, &dlen)) return NULL;
+
+    res = MagickPingImageBlob(self->wand, data, dlen);
+
+    if (!res)
+        return magick_set_exception(self->wand);
+
+    Py_RETURN_NONE;
+}
+
+// }}}
+
 // Image.open {{{
 static PyObject *
 magick_Image_read(magick_Image *self, PyObject *args, PyObject *kwargs) {
@@ -992,6 +1012,10 @@ magick_Image_destroy(magick_Image *self, PyObject *args, PyObject *kwargs) {
 static PyMethodDef magick_Image_methods[] = {
     {"destroy", (PyCFunction)magick_Image_destroy, METH_VARARGS,
     "Destroy the underlying ImageMagick Wand. WARNING: After using this method, all methods on this object will raise an exception."},
+
+    {"identify", (PyCFunction)magick_Image_identify, METH_VARARGS,
+     "Identify an image from a byte buffer (string)"
+    },
 
     {"load", (PyCFunction)magick_Image_load, METH_VARARGS,
      "Load an image from a byte buffer (string)"

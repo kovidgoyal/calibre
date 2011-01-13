@@ -4,7 +4,6 @@ __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re, htmlentitydefs
-from functools import partial
 
 _ascii_pat = None
 

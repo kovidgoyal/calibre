@@ -85,42 +85,42 @@ def get_metadata(stream):
     """ Return metadata as a L{MetaInfo} object """
     stream.seek(0)
     if stream.read(5) != r'{\rtf':
-        return MetaInformation(_('Unknown'), None)
+        return MetaInformation(_('Unknown'))
     block = get_document_info(stream)[0]
     if not block:
-        return MetaInformation(_('Unknown'), None)
+        return MetaInformation(_('Unknown'))
 
     stream.seek(0)
     cpg = detect_codepage(stream)
     stream.seek(0)
     
     title_match = title_pat.search(block)
-    if title_match:
+    if title_match is not None:
         title = decode(title_match.group(1).strip(), cpg)
     else:
         title = _('Unknown')
     author_match = author_pat.search(block)
-    if author_match:
+    if author_match is not None:
         author = decode(author_match.group(1).strip(), cpg)
     else:
         author = None
-    mi = MetaInformation(title, author)
+    mi = MetaInformation(title)
     if author:
         mi.authors = string_to_authors(author)
-    
+
     comment_match = comment_pat.search(block)
-    if comment_match:
+    if comment_match is not None:
         comment = decode(comment_match.group(1).strip(), cpg)
         mi.comments = comment
     tags_match = tags_pat.search(block)
-    if tags_match:
+    if tags_match is not None:
         tags = decode(tags_match.group(1).strip(), cpg)
         mi.tags = tags
     publisher_match = publisher_pat.search(block)
-    if publisher_match:
+    if publisher_match is not None:
         publisher = decode(publisher_match.group(1).strip(), cpg)
         mi.publisher = publisher
-    
+
     return mi
 
 def create_metadata(stream, options):
@@ -149,7 +149,7 @@ def create_metadata(stream, options):
         md.append('}')
         stream.seek(0)
         src   = stream.read()
-        ans = src[:6] + ''.join(md) + src[6:]
+        ans = src[:6] + u''.join(md) + src[6:]
         stream.seek(0)
         stream.write(ans)
 
@@ -197,7 +197,7 @@ def set_metadata(stream, options):
         tags = options.tags
         if tags is not None:
             tags =  ', '.join(tags)
-            tags = tags.encode('ascii', 'ignore')
+            tags = tags.encode('ascii', 'replace')
             pat = re.compile(base_pat.replace('name', 'category'), re.DOTALL)
             if pat.search(src):
                 src = pat.sub(r'{\\category ' + tags + r'}', src)

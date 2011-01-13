@@ -37,10 +37,10 @@ class ReplaceIllegals:
     def replace_illegals(self):
         """
         """
-        with open(self.__file, 'r') as read_obj, \
-            open(self.__write_to, 'w') as write_obj:
-            for line in read_obj:
-                write_obj.write(clean_ascii_chars(line))
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'w') as write_obj:
+                for line in read_obj:
+                    write_obj.write(clean_ascii_chars(line))
         copy_obj = copy.Copy()
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "replace_illegals.data")

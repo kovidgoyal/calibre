@@ -77,11 +77,11 @@ class Pict:
             try:
                 os.mkdir(self.__dir_name)
             except OSError, msg:
-                msg = _("%sCouldn't make directory '%s':\n") % (str(msg), self.__dir_name)
+                msg = "%sCouldn't make directory '%s':\n" % (str(msg), self.__dir_name)
                 raise self.__bug_handler
         else:
             if self.__run_level > 1:
-                sys.stderr.write(_('Removing files from old pict directory...\n'))
+                sys.stderr.write('Removing files from old pict directory...\n')
             all_files = os.listdir(self.__dir_name)
             for the_file in all_files:
                 the_file = os.path.join(self.__dir_name, the_file)
@@ -90,7 +90,7 @@ class Pict:
                 except OSError:
                     pass
             if self.__run_level > 1:
-                sys.stderr.write(_('Files removed.\n'))
+                sys.stderr.write('Files removed.\n')
 
     def __create_pict_file(self):
         """Create a file for all the pict data to be written to.
@@ -146,25 +146,25 @@ class Pict:
 
     def process_pict(self):
         self.__make_dir()
-        with open(self.__file) as read_obj, \
-            open(self.__write_to, 'w') as write_obj:
-            for line in read_obj:
-                self.__token_info = line[:16]
-                if self.__token_info == 'ob<nu<open-brack':
-                    self.__ob_count = line[-5:-1]
-                if self.__token_info == 'cb<nu<clos-brack':
-                    self.__cb_count = line[-5:-1]
-                if not self.__in_pict:
-                    to_print = self.__default(line, write_obj)
-                    if to_print :
-                        write_obj.write(line)
-                else:
-                    to_print = self.__in_pict_func(line)
-                    if to_print :
-                        write_obj.write(line)
-            if self.__already_found_pict:
-                self.__write_pic_obj.write("}\n")
-                self.__write_pic_obj.close()
+        with open(self.__file) as read_obj:
+            with open(self.__write_to, 'w') as write_obj:
+                for line in read_obj:
+                    self.__token_info = line[:16]
+                    if self.__token_info == 'ob<nu<open-brack':
+                        self.__ob_count = line[-5:-1]
+                    if self.__token_info == 'cb<nu<clos-brack':
+                        self.__cb_count = line[-5:-1]
+                    if not self.__in_pict:
+                        to_print = self.__default(line, write_obj)
+                        if to_print :
+                            write_obj.write(line)
+                    else:
+                        to_print = self.__in_pict_func(line)
+                        if to_print :
+                            write_obj.write(line)
+                if self.__already_found_pict:
+                    self.__write_pic_obj.write("}\n")
+                    self.__write_pic_obj.close()
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "pict.data")

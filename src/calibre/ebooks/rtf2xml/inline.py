@@ -297,7 +297,7 @@ class Inline:
             inline_list = self.__inline_list[last_index:]
             if len(inline_list) <= 0:
                 if self.__run_level > 3:
-                    msg = _('self.__inline_list is %s\n') % self.__inline_list
+                    msg = 'self.__inline_list is %s\n' % self.__inline_list
                     raise self.__bug_handler, msg
                 self.__write_obj.write('error\n')
                 self.__groups_in_waiting[0] = 0
@@ -393,27 +393,27 @@ class Inline:
             the state.
         """
         self.__initiate_values()
-        with open(self.__file, 'r') as read_obj, \
-            open(self.__write_to, 'w') as self.__write_obj: 
-            for line in read_obj:
-                token = line[0:-1]
-                self.__token_info = ''
-                if token == 'tx<mc<__________<rdblquote'\
-                    or token == 'tx<mc<__________<ldblquote'\
-                    or token == 'tx<mc<__________<lquote'\
-                    or token == 'tx<mc<__________<rquote'\
-                    or token == 'tx<mc<__________<emdash'\
-                    or token == 'tx<mc<__________<endash'\
-                    or token == 'tx<mc<__________<bullet':
-                    self.__token_info = 'text'
-                else:
-                    self.__token_info = line[:16]
-                self.__set_list_func(line)
-                action = self.__state_dict.get(self.__state)
-                if action is None:
-                    sys.stderr.write(_('No matching state in module inline_for_lists.py\n'))
-                    sys.stderr.write(self.__state + '\n')
-                action(line)
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'w') as self.__write_obj:
+                for line in read_obj:
+                    token = line[0:-1]
+                    self.__token_info = ''
+                    if token == 'tx<mc<__________<rdblquote'\
+                        or token == 'tx<mc<__________<ldblquote'\
+                        or token == 'tx<mc<__________<lquote'\
+                        or token == 'tx<mc<__________<rquote'\
+                        or token == 'tx<mc<__________<emdash'\
+                        or token == 'tx<mc<__________<endash'\
+                        or token == 'tx<mc<__________<bullet':
+                        self.__token_info = 'text'
+                    else:
+                        self.__token_info = line[:16]
+                    self.__set_list_func(line)
+                    action = self.__state_dict.get(self.__state)
+                    if action is None:
+                        sys.stderr.write('No matching state in module inline_for_lists.py\n')
+                        sys.stderr.write(self.__state + '\n')
+                    action(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "inline.data")

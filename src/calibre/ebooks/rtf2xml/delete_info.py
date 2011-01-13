@@ -128,7 +128,7 @@ class DeleteInfo:
                 # not sure what happens here!
                 # believe I have a '{\*}
                 if self.__run_level > 3:
-                    msg = _('flag problem\n')
+                    msg = 'flag problem\n'
                     raise self.__bug_handler, msg
                 return True
         elif self.__token_info in self.__allowable :
@@ -144,14 +144,14 @@ class DeleteInfo:
             self.__found_list_func(line)
         elif self.__token_info in self.__not_allowable:
             if not self.__ob:
-                self.__write_cb = False
+                self.__write_cb = True
             self.__ob = 0
             self.__state = 'delete'
             self.__cb_count = 0
             return False
         else:
             if self.__run_level > 5:
-                msg = _('After an asterisk, and found neither an allowable or non-allowable token\n\
+                msg = ('After an asterisk, and found neither an allowable or non-allowable token\n\
                             token is "%s"\n') % self.__token_info
                 raise self.__bug_handler, msg
             if not self.__ob:
@@ -187,32 +187,31 @@ class DeleteInfo:
 
     def delete_info(self):
         """Main method for handling other methods. Read one line in at
-        a time, and determine wheter to print the line based on the state."""
-        with open(self.__file, 'r') as read_obj, \
-            open(self.__write_to, 'w') as self.__write_obj:
-            for line in read_obj:
-                #ob<nu<open-brack<0001
-                to_print = True
-                self.__token_info = line[:16]
-                if self.__token_info == 'ob<nu<open-brack':
-                    self.__ob_count = line[-5:-1]
-                if self.__token_info == 'cb<nu<clos-brack':
-                    self.__cb_count = line[-5:-1]
-                action = self.__state_dict.get(self.__state)
-                if not action:
-                    sys.stderr.write(_('No action in dictionary state is "%s" \n')
-                            % self.__state)
-                to_print = action(line)
-                # if self.__after_asterisk:
-                    # to_print = self.__asterisk_func(line)
-                # elif self.__list:
-                    # self.__in_list_func(line)
-                # elif self.__delete:
-                    # to_print = self.__delete_func(line)
-                # else:
-                    # to_print = self.__default_func(line)
-                if to_print:
-                    self.__write_obj.write(line)
+        a time, and determine whether to print the line based on the state."""
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'w') as self.__write_obj:
+                for line in read_obj:
+                    #ob<nu<open-brack<0001
+                    to_print = True
+                    self.__token_info = line[:16]
+                    if self.__token_info == 'ob<nu<open-brack':
+                        self.__ob_count = line[-5:-1]
+                    if self.__token_info == 'cb<nu<clos-brack':
+                        self.__cb_count = line[-5:-1]
+                    action = self.__state_dict.get(self.__state)
+                    if not action:
+                        sys.stderr.write('No action in dictionary state is "%s" \n' % self.__state)
+                    to_print = action(line)
+                    # if self.__after_asterisk:
+                        # to_print = self.__asterisk_func(line)
+                    # elif self.__list:
+                        # self.__in_list_func(line)
+                    # elif self.__delete:
+                        # to_print = self.__delete_func(line)
+                    # else:
+                        # to_print = self.__default_func(line)
+                    if to_print:
+                        self.__write_obj.write(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "delete_info.data")

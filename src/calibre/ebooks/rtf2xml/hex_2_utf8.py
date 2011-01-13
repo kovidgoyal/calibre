@@ -16,8 +16,10 @@
 #                                                                       #
 #########################################################################
 import sys, os, tempfile, cStringIO
+
 from calibre.ebooks.rtf2xml import get_char_map, copy
 from calibre.ebooks.rtf2xml.char_set import char_set
+
 class Hex2Utf8:
     """
     Convert Microsoft hexidecimal numbers to utf-8
@@ -265,7 +267,7 @@ class Hex2Utf8:
                     # msg = 'no dictionary entry for %s\n'
                     # msg += 'the hexidecimal num is "%s"\n' % (hex_num)
                     # msg += 'dictionary is %s\n' % self.__current_dict_name
-                    msg = _('Character "&#x%s;" does not appear to be valid (or is a control character)\n') % token
+                    msg = 'Character "&#x%s;" does not appear to be valid (or is a control character)\n' % token
                     raise self.__bug_handler, msg
 
     def __found_body_func(self, line):
@@ -293,7 +295,7 @@ class Hex2Utf8:
                 self.__token_info = line[:16]
                 action = self.__preamble_state_dict.get(self.__state)
                 if action is None:
-                    sys.stderr.write(_('error no state found in hex_2_utf8'),
+                    sys.stderr.write('error no state found in hex_2_utf8',
                     self.__state
                     )
                 action(line)
@@ -553,7 +555,7 @@ class Hex2Utf8:
                 self.__token_info = line[:16]
                 action = self.__body_state_dict.get(self.__state)
                 if action is None:
-                    sys.stderr.write(_('error no state found in hex_2_utf8'),
+                    sys.stderr.write('error no state found in hex_2_utf8',
                     self.__state
                     )
                 action(line)

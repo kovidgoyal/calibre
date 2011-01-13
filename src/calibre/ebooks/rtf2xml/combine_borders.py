@@ -78,14 +78,14 @@ class CombineBorders:
             self.add_to_border_desc(line)
 
     def combine_borders(self):
-        with open(self.__file, 'r') as read_obj, \
-                open(self.__write_to, 'w') as write_obj:
-           for line in read_obj:
-                self.__first_five = line[0:5]
-                if self.__state == 'border':
-                    self.__border_func(line, write_obj)
-                else:
-                    write_obj.write(self.__default_func(line))
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'w') as write_obj:
+                for line in read_obj:
+                    self.__first_five = line[0:5]
+                    if self.__state == 'border':
+                        self.__border_func(line, write_obj)
+                    else:
+                        write_obj.write(self.__default_func(line))
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "combine_borders.data")

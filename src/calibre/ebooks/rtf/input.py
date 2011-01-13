@@ -77,19 +77,16 @@ class RTFInput(InputFormatPlugin):
 
     def generate_xml(self, stream):
         from calibre.ebooks.rtf2xml.ParseRtf import ParseRtf
-        ofile = 'dataxml.xml' 
-        run_lev = 1
-        if hasattr(self.opts, 'debug_pipeline'):
+        ofile = 'dataxml.xml'
+        run_lev, debug_dir = 1, None
+        #just to check if the debug process is lauched, no need of this directory in fact
+        if getattr(self.opts, 'debug_pipeline', None) is not None:
             try:
+                os.mkdir('rtfdebug')
                 debug_dir = 'rtfdebug'
-                os.mkdir(debug_dir)
                 run_lev = 4
-            except OSError, ( errno, strerror ):
-                print strerror
-                print errno
-                debug_dir = None
-        else:
-            debug_dir = None
+            except:
+                pass
         parser = ParseRtf(
             in_file    = stream,
             out_file   = ofile,
@@ -127,32 +124,38 @@ class RTFInput(InputFormatPlugin):
 
             # Write or do not write paragraphs. Default is 0.
             empty_paragraphs = 1,
-            
+
             #debug
             deb_dir = debug_dir,
             run_level = run_lev,
         )
         parser.parse_rtf()
-        ans = open('dataxml.xml').read()
-        return ans
+        with open(ofile, 'rb') as f:
+            return f.read()
 
     def extract_images(self, picts):
+        import imghdr
         self.log('Extracting images...')
-        
-        raw = open(picts, 'rb').read()
+
+        with open(picts, 'rb') as f:
+            raw = f.read()
         picts = filter(len, re.findall(r'\{\\pict([^}]+)\}', raw))
-        hex = re.compile(r'[^a-zA-Z0-9]')
+        hex = re.compile(r'[^a-fA-F0-9]')
         encs = [hex.sub('', pict) for pict in picts]
-        
+
         count = 0
         imap = {}
         for enc in encs:
             if len(enc) % 2 == 1:
                 enc = enc[:-1]
             data = enc.decode('hex')
+            fmt = imghdr.what(None, data)
+            if fmt is None:
+                fmt = 'wmf'
             count += 1
-            name = '%04d.wmf' % count
-            open(name, 'wb').write(data)
+            name = '%04d.%s' % (count, fmt)
+            with open(name, 'wb') as f:
+                f.write(data)
             imap[count] = name
             #open(name+'.hex', 'wb').write(enc)
         return self.convert_images(imap)
@@ -183,6 +186,7 @@ class RTFInput(InputFormatPlugin):
         # return self.convert_images(imap)
 
     def convert_images(self, imap):
+        self.default_img = None
         for count, val in imap.iteritems():
             try:
                 imap[count] = self.convert_image(val)
@@ -191,11 +195,35 @@ class RTFInput(InputFormatPlugin):
         return imap
 
     def convert_image(self, name):
-        from calibre.utils.magick import Image
-        img = Image()
-        img.open(name)
+        if not name.endswith('.wmf'):
+            return name
+        try:
+            return self.rasterize_wmf(name)
+        except:
+            self.log.exception('Failed to convert WMF image %r'%name)
+        return self.replace_wmf(name)
+
+    def replace_wmf(self, name):
+        from calibre.ebooks import calibre_cover
+        if self.default_img is None:
+            self.default_img = calibre_cover('Conversion of WMF images is not supported',
+            'Use Microsoft Word or OpenOffice to save this RTF file'
+            ' as HTML and convert that in calibre.', title_size=36,
+            author_size=20)
         name = name.replace('.wmf', '.jpg')
-        img.save(name)
+        with open(name, 'wb') as f:
+            f.write(self.default_img)
+        return name
+
+    def rasterize_wmf(self, name):
+        raise ValueError('Conversion of WMF images not supported')
+        from calibre.utils.wmf import extract_raster_image
+        with open(name, 'rb') as f:
+            data = f.read()
+        data = extract_raster_image(data)
+        name = name.replace('.wmf', '.jpg')
+        with open(name, 'wb') as f:
+            f.write(data)
         return name
 
 
@@ -285,6 +313,7 @@ class RTFInput(InputFormatPlugin):
         try:
             xml = self.generate_xml(stream.name)
         except RtfInvalidCodeException, e:
+            raise
             raise ValueError(_('This RTF file has a feature calibre does not '
             'support. Convert it to HTML first and then try it.\n%s')%e)
 

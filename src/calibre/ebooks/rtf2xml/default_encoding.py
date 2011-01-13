@@ -3,7 +3,6 @@
 #   copyright 2002 Paul Henry Tremblay                                  #
 #                                                                       #
 #########################################################################
-
 '''
 Codepages as to RTF 1.9.1:
     437	United States IBM
@@ -79,7 +78,7 @@ class DefaultEncoding:
         else:
             code_page = 'ansicpg' + self.__code_page
         return self.__platform, code_page, self.__default_num
-    
+
     def get_codepage(self):
         if not self.__datafetched:
             self._encoding()
@@ -91,7 +90,7 @@ class DefaultEncoding:
             self._encoding()
             self.__datafetched = True
         return self.__platform
-    
+
     def _encoding(self):
         with open(self.__file, 'r') as read_obj:
             if not self.__fetchraw:

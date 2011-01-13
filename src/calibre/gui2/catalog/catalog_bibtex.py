@@ -28,17 +28,17 @@ class PluginWidget(QWidget, Ui_Form):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
+
+    def initialize(self, name, db): #not working properly to update
         from calibre.library.catalog import FIELDS
-        
+
         self.all_fields = [x for x in FIELDS if x != 'all']
         #add custom columns
-        db = db_()
         self.all_fields.extend([x for x in sorted(db.custom_field_keys())])
         #populate
         for x in self.all_fields:
             QListWidgetItem(x, self.db_fields)
 
-    def initialize(self, name, db): #not working properly to update
         self.name = name
         fields = gprefs.get(name+'_db_fields', self.all_fields)
         # Restore the activated db_fields from last use

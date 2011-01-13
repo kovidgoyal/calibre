@@ -622,12 +622,12 @@ class ProcessTokens:
                 num = int(num)
             except ValueError:
                 if self.__run_level > 3:
-                    msg = _('Number "%s" cannot be converted to integer\n') % num
+                    msg = 'Number "%s" cannot be converted to integer\n' % num
                     raise self.__bug_handler, msg
             type = self.__number_type_dict.get(num)
             if type is None:
                 if self.__run_level > 3:
-                    msg = _('No type for "%s" in self.__number_type_dict\n')
+                    msg = 'No type for "%s" in self.__number_type_dict\n'
                     raise self.__bug_handler
                 type = 'Arabic'
         return 'cw<%s<%s<nu<%s\n' % (pre, token, type)
@@ -637,7 +637,7 @@ class ProcessTokens:
         if not lang_name:
             lang_name = "not defined"
             if self.__run_level > 3:
-                msg = _('No entry for number "%s"') % num
+                msg = 'No entry for number "%s"' % num
                 raise self.__bug_handler, msg
         return 'cw<%s<%s<nu<%s\n' % (pre, token, lang_name)
 
@@ -689,7 +689,7 @@ class ProcessTokens:
             return 'cw<%s<%s<nu<false\n' % (pre, token)
                 ##return 'cw<nu<nu<nu<%s>false<%s\n' % (token, token)
         else:
-            msg = _("boolean should have some value module process tokens\ntoken is %s\n'%s'\n") % (token, num)
+            msg = "boolean should have some value module process tokens\ntoken is %s\n'%s'\n" % (token, num)
             raise self.__bug_handler, msg
 
     def __no_sup_sub_func(self, pre, token, num):
@@ -703,7 +703,7 @@ class ProcessTokens:
             numerator = float(re.search('[0-9.\-]+', numerator).group())
         except TypeError, msg:
             if self.__run_level > 3:
-                msg = _('No number to process?\nthis indicates that the token \(\\li\) \
+                msg = ('No number to process?\nthis indicates that the token \(\\li\) \
                 should have a number and does not\nnumerator is \
                 "%s"\ndenominator is "%s"\n') % (numerator, denominator)
                 raise self.__bug_handler, msg
@@ -724,12 +724,12 @@ class ProcessTokens:
             second = match_obj.group(2)
             if not second:
                 if self.__run_level > 3:
-                    msg = _("token is '%s' \n") % token
+                    msg = "token is '%s' \n" % token
                     raise self.__bug_handler, msg
                 return first, 0
         else:
             if self.__run_level > 3:
-                msg = _("token is '%s' \n") % token
+                msg = "token is '%s' \n" % token
                 raise self.__bug_handler
             return token, 0
         return first, second
@@ -758,7 +758,7 @@ class ProcessTokens:
         pre, token, action = self.dict_token.get(token, (None, None, None))
         if action:
             return action(pre, token, num)
-    
+
     def __check_brackets(self, in_file):
         self.__check_brack_obj = check_brackets.CheckBrackets\
             (file = in_file)
@@ -769,53 +769,54 @@ class ProcessTokens:
     def process_tokens(self):
         """Main method for handling other methods. """
         line_count = 0
-        with open(self.__file, 'r') as read_obj, open(self.__write_to, 'wb') as write_obj:
-            for line in read_obj:
-                token = line.replace("\n","")
-                line_count += 1
-                if line_count == 1 and token != '\\{':
-                        msg = _('Invalid RTF: document doesn\'t start with {\n')
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'wb') as write_obj:
+                for line in read_obj:
+                    token = line.replace("\n","")
+                    line_count += 1
+                    if line_count == 1 and token != '\\{':
+                            msg = 'Invalid RTF: document doesn\'t start with {\n'
+                            raise self.__exception_handler, msg
+                    elif line_count == 2 and token[0:4] != '\\rtf':
+                            msg = 'Invalid RTF: document doesn\'t start with \\rtf \n'
+                            raise self.__exception_handler, msg
+
+                    the_index = token.find('\\ ')
+                    if token is not None and  the_index > -1:
+                        msg = 'Invalid RTF: token "\\ " not valid.\n'
                         raise self.__exception_handler, msg
-                elif line_count == 2 and token[0:4] != '\\rtf':
-                        msg =_('Invalid RTF: document doesn\'t start with \\rtf \n')
-                        raise self.__exception_handler, msg
-                
-                the_index = token.find('\\ ')
-                if token is not None and  the_index > -1:
-                    msg =_('Invalid RTF: token "\\ " not valid.\n')
-                    raise self.__exception_handler, msg
-                elif token[:1] == "\\":
-                    try:
-                        token.decode('us-ascii')
-                    except UnicodeError, msg:
-                        msg = _('Invalid RTF: Tokens not ascii encoded.\n%s') % str(msg)
-                        raise self.__exception_handler, msg
-                    line = self.process_cw(token)
-                    if line is not None:
-                        write_obj.write(line)
-                else:
-                    fields = re.split(self.__utf_exp, token)
-                    for field in fields:
-                        if not field:
-                            continue
-                        if field[0:1] == '&':
-                            write_obj.write('tx<ut<__________<%s\n' % field)
-                        else:
-                            write_obj.write('tx<nu<__________<%s\n' % field)
+                    elif token[:1] == "\\":
+                        try:
+                            token.decode('us-ascii')
+                        except UnicodeError, msg:
+                            msg = 'Invalid RTF: Tokens not ascii encoded.\n%s' % str(msg)
+                            raise self.__exception_handler, msg
+                        line = self.process_cw(token)
+                        if line is not None:
+                            write_obj.write(line)
+                    else:
+                        fields = re.split(self.__utf_exp, token)
+                        for field in fields:
+                            if not field:
+                                continue
+                            if field[0:1] == '&':
+                                write_obj.write('tx<ut<__________<%s\n' % field)
+                            else:
+                                write_obj.write('tx<nu<__________<%s\n' % field)
 
         if not line_count:
-            msg =_('Invalid RTF: file appears to be empty.\n')
+            msg = 'Invalid RTF: file appears to be empty.\n'
             raise self.__exception_handler, msg
-        
+
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "processed_tokens.data")
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
-        
+
         bad_brackets = self.__check_brackets(self.__file)
         if bad_brackets:
-            msg = _('Invalid RTF: document does not have matching brackets.\n')
+            msg = 'Invalid RTF: document does not have matching brackets.\n'
             raise self.__exception_handler, msg
         else:
             return self.__return_code

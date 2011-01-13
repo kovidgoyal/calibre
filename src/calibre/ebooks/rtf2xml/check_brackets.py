@@ -54,7 +54,7 @@ class CheckBrackets:
                         return (False, "closed bracket doesn't match, line %s" % line_count)
 
         if self.__bracket_count != 0:
-            msg = _('At end of file open and closed brackets don\'t match\n' \
+            msg = ('At end of file open and closed brackets don\'t match\n' \
                         'total number of brackets is %s') % self.__bracket_count
             return (False, msg)
-        return (True, _("Brackets match!"))
+        return (True, "Brackets match!")

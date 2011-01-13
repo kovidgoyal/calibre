@@ -1,4 +1,4 @@
-import os, tempfile
+import os, tempfile, sys
 
 from calibre.ebooks.rtf2xml import copy, check_encoding
 
@@ -208,15 +208,16 @@ class ConvertToTags:
         """
         #keep maximum compatibility with previous version
         check_encoding_obj = check_encoding.CheckEncoding(
-                    bug_handler = self.__bug_handler,
-                        )
-        if not check_encoding_obj.check_encoding(self.__file, verbose = False):
+                    bug_handler=self.__bug_handler)
+
+        if not check_encoding_obj.check_encoding(self.__file, verbose=False):
             self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
         elif not check_encoding_obj.check_encoding(self.__file, self.__encoding):
             self.__write_obj.write('<?xml version="1.0" encoding="%s" ?>' % self.__encoding)
         else:
             self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
-            sys.stderr.write(_('Bad RTF encoding, revert to US-ASCII chars and hope for the best'))
+            sys.stderr.write('Bad RTF encoding, revert to US-ASCII chars and'
+                    ' hope for the best')
         self.__new_line = 0
         self.__write_new_line()
         if self.__no_dtd:

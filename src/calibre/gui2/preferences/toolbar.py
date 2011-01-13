@@ -37,7 +37,10 @@ class BaseModel(QAbstractListModel):
                     dont_remove_from=set(['toolbar-device']))
         if name is None:
             return FakeAction('--- '+_('Separator')+' ---', None)
-        return gui.iactions[name]
+        try:
+            return gui.iactions[name]
+        except:
+            return None
 
     def rowCount(self, parent):
         return len(self._data)
@@ -124,7 +127,8 @@ class CurrentModel(BaseModel):
         BaseModel.__init__(self)
         self.gprefs_name = 'action-layout-'+key
         current = gprefs[self.gprefs_name]
-        self._data =  [self.name_to_action(x, gui) for x in current]
+        self._data = [self.name_to_action(x, gui) for x in current]
+        self._data = [x for x in self._data if x is not None]
         self.key = key
         self.gui = gui
 

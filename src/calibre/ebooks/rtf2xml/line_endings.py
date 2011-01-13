@@ -15,7 +15,7 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os, tempfile, re
+import os, tempfile
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.utils.cleantext import clean_ascii_chars

@@ -120,35 +120,35 @@ class Footnote:
         """
         self.__initiate_sep_values()
         self.__footnote_holder = tempfile.mktemp()
-        with open(self.__file) as read_obj, \
-            open(self.__write_to, 'w') as self.__write_obj, \
-                open(self.__footnote_holder, 'w') as self.__write_to_foot_obj:
-            for line in read_obj:
-                self.__token_info = line[:16]
-                # keep track of opening and closing brackets
-                if self.__token_info == 'ob<nu<open-brack':
-                    self.__ob_count = line[-5:-1]
-                if self.__token_info == 'cb<nu<clos-brack':
-                    self.__cb_count = line[-5:-1]
-                # In the middle of footnote text
-                if self.__in_footnote:
-                    self.__in_footnote_func(line)
-                # not in the middle of footnote text
-                else:
-                    self.__default_sep(line)
-        with open(self.__footnote_holder, 'r') as read_obj, \
-                open(self.__write_to, 'a') as write_obj:
-            write_obj.write(
-                'mi<mk<sect-close\n'
-                'mi<mk<body-close\n'
-                'mi<tg<close_____<section\n'
-                'mi<tg<close_____<body\n'
-                'mi<tg<close_____<doc\n'
-                'mi<mk<footnt-beg\n')
-            for line in read_obj:
-                write_obj.write(line)
-            write_obj.write(
-            'mi<mk<footnt-end\n')
+        with open(self.__file) as read_obj:
+            with open(self.__write_to, 'w') as self.__write_obj:
+                with open(self.__footnote_holder, 'w') as self.__write_to_foot_obj:
+                    for line in read_obj:
+                        self.__token_info = line[:16]
+                        # keep track of opening and closing brackets
+                        if self.__token_info == 'ob<nu<open-brack':
+                            self.__ob_count = line[-5:-1]
+                        if self.__token_info == 'cb<nu<clos-brack':
+                            self.__cb_count = line[-5:-1]
+                        # In the middle of footnote text
+                        if self.__in_footnote:
+                            self.__in_footnote_func(line)
+                        # not in the middle of footnote text
+                        else:
+                            self.__default_sep(line)
+        with open(self.__footnote_holder, 'r') as read_obj:
+            with open(self.__write_to, 'a') as write_obj:
+                write_obj.write(
+                    'mi<mk<sect-close\n'
+                    'mi<mk<body-close\n'
+                    'mi<tg<close_____<section\n'
+                    'mi<tg<close_____<body\n'
+                    'mi<tg<close_____<doc\n'
+                    'mi<mk<footnt-beg\n')
+                for line in read_obj:
+                    write_obj.write(line)
+                write_obj.write(
+                'mi<mk<footnt-end\n')
         os.remove(self.__footnote_holder)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
@@ -190,15 +190,15 @@ class Footnote:
         These two functions do the work of separating the footnotes form the
         body.
         """
-        with open(self.__file) as read_obj, \
-            open(self.__write_to, 'w') as self.__write_obj, \
-                open(self.__footnote_holder, 'w') as self.__write_to_foot_obj:
-            for line in read_obj:
-                self.__token_info = line[:16]
-                if self.__state == 'body':
-                    self.__get_foot_body_func(line)
-                elif self.__state == 'foot':
-                    self.__get_foot_foot_func(line)
+        with open(self.__file) as read_obj:
+            with open(self.__write_to, 'w') as self.__write_obj:
+                with open(self.__footnote_holder, 'w') as self.__write_to_foot_obj:
+                    for line in read_obj:
+                        self.__token_info = line[:16]
+                        if self.__state == 'body':
+                            self.__get_foot_body_func(line)
+                        elif self.__state == 'foot':
+                            self.__get_foot_foot_func(line)
 
     def __get_foot_from_temp(self, num):
         """
@@ -228,13 +228,13 @@ class Footnote:
         print out to the third file.
         If no footnote marker is found, simply print out the token (line).
         """
-        with open(self.__footnote_holder, 'r') as self.__read_from_foot_obj, \
-            open(self.__write_to, 'r') as read_obj, \
-                open(self.__write_to2, 'w') as self.__write_obj:
-            for line in read_obj:
-                if line[:16] == 'mi<mk<footnt-ind':
-                    line = self.__get_foot_from_temp(line[17:-1])
-                self.__write_obj.write(line)
+        with open(self.__footnote_holder, 'r') as self.__read_from_foot_obj:
+            with open(self.__write_to, 'r') as read_obj:
+                with open(self.__write_to2, 'w') as self.__write_obj:
+                    for line in read_obj:
+                        if line[:16] == 'mi<mk<footnt-ind':
+                            line = self.__get_foot_from_temp(line[17:-1])
+                        self.__write_obj.write(line)
 
     def join_footnotes(self):
         """

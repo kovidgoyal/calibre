@@ -18,6 +18,24 @@ class _Parser(object):
     LEX_NUM = 4
     LEX_EOF = 5
 
+    def _python(self, func):
+        locals = {}
+        exec func in locals
+        if 'evaluate' not in locals:
+            self.error('no evaluate function in python')
+        try:
+            result = locals['evaluate'](self.parent.kwargs)
+            if isinstance(result, (float, int)):
+                result = unicode(result)
+            elif isinstance(result, list):
+                result = ','.join(result)
+            elif isinstance(result, str):
+                result = unicode(result)
+            return result
+        except Exception as e:
+            self.error('python function threw exception: ' + e.msg)
+
+
     def _strcmp(self, x, y, lt, eq, gt):
         v = strcmp(x, y)
         if v < 0:
@@ -79,6 +97,7 @@ class _Parser(object):
             'field'    : (1, lambda s, x: s.parent.get_value(x, [], s.parent.kwargs)),
             'multiply' : (2, partial(_math, op='*')),
             'print'    : (-1, _print),
+            'python'   : (1, _python),
             'strcat'   : (-1, _concat),
             'strcmp'   : (5, _strcmp),
             'substr'   : (3, lambda s, x, y, z: x[int(y): len(x) if int(z) == 0 else int(z)]),
@@ -362,7 +381,7 @@ class TemplateFormatter(string.Formatter):
                 (r'\'.*?((?<!\\)\')',   lambda x,t: (3, t[1:-1])),
                 (r'\n#.*?(?=\n)',       None),
                 (r'\s',                 None)
-        ])
+        ], flags=re.DOTALL)
 
     def _eval_program(self, val, prog):
         # keep a cache of the lex'ed program under the theory that re-lexing

@@ -107,7 +107,7 @@ class ParseRtf:
                 no_dtd = 0,
                 char_data = '',
                 ):
-                
+
         """
         Requires:
         'file' --file to parse
@@ -124,7 +124,7 @@ class ParseRtf:
             through a file. Only for debugging.
         Returns: Nothing
         """
-        
+
         self.__file = in_file
         self.__out_file = out_file
         self.__out_dir = out_dir
@@ -155,12 +155,12 @@ class ParseRtf:
         if hasattr(the_file, 'read'): return
         if the_file == None:
             if type == "file_to_parse":
-                msg = _("\nYou must provide a file for the script to work")
+                msg = "\nYou must provide a file for the script to work"
             raise RtfInvalidCodeException, msg
         elif os.path.exists(the_file):
             pass # do nothing
         else:
-            msg = _("\nThe file '%s' cannot be found") % the_file
+            msg = "\nThe file '%s' cannot be found" % the_file
             raise RtfInvalidCodeException, msg
 
     def __check_dir(self, the_dir):
@@ -169,7 +169,7 @@ class ParseRtf:
             return
         dir_exists = os.path.isdir(the_dir)
         if not dir_exists:
-            msg = _("\n%s is not a directory") % the_dir
+            msg = "\n%s is not a directory" % the_dir
             raise RtfInvalidCodeException, msg
         return 1
 
@@ -247,7 +247,7 @@ class ParseRtf:
             if check_encoding_obj.check_encoding(self.__file, enc):
                 file_name = self.__file if isinstance(self.__file, str) \
                                     else self.__file.encode('utf-8')
-                msg = _('File %s does not appear to be correctly encoded.\n') % file_name 
+                msg = 'File %s does not appear to be correctly encoded.\n' % file_name
                 raise InvalidRtfException, msg
         delete_info_obj = delete_info.DeleteInfo(
             in_file = self.__temp_file,
@@ -542,7 +542,7 @@ class ParseRtf:
                 pass
                 #sys.stderr.write( msg + ' in ' + file_name + "\n")
             else:
-                msg = _('%s in file %s\n') % (msg, file_name)
+                msg = '%s in file %s\n' % (msg, file_name)
                 raise RtfInvalidCodeException, msg
 
     def __return_code(self, num):
