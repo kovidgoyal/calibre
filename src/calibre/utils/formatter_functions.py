@@ -74,6 +74,7 @@ class FormatterFunction(object):
             if isinstance(ret, list):
                 return ','.join(list)
         except:
+            traceback.print_exc()
             return _('Function threw exception' + traceback.format_exc())
 
 class BuiltinStrcmp(FormatterFunction):
@@ -327,7 +328,7 @@ class BuiltinEvaluate(FormatterFunction):
             return value_if_empty
 
 class BuiltinShorten(FormatterFunction):
-    name = 'shorten    '
+    name = 'shorten'
     arg_count = 4
     doc = _('shorten(val, left chars, middle text, right chars) -- Return a '
             'shortened version of the field, consisting of `left chars` '

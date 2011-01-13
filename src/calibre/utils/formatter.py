@@ -26,7 +26,7 @@ class _Parser(object):
         if prog[1] != '':
             self.error(_('failed to scan program. Invalid input {0}').format(prog[1]))
         self.parent = parent
-        self.variables = {'$':val}
+        self.parent.locals = {'$':val}
 
     def error(self, message):
         m = 'Formatter: ' + message + _(' near ')
@@ -88,18 +88,20 @@ class _Parser(object):
 
     def expr(self):
         if self.token_is_id():
+            funcs = formatter_functions.get_functions()
             # We have an identifier. Determine if it is a function
             id = self.token()
             if not self.token_op_is_a('('):
                 if self.token_op_is_a('='):
                     # classic assignment statement
                     self.consume()
-                    return self._assign(id, self.expr())
-                return self.variables.get(id, _('unknown id ') + id)
+                    cls = funcs['assign']
+                    return cls.eval(self.parent, self.parent.kwargs,
+                                    self.parent.book, self.parent.locals, id, self.expr())
+                return self.parent.locals.get(id, _('unknown id ') + id)
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
-            funcs = formatter_functions.get_functions()
 
             if id not in funcs:
                 self.error(_('unknown function {0}').format(id))
@@ -129,7 +131,7 @@ class _Parser(object):
                 if cls.arg_count != -1 and len(args) != cls.arg_count:
                     self.error('incorrect number of arguments for function {}'.format(id))
                 return cls.eval(self.parent, self.parent.kwargs,
-                                self.parent.book, locals, *args)
+                                self.parent.book, self.parent.locals, *args)
             else:
                 f = self.parent.functions[id]
                 if f[0] != -1 and len(args) != f[0]+1:
@@ -159,6 +161,7 @@ class TemplateFormatter(string.Formatter):
         self.book = None
         self.kwargs = None
         self.program_cache = {}
+        self.locals = {}
 
     def _do_format(self, val, fmt):
         if not fmt or not val:
@@ -286,9 +289,9 @@ class TemplateFormatter(string.Formatter):
                         print args
                         raise ValueError('Incorrect number of arguments for function '+ fmt[0:p])
                     if func.arg_count == 1:
-                        val = func.eval(self, self.kwargs, self.book, locals, val).strip()
+                        val = func.eval(self, self.kwargs, self.book, self.locals, val).strip()
                     else:
-                        val = func.eval(self, self.kwargs, self.book, locals,
+                        val = func.eval(self, self.kwargs, self.book, self.locals,
                                         val, *args).strip()
         if val:
             val = self._do_format(val, dispfmt)
@@ -309,6 +312,7 @@ class TemplateFormatter(string.Formatter):
         self.kwargs = kwargs
         self.book = book
         self.composite_values = {}
+        self.locals = {}
         try:
             ans = self.vformat(fmt, [], kwargs).strip()
         except Exception, e:
