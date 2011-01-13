@@ -1536,18 +1536,6 @@ class EPUB_MOBI(CatalogPlugin):
                                 notes = ' &middot; '.join(notes)
                         elif field_md['datatype'] == 'datetime':
                             notes = format_date(notes,'dd MMM yyyy')
-                        elif field_md['datatype'] == 'composite':
-                            m = re.match(r'\[(.+)\]$', notes)
-                            if m is not None:
-                                # Sniff for special pseudo-list string "[<item, item>]"
-                                bracketed_content = m.group(1)
-                                if ',' in bracketed_content:
-                                    # Recast the comma-separated items as a list
-                                    items = bracketed_content.split(',')
-                                    items = [i.strip() for i in items]
-                                    notes = ' &middot; '.join(items)
-                                else:
-                                    notes = bracketed_content
                         this_title['notes'] = {'source':field_md['name'],
                                                    'content':notes}
 
@@ -4381,6 +4369,7 @@ class EPUB_MOBI(CatalogPlugin):
                     formats.append(format.rpartition('.')[2].upper())
                 formats = ' &middot; '.join(formats)
 
+            # Date of publication
             pubdate = book['date']
             pubmonth, pubyear = pubdate.split(' ')
 
