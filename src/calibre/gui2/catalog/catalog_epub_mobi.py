@@ -6,14 +6,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback
-
 from calibre.ebooks.conversion.config import load_defaults
 from calibre.gui2 import gprefs
 
 from catalog_epub_mobi_ui import Ui_Form
-from PyQt4.Qt import QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QGroupBox, QHBoxLayout, QLineEdit, \
-                     QRadioButton, QRegExp, QSound, QTextEdit, QWidget, SIGNAL, SLOT
+from PyQt4.Qt import QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QGroupBox, QLineEdit, \
+                     QRadioButton, QSound, QTextEdit, QWidget, SIGNAL, SLOT
 
 class PluginWidget(QWidget,Ui_Form):
 
