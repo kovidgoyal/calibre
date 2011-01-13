@@ -103,6 +103,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.gui_debug = gui_debug
         acmap = OrderedDict()
         for action in interface_actions():
+            if opts.ignore_plugins and action.plugin_path is not None:
+                continue
             try:
                 ac = action.load_actual_plugin(self)
             except:
