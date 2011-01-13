@@ -425,7 +425,7 @@ class Textile(object):
         text = text.split('\n\n')
 
         tag = 'p'
-        atts = cite = graf = ext = ''
+        atts = cite = graf = ext = c1 = ''
 
         out = []
 
@@ -441,14 +441,14 @@ class Textile(object):
                 h_match = re.search(r'h([1-6])', tag)
                 if h_match:
                     head_level, = h_match.groups()
-                    tag = 'h%i' % max(1, 
+                    tag = 'h%i' % max(1,
                                       min(int(head_level) + head_offset,
                                           6))
-                o1, o2, content, c2, c1 = self.fBlock(tag, atts, ext, 
+                o1, o2, content, c2, c1 = self.fBlock(tag, atts, ext,
                                                       cite, graf)
                 # leave off c1 if this block is extended,
                 # we'll close it at the start of the next block
-                
+
                 if ext:
                     line = "%s%s%s%s" % (o1, o2, content, c2)
                 else:
@@ -772,7 +772,7 @@ class Textile(object):
 
         if pre == None:
             pre = ''
-            
+
         # assume ) at the end of the url is not actually part of the url
         # unless the url also contains a (
         if url.endswith(')') and not url.find('(') > -1:
@@ -875,7 +875,7 @@ class Textile(object):
             atts = atts + ' title="%s" alt="%s"' % (title, title)
         else:
             atts = atts + ' alt=""'
-            
+
         if not self.isRelURL(url) and self.get_sizes:
             size = getimagesize(url)
             if (size):
@@ -894,7 +894,7 @@ class Textile(object):
             out.append('<img src="%s"%s>' % (url, atts))
         else:
             out.append('<img src="%s"%s />' % (url, atts))
-        if href: 
+        if href:
             out.append('</a>')
 
         return ''.join(out)
@@ -970,7 +970,7 @@ def textile_restricted(text, lite=True, noimage=True, html_type='xhtml'):
     When lite=True is set (the default):
     Block tags are restricted to p, bq, and bc.
     Lists and tables are disabled.
-    
+
     When noimage=True is set (the default):
     Image tags are disabled.
 

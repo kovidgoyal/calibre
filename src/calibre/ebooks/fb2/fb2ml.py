@@ -16,7 +16,6 @@ import uuid
 
 from lxml import etree
 
-from calibre import guess_type
 from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
@@ -41,7 +40,7 @@ class FB2MLizer(object):
         # in different directories. FB2 images are all in a flat layout so we rename all images
         # into a sequential numbering system to ensure there are no collisions between image names.
         self.image_hrefs = {}
-        # Mapping of toc items and their 
+        # Mapping of toc items and their
         self.toc = {}
         # Used to see whether a new <section> needs to be opened
         self.section_level = 0
@@ -51,7 +50,7 @@ class FB2MLizer(object):
         self.oeb_book = oeb_book
         self.opts = opts
         self.reset_state()
-        
+
         # Used for adding <section>s and <title>s to allow readers
         # to generate toc from the document.
         if self.opts.sectionize == 'toc':
@@ -75,20 +74,20 @@ class FB2MLizer(object):
         text = re.sub(r'(?miu)<p>\s*</p>', '', text)
         text = re.sub(r'(?miu)\s*</p>', '</p>', text)
         text = re.sub(r'(?miu)</p>\s*<p>', '</p>\n\n<p>', text)
-        
+
         text = re.sub(r'(?miu)<title>\s*</title>', '', text)
         text = re.sub(r'(?miu)\s+</title>', '</title>', text)
-        
+
         text = re.sub(r'(?miu)<section>\s*</section>', '', text)
         text = re.sub(r'(?miu)\s*</section>', '\n</section>', text)
         text = re.sub(r'(?miu)</section>\s*', '</section>\n\n', text)
         text = re.sub(r'(?miu)\s*<section>', '\n<section>', text)
         text = re.sub(r'(?miu)<section>\s*', '<section>\n', text)
         text = re.sub(r'(?miu)</section><section>', '</section>\n\n<section>', text)
-        
+
         if self.opts.insert_blank_line:
             text = re.sub(r'(?miu)</p>', '</p><empty-line />', text)
-        
+
         return text
 
     def fb2_header(self):
@@ -122,7 +121,7 @@ class FB2MLizer(object):
                 break
         if metadata['id'] is None:
             self.log.warn('No UUID identifier found')
-            metadata['id'] = str(uuid.uuid4()) 
+            metadata['id'] = str(uuid.uuid4())
 
         for key, value in metadata.items():
             if not key == 'cover':
@@ -159,7 +158,7 @@ class FB2MLizer(object):
 
     def get_cover(self):
         cover_href = None
-        
+
         # Get the raster cover if it's available.
         if self.oeb_book.metadata.cover and unicode(self.oeb_book.metadata.cover[0]) in self.oeb_book.manifest.ids:
             id = unicode(self.oeb_book.metadata.cover[0])
@@ -180,41 +179,41 @@ class FB2MLizer(object):
                 for img in cover_item.xpath('//img'):
                     cover_href = cover_item.abshref(img.get('src'))
                     break
-                
+
         if cover_href:
             # Only write the image tag if it is in the manifest.
             if cover_href in self.oeb_book.manifest.hrefs.keys():
                 if cover_href not in self.image_hrefs.keys():
                     self.image_hrefs[cover_href] = '_%s.jpg' % len(self.image_hrefs.keys())
             return u'<coverpage><image xlink:href="#%s" /></coverpage>' % self.image_hrefs[cover_href]
-        
-        return u'' 
+
+        return u''
 
     def get_text(self):
         text = ['<body>']
-        
+
         # Create main section if there are no others to create
         if self.opts.sectionize == 'nothing':
             text.append('<section>')
             self.section_level += 1
-        
+
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
-            
+
             # Start a <section> if we must sectionize each file or if the TOC references this page
             page_section_open = False
             if self.opts.sectionize == 'files' or self.toc.get(item.href) == 'page':
                 text.append('<section>')
                 page_section_open = True
                 self.section_level += 1
-            
+
             text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
-            
+
             if page_section_open:
                 text.append('</section>')
                 self.section_level -= 1
-                
+
         # Close any open sections
         while self.section_level > 0:
             text.append('</section>')
@@ -353,7 +352,7 @@ class FB2MLizer(object):
                         self.toc[page.href] = None
                 elif toc_entry and elem_tree.attrib.get('id', None):
                     newlevel = toc_entry.get(elem_tree.attrib.get('id', None), None)
-                    
+
                 # Start a new section if necessary
                 if newlevel:
                     if not (newlevel > self.section_level):

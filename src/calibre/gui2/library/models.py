@@ -10,7 +10,7 @@ from contextlib import closing
 from operator import attrgetter
 
 from PyQt4.Qt import QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, \
-        QModelIndex, QVariant, QDate
+        QModelIndex, QVariant, QDate, QColor
 
 from calibre.gui2 import NONE, config, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
@@ -93,6 +93,9 @@ class BooksModel(QAbstractTableModel): # {{{
         self.bool_no_icon = QIcon(I('list_remove.png'))
         self.bool_blank_icon = QIcon(I('blank.png'))
         self.device_connected = False
+        self.rows_matching = set()
+        self.lowest_row_matching = None
+        self.highlight_only = False
         self.read_config()
 
     def change_alignment(self, colname, alignment):
@@ -229,9 +232,27 @@ class BooksModel(QAbstractTableModel): # {{{
             self.endInsertRows()
             self.count_changed()
 
+    def set_highlight_only(self, toWhat):
+        self.highlight_only = toWhat
+        if self.last_search:
+            self.research()
+
     def search(self, text, reset=True):
         try:
-            self.db.search(text)
+            if self.highlight_only:
+                self.db.search('')
+                if not text:
+                    self.rows_matching = set()
+                    self.lowest_row_matching = None
+                else:
+                    self.rows_matching = self.db.search(text, return_matches=True)
+                    if self.rows_matching:
+                        self.lowest_row_matching = self.db.row(self.rows_matching[0])
+                    self.rows_matching = set(self.rows_matching)
+            else:
+                self.rows_matching = set()
+                self.lowest_row_matching = None
+                self.db.search(text)
         except ParseException as e:
             self.searched.emit(e.msg)
             return
@@ -337,8 +358,9 @@ class BooksModel(QAbstractTableModel): # {{{
             name, val = mi.format_field(key)
             if mi.metadata_for_field(key)['datatype'] == 'comments':
                 name += ':html'
-            if val:
+            if val and name not in data:
                 data[name] = val
+
         return data
 
 
@@ -651,6 +673,9 @@ class BooksModel(QAbstractTableModel): # {{{
             return NONE
         if role in (Qt.DisplayRole, Qt.EditRole):
             return self.column_to_dc_map[col](index.row())
+        elif role == Qt.BackgroundColorRole:
+            if self.id(index) in self.rows_matching:
+                return QColor('lightgreen')
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
                 return self.column_to_dc_decorator_map[index.column()](index.row())

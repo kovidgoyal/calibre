@@ -269,10 +269,14 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
 
     return d.exec_() == yes_button
 
-def info_dialog(parent, title, msg, det_msg='', show=False):
+def info_dialog(parent, title, msg, det_msg='', show=False,
+        show_copy_button=True):
     d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(I('dialog_information.png')))
+    if not show_copy_button:
+        d.cb.setVisible(False)
+
     if show:
         return d.exec_()
     return d

@@ -120,6 +120,13 @@ class ConfigDialog(QDialog, Ui_Dialog):
 
 
     def accept(self, *args):
+        if self.shortcut_config.is_editing:
+            from calibre.gui2 import info_dialog
+            info_dialog(self, _('Still editing'),
+                    _('You are in the middle of editing a keyboard shortcut'
+                        ' first complete that, by clicking outside the '
+                        ' shortcut editing box.'), show=True)
+            return
         c = config()
         c.set('serif_family', unicode(self.serif_family.currentFont().family()))
         c.set('sans_family', unicode(self.sans_family.currentFont().family()))
@@ -279,7 +286,7 @@ class Document(QWebPage): # {{{
 
     @pyqtSignature("")
     def init_hyphenate(self):
-        if self.hyphenate:
+        if self.hyphenate and getattr(self, 'loaded_lang', ''):
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
 
     def after_load(self):

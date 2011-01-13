@@ -150,7 +150,7 @@ class Delegate(QStyledItemDelegate):
         custom = []
         if editor.custom.isChecked():
             for x in ('1', '2'):
-                sc = getattr(editor, 'shortcut'+x)
+                sc = getattr(editor, 'shortcut'+x, None)
                 if sc is not None:
                     custom.append(sc)
 
@@ -264,6 +264,11 @@ class ShortcutConfig(QWidget):
 
     def scrollTo(self, index):
         self.view.scrollTo(index)
+
+
+    @property
+    def is_editing(self):
+        return self.view.state() == self.view.EditingState
 
 
 if __name__ == '__main__':

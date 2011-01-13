@@ -19,7 +19,7 @@ from PyQt4.Qt import Qt, SIGNAL, QTimer, \
                      QMessageBox, QHelpEvent
 
 from calibre import  prints
-from calibre.constants import __appname__, isosx, DEBUG
+from calibre.constants import __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
@@ -103,7 +103,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.gui_debug = gui_debug
         acmap = OrderedDict()
         for action in interface_actions():
-            ac = action.load_actual_plugin(self)
+            try:
+                ac = action.load_actual_plugin(self)
+            except:
+                # Ignore errors in loading user supplied plugins
+                import traceback
+                traceback.print_exc()
+                if ac.plugin_path is None:
+                    raise
+
             ac.plugin_path = action.plugin_path
             ac.interface_action_base_plugin = action
             if ac.name in acmap:
@@ -460,12 +468,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         try:
             if 'calibre.ebooks.DRMError' in job.details:
                 if not minz:
-                    d = error_dialog(self, _('Conversion Error'),
-                        _('<p>Could not convert: %s<p>It is a '
-                        '<a href="%s">DRM</a>ed book. You must first remove the '
-                        'DRM using third party tools.')%\
-                            (job.description.split(':')[-1],
-                                'http://bugs.calibre-ebook.com/wiki/DRM'))
+                    from calibre.gui2.dialogs.drm_error import DRMErrorMessage
+                    d = DRMErrorMessage(self, job.description.split(':')[-1])
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
@@ -582,9 +586,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             # Goes here, because if cf is valid, db is valid.
             db.prefs['field_metadata'] = db.field_metadata.all_metadata()
             db.commit_dirty_cache()
-            if DEBUG and db.gm_count > 0:
-                print 'get_metadata cache: {0:d} calls, {1:4.2f}% misses'.format(
-                        db.gm_count, (db.gm_missed*100.0)/db.gm_count)
         for action in self.iactions.values():
             if not action.shutting_down():
                 return

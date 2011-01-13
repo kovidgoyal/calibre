@@ -2,8 +2,10 @@
 __license__   = 'GPL v3'
 __docformat__ = 'restructuredtext en'
 
+import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.chardet import xml_to_unicode
 
 class Wired_Daily(BasicNewsRecipe):
 
@@ -15,30 +17,43 @@ class Wired_Daily(BasicNewsRecipe):
 
     no_stylesheets = True
 
+    preprocess_regexps = [(re.compile(r'<head.*</head>', re.DOTALL), lambda m:
+        '<head></head>')]
+
     remove_tags_before = dict(name='div', id='content')
-    remove_tags = [dict(id=['social_tools', 'outerWrapper', 'sidebar',
-        'footer', 'advertisement', 'blog_subscription_unit',
-        'brightcove_component']),
-        {'class':'entryActions'},
-        dict(name=['noscript', 'script'])]
+    remove_tags = [dict(id=['header', 'commenting_module', 'post_nav',
+        'social_tools', 'sidebar', 'footer', 'social_wishlist', 'pgwidget',
+        'outerWrapper', 'inf_widget']),
+        {'class':['entryActions', 'advertisement', 'entryTags']},
+        dict(name=['noscript', 'script']),
+        dict(name='h4', attrs={'class':re.compile(r'rat\d+')}),
+        {'class':lambda x: x and x.startswith('contentjump')},
+        dict(name='li', attrs={'class':['entryCategories', 'entryEdit']})]
+
 
     feeds = [
         ('Top News', 'http://feeds.wired.com/wired/index'),
-        ('Culture', 'http://feeds.wired.com/wired/culture'),
-        ('Software', 'http://feeds.wired.com/wired/software'),
-        ('Mac', 'http://feeds.feedburner.com/cultofmac/bFow'),
-        ('Gadgets', 'http://feeds.wired.com/wired/gadgets'),
-        ('Cars', 'http://feeds.wired.com/wired/cars'),
-        ('Entertainment', 'http://feeds.wired.com/wired/entertainment'),
-        ('Gaming', 'http://feeds.wired.com/wired/gaming'),
-        ('Science', 'http://feeds.wired.com/wired/science'),
-        ('Med Tech', 'http://feeds.wired.com/wired/medtech'),
-        ('Politics', 'http://feeds.wired.com/wired/politics'),
-        ('Tech Biz', 'http://feeds.wired.com/wired/techbiz'),
-        ('Commentary', 'http://feeds.wired.com/wired/commentary'),
+        ('Product Reviews',
+            'http://www.wired.com/reviews/feeds/latestProductsRss'),
+        ('Autopia', 'http://www.wired.com/autopia/feed/'),
+        ('Danger Room', 'http://www.wired.com/dangerroom/feed/'),
+        ('Epicenter', 'http://www.wired.com/epicenter/feed/'),
+        ('Gadget Lab', 'http://www.wired.com/gadgetlab/feed/'),
+        ('Geek Dad', 'http://www.wired.com/geekdad/feed/'),
+        ('Playbook', 'http://www.wired.com/playbook/feed/'),
+        ('Rawfile', 'http://www.wired.com/rawfile/feed/'),
+        ('This Day in Tech', 'http://www.wired.com/thisdayintech/feed/'),
+        ('Threat Level', 'http://www.wired.com/threatlevel/feed/'),
+        ('Underwire', 'http://www.wired.com/underwire/feed/'),
+        ('Web Monkey', 'http://www.webmonkey.com/feed/'),
+        ('Science', 'http://www.wired.com/wiredscience/feed/'),
         ]
 
-    def print_version(self, url):
-        return url.replace('http://www.wired.com/', 'http://www.wired.com/print/')
+    def populate_article_metadata(self, article, soup, first):
+        if article.text_summary:
+            article.text_summary = xml_to_unicode(article.text_summary,
+                    resolve_entities=True)[0]
 
+    def print_version(self, url):
+        return url + '/all/1'
 

@@ -823,7 +823,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                                 if book.series_index is not None:
                                     self.series_index.setValue(book.series_index)
                         if book.has_cover:
-                            if d.opt_auto_download_cover.isChecked() and book.has_cover:
+                            if d.opt_auto_download_cover.isChecked():
                                 self.fetch_cover()
                             else:
                                 self.fetch_cover_button.setFocus(Qt.OtherFocusReason)
