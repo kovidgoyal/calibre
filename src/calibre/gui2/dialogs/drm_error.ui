@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>This book is DRMed</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../../../resources/images.qrc">
+    <normaloff>:/images/document-encrypt.png</normaloff>:/images/document-encrypt.png</iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QLabel" name="label">

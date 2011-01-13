@@ -103,6 +103,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.gui_debug = gui_debug
         acmap = OrderedDict()
         for action in interface_actions():
+            if opts.ignore_plugins and action.plugin_path is not None:
+                continue
             try:
                 ac = action.load_actual_plugin(self)
             except:
@@ -256,6 +258,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.height())
         self.resize(self.width(), self._calculated_available_height)
 
+        for ac in self.iactions.values():
+            try:
+                ac.gui_layout_complete()
+            except:
+                import traceback
+                traceback.print_exc()
+                if ac.plugin_path is None:
+                    raise
 
         if config['autolaunch_server']:
             self.start_content_server()
@@ -269,7 +279,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.set_window_title()
 
         for ac in self.iactions.values():
-            ac.initialization_complete()
+            try:
+                ac.initialization_complete()
+            except:
+                import traceback
+                traceback.print_exc()
+                if ac.plugin_path is None:
+                    raise
 
         if show_gui and self.gui_debug is not None:
             info_dialog(self, _('Debug mode'), '<p>' +
