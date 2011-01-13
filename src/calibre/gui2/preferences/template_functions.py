@@ -38,7 +38,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         This parameter can be None in some cases, such as when evaluating
         non-book templates.</li>
         <li><b>locals:</b> the local variables assigned to by the current
-        template program. Your_arguments must be one or more parameter (number
+        template program.</li>
+        <li><b>Your_arguments</b> must be one or more parameter (number
         matching the arg count box), or the value *args for a variable number
         of arguments. These are values passed into the function. One argument
         is required, and is usually the value of the field being operated upon.
