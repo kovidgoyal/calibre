@@ -856,7 +856,7 @@ class TemplateFunctions(PreferencesPlugin):
     category_order = 5
     name_order = 4
     config_widget = 'calibre.gui2.preferences.template_functions'
-    description = _('Define and explore template functions')
+    description = _('Create your own template functions')
 
 class Email(PreferencesPlugin):
     name = 'Email'

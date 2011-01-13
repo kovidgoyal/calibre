@@ -10,7 +10,6 @@ import traceback
 from calibre.gui2 import error_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.template_functions_ui import Ui_Form
-from calibre.utils.config import prefs
 from calibre.utils.formatter_functions import formatter_functions, compile_user_function
 
 
@@ -20,6 +19,44 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gui = gui
         self.db = gui.library_view.model().db
         self.current_plugboards = self.db.prefs.get('plugboards',{})
+        help_text = _('''
+        <p>Here you can add and remove functions used in template processing. A
+        template function is written in python. It takes information from the
+        book, processes it in some way, then returns a string result. Functions
+        defined here are usable in templates in the same way that builtin
+        functions are usable. The function must be named evaluate, and must
+        have the signature shown below.</p>
+        <p><code>evaluate(self, formatter, kwargs, mi, locals, your_arguments)
+        &rarr; returning a unicode string</code></p>
+        <p>The arguments to evaluate are:
+        <ul>
+        <li><b>formatter:</b> the instance of the formatter being used to
+        evaluate the current template. You can use this to do recursive
+        template evaluation.</li>
+        <li><b>kwargs:</b> a dictionary of metadata. Field values are in this
+        dictionary. mi: a Metadata instance. Used to get field information.
+        This parameter can be None in some cases, such as when evaluating
+        non-book templates.</li>
+        <li><b>locals:</b> the local variables assigned to by the current
+        template program. Your_arguments must be one or more parameter (number
+        matching the arg count box), or the value *args for a variable number
+        of arguments. These are values passed into the function. One argument
+        is required, and is usually the value of the field being operated upon.
+        Note that when writing in basic template mode, the user does not
+        provide this first argument. Instead it is the value of the field the
+        function is operating upon.</li>
+        </ul></p>
+        <p>
+        The following example function looks for various values in the tags
+        metadata field, returning those values that appear in tags.
+        <pre>
+        def evaluate(self, formatter, kwargs, mi, locals, val):
+            awards=['allbooks', 'PBook', 'ggff']
+            return ', '.join([t for t in kwargs.get('tags') if t in awards])
+        </pre>
+        </p>
+        ''')
+        self.textBrowser.setHtml(help_text)
 
     def initialize(self):
         self.funcs = formatter_functions.get_functions()
