@@ -982,9 +982,12 @@ class ZipFile:
             zef_file.read(fheader[_FH_EXTRA_FIELD_LENGTH])
 
         if fname != zinfo.orig_filename:
-            raise BadZipfile, \
-                      'File name in directory "%s" and header "%s" differ.' % (
-                          zinfo.orig_filename, fname)
+            print ('WARNING: Header (%r) and directory (%r) filenames do not'
+                    ' match inside ZipFile')%(fname, zinfo.orig_filename)
+            print 'Using directory filename %r'%zinfo.orig_filename
+            #raise BadZipfile, \
+            #          'File name in directory "%r" and header "%r" differ.' % (
+            #              zinfo.orig_filename, fname)
 
         # check for encrypted flag & handle password
         is_encrypted = zinfo.flag_bits & 0x1
