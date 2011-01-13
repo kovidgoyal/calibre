@@ -74,6 +74,7 @@ class FormatterFunction(object):
             if isinstance(ret, list):
                 return ','.join(list)
         except:
+            traceback.print_exc()
             return _('Function threw exception' + traceback.format_exc())
 
 class BuiltinStrcmp(FormatterFunction):
@@ -327,7 +328,7 @@ class BuiltinEvaluate(FormatterFunction):
             return value_if_empty
 
 class BuiltinShorten(FormatterFunction):
-    name = 'shorten    '
+    name = 'shorten'
     arg_count = 4
     doc = _('shorten(val, left chars, middle text, right chars) -- Return a '
             'shortened version of the field, consisting of `left chars` '
@@ -448,8 +449,13 @@ class FormatterUserFunction(FormatterFunction):
         self.arg_count = arg_count
         self.program_text = program_text
 
+tabs = re.compile(r'^\t*')
 def compile_user_function(name, doc, arg_count, eval_func):
-    func = '\t' + eval_func.replace('\n', '\n\t')
+    def replace_func(mo):
+        return  mo.group().replace('\t', '    ')
+
+    func = '    ' + '\n    '.join([tabs.sub(replace_func, line )
+                                   for line in eval_func.splitlines()])
     prog = '''
 from calibre.utils.formatter_functions import FormatterUserFunction
 class UserFunction(FormatterUserFunction):
