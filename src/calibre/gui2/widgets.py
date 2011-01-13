@@ -19,7 +19,6 @@ from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
 from calibre.constants import isosx
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
-from calibre.utils.fonts import fontconfig
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs, XMLConfig
@@ -283,6 +282,7 @@ class FontFamilyModel(QAbstractListModel):
 
     def __init__(self, *args):
         QAbstractListModel.__init__(self, *args)
+        from calibre.utils.fonts import fontconfig
         try:
             self.families = fontconfig.find_font_families()
         except:
@@ -524,6 +524,8 @@ class EnComboBox(QComboBox):
 
 class HistoryLineEdit(QComboBox):
 
+    lost_focus = pyqtSignal()
+
     def __init__(self, *args):
         QComboBox.__init__(self, *args)
         self.setEditable(True)
@@ -549,7 +551,11 @@ class HistoryLineEdit(QComboBox):
             item = unicode(self.itemText(i))
             if item not in items:
                 items.append(item)
-
+        self.blockSignals(True)
+        self.clear()
+        self.addItems(items)
+        self.setEditText(ct)
+        self.blockSignals(False)
         history.set(self.store_name, items)
 
     def setText(self, t):
@@ -558,6 +564,10 @@ class HistoryLineEdit(QComboBox):
 
     def text(self):
         return self.currentText()
+
+    def focusOutEvent(self, e):
+        QComboBox.focusOutEvent(self, e)
+        self.lost_focus.emit()
 
 class ComboBoxWithHelp(QComboBox):
     '''
@@ -605,6 +615,31 @@ class ComboBoxWithHelp(QComboBox):
     def hidePopup(self):
         QComboBox.hidePopup(self)
         self.set_state()
+
+
+class EncodingComboBox(QComboBox):
+    '''
+    A combobox that holds text encodings support
+    by Python. This is only populated with the most
+    common and standard encodings. There is no good
+    way to programatically list all supported encodings
+    using encodings.aliases.aliases.keys(). It
+    will not work.
+    '''
+
+    ENCODINGS = ['', 'cp1252', 'latin1', 'utf-8', '', 'ascii', 'big5', 'cp1250', 'cp1251', 'cp1253',
+        'cp1254', 'cp1255', 'cp1256', 'euc_jp', 'euc_kr', 'gb2312', 'gb18030',
+        'hz', 'iso2022_jp', 'iso2022_kr', 'iso8859_5', 'shift_jis',
+    ]
+
+    def __init__(self, parent=None):
+        QComboBox.__init__(self, parent)
+        self.setEditable(True)
+        self.setLineEdit(EnLineEdit(self))
+
+        for item in self.ENCODINGS:
+            self.addItem(item)
+
 
 class PythonHighlighter(QSyntaxHighlighter):
 

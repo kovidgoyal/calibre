@@ -38,12 +38,12 @@ class Wired(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'class':'post'})]
     remove_tags_after = dict(name='div', attrs={'class':'tweetmeme_button'})
     remove_tags = [
-                     dict(name=['object','embed','iframe','link'])
+                     dict(name=['object','embed','iframe','link','meta','base'])
                     ,dict(name='div', attrs={'class':['podcast_storyboard','tweetmeme_button']})
                     ,dict(attrs={'id':'ff_bottom_nav'})
                     ,dict(name='a',attrs={'href':'http://www.wired.com/app'})
                   ]
-    remove_attributes = ['height','width']
+    remove_attributes = ['height','width','lang','border','clear']
 
 
     def parse_index(self):
@@ -78,7 +78,9 @@ class Wired(BasicNewsRecipe):
                divurl = item.find('div',attrs={'class':'feature-header'})
                if divurl:
                    divdesc = item.find('div',attrs={'class':'feature-text'})
-                   url   = 'http://www.wired.com' + divurl.a['href']
+                   url = divurl.a['href']
+                   if not divurl.a['href'].startswith('http://www.wired.com'):
+                      url   = 'http://www.wired.com' + divurl.a['href']
                    title = self.tag_to_string(divurl.a)
                    description = self.tag_to_string(divdesc)
                    date  = strftime(self.timefmt)
@@ -127,5 +129,17 @@ class Wired(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
+        for item in soup.findAll('a'):
+            if item.string is not None:
+               tstr = item.string
+               item.replaceWith(tstr)
+            else:
+               item.name='span'
+               for atrs in ['href','target','alt','title','name','id']:
+                   if item.has_key(atrs):
+                      del item[atrs]
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'            
         return soup
 

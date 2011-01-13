@@ -16,7 +16,6 @@ from datetime import datetime
 from functools import partial
 
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
-from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, isoformat
 from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG
@@ -88,6 +87,24 @@ class SortedConcatenate(object):
 class SafeSortedConcatenate(SortedConcatenate):
     sep = '|'
 
+class AumSortedConcatenate(object):
+    '''String concatenation aggregator for the author sort map'''
+    def __init__(self):
+        self.ans = {}
+
+    def step(self, ndx, author, sort):
+        if author is not None:
+            self.ans[ndx] = author + ':::' + sort
+
+    def finalize(self):
+        keys = self.ans.keys()
+        l = len(keys)
+        if l == 0:
+            return 'Unknown:::Unknown'
+        if l == 1:
+            return self.ans[keys[0]]
+        return ':#:'.join([self.ans[v] for v in sorted(keys)])
+
 class Connection(sqlite.Connection):
 
     def get(self, *args, **kw):
@@ -156,15 +173,13 @@ class DBThread(Thread):
         c_ext_loaded = load_c_extensions(self.conn)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
+        self.conn.create_aggregate('aum_sortconcat', 3, AumSortedConcatenate)
         if not c_ext_loaded:
             self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
             self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
         self.conn.create_collation('PYNOCASE', partial(pynocase,
             encoding=encoding))
-        if tweaks['title_series_sorting'] == 'strictly_alphabetic':
-            self.conn.create_function('title_sort', 1, lambda x:x)
-        else:
-            self.conn.create_function('title_sort', 1, title_sort)
+        self.conn.create_function('title_sort', 1, title_sort)
         self.conn.create_function('author_to_author_sort', 1,
                 _author_to_author_sort)
         self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))

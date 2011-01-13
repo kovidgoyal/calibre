@@ -2,13 +2,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Code to manage ebook library'''
 
-def db(path=None):
+def db(path=None, read_only=False):
     from calibre.library.database2 import LibraryDatabase2
     from calibre.utils.config import prefs
-    return LibraryDatabase2(path if path else prefs['library_path'])
+    return LibraryDatabase2(path if path else prefs['library_path'],
+            read_only=read_only)
 
 
-def generate_test_db(library_path,
+def generate_test_db(library_path, # {{{
         num_of_records=20000,
         num_of_authors=6000,
         num_of_tags=10000,
@@ -19,12 +20,15 @@ def generate_test_db(library_path,
         max_tags=10
         ):
     import random, string, os, sys, time
+    from calibre.constants import preferred_encoding
 
     if not os.path.exists(library_path):
         os.makedirs(library_path)
 
+    letters = string.letters.decode(preferred_encoding)
+
     def randstr(length):
-        return ''.join(random.choice(string.letters) for i in
+        return ''.join(random.choice(letters) for i in
                 xrange(length))
 
     all_tags = [randstr(tag_length) for j in xrange(num_of_tags)]
@@ -55,4 +59,24 @@ def generate_test_db(library_path,
     t = time.time() - start
     print '\nGenerated', num_of_records, 'records in:', t, 'seconds'
     print 'Time per record:', t/float(num_of_records)
+# }}}
+
+def cover_load_timing(path=None):
+    from PyQt4.Qt import QApplication, QImage
+    import os, time
+    app = QApplication([])
+    app
+    d = db(path)
+    paths = [d.cover(i, index_is_id=True, as_path=True) for i in
+            d.data.iterallids()]
+    paths = [p for p in paths if (p and os.path.exists(p) and os.path.isfile(p))]
+
+    start = time.time()
+
+    for p in paths:
+        with open(p, 'rb') as f:
+            img = QImage()
+            img.loadFromData(f.read())
+
+    print 'Average load time:', (time.time() - start)/len(paths), 'seconds'
 

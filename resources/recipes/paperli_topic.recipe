@@ -6,12 +6,12 @@ paperli
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import strftime
-import re
 
 class paperli_topics(BasicNewsRecipe):
-#-------------------please change here ----------------
-    paperli_tag = 'wikileaks'
-    title          = u'The # wikileaks Daily - paperli'
+    # Customize this recipe and change paperli_tag and title below to
+    # download news on your favorite tag
+    paperli_tag = 'climate'
+    title          = u'The #climate Daily - paperli'
 #-------------------------------------------------------------
     __author__     = 'Hiroshi Miura'
     oldest_article = 7
@@ -24,12 +24,11 @@ class paperli_topics(BasicNewsRecipe):
     remove_javascript = True
     masthead_title = u'The '+ paperli_tag +' Daily'
     timefmt        = '[%y/%m/%d]'
-    base_url     = 'http://paper.li'          
+    base_url     = 'http://paper.li'
     index          = base_url+'/tag/'+paperli_tag
 
 
     def parse_index(self):
-
         # get topics
         topics = []
         soup   = self.index_to_soup(self.index)

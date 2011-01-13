@@ -15,7 +15,7 @@ from calibre import isbytestring, force_unicode, fit_image, \
         prepare_string_for_xml as xml
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.magick import Image
 from calibre.library.comments import comments_to_html
@@ -151,7 +151,11 @@ def get_category_items(category, items, restriction, datatype, prefix): # {{{
                 '<div>{1}</div>'
                 '<div>{2}</div></div>')
         rating, rstring = render_rating(i.avg_rating, prefix)
-        name = xml(i.name)
+        if i.category == 'authors' and \
+                tweaks['categories_use_field_for_author_name'] == 'author_sort':
+            name = xml(i.sort)
+        else:
+            name = xml(i.name)
         if datatype == 'rating':
             name = xml(_('%d stars')%int(i.avg_rating))
         id_ = i.id
@@ -552,16 +556,19 @@ class BrowseServer(object):
                 ids = self.search_cache('search:"%s"'%which)
             except:
                 raise cherrypy.HTTPError(404, 'Search: %r not understood'%which)
-        elif category == 'newest':
-            ids = self.search_cache('')
-            hide_sort = 'true'
-        elif category == 'allbooks':
-            ids = self.search_cache('')
         else:
-            q = category
-            if q == 'news':
-                q = 'tags'
-            ids = self.db.get_books_for_category(q, cid)
+            all_ids = self.search_cache('')
+            if category == 'newest':
+                ids = all_ids
+                hide_sort = 'true'
+            elif category == 'allbooks':
+                ids = all_ids
+            else:
+                q = category
+                if q == 'news':
+                    q = 'tags'
+                ids = self.db.get_books_for_category(q, cid)
+                ids = [x for x in ids if x in all_ids]
 
         items = [self.db.data._data[x] for x in ids]
         if category == 'newest':
@@ -633,8 +640,8 @@ class BrowseServer(object):
             if fmt:
                 href = self.opts.url_prefix + '/get/%s/%s_%d.%s'%(
                         fmt, fname, id_, fmt)
-                rt = xml(_('Read %s in the %s format')%(args['title'],
-                        fmt.upper()), True)
+                rt = xml(_('Read %(title)s in the %(fmt)s format')% \
+                        {'title':args['title'], 'fmt':fmt.upper()}, True)
 
                 args['get_button'] = \
                         '<a href="%s" class="read" title="%s">%s</a>' % \
@@ -749,7 +756,7 @@ class BrowseServer(object):
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
         html = render_book_list(ids, self.opts.url_prefix,
-                suffix=_('in search')+': '+query)
+                suffix=_('in search')+': '+xml(query))
         return self.browse_template(sort, category=False, initial_search=query).format(
                 title=_('Matching books'),
                 script='booklist();', main=html)

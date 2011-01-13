@@ -4,7 +4,6 @@ __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
 www.kahoku.co.jp
 '''
 
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

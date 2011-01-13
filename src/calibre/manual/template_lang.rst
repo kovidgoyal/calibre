@@ -121,6 +121,7 @@ The functions available are:
     * ``contains(pattern, text if match, text if not match`` -- checks if field contains matches for the regular expression `pattern`. Returns `text if match` if matches are found, otherwise it returns `text if no match`.
     * ``count(separator)`` -- interprets the value as a list of items separated by `separator`, returning the number of items in the list. Most lists use a comma as the separator, but authors uses an ampersand. Examples: `{tags:count(,)}`, `{authors:count(&)}`
     * ``ifempty(text)``	-- if the field is not empty, return the value of the field. Otherwise return `text`.
+    * ``list_item(index, separator)`` -- interpret the value as a list of items separated by `separator`, returning the `index`th item. The first item is number zero. The last item can be returned using `list_item(-1,separator)`. If the item is not in the list, then the empty value is returned. The separator has the same meaning as in the `count` function.
     * ``lookup(pattern, field, pattern, field, ..., else_field)`` -- like switch, except the arguments are field (metadata) names, not text. The value of the appropriate field will be fetched and used. Note that because composite columns are fields, you can use this function in one composite field to use the value of some other composite field. This is extremely useful when constructing variable save paths (more later).
     * ``re(pattern, replacement)`` -- return the field after applying the regular expression. All instances of `pattern` are replaced with `replacement`. As in all of |app|, these are python-compatible regular expressions.
     * ``shorten(left chars, middle text, right chars)`` -- Return a shortened version of the field, consisting of `left chars` characters from the beginning of the field, followed by `middle text`, followed by `right chars` characters from the end of the string. `Left chars` and `right chars` must be integers. For example, assume the title of the book is `Ancient English Laws in the Times of Ivanhoe`, and you want it to fit in a space of at most 15 characters. If you use ``{title:shorten(9,-,5)}``, the result will be `Ancient E-nhoe`. If the field's length is less than ``left chars`` + ``right chars`` + the length of ``middle text``, then the field will be used intact. For example, the title `The Dome` would not be changed.
@@ -137,8 +138,8 @@ Note that you can use the prefix and suffix as well. If you want the number to a
     {#myint:0>3s:ifempty(0)|[|]}
     
 
-Using functions in templates - program mode
--------------------------------------------
+Using functions in templates - template program mode
+----------------------------------------------------
 
 The template language program mode differs from single-function mode in that it permits you to write template expressions that refer to other metadata fields, modify values, and do arithmetic. It is a reasonably complete programming language.
 
@@ -150,7 +151,7 @@ The example shows several things:
 
     * program mode is used if the expression begins with ``:'`` and ends with ``'``. Anything else is assumed to be single-function.
     * the variable ``$`` stands for the field the expression is operating upon, ``#series`` in this case.
-    * functions must be given all their arguments. There is no default value. This is true for the standard builtin functions, and is a significant difference from single-function mode.
+    * functions must be given all their arguments. There is no default value. For example, the standard builtin functions must be given an additional initial parameter indicating the source field, which is a significant difference from single-function mode.
     * white space is ignored and can be used anywhere within the expression.
     * constant strings are enclosed in matching quotes, either ``'`` or ``"``.
     
@@ -161,9 +162,12 @@ The syntax of the language is shown by the following grammar::
     constant   ::= " string " | ' string ' | number
     identifier ::= sequence of letters or ``_`` characters
     function   ::= identifier ( statement [ , statement ]* )
-    expression ::= identifier | constant | function
+    expression ::= identifier | constant | function | assignment
+    assignment ::= identifier '=' expression
     statement  ::= expression [ ; expression ]*
     program    ::= statement
+
+Comments are lines with a '#' character at the beginning of the line.
 
 An ``expression`` always has a value, either the value of the constant, the value contained in the identifier, or the value returned by a function. The value of a ``statement`` is the value of the last expression in the sequence of statements. As such, the value of the program (statement)::
 
@@ -201,19 +205,109 @@ For various values of series_index, the program returns:
 
 All the functions listed under single-function mode can be used in program mode, noting that unlike the functions described below you must supply a first parameter providing the value the function is to act upon. 
 
-The following functions are available in addition to those described in single-function mode. With the exception of the ``id`` parameter of assign, all parameters can be statements (sequences of expressions):
+The following functions are available in addition to those described in single-function mode. Remember from the example above that the single-function mode functions require an additional first parameter specifying the field to operate on. With the exception of the ``id`` parameter of assign, all parameters can be statements (sequences of expressions):
 
-    * ``add(x, y)``	-- returns x + y. Throws an exception if either x or y are not numbers.
+    * ``add(x, y)`` -- returns x + y. Throws an exception if either x or y are not numbers.
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
-    * ``divide(x, y)``	-- returns x / y. Throws an exception if either x or y are not numbers.
+    * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
     * ``field(name)`` -- returns the metadata field named by ``name``.
-    * ``multiply``	-- returns x * y. Throws an exception if either x or y are not numbers.
+    * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables.
+    * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.
+    * ``print(a, b, ...)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``), the output will go to a black hole.
     * ``strcat(a, b, ...)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
     * ``strcmp(x, y, lt, eq, gt)`` -- does a case-insensitive comparison x and y as strings. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
     * ``substr(str, start, end)`` -- returns the ``start``'th through the ``end``'th characters of ``str``. The first character in ``str`` is the zero'th character. If end is negative, then it indicates that many characters counting from the right. If end is zero, then it indicates the last character. For example, ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)`` returns ``'234'``.
-    * ``subtract``	-- returns x - y. Throws an exception if either x or y are not numbers.
-    
+    * ``subtract(x, y)`` -- returns x - y. Throws an exception if either x or y are not numbers.
+    * ``template(x)`` -- evaluates x as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. For example, ``template('[[title_sort]]') will evaluate the template ``{title_sort}`` and return its value.
+
+Using general program mode
+-----------------------------------
+
+For more complicated template programs, it is sometimes easier to avoid template syntax (all the `{` and `}` characters), instead writing a more classical-looking program. You can do this in |app| by beginning the template with `program:`. In this case, no template processing is done. The special variable `$` is not set. It is up to your program to produce the correct results.
+
+One advantage of `program:` mode is that the brackets are no longer special. For example, it is not necessary to use `[[` and `]]` when using the `template()` function.
+
+The following example is a `program:` mode implementation of a recipe on the MobileRead forum: "Put series into the title, using either initials or a shortened form. Strip leading articles from the series name (any)." For example, for the book The Two Towers in the Lord of the Rings series, the recipe gives `LotR [02] The Two Towers`. Using standard templates, the recipe requires three custom columns and a plugboard, as explained in the following:
+
+The solution requires creating three composite columns. The first column is used to remove the leading articles. The second is used to compute the 'shorten' form. The third is to compute the 'initials' form. Once you have these columns, the plugboard selects between them. You can hide any or all of the three columns on the library view.
+
+    First column:
+    Name: #stripped_series. 
+    Template: {series:re(^(A|The|An)\s+,)||}
+
+    Second column (the shortened form):
+    Name: #shortened. 
+    Template: {#stripped_series:shorten(4,-,4)}
+
+    Third column (the initials form):
+    Name: #initials. 
+    Template: {#stripped_series:re(([^\s])[^\s]+(\s|$),\1)}
+
+    Plugboard expression:
+    Template:{#stripped_series:lookup(.\s,#initials,.,#shortened,series)}{series_index:0>2.0f| [|] }{title}
+    Destination field: title
+
+    This set of fields and plugboard produces:
+    Series: The Lord of the Rings
+    Series index: 2
+    Title: The Two Towers
+    Output: LotR [02] The Two Towers
+
+    Series: Dahak
+    Series index: 1
+    Title: Mutineers Moon
+    Output: Dahak [01] Mutineers Moon
+
+    Series: Berserkers
+    Series Index: 4
+    Title: Berserker Throne
+    Output: Bers-kers [04] Berserker Throne
+
+    Series: Meg Langslow Mysteries
+    Series Index: 3
+    Title: Revenge of the Wrought-Iron Flamingos
+    Output: MLM [03] Revenge of the Wrought-Iron Flamingos
+
+The following program produces the same results as the original recipe, using only one custom column to hold the results of a program that computes the special title value::
+
+    Custom column: 
+    Name: #special_title
+    Template: (the following with all leading spaces removed)
+        program:
+        #	compute the equivalent of the composite fields and store them in local variables
+            stripped = re(field('series'), '^(A|The|An)\s+', '');
+            shortened = shorten(stripped, 4, '-' ,4);
+            initials = re(stripped, '[^\w]*(\w?)[^\s]+(\s|$)', '\1');
+
+        #	Format the series index. Ends up as empty if there is no series index.
+        #	Note that leading and trailing spaces will be removed by the formatter,
+        # 	so we cannot add them here. We will do that in the strcat below.
+        #	Also note that because we are in 'program' mode, we can freely use
+        #	curly brackets in strings, something we cannot do in template mode.
+            s_index = template('{series_index:0>2.0f}');
+
+        #	print(stripped, shortened, initials, s_index);
+
+        #	Now concatenate all the bits together. The switch picks between 
+        # 	initials and shortened, depending on whether there is a space
+        #	in stripped. We then add the brackets around s_index if it is
+        #	not empty. Finally, add the title. As this is the last function in
+        # 	the program, its value will be returned.
+            strcat(
+                switch(	stripped, 
+                        '.\s', initials, 
+                        '.', shortened,
+                        field('series')),
+                test(s_index, strcat(' [', s_index, '] '), ''),
+                field('title'));
+
+    Plugboard expression:
+    Template:{#special_title}
+    Destination field: title
+
+It would be possible to do the above with no custom columns by putting the program into the template box of the plugboard. However, to do so, all comments must be removed because the plugboard text box does not support multi-line editing. It is debatable whether the gain of not having the custom column is worth the vast increase in difficulty caused by the program being one giant line.
+
 Special notes for save/send templates
 -------------------------------------
 

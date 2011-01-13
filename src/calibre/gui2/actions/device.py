@@ -12,11 +12,15 @@ from PyQt4.Qt import QToolButton, QMenu, pyqtSignal, QIcon
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.smtp import config as email_config
 from calibre.constants import iswindows, isosx
+from calibre.customize.ui import is_disabled
+from calibre.devices.bambook.driver import BAMBOOK
 
 class ShareConnMenu(QMenu): # {{{
 
     connect_to_folder = pyqtSignal()
     connect_to_itunes = pyqtSignal()
+    connect_to_bambook = pyqtSignal()
+
     config_email = pyqtSignal()
     toggle_server = pyqtSignal()
     dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
@@ -34,6 +38,17 @@ class ShareConnMenu(QMenu): # {{{
         self.connect_to_itunes_action = mitem
         if not (iswindows or isosx):
             mitem.setVisible(False)
+        mitem = self.addAction(QIcon(I('devices/bambook.png')), _('Connect to Bambook'))
+        mitem.setEnabled(True)
+        mitem.triggered.connect(lambda x : self.connect_to_bambook.emit())
+        self.connect_to_bambook_action = mitem
+        bambook_visible = False
+        if not is_disabled(BAMBOOK):
+            device_ip = BAMBOOK.settings().extra_customization
+            if device_ip:
+                bambook_visible = True
+        self.connect_to_bambook_action.setVisible(bambook_visible)
+
         self.addSeparator()
         self.toggle_server_action = \
             self.addAction(QIcon(I('network-server.png')),
@@ -88,6 +103,7 @@ class ShareConnMenu(QMenu): # {{{
     def set_state(self, device_connected):
         self.connect_to_folder_action.setEnabled(not device_connected)
         self.connect_to_itunes_action.setEnabled(not device_connected)
+        self.connect_to_bambook_action.setEnabled(not device_connected)
 
 
 # }}}
@@ -126,6 +142,7 @@ class ConnectShareAction(InterfaceAction):
         self.qaction.setMenu(self.share_conn_menu)
         self.share_conn_menu.connect_to_folder.connect(self.gui.connect_to_folder)
         self.share_conn_menu.connect_to_itunes.connect(self.gui.connect_to_itunes)
+        self.share_conn_menu.connect_to_bambook.connect(self.gui.connect_to_bambook)
 
     def location_selected(self, loc):
         enabled = loc == 'library'

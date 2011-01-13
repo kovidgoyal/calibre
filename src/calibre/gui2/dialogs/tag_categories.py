@@ -145,7 +145,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             index = self.all_items[node.data(Qt.UserRole).toPyObject()].index
             if index not in self.applied_items:
                 self.applied_items.append(index)
-        self.applied_items.sort(key=lambda x:sort_key(self.all_items[x]))
+        self.applied_items.sort(key=lambda x:sort_key(self.all_items[x].name))
         self.display_filtered_categories(None)
 
     def unapply_tags(self, node=None):

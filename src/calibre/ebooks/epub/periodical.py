@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from uuid import uuid4
+import time
 
 from calibre.constants import __appname__, __version__
 from calibre import strftime, prepare_string_for_xml as xml
@@ -103,7 +104,7 @@ def sony_metadata(oeb):
             publisher=xml(publisher), issue_date=xml(date),
             language=xml(language))
 
-    updated = strftime('%Y-%m-%dT%H:%M:%SZ')
+    updated = strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
 
     def cal_id(x):
         for k, v in x.attrib.items():

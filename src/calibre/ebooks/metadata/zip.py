@@ -27,7 +27,39 @@ def get_metadata(stream):
                 with TemporaryDirectory() as tdir:
                     with CurrentDir(tdir):
                         path = zf.extract(f)
-                        return get_metadata(open(path, 'rb'), stream_type)
+                        mi = get_metadata(open(path,'rb'), stream_type)
+                        if stream_type == 'opf' and mi.application_id == None:
+                            try:
+                                # zip archive opf files without an application_id were assumed not to have a cover
+                                # reparse the opf and if cover exists read its data from zip archive for the metadata
+                                nmi = zip_opf_metadata(path, zf)
+                                return nmi
+                            except:
+                                pass
+                        return mi
     raise ValueError('No ebook found in ZIP archive')
 
+
+def zip_opf_metadata(opfpath, zf):
+    from calibre.ebooks.metadata.opf2 import OPF
+    if hasattr(opfpath, 'read'):
+        f = opfpath
+        opfpath = getattr(f, 'name', os.getcwd())
+    else:
+        f = open(opfpath, 'rb')
+    opf = OPF(f, os.path.dirname(opfpath))
+    mi = opf.to_book_metadata()
+    # This is broken, in that it only works for
+    # when both the OPF file and the cover file are in the root of the
+    # zip file and the cover is an actual raster image, but I don't care
+    # enough to make it more robust
+    if getattr(mi, 'cover', None):
+        covername = os.path.basename(mi.cover)
+        mi.cover = None
+        names = zf.namelist()
+        if covername in names:
+            fmt = covername.rpartition('.')[-1]
+            data = zf.read(covername)
+            mi.cover_data = (fmt, data)
+    return mi
 

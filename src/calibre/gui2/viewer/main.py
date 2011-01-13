@@ -26,6 +26,7 @@ from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
 from calibre.customize.ui import available_input_formats
 from calibre.gui2.viewer.dictionary import Lookup
+from calibre import as_unicode
 
 class TOCItem(QStandardItem):
 
@@ -328,6 +329,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         c = config().parse()
         self.frame.setMaximumWidth(c.max_view_width)
 
+    def get_remember_current_page_opt(self):
+        from calibre.gui2.viewer.documentview import config
+        c = config().parse()
+        return c.remember_current_page
+
     def print_book(self, preview):
         Printing(self.iterator.spine, preview)
 
@@ -578,7 +584,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         current_page = None
         self.existing_bookmarks = []
         for bm in bookmarks:
-            if bm[0] == 'calibre_current_page_bookmark':
+            if bm[0] == 'calibre_current_page_bookmark' and \
+                                self.get_remember_current_page_opt():
                 current_page = bm
             else:
                 self.existing_bookmarks.append(bm[0])
@@ -598,6 +605,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.set_bookmarks(bookmarks)
 
     def save_current_position(self):
+        if not self.get_remember_current_page_opt():
+            return
         try:
             pos = self.view.bookmark()
             bookmark = '%d#%s'%(self.current_index, pos)
@@ -618,13 +627,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             QApplication.processEvents()
         if worker.exception is not None:
             if isinstance(worker.exception, DRMError):
-                error_dialog(self, _('DRM Error'),
-                        _('<p>This book is protected by <a href="%s">DRM</a>')
-                        %'http://wiki.mobileread.com/wiki/DRM').exec_()
+                from calibre.gui2.dialogs.drm_error import DRMErrorMessage
+                DRMErrorMessage(self).exec_()
             else:
                 r = getattr(worker.exception, 'reason', worker.exception)
                 error_dialog(self, _('Could not open ebook'),
-                        unicode(r), det_msg=worker.traceback, show=True)
+                        as_unicode(r), det_msg=worker.traceback, show=True)
             self.close_progress_indicator()
         else:
             self.metadata.show_opf(self.iterator.opf, os.path.splitext(pathtoebook)[1][1:])
@@ -642,7 +650,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.action_table_of_contents.setDisabled(not self.iterator.toc)
             self.current_book_has_toc = bool(self.iterator.toc)
             self.current_title = title
-            self.setWindowTitle(self.base_window_title+' - '+title)
+            self.setWindowTitle(self.base_window_title+' - '+title +
+                    ' [%s]'%os.path.splitext(pathtoebook)[1][1:].upper())
             self.pos.setMaximum(sum(self.iterator.pages))
             self.pos.setSuffix(' / %d'%sum(self.iterator.pages))
             self.vertical_scrollbar.setMinimum(100)

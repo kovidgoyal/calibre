@@ -9,15 +9,17 @@ import sys
 from functools import partial
 
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
-        QDate, QGroupBox, QVBoxLayout, QPlainTextEdit, QSizePolicy, \
+        QDate, QGroupBox, QVBoxLayout, QSizePolicy, \
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
         QPushButton
 
 from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.widgets import TagsLineEdit, EnComboBox
+from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
+from calibre.library.comments import comments_to_html
 
 class Base(object):
 
@@ -186,9 +188,9 @@ class Comments(Base):
         self._box = QGroupBox(parent)
         self._box.setTitle('&'+self.col_metadata['name'])
         self._layout = QVBoxLayout()
-        self._tb = QPlainTextEdit(self._box)
+        self._tb = CommentsEditor(self._box)
         self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self._tb.setTabChangesFocus(True)
+        #self._tb.setTabChangesFocus(True)
         self._layout.addWidget(self._tb)
         self._box.setLayout(self._layout)
         self.widgets = [self._box]
@@ -196,10 +198,10 @@ class Comments(Base):
     def setter(self, val):
         if val is None:
             val = ''
-        self._tb.setPlainText(val)
+        self._tb.html = comments_to_html(val)
 
     def getter(self):
-        val = unicode(self._tb.toPlainText()).strip()
+        val = unicode(self._tb.html).strip()
         if not val:
             val = None
         return val
@@ -303,7 +305,7 @@ class Series(Base):
             if val == '':
                 val = s_index = None
             elif s_index == 0.0:
-                if tweaks['series_index_auto_increment'] == 'next':
+                if tweaks['series_index_auto_increment'] != 'const':
                     s_index = self.db.get_next_cc_series_num_for(val,
                                                              num=self.col_id)
                 else:
@@ -572,7 +574,6 @@ class BulkSeries(BulkBase):
         val = None if clear else self.normalize_ui_val(val)
         if clear or val != '':
             extras = []
-            next_index = self.db.get_next_cc_series_num_for(val, num=self.col_id)
             for book_id in book_ids:
                 if clear:
                     extras.append(None)
@@ -581,16 +582,13 @@ class BulkSeries(BulkBase):
                     if force_start:
                         s_index = at_value
                         at_value += 1
-                    elif tweaks['series_index_auto_increment'] == 'next':
-                        s_index = next_index
-                        next_index += 1
+                    elif tweaks['series_index_auto_increment'] != 'const':
+                        s_index = self.db.get_next_cc_series_num_for(val, num=self.col_id)
                     else:
                         s_index = 1.0
                 else:
                     s_index = self.db.get_custom_extra(book_id, num=self.col_id,
                                                        index_is_id=True)
-                    if s_index is None:
-                        s_index = 1.0
                 extras.append(s_index)
             self.db.set_custom_bulk(book_ids, val, extras=extras,
                                    num=self.col_id, notify=notify)

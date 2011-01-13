@@ -61,7 +61,8 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
                     dtitle = unicode(mi.title)
                 except:
                     dtitle = repr(mi.title)
-                desc = _('Convert book %d of %d (%s)') % (i + 1, total, dtitle)
+                desc = _('Convert book %(num)d of %(total)d (%(title)s)') % \
+                        {'num':i + 1, 'total':total, 'title':dtitle}
 
                 recs = cPickle.loads(d.recommendations)
                 if d.opf_file is not None:
@@ -235,6 +236,10 @@ def fetch_scheduled_recipe(arg):
     if lr.get('header', False):
         recs.append(('header', True, OptionRecommendation.HIGH))
         recs.append(('header_format', '%t', OptionRecommendation.HIGH))
+
+    epub = load_defaults('epub_output')
+    if epub.get('epub_flatten', False):
+        recs.append(('epub_flatten', True, OptionRecommendation.HIGH))
 
     args = [arg['recipe'], pt.name, recs]
     if arg['username'] is not None:

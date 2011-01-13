@@ -1,6 +1,6 @@
 /**
  * Copyright 2009 Kovid Goyal <kovid@kovidgoyal.net>
- * License: GNU GPL v3
+ * License: GNU GPL v2+
  */
 
 

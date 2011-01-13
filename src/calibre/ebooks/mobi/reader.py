@@ -29,6 +29,9 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.ebooks.metadata.toc import TOC
 
+class TopazError(ValueError):
+    pass
+
 class EXTHHeader(object):
 
     def __init__(self, raw, codec, title):
@@ -136,7 +139,7 @@ class BookHeader(object):
                     65001: 'utf-8',
                     }[self.codepage]
             except (IndexError, KeyError):
-                self.codec = 'cp1252' if user_encoding is None else user_encoding
+                self.codec = 'cp1252' if not user_encoding else user_encoding
                 log.warn('Unknown codepage %d. Assuming %s' % (self.codepage,
                     self.codec))
             if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length \
@@ -239,7 +242,7 @@ class MobiReader(object):
         self.base_css_rules = textwrap.dedent('''
                 blockquote { margin: 0em 0em 0em 2em; text-align: justify }
 
-                p { margin: 0em; text-align: justify }
+                p { margin: 0em; text-align: justify; text-indent: 1.5em }
 
                 .bold { font-weight: bold }
 
@@ -259,7 +262,7 @@ class MobiReader(object):
 
         raw = stream.read()
         if raw.startswith('TPZ'):
-            raise ValueError(_('This is an Amazon Topaz book. It cannot be processed.'))
+            raise TopazError(_('This is an Amazon Topaz book. It cannot be processed.'))
 
         self.header   = raw[0:72]
         self.name     = self.header[:32].replace('\x00', '')
@@ -510,11 +513,14 @@ class MobiReader(object):
         mobi_version = self.book_header.mobi_version
         for x in root.xpath('//ncx'):
             x.getparent().remove(x)
+        svg_tags = []
         for i, tag in enumerate(root.iter(etree.Element)):
             tag.attrib.pop('xmlns', '')
             for x in tag.attrib:
                 if ':' in x:
                     del tag.attrib[x]
+            if tag.tag and barename(tag.tag) == 'svg':
+                svg_tags.append(tag)
             if tag.tag and barename(tag.tag.lower()) in \
                 ('country-region', 'place', 'placetype', 'placename',
                     'state', 'city', 'street', 'address', 'content', 'form'):
@@ -624,6 +630,11 @@ class MobiReader(object):
                 cls = attrib.get('class', '')
                 cls = cls + (' ' if cls else '') + ncls
                 attrib['class'] = cls
+
+        for tag in svg_tags:
+            p = tag.getparent()
+            if hasattr(p, 'remove'):
+                p.remove(tag)
 
     def create_opf(self, htmlfile, guide=None, root=None):
         mi = getattr(self.book_header.exth, 'mi', self.embedded_mi)
@@ -832,6 +843,15 @@ class MobiReader(object):
             im.save(open(path, 'wb'), format='JPEG')
 
 def get_metadata(stream):
+    stream.seek(0)
+    try:
+        raw = stream.read(3)
+    except:
+        raw = ''
+    stream.seek(0)
+    if raw == 'TPZ':
+        from calibre.ebooks.metadata.topaz import get_metadata
+        return get_metadata(stream)
     from calibre.utils.logging import Log
     log = Log()
     mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
@@ -861,7 +881,10 @@ def get_metadata(stream):
         cover_index = mh.first_image_index + mh.exth.cover_offset
         data  = mh.section_data(int(cover_index))
     else:
-        data  = mh.section_data(mh.first_image_index)
+        try:
+            data  = mh.section_data(mh.first_image_index)
+        except:
+            data = ''
     buf = cStringIO.StringIO(data)
     try:
         im = PILImage.open(buf)

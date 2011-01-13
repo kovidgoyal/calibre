@@ -16,6 +16,7 @@ from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
+from calibre.utils.config import dynamic
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
 
@@ -206,17 +207,23 @@ class SearchBox2(QComboBox): # {{{
         self.line_edit.blockSignals(yes)
 
     def set_search_string(self, txt, store_in_history=False, emit_changed=True):
-        self.setFocus(Qt.OtherFocusReason)
-        if not txt:
-            self.clear()
-        else:
-            self.normalize_state()
-            self.setEditText(txt)
-            self.line_edit.end(False)
-            if emit_changed:
-                self.changed.emit()
-            self._do_search(store_in_history=store_in_history)
-        self.focus_to_library.emit()
+        if not store_in_history:
+            self.activated.disconnect()
+        try:
+            self.setFocus(Qt.OtherFocusReason)
+            if not txt:
+                self.clear()
+            else:
+                self.normalize_state()
+                self.setEditText(txt)
+                self.line_edit.end(False)
+                if emit_changed:
+                    self.changed.emit()
+                self._do_search(store_in_history=store_in_history)
+            self.focus_to_library.emit()
+        finally:
+            if not store_in_history:
+                self.activated.connect(self.history_selected)
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
@@ -369,6 +376,9 @@ class SearchBoxMixin(object): # {{{
             unicode(self.search.toolTip())))
         self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
         self.clear_button.setStatusTip(self.clear_button.toolTip())
+        self.search_highlight_only.stateChanged.connect(self.highlight_only_changed)
+        self.search_highlight_only.setChecked(
+                            dynamic.get('search_highlight_only', False))
 
     def focus_search_box(self, *args):
         self.search.setFocus(Qt.OtherFocusReason)
@@ -394,6 +404,11 @@ class SearchBoxMixin(object): # {{{
 
     def focus_to_library(self):
         self.current_view().setFocus(Qt.OtherFocusReason)
+
+    def highlight_only_changed(self, toWhat):
+        dynamic.set('search_highlight_only', toWhat)
+        self.current_view().model().set_highlight_only(toWhat)
+        self.focus_to_library()
 
     # }}}
 

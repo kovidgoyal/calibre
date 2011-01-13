@@ -12,7 +12,7 @@ from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.errors import UserFeedback
+from calibre.devices.errors import UserFeedback, OpenFeedback
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
@@ -24,6 +24,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
+from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
@@ -122,7 +123,8 @@ def device_name_for_plugboards(device_class):
 
 class DeviceManager(Thread): # {{{
 
-    def __init__(self, connected_slot, job_manager, open_feedback_slot, sleep_time=2):
+    def __init__(self, connected_slot, job_manager, open_feedback_slot,
+            open_feedback_msg, sleep_time=2):
         '''
         :sleep_time: Time to sleep between device probes in secs
         '''
@@ -143,6 +145,7 @@ class DeviceManager(Thread): # {{{
         self.ejected_devices  = set([])
         self.mount_connection_requests = Queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
+        self.open_feedback_msg = open_feedback_msg
 
     def report_progress(self, *args):
         pass
@@ -163,6 +166,11 @@ class DeviceManager(Thread): # {{{
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
                 dev.open()
+            except OpenFeedback, e:
+                if dev not in self.ejected_devices:
+                    self.open_feedback_msg(dev.get_gui_name(), e.feedback_msg)
+                    self.ejected_devices.add(dev)
+                continue
             except:
                 tb = traceback.format_exc()
                 if DEBUG or tb not in self.reported_errors:
@@ -586,7 +594,6 @@ class DeviceMenu(QMenu): # {{{
 
     # }}}
 
-
 class DeviceMixin(object): # {{{
 
     def __init__(self):
@@ -594,10 +601,15 @@ class DeviceMixin(object): # {{{
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
-                self.job_manager, Dispatcher(self.status_bar.show_message))
+                self.job_manager, Dispatcher(self.status_bar.show_message),
+                Dispatcher(self.show_open_feedback))
         self.device_manager.start()
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
+
+    def show_open_feedback(self, devname, msg):
+        self.__of_dev_mem__ = d = info_dialog(self, devname, msg)
+        d.show()
 
     def auto_convert_question(self, msg, autos):
         autos = u'\n'.join(map(unicode, map(force_unicode, autos)))
@@ -623,6 +635,10 @@ class DeviceMixin(object): # {{{
                              _('Select folder to open as device'))
         if dir is not None:
             self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder', path=dir)
+
+    def connect_to_bambook(self):
+        self.device_manager.mount_device(kls=BAMBOOKWifi, kind='bambook',
+                                         path=BAMBOOK.settings().extra_customization)
 
     def connect_to_itunes(self):
         self.device_manager.mount_device(kls=ITUNES_ASYNC, kind='itunes', path=None)
@@ -1250,8 +1266,8 @@ class DeviceMixin(object): # {{{
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
             # Build a cache (map) of the library, so the search isn't On**2
-            self.db_book_title_cache = {}
-            self.db_book_uuid_cache = {}
+            db_book_title_cache = {}
+            db_book_uuid_cache = {}
             # It might be possible to get here without having initialized the
             # library view. In this case, simply give up
             try:
@@ -1262,8 +1278,8 @@ class DeviceMixin(object): # {{{
             for id in db.data.iterallids():
                 mi = db.get_metadata(id, index_is_id=True)
                 title = clean_string(mi.title)
-                if title not in self.db_book_title_cache:
-                    self.db_book_title_cache[title] = \
+                if title not in db_book_title_cache:
+                    db_book_title_cache[title] = \
                                 {'authors':{}, 'author_sort':{}, 'db_ids':{}}
                 # If there are multiple books in the library with the same title
                 # and author, then remember the last one. That is OK, because as
@@ -1271,12 +1287,14 @@ class DeviceMixin(object): # {{{
                 # as another.
                 if mi.authors:
                     authors = clean_string(authors_to_string(mi.authors))
-                    self.db_book_title_cache[title]['authors'][authors] = mi
+                    db_book_title_cache[title]['authors'][authors] = mi
                 if mi.author_sort:
                     aus = clean_string(mi.author_sort)
-                    self.db_book_title_cache[title]['author_sort'][aus] = mi
-                self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
-                self.db_book_uuid_cache[mi.uuid] = mi
+                    db_book_title_cache[title]['author_sort'][aus] = mi
+                db_book_title_cache[title]['db_ids'][mi.application_id] = mi
+                db_book_uuid_cache[mi.uuid] = mi
+            self.db_book_title_cache = db_book_title_cache
+            self.db_book_uuid_cache = db_book_uuid_cache
 
         # Now iterate through all the books on the device, setting the
         # in_library field. If the UUID matches a book in the library, then

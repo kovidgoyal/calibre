@@ -18,6 +18,24 @@ class _Parser(object):
     LEX_NUM = 4
     LEX_EOF = 5
 
+    def _python(self, func):
+        locals = {}
+        exec func in locals
+        if 'evaluate' not in locals:
+            self.error('no evaluate function in python')
+        try:
+            result = locals['evaluate'](self.parent.kwargs)
+            if isinstance(result, (float, int)):
+                result = unicode(result)
+            elif isinstance(result, list):
+                result = ','.join(result)
+            elif isinstance(result, str):
+                result = unicode(result)
+            return result
+        except Exception as e:
+            self.error('python function threw exception: ' + e.msg)
+
+
     def _strcmp(self, x, y, lt, eq, gt):
         v = strcmp(x, y)
         if v < 0:
@@ -36,7 +54,7 @@ class _Parser(object):
         return gt
 
     def _assign(self, target, value):
-        setattr(self, target, value)
+        self.variables[target] = value
         return value
 
     def _concat(self, *args):
@@ -55,19 +73,36 @@ class _Parser(object):
             }
         x = float(x if x else 0)
         y = float(y if y else 0)
-        return ops[op](x, y)
+        return unicode(ops[op](x, y))
+
+    def _template(self, template):
+        template = template.replace('[[', '{').replace(']]', '}')
+        return self.parent.safe_format(template, self.parent.kwargs, 'TEMPLATE',
+                                       self.parent.book)
+
+    def _eval(self, template):
+        template = template.replace('[[', '{').replace(']]', '}')
+        return eval_formatter.safe_format(template, self.variables, 'EVAL', None)
+
+    def _print(self, *args):
+        print args
+        return None
 
     local_functions = {
             'add'      : (2, partial(_math, op='+')),
             'assign'   : (2, _assign),
             'cmp'      : (5, _cmp),
             'divide'   : (2, partial(_math, op='/')),
+            'eval'     : (1, _eval),
             'field'    : (1, lambda s, x: s.parent.get_value(x, [], s.parent.kwargs)),
             'multiply' : (2, partial(_math, op='*')),
+            'print'    : (-1, _print),
+            'python'   : (1, _python),
             'strcat'   : (-1, _concat),
             'strcmp'   : (5, _strcmp),
             'substr'   : (3, lambda s, x, y, z: x[int(y): len(x) if int(z) == 0 else int(z)]),
             'subtract' : (2, partial(_math, op='-')),
+            'template' : (1, _template)
     }
 
     def __init__(self, val, prog, parent):
@@ -76,15 +111,16 @@ class _Parser(object):
         if prog[1] != '':
             self.error(_('failed to scan program. Invalid input {0}').format(prog[1]))
         self.parent = parent
-        setattr(self, '$', val)
+        self.variables = {'$':val}
 
     def error(self, message):
         m = 'Formatter: ' + message + _(' near ')
         if self.lex_pos > 0:
             m = '{0} {1}'.format(m, self.prog[self.lex_pos-1][1])
-        m = '{0} {1}'.format(m, self.prog[self.lex_pos][1])
-        if self.lex_pos < len(self.prog):
+        elif self.lex_pos < len(self.prog):
             m = '{0} {1}'.format(m, self.prog[self.lex_pos+1][1])
+        else:
+            m = '{0} {1}'.format(m, _('end of program'))
         raise ValueError(m)
 
     def token(self):
@@ -132,13 +168,19 @@ class _Parser(object):
             if not self.token_op_is_a(';'):
                 return val
             self.consume()
+            if self.token_is_eof():
+                return val
 
     def expr(self):
         if self.token_is_id():
             # We have an identifier. Determine if it is a function
             id = self.token()
             if not self.token_op_is_a('('):
-                return getattr(self, id, _('unknown id ') + id)
+                if self.token_op_is_a('='):
+                    # classic assignment statement
+                    self.consume()
+                    return self._assign(id, self.expr())
+                return self.variables.get(id, _('unknown id ') + id)
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
@@ -259,19 +301,30 @@ class TemplateFormatter(string.Formatter):
     def _count(self, val, sep):
         return unicode(len(val.split(sep)))
 
+    def _list_item(self, val, index, sep):
+        if not val:
+            return ''
+        index = int(index)
+        val = val.split(sep)
+        try:
+            return val[index]
+        except:
+            return ''
+
     functions = {
                     'uppercase'     : (0, lambda s,x: x.upper()),
                     'lowercase'     : (0, lambda s,x: x.lower()),
                     'titlecase'     : (0, lambda s,x: titlecase(x)),
                     'capitalize'    : (0, lambda s,x: capitalize(x)),
                     'contains'      : (3, _contains),
+                    'count'         : (1, _count),
                     'ifempty'       : (1, _ifempty),
+                    'list_item'     : (2, _list_item),
                     'lookup'        : (-1, _lookup),
                     're'            : (2, _re),
                     'shorten'       : (3, _shorten),
                     'switch'        : (-1, _switch),
-                    'test'          : (2, _test),
-                    'count'         : (1, _count),
+                    'test'          : (2, _test)
         }
 
     def _do_format(self, val, fmt):
@@ -294,8 +347,6 @@ class TemplateFormatter(string.Formatter):
             except:
                 raise ValueError(
                     _('format: type {0} requires a decimal (float) value, got {1}').format(typ, val))
-        else:
-            raise ValueError(_('format: unknown format type letter {0}').format(typ))
         return unicode(('{0:'+fmt+'}').format(val))
 
     def _explode_format_string(self, fmt):
@@ -328,8 +379,9 @@ class TemplateFormatter(string.Formatter):
                 (r'\w+',                lambda x,t: (2, t)),
                 (r'".*?((?<!\\)")',     lambda x,t: (3, t[1:-1])),
                 (r'\'.*?((?<!\\)\')',   lambda x,t: (3, t[1:-1])),
+                (r'\n#.*?(?=\n)',       None),
                 (r'\s',                 None)
-        ])
+        ], flags=re.DOTALL)
 
     def _eval_program(self, val, prog):
         # keep a cache of the lex'ed program under the theory that re-lexing
@@ -348,6 +400,12 @@ class TemplateFormatter(string.Formatter):
         raise Exception('get_value must be implemented in the subclass')
 
     def format_field(self, val, fmt):
+        # ensure we are dealing with a string.
+        if isinstance(val, (int, float)):
+            if val:
+                val = unicode(val)
+            else:
+                val = ''
         # Handle conditional text
         fmt, prefix, suffix = self._explode_format_string(fmt)
 
@@ -402,7 +460,10 @@ class TemplateFormatter(string.Formatter):
         return prefix + val + suffix
 
     def vformat(self, fmt, args, kwargs):
-        ans = string.Formatter.vformat(self, fmt, args, kwargs)
+        if fmt.startswith('program:'):
+            ans = self._eval_program(None, fmt[8:])
+        else:
+            ans = string.Formatter.vformat(self, fmt, args, kwargs)
         return self.compress_spaces.sub(' ', ans).strip()
 
     ########## a formatter guaranteed not to throw and exception ############
@@ -419,9 +480,9 @@ class TemplateFormatter(string.Formatter):
             ans = error_value + ' ' + e.message
         return ans
 
-class ValidateFormat(TemplateFormatter):
+class ValidateFormatter(TemplateFormatter):
     '''
-    Provides a format function that substitutes '' for any missing value
+    Provides a formatter that substitutes the validation string for every value
     '''
     def get_value(self, key, args, kwargs):
         return self._validation_string
@@ -429,6 +490,15 @@ class ValidateFormat(TemplateFormatter):
     def validate(self, x):
         return self.vformat(x, [], {})
 
-validation_formatter = ValidateFormat()
+validation_formatter = ValidateFormatter()
 
+class EvalFormatter(TemplateFormatter):
+    '''
+    A template formatter that uses a simple dict instead of an mi instance
+    '''
+    def get_value(self, key, args, kwargs):
+        key = key.lower()
+        return kwargs.get(key, _('No such variable ') + key)
+
+eval_formatter = EvalFormatter()
 

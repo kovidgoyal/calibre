@@ -18,7 +18,7 @@ QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
-IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.5.6',
+IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.6.6',
         'VisualMagick', 'bin')
 
 VERSION = re.sub('[a-z]\d+', '', __version__)

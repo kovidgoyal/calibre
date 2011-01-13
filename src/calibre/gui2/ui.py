@@ -19,7 +19,7 @@ from PyQt4.Qt import Qt, SIGNAL, QTimer, \
                      QMessageBox, QHelpEvent
 
 from calibre import  prints
-from calibre.constants import __appname__, isosx, DEBUG
+from calibre.constants import __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
@@ -96,13 +96,24 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     'The main GUI'
 
 
-    def __init__(self, opts, parent=None):
+    def __init__(self, opts, parent=None, gui_debug=None):
         MainWindow.__init__(self, opts, parent)
         self.opts = opts
         self.device_connected = None
+        self.gui_debug = gui_debug
         acmap = OrderedDict()
         for action in interface_actions():
-            ac = action.load_actual_plugin(self)
+            try:
+                ac = action.load_actual_plugin(self)
+            except:
+                # Ignore errors in loading user supplied plugins
+                import traceback
+                traceback.print_exc()
+                if ac.plugin_path is None:
+                    raise
+
+            ac.plugin_path = action.plugin_path
+            ac.interface_action_base_plugin = action
             if ac.name in acmap:
                 if ac.priority >= acmap[ac.name].priority:
                     acmap[ac.name] = ac
@@ -234,7 +245,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         ######################### Search Restriction ##########################
         SearchRestrictionMixin.__init__(self)
-        self.apply_named_search_restriction(db.prefs['gui_restriction'])
+        if db.prefs['gui_restriction']:
+            self.apply_named_search_restriction(db.prefs['gui_restriction'])
 
         ########################### Cover Flow ################################
 
@@ -258,6 +270,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         for ac in self.iactions.values():
             ac.initialization_complete()
+
+        if show_gui and self.gui_debug is not None:
+            info_dialog(self, _('Debug mode'), '<p>' +
+                    _('You have started calibre in debug mode. After you '
+                        'quit calibre, the debug log will be available in '
+                        'the file: %s<p>The '
+                        'log will be displayed automatically.')%self.gui_debug, show=True)
+
 
     def start_content_server(self):
         from calibre.library.server.main import start_threaded_server
@@ -367,13 +387,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-    def library_moved(self, newloc):
+    def library_moved(self, newloc, copy_structure=False):
         if newloc is None: return
+        default_prefs = None
         try:
             olddb = self.library_view.model().db
+            if copy_structure:
+                default_prefs = olddb.prefs
         except:
             olddb = None
-        db = LibraryDatabase2(newloc)
+        db = LibraryDatabase2(newloc, default_prefs=default_prefs)
         if self.content_server is not None:
             self.content_server.set_database(db)
         self.library_path = newloc
@@ -445,12 +468,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         try:
             if 'calibre.ebooks.DRMError' in job.details:
                 if not minz:
-                    d = error_dialog(self, _('Conversion Error'),
-                        _('<p>Could not convert: %s<p>It is a '
-                        '<a href="%s">DRM</a>ed book. You must first remove the '
-                        'DRM using third party tools.')%\
-                            (job.description.split(':')[-1],
-                                'http://bugs.calibre-ebook.com/wiki/DRM'))
+                    from calibre.gui2.dialogs.drm_error import DRMErrorMessage
+                    d = DRMErrorMessage(self, job.description.split(':')[-1])
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
@@ -493,7 +512,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         dynamic.set('sort_history', self.library_view.model().sort_history)
         self.save_layout_state()
 
-    def quit(self, checked=True, restart=False):
+    def quit(self, checked=True, restart=False, debug_on_restart=False):
         if not self.confirm_quit():
             return
         try:
@@ -501,6 +520,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         except:
             pass
         self.restart_after_quit = restart
+        self.debug_on_restart = debug_on_restart
         QApplication.instance().quit()
 
     def donate(self, *args):
@@ -566,9 +586,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             # Goes here, because if cf is valid, db is valid.
             db.prefs['field_metadata'] = db.field_metadata.all_metadata()
             db.commit_dirty_cache()
-            if DEBUG and db.gm_count > 0:
-                print 'get_metadata cache: {0:d} calls, {1:4.2f}% misses'.format(
-                        db.gm_count, (db.gm_missed*100.0)/db.gm_count)
         for action in self.iactions.values():
             if not action.shutting_down():
                 return
@@ -581,9 +598,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         while self.spare_servers:
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
-        cc = self.library_view.model().cover_cache
-        if cc is not None:
-            cc.stop()
         mb = self.library_view.model().metadata_backup
         if mb is not None:
             mb.stop()

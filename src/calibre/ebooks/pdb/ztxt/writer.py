@@ -22,12 +22,12 @@ class Writer(FormatWriter):
     def __init__(self, opts, log):
         self.opts = opts
         self.log = log
-        
+
     def write_content(self, oeb_book, out_stream, metadata=None):
         title = self.opts.title if self.opts.title else oeb_book.metadata.title[0].value if oeb_book.metadata.title != [] else _('Unknown')
 
         txt_records, txt_length = self._generate_text(oeb_book)
-        
+
         crc32 = 0
         section_lengths = []
         compressor = zlib.compressobj(9)
@@ -41,32 +41,33 @@ class Writer(FormatWriter):
 
         header_record = self._header_record(txt_length, len(txt_records), crc32)
         section_lengths.insert(0, len(header_record))
-            
+
         out_stream.seek(0)
         hb = PdbHeaderBuilder('zTXTGPlm', title)
         hb.build_header(section_lengths, out_stream)
 
         for record in [header_record]+txt_records:
             out_stream.write(record)
-        
+
     def _generate_text(self, oeb_book):
         writer = TXTMLizer(self.log)
         txt = writer.extract_content(oeb_book, self.opts)
 
         self.log.debug('\tReplacing newlines with selected type...')
-        txt = specified_newlines(TxtNewlines('windows').newline, txt).encode(self.opts.output_encoding, 'replace')
+        txt = specified_newlines(TxtNewlines('windows').newline,
+                txt).encode(self.opts.pdb_output_encoding, 'replace')
 
         txt_length = len(txt)
-        
+
         txt_records = []
         for i in range(0, (len(txt) / MAX_RECORD_SIZE) + 1):
             txt_records.append(txt[i * MAX_RECORD_SIZE : (i * MAX_RECORD_SIZE) + MAX_RECORD_SIZE])
-            
+
         return txt_records, txt_length
-        
+
     def _header_record(self, txt_length, record_count, crc32):
         record = ''
-        
+
         record += struct.pack('>H', 0x012c)             # [0:2], version. 0x012c = 1.44
         record += struct.pack('>H', record_count)       # [2:4], Number of PDB records used for the text of the book.
         record += struct.pack('>L', txt_length)         # [4:8], Uncompressed length of the entire text of the book.
@@ -79,6 +80,6 @@ class Writer(FormatWriter):
         record += struct.pack('>B', 0)                  # [19:20], Reserved.
         record += struct.pack('>L', crc32)              # [20:24], crc32
         record += struct.pack('>LL', 0, 0)              # [24:32], padding
-        
+
         return record
-        
+

@@ -10,9 +10,9 @@ from contextlib import closing
 from operator import attrgetter
 
 from PyQt4.Qt import QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, \
-        QModelIndex, QVariant, QDate
+        QModelIndex, QVariant, QDate, QColor
 
-from calibre.gui2 import NONE, config, UNDEFINED_QDATE, FunctionDispatcher
+from calibre.gui2 import NONE, config, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ptempfile import PersistentTemporaryFile
@@ -22,8 +22,7 @@ from calibre.utils.icu import sort_key, strcmp as icu_strcmp
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
-    REGEXP_MATCH, CoverCache, MetadataBackup
-from calibre.library.cli import parse_series_string
+    REGEXP_MATCH, MetadataBackup
 from calibre import strftime, isbytestring, prepare_string_for_xml
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.gui2.library import DEFAULT_SORT
@@ -89,12 +88,14 @@ class BooksModel(QAbstractTableModel): # {{{
         self.headers = {}
         self.alignment_map = {}
         self.buffer_size = buffer
-        self.cover_cache = None
         self.metadata_backup = None
         self.bool_yes_icon = QIcon(I('ok.png'))
         self.bool_no_icon = QIcon(I('list_remove.png'))
         self.bool_blank_icon = QIcon(I('blank.png'))
         self.device_connected = False
+        self.rows_matching = set()
+        self.lowest_row_matching = None
+        self.highlight_only = False
         self.read_config()
 
     def change_alignment(self, colname, alignment):
@@ -112,10 +113,6 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def is_custom_column(self, cc_label):
         return cc_label in self.custom_columns
-
-    def clear_caches(self):
-        if self.cover_cache:
-            self.cover_cache.clear_cache()
 
     def read_config(self):
         self.use_roman_numbers = config['use_roman_numerals_for_series_number']
@@ -154,18 +151,8 @@ class BooksModel(QAbstractTableModel): # {{{
         self.build_data_convertors()
         self.reset()
         self.database_changed.emit(db)
-        if self.cover_cache is not None:
-            self.cover_cache.stop()
-            # Would like to to a join here, but the thread might be waiting to
-            # do something on the GUI thread. Deadlock.
-        self.cover_cache = CoverCache(db, FunctionDispatcher(self.db.cover))
-        self.cover_cache.start()
         self.stop_metadata_backup()
         self.start_metadata_backup()
-        def refresh_cover(event, ids):
-            if event == 'cover' and self.cover_cache is not None:
-                self.cover_cache.refresh(ids)
-        db.add_listener(refresh_cover)
 
     def start_metadata_backup(self):
         self.metadata_backup = MetadataBackup(self.db)
@@ -225,7 +212,6 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def books_deleted(self):
         self.count_changed()
-        self.clear_caches()
         self.reset()
 
     def delete_books(self, indices):
@@ -246,15 +232,32 @@ class BooksModel(QAbstractTableModel): # {{{
             self.endInsertRows()
             self.count_changed()
 
+    def set_highlight_only(self, toWhat):
+        self.highlight_only = toWhat
+        if self.last_search:
+            self.research()
+
     def search(self, text, reset=True):
         try:
-            self.db.search(text)
+            if self.highlight_only:
+                self.db.search('')
+                if not text:
+                    self.rows_matching = set()
+                    self.lowest_row_matching = None
+                else:
+                    self.rows_matching = self.db.search(text, return_matches=True)
+                    if self.rows_matching:
+                        self.lowest_row_matching = self.db.row(self.rows_matching[0])
+                    self.rows_matching = set(self.rows_matching)
+            else:
+                self.rows_matching = set()
+                self.lowest_row_matching = None
+                self.db.search(text)
         except ParseException as e:
             self.searched.emit(e.msg)
             return
         self.last_search = text
         if reset:
-            self.clear_caches()
             self.reset()
         if self.last_search:
             # Do not issue search done for the null search. It is used to clear
@@ -265,11 +268,11 @@ class BooksModel(QAbstractTableModel): # {{{
         if not self.db:
             return
         self.about_to_be_sorted.emit(self.db.id)
-        ascending = order == Qt.AscendingOrder
+        if not isinstance(order, bool):
+            order = order == Qt.AscendingOrder
         label = self.column_map[col]
-        self.db.sort(label, ascending)
+        self.db.sort(label, order)
         if reset:
-            self.clear_caches()
             self.reset()
         self.sorted_on = (label, order)
         self.sort_history.insert(0, self.sorted_on)
@@ -353,30 +356,17 @@ class BooksModel(QAbstractTableModel): # {{{
             if key not in cf_to_display:
                 continue
             name, val = mi.format_field(key)
-            if val:
+            if mi.metadata_for_field(key)['datatype'] == 'comments':
+                name += ':html'
+            if val and name not in data:
                 data[name] = val
+
         return data
 
-    def set_cache(self, idx):
-        l, r = 0, self.count()-1
-        if self.cover_cache is not None:
-            l = max(l, idx-self.buffer_size)
-            r = min(r, idx+self.buffer_size)
-            k = min(r-idx, idx-l)
-            ids = [idx]
-            for i in range(1, k):
-                ids.extend([idx-i, idx+i])
-            ids = ids + [i for i in range(l, r, 1) if i not in ids]
-            try:
-                ids = [self.db.id(i) for i in ids]
-            except IndexError:
-                return
-            self.cover_cache.set_cache(ids)
 
     def current_changed(self, current, previous, emit_signal=True):
         if current.isValid():
             idx = current.row()
-            self.set_cache(idx)
             data = self.get_book_display_info(idx)
             if emit_signal:
                 self.new_bookdisplay_data.emit(data)
@@ -533,13 +523,7 @@ class BooksModel(QAbstractTableModel): # {{{
     def cover(self, row_number):
         data = None
         try:
-            id = self.db.id(row_number)
-            if self.cover_cache is not None:
-                img = self.cover_cache.cover(id)
-                if not img.isNull():
-                    return img
-            if not data:
-                data = self.db.cover(row_number)
+            data = self.db.cover(row_number)
         except IndexError: # Happens if database has not yet been refreshed
             pass
 
@@ -689,6 +673,9 @@ class BooksModel(QAbstractTableModel): # {{{
             return NONE
         if role in (Qt.DisplayRole, Qt.EditRole):
             return self.column_to_dc_map[col](index.row())
+        elif role == Qt.BackgroundColorRole:
+            if self.id(index) in self.rows_matching:
+                return QColor('lightgreen')
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
                 return self.column_to_dc_decorator_map[index.column()](index.row())
@@ -765,9 +752,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     return False
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
-            val, s_index = parse_series_string(self.db, label, value.toString())
-            if not val:
-                val = s_index = None
+            val = unicode(value.toString()).strip()
         elif typ == 'composite':
             tmpl = unicode(value.toString()).strip()
             disp = cc['display']
@@ -812,7 +797,7 @@ class BooksModel(QAbstractTableModel): # {{{
                             self.db.set_series_index(id, float(match.group(1)))
                             val = pat.sub('', val).strip()
                         elif val:
-                            if tweaks['series_index_auto_increment'] == 'next':
+                            if tweaks['series_index_auto_increment'] != 'const':
                                 ni = self.db.get_next_series_num_for(val)
                                 if ni != 1:
                                     self.db.set_series_index(id, ni)

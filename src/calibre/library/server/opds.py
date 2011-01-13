@@ -19,9 +19,10 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import format_tag_string, Offsets
-from calibre import guess_type
+from calibre import guess_type, prepare_string_for_xml as xml
 from calibre.utils.icu import sort_key
 from calibre.utils.ordered_dict import OrderedDict
+from calibre.utils.config import tweaks
 
 BASE_HREFS = {
         0 : '/stanza',
@@ -100,7 +101,19 @@ def html_to_lxml(raw):
     root = html.fragment_fromstring(raw)
     root.set('xmlns', "http://www.w3.org/1999/xhtml")
     raw = etree.tostring(root, encoding=None)
-    return etree.fromstring(raw)
+    try:
+        return etree.fromstring(raw)
+    except:
+        for x in root.iterdescendants():
+            remove = []
+            for attr in x.attrib:
+                if ':' in attr:
+                    remove.append(attr)
+            for a in remove:
+                del x.attrib[a]
+        raw = etree.tostring(root, encoding=None)
+        return etree.fromstring(raw)
+
 
 def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
                   ignore_count=False, add_kind=False):
@@ -113,8 +126,13 @@ def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
     count = (_('%d books') if item.count > 1 else _('%d book'))%item.count
     if ignore_count:
         count = ''
+    if item.category == 'authors' and \
+            tweaks['categories_use_field_for_author_name'] == 'author_sort':
+        name = item.sort
+    else:
+        name = item.name
     return E.entry(
-            TITLE(item.name + ('' if not add_kind else ' (%s)'%item_kind)),
+            TITLE(name + ('' if not add_kind else ' (%s)'%item_kind)),
             ID(id_),
             UPDATED(updated),
             E.content(count, type='text'),
@@ -150,13 +168,13 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
         extra.append(_('RATING: %s<br />')%rating)
     tags = item[FM['tags']]
     if tags:
-        extra.append(_('TAGS: %s<br />')%format_tag_string(tags, ',',
+        extra.append(_('TAGS: %s<br />')%xml(format_tag_string(tags, ',',
                                                            ignore_max=True,
-                                                           no_tag_count=True))
+                                                           no_tag_count=True)))
     series = item[FM['series']]
     if series:
         extra.append(_('SERIES: %s [%s]<br />')%\
-                (series,
+                (xml(series),
                 fmt_sidx(float(item[FM['series_index']]))))
     for key in CKEYS:
         mi = db.get_metadata(item[CFM['id']['rec_index']], index_is_id=True)
@@ -164,11 +182,13 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
         if val:
             datatype = CFM[key]['datatype']
             if datatype == 'text' and CFM[key]['is_multiple']:
-                extra.append('%s: %s<br />'%(name, format_tag_string(val, ',',
+                extra.append('%s: %s<br />'%(xml(name), xml(format_tag_string(val, ',',
                                                            ignore_max=True,
-                                                           no_tag_count=True)))
+                                                           no_tag_count=True))))
+            elif datatype == 'comments':
+                extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode(val))))
             else:
-                extra.append('%s: %s<br />'%(name, val))
+                extra.append('%s: %s<br />'%(xml(name), xml(unicode(val))))
     comments = item[FM['comments']]
     if comments:
         comments = comments_to_html(comments)

@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 theatlantic.com
 '''
-import string, re
+import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
@@ -33,25 +33,27 @@ class TheAtlantic(BasicNewsRecipe):
         articles = []
 
         soup = self.index_to_soup(self.INDEX)
-        sectit = soup.find('h1', attrs={'class':'sectionTitle'})
-        if sectit is not None:
-            texts = self.tag_to_string(sectit).strip().split()[-2:]
-            if texts:
-                self.timefmt = ' [%s]'%(' '.join(texts))
+        ts = soup.find(id='magazineTopStories')
+        ds = self.tag_to_string(ts.find('h1')).split(':')[-1]
+        self.timefmt = ' [%s]'%ds
 
         cover = soup.find('img', src=True, attrs={'class':'cover'})
         if cover is not None:
             self.cover_url = cover['src']
 
         feeds = []
+        seen_titles = set([])
         for section in soup.findAll('div', attrs={'class':'magazineSection'}):
-            section_title = section.find(attrs={'class':'sectionHeader'})
-            section_title = string.capwords(self.tag_to_string(section_title))
+            section_title = self.tag_to_string(section.find('h2'))
             self.log('Found section:', section_title)
             articles = []
-            for post in section.findAll('div', attrs={'class':'post'}):
+            for post in section.findAll('div', attrs={'class':lambda x : x and
+                'post' in x}):
                 h = post.find(['h3', 'h4'])
                 title = self.tag_to_string(h)
+                if title in seen_titles:
+                    continue
+                seen_titles.add(title)
                 a = post.find('a', href=True)
                 url = a['href']
                 if url.startswith('/'):
@@ -64,36 +66,23 @@ class TheAtlantic(BasicNewsRecipe):
                     self.log('\t\t', desc)
                 articles.append({'title':title, 'url':url, 'description':desc,
                     'date':''})
-            feeds.append((section_title, articles))
+            if articles:
+                feeds.append((section_title, articles))
 
         poems = []
         self.log('Found section: Poems')
-        for poem in soup.findAll('div', attrs={'class':'poem'}):
-            title = self.tag_to_string(poem.find('h4'))
-            desc  = self.tag_to_string(poem.find(attrs={'class':'author'}))
+        pd = soup.find('h2', text='Poetry').parent.parent
+        for poem in pd.findAll('h4'):
+            title = self.tag_to_string(poem)
             url   = poem.find('a')['href']
             if url.startswith('/'):
                 url = 'http://www.theatlantic.com' + url
             self.log('\tFound article:', title, 'at', url)
-            self.log('\t\t', desc)
-            poems.append({'title':title, 'url':url, 'description':desc,
+            poems.append({'title':title, 'url':url, 'description':'',
                     'date':''})
         if poems:
             feeds.append(('Poems', poems))
 
-        div = soup.find(id='advice')
-        if div is not None:
-            self.log('Found section: Advice')
-            title = self.tag_to_string(div.find('h4'))
-            url = div.find('a')['href']
-            if url.startswith('/'):
-                url = 'http://www.theatlantic.com' + url
-            desc = self.tag_to_string(div.find('p'))
-            self.log('\tFound article:', title, 'at', url)
-            self.log('\t\t', desc)
-
-        feeds.append(('Advice', [{'title':title, 'url':url, 'description':desc,
-                    'date':''}]))
         return feeds
 
     def postprocess_html(self, soup, first):

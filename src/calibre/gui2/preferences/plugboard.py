@@ -5,17 +5,38 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4 import QtGui
-from PyQt4.Qt import Qt
+from PyQt4.Qt import Qt, QLineEdit, QComboBox, SIGNAL, QListWidgetItem
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.device import device_name_for_plugboards
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugboard_ui import Ui_Form
 from calibre.customize.ui import metadata_writers, device_plugins
 from calibre.library.save_to_disk import plugboard_any_format_value, \
                         plugboard_any_device_value, plugboard_save_to_disk_value
 from calibre.utils.formatter import validation_formatter
+
+
+class LineEditWithTextBox(QLineEdit):
+
+    '''
+    Extend the context menu of a QLineEdit to include more actions.
+    '''
+
+    def contextMenuEvent(self, event):
+        menu = self.createStandardContextMenu()
+        menu.addSeparator()
+
+        action_open_editor = menu.addAction(_('Open Editor'))
+
+        self.connect(action_open_editor, SIGNAL('triggered()'), self.open_editor)
+        menu.exec_(event.globalPos())
+
+    def open_editor(self):
+        t = TemplateDialog(self, self.text())
+        if t.exec_():
+            self.setText(t.textbox.toPlainText())
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -72,10 +93,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.source_widgets = []
         self.dest_widgets = []
         for i in range(0, len(self.dest_fields)-1):
-            w = QtGui.QLineEdit(self)
+            w = LineEditWithTextBox(self)
             self.source_widgets.append(w)
             self.fields_layout.addWidget(w, 5+i, 0, 1, 1)
-            w = QtGui.QComboBox(self)
+            w = QComboBox(self)
             self.dest_widgets.append(w)
             self.fields_layout.addWidget(w, 5+i, 1, 1, 1)
 
@@ -297,7 +318,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 for op in self.current_plugboards[f][d]:
                     ops.append('([' + op[0] + '] -> ' + op[1] + ')')
                 txt = '%s:%s = %s\n'%(f, d, ', '.join(ops))
-                item = QtGui.QListWidgetItem(txt)
+                item = QListWidgetItem(txt)
                 item.setData(Qt.UserRole, (f, d))
                 self.existing_plugboards.addItem(item)
         self.refilling = False

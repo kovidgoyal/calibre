@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.pdb import PDBError, IDENTITY_TO_NAME, get_reader
 from calibre.ebooks.conversion.utils import PreProcessor
@@ -17,19 +17,6 @@ class PDBInput(InputFormatPlugin):
     author      = 'John Schember'
     description = 'Convert PDB to HTML'
     file_types  = set(['pdb'])
-
-    options = set([
-        OptionRecommendation(name='single_line_paras', recommended_value=False,
-            help=_('Normally calibre treats blank lines as paragraph markers. '
-                'With this option it will assume that every line represents '
-                'a paragraph instead.')),
-        OptionRecommendation(name='print_formatted_paras', recommended_value=False,
-            help=_('Normally calibre treats blank lines as paragraph markers. '
-                'With this option it will assume that every line starting with '
-                'an indent (either a tab or 2+ spaces) represents a paragraph. '
-                'Paragraphs end when the next line that starts with an indent '
-                'is reached.')),
-    ])
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):

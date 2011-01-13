@@ -548,6 +548,7 @@ class BasicNewsRecipe(Recipe):
             }
 
         For an example, see the recipe for downloading `The Atlantic`.
+        In addition, you can add 'author' for the author of the article.
         '''
         raise NotImplementedError
 
@@ -699,10 +700,17 @@ class BasicNewsRecipe(Recipe):
         for attr in self.remove_attributes:
             for x in soup.findAll(attrs={attr:True}):
                 del x[attr]
-        for base in list(soup.findAll(['base', 'iframe'])):
+        for base in list(soup.findAll(['base', 'iframe', 'canvas', 'embed',
+            'command', 'datalist', 'video', 'audio'])):
             base.extract()
 
         ans = self.postprocess_html(soup, first_fetch)
+
+        # Nuke HTML5 tags
+        for x in ans.findAll(['article', 'aside', 'header', 'footer', 'nav',
+            'figcaption', 'figure', 'section']):
+            x.name = 'div'
+
         if job_info:
             url, f, a, feed_len = job_info
             try:

@@ -1,0 +1,41 @@
+<html xmlns="{xmlns}">
+    <head>
+        <title>{title_str}</title>
+        <meta name="catalog description header" http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link rel="stylesheet" type="text/css" href="stylesheet.css" media="screen" />
+    </head>
+    <body>
+		<p class="title">{title}</p>
+		<p class="series_id"><a class="series_id">{series} [{series_index}]</a></p>
+		<hr class="header_divider" />
+		<p class="author">{author_prefix}<a class="author">{author}</a></p>
+		<p class="genres">{genres}</p>
+		<p class="formats">{formats}</p>
+		<table width="100%" border="0">
+		  <tr>
+			<td class="thumbnail" rowspan="7">{thumb}</td>
+			<td class="empty"></td>
+		  </tr>
+		  <tr>
+			<td class="empty"></td>
+		  </tr>
+		  <tr>
+			<td class="publisher">{publisher}</td>
+		  </tr>
+		  <tr>
+			<td class="date">{pubyear}</td>
+		  </tr>
+		  <tr>
+			<td class="rating">{rating}</td>
+		  </tr>
+		  <tr>
+			<td class="notes">{note_source}: {note_content}</td>
+		  </tr>
+		  <tr>
+			<td></td>
+		  </tr>
+		</table>
+		<hr class="description_divider" />
+		<div class="description">{comments}</div>
+	</body>
+</html>

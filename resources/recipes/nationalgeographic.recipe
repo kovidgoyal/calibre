@@ -21,7 +21,7 @@ class NationalGeographicNews(BasicNewsRecipe):
     remove_tags_after = [dict(id='social_buttons'),{'class':'aside'}]
     remove_tags = [
                        {'class':'hidden'}
-                       
+
                      ]
 
     def parse_feeds(self):

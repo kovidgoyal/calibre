@@ -1,7 +1,5 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 exiledonline.com
 '''
@@ -20,18 +18,20 @@ class Exiled(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf8'
     remove_javascript     = True
-    language = 'en'
-
-    cover_url             = 'http://exiledonline.com/wp-content/themes/exiledonline_theme/images/header-sm.gif'
-
-    html2lrf_options = [
-                          '--comment'       , description
-                        , '--base-font-size', '10'
-                        , '--category'      , category
-                        , '--publisher'     , publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+    language              = 'en'
+    publication_type      = 'newsblog'
+    masthead_url          = 'http://exiledonline.com/wp-content/themes/exiledonline_theme/images/header-sm.gif'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif}
+                               #topslug{font-size: xx-large; font-weight: bold; color: red}                               
+                            """
+    
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
 
     keep_only_tags = [dict(name='div', attrs={'id':'main'})]
 
@@ -47,12 +47,13 @@ class Exiled(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
-        mtag = '\n<meta http-equiv="Content-Language" content="en"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">\n'
-        soup.head.insert(0,mtag)
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
         return soup
 
     def get_article_url(self, article):
         raw = article.get('link',  None)
         final = raw + 'all/1/'
         return final
-
