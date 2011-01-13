@@ -1,0 +1,35 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Cicero(BasicNewsRecipe):
+    timefmt               = ' [%Y-%m-%d]'
+    title                 = u'Cicero'
+    __author__            = 'mad@sharktooth.de'
+    description           = u'Magazin f\xfcr politische Kultur'
+    oldest_article        = 7
+    language              = 'de'
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    publisher             = 'Ringier Publishing'
+    category              = 'news, politics, Germany'
+    encoding              = 'iso-8859-1'
+    publication_type      = 'magazine'
+    masthead_url          = 'http://www.cicero.de/img2/cicero_logo_rss.gif'
+    feeds                 = [
+(u'Das gesamte Portfolio', u'http://www.cicero.de/rss/rss.php?ress_id='),
+#(u'Alle Heft-Inhalte', u'http://www.cicero.de/rss/rss.php?ress_id=heft'),
+#(u'Alle Online-Inhalte', u'http://www.cicero.de/rss/rss.php?ress_id=online'),
+#(u'Berliner Republik', u'http://www.cicero.de/rss/rss.php?ress_id=4'),
+#(u'Weltb\xfchne', u'http://www.cicero.de/rss/rss.php?ress_id=1'),
+#(u'Salon', u'http://www.cicero.de/rss/rss.php?ress_id=7'),
+#(u'Kapital', u'http://www.cicero.de/rss/rss.php?ress_id=6'),
+#(u'Netzst\xfccke', u'http://www.cicero.de/rss/rss.php?ress_id=9'),
+#(u'Leinwand', u'http://www.cicero.de/rss/rss.php?ress_id=12'),
+#(u'Bibliothek', u'http://www.cicero.de/rss/rss.php?ress_id=15'),
+(u'Kolumne - Alle Kolulmnen', u'http://www.cicero.de/rss/rss2.php?ress_id='),
+#(u'Kolumne - Schreiber, Berlin', u'http://www.cicero.de/rss/rss2.php?ress_id=35'),
+#(u'Kolumne - TV Kritik', u'http://www.cicero.de/rss/rss2.php?ress_id=34')
+]
+
+    def print_version(self, url):
+        return 'http://www.cicero.de/page_print.php?' + url.rpartition('?')[2]

@@ -98,9 +98,10 @@ class _Parser(object):
         m = 'Formatter: ' + message + _(' near ')
         if self.lex_pos > 0:
             m = '{0} {1}'.format(m, self.prog[self.lex_pos-1][1])
-        m = '{0} {1}'.format(m, self.prog[self.lex_pos][1])
-        if self.lex_pos < len(self.prog):
+        elif self.lex_pos < len(self.prog):
             m = '{0} {1}'.format(m, self.prog[self.lex_pos+1][1])
+        else:
+            m = '{0} {1}'.format(m, _('end of program'))
         raise ValueError(m)
 
     def token(self):

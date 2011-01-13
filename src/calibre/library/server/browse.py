@@ -756,7 +756,7 @@ class BrowseServer(object):
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
         html = render_book_list(ids, self.opts.url_prefix,
-                suffix=_('in search')+': '+query)
+                suffix=_('in search')+': '+xml(query))
         return self.browse_template(sort, category=False, initial_search=query).format(
                 title=_('Matching books'),
                 script='booklist();', main=html)
