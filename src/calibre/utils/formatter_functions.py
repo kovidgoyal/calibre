@@ -460,6 +460,7 @@ class UserFunction(FormatterUserFunction):
     return cls
 
 def load_user_template_functions(funcs):
+    formatter_functions.reset_to_builtins()
     for func in funcs:
         try:
             cls = compile_user_function(*func)
