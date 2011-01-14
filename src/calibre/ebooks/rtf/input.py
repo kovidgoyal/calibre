@@ -190,12 +190,11 @@ class RTFInput(InputFormatPlugin):
         return name
 
     def rasterize_wmf(self, name):
-        raise ValueError('Conversion of WMF images not supported')
-        from calibre.utils.wmf import extract_raster_image
+        from calibre.utils.wmf.parse import wmf_unwrap
         with open(name, 'rb') as f:
             data = f.read()
-        data = extract_raster_image(data)
-        name = name.replace('.wmf', '.jpg')
+        data = wmf_unwrap(data)
+        name = name.replace('.wmf', '.png')
         with open(name, 'wb') as f:
             f.write(data)
         return name
