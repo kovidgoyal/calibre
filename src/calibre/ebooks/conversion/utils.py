@@ -299,7 +299,7 @@ class PreProcessor(object):
         blanklines = blankreg.findall(html)
         lines = linereg.findall(html)
         blanks_between_paragraphs = False
-        print "delete blank paragraphs is "+str(getattr(self.extra_opts, 'delete_blank_paragraphs', True))
+        print "delete blank paragraphs is "+str(getattr(self.extra_opts, 'delete_blank_paragraphs', False))
         if len(lines) > 1:
             self.log("There are " + unicode(len(blanklines)) + " blank lines. " +
                     unicode(float(len(blanklines)) / float(len(lines))) + " percent blank")

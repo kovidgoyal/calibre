@@ -32,8 +32,3 @@ class PDBInput(InputFormatPlugin):
         opf = reader.extract_content(os.getcwd())
 
         return opf
-
-    def heuristics(self, options, html):
-        self.options = options
-        preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
-        return preprocessor(html)
