@@ -27,7 +27,7 @@ class Book(Book_):
 
         self.size = size # will be set later if None
 
-        if ContentType == '6':
+        if ContentType == '6' and date is not None:
             self.datetime = time.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
         else:
             try:

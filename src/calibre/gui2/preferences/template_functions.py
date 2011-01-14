@@ -10,6 +10,7 @@ import traceback
 from calibre.gui2 import error_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.template_functions_ui import Ui_Form
+from calibre.gui2.widgets import PythonHighlighter
 from calibre.utils.formatter_functions import formatter_functions, compile_user_function
 
 
@@ -72,6 +73,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.delete_button.setEnabled(False)
         self.clear_button.clicked.connect(self.clear_button_clicked)
         self.program.setTabStopWidth(20)
+        self.highlighter = PythonHighlighter(self.program.document())
 
     def clear_button_clicked(self):
         self.build_function_names_box()

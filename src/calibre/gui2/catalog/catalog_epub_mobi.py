@@ -10,8 +10,8 @@ from calibre.ebooks.conversion.config import load_defaults
 from calibre.gui2 import gprefs
 
 from catalog_epub_mobi_ui import Ui_Form
-from PyQt4.Qt import QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QGroupBox, QLineEdit, \
-                     QRadioButton, QSound, QTextEdit, QWidget, SIGNAL, SLOT
+from PyQt4.Qt import QCheckBox, QComboBox, QDoubleSpinBox, QLineEdit, \
+                     QRadioButton, QWidget
 
 class PluginWidget(QWidget,Ui_Form):
 
