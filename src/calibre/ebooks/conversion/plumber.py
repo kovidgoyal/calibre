@@ -491,8 +491,8 @@ OptionRecommendation(name='enable_heuristics',
 
 OptionRecommendation(name='markup_chapter_headings',
     recommended_value=False, level=OptionRecommendation.LOW,
-    help=_('Detect chapter headings and sub headings. Change ' 
-           'them to h1 and h2 tags.')),
+    help=_('Detect unformatted chapter headings and sub headings. Change ' 
+           'them to h2 and h3 tags.')),
            
 OptionRecommendation(name='italicize_common_cases',
     recommended_value=False, level=OptionRecommendation.LOW,
@@ -508,26 +508,30 @@ OptionRecommendation(name='html_unwrap_factor',
     recommended_value=0.40, level=OptionRecommendation.LOW,
     help=_('Scale used to determine the length at which a line should '
             'be unwrapped. Valid values are a decimal between 0 and 1. The '
-            'default is 0.4, just below the median line length.')),
+            'default is 0.4, just below the median line length.  If only a '
+            'few lines in the document require unwrapping this value should '
+            'be reduced')),
             
 OptionRecommendation(name='unwrap_lines',
     recommended_value=False, level=OptionRecommendation.LOW,
-    help=_('Unwrap lines.')),
+    help=_('Unwrap lines using punctuation and other formatting clues.')),
     
 OptionRecommendation(name='delete_blank_paragraphs',
     recommended_value=True, level=OptionRecommendation.LOW,
-    help=_('Remove empyt paragraphs from the document')),
+    help=_('Remove empty paragraphs from the document when they exist between '
+           'every other paragraph')),
     
 OptionRecommendation(name='format_scene_breaks',
     recommended_value=False, level=OptionRecommendation.LOW,
-    help=_('Replace soft scene breaks that use multiple blank lines '
-           'with horizontal rules.')),
+    help=_('Detects left aligned scene break markers and center aligns them. '
+           'Replace soft scene breaks that use multiple blank lines with'
+           'horizontal rules.')),
 
 OptionRecommendation(name='dehyphenate',
     recommended_value=True, level=OptionRecommendation.LOW,
-    help=_('Combine words that are separated by a hyphen. '
-           'This is for cases where a word is hyphenated across '
-           'two lines to denote the characters from a single word.')),
+    help=_('Analyses hyphenated words throughout the document.  The '
+           'document itself is used as a dictionary to determine whether hyphens '
+           'should be retained or removed.')),
     
 OptionRecommendation(name='sr1_search',
     recommended_value='', level=OptionRecommendation.LOW,
