@@ -284,7 +284,7 @@ class TemplateFormatter(string.Formatter):
                     else:
                         args = self.arg_parser.scan(fmt[p+1:])[0]
                         args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
-                    if (func.arg_count == 1 and (len(args) != 0)) or \
+                    if (func.arg_count == 1 and (len(args) != 1 or args[0])) or \
                             (func.arg_count > 1 and func.arg_count != len(args)+1):
                         raise ValueError('Incorrect number of arguments for function '+ fmt[0:p])
                     if func.arg_count == 1:
