@@ -169,7 +169,7 @@ class GetTranslations(Translations):
                 #'-t', 'emails',
                 #'-t', 'doublequoting',
                 #'-t', 'filepaths',
-                '-t', 'numbers',
+                #'-t', 'numbers',
                 '-t', 'options',
                 #'-t', 'urls',
                 '-t', 'printf')
