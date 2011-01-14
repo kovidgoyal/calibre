@@ -500,7 +500,7 @@ OptionRecommendation(name='italicize_common_cases',
            'italics and italicize them.')),
            
 OptionRecommendation(name='fix_indents',
-    recommended_value=True, level=OptionRecommendation.LOW,
+    recommended_value=False, level=OptionRecommendation.LOW,
     help=_('Turn indentation created from multiple &nbsp; entities '
            'into CSS indents.')),
            
@@ -517,7 +517,7 @@ OptionRecommendation(name='unwrap_lines',
     help=_('Unwrap lines using punctuation and other formatting clues.')),
     
 OptionRecommendation(name='delete_blank_paragraphs',
-    recommended_value=True, level=OptionRecommendation.LOW,
+    recommended_value=False, level=OptionRecommendation.LOW,
     help=_('Remove empty paragraphs from the document when they exist between '
            'every other paragraph')),
     
@@ -528,7 +528,7 @@ OptionRecommendation(name='format_scene_breaks',
            'horizontal rules.')),
 
 OptionRecommendation(name='dehyphenate',
-    recommended_value=True, level=OptionRecommendation.LOW,
+    recommended_value=False, level=OptionRecommendation.LOW,
     help=_('Analyses hyphenated words throughout the document.  The '
            'document itself is used as a dictionary to determine whether hyphens '
            'should be retained or removed.')),
