@@ -4979,9 +4979,11 @@ then rebuild the catalog.
         if opts_dict['ids']:
             build_log.append(" book count: %d" % len(opts_dict['ids']))
 
-        sections_list = []
+        sections_list = ['Authors']
+        '''
         if opts.generate_authors:
             sections_list.append('Authors')
+        '''
         if opts.generate_titles:
             sections_list.append('Titles')
         if opts.generate_genres:

@@ -96,7 +96,7 @@ class _Parser(object):
                     # classic assignment statement
                     self.consume()
                     cls = funcs['assign']
-                    return cls.eval(self.parent, self.parent.kwargs,
+                    return cls.eval_(self.parent, self.parent.kwargs,
                                     self.parent.book, self.parent.locals, id, self.expr())
                 return self.parent.locals.get(id, _('unknown id ') + id)
             # We have a function.
@@ -130,7 +130,7 @@ class _Parser(object):
                 cls = funcs[id]
                 if cls.arg_count != -1 and len(args) != cls.arg_count:
                     self.error('incorrect number of arguments for function {}'.format(id))
-                return cls.eval(self.parent, self.parent.kwargs,
+                return cls.eval_(self.parent, self.parent.kwargs,
                                 self.parent.book, self.parent.locals, *args)
             else:
                 f = self.parent.functions[id]
@@ -284,14 +284,13 @@ class TemplateFormatter(string.Formatter):
                     else:
                         args = self.arg_parser.scan(fmt[p+1:])[0]
                         args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
-                    if (func.arg_count == 1 and (len(args) != 0)) or \
+                    if (func.arg_count == 1 and (len(args) != 1 or args[0])) or \
                             (func.arg_count > 1 and func.arg_count != len(args)+1):
-                        print args
                         raise ValueError('Incorrect number of arguments for function '+ fmt[0:p])
                     if func.arg_count == 1:
-                        val = func.eval(self, self.kwargs, self.book, self.locals, val).strip()
+                        val = func.eval_(self, self.kwargs, self.book, self.locals, val).strip()
                     else:
-                        val = func.eval(self, self.kwargs, self.book, self.locals,
+                        val = func.eval_(self, self.kwargs, self.book, self.locals,
                                         val, *args).strip()
         if val:
             val = self._do_format(val, dispfmt)

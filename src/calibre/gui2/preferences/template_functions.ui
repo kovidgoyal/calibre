@@ -38,7 +38,7 @@
        <item row="0" column="1">
         <widget class="QComboBox" name="function_name">
          <property name="toolTip">
-          <string>Enter the name of the function to create</string>
+          <string>Enter the name of the function to create.</string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -48,7 +48,7 @@
        <item row="1" column="0">
         <widget class="QLabel" name="label_3">
          <property name="toolTip">
-          <string></string>
+          <string/>
          </property>
          <property name="text">
           <string>Arg &amp;count:</string>
@@ -101,6 +101,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="replace_button">
+           <property name="text">
+            <string>&amp;Replace</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="create_button">
            <property name="text">
             <string>C&amp;reate</string>
@@ -144,8 +151,7 @@
     </layout>
    </item>
    <item row="0" column="0">
-    <widget class="QTextBrowser" name="textBrowser">
-    </widget>
+    <widget class="QTextBrowser" name="textBrowser"/>
    </item>
   </layout>
  </widget>
