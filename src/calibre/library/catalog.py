@@ -607,7 +607,8 @@ class EPUB_MOBI(CatalogPlugin):
                           default=True,
                           dest='generate_authors',
                           action = 'store_true',
-                          help=_("Include 'Authors' section in catalog.\n"
+                          help=_("Include 'Authors' section in catalog."
+                          "This switch is ignored - Books By Author section is always generated."
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-descriptions',
@@ -1609,12 +1610,12 @@ class EPUB_MOBI(CatalogPlugin):
                 if author != current_author and i:
                     # Warn, exit if friendly matches previous, but sort doesn't
                     if author[0] == current_author[0]:
-                        error_msg = _("\nWarning: inconsistent Author Sort values for Author '%s', ") % author[0]
-                                      "unable to continue building catalog.\n"
-                                      "Select all books by '%s', " % author[0]
-                                      "apply same Author Sort value in Edit Metadata dialog, "
-                                      "then rebuild the catalog.\n"
-                                      "Terminating catalog generation.\n")
+                        error_msg = _('''
+\n*** Metadata error ***
+Inconsistent Author Sort values for Author '{0}', unable to continue building catalog.
+Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog,
+then rebuild the catalog.
+*** Terminating catalog generation ***\n''').format(author[0])
 
                         self.opts.log.warn(error_msg)
                         return False
