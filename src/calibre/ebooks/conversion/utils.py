@@ -294,8 +294,8 @@ class PreProcessor(object):
         # If more than 40% of the lines are empty paragraphs and the user has enabled delete
         # blank paragraphs then delete blank lines to clean up spacing
         linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
-        blankreg = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
-        #multi_blank = re.compile(r'(\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>){2,}', re.IGNORECASE)
+        blankreg = re.compile(r'\s*(?P<openline><p(?!\sid=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
+        multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
         blanklines = blankreg.findall(html)
         lines = linereg.findall(html)
         blanks_between_paragraphs = False
@@ -303,11 +303,8 @@ class PreProcessor(object):
         if len(lines) > 1:
             self.log("There are " + unicode(len(blanklines)) + " blank lines. " +
                     unicode(float(len(blanklines)) / float(len(lines))) + " percent blank")
-            if float(len(blanklines)) / float(len(lines)) > 0.40 and getattr(self.extra_opts,
-            'delete_blank_paragraphs', False):
-                self.log("deleting blank lines")
-                html = blankreg.sub('', html)
-            elif float(len(blanklines)) / float(len(lines)) > 0.40:
+                    
+            if float(len(blanklines)) / float(len(lines)) > 0.40:
                 blanks_between_paragraphs = True
                 print "blanks between paragraphs is marked True"
             else:
@@ -319,7 +316,12 @@ class PreProcessor(object):
 
         html = self.markup_chapters(html, totalwords, blanks_between_paragraphs)
 
-
+        if blanks_between_paragraphs and getattr(self.extra_opts,
+        'delete_blank_paragraphs', False):
+            self.log("deleting blank lines")
+            html = multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
+            html = blankreg.sub('', html)
+            
         ###### Unwrap lines ######
         #
         # Some OCR sourced files have line breaks in the html using a combination of span & p tags
