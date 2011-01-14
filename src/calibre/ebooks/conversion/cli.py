@@ -126,8 +126,21 @@ def add_pipeline_options(parser, plumber):
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'change_justification',
                       'insert_blank_line', 'remove_paragraph_spacing','remove_paragraph_spacing_indent_size',
-                      'asciiize', 'remove_header', 'header_regex',
-                      'remove_footer', 'footer_regex',
+                      'asciiize',
+                  ]
+                  ),
+                  
+              'HEURISTICS' : (
+                  _('Modify the document text and strucutre using common patterns.'),
+                  [
+                      'enable_heuristics', 'markup_chapter_headings',
+                      'italicize_common_cases', 'fix_indents',
+                      'html_unwrap_factor', 'unwrap_lines',
+                      'delete_blank_paragraphs', 'format_scene_breaks',
+                      'dehyphenate',
+                      'sr1_search', 'sr1_replace',
+                      'sr2_search', 'sr2_replace',
+                      'sr3_search', 'sr3_replace',
                   ]
                   ),
 
@@ -137,7 +150,6 @@ def add_pipeline_options(parser, plumber):
                       'chapter', 'chapter_mark',
                       'prefer_metadata_cover', 'remove_first_image',
                       'insert_metadata', 'page_breaks_before',
-                      'preprocess_html', 'html_unwrap_factor',
                   ]
                   ),
 
@@ -164,8 +176,9 @@ def add_pipeline_options(parser, plumber):
 
               }
 
-    group_order = ['', 'LOOK AND FEEL', 'STRUCTURE DETECTION',
-            'TABLE OF CONTENTS', 'METADATA', 'DEBUG']
+    group_order = ['', 'LOOK AND FEEL', 'HEURISTICS',
+            'STRUCTURE DETECTION', 'TABLE OF CONTENTS',
+            'METADATA', 'DEBUG']
 
     for group in group_order:
         desc, options = groups[group]

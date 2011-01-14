@@ -376,54 +376,11 @@ OptionRecommendation(name='insert_metadata',
             )
         ),
 
-OptionRecommendation(name='preprocess_html',
-        recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Attempt to detect and correct hard line breaks and other '
-            'problems in the source file. This may make things worse, so use '
-            'with care.'
-            )
-        ),
-
-OptionRecommendation(name='html_unwrap_factor',
-        recommended_value=0.40, level=OptionRecommendation.LOW,
-        help=_('Scale used to determine the length at which a line should '
-            'be unwrapped if preprocess is enabled. Valid values are a decimal between 0 and 1. The '
-            'default is 0.40, just below the median line length. This will unwrap typical books '
-            ' with hard line breaks, but should be reduced if the line length is variable.'
-            )
-        ),
-
 OptionRecommendation(name='smarten_punctuation',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Convert plain quotes, dashes and ellipsis to their '
             'typographically correct equivalents. For details, see '
             'http://daringfireball.net/projects/smartypants'
-            )
-        ),
-
-OptionRecommendation(name='remove_header',
-        recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Use a regular expression to try and remove the header.'
-            )
-        ),
-
-OptionRecommendation(name='header_regex',
-        recommended_value='(?i)(?<=<hr>)((\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?\d+<br>\s*.*?\s*)|(\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?.*?<br>\s*\d+))(?=<br>)',
-        level=OptionRecommendation.LOW,
-        help=_('The regular expression to use to remove the header.'
-            )
-        ),
-
-OptionRecommendation(name='remove_footer',
-        recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Use a regular expression to try and remove the footer.'
-            )
-        ),
-
-OptionRecommendation(name='footer_regex',
-        recommended_value='(?i)(?<=<hr>)((\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?\d+<br>\s*.*?\s*)|(\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?.*?<br>\s*\d+))(?=<br>)',
-        level=OptionRecommendation.LOW,
-        help=_('The regular expression to use to remove the footer.'
             )
         ),
 
@@ -526,7 +483,81 @@ OptionRecommendation(name='pubdate',
 OptionRecommendation(name='timestamp',
     recommended_value=None, level=OptionRecommendation.LOW,
     help=_('Set the book timestamp (used by the date column in calibre).')),
+    
+OptionRecommendation(name='enable_heuristics',
+    recommended_value=False, level=OptionRecommendation.LOW,
+    help=_('Enable heurisic processing. This option must be set for any '
+           'heuristic processing to take place.')),
 
+OptionRecommendation(name='markup_chapter_headings',
+    recommended_value=False, level=OptionRecommendation.LOW,
+    help=_('Detect chapter headings and sub headings. Change ' 
+           'them to h1 and h2 tags.')),
+           
+OptionRecommendation(name='italicize_common_cases',
+    recommended_value=False, level=OptionRecommendation.LOW,
+    help=_('Look for common words and patterns that denote '
+           'italics and italicize them.')),
+           
+OptionRecommendation(name='fix_indents',
+    recommended_value=True, level=OptionRecommendation.LOW,
+    help=_('Turn indentation created from multiple &nbsp; entities '
+           'into CSS indents.')),
+           
+OptionRecommendation(name='html_unwrap_factor',
+    recommended_value=0.40, level=OptionRecommendation.LOW,
+    help=_('Scale used to determine the length at which a line should '
+            'be unwrapped. Valid values are a decimal between 0 and 1. The '
+            'default is 0.4, just below the median line length.')),
+            
+OptionRecommendation(name='unwrap_lines',
+    recommended_value=False, level=OptionRecommendation.LOW,
+    help=_('Unwrap lines.')),
+    
+OptionRecommendation(name='delete_blank_paragraphs',
+    recommended_value=True, level=OptionRecommendation.LOW,
+    help=_('Remove empyt paragraphs from the document')),
+    
+OptionRecommendation(name='format_scene_breaks',
+    recommended_value=False, level=OptionRecommendation.LOW,
+    help=_('Replace soft scene breaks that use multiple blank lines '
+           'with horizontal rules.')),
+
+OptionRecommendation(name='dehyphenate',
+    recommended_value=True, level=OptionRecommendation.LOW,
+    help=_('Combine words that are separated by a hyphen. '
+           'This is for cases where a word is hyphenated across '
+           'two lines to denote the characters from a single word.')),
+    
+OptionRecommendation(name='sr1_search',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Search pattern (regular expression) to be replaced with '
+           'sr1-replace.')),
+    
+OptionRecommendation(name='sr1_replace',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replace characters (can be lambda expression) to '
+           'replace the text found with sr1-search.')),
+
+OptionRecommendation(name='sr2_search',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Search pattern (regular expression) to be replaced with '
+           'sr2-replace.')),
+
+OptionRecommendation(name='sr2_replace',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replace characters (can be lambda expression) to '
+           'replace the text found with sr2-search.')),
+
+OptionRecommendation(name='sr3_search',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Search pattern (regular expression) to be replaced with '
+           'sr3-replace.')),
+
+OptionRecommendation(name='sr3_replace',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replace characters (can be lambda expression) to '
+           'replace the text found with sr3-search.')),
 ]
         # }}}
 
