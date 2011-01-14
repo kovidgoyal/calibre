@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>650</width>
-    <height>582</height>
+    <height>596</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -41,38 +41,51 @@
       <string>Included sections</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="generate_titles">
-        <property name="text">
-         <string>Books by &amp;Title</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="generate_series">
-        <property name="text">
-         <string>Books by &amp;Series</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QCheckBox" name="generate_recently_added">
-        <property name="text">
-         <string>Recently &amp;Added</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
+      <item row="0" column="1">
        <widget class="QCheckBox" name="generate_genres">
         <property name="text">
          <string>Books by &amp;Genre</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="generate_recently_added">
+        <property name="text">
+         <string>Recently &amp;Added</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
        <widget class="QCheckBox" name="generate_descriptions">
         <property name="text">
          <string>&amp;Descriptions</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="generate_series">
+        <property name="text">
+         <string>Books by &amp;Series</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="generate_titles">
+        <property name="text">
+         <string>Books by &amp;Title</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="generate_authors">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Books by Author</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -332,7 +345,7 @@ p, li { white-space: pre-wrap; }
       </size>
      </property>
      <property name="toolTip">
-      <string>Matching books will be displayed with ✓</string>
+      <string>Matching books will be displayed with a check mark</string>
      </property>
      <property name="title">
       <string>Read books</string>
@@ -471,7 +484,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QLineEdit" name="wishlist_tag">
           <property name="toolTip">
-           <string>Books tagged as Wishlist items will be displayed with ✕</string>
+           <string>Books tagged as Wishlist items will be displayed with an X</string>
           </property>
          </widget>
         </item>

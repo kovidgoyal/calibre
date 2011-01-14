@@ -603,6 +603,13 @@ class EPUB_MOBI(CatalogPlugin):
                           "--exclude-tags=skip will match 'skip this book' and 'Skip will like this'.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
+                   Option('--generate-authors',
+                          default=True,
+                          dest='generate_authors',
+                          action = 'store_true',
+                          help=_("Include 'Authors' section in catalog.\n"
+                          "Default: '%default'\n"
+                          "Applies to: ePub, MOBI output formats")),
                    Option('--generate-descriptions',
                           default=True,
                           dest='generate_descriptions',
@@ -1603,10 +1610,11 @@ class EPUB_MOBI(CatalogPlugin):
                     # Warn, exit if friendly matches previous, but sort doesn't
                     if author[0] == current_author[0]:
                         error_msg = _("\nWarning: inconsistent Author Sort values for Author '%s', ") % author[0]
-                        error_msg += _("unable to continue building catalog.\n")
-                        error_msg += _("Select all books by '%s', apply same Author Sort value in Edit Metadata dialog, ") % author[0]
-                        error_msg += _("then rebuild the catalog.\n")
-                        error_msg += _("Terminating catalog generation.\n")
+                                      "unable to continue building catalog.\n"
+                                      "Select all books by '%s', " % author[0]
+                                      "apply same Author Sort value in Edit Metadata dialog, "
+                                      "then rebuild the catalog.\n"
+                                      "Terminating catalog generation.\n")
 
                         self.opts.log.warn(error_msg)
                         return False
@@ -4970,13 +4978,15 @@ class EPUB_MOBI(CatalogPlugin):
         if opts_dict['ids']:
             build_log.append(" book count: %d" % len(opts_dict['ids']))
 
-        sections_list = ['Authors']
+        sections_list = []
+        if opts.generate_authors:
+            sections_list.append('Authors')
         if opts.generate_titles:
             sections_list.append('Titles')
-        if opts.generate_recently_added:
-            sections_list.append('Recently Added')
         if opts.generate_genres:
             sections_list.append('Genres')
+        if opts.generate_recently_added:
+            sections_list.append('Recently Added')
         if opts.generate_descriptions:
             sections_list.append('Descriptions')
 
