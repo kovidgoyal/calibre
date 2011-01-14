@@ -41,17 +41,17 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2">
+   <item row="3" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_insert_metadata">
      <property name="text">
       <string>Insert &amp;metadata as page at start of book</string>
      </property>
     </widget>
    </item>
-   <item row="11" column="0" colspan="3">
+   <item row="5" column="0" colspan="3">
     <widget class="XPathEdit" name="opt_page_breaks_before" native="true"/>
    </item>
-   <item row="12" column="0" colspan="3">
+   <item row="6" column="0" colspan="3">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -64,72 +64,6 @@
      </property>
     </spacer>
    </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_remove_footer">
-     <property name="text">
-      <string>Remove F&amp;ooter</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_remove_header">
-     <property name="text">
-      <string>Remove H&amp;eader</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0" colspan="3">
-    <widget class="RegexEdit" name="opt_header_regex" native="true"/>
-   </item>
-   <item row="9" column="0" colspan="3">
-    <widget class="RegexEdit" name="opt_footer_regex" native="true"/>
-   </item>
-   <item row="4" column="1">
-    <widget class="QLabel" name="huf_label">
-     <property name="text">
-      <string>Line &amp;un-wrap factor during preprocess:</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_html_unwrap_factor</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="2">
-    <widget class="QDoubleSpinBox" name="opt_html_unwrap_factor">
-     <property name="toolTip">
-      <string/>
-     </property>
-     <property name="maximum">
-      <double>1.000000000000000</double>
-     </property>
-     <property name="singleStep">
-      <double>0.050000000000000</double>
-     </property>
-     <property name="value">
-      <double>0.400000000000000</double>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_preprocess_html">
-     <property name="text">
-      <string>&amp;Preprocess input file to possibly improve structure detection</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -139,46 +73,7 @@
    <header>convert/xpath_wizard.h</header>
    <container>1</container>
   </customwidget>
-  <customwidget>
-   <class>RegexEdit</class>
-   <extends>QWidget</extends>
-   <header>regex_builder.h</header>
-   <container>1</container>
-  </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>opt_preprocess_html</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>opt_html_unwrap_factor</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>328</x>
-     <y>87</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>481</x>
-     <y>113</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>opt_preprocess_html</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>huf_label</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>295</x>
-     <y>88</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>291</x>
-     <y>105</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

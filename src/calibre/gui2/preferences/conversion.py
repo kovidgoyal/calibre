@@ -12,6 +12,7 @@ from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.logging import Log
 from calibre.gui2.preferences.conversion_ui import Ui_Form
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.gui2.convert.heuristics import HeuristicsWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
@@ -82,8 +83,8 @@ class Base(ConfigWidgetBase, Ui_Form):
 class CommonOptions(Base):
 
     def load_conversion_widgets(self):
-        self.conversion_widgets = [LookAndFeelWidget, PageSetupWidget,
-                StructureDetectionWidget, TOCWidget]
+        self.conversion_widgets = [LookAndFeelWidget, HeuristicsWidget,
+                PageSetupWidget, StructureDetectionWidget, TOCWidget]
 
 class InputOptions(Base):
 
