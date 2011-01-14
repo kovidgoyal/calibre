@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-09 01:59+0000\n"
-"PO-Revision-Date: 2011-01-12 21:48+0000\n"
+"PO-Revision-Date: 2011-01-13 18:49+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-13 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-01-14 04:50+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -599,6 +599,8 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Adient per al Samsung Galaxy i dispositius «tablet PC» similars amb una "
+"resolució de 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -827,6 +829,7 @@ msgstr "Li Fanxi"
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:41
 msgid "Device IP Address (restart calibre after changing)"
 msgstr ""
+"Adreça IP del dispositiu (s'ha de reiniciar el calibre després de canviar-ho)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:46
 msgid ""
@@ -849,6 +852,9 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"No s'ha pogut connectar al Bambook. \n"
+"Si esteu intentant connectar per Wi-Fi, assegureu-vos que s'ha configurat "
+"correctament l'adreça IP del Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:111
 msgid "Bambook"
@@ -952,7 +958,7 @@ msgstr "Comunica't amb un lector PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "Comunica't amb un lector PocketBook 602/603/902/903."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
@@ -1146,11 +1152,11 @@ msgstr "Comunica't amb un Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:251
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "Comunica't amb un EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:271
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Comunica't amb un Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1221,6 +1227,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:72
 msgid "Upload separate cover thumbnails for books (newer readers)"
 msgstr ""
+"Carrega miniatures de les portades per als llibres per separat (lectors nous)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid ""
@@ -1230,6 +1237,11 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"Els lectors Sony normalment obtenen la imatge de portada del fitxer de "
+"llibre electrònic. Amb aquesta opció el calibre enviarà una imatge de "
+"portada per separat, útil si s'envien llibres amb DRM perquè no se'ls pot "
+"canviar la portada. AVÍS: aquesta opció només s'ha de fer servir amb els "
+"lectors Sony més nous: 350, 650, 950 i posteriors."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -3787,6 +3799,15 @@ msgid ""
 "paragraph.* unformatted: Most lines have hard line breaks, few/no spaces or "
 "indents."
 msgstr ""
+"Estructura dels paràgrafs.\n"
+"les opcions són [«auto», «block», «single», «print», «unformatted»]\n"
+"* auto: intenta detectar automàticament els tipus de paràgraf.\n"
+"* block: considera que les línies en blanc són un salt de paràgraf.\n"
+"* single: considera que cada línia és un paràgraf.\n"
+"* print: considera que cada línia que comença amb dos o més espais o una "
+"tabulació inicia un paràgraf.\n"
+"* unformatted: la majoria de línies tenen salts forçats, sense o amb pocs "
+"espais o sagnat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:37
 msgid ""
@@ -3799,6 +3820,14 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Format per utilitzar al document.\n"
+"* auto: decideix automàticament el processador de format que s'utilitzarà.\n"
+"* none: no es processa el format del document. Tot és un sol paràgraf i no "
+"s'aplica cap estil.\n"
+"* heuristic: es processa utilitzant l'heurística per determinar formats com "
+"els títols de capítol i el text en cursiva.\n"
+"* markdown: es processa fent servir el format Markdown. Per saber-ne més "
+"vegeu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:46
 msgid ""
@@ -4233,6 +4262,8 @@ msgid ""
 "No books to catalog\n"
 "Check exclusion criteria"
 msgstr ""
+"No hi ha llibres per catalogar\n"
+"Comproveu els criteris d'exclusió"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:70
 msgid "Catalog generated."
@@ -4671,7 +4702,7 @@ msgstr "Connecta a iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:41
 msgid "Connect to Bambook"
-msgstr ""
+msgstr "Connecta al Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:63
@@ -5587,30 +5618,32 @@ msgstr "Opcions dels llibres"
 msgid ""
 "Sections to include in catalog.  All catalogs include 'Books by Author'."
 msgstr ""
+"Seccions que s'inclouran al catàleg. Tots els catàlegs inclouen «Llibres per "
+"autor»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:292
 msgid "Included sections"
-msgstr ""
+msgstr "Seccions incloses"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:293
 msgid "Books by &Title"
-msgstr ""
+msgstr "Llibres per &títol"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:294
 msgid "Books by &Series"
-msgstr ""
+msgstr "Llibres per &sèrie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:295
 msgid "Recently &Added"
-msgstr ""
+msgstr "&Afegits recentment"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Books by &Genre"
-msgstr ""
+msgstr "Llibres per &gènere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Descriptions"
-msgstr ""
+msgstr "&Descripcions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid ""
@@ -5633,24 +5666,44 @@ msgid ""
 "right:0px; -qt-block-indent:0; text-indent:0px;\">e.g., [Project "
 "Gutenberg]</p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:13pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Patró per defecte </p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"family:'Courier New,courier';\">\\[.+\\]</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">exclou etiquetes del tipus "
+"[<span style=\" font-family:'Courier New,courier';\">etiqueta</span>], </p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">per exemple: [Project "
+"Gutenberg]</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Excluded genres"
-msgstr ""
+msgstr "Gèneres exclosos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:310
 msgid "Tags to &exclude"
-msgstr ""
+msgstr "Etiquetes que s'&exclouran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid ""
 "Books matching either pattern will not be included in generated catalog. "
 msgstr ""
+"Els llibres que coincideixin amb algun patró no s'inclouran al catàleg que "
+"es generi. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 msgid "Excluded books"
-msgstr ""
+msgstr "Llibres exclosos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:311
 msgid ""
@@ -5669,99 +5722,118 @@ msgid ""
 "size:12pt;\">Default:</span><span style=\" font-family:'Courier "
 "New,courier'; font-size:12pt;\"> ~,Catalog</span></p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Lucida Grande'; font-size:13pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"size:12pt;\">Llista d'etiquetes que s'exclouran separades per "
+"comes.</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"size:12pt;\">Per defecte:</span><span style=\" font-family:'Courier "
+"New,courier'; font-size:12pt;\"> ~,Catàleg</span></p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "&Column/value"
-msgstr ""
+msgstr "&Columna/valor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Column containing additional exclusion criteria"
-msgstr ""
+msgstr "Columna que conté criteris d'exclusió addicionals"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Exclusion pattern"
-msgstr ""
+msgstr "Patró d'exclusió"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
 msgid "Matching books will be displayed with ✓"
-msgstr ""
+msgstr "Els llibres que coincideixin es visualitzaran amb ✓"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Read books"
-msgstr ""
+msgstr "Lectura de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Column containing 'read' status"
-msgstr ""
+msgstr "Columna que conté l'estat «llegit»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "'read book' pattern"
-msgstr ""
+msgstr "Patró de «llibre llegit»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Other options"
-msgstr ""
+msgstr "Altres opcions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Wishlist tag"
-msgstr ""
+msgstr "Etiqueta de «desitjat»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid "Books tagged as Wishlist items will be displayed with ✕"
-msgstr ""
+msgstr "Els llibres etiquetats com a «desitjat» es visualitzaran amb ✕"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid "&Thumbnail width"
-msgstr ""
+msgstr "Amplada de la minia&tura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "Size hint for Description cover thumbnails"
-msgstr ""
+msgstr "Mida suggerida per a les miniatures de les portades a «Descripció»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
 msgid " inch"
-msgstr ""
+msgstr " polsada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Description note"
-msgstr ""
+msgstr "Nota de la &descripció"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:332
 msgid "Custom column source for note to include in Description header area"
 msgstr ""
+"Columna personalitzada origen de la nota que s'inclourà a la zona de "
+"l'encapçalament de la descripció"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:333
 msgid "&Merge with Comments"
-msgstr ""
+msgstr "&Fusiona amb comentaris"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:334
 msgid "Additional content merged with Comments during catalog generation"
 msgstr ""
+"Contingut addicional que es fusionarà als comentaris en generar el catàleg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:335
 msgid "Merge additional content before Comments"
-msgstr ""
+msgstr "Fusiona els continguts addicionals abans dels comentaris"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:336
 msgid "&Before"
-msgstr ""
+msgstr "A&bans"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:337
 msgid "Merge additional content after Comments"
-msgstr ""
+msgstr "Fusiona els continguts addicionals després dels comentaris"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:338
 msgid "&After"
-msgstr ""
+msgstr "&Després"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:339
 msgid "Separate Comments and additional content with horizontal rule"
 msgstr ""
+"Separa els comentaris i el contingut addicional amb una barra horitzontal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:340
 msgid "&Separator"
-msgstr ""
+msgstr "&Separador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -6583,7 +6655,7 @@ msgstr "Afege&ix l'índex"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:74
 msgid "Output Encoding:"
-msgstr ""
+msgstr "Codificació de sortida:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
@@ -6829,7 +6901,7 @@ msgstr "Entrada TXT"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:59
 msgid "Paragraph style:"
-msgstr ""
+msgstr "Estil del paràgraf:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:60
 msgid "Preserve &spaces"
@@ -6837,11 +6909,11 @@ msgstr "Preserva &espais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:61
 msgid "Formatting style:"
-msgstr ""
+msgstr "Estil del format:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:62
 msgid "Markdown Options"
-msgstr ""
+msgstr "Opcions del Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:63
 msgid ""
@@ -8089,7 +8161,7 @@ msgstr "Nom del camp on voleu fer la cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:446
 msgid "Search &mode:"
-msgstr ""
+msgstr "&Mode de cerca:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:447
 msgid ""
@@ -8130,7 +8202,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:453
 msgid "Cas&e sensitive"
-msgstr ""
+msgstr "Disting&eix entre majúscules i minúscules"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:454
 msgid "&Replace with:"
@@ -8146,7 +8218,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:456
 msgid "&Apply function after replace:"
-msgstr ""
+msgstr "&Aplica una funció després de reemplaçar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:457
 msgid ""
@@ -8174,7 +8246,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:462
 msgid "M&ode:"
-msgstr ""
+msgstr "M&ode:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:463
 msgid "Specify how the text should be copied into the destination."
@@ -8187,36 +8259,42 @@ msgid ""
 "is\n"
 "not multiple and the destination field is multiple"
 msgstr ""
+"Especifica si els resultats s'han de dividir en múltiples valors o es "
+"deixen\n"
+"com un de sol. Aquest opció és més efectiva si el camp d'origen no és\n"
+"múltiple i el de destinació sí."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:467
 msgid "Split &result"
-msgstr ""
+msgstr "Divideix el &resultat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:468
 msgid "For multiple-valued fields, sho&w"
-msgstr ""
+msgstr "Per a camps amb múltiples &valors, mostra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:469
 msgid "values starting a&t"
-msgstr ""
+msgstr "valors a par&tir de"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:470
 msgid "with values separated b&y"
-msgstr ""
+msgstr "amb valors separats &per"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:471
 msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
 msgstr ""
+"Es fa servir en visualitzar els resultats de proba per separar valors en "
+"camps amb valors múltiples"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:472
 msgid "Test text"
-msgstr ""
+msgstr "Text de proba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:473
 msgid "Test result"
-msgstr ""
+msgstr "Resultat de la proba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:474
 msgid "Your test:"
@@ -8835,7 +8913,7 @@ msgstr "Cerca avançada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:199
 msgid "&What kind of match to use:"
-msgstr ""
+msgstr "&Tipus de coincidència que es farà servir:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
@@ -10610,15 +10688,15 @@ msgstr "Mai"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "By first letter"
-msgstr ""
+msgstr "Per inicial"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "Disabled"
-msgstr ""
+msgstr "Inhabilitat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:61
 msgid "Partitioned"
-msgstr ""
+msgstr "Repartit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:140
 msgid "User Interface &layout (needs restart):"
@@ -10673,7 +10751,7 @@ msgstr "Cerca mentre escriviu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Tags browser category partitioning method:"
-msgstr ""
+msgstr "Mètode de repartició per categories del navegador d'etiquetes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:153
 msgid ""
@@ -10683,10 +10761,15 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
+"Trieu com es visualitzen les subcategories del navegador\n"
+"d'etiquetes quan hi ha més elements que el límit. Seleccioneu\n"
+"«per inicial» per veure una llista per inicials. Trieu «repartit» per\n"
+"tenir una llista de grups de mida fixa. Inabiliteu-ho si no voleu\n"
+"subcategories."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:158
 msgid "Collapse when more items than:"
-msgstr ""
+msgstr "Redueix quan hi hagi més elements de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:159
 msgid ""
@@ -10694,6 +10777,10 @@ msgid ""
 "up into sub-categories. If the partition method is set to disable, this "
 "value is ignored."
 msgstr ""
+"Si una categoria del navegador d'etiquetes supera aquest número d'elements "
+"es divideix\n"
+"en subcategories. Si s'ha inhabilitat el mètode de repartició s'ignora "
+"aquest valor."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:161
 msgid "&Toolbar"
@@ -10995,13 +11082,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:57
 msgid "Constant template"
-msgstr ""
+msgstr "Plantilla de constant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:58
 msgid ""
 "The template contains no {fields}, so all books will have the same name. Is "
 "this OK?"
 msgstr ""
+"Aquesta plantilla no té {camps}, per tant tots els llibres tindran el mateix "
+"nom. És correcte?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
@@ -11466,7 +11555,7 @@ msgstr "Mostra totes les categories"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:300
 msgid "Change sub-categorization scheme"
-msgstr ""
+msgstr "Canvia el mètode de divisió per categories"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:625
 msgid ""
@@ -11497,7 +11586,7 @@ msgstr "El nom de cerca %s ja existeix."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1223
 msgid "Find item in tag browser"
-msgstr ""
+msgstr "Cerca un element al navegador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1226
 msgid ""
@@ -11508,26 +11597,35 @@ msgid ""
 "*foo will filter all categories at once, showing only those items\n"
 "containing the text \"foo\""
 msgstr ""
+"Cerca elements. Es cerquen elements que continguin el text a\n"
+"qualsevol lloc del nom. Es pot limitar la cerca a categories\n"
+"concretes amb una sintaxi semblant a la cerca. Per exemple,\n"
+"«tags:foo» trobarà «foo» a qualsevol etiqueta, però no en\n"
+"autors o altres categories. Si s'introdueix «*foo» es filtraran\n"
+"totes les categories alhora i es mostraran només els elements\n"
+"que continguin el text «foo»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1235
 msgid "ALT+f"
-msgstr ""
+msgstr "ALT+f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1239
 msgid "F&ind"
-msgstr ""
+msgstr "&Cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1240
 msgid "Find the first/next matching item"
-msgstr ""
+msgstr "Troba el primer/següent element coincident"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1247
 msgid "Collapse all categories"
-msgstr ""
+msgstr "Redueix totes les categories"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1268
 msgid "No More Matches.</b><p> Click Find again to go to first match"
 msgstr ""
+"No hi ha més coincidències.</b><p> Feu clic a «Cerca» per tornar a la "
+"primera coincidència."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1281
 msgid "Sort by name"
@@ -11570,7 +11668,7 @@ msgstr "Afegiu les vostres categories a l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:64
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
-msgstr ""
+msgstr "S'ha convertit el llibre %(num)d de %(total)d (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:204
@@ -12470,12 +12568,14 @@ msgstr "S'ha enviat el correu amb èxit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
 msgid "OK to proceed?"
-msgstr ""
+msgstr "Voleu continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:96
 msgid ""
 "This will display your email password on the screen. Is it OK to proceed?"
 msgstr ""
+"La contrasenya del vostre correu electrònic es visualitzarà a la pantalla. "
+"Voleu continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:139
 msgid ""
@@ -12487,13 +12587,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:150
 msgid "Setup sending email using"
-msgstr ""
+msgstr "Configura l'enviament de correu electrònic amb"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:152
 msgid ""
 "If you don't have an account, you can sign up for a free {name} email "
 "account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
+"Si no teniu compte podeu registrar un compte gratuït de correu electrònic "
+"{name} a <a href=\"http://{url}\">http://{url}</a>. {extra}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:159
 msgid "Your %s &email address:"
@@ -12712,6 +12814,12 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Els camps de la sortida quan es fa un catàleg dels llibres de la base de "
+"dades. Ha de ser una llista de camps separats per comes.\n"
+"Camps disponibles: %s,\n"
+"més els camps personalitzats creats per l'usuari.\n"
+"Per defecte: «%%default»\n"
+"S'aplica als formats de sortida CSV i XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:64
 msgid ""
@@ -12844,6 +12952,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"camp:patró que especifica el camp personalitzat i els continguts que "
+"indiquen que s'ha d'excloure un llibre.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida ePuB i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:596
 msgid ""
@@ -12877,6 +12989,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Inclou les descripcions dels llibres al catàleg.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:617
 msgid ""
@@ -12884,6 +12999,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Inclou la secció «Gènere» al catàleg.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:624
 msgid ""
@@ -12921,6 +13039,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Camp personalitzat amb el text de la nota que s'inserirà a la capçalera de "
+"la descripció.\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:652
 msgid ""
@@ -12931,6 +13053,14 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"<camp personalitzat>:[before|after]:[True|False] que especifica:\n"
+" <camp personalizat> Camp personalitzat amb les notes que es fusionaran amb "
+"els comentaris\n"
+" [before|after] La posició de les notes respecte els comentaris\n"
+" [True|False] Insereix una línia horitzontal entre les notes i els "
+"comentaris\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:662
 msgid ""
@@ -12964,6 +13094,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"Mida suggerida en polzades per a les portades del catàleg.\n"
+"Interval: 1.0-2.0\n"
+"Per defecte: «%default»\n"
+"S'aplica als formats de sortida ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:683
 msgid ""
@@ -13770,8 +13904,8 @@ msgid ""
 "The author sort string. To use only the first letter of the name use "
 "{author_sort[0]}"
 msgstr ""
-"La cadena per ordenar per autor. Per fer servir només la primera lletra del "
-"nom feu servir {author_sort[0]}"
+"La cadena per ordenar per autor. Per fer servir només la inicial del nom feu "
+"servir {author_sort[0]}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:37
 msgid "The tags"
@@ -13954,9 +14088,9 @@ msgid ""
 "more than this number of items. Default: %default. Set to a large number to "
 "disable grouping."
 msgstr ""
-"Agrupa els elements en categories com autors o etiquetes amb la primera "
-"lletra quan hi hagi més d'aquest número d'elements. Per defecte: %default. "
-"Poseu-hi un número alt per desactivar l'agrupament."
+"Agrupa els elements en categories com autors o etiquetes amb la inicial quan "
+"hi hagi més d'aquest número d'elements. Per defecte: %default. Poseu-hi un "
+"número alt per desactivar l'agrupament."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:48
 msgid ""
@@ -14058,7 +14192,7 @@ msgstr "Altres formats"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:643
 msgid "Read %(title)s in the %(fmt)s format"
-msgstr ""
+msgstr "Llegeix %(title)s en el format %(fmt)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:648
 msgid "Get"
@@ -14291,7 +14425,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:481
 msgid "No such variable "
-msgstr ""
+msgstr "Aquesta variable no existeix "
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
