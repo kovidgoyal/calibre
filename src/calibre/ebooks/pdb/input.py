@@ -33,7 +33,7 @@ class PDBInput(InputFormatPlugin):
 
         return opf
 
-    def preprocess_html(self, options, html):
+    def heuristics(self, options, html):
         self.options = options
         preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
         return preprocessor(html)

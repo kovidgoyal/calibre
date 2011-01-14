@@ -39,7 +39,7 @@ class MOBIInput(InputFormatPlugin):
                 accelerators['pagebreaks'] = '//h:div[@class="mbp_pagebreak"]'
         return mr.created_opf_path
 
-    def preprocess_html(self, options, html):
+    def heuristics(self, options, html):
         # search for places where a first or second level heading is immediately followed by another
         # top level heading.  demote the second heading to h3 to prevent splitting between chapter
         # headings and titles, images, etc
