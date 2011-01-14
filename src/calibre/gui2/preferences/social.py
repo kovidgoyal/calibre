@@ -62,6 +62,7 @@ class SocialMetadata(QDialog):
             return
         if not self.worker.is_alive():
             self.accept()
+            return
         QTimer.singleShot(50, self.update)
 
     def accept(self):
