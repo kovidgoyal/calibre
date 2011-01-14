@@ -790,7 +790,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         if d.opt_get_social_metadata.isChecked():
                             d2 = SocialMetadata(book, self)
                             d2.exec_()
-                            if d2.exceptions:
+                            if d2.timed_out:
+                                warning_dialog(self, _('Timed out'),
+                                    _('The download of social'
+                                    ' metadata timed out, the servers are'
+                                    ' probably busy. Try again later.'),
+                                    show=True)
+                            elif d2.exceptions:
                                 det = '\n'.join([x[0]+'\n\n'+x[-1]+'\n\n\n' for
                                     x in d2.exceptions])
                                 warning_dialog(self, _('There were errors'),
