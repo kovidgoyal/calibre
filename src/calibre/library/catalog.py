@@ -599,8 +599,16 @@ class EPUB_MOBI(CatalogPlugin):
                           default=('~,'+_('Catalog')),
                           dest='exclude_tags',
                           action = None,
-                          help=_("Comma-separated list of tag words indicating book should be excluded from output.  Case-insensitive.\n"
-                          "--exclude-tags=skip will match 'skip this book' and 'Skip will like this'.\n"
+                          help=_("Comma-separated list of tag words indicating book should be excluded from output."
+                              "For example: 'skip' will match 'skip this book' and 'Skip will like this'."
+                              "Default: '%default'\n"
+                              "Applies to: ePub, MOBI output formats")),
+                   Option('--generate-authors',
+                          default=True,
+                          dest='generate_authors',
+                          action = 'store_true',
+                          help=_("Include 'Authors' section in catalog."
+                          "This switch is ignored - Books By Author section is always generated."
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-descriptions',
@@ -1338,7 +1346,8 @@ class EPUB_MOBI(CatalogPlugin):
             if self.booksByTitle is None:
                 if not self.fetchBooksByTitle():
                     return False
-            self.fetchBooksByAuthor()
+            if not self.fetchBooksByAuthor():
+                return False
             self.fetchBookmarks()
             if self.opts.generate_descriptions:
                 self.generateHTMLDescriptions()
@@ -1536,18 +1545,6 @@ class EPUB_MOBI(CatalogPlugin):
                                 notes = ' &middot; '.join(notes)
                         elif field_md['datatype'] == 'datetime':
                             notes = format_date(notes,'dd MMM yyyy')
-                        elif field_md['datatype'] == 'composite':
-                            m = re.match(r'\[(.+)\]$', notes)
-                            if m is not None:
-                                # Sniff for special pseudo-list string "[<item, item>]"
-                                bracketed_content = m.group(1)
-                                if ',' in bracketed_content:
-                                    # Recast the comma-separated items as a list
-                                    items = bracketed_content.split(',')
-                                    items = [i.strip() for i in items]
-                                    notes = ' &middot; '.join(items)
-                                else:
-                                    notes = bracketed_content
                         this_title['notes'] = {'source':field_md['name'],
                                                    'content':notes}
 
@@ -1568,7 +1565,10 @@ class EPUB_MOBI(CatalogPlugin):
                 return False
 
         def fetchBooksByAuthor(self):
-            # Generate a list of titles sorted by author from the database
+            '''
+            Generate a list of titles sorted by author from the database
+            return = Success
+            '''
 
             self.updateProgressFullStep("Sorting database")
 
@@ -1608,10 +1608,17 @@ class EPUB_MOBI(CatalogPlugin):
                     multiple_authors = True
 
                 if author != current_author and i:
-                    # Warn if friendly matches previous, but sort doesn't
+                    # Warn, exit if friendly matches previous, but sort doesn't
                     if author[0] == current_author[0]:
-                        self.opts.log.warn("Warning: multiple entries for Author '%s' with differing Author Sort metadata:" % author[0])
-                        self.opts.log.warn(" '%s' != '%s'" % (author[1], current_author[1]))
+                        error_msg = _('''
+\n*** Metadata error ***
+Inconsistent Author Sort values for Author '{0}', unable to continue building catalog.
+Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog,
+then rebuild the catalog.
+*** Terminating catalog generation ***\n''').format(author[0])
+
+                        self.opts.log.warn(error_msg)
+                        return False
 
                     # New author, save the previous author/sort/count
                     unique_authors.append((current_author[0], icu_title(current_author[1]),
@@ -1637,6 +1644,7 @@ class EPUB_MOBI(CatalogPlugin):
                        author[2])).encode('utf-8'))
 
             self.authors = unique_authors
+            return True
 
         def fetchBookmarks(self):
             '''
@@ -1750,8 +1758,6 @@ class EPUB_MOBI(CatalogPlugin):
 
                 # Generate the header from user-customizable template
                 soup = self.generateHTMLDescriptionHeader(title)
-
-
 
                 # Write the book entry to contentdir
                 outfile = open("%s/book_%d.html" % (self.contentDir, int(title['id'])), 'w')
@@ -3250,7 +3256,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Loop over the series titles, find start of each letter, add description_preview_count books
             # Special switch for using different title list
             title_list = self.booksBySeries
-            current_letter = self.letter_or_symbol(title_list[0]['series'][0])
+            current_letter = self.letter_or_symbol(self.generateSortTitle(title_list[0]['series'])[0])
             title_letters = [current_letter]
             current_series_list = []
             current_series = ""
@@ -4362,7 +4368,7 @@ class EPUB_MOBI(CatalogPlugin):
                 _soup = BeautifulSoup('')
                 genresTag = Tag(_soup,'p')
                 gtc = 0
-                for (i, tag) in enumerate(book.get('tags', [])):
+                for (i, tag) in enumerate(sorted(book.get('tags', []))):
                     aTag = Tag(_soup,'a')
                     if self.opts.generate_genres:
                         aTag['href'] = "Genre_%s.html" % re.sub("\W","",tag.lower())
@@ -4381,6 +4387,7 @@ class EPUB_MOBI(CatalogPlugin):
                     formats.append(format.rpartition('.')[2].upper())
                 formats = ' &middot; '.join(formats)
 
+            # Date of publication
             pubdate = book['date']
             pubmonth, pubyear = pubdate.split(' ')
 
@@ -4973,12 +4980,16 @@ class EPUB_MOBI(CatalogPlugin):
             build_log.append(" book count: %d" % len(opts_dict['ids']))
 
         sections_list = ['Authors']
+        '''
+        if opts.generate_authors:
+            sections_list.append('Authors')
+        '''
         if opts.generate_titles:
             sections_list.append('Titles')
-        if opts.generate_recently_added:
-            sections_list.append('Recently Added')
         if opts.generate_genres:
             sections_list.append('Genres')
+        if opts.generate_recently_added:
+            sections_list.append('Recently Added')
         if opts.generate_descriptions:
             sections_list.append('Descriptions')
 

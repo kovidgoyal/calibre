@@ -441,7 +441,7 @@ class TabletOutput(iPadOutput):
 
 class SamsungGalaxy(TabletOutput):
     name = 'Samsung Galaxy'
-    shortname = 'galaxy'
+    short_name = 'galaxy'
     description = _('Intended for the Samsung Galaxy and similar tablet devices with '
             'a resolution of 600x1280')
     screen_size = comic_screen_size = (600, 1280)

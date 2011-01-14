@@ -38,6 +38,7 @@ from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
+from calibre.utils.formatter_functions import load_user_template_functions
 
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
@@ -184,6 +185,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         migrate_preference('user_categories', {})
         migrate_preference('saved_searches', {})
         set_saved_searches(self, 'saved_searches')
+
+        load_user_template_functions(self.prefs.get('user_template_functions', []))
 
         self.conn.executescript('''
         DROP TRIGGER IF EXISTS author_insert_trg;
