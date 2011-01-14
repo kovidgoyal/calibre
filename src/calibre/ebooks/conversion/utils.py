@@ -113,6 +113,11 @@ class PreProcessor(object):
         return wordcount.words
 
     def markup_chapters(self, html, wordcount, blanks_between_paragraphs):
+        '''
+        Searches for common chapter headings throughout the document
+        attempts multiple patterns based on likelihood of a match
+        with minimum false positives.  Exits after finding a successful pattern
+        '''
         # Typical chapters are between 2000 and 7000 words, use the larger number to decide the
         # minimum of chapters to search for
         self.min_chapters = 1
@@ -185,6 +190,10 @@ class PreProcessor(object):
         return html
 
     def punctuation_unwrap(self, length, content, format):
+        '''
+        Unwraps lines based on line length and punctuation
+        supports range of potential html markup and text files
+        '''
         # define the pieces of the regex
         lookahead = "(?<=.{"+str(length)+"}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðß,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
         line_ending = "\s*</(span|p|div)>\s*(</(p|span|div)>)?"
@@ -201,53 +210,38 @@ class PreProcessor(object):
         return content
 
 
-    def __call__(self, html):
-        self.log("*********  Preprocessing HTML  *********")
+    def text_process_pre(self, html):
+        pre = re.compile(r'<pre>', re.IGNORECASE)
+        if len(pre.findall(html)) == 1:
+            self.log("Running Text Processing")
+            from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
+            separate_paragraphs_single_line
+            outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
+            html = outerhtml.sub('\g<text>', html)
+            html = separate_paragraphs_single_line(html)
+            html = preserve_spaces(html)
+            html = convert_basic(html, epub_split_size_kb=0)
+        else:
+            # Add markup naively
+            # TODO - find out if there are cases where there are more than one <pre> tag or
+            # other types of unmarked html and handle them in some better fashion
+            add_markup = re.compile('(?<!>)(\n)')
+            html = add_markup.sub('</p>\n<p>', html)
+        return html
 
-        # Count the words in the document to estimate how many chapters to look for and whether
-        # other types of processing are attempted
-        totalwords = 0
-        totalwords = self.get_word_count(html)
-
-        if totalwords < 50:
-            self.log("not enough text, not preprocessing")
-            return html
-
-        # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
+    def arrange_htm_line_endings(self, html):
         html = re.sub(r"\s*</(?P<tag>p|div)>", "</"+"\g<tag>"+">\n", html)
         html = re.sub(r"\s*<(?P<tag>p|div)(?P<style>[^>]*)>\s*", "\n<"+"\g<tag>"+"\g<style>"+">", html)
+        return html
 
-        ###### Check Markup ######
-        #
-        # some lit files don't have any <p> tags or equivalent (generally just plain text between
-        # <pre> tags), check and  mark up line endings if required before proceeding
-        if self.no_markup(html, 0.1):
-            self.log("not enough paragraph markers, adding now")
-            # check if content is in pre tags, use txt processor to mark up if so
-            pre = re.compile(r'<pre>', re.IGNORECASE)
-            if len(pre.findall(html)) == 1:
-                self.log("Running Text Processing")
-                from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
-                separate_paragraphs_single_line
-                outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
-                html = outerhtml.sub('\g<text>', html)
-                html = separate_paragraphs_single_line(html)
-                html = preserve_spaces(html)
-                html = convert_basic(html, epub_split_size_kb=0)
-            else:
-                # Add markup naively
-                # TODO - find out if there are cases where there are more than one <pre> tag or
-                # other types of unmarked html and handle them in some better fashion
-                add_markup = re.compile('(?<!>)(\n)')
-                html = add_markup.sub('</p>\n<p>', html)
-
-        ###### Mark Indents/Cleanup ######
-        #
-        # Replace series of non-breaking spaces with text-indent
+    def fix_nbsp_indents(self, html):
         txtindent = re.compile(ur'<p(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}', re.IGNORECASE)
         html = txtindent.sub(self.insert_indent, html)
         if self.found_indents > 1:
             self.log("replaced "+unicode(self.found_indents)+ " nbsp indents with inline styles")
+        return html
+
+    def cleanup_markup(self, html):
         # remove remaining non-breaking spaces
         html = re.sub(ur'\u00a0', ' ', html)
         # Get rid of various common microsoft specific tags which can cause issues later
@@ -259,27 +253,64 @@ class PreProcessor(object):
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
         html = re.sub(r"\s*<[ibu][^>]*>\s*(<[ibu][^>]*>\s*</[ibu]>\s*){0,2}\s*</[ibu]>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
+        return html
+
+
+    def __call__(self, html):
+        self.log("*********  Preprocessing HTML  *********")
+
+        # Count the words in the document to estimate how many chapters to look for and whether
+        # other types of processing are attempted
+        totalwords = 0
+        totalwords = self.get_word_count(html)
+
+        if totalwords < 50:
+            self.log("flow is too short, not running heuristics")
+            return html
+
+        # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
+        html = self.arrange_htm_line_endings(html)
+
+
+        ###### Check Markup ######
+        #
+        # some lit files don't have any <p> tags or equivalent (generally just plain text between
+        # <pre> tags), check and  mark up line endings if required before proceeding
+        if self.no_markup(html, 0.1):
+            self.log("not enough paragraph markers, adding now")
+            # check if content is in pre tags, use txt processor to mark up if so
+            html = self.text_process_pre(html)
+
+        ###### Mark Indents/Cleanup ######
+        #
+        # Replace series of non-breaking spaces with text-indent
+        html = self.fix_nbsp_indents(html)
+        
+        html = self.cleanup_markup(html)
+
         # ADE doesn't render <br />, change to empty paragraphs
         #html = re.sub('<br[^>]*>', u'<p>\u00a0</p>', html)
 
-        # If more than 40% of the lines are empty paragraphs and the user has enabled remove
-        # paragraph spacing then delete blank lines to clean up spacing
+        # If more than 40% of the lines are empty paragraphs and the user has enabled delete
+        # blank paragraphs then delete blank lines to clean up spacing
         linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
         blankreg = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         #multi_blank = re.compile(r'(\s*<p[^>]*>\s*(<(b|i|u)>)?\s*(</(b|i|u)>)?\s*</p>){2,}', re.IGNORECASE)
         blanklines = blankreg.findall(html)
         lines = linereg.findall(html)
         blanks_between_paragraphs = False
+        if getattr(self.extra_opts, 'delete_blank_paragraphs', False):
+            print "configured to delete blank paragraphs"
         if len(lines) > 1:
             self.log("There are " + unicode(len(blanklines)) + " blank lines. " +
                     unicode(float(len(blanklines)) / float(len(lines))) + " percent blank")
             if float(len(blanklines)) / float(len(lines)) > 0.40 and getattr(self.extra_opts,
-            'remove_paragraph_spacing', False):
+            'delete_blank_paragraphs', False):
                 self.log("deleting blank lines")
                 html = blankreg.sub('', html)
             elif float(len(blanklines)) / float(len(lines)) > 0.40:
                 blanks_between_paragraphs = True
-                #print "blanks between paragraphs is marked True"
+                print "blanks between paragraphs is marked True"
             else:
                 blanks_between_paragraphs = False
 
