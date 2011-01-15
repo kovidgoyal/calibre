@@ -3,6 +3,7 @@
 #   copyright 2002 Paul Henry Tremblay                                  #
 #                                                                       #
 #########################################################################
+
 '''
 Codepages as to RTF 1.9.1:
     437	United States IBM

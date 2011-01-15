@@ -70,7 +70,7 @@ class ProcessTokens:
         ';'                  :	('mc', ';', self.ms_sub_func),
         # this must be wrong
         '-'                  :	('mc', '-', self.ms_sub_func),
-        'line'               :  ('mi', 'hardline-break', self.hardline_func), #calibre
+        'line'               :  ('mi', 'hardline-break', self.direct_conv_func), #calibre
         # misc => ml
         '*'                  :	('ml', 'asterisk__', self.default_func),
         ':'                  :	('ml', 'colon_____', self.default_func),
@@ -605,7 +605,7 @@ class ProcessTokens:
     def ms_sub_func(self, pre, token, num):
         return 'tx<mc<__________<%s\n' % token
 
-    def hardline_func(self, pre, token, num):
+    def direct_conv_func(self, pre, token, num):
         return 'mi<tg<empty_____<%s\n' % token
 
     def default_func(self, pre, token, num):
