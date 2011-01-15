@@ -121,7 +121,7 @@ class DefaultEncoding:
             else:
                 fenc = re.compile(r'\\(mac|pc|ansi|pca)[\\ \{\}\t\n]+')
                 fenccp = re.compile(r'\\ansicpg(\d+)[\\ \{\}\t\n]+')
-                
+
                 for line in read_obj:
                     if fenc.search(line):
                         enc = fenc.search(line).group(1)
@@ -141,6 +141,7 @@ class DefaultEncoding:
                         self.__code_page = '850'
 
 if __name__ == '__main__':
+    import sys
     encode_obj = DefaultEncoding(
             in_file = sys.argv[1],
             bug_handler = Exception,

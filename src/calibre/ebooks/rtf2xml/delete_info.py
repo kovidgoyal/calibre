@@ -199,7 +199,8 @@ class DeleteInfo:
                     # Get action to perform
                     action = self.__state_dict.get(self.__state)
                     if not action:
-                        sys.stderr.write('No action in dictionary state is "%s" \n' % self.__state)
+                        sys.stderr.write('No action in dictionary state is "%s" \n'
+                                % self.__state)
                     # Print if allowed by action
                     if action(line):
                         self.__write_obj.write(line)
