@@ -6,8 +6,6 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from PyQt4.Qt import Qt
-
 from calibre.gui2.convert.search_and_replace_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2 import error_dialog
