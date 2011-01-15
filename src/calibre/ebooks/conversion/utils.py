@@ -18,6 +18,11 @@ class PreProcessor(object):
         self.html_preprocess_sections = 0
         self.found_indents = 0
         self.extra_opts = extra_opts
+        self.deleted_nbsps = False
+        self.min_chapters = 1
+        self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
+        self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sid=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
+        self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
@@ -120,7 +125,6 @@ class PreProcessor(object):
         '''
         # Typical chapters are between 2000 and 7000 words, use the larger number to decide the
         # minimum of chapters to search for
-        self.min_chapters = 1
         if wordcount > 7000:
             self.min_chapters = int(ceil(wordcount / 7000.))
         #print "minimum chapters required are: "+str(self.min_chapters)
@@ -192,21 +196,28 @@ class PreProcessor(object):
     def punctuation_unwrap(self, length, content, format):
         '''
         Unwraps lines based on line length and punctuation
-        supports range of potential html markup and text files
+        supports a range of html markup and text files
         '''
         # define the pieces of the regex
         lookahead = "(?<=.{"+str(length)+"}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðß,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
-        line_ending = "\s*</(span|p|div)>\s*(</(p|span|div)>)?"
+        em_en_lookahead = "(?<=.{"+str(length)+"}[\u2013\u2014])"
+        line_ending = "\s*</(span|[iubp]|div)>\s*(</(span|[iubp]|div)>)?"
         blanklines = "\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*"
-        line_opening = "<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*"
+        line_opening = "<(span|[iubp]|div)[^>]*>\s*(<(span|[iubp]|div)[^>]*>)?\s*"
         txt_line_wrap = u"((\u0020|\u0009)*\n){1,4}"
 
         unwrap_regex = lookahead+line_ending+blanklines+line_opening
+        em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
+
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
+            em_en_unwrap_regex = em_en_lookahead+txt_line_wrap
 
         unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
+        em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
+
         content = unwrap.sub(' ', content)
+        content = em_en_unwrap.sub('', content)
         return content
 
 
@@ -253,7 +264,37 @@ class PreProcessor(object):
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
         html = re.sub(r"\s*<[ibu][^>]*>\s*(<[ibu][^>]*>\s*</[ibu]>\s*){0,2}\s*</[ibu]>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
+        self.deleted_nbsps = True
         return html
+
+    def analyze_line_endings(self, html):
+        '''
+        determines the type of html line ending used most commonly in a document
+        use before calling docanalysis functions
+        '''
+        paras_reg = re.compile('<p[^>]*>', re.IGNORECASE)
+        spans_reg = re.compile('<span[^>]*>', re.IGNORECASE)
+        paras = len(paras_reg.findall(html))
+        spans = len(spans_reg.findall(html))
+        if spans > 1:
+            if float(paras) / float(spans) < 0.75:
+                return 'spanned_html'
+            else:
+                return 'html'
+        else:
+            return 'html'
+
+    def analyze_blanks(self, html):
+        blanklines = self.blankreg.findall(html)
+        lines = self.linereg.findall(html)
+        if len(lines) > 1:
+            self.log("There are " + unicode(len(blanklines)) + " blank lines. " +
+                    unicode(float(len(blanklines)) / float(len(lines))) + " percent blank")
+                    
+            if float(len(blanklines)) / float(len(lines)) > 0.40:
+                return True
+            else:
+                return False
 
 
     def __call__(self, html):
@@ -281,97 +322,69 @@ class PreProcessor(object):
             # check if content is in pre tags, use txt processor to mark up if so
             html = self.text_process_pre(html)
 
-        ###### Mark Indents/Cleanup ######
-        #
         # Replace series of non-breaking spaces with text-indent
-        html = self.fix_nbsp_indents(html)
+        if getattr(self.extra_opts, 'fix_indents', True):
+            html = self.fix_nbsp_indents(html)
         
         html = self.cleanup_markup(html)
 
         # ADE doesn't render <br />, change to empty paragraphs
         #html = re.sub('<br[^>]*>', u'<p>\u00a0</p>', html)
 
-        # If more than 40% of the lines are empty paragraphs and the user has enabled delete
-        # blank paragraphs then delete blank lines to clean up spacing
-        linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
-        blankreg = re.compile(r'\s*(?P<openline><p(?!\sid=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
-        multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
-        blanklines = blankreg.findall(html)
-        lines = linereg.findall(html)
-        blanks_between_paragraphs = False
-        print "delete blank paragraphs is "+str(getattr(self.extra_opts, 'delete_blank_paragraphs', False))
-        if len(lines) > 1:
-            self.log("There are " + unicode(len(blanklines)) + " blank lines. " +
-                    unicode(float(len(blanklines)) / float(len(lines))) + " percent blank")
-                    
-            if float(len(blanklines)) / float(len(lines)) > 0.40:
-                blanks_between_paragraphs = True
-                print "blanks between paragraphs is marked True"
-            else:
-                blanks_between_paragraphs = False
+        # Determine whether the document uses interleaved blank lines
+        blanks_between_paragraphs = self.analyze_blanks(html)
 
         #self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
-        #
 
-        html = self.markup_chapters(html, totalwords, blanks_between_paragraphs)
+        if getattr(self.extra_opts, 'markup_chapter_headings', True):
+            html = self.markup_chapters(html, totalwords, blanks_between_paragraphs)
 
+        # If more than 40% of the lines are empty paragraphs and the user has enabled delete
+        # blank paragraphs then delete blank lines to clean up spacing
         if blanks_between_paragraphs and getattr(self.extra_opts,
         'delete_blank_paragraphs', False):
             self.log("deleting blank lines")
-            html = multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
-            html = blankreg.sub('', html)
+            html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
+            html = self.blankreg.sub('', html)
             
         ###### Unwrap lines ######
-        #
-        # Some OCR sourced files have line breaks in the html using a combination of span & p tags
-        # span are used for hard line breaks, p for new paragraphs.  Determine which is used so
-        # that lines can be un-wrapped across page boundaries
-        paras_reg = re.compile('<p[^>]*>', re.IGNORECASE)
-        spans_reg = re.compile('<span[^>]*>', re.IGNORECASE)
-        paras = len(paras_reg.findall(html))
-        spans = len(spans_reg.findall(html))
-        if spans > 1:
-            if float(paras) / float(spans) < 0.75:
-                format = 'spanned_html'
-            else:
-                format = 'html'
-        else:
-            format = 'html'
-        # Check Line histogram to determine if the document uses hard line breaks, If 50% or
-        # more of the lines break in the same region of the document then unwrapping is required
-        docanalysis = DocAnalysis(format, html)
-        hardbreaks = docanalysis.line_histogram(.50)
-        self.log("Hard line breaks check returned "+unicode(hardbreaks))
-        # Calculate Length
-        unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
-        length = docanalysis.line_length(unwrap_factor)
-        self.log("Median line length is " + unicode(length) + ", calculated with " + format + " format")
-        # only go through unwrapping code if the histogram shows unwrapping is required or if the user decreased the default unwrap_factor
-        if hardbreaks or unwrap_factor < 0.4:
-            self.log("Unwrapping required, unwrapping Lines")
-            # Unwrap em/en dashes
-            html = re.sub(u'(?<=.{%i}[\u2013\u2014])\s*(?=<)(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?=[[a-z\d])' % length, '', html)
-            # Dehyphenate
-            self.log("Unwrapping/Removing hyphens")
-            dehyphenator = Dehyphenator()
-            html = dehyphenator(html,'html', length)
-            self.log("Done dehyphenating")
-            # Unwrap lines using punctation and line length
-            #unwrap_quotes = re.compile(u"(?<=.{%i}\"')\s*</(span|p|div)>\s*(</(p|span|div)>)?\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*(?=[a-z])" % length, re.UNICODE)
-            html = self.punctuation_unwrap(length, html, 'html')
-            #check any remaining hyphens, but only unwrap if there is a match
-            dehyphenator = Dehyphenator()
-            html = dehyphenator(html,'html_cleanup', length)
-        else:
-            # dehyphenate in cleanup mode to fix anything previous conversions/editing missed
-            self.log("Cleaning up hyphenation")
-            dehyphenator = Dehyphenator()
-            html = dehyphenator(html,'html_cleanup', length)
-            self.log("Done dehyphenating")
+        if getattr(self.extra_opts, 'unwrap_lines', True):
+            # Determine line ending type
+            # Some OCR sourced files have line breaks in the html using a combination of span & p tags
+            # span are used for hard line breaks, p for new paragraphs.  Determine which is used so
+            # that lines can be un-wrapped across page boundaries
+            format = self.analyze_line_endings(html)
 
-        # delete soft hyphens
-        html = re.sub(u'\xad\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
+            # Check Line histogram to determine if the document uses hard line breaks, If 50% or
+            # more of the lines break in the same region of the document then unwrapping is required
+            docanalysis = DocAnalysis(format, html)
+            hardbreaks = docanalysis.line_histogram(.50)
+            self.log("Hard line breaks check returned "+unicode(hardbreaks))
+
+            # Calculate Length
+            unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
+            length = docanalysis.line_length(unwrap_factor)
+            self.log("Median line length is " + unicode(length) + ", calculated with " + format + " format")
+
+            # only go through unwrapping code if the histogram shows unwrapping is required or if the user decreased the default unwrap_factor
+            if hardbreaks or unwrap_factor < 0.4:
+                self.log("Unwrapping required, unwrapping Lines")
+                # Dehyphenate with line length limiters
+                dehyphenator = Dehyphenator()
+                html = dehyphenator(html,'html', length)
+                html = self.punctuation_unwrap(length, html, 'html')
+                #check any remaining hyphens, but only unwrap if there is a match
+                dehyphenator = Dehyphenator()
+                html = dehyphenator(html,'html_cleanup', length)
+
+        if getattr(self.extra_opts, 'dehyphenate', True):
+            # dehyphenate in cleanup mode to fix anything previous conversions/editing missed
+            self.log("Fixing hyphenated content")
+            dehyphenator = Dehyphenator()
+            html = dehyphenator(html,'html_cleanup', length)
+            # delete soft hyphens
+            html = re.sub(u'\xad\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
 
         # If still no sections after unwrapping mark split points on lines with no punctuation
         if self.html_preprocess_sections < self.min_chapters:
@@ -385,10 +398,12 @@ class PreProcessor(object):
         doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
         html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
 
-        # put back non-breaking spaces in empty paragraphs to preserve original formatting
-        html = blankreg.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
+        if getattr(self.extra_opts, 'dehyphenate', True):
+            # Center separator lines
+            html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em">' + '\g<break>' + '</p>', html)
 
-        # Center separator lines
-        html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center">' + '\g<break>' + '</p>', html)
+        if self.deleted_nbsps:
+            # put back non-breaking spaces in empty paragraphs to preserve original formatting
+            html = self.blankreg.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
 
         return html

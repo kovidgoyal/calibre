@@ -523,7 +523,7 @@ OptionRecommendation(name='delete_blank_paragraphs',
     
 OptionRecommendation(name='format_scene_breaks',
     recommended_value=False, level=OptionRecommendation.LOW,
-    help=_('Detects left aligned scene break markers and center aligns them. '
+    help=_('left aligned scene break markers are center aligned. '
            'Replace soft scene breaks that use multiple blank lines with'
            'horizontal rules.')),
 
