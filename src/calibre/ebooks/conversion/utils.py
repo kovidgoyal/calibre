@@ -272,9 +272,11 @@ class PreProcessor(object):
 
         unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
         em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
+        shy_unwrap = re.compile(u"%s" % shy_unwrap_regex, re.UNICODE)
 
         content = unwrap.sub(' ', content)
         content = em_en_unwrap.sub('', content)
+        content = shy_unwrap.sub('', content)
         return content
 
     def txt_process(self, match):
