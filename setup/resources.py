@@ -84,6 +84,12 @@ class Resources(Command):
 
             cPickle.dump(complete, open(dest, 'wb'), -1)
 
+        self.info('\tCreating template-functions.json')
+        dest = self.j(self.RESOURCES, 'template-functions.json')
+        function_dict = {'test': 'def test(*args): return test'}
+        import json
+        json.dump(function_dict, open(dest, 'wb'))
+
     def clean(self):
         for x in ('scripts', 'recipes', 'ebook-convert-complete'):
             x = self.j(self.RESOURCES, x+'.pickle')
