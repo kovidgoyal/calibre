@@ -19,6 +19,7 @@ class PreProcessor(object):
         self.found_indents = 0
         self.extra_opts = extra_opts
         self.deleted_nbsps = False
+        self.totalwords = 0
         self.min_chapters = 1
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
         self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sid=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
@@ -201,6 +202,7 @@ class PreProcessor(object):
         # define the pieces of the regex
         lookahead = "(?<=.{"+str(length)+"}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðß,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
         em_en_lookahead = "(?<=.{"+str(length)+"}[\u2013\u2014])"
+        soft_hyphen = "\xad"
         line_ending = "\s*</(span|[iubp]|div)>\s*(</(span|[iubp]|div)>)?"
         blanklines = "\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*"
         line_opening = "<(span|[iubp]|div)[^>]*>\s*(<(span|[iubp]|div)[^>]*>)?\s*"
@@ -208,10 +210,12 @@ class PreProcessor(object):
 
         unwrap_regex = lookahead+line_ending+blanklines+line_opening
         em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
+        shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
 
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
             em_en_unwrap_regex = em_en_lookahead+txt_line_wrap
+            shy_unwrap_regex = soft_hyphen+txt_line_wrap
 
         unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
         em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
@@ -220,18 +224,21 @@ class PreProcessor(object):
         content = em_en_unwrap.sub('', content)
         return content
 
+    def txt_process(self, match):
+        from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
+        separate_paragraphs_single_line
+        content = match.group('text')
+        content = separate_paragraphs_single_line(content)
+        content = preserve_spaces(content)
+        content = convert_basic(content, epub_split_size_kb=0)
+        return content
 
-    def text_process_pre(self, html):
+    def markup_pre(self, html):
         pre = re.compile(r'<pre>', re.IGNORECASE)
-        if len(pre.findall(html)) == 1:
+        if len(pre.findall(html)) >= 1:
             self.log("Running Text Processing")
-            from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
-            separate_paragraphs_single_line
             outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
-            html = outerhtml.sub('\g<text>', html)
-            html = separate_paragraphs_single_line(html)
-            html = preserve_spaces(html)
-            html = convert_basic(html, epub_split_size_kb=0)
+            html = outerhtml.sub(self.txt_process, html)
         else:
             # Add markup naively
             # TODO - find out if there are cases where there are more than one <pre> tag or
@@ -302,16 +309,17 @@ class PreProcessor(object):
 
         # Count the words in the document to estimate how many chapters to look for and whether
         # other types of processing are attempted
-        totalwords = 0
-        totalwords = self.get_word_count(html)
+        try:
+            self.totalwords = self.get_word_count(html)
+        except:
+            self.log("Can't get wordcount")
 
-        if totalwords < 50:
+        if 0 < self.totalwords < 50:
             self.log("flow is too short, not running heuristics")
             return html
 
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = self.arrange_htm_line_endings(html)
-
 
         ###### Check Markup ######
         #
@@ -319,8 +327,8 @@ class PreProcessor(object):
         # <pre> tags), check and  mark up line endings if required before proceeding
         if self.no_markup(html, 0.1):
             self.log("not enough paragraph markers, adding now")
-            # check if content is in pre tags, use txt processor to mark up if so
-            html = self.text_process_pre(html)
+            # markup using text processing
+            html = self.markup_pre(html)
 
         # Replace series of non-breaking spaces with text-indent
         if getattr(self.extra_opts, 'fix_indents', True):
@@ -338,7 +346,7 @@ class PreProcessor(object):
         # detect chapters/sections to match xpath or splitting logic
 
         if getattr(self.extra_opts, 'markup_chapter_headings', True):
-            html = self.markup_chapters(html, totalwords, blanks_between_paragraphs)
+            html = self.markup_chapters(html, self.totalwords, blanks_between_paragraphs)
 
         # If more than 40% of the lines are empty paragraphs and the user has enabled delete
         # blank paragraphs then delete blank lines to clean up spacing
@@ -383,8 +391,6 @@ class PreProcessor(object):
             self.log("Fixing hyphenated content")
             dehyphenator = Dehyphenator()
             html = dehyphenator(html,'html_cleanup', length)
-            # delete soft hyphens
-            html = re.sub(u'\xad\s*(</span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*', '', html)
 
         # If still no sections after unwrapping mark split points on lines with no punctuation
         if self.html_preprocess_sections < self.min_chapters:
@@ -392,13 +398,14 @@ class PreProcessor(object):
                     " currently have " + unicode(self.html_preprocess_sections))
             chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
             html = chapdetect3.sub(self.chapter_break, html)
+
         # search for places where a first or second level heading is immediately followed by another
         # top level heading.  demote the second heading to h3 to prevent splitting between chapter
         # headings and titles, images, etc
         doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
         html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
 
-        if getattr(self.extra_opts, 'dehyphenate', True):
+        if getattr(self.extra_opts, 'format_scene_breaks', True):
             # Center separator lines
             html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em">' + '\g<break>' + '</p>', html)
 
