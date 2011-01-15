@@ -320,11 +320,10 @@ class RTFInput(InputFormatPlugin):
             res = transform.tostring(result)
             res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             # Replace newlines inserted by the 'empty_paragraphs' option in rtf2xml with html blank lines
-            if not getattr(self.opts, 'remove_paragraph_spacing', False):
-                res = re.sub('\s*<body>', '<body>', res)
-                res = re.sub('(?<=\n)\n{2}',
-                        u'<p>\u00a0</p>\n'.encode('utf-8'), res)
-            if self.opts.preprocess_html:
+            res = re.sub('\s*<body>', '<body>', res)
+            res = re.sub('(?<=\n)\n{2}',
+                    u'<p>\u00a0</p>\n'.encode('utf-8'), res)
+            if self.opts.enable_heuristics:
                 preprocessor = PreProcessor(self.opts, log=getattr(self, 'log', None))
                 res = preprocessor(res.decode('utf-8')).encode('utf-8')
             f.write(res)
