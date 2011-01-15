@@ -782,10 +782,16 @@ class TagsModel(QAbstractItemModel): # {{{
                         ts = tag.sort
                         if not ts:
                             ts = ' '
-                        sk = sort_key(ts)[0]
-                        if sk[0] != collapse_letter_sk:
+                        try:
+                            sk = sort_key(ts)[0]
+                        except:
+                            sk = ' '
+                        if sk != collapse_letter_sk:
                             collapse_letter = upper(ts[0])
-                            collapse_letter_sk = sort_key(collapse_letter)[0]
+                            try:
+                                collapse_letter_sk = sort_key(collapse_letter)[0]
+                            except:
+                                collapse_letter_sk = ' '
                             sub_cat = TagTreeItem(parent=category,
                                      data = collapse_letter,
                                      category_icon = category_node.icon,

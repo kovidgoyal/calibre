@@ -614,32 +614,15 @@ def evaluate(self, formatter, kwargs, mi, locals, val):
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return capitalize(val)
 
-builtin_add         = BuiltinAdd()
-builtin_assign      = BuiltinAssign()
-builtin_capitalize  = BuiltinCapitalize()
-builtin_cmp         = BuiltinCmp()
-builtin_contains    = BuiltinContains()
-builtin_count       = BuiltinCount()
-builtin_divide      = BuiltinDivide()
-builtin_eval        = BuiltinEval()
-builtin_ifempty     = BuiltinIfempty()
-builtin_field       = BuiltinField()
-builtin_list_item   = BuiltinListitem()
-builtin_lookup      = BuiltinLookup()
-builtin_lowercase   = BuiltinLowercase()
-builtin_multiply    = BuiltinMultiply()
-builtin_print       = BuiltinPrint()
-builtin_re          = BuiltinRe()
-builtin_shorten     = BuiltinShorten()
-builtin_strcat      = BuiltinStrcat()
-builtin_strcmp      = BuiltinStrcmp()
-builtin_substr      = BuiltinSubstr()
-builtin_subtract    = BuiltinSubtract()
-builtin_switch      = BuiltinSwitch()
-builtin_template    = BuiltinTemplate()
-builtin_test        = BuiltinTest()
-builtin_titlecase   = BuiltinTitlecase()
-builtin_uppercase   = BuiltinUppercase()
+all_builtin_functions = [
+        BuiltinAdd(), BuiltinAssign(), BuiltinCapitalize(), BuiltinCmp(),
+        BuiltinContains(), BuiltinCount(), BuiltinDivide(), BuiltinEval(),
+        BuiltinIfempty(), BuiltinField(), BuiltinListitem(), BuiltinLookup(),
+        BuiltinLowercase(), BuiltinMultiply(), BuiltinPrint(), BuiltinRe(),
+        BuiltinShorten(), BuiltinStrcat(), BuiltinStrcmp(), BuiltinSubstr(),
+        BuiltinSubtract(), BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(),
+        BuiltinTitlecase(), BuiltinUppercase(),
+    ]
 
 class FormatterUserFunction(FormatterFunction):
     def __init__(self, name, doc, arg_count, program_text):

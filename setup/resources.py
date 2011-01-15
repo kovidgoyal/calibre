@@ -84,6 +84,22 @@ class Resources(Command):
 
             cPickle.dump(complete, open(dest, 'wb'), -1)
 
+        self.info('\tCreating template-functions.json')
+        dest = self.j(self.RESOURCES, 'template-functions.json')
+        import inspect
+        from calibre.utils.formatter_functions import all_builtin_functions
+        for cls in all_builtin_functions:
+            eval_func = inspect.getmembers(self.__class__,
+                    lambda x: inspect.ismethod(x) and x.__name__ == 'evaluate')
+            try:
+                lines = [l[4:] for l in inspect.getsourcelines(eval_func[0][1])[0]]
+            except:
+                continue
+            lines = ''.join(lines)
+            function_dict[cls.name] = lines
+        import json
+        json.dump(function_dict, open(dest, 'wb'))
+
     def clean(self):
         for x in ('scripts', 'recipes', 'ebook-convert-complete'):
             x = self.j(self.RESOURCES, x+'.pickle')
