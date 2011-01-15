@@ -5,7 +5,6 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.conversion.utils import PreProcessor
 
 class MOBIInput(InputFormatPlugin):
 
@@ -40,7 +39,3 @@ class MOBIInput(InputFormatPlugin):
                 accelerators['pagebreaks'] = '//h:div[@class="mbp_pagebreak"]'
         return mr.created_opf_path
 
-    def heuristics(self, options, html):
-        self.options = options
-        preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
-        return preprocessor(html)
