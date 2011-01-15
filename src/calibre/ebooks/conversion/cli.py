@@ -137,7 +137,7 @@ def add_pipeline_options(parser, plumber):
                       'italicize_common_cases', 'fix_indents',
                       'html_unwrap_factor', 'unwrap_lines',
                       'delete_blank_paragraphs', 'format_scene_breaks',
-                      'dehyphenate',
+                      'dehyphenate', 'renumber_headings',
                   ]
                   ),
                   

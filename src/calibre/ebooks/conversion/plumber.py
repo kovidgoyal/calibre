@@ -532,7 +532,13 @@ OptionRecommendation(name='dehyphenate',
     help=_('Analyses hyphenated words throughout the document.  The '
            'document itself is used as a dictionary to determine whether hyphens '
            'should be retained or removed.')),
-    
+
+OptionRecommendation(name='renumber_headings',
+    recommended_value=False, level=OptionRecommendation.LOW,
+    help=_('Looks for occurences of sequential <h1> or <h2> tags. '
+           'The tags are renumbered to prevent splitting in the middle '
+           'of chapter headings.')),
+
 OptionRecommendation(name='sr1_search',
     recommended_value='', level=OptionRecommendation.LOW,
     help=_('Search pattern (regular expression) to be replaced with '
