@@ -128,6 +128,36 @@ class PreProcessor(object):
         wordcount = get_wordcount_obj(word_count_text)
         return wordcount.words
 
+    def markup_italicis(self, html):
+        ITALICIZE_WORDS = [
+            'Etc.', 'etc.', 'viz.', 'ie.', 'i.e.', 'Ie.', 'I.e.', 'eg.',
+            'e.g.', 'Eg.', 'E.g.', 'et al.', 'et cetra', 'n.b.', 'N.b.',
+            'nota bene', 'Nota bene', 'Ste.', 'Mme.', 'Mdme.',
+            'Mlle.', 'Mons.', 'PS.', 'PPS.',
+        ]
+        
+        ITALICIZE_STYLE_PATS = [
+            r'(?msu)_(?P<words>.+?)_',
+            r'(?msu)/(?P<words>[^<>]+?)/',
+            r'(?msu)~~(?P<words>.+?)~~',
+            r'(?msu)\*(?P<words>.+?)\*',
+            r'(?msu)~(?P<words>.+?)~',
+            r'(?msu)_/(?P<words>[^<>]+?)/_',
+            r'(?msu)_\*(?P<words>.+?)\*_',
+            r'(?msu)\*/(?P<words>[^<>]+?)/\*',
+            r'(?msu)_\*/(?P<words>[^<>]+?)/\*_',
+            r'(?msu)/:(?P<words>[^<>]+?):/',
+            r'(?msu)\|:(?P<words>.+?):\|',
+        ]
+        
+        for word in ITALICIZE_WORDS:
+            html = html.replace(word, '<i>%s</i>' % word)
+
+        for pat in ITALICIZE_STYLE_PATS:
+            html = re.sub(pat, lambda mo: '<i>%s</i>' % mo.group('words'), html)
+
+        return html
+
     def markup_chapters(self, html, wordcount, blanks_between_paragraphs):
         '''
         Searches for common chapter headings throughout the document
@@ -360,7 +390,7 @@ class PreProcessor(object):
             html = self.markup_pre(html)
 
         # Replace series of non-breaking spaces with text-indent
-        if getattr(self.extra_opts, 'fix_indents', True):
+        if getattr(self.extra_opts, 'fix_indents', False):
             html = self.fix_nbsp_indents(html)
 
         if self.cleanup_required():
@@ -375,19 +405,21 @@ class PreProcessor(object):
         #self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
 
-        if getattr(self.extra_opts, 'markup_chapter_headings', True):
+        if getattr(self.extra_opts, 'markup_chapter_headings', False):
             html = self.markup_chapters(html, self.totalwords, blanks_between_paragraphs)
+
+        if getattr(self.extra_opts, 'italicize_common_cases', False): 
+            html = self.markup_italicis(html)
 
         # If more than 40% of the lines are empty paragraphs and the user has enabled delete
         # blank paragraphs then delete blank lines to clean up spacing
-        if blanks_between_paragraphs and getattr(self.extra_opts,
-        'delete_blank_paragraphs', False):
+        if blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
             self.log("deleting blank lines")
             html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
             html = self.blankreg.sub('', html)
             
         ###### Unwrap lines ######
-        if getattr(self.extra_opts, 'unwrap_lines', True):
+        if getattr(self.extra_opts, 'unwrap_lines', False):
             # Determine line ending type
             # Some OCR sourced files have line breaks in the html using a combination of span & p tags
             # span are used for hard line breaks, p for new paragraphs.  Determine which is used so
@@ -416,7 +448,7 @@ class PreProcessor(object):
                 dehyphenator = Dehyphenator()
                 html = dehyphenator(html,'html_cleanup', length)
 
-        if getattr(self.extra_opts, 'dehyphenate', True):
+        if getattr(self.extra_opts, 'dehyphenate', False):
             # dehyphenate in cleanup mode to fix anything previous conversions/editing missed
             self.log("Fixing hyphenated content")
             dehyphenator = Dehyphenator()
@@ -435,7 +467,7 @@ class PreProcessor(object):
         doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
         html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
 
-        if getattr(self.extra_opts, 'format_scene_breaks', True):
+        if getattr(self.extra_opts, 'format_scene_breaks', False):
             # Center separator lines
             html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em">' + '\g<break>' + '</p>', html)
 
