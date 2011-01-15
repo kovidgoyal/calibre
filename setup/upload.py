@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, cStringIO, base64, httplib, subprocess, hashlib, shutil
+import os, re, cStringIO, base64, httplib, subprocess, hashlib, shutil, time
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp
 
@@ -160,7 +160,7 @@ class UploadToGoogleCode(Command):
 
         return 'multipart/form-data; boundary=%s' % BOUNDARY, CRLF.join(body)
 
-    def upload(self, fname, desc, labels=[]):
+    def upload(self, fname, desc, labels=[], retry=0):
         form_fields = [('summary', desc)]
         form_fields.extend([('label', l.strip()) for l in labels])
 
@@ -183,6 +183,10 @@ class UploadToGoogleCode(Command):
 
         print 'Failed to upload with code %d and reason: %s'%(resp.status,
                 resp.reason)
+        if retry < 1:
+            print 'Retrying in 5 seconds....'
+            time.sleep(5)
+            return self.upload(fname, desc, labels=labels, retry=retry+1)
         raise Exception('Failed to upload '+fname)
 
 
