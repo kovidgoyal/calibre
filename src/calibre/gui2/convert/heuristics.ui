@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>657</width>
+    <width>811</width>
     <height>479</height>
    </rect>
   </property>
@@ -80,42 +80,42 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="2">
+      <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_delete_blank_paragraphs">
         <property name="text">
          <string>Delete blank lines between paragraphs</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
+      <item row="5" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_format_scene_breaks">
         <property name="text">
          <string>Ensure scene breaks are consistently formatted</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="2">
+      <item row="6" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_dehyphenate">
         <property name="text">
          <string>Remove unnecessary hyphens</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="2">
+      <item row="7" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_italicize_common_cases">
         <property name="text">
          <string>Italicize common words and patterns</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="0" colspan="2">
+      <item row="8" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_fix_indents">
         <property name="text">
          <string>Replace entity indents with CSS indents</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="0">
+      <item row="9" column="0">
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -140,6 +140,13 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="opt_renumber_headings">
+        <property name="text">
+         <string>Renumber sequences of &lt;h1&gt; or &lt;h2&gt; tags to prevent splitting</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

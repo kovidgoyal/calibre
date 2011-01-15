@@ -7,7 +7,6 @@ import os, glob, re, textwrap
 from lxml import etree
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.conversion.utils import PreProcessor
 
 border_style_map = {
         'single' : 'solid',

@@ -9,7 +9,6 @@ import os
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.pdb import PDBError, IDENTITY_TO_NAME, get_reader
-from calibre.ebooks.conversion.utils import PreProcessor
 
 class PDBInput(InputFormatPlugin):
 

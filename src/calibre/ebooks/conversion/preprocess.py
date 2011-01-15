@@ -397,10 +397,8 @@ class HTMLPreProcessor(object):
                      (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
                      ]
-    def __init__(self, input_plugin_preprocess, plugin_preprocess,
-            extra_opts=None):
-        self.input_plugin_preprocess = input_plugin_preprocess
-        self.plugin_preprocess = plugin_preprocess
+    def __init__(self, log=None, extra_opts=None):
+        self.log = log
         self.extra_opts = extra_opts
 
     def is_baen(self, src):
@@ -542,8 +540,10 @@ class HTMLPreProcessor(object):
             unidecoder = Unidecoder()
             html = unidecoder.decode(html)
 
-        if self.plugin_preprocess:
-            html = self.input_plugin_preprocess(self.extra_opts, html)
+        if getattr(self.extra_opts, 'enable_heuristics', False):
+            from calibre.ebooks.conversion.utils import HeuristicProcessor
+            preprocessor = HeuristicProcessor(self.extra_opts, self.log)
+            html = preprocessor(html)
 
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = self.smarten_punctuation(html)

@@ -24,7 +24,6 @@ from calibre.constants import islinux, isfreebsd, iswindows
 from calibre import unicode_path
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
-from calibre.ebooks.conversion.utils import PreProcessor
 
 class Link(object):
     '''
@@ -485,9 +484,3 @@ class HTMLInput(InputFormatPlugin):
             self.log.exception('Failed to read CSS file: %r'%link)
             return (None, None)
         return (None, raw)
-
-    def heuristics(self, options, html):
-        self.options = options
-        preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
-        return preprocessor(html)
-

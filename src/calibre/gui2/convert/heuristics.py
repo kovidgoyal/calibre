@@ -21,7 +21,7 @@ class HeuristicsWidget(Widget, Ui_Form):
                  'italicize_common_cases', 'fix_indents',
                  'html_unwrap_factor', 'unwrap_lines',
                  'delete_blank_paragraphs', 'format_scene_breaks',
-                 'dehyphenate']
+                 'dehyphenate', 'renumber_headings']
                 )
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
@@ -53,6 +53,7 @@ class HeuristicsWidget(Widget, Ui_Form):
         self.opt_delete_blank_paragraphs.setEnabled(state)
         self.opt_format_scene_breaks.setEnabled(state)
         self.opt_dehyphenate.setEnabled(state)
+        self.opt_renumber_headings(state)
         
         self.opt_unwrap_lines.setEnabled(state)
         if state and self.opt_unwrap_lines.checkState() == Qt.Checked:

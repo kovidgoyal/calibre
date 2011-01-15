@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.conversion.utils import PreProcessor
+from calibre.ebooks.conversion.utils import HeuristicProcessor
 
 
 class LITInput(InputFormatPlugin):
@@ -51,10 +51,3 @@ class LITInput(InputFormatPlugin):
                     for elem in body:
                         ne = copy.deepcopy(elem)
                         pre.append(ne)
-
-
-    def heuristics(self, options, html):
-        self.options = options
-        preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
-        return preprocessor(html)
-

@@ -160,18 +160,6 @@ class InputFormatPlugin(Plugin):
         '''
         raise NotImplementedError()
 
-    def heuristics(self, opts, html):
-        '''
-        This method is called by the conversion pipeline on all HTML before it
-        is parsed. It is meant to be used to do any required preprocessing on
-        the HTML, like removing hard line breaks, etc.
-
-        :param html: A unicode string
-        :return: A unicode string
-        '''
-        return html
-
-
     def convert(self, stream, options, file_ext, log, accelerators):
         '''
         This method must be implemented in sub-classes. It must return
