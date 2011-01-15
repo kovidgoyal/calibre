@@ -74,9 +74,6 @@ class DefaultEncoding:
         if not self.__datafetched:
             self._encoding()
             self.__datafetched = True
-        if self.__platform == 'Macintosh':
-            code_page = self.__code_page
-        else:
             code_page = 'ansicpg' + self.__code_page
         return self.__platform, code_page, self.__default_num
 
@@ -94,49 +91,59 @@ class DefaultEncoding:
 
     def _encoding(self):
         with open(self.__file, 'r') as read_obj:
+            cpfound = False
             if not self.__fetchraw:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     if self.__token_info == 'mi<mk<rtfhed-end':
                         break
-                    if self.__token_info == 'cw<ri<ansi-codpg':
-                        #cw<ri<ansi-codpg<nu<10000
-                        self.__code_page = line[20:-1] if int(line[20:-1]) \
-                                            else '1252'
                     if self.__token_info == 'cw<ri<macintosh_':
                         self.__platform = 'Macintosh'
-                        self.__code_page = 'mac_roman'
                     elif self.__token_info == 'cw<ri<pc________':
                         self.__platform = 'IBMPC'
-                        self.__code_page = '437'
                     elif self.__token_info == 'cw<ri<pca_______':
                         self.__platform = 'OS/2'
-                        self.__code_page = '850'
+                    if self.__token_info == 'cw<ri<ansi-codpg' \
+                        and int(line[20:-1]):
+                            self.__code_page = line[20:-1]
                     if self.__token_info == 'cw<ri<deflt-font':
                         self.__default_num = line[20:-1]
+                        cpfound = True
                         #cw<ri<deflt-font<nu<0
+                if self.__platform != 'Windows' and \
+                        not cpfound:
+                    if self.__platform == 'Macintosh':
+                       self.__code_page = '10000'
+                    elif self.__platform == 'IBMPC':
+                        self.__code_page = '437'
+                    elif self.__platform == 'OS/2':
+                        self.__code_page = '850'
             else:
                 fenc = re.compile(r'\\(mac|pc|ansi|pca)[\\ \{\}\t\n]+')
                 fenccp = re.compile(r'\\ansicpg(\d+)[\\ \{\}\t\n]+')
+                
                 for line in read_obj:
+                    if fenc.search(line):
+                        enc = fenc.search(line).group(1)
                     if fenccp.search(line):
                         cp = fenccp.search(line).group(1)
                         if not int(cp):
                             self.__code_page = cp
+                        cpfound = True
                         break
-                    if fenc.search(line):
-                        enc = fenc.search(line).group(1)
-                        if enc == 'mac':
-                            self.__code_page = 'mac_roman'
-                        elif enc == 'pc':
-                            self.__code_page = '437'
-                        elif enc == 'pca':
-                            self.__code_page = '850'
+                if self.__platform != 'Windows' and \
+                        not cpfound:
+                    if enc == 'mac':
+                        self.__code_page = '10000'
+                    elif enc == 'pc':
+                        self.__code_page = '437'
+                    elif enc == 'pca':
+                        self.__code_page = '850'
 
-# if __name__ == '__main__':
-    # encode_obj = DefaultEncoding(
-            # in_file = sys.argv[1],
-            # bug_handler = Exception,
-            # check_raw = True,
-            # )
-    # print encode_obj.get_codepage()
+if __name__ == '__main__':
+    encode_obj = DefaultEncoding(
+            in_file = sys.argv[1],
+            bug_handler = Exception,
+            check_raw = True,
+            )
+    print encode_obj.get_codepage()

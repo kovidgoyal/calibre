@@ -78,7 +78,6 @@ class ProcessTokens:
         'backslash'          :	('nu', '\\', self.text_func),
         'ob'                 :	('nu', '{', self.text_func),
         'cb'                 :	('nu', '}', self.text_func),
-        #'line'               :  ('nu', ' ', self.text_func), calibre
         # paragraph formatting => pf
         'page'               :  ('pf', 'page-break', self.default_func),
         'par'                :	('pf', 'par-end___', self.default_func),
