@@ -27,11 +27,13 @@ class Tokenize:
             bug_handler,
             copy = None,
             run_level = 1,
-    ):
+            # out_file = None,
+        ):
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__write_to = tempfile.mktemp()
+        # self.__out_file = out_file
         self.__compile_expressions()
         #variables
         self.__uc_char = 0
@@ -113,6 +115,8 @@ class Tokenize:
 
     def __sub_reg_split(self,input_file):
         input_file = self.__replace_spchar.mreplace(input_file)
+        # this is for older RTF
+        input_file = self.__par_exp.sub('\n\\par \n', input_file)
         input_file = self.__ms_hex_exp.sub("\\mshex0\g<1> ", input_file)
         input_file = self.__utf_ud.sub("\\{\\uc0 \g<1>\\}", input_file)
         #remove \n in bin data
@@ -127,7 +131,7 @@ class Tokenize:
         # this is for older RTF
         #line = re.sub(self.__par_exp, '\\par ', line)
         #return filter(lambda x: len(x) > 0, \
-            #(self.__remove_line.sub('', x) for x in tokens))
+            #(self.__remove_line.sub('', x) for x in tokens)) 
 
     def __compile_expressions(self):
         SIMPLE_RPL = {
@@ -153,8 +157,6 @@ class Tokenize:
             # put a backslash in front of to eliminate special cases and
             # make processing easier
             "}": "\\}",
-            # this is for older RTF
-            r'\\$': '\\par ',
             }
         self.__replace_spchar = MReplace(SIMPLE_RPL)
         #add ;? in case of char following \u
@@ -168,10 +170,12 @@ class Tokenize:
         #why keep backslash whereas \is replaced before?
         #remove \n from endline char
         self.__splitexp = re.compile(r"(\\[{}]|\n|\\[^\s\\{}&]+(?:[ \t\r\f\v])?)")
+        #this is for old RTF
+        self.__par_exp = re.compile(r'\\\n+')
+        # self.__par_exp = re.compile(r'\\$')
         #self.__bin_exp = re.compile(r"\\bin(-?\d{1,8}) {0,1}")
         #self.__utf_exp = re.compile(r"^\\u(-?\d{3,6})")
         #self.__splitexp = re.compile(r"(\\[\\{}]|{|}|\n|\\[^\s\\{}&]+(?:\s)?)")
-        #self.__par_exp = re.compile(r'\\$')
         #self.__remove_line = re.compile(r'\n+')
         #self.__mixed_exp = re.compile(r"(\\[a-zA-Z]+\d+)(\D+)")
         ##self.num_exp = re.compile(r"(\*|:|[a-zA-Z]+)(.*)")
@@ -199,7 +203,24 @@ class Tokenize:
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "tokenize.data")
+        # if self.__out_file:
+            # self.__file = self.__out_file
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
         
         #self.__special_tokens = [ '_', '~', "'", '{', '}' ]
+
+# import sys
+# def main(args=sys.argv):
+    # if len(args) < 1:
+        # print 'No file'
+        # return
+    # file = 'data_tokens.txt'
+    # if len(args) == 3:
+        # file = args[2]
+    # to = Tokenize(args[1], Exception, out_file = file)
+    # to.tokenize()
+
+
+# if __name__ == '__main__':
+    # sys.exit(main())
