@@ -15,7 +15,7 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile
+import sys, os, tempfile, re
 
 from calibre.ebooks.rtf2xml import copy
 
@@ -51,6 +51,7 @@ class Info:
         """
         self.__text_string = ''
         self.__state = 'before_info_table'
+        self.rmspace = re.compile(r'\s+')
         self.__state_dict = {
         'before_info_table': self.__before_info_table_func,
         'after_info_table': self.__after_info_table_func,
@@ -167,11 +168,13 @@ class Info:
         """
         if self.__token_info == 'mi<mk<docinf-end':
             self.__state = 'in_info_table'
-            self.__write_obj.write(
-                'mi<tg<open______<%s\n'
-                'tx<nu<__________<%s\n'
-                'mi<tg<close_____<%s\n' % (self.__tag, self.__text_string, self.__tag)
-            )
+            #Don't print empty tags
+            if len(self.rmspace.sub('',self.__text_string)):
+                self.__write_obj.write(
+                    'mi<tg<open______<%s\n'
+                    'tx<nu<__________<%s\n'
+                    'mi<tg<close_____<%s\n' % (self.__tag, self.__text_string, self.__tag)
+                )
             self.__text_string = ''
         elif line[0:2] == 'tx':
             self.__text_string += line[17:-1]
