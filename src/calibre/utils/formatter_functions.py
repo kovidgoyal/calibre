@@ -83,7 +83,10 @@ class BuiltinFormatterFunction(FormatterFunction):
         formatter_functions.register_builtin(self)
         eval_func = inspect.getmembers(self.__class__,
                         lambda x: inspect.ismethod(x) and x.__name__ == 'evaluate')
-        lines = [l[4:] for l in inspect.getsourcelines(eval_func[0][1])[0]]
+        try:
+            lines = [l[4:] for l in inspect.getsourcelines(eval_func[0][1])[0]]
+        except:
+            lines = []
         self.program_text = ''.join(lines)
 
 class BuiltinStrcmp(BuiltinFormatterFunction):
