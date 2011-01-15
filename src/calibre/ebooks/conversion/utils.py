@@ -156,7 +156,7 @@ class PreProcessor(object):
         n_lookahead_open = "\s+(?!"
         n_lookahead_close = ")"
 
-        default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\'\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
+        default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\'’\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
 
         chapter_types = [
             [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, "Searching for common Chapter Headings"],
