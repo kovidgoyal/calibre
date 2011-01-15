@@ -24,25 +24,19 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 )
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
-        self.opt_sr1_search.set_msg(_('Search regular expression 1:'))
-        self.opt_sr1_replace.set_msg(_('Replace regular expression 1:'))
-        self.opt_sr2_search.set_msg(_('Search regular expression 2:'))
-        self.opt_sr2_replace.set_msg(_('Replace regular expression 2:'))
-        self.opt_sr3_search.set_msg(_('Search regular expression 3:'))
-        self.opt_sr3_replace.set_msg(_('Replace regular expression 3:'))
+        self.opt_sr1_search.set_msg(_('Regular Expression'))
+        self.opt_sr2_search.set_msg(_('Regular Expression'))
+        self.opt_sr3_search.set_msg(_('Regular Expression'))
         
     def break_cycles(self):
         Widget.break_cycles(self)
         
         self.opt_sr1_search.break_cycles()
-        self.opt_sr1_replace.break_cycles()
         self.opt_sr2_search.break_cycles()
-        self.opt_sr2_replace.break_cycles()
         self.opt_sr3_search.break_cycles()
-        self.opt_sr3_replace.break_cycles()
 
     def pre_commit_check(self):
-        for x in ('sr1-search', 'sr1-replace', 'sr2-search', 'sr2-replace', 'sr3-search', 'sr3-replace',):
+        for x in ('sr1-search', 'sr2-search', 'sr3-search'):
             x = getattr(self, 'opt_'+x)
             try:
                 pat = unicode(x.regex)

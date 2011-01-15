@@ -13,24 +13,72 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Search</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Replace</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>1.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
     <widget class="RegexEdit" name="opt_sr1_search" native="true"/>
    </item>
-   <item>
-    <widget class="RegexEdit" name="opt_sr1_replace" native="true"/>
+   <item row="1" column="2">
+    <widget class="QLineEdit" name="opt_sr1_replace"/>
    </item>
-   <item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>2.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
     <widget class="RegexEdit" name="opt_sr2_search" native="true"/>
    </item>
-   <item>
-    <widget class="RegexEdit" name="opt_sr2_replace" native="true"/>
+   <item row="2" column="2">
+    <widget class="QLineEdit" name="opt_sr2_replace"/>
    </item>
-   <item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>3.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
     <widget class="RegexEdit" name="opt_sr3_search" native="true"/>
    </item>
-   <item>
-    <widget class="RegexEdit" name="opt_sr3_replace" native="true"/>
+   <item row="3" column="2">
+    <widget class="QLineEdit" name="opt_sr3_replace"/>
+   </item>
+   <item row="4" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>330</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
