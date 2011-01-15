@@ -21,19 +21,11 @@ class PreProcessor(object):
         self.deleted_nbsps = False
         self.totalwords = 0
         self.min_chapters = 1
+        self.chapters_no_title = 0
+        self.chapters_with_title = 0
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
         self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sid=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
-
-        self.chapter_types = [
-            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, "Searching for common Chapter Headings", 'common'],
-            [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•=]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, "Searching for emphasized lines", 'emphasized'], # Emphasized lines
-            [r"[^'\"]?(\d+(\.|:)|CHAPTER)\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings", 'numeric'],  # Numeric Chapters
-            [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, "Searching for letter spaced headings", 'letter_spaced'],  # Spaced Lettering
-            [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles", 'numeric_title'], # Numeric Titles
-            [r"[^'\"]?(\d+|CHAPTER)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, "Searching for simple numeric chapter headings", 'plain_number'],  # Numeric Chapters, no dot or colon
-            [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters", 'uppercase' ] # Uppercase Chapters
-            ]
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
@@ -59,6 +51,14 @@ class PreProcessor(object):
         self.log("marked " + unicode(self.html_preprocess_sections) +
                 " section markers based on punctuation. - " + unicode(chap))
         return '<'+styles+' style="page-break-before:always">'+chap
+
+    def analyze_title_matches(self, match):
+        chap = match.group('chap')
+        title = match.group('title')
+        if not title:
+            self.chapters_no_title = self.chapters_no_title + 1
+        else:
+            self.chapters_with_title = self.chapters_with_title + 1
 
     def insert_indent(self, match):
         pstyle = match.group('formatting')
@@ -173,20 +173,43 @@ class PreProcessor(object):
 
         default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\'’\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
 
-        # Start with most typical chapter headings, get more aggressive until one works
-        for [chapter_type, lookahead_ignorecase, log_message, type_name] in self.chapter_types:
-            if self.html_preprocess_sections >= self.min_chapters:
-                break
-            full_chapter_line = chapter_line_open+chapter_header_open+chapter_type+chapter_header_close+chapter_line_close
-            n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-            self.log("Marked " + unicode(self.html_preprocess_sections) + " headings, " + log_message)
-            if lookahead_ignorecase:
-                chapter_marker = init_lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-                chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
-            else:
-                chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
-                chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
-            html = chapdetect.sub(self.chapter_head, html)
+        chapter_types = [
+            [r"[^'\"]?(CHAPTER|Kapitel)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, "Searching for most common chapter headings", 'chapter'],  # Highest frequency headings which include titles
+            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, "Searching for common section headings", 'common'],
+            [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•=]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, "Searching for emphasized lines", 'emphasized'], # Emphasized lines
+            [r"[^'\"]?(\d+(\.|:))\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings", 'numeric'],  # Numeric Chapters
+            [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, "Searching for letter spaced headings", 'letter_spaced'],  # Spaced Lettering
+            [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles", 'numeric_title'], # Numeric Titles
+            [r"[^'\"]?(\d+)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, "Searching for simple numeric headings", 'plain_number'],  # Numeric Chapters, no dot or colon
+            [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters", 'uppercase' ] # Uppercase Chapters
+            ]
+
+        def recurse_patterns(html, analyze):
+            # Start with most typical chapter headings, get more aggressive until one works
+            for [chapter_type, lookahead_ignorecase, log_message, type_name] in chapter_types:
+                if self.html_preprocess_sections >= self.min_chapters:
+                    break
+                full_chapter_line = chapter_line_open+chapter_header_open+chapter_type+chapter_header_close+chapter_line_close
+                n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
+                self.log("Marked " + unicode(self.html_preprocess_sections) + " headings, " + log_message)
+                if lookahead_ignorecase:
+                    chapter_marker = init_lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
+                    chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
+                else:
+                    chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
+                    chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
+                if analyze:
+                    hits = len(chapdetect.findall(html))
+                    print unicode(type_name)+" had "+unicode(hits)+" hits"
+                    chapdetect.sub(self.analyze_title_matches, html)
+                    print unicode(self.chapters_no_title)+" chapters with no title"
+                    print unicode(self.chapters_with_title)+" chapters with titles"
+                else:
+                    html = chapdetect.sub(self.chapter_head, html)
+                    return html
+
+        recurse_patterns(html, True)
+        html = recurse_patterns(html, False)
 
         words_per_chptr = wordcount
         if words_per_chptr > 0 and self.html_preprocess_sections > 0:
