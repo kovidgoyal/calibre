@@ -81,13 +81,24 @@ class FormatterFunction(object):
 class BuiltinFormatterFunction(FormatterFunction):
     def __init__(self):
         formatter_functions.register_builtin(self)
+        try:
+            # strip off the first character, which is a newline
+            lines = self.program_text[1:]
+        except:
+            lines = ''
+        self.program_text = lines
+
+        # If we can get the source, check if it is the same as in the string.
+        # This is to give an indication during testing that the text is wrong.
         eval_func = inspect.getmembers(self.__class__,
                         lambda x: inspect.ismethod(x) and x.__name__ == 'evaluate')
         try:
             lines = [l[4:] for l in inspect.getsourcelines(eval_func[0][1])[0]]
         except:
-            lines = []
-        self.program_text = ''.join(lines)
+            return
+        lines = ''.join(lines)
+        if lines != self.program_text:
+            print 'mismatch in program text for function ', self.name
 
 class BuiltinStrcmp(BuiltinFormatterFunction):
     name = 'strcmp'
@@ -95,6 +106,15 @@ class BuiltinStrcmp(BuiltinFormatterFunction):
     doc = _('strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x '
             'and y as strings. Returns lt if x < y. Returns eq if x == y. '
             'Otherwise returns gt.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):
+    v = strcmp(x, y)
+    if v < 0:
+        return lt
+    if v == 0:
+        return eq
+    return gt
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):
         v = strcmp(x, y)
@@ -109,6 +129,16 @@ class BuiltinCmp(BuiltinFormatterFunction):
     arg_count = 5
     doc =   _('cmp(x, y, lt, eq, gt) -- compares x and y after converting both to '
             'numbers. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):
+    x = float(x if x else 0)
+    y = float(y if y else 0)
+    if x < y:
+        return lt
+    if x == y:
+        return eq
+    return gt
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):
         x = float(x if x else 0)
@@ -124,6 +154,14 @@ class BuiltinStrcat(BuiltinFormatterFunction):
     arg_count = -1
     doc = _('strcat(a, b, ...) -- can take any number of arguments. Returns a '
             'string formed by concatenating all the arguments')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, *args):
+    i = 0
+    res = ''
+    for i in range(0, len(args)):
+        res += args[i]
+    return res
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         i = 0
@@ -136,6 +174,12 @@ class BuiltinAdd(BuiltinFormatterFunction):
     name = 'add'
     arg_count = 2
     doc = _('add(x, y) -- returns x + y. Throws an exception if either x or y are not numbers.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, x, y):
+    x = float(x if x else 0)
+    y = float(y if y else 0)
+    return unicode(x + y)
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x else 0)
@@ -146,6 +190,12 @@ class BuiltinSubtract(BuiltinFormatterFunction):
     name = 'subtract'
     arg_count = 2
     doc = _('subtract(x, y) -- returns x - y. Throws an exception if either x or y are not numbers.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, x, y):
+    x = float(x if x else 0)
+    y = float(y if y else 0)
+    return unicode(x - y)
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x else 0)
@@ -156,6 +206,12 @@ class BuiltinMultiply(BuiltinFormatterFunction):
     name = 'multiply'
     arg_count = 2
     doc = _('multiply(x, y) -- returns x * y. Throws an exception if either x or y are not numbers.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, x, y):
+    x = float(x if x else 0)
+    y = float(y if y else 0)
+    return unicode(x * y)
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x else 0)
@@ -166,6 +222,12 @@ class BuiltinDivide(BuiltinFormatterFunction):
     name = 'divide'
     arg_count = 2
     doc = _('divide(x, y) -- returns x / y. Throws an exception if either x or y are not numbers.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, x, y):
+    x = float(x if x else 0)
+    y = float(y if y else 0)
+    return unicode(x / y)
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x else 0)
@@ -182,6 +244,11 @@ class BuiltinTemplate(BuiltinFormatterFunction):
             ']] for the } character; they are converted automatically. '
             'For example, template(\'[[title_sort]]\') will evaluate the '
             'template {title_sort} and return its value.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, template):
+    template = template.replace('[[', '{').replace(']]', '}')
+    return formatter.safe_format(template, kwargs, 'TEMPLATE', mi)
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
         template = template.replace('[[', '{').replace(']]', '}')
@@ -194,6 +261,12 @@ class BuiltinEval(BuiltinFormatterFunction):
             'variables (those \'assign\'ed to) instead of the book metadata. '
             ' This permits using the template processor to construct complex '
             'results from local variables.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, template):
+    from formatter import eval_formatter
+    template = template.replace('[[', '{').replace(']]', '}')
+    return eval_formatter.safe_format(template, locals, 'EVAL', None)
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
         from formatter import eval_formatter
@@ -205,6 +278,11 @@ class BuiltinAssign(BuiltinFormatterFunction):
     arg_count = 2
     doc = _('assign(id, val) -- assigns val to id, then returns val. '
             'id must be an identifier, not an expression')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, target, value):
+    locals[target] = value
+    return value
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, target, value):
         locals[target] = value
@@ -216,6 +294,11 @@ class BuiltinPrint(BuiltinFormatterFunction):
     doc = _('print(a, b, ...) -- prints the arguments to standard output. '
             'Unless you start calibre from the command line (calibre-debug -g), '
             'the output will go to a black hole.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, *args):
+    print args
+    return None
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         print args
@@ -225,6 +308,10 @@ class BuiltinField(BuiltinFormatterFunction):
     name = 'field'
     arg_count = 1
     doc = _('field(name) -- returns the metadata field named by name')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, name):
+    return formatter.get_value(name, [], kwargs)
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, name):
         return formatter.get_value(name, [], kwargs)
@@ -238,6 +325,10 @@ class BuiltinSubstr(BuiltinFormatterFunction):
             'characters counting from the right. If end is zero, then it '
             'indicates the last character. For example, substr(\'12345\', 1, 0) '
             'returns \'2345\', and substr(\'12345\', 1, -1) returns \'234\'.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, str_, start_, end_):
+    return str_[int(start_): len(str_) if int(end_) == 0 else int(end_)]
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, str_, start_, end_):
         return str_[int(start_): len(str_) if int(end_) == 0 else int(end_)]
@@ -252,6 +343,23 @@ class BuiltinLookup(BuiltinFormatterFunction):
             'function in one composite field to use the value of some other '
             'composite field. This is extremely useful when constructing '
             'variable save paths')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, val, *args):
+    if len(args) == 2: # here for backwards compatibility
+        if val:
+            return formatter.vformat('{'+args[0].strip()+'}', [], kwargs)
+        else:
+            return formatter.vformat('{'+args[1].strip()+'}', [], kwargs)
+    if (len(args) % 2) != 1:
+        raise ValueError(_('lookup requires either 2 or an odd number of arguments'))
+    i = 0
+    while i < len(args):
+        if i + 1 >= len(args):
+            return formatter.vformat('{' + args[i].strip() + '}', [], kwargs)
+        if re.search(args[i], val):
+            return formatter.vformat('{'+args[i+1].strip() + '}', [], kwargs)
+        i += 2
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, val, *args):
         if len(args) == 2: # here for backwards compatibility
@@ -274,6 +382,13 @@ class BuiltinTest(BuiltinFormatterFunction):
     arg_count = 3
     doc = _('test(val, text if not empty, text if empty) -- return `text if not '
             'empty` if the field is not empty, otherwise return `text if empty`')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, val, value_if_set, value_not_set):
+    if val:
+        return value_if_set
+    else:
+        return value_not_set
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, val, value_if_set, value_not_set):
         if val:
@@ -288,6 +403,14 @@ class BuiltinContains(BuiltinFormatterFunction):
             'if field contains matches for the regular expression `pattern`. '
             'Returns `text if match` if matches are found, otherwise it returns '
             '`text if no match`')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals,
+             val, test, value_if_present, value_if_not):
+    if re.search(test, val):
+        return value_if_present
+    else:
+        return value_if_not
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals,
                  val, test, value_if_present, value_if_not):
@@ -304,6 +427,18 @@ class BuiltinSwitch(BuiltinFormatterFunction):
             'the regular expression `pattern` and if so, returns that '
             '`value`. If no pattern matches, then else_value is returned. '
             'You can have as many `pattern, value` pairs as you want')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, val, *args):
+    if (len(args) % 2) != 1:
+        raise ValueError(_('switch requires an odd number of arguments'))
+    i = 0
+    while i < len(args):
+        if i + 1 >= len(args):
+            return args[i]
+        if re.search(args[i], val):
+            return args[i+1]
+        i += 2
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, val, *args):
         if (len(args) % 2) != 1:
@@ -323,6 +458,10 @@ class BuiltinRe(BuiltinFormatterFunction):
             'the regular expression. All instances of `pattern` are replaced '
             'with `replacement`. As in all of calibre, these are '
             'python-compatible regular expressions')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
+    return re.sub(pattern, replacement, val)
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
         return re.sub(pattern, replacement, val)
@@ -332,6 +471,13 @@ class BuiltinIfempty(BuiltinFormatterFunction):
     arg_count = 2
     doc = _('ifempty(val, text if empty) -- return val if val is not empty, '
             'otherwise return `text if empty`')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, val, value_if_empty):
+    if val:
+        return val
+    else:
+        return value_if_empty
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, val, value_if_empty):
         if val:
@@ -354,6 +500,16 @@ class BuiltinShorten(BuiltinFormatterFunction):
             'If the field\'s length is less than left chars + right chars + '
             'the length of `middle text`, then the field will be used '
             'intact. For example, the title `The Dome` would not be changed.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals,
+             val, leading, center_string, trailing):
+    l = max(0, int(leading))
+    t = max(0, int(trailing))
+    if len(val) > l + len(center_string) + t:
+        return val[0:l] + center_string + ('' if t == 0 else val[-t:])
+    else:
+        return val
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals,
                  val, leading, center_string, trailing):
@@ -371,6 +527,10 @@ class BuiltinCount(BuiltinFormatterFunction):
             'separated by `separator`, returning the number of items in the '
             'list. Most lists use a comma as the separator, but authors '
             'uses an ampersand. Examples: {tags:count(,)}, {authors:count(&)}')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, val, sep):
+    return unicode(len(val.split(sep)))
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, val, sep):
         return unicode(len(val.split(sep)))
@@ -384,6 +544,17 @@ class BuiltinListitem(BuiltinFormatterFunction):
             'using `list_item(-1,separator)`. If the item is not in the list, '
             'then the empty value is returned. The separator has the same '
             'meaning as in the count function.')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, val, index, sep):
+    if not val:
+        return ''
+    index = int(index)
+    val = val.split(sep)
+    try:
+        return val[index]
+    except:
+        return ''
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, val, index, sep):
         if not val:
@@ -399,6 +570,10 @@ class BuiltinUppercase(BuiltinFormatterFunction):
     name = 'uppercase'
     arg_count = 1
     doc = _('uppercase(val) -- return value of the field in upper case')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, val):
+    return val.upper()
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return val.upper()
@@ -407,6 +582,10 @@ class BuiltinLowercase(BuiltinFormatterFunction):
     name = 'lowercase'
     arg_count = 1
     doc = _('lowercase(val) -- return value of the field in lower case')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, val):
+    return val.lower()
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return val.lower()
@@ -415,6 +594,10 @@ class BuiltinTitlecase(BuiltinFormatterFunction):
     name = 'titlecase'
     arg_count = 1
     doc = _('titlecase(val) -- return value of the field in title case')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, val):
+    return titlecase(val)
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return titlecase(val)
@@ -423,6 +606,10 @@ class BuiltinCapitalize(BuiltinFormatterFunction):
     name = 'capitalize'
     arg_count = 1
     doc = _('capitalize(val) -- return value of the field capitalized')
+    program_text = r'''
+def evaluate(self, formatter, kwargs, mi, locals, val):
+    return capitalize(val)
+'''
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return capitalize(val)
