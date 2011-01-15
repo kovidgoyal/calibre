@@ -694,7 +694,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         aum = []
         aus = {}
         for (author, author_sort) in aut_list:
-            aum.append(author)
+            aum.append(author.replace('|', ','))
             aus[author] = author_sort.replace('|', ',')
         mi.title       = row[fm['title']]
         mi.authors     = aum
