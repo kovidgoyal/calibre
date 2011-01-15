@@ -272,9 +272,11 @@ class PreProcessor(object):
 
         unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
         em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
+        shy_unwrap = re.compile(u"%s" % shy_unwrap_regex, re.UNICODE)
 
         content = unwrap.sub(' ', content)
         content = em_en_unwrap.sub('', content)
+        content = shy_unwrap.sub('', content)
         return content
 
     def txt_process(self, match):
@@ -461,11 +463,12 @@ class PreProcessor(object):
             chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
             html = chapdetect3.sub(self.chapter_break, html)
 
-        # search for places where a first or second level heading is immediately followed by another
-        # top level heading.  demote the second heading to h3 to prevent splitting between chapter
-        # headings and titles, images, etc
-        doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
-        html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
+        if getattr(self.extra_opts, 'renumber_headings', False):
+            # search for places where a first or second level heading is immediately followed by another
+            # top level heading.  demote the second heading to h3 to prevent splitting between chapter
+            # headings and titles, images, etc
+            doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
+            html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
 
         if getattr(self.extra_opts, 'format_scene_breaks', False):
             # Center separator lines
