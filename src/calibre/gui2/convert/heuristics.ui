@@ -76,7 +76,7 @@
       <item row="2" column="0" colspan="3">
        <widget class="QCheckBox" name="opt_markup_chapter_headings">
         <property name="text">
-         <string>markup_chapter_headings</string>
+         <string>Detect and markup unformatted chapter headings and sub headings</string>
         </property>
        </widget>
       </item>
@@ -90,28 +90,28 @@
       <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_format_scene_breaks">
         <property name="text">
-         <string>format_scene_breaks</string>
+         <string>Ensure scene breaks are consistently formatted</string>
         </property>
        </widget>
       </item>
       <item row="5" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_dehyphenate">
         <property name="text">
-         <string>dehyphenate</string>
+         <string>Remove unnecessary hyphens</string>
         </property>
        </widget>
       </item>
       <item row="6" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_italicize_common_cases">
         <property name="text">
-         <string>italicize_common_cases</string>
+         <string>Italicize common words and patterns</string>
         </property>
        </widget>
       </item>
       <item row="7" column="0" colspan="2">
        <widget class="QCheckBox" name="opt_fix_indents">
         <property name="text">
-         <string>fix_indents</string>
+         <string>Replace entity indents with CSS indents</string>
         </property>
        </widget>
       </item>
@@ -123,7 +123,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>131</width>
-          <height>95</height>
+          <height>35</height>
          </size>
         </property>
        </spacer>
@@ -144,43 +144,8 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Search and Replace</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="RegexEdit" name="opt_sr1_search" native="true"/>
-      </item>
-      <item row="0" column="1">
-       <widget class="RegexEdit" name="opt_sr1_replace" native="true"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="RegexEdit" name="opt_sr2_search" native="true"/>
-      </item>
-      <item row="1" column="1">
-       <widget class="RegexEdit" name="opt_sr2_replace" native="true"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="RegexEdit" name="opt_sr3_search" native="true"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="RegexEdit" name="opt_sr3_replace" native="true"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>RegexEdit</class>
-   <extends>QWidget</extends>
-   <header>regex_builder.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>

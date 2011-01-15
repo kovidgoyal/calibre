@@ -131,18 +131,24 @@ def add_pipeline_options(parser, plumber):
                   ),
                   
               'HEURISTICS' : (
-                  _('Modify the document text and strucutre using common patterns.'),
+                  _('Modify the document text and structure using common patterns.'),
                   [
                       'enable_heuristics', 'markup_chapter_headings',
                       'italicize_common_cases', 'fix_indents',
                       'html_unwrap_factor', 'unwrap_lines',
                       'delete_blank_paragraphs', 'format_scene_breaks',
                       'dehyphenate',
+                  ]
+                  ),
+                  
+              'SEARCH AND REPLACE' : (
+                 _('Modify the document text and structure using user defined patterns.'),
+                 [
                       'sr1_search', 'sr1_replace',
                       'sr2_search', 'sr2_replace',
                       'sr3_search', 'sr3_replace',
-                  ]
-                  ),
+                 ]
+              ),
 
               'STRUCTURE DETECTION' : (
                   _('Control auto-detection of document structure.'),
@@ -177,8 +183,8 @@ def add_pipeline_options(parser, plumber):
               }
 
     group_order = ['', 'LOOK AND FEEL', 'HEURISTICS',
-            'STRUCTURE DETECTION', 'TABLE OF CONTENTS',
-            'METADATA', 'DEBUG']
+            'SEARCH AND REPLACE' 'STRUCTURE DETECTION',
+            'TABLE OF CONTENTS', 'METADATA', 'DEBUG']
 
     for group in group_order:
         desc, options = groups[group]
