@@ -236,7 +236,7 @@ class PreProcessor(object):
                     print unicode(self.chapters_with_title)+" chapters with titles"
                 else:
                     html = chapdetect.sub(self.chapter_head, html)
-                    return html
+            return html
 
         recurse_patterns(html, True)
         html = recurse_patterns(html, False)
@@ -322,7 +322,8 @@ class PreProcessor(object):
         html = re.sub(ur'\s*<o:p>\s*</o:p>', ' ', html)
         # Delete microsoft 'smart' tags
         html = re.sub('(?i)</?st1:\w+>', '', html)
-        # Get rid of empty span, bold, & italics tags
+        # Get rid of empty span, bold, font, & italics tags
+        html = re.sub(r'\s*<font[^>]*>\s*</font>\s*', '', html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
         html = re.sub(r"\s*<[ibu][^>]*>\s*(<[ibu][^>]*>\s*</[ibu]>\s*){0,2}\s*</[ibu]>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)

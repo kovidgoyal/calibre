@@ -5,6 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from calibre.customize.conversion import InputFormatPlugin
+from calibre.ebooks.conversion.utils import PreProcessor
 
 class MOBIInput(InputFormatPlugin):
 
@@ -40,10 +41,6 @@ class MOBIInput(InputFormatPlugin):
         return mr.created_opf_path
 
     def heuristics(self, options, html):
-        # search for places where a first or second level heading is immediately followed by another
-        # top level heading.  demote the second heading to h3 to prevent splitting between chapter
-        # headings and titles, images, etc
-        doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
-        html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
-        return html
-
+        self.options = options
+        preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
+        return preprocessor(html)
