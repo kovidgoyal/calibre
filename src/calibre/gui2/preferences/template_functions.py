@@ -25,37 +25,49 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         template function is written in python. It takes information from the
         book, processes it in some way, then returns a string result. Functions
         defined here are usable in templates in the same way that builtin
-        functions are usable. The function must be named evaluate, and must
-        have the signature shown below.</p>
-        <p><code>evaluate(self, formatter, kwargs, mi, locals, your_arguments)
+        functions are usable. The function must be named <b>evaluate</b>, and
+        must have the signature shown below.</p>
+        <p><code>evaluate(self, formatter, kwargs, mi, locals, your parameters)
         &rarr; returning a unicode string</code></p>
-        <p>The arguments to evaluate are:
+        <p>The parameters of the evaluate function are:
         <ul>
-        <li><b>formatter:</b> the instance of the formatter being used to
+        <li><b>formatter</b>: the instance of the formatter being used to
         evaluate the current template. You can use this to do recursive
         template evaluation.</li>
-        <li><b>kwargs:</b> a dictionary of metadata. Field values are in this
-        dictionary. mi: a Metadata instance. Used to get field information.
+        <li><b>kwargs</b>: a dictionary of metadata. Field values are in this
+        dictionary.
+        <li><b>mi</b>: a Metadata instance. Used to get field information.
         This parameter can be None in some cases, such as when evaluating
         non-book templates.</li>
-        <li><b>locals:</b> the local variables assigned to by the current
+        <li><b>locals</b>: the local variables assigned to by the current
         template program.</li>
-        <li><b>Your_arguments</b> must be one or more parameter (number
-        matching the arg count box), or the value *args for a variable number
-        of arguments. These are values passed into the function. One argument
-        is required, and is usually the value of the field being operated upon.
-        Note that when writing in basic template mode, the user does not
-        provide this first argument. Instead it is the value of the field the
-        function is operating upon.</li>
+        <li><b>your parameters</b>: You must supply one or more formal
+        parameters. The number must match the arg count box, unless arg count is
+        -1 (variable number or arguments), in which case the last argument must
+        be *args. At least one argument is required, and is usually the value of
+        the field being operated upon. Note that when writing in basic template
+        mode, the user does not provide this first argument. Instead it is
+        supplied by the formatter.</li>
         </ul></p>
         <p>
-        The following example function looks for various values in the tags
-        metadata field, returning those values that appear in tags.
+        The following example function checks the value of the field. If the
+        field is not empty, the field's value is returned, otherwise the value
+        EMPTY is returned.
         <pre>
+        name: my_ifempty
+        arg count: 1
+        doc: my_ifempty(val) -- return val if it is not empty, otherwise the string 'EMPTY'
+        program code:
         def evaluate(self, formatter, kwargs, mi, locals, val):
-            awards=['allbooks', 'PBook', 'ggff']
-            return ', '.join([t for t in kwargs.get('tags') if t in awards])
-        </pre>
+            if val:
+                return val
+            else:
+                return 'EMPTY'</pre>
+        This function can be called in any of the three template program modes:
+        <ul>
+        <li>single-function mode: {tags:my_ifempty()}</li>
+        <li>template program mode: {tags:'my_ifempty($)'}</li>
+        <li>general program mode: program: my_ifempty(field('tags'))</li>
         </p>
         ''')
         self.textBrowser.setHtml(help_text)
@@ -67,13 +79,21 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.build_function_names_box()
         self.function_name.currentIndexChanged[str].connect(self.function_index_changed)
         self.function_name.editTextChanged.connect(self.function_name_edited)
+        self.argument_count.valueChanged.connect(self.enable_replace_button)
+        self.documentation.textChanged.connect(self.enable_replace_button)
+        self.program.textChanged.connect(self.enable_replace_button)
         self.create_button.clicked.connect(self.create_button_clicked)
         self.delete_button.clicked.connect(self.delete_button_clicked)
         self.create_button.setEnabled(False)
         self.delete_button.setEnabled(False)
+        self.replace_button.setEnabled(False)
         self.clear_button.clicked.connect(self.clear_button_clicked)
+        self.replace_button.clicked.connect(self.replace_button_clicked)
         self.program.setTabStopWidth(20)
         self.highlighter = PythonHighlighter(self.program.document())
+
+    def enable_replace_button(self):
+        self.replace_button.setEnabled(self.delete_button.isEnabled())
 
     def clear_button_clicked(self):
         self.build_function_names_box()
@@ -112,6 +132,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.create_button.setEnabled(True)
             self.delete_button.setEnabled(False)
             self.build_function_names_box(set_to=name)
+            self.program.setReadOnly(False)
         else:
             error_dialog(self.gui, _('Template functions'),
                          _('Function not defined'), show=True)
@@ -143,6 +164,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.documentation.setReadOnly(False)
         self.argument_count.setReadOnly(False)
         self.create_button.setEnabled(True)
+        self.replace_button.setEnabled(False)
+        self.program.setReadOnly(False)
 
     def function_index_changed(self, txt):
         txt = unicode(txt)
@@ -156,15 +179,21 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         func = self.funcs[txt]
         self.argument_count.setValue(func.arg_count)
         self.documentation.setText(func.doc)
+        self.program.setPlainText(func.program_text)
         if txt in self.builtins:
             self.documentation.setReadOnly(True)
             self.argument_count.setReadOnly(True)
-            self.program.clear()
+            self.program.setReadOnly(True)
             self.delete_button.setEnabled(False)
         else:
             self.program.setPlainText(func.program_text)
             self.delete_button.setEnabled(True)
+            self.program.setReadOnly(False)
+        self.replace_button.setEnabled(False)
 
+    def replace_button_clicked(self):
+        self.delete_button_clicked()
+        self.create_button_clicked()
     def refresh_gui(self, gui):
         pass
 

@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, traceback
+import inspect, re, traceback, sys
 
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp
@@ -58,13 +58,10 @@ class FormatterFunction(object):
     name = 'no name provided'
     arg_count = 0
 
-    def __init__(self):
-        formatter_functions.register_builtin(self)
-
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         raise NotImplementedError()
 
-    def eval(self, formatter, kwargs, mi, locals, *args):
+    def eval_(self, formatter, kwargs, mi, locals, *args):
         try:
             ret = self.evaluate(formatter, kwargs, mi, locals, *args)
             if isinstance(ret, (str, unicode)):
@@ -75,9 +72,24 @@ class FormatterFunction(object):
                 return ','.join(list)
         except:
             traceback.print_exc()
-            return _('Function threw exception' + traceback.format_exc())
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            info = ': '.join(traceback.format_exception(exc_type, exc_value,
+                                        exc_traceback)[-2:]).replace('\n', '')
+            return _('Exception ' + info)
 
-class BuiltinStrcmp(FormatterFunction):
+
+class BuiltinFormatterFunction(FormatterFunction):
+    def __init__(self):
+        formatter_functions.register_builtin(self)
+        eval_func = inspect.getmembers(self.__class__,
+                        lambda x: inspect.ismethod(x) and x.__name__ == 'evaluate')
+        try:
+            lines = [l[4:] for l in inspect.getsourcelines(eval_func[0][1])[0]]
+        except:
+            lines = []
+        self.program_text = ''.join(lines)
+
+class BuiltinStrcmp(BuiltinFormatterFunction):
     name = 'strcmp'
     arg_count = 5
     doc = _('strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x '
@@ -92,7 +104,7 @@ class BuiltinStrcmp(FormatterFunction):
             return eq
         return gt
 
-class BuiltinCmp(FormatterFunction):
+class BuiltinCmp(BuiltinFormatterFunction):
     name = 'cmp'
     arg_count = 5
     doc =   _('cmp(x, y, lt, eq, gt) -- compares x and y after converting both to '
@@ -107,7 +119,7 @@ class BuiltinCmp(FormatterFunction):
             return eq
         return gt
 
-class BuiltinStrcat(FormatterFunction):
+class BuiltinStrcat(BuiltinFormatterFunction):
     name = 'strcat'
     arg_count = -1
     doc = _('strcat(a, b, ...) -- can take any number of arguments. Returns a '
@@ -120,7 +132,7 @@ class BuiltinStrcat(FormatterFunction):
             res += args[i]
         return res
 
-class BuiltinAdd(FormatterFunction):
+class BuiltinAdd(BuiltinFormatterFunction):
     name = 'add'
     arg_count = 2
     doc = _('add(x, y) -- returns x + y. Throws an exception if either x or y are not numbers.')
@@ -130,7 +142,7 @@ class BuiltinAdd(FormatterFunction):
         y = float(y if y else 0)
         return unicode(x + y)
 
-class BuiltinSubtract(FormatterFunction):
+class BuiltinSubtract(BuiltinFormatterFunction):
     name = 'subtract'
     arg_count = 2
     doc = _('subtract(x, y) -- returns x - y. Throws an exception if either x or y are not numbers.')
@@ -140,7 +152,7 @@ class BuiltinSubtract(FormatterFunction):
         y = float(y if y else 0)
         return unicode(x - y)
 
-class BuiltinMultiply(FormatterFunction):
+class BuiltinMultiply(BuiltinFormatterFunction):
     name = 'multiply'
     arg_count = 2
     doc = _('multiply(x, y) -- returns x * y. Throws an exception if either x or y are not numbers.')
@@ -150,7 +162,7 @@ class BuiltinMultiply(FormatterFunction):
         y = float(y if y else 0)
         return unicode(x * y)
 
-class BuiltinDivide(FormatterFunction):
+class BuiltinDivide(BuiltinFormatterFunction):
     name = 'divide'
     arg_count = 2
     doc = _('divide(x, y) -- returns x / y. Throws an exception if either x or y are not numbers.')
@@ -160,7 +172,7 @@ class BuiltinDivide(FormatterFunction):
         y = float(y if y else 0)
         return unicode(x / y)
 
-class BuiltinTemplate(FormatterFunction):
+class BuiltinTemplate(BuiltinFormatterFunction):
     name = 'template'
     arg_count = 1
     doc = _('template(x) -- evaluates x as a template. The evaluation is done '
@@ -168,17 +180,17 @@ class BuiltinTemplate(FormatterFunction):
             'the caller and the template evaluation. Because the { and } '
             'characters are special, you must use [[ for the { character and '
             ']] for the } character; they are converted automatically. '
-            'For example, ``template(\'[[title_sort]]\') will evaluate the '
+            'For example, template(\'[[title_sort]]\') will evaluate the '
             'template {title_sort} and return its value.')
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
         template = template.replace('[[', '{').replace(']]', '}')
         return formatter.safe_format(template, kwargs, 'TEMPLATE', mi)
 
-class BuiltinEval(FormatterFunction):
+class BuiltinEval(BuiltinFormatterFunction):
     name = 'eval'
     arg_count = 1
-    doc = _('eval(template)`` -- evaluates the template, passing the local '
+    doc = _('eval(template) -- evaluates the template, passing the local '
             'variables (those \'assign\'ed to) instead of the book metadata. '
             ' This permits using the template processor to construct complex '
             'results from local variables.')
@@ -188,7 +200,7 @@ class BuiltinEval(FormatterFunction):
         template = template.replace('[[', '{').replace(']]', '}')
         return eval_formatter.safe_format(template, locals, 'EVAL', None)
 
-class BuiltinAssign(FormatterFunction):
+class BuiltinAssign(BuiltinFormatterFunction):
     name = 'assign'
     arg_count = 2
     doc = _('assign(id, val) -- assigns val to id, then returns val. '
@@ -198,7 +210,7 @@ class BuiltinAssign(FormatterFunction):
         locals[target] = value
         return value
 
-class BuiltinPrint(FormatterFunction):
+class BuiltinPrint(BuiltinFormatterFunction):
     name = 'print'
     arg_count = -1
     doc = _('print(a, b, ...) -- prints the arguments to standard output. '
@@ -209,7 +221,7 @@ class BuiltinPrint(FormatterFunction):
         print args
         return None
 
-class BuiltinField(FormatterFunction):
+class BuiltinField(BuiltinFormatterFunction):
     name = 'field'
     arg_count = 1
     doc = _('field(name) -- returns the metadata field named by name')
@@ -217,7 +229,7 @@ class BuiltinField(FormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, name):
         return formatter.get_value(name, [], kwargs)
 
-class BuiltinSubstr(FormatterFunction):
+class BuiltinSubstr(BuiltinFormatterFunction):
     name = 'substr'
     arg_count = 3
     doc = _('substr(str, start, end) -- returns the start\'th through the end\'th '
@@ -230,7 +242,7 @@ class BuiltinSubstr(FormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, str_, start_, end_):
         return str_[int(start_): len(str_) if int(end_) == 0 else int(end_)]
 
-class BuiltinLookup(FormatterFunction):
+class BuiltinLookup(BuiltinFormatterFunction):
     name = 'lookup'
     arg_count = -1
     doc = _('lookup(val, pattern, field, pattern, field, ..., else_field) -- '
@@ -257,7 +269,7 @@ class BuiltinLookup(FormatterFunction):
                 return formatter.vformat('{'+args[i+1].strip() + '}', [], kwargs)
             i += 2
 
-class BuiltinTest(FormatterFunction):
+class BuiltinTest(BuiltinFormatterFunction):
     name = 'test'
     arg_count = 3
     doc = _('test(val, text if not empty, text if empty) -- return `text if not '
@@ -269,7 +281,7 @@ class BuiltinTest(FormatterFunction):
         else:
             return value_not_set
 
-class BuiltinContains(FormatterFunction):
+class BuiltinContains(BuiltinFormatterFunction):
     name = 'contains'
     arg_count = 4
     doc = _('contains(val, pattern, text if match, text if not match) -- checks '
@@ -284,13 +296,13 @@ class BuiltinContains(FormatterFunction):
         else:
             return value_if_not
 
-class BuiltinSwitch(FormatterFunction):
+class BuiltinSwitch(BuiltinFormatterFunction):
     name = 'switch'
     arg_count = -1
     doc = _('switch(val, pattern, value, pattern, value, ..., else_value) -- '
-            'for each ``pattern, value`` pair, checks if the field matches '
-            'the regular expression ``pattern`` and if so, returns that '
-            'value. If no pattern matches, then else_value is returned. '
+            'for each `pattern, value` pair, checks if the field matches '
+            'the regular expression `pattern` and if so, returns that '
+            '`value`. If no pattern matches, then else_value is returned. '
             'You can have as many `pattern, value` pairs as you want')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, *args):
@@ -304,7 +316,7 @@ class BuiltinSwitch(FormatterFunction):
                 return args[i+1]
             i += 2
 
-class BuiltinRe(FormatterFunction):
+class BuiltinRe(BuiltinFormatterFunction):
     name = 're'
     arg_count = 3
     doc = _('re(val, pattern, replacement) -- return the field after applying '
@@ -315,10 +327,10 @@ class BuiltinRe(FormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
         return re.sub(pattern, replacement, val)
 
-class BuiltinEvaluate(FormatterFunction):
-    name = 'evaluate'
+class BuiltinIfempty(BuiltinFormatterFunction):
+    name = 'ifempty'
     arg_count = 2
-    doc = _('evaluate(val, text if empty) -- return val if val is not empty, '
+    doc = _('ifempty(val, text if empty) -- return val if val is not empty, '
             'otherwise return `text if empty`')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, value_if_empty):
@@ -327,7 +339,7 @@ class BuiltinEvaluate(FormatterFunction):
         else:
             return value_if_empty
 
-class BuiltinShorten(FormatterFunction):
+class BuiltinShorten(BuiltinFormatterFunction):
     name = 'shorten'
     arg_count = 4
     doc = _('shorten(val, left chars, middle text, right chars) -- Return a '
@@ -352,7 +364,7 @@ class BuiltinShorten(FormatterFunction):
         else:
             return val
 
-class BuiltinCount(FormatterFunction):
+class BuiltinCount(BuiltinFormatterFunction):
     name = 'count'
     arg_count = 2
     doc = _('count(val, separator) -- interprets the value as a list of items '
@@ -363,7 +375,7 @@ class BuiltinCount(FormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val, sep):
         return unicode(len(val.split(sep)))
 
-class BuiltinListitem(FormatterFunction):
+class BuiltinListitem(BuiltinFormatterFunction):
     name = 'list_item'
     arg_count = 3
     doc = _('list_item(val, index, separator) -- interpret the value as a list of '
@@ -383,7 +395,7 @@ class BuiltinListitem(FormatterFunction):
         except:
             return ''
 
-class BuiltinUppercase(FormatterFunction):
+class BuiltinUppercase(BuiltinFormatterFunction):
     name = 'uppercase'
     arg_count = 1
     doc = _('uppercase(val) -- return value of the field in upper case')
@@ -391,7 +403,7 @@ class BuiltinUppercase(FormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return val.upper()
 
-class BuiltinLowercase(FormatterFunction):
+class BuiltinLowercase(BuiltinFormatterFunction):
     name = 'lowercase'
     arg_count = 1
     doc = _('lowercase(val) -- return value of the field in lower case')
@@ -399,7 +411,7 @@ class BuiltinLowercase(FormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return val.lower()
 
-class BuiltinTitlecase(FormatterFunction):
+class BuiltinTitlecase(BuiltinFormatterFunction):
     name = 'titlecase'
     arg_count = 1
     doc = _('titlecase(val) -- return value of the field in title case')
@@ -407,7 +419,7 @@ class BuiltinTitlecase(FormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return titlecase(val)
 
-class BuiltinCapitalize(FormatterFunction):
+class BuiltinCapitalize(BuiltinFormatterFunction):
     name = 'capitalize'
     arg_count = 1
     doc = _('capitalize(val) -- return value of the field capitalized')
@@ -423,7 +435,7 @@ builtin_contains    = BuiltinContains()
 builtin_count       = BuiltinCount()
 builtin_divide      = BuiltinDivide()
 builtin_eval        = BuiltinEval()
-builtin_evaluate    = BuiltinEvaluate()
+builtin_ifempty     = BuiltinIfempty()
 builtin_field       = BuiltinField()
 builtin_list_item   = BuiltinListitem()
 builtin_lookup      = BuiltinLookup()
