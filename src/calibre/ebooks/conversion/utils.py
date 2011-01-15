@@ -461,7 +461,7 @@ class PreProcessor(object):
             chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
             html = chapdetect3.sub(self.chapter_break, html)
 
-        if getattr(self.extra_opts, 'renumber_headings', True):
+        if getattr(self.extra_opts, 'renumber_headings', False):
             # search for places where a first or second level heading is immediately followed by another
             # top level heading.  demote the second heading to h3 to prevent splitting between chapter
             # headings and titles, images, etc
