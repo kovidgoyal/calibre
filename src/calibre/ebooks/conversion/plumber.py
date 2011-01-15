@@ -899,7 +899,6 @@ OptionRecommendation(name='sr3_replace',
                 self.opts_to_mi(self.user_metadata)
             if not hasattr(self.oeb, 'manifest'):
                 self.oeb = create_oebbook(self.log, self.oeb, self.opts,
-                        self.input_plugin,
                         encoding=self.input_plugin.output_encoding)
             self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
             self.opts.is_image_collection = self.input_plugin.is_image_collection
@@ -1009,14 +1008,13 @@ OptionRecommendation(name='sr3_replace',
         self.log(self.output_fmt.upper(), 'output written to', self.output)
         self.flush()
 
-def create_oebbook(log, path_or_stream, opts, input_plugin, reader=None,
+def create_oebbook(log, path_or_stream, opts, reader=None,
         encoding='utf-8', populate=True):
     '''
     Create an OEBBook.
     '''
     from calibre.ebooks.oeb.base import OEBBook
-    html_preprocessor = HTMLPreProcessor(input_plugin.heuristics,
-            opts.enable_heuristics, opts)
+    html_preprocessor = HTMLPreProcessor(log, opts)
     if not encoding:
         encoding = None
     oeb = OEBBook(log, html_preprocessor,

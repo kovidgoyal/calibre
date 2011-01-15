@@ -11,7 +11,7 @@ from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.utils.logging import default_log
 from calibre.utils.wordcount import get_wordcount_obj
 
-class PreProcessor(object):
+class HeuristicProcessor(object):
 
     def __init__(self, extra_opts=None, log=None):
         self.log = default_log if log is None else log
@@ -366,7 +366,7 @@ class PreProcessor(object):
 
 
     def __call__(self, html):
-        self.log("*********  Preprocessing HTML  *********")
+        self.log("*********  Heuristic processing HTML  *********")
 
         # Count the words in the document to estimate how many chapters to look for and whether
         # other types of processing are attempted
