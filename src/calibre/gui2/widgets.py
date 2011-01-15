@@ -386,11 +386,13 @@ class LineEditECM(object):
         action_lower_case = case_menu.addAction(_('Lower Case'))
         action_swap_case = case_menu.addAction(_('Swap Case'))
         action_title_case = case_menu.addAction(_('Title Case'))
+        action_capitalize = case_menu.addAction(_('Capitalize'))
 
         self.connect(action_upper_case, SIGNAL('triggered()'), self.upper_case)
         self.connect(action_lower_case, SIGNAL('triggered()'), self.lower_case)
         self.connect(action_swap_case, SIGNAL('triggered()'), self.swap_case)
         self.connect(action_title_case, SIGNAL('triggered()'), self.title_case)
+        self.connect(action_capitalize, SIGNAL('triggered()'), self.capitalize)
 
         menu.addMenu(case_menu)
         menu.exec_(event.globalPos())
@@ -407,6 +409,10 @@ class LineEditECM(object):
     def title_case(self):
         from calibre.utils.titlecase import titlecase
         self.setText(titlecase(unicode(self.text())))
+
+    def capitalize(self):
+        from calibre.utils.icu import capitalize
+        self.setText(capitalize(unicode(self.text())))
 
 
 class EnLineEdit(LineEditECM, QLineEdit):

@@ -77,7 +77,7 @@ class FormatterFunction(object):
                                         exc_traceback)[-2:]).replace('\n', '')
             return _('Exception ' + info)
 
-
+all_builtin_functions = []
 class BuiltinFormatterFunction(FormatterFunction):
     def __init__(self):
         formatter_functions.register_builtin(self)
@@ -88,6 +88,7 @@ class BuiltinFormatterFunction(FormatterFunction):
         except:
             lines = []
         self.program_text = ''.join(lines)
+        all_builtin_functions.append(self)
 
 class BuiltinStrcmp(BuiltinFormatterFunction):
     name = 'strcmp'
