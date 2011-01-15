@@ -25,6 +25,16 @@ class PreProcessor(object):
         self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sid=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
 
+        self.chapter_types = [
+            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, "Searching for common Chapter Headings", 'common'],
+            [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•=]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, "Searching for emphasized lines", 'emphasized'], # Emphasized lines
+            [r"[^'\"]?(\d+(\.|:)|CHAPTER)\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings", 'numeric'],  # Numeric Chapters
+            [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, "Searching for letter spaced headings", 'letter_spaced'],  # Spaced Lettering
+            [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles", 'numeric_title'], # Numeric Titles
+            [r"[^'\"]?(\d+|CHAPTER)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, "Searching for simple numeric chapter headings", 'plain_number'],  # Numeric Chapters, no dot or colon
+            [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters", 'uppercase' ] # Uppercase Chapters
+            ]
+
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
 
@@ -163,18 +173,8 @@ class PreProcessor(object):
 
         default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\'’\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
 
-        chapter_types = [
-            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, "Searching for common Chapter Headings"],
-            [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, "Searching for emphasized lines"], # Emphasized lines
-            [r"[^'\"]?(\d+(\.|:)|CHAPTER)\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
-            [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, "Searching for letter spaced headings"],  # Spaced Lettering
-            [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles"], # Numeric Titles
-            [r"[^'\"]?(\d+|CHAPTER)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, "Searching for simple numeric chapter headings"],  # Numeric Chapters, no dot or colon
-            [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters" ] # Uppercase Chapters
-            ]
-
         # Start with most typical chapter headings, get more aggressive until one works
-        for [chapter_type, lookahead_ignorecase, log_message] in chapter_types:
+        for [chapter_type, lookahead_ignorecase, log_message, type_name] in self.chapter_types:
             if self.html_preprocess_sections >= self.min_chapters:
                 break
             full_chapter_line = chapter_line_open+chapter_header_open+chapter_type+chapter_header_close+chapter_line_close
@@ -303,6 +303,12 @@ class PreProcessor(object):
             else:
                 return False
 
+    def cleanup_required(self):
+        for option in ['unwrap_lines', 'markup_chapter_headings', 'format_scene_breaks', 'delete_blank_paragraphs']:
+            if getattr(self.extra_opts, option, False):
+                return True
+        return False
+
 
     def __call__(self, html):
         self.log("*********  Preprocessing HTML  *********")
@@ -333,8 +339,9 @@ class PreProcessor(object):
         # Replace series of non-breaking spaces with text-indent
         if getattr(self.extra_opts, 'fix_indents', True):
             html = self.fix_nbsp_indents(html)
-        
-        html = self.cleanup_markup(html)
+
+        if self.cleanup_required():
+            html = self.cleanup_markup(html)
 
         # ADE doesn't render <br />, change to empty paragraphs
         #html = re.sub('<br[^>]*>', u'<p>\u00a0</p>', html)
@@ -393,7 +400,7 @@ class PreProcessor(object):
             html = dehyphenator(html,'html_cleanup', length)
 
         # If still no sections after unwrapping mark split points on lines with no punctuation
-        if self.html_preprocess_sections < self.min_chapters:
+        if self.html_preprocess_sections < self.min_chapters and getattr(self.extra_opts, 'markup_chapter_headings', False):
             self.log("Looking for more split points based on punctuation,"
                     " currently have " + unicode(self.html_preprocess_sections))
             chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
