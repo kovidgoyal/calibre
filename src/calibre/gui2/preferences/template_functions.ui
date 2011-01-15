@@ -103,7 +103,7 @@
          <item>
           <widget class="QPushButton" name="replace_button">
            <property name="text">
-            <string>Replace</string>
+            <string>&amp;Replace</string>
            </property>
           </widget>
          </item>
