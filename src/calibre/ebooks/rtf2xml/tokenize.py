@@ -115,8 +115,8 @@ class Tokenize:
 
     def __sub_reg_split(self,input_file):
         input_file = self.__replace_spchar.mreplace(input_file)
-        # this is for older RTF
         input_file = self.__par_exp.sub('\n\\par \n', input_file)
+        input_file = self.__cs_ast.sub("\g<1>", input_file)
         input_file = self.__ms_hex_exp.sub("\\mshex0\g<1> ", input_file)
         input_file = self.__utf_ud.sub("\\{\\uc0 \g<1>\\}", input_file)
         #remove \n in bin data
@@ -172,6 +172,8 @@ class Tokenize:
         self.__splitexp = re.compile(r"(\\[{}]|\n|\\[^\s\\{}&]+(?:[ \t\r\f\v])?)")
         #this is for old RTF
         self.__par_exp = re.compile(r'\\\n+')
+        #handle improper cs char-style with \* before without {
+        self.__cs_ast = re.compile(r'\\\*([\n ]*\\cs\d+[\n \\]+)')
         # self.__par_exp = re.compile(r'\\$')
         #self.__bin_exp = re.compile(r"\\bin(-?\d{1,8}) {0,1}")
         #self.__utf_exp = re.compile(r"^\\u(-?\d{3,6})")

@@ -375,7 +375,7 @@ class ParseRtf:
         old_rtf = old_rtf_obj.check_if_old_rtf()
         if old_rtf:
             if self.__run_level > 5:
-                msg = 'older RTF\n'
+                msg = 'Older RTF\n'
                 msg += 'self.__run_level is "%s"\n' % self.__run_level
                 raise RtfInvalidCodeException, msg
             if self.__run_level > 1:
