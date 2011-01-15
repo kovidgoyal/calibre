@@ -12,7 +12,7 @@ from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
-    convert_heuristic, normalize_line_endings, convert_textile
+    normalize_line_endings, convert_textile
 from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
@@ -126,11 +126,16 @@ class TXTInput(InputFormatPlugin):
                 txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
 
             flow_size = getattr(options, 'flow_size', 0)
+            html = convert_basic(txt, epub_split_size_kb=flow_size)
 
             if options.formatting_type == 'heuristic':
-                html = convert_heuristic(txt, epub_split_size_kb=flow_size)
-            else:
-                html = convert_basic(txt, epub_split_size_kb=flow_size)
+                setattr(options, 'enable_heuristics', True)
+                setattr(options, 'markup_chapter_headings', True)
+                setattr(options, 'italicize_common_cases', True)
+                setattr(options, 'fix_indents', True)
+                setattr(options, 'delete_blank_paragraphs', True)
+                setattr(options, 'format_scene_breaks', True)
+                setattr(options, 'dehyphenate', True)
 
         # Dehyphenate in cleanup mode for missed txt and markdown conversion
         dehyphenator = Dehyphenator()
