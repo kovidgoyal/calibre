@@ -437,6 +437,15 @@ My antivirus program claims |app| is a virus/trojan?
 
 Your antivirus program is wrong. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
 
+How do I backup |app|?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The most important thing to backup is the |app| library folder, that contains all your books and metadata. This is the folder you chose for your |app| library when you ran |app| for the first time. You can get the path to the library folder by clicking the |app| icon on the main toolbar. You must backup this complete folder with all its files and sub-folders. 
+
+You can switch |app| to using a backed up library folder by simply clicking the |app| icon on the toolbar and choosing your backup library folder. 
+
+If you want to backup the |app| configuration/plugins, you have to backup the config directory. You can find this config directory via :guilabel:`Preferences->Miscellaneous`. Note that restoring configuration directories is not officially supported, but should work in most cases. Just copy the contents of the backup directory into the current configuration directory to restore.
+
 How do I use purchased EPUB books with |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. This prevents |app| from opening them. You can still use |app| to store and transfer them to your e-book reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with |app| will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" e-book. The e-book file will be stored in the folder "My Digital Editions", from where you can add it to |app|.
