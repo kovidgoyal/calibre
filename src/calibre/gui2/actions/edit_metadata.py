@@ -99,7 +99,7 @@ class EditMetadataAction(InterfaceAction):
             x = _('social metadata')
         else:
             x = _('covers') if covers and not set_metadata else _('metadata')
-        title = _('Downloading %s for %d book(s)')%(x, len(ids))
+        title = _('Downloading {0} for {1} book(s)').format(x, len(ids))
         self._download_book_metadata = DoDownload(self.gui, title, db, ids,
                 get_covers=covers, set_metadata=set_metadata,
                 get_social_metadata=get_social_metadata)

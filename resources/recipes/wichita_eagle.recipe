@@ -1,0 +1,29 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1294938721(BasicNewsRecipe):
+     title            = u'Wichita Eagle'
+     language = 'en'
+     __author__ = 'Jason Cameron'
+     description  = 'Daily news from the Wichita Eagle'
+     oldest_article = 1
+     max_articles_per_feed = 30
+     keep_only_tags = [dict(name='div', attrs={'id':'wide'})]
+     feeds          = [
+                                 (u'Local News',
+ u'http://www.kansas.com/news/local/index.rss'),
+                                 (u'National News',
+ u'http://www.kansas.com/news/nation-world/index.rss'),
+                                 (u'Sports',
+ u'http://www.kansas.com/sports/index.rss'),
+                                 (u'Opinion',
+ u'http://www.kansas.com/opinion/index.rss'),
+                                 (u'Life',
+ u'http://www.kansas.com/living/index.rss'),
+                                 (u'Entertainment',
+ u'http://www.kansas.com/entertainment/index.rss')
+                           ]
+
+     def print_version(self, url):
+         urlparts = url.split('/')
+         newadd = urlparts[5]+'/v-print'
+         return url.replace(url, newadd.join(url.split(urlparts[5])))

@@ -34,6 +34,9 @@ path_to_ebook to the database.
                       help=_('Log debugging information to console'))
     parser.add_option('--no-update-check', default=False, action='store_true',
             help=_('Do not check for updates'))
+    parser.add_option('--ignore-plugins', default=False, action='store_true',
+            help=_('Ignore custom plugins, useful if you installed a plugin'
+                ' that is preventing calibre from starting'))
     return parser
 
 def init_qt(args):
