@@ -540,8 +540,7 @@ OptionRecommendation(name='sr1_search',
     
 OptionRecommendation(name='sr1_replace',
     recommended_value='', level=OptionRecommendation.LOW,
-    help=_('Replace characters (can be lambda expression) to '
-           'replace the text found with sr1-search.')),
+    help=_('Replace characters to replace the text found with sr1-search.')),
 
 OptionRecommendation(name='sr2_search',
     recommended_value='', level=OptionRecommendation.LOW,
@@ -550,8 +549,7 @@ OptionRecommendation(name='sr2_search',
 
 OptionRecommendation(name='sr2_replace',
     recommended_value='', level=OptionRecommendation.LOW,
-    help=_('Replace characters (can be lambda expression) to '
-           'replace the text found with sr2-search.')),
+    help=_('Replace characters to replace the text found with sr2-search.')),
 
 OptionRecommendation(name='sr3_search',
     recommended_value='', level=OptionRecommendation.LOW,
@@ -560,8 +558,7 @@ OptionRecommendation(name='sr3_search',
 
 OptionRecommendation(name='sr3_replace',
     recommended_value='', level=OptionRecommendation.LOW,
-    help=_('Replace characters (can be lambda expression) to '
-           'replace the text found with sr3-search.')),
+    help=_('Replace characters to replace the text found with sr3-search.')),
 ]
         # }}}
 

@@ -436,27 +436,29 @@ class HTMLPreProcessor(object):
         if not getattr(self.extra_opts, 'keep_ligatures', False):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
 
+        if getattr(self.extra_opts, 'sr3_search', None):
+            try:
+                rules.insert(0,  (re.compile(self.extra_opts.sr3_search), self.extra_opts.sr3_replace))
+            except:
+                import traceback
+                print 'Failed to parse sr3-search regexp'
+                traceback.print_exc()
+        if getattr(self.extra_opts, 'sr2_search', None):
+            try:
+                rules.insert(0, (re.compile(self.extra_opts.sr2_search), self.extra_opts.sr2_replace))
+            except:
+                import traceback
+                print 'Failed to parse sr2-search regexp'
+                traceback.print_exc()
+        if getattr(self.extra_opts, 'sr1_search', None):
+            try:
+                rules.insert(0, (re.compile(self.extra_opts.sr1_search), self.extra_opts.sr1_replace))
+            except:
+                import traceback
+                print 'Failed to parse sr1-search regexp'
+                traceback.print_exc()
+
         end_rules = []
-        if getattr(self.extra_opts, 'remove_header', None):
-            try:
-                rules.insert(0,
-                    (re.compile(self.extra_opts.header_regex), lambda match : '')
-                )
-            except:
-                import traceback
-                print 'Failed to parse remove_header regexp'
-                traceback.print_exc()
-
-        if getattr(self.extra_opts, 'remove_footer', None):
-            try:
-                rules.insert(0,
-                    (re.compile(self.extra_opts.footer_regex), lambda match : '')
-                )
-            except:
-                import traceback
-                print 'Failed to parse remove_footer regexp'
-                traceback.print_exc()
-
         # delete soft hyphens - moved here so it's executed after header/footer removal
         if is_pdftohtml:
             # unwrap/delete soft hyphens

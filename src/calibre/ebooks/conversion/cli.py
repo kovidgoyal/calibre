@@ -183,7 +183,7 @@ def add_pipeline_options(parser, plumber):
               }
 
     group_order = ['', 'LOOK AND FEEL', 'HEURISTICS',
-            'SEARCH AND REPLACE' 'STRUCTURE DETECTION',
+            'SEARCH AND REPLACE', 'STRUCTURE DETECTION',
             'TABLE OF CONTENTS', 'METADATA', 'DEBUG']
 
     for group in group_order:
