@@ -20,7 +20,7 @@ import sys, os, tempfile
 from calibre.ebooks.rtf2xml import copy
 
 class DeleteInfo:
-    """Delelet unecessary destination groups"""
+    """Delete unecessary destination groups"""
     def __init__(self,
             in_file ,
             bug_handler,
@@ -31,17 +31,14 @@ class DeleteInfo:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__write_to = tempfile.mktemp()
+        self.__run_level = run_level
+        self.__initiate_allow()
         self.__bracket_count= 0
         self.__ob_count = 0
         self.__cb_count = 0
-        # self.__after_asterisk = False
-        # self.__delete = 0
-        self.__initiate_allow()
         self.__ob = 0
         self.__write_cb = False
-        self.__run_level = run_level
         self.__found_delete = False
-        # self.__list = False
 
     def __initiate_allow(self):
         """
@@ -57,6 +54,8 @@ class DeleteInfo:
                             'cw<an<annotation',
                             'cw<cm<comment___',
                             'cw<it<lovr-table',
+                            # info table
+                            'cw<di<company___',
                             # 'cw<ls<list______',
                         )
         self.__not_allowable = (
@@ -116,7 +115,6 @@ class DeleteInfo:
         """
         # Test for {\*}, in which case don't enter
         # delete state
-        # self.__after_asterisk = False # only enter this function once
         self.__found_delete = True
         if self.__token_info == 'cb<nu<clos-brack':
             if self.__delete_count == self.__cb_count:
@@ -128,7 +126,7 @@ class DeleteInfo:
                 # not sure what happens here!
                 # believe I have a '{\*}
                 if self.__run_level > 3:
-                    msg = 'flag problem\n'
+                    msg = 'Flag problem\n'
                     raise self.__bug_handler, msg
                 return True
         elif self.__token_info in self.__allowable :
@@ -173,8 +171,8 @@ class DeleteInfo:
         Return True for all control words.
         Return False otherwise.
         """
-        if self.__delete_count == self.__cb_count and self.__token_info ==\
-            'cb<nu<clos-brack':
+        if self.__delete_count == self.__cb_count and \
+                self.__token_info == 'cb<nu<clos-brack':
             self.__state = 'default'
             if self.__write_cb:
                 self.__write_cb = False
@@ -186,31 +184,23 @@ class DeleteInfo:
             return False
 
     def delete_info(self):
-        """Main method for handling other methods. Read one line in at
+        """Main method for handling other methods. Read one line at
         a time, and determine whether to print the line based on the state."""
         with open(self.__file, 'r') as read_obj:
             with open(self.__write_to, 'w') as self.__write_obj:
                 for line in read_obj:
                     #ob<nu<open-brack<0001
-                    to_print = True
                     self.__token_info = line[:16]
                     if self.__token_info == 'ob<nu<open-brack':
                         self.__ob_count = line[-5:-1]
                     if self.__token_info == 'cb<nu<clos-brack':
                         self.__cb_count = line[-5:-1]
+                    # Get action to perform
                     action = self.__state_dict.get(self.__state)
                     if not action:
                         sys.stderr.write('No action in dictionary state is "%s" \n' % self.__state)
-                    to_print = action(line)
-                    # if self.__after_asterisk:
-                        # to_print = self.__asterisk_func(line)
-                    # elif self.__list:
-                        # self.__in_list_func(line)
-                    # elif self.__delete:
-                        # to_print = self.__delete_func(line)
-                    # else:
-                        # to_print = self.__default_func(line)
-                    if to_print:
+                    # Print if allowed by action
+                    if action(line):
                         self.__write_obj.write(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
