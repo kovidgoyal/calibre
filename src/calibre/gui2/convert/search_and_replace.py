@@ -45,5 +45,4 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 error_dialog(self, _('Invalid regular expression'),
                              _('Invalid regular expression: %s')%err).exec_()
                 return False
-            
-
+        return True

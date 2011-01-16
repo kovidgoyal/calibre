@@ -34,8 +34,11 @@ class HeuristicsWidget(Widget, Ui_Form):
     def break_cycles(self):
         Widget.break_cycles(self)
         
-        self.opt_enable_heuristics.stateChanged.disconnect()
-        self.opt_unwrap_lines.stateChanged.disconnect()
+        try:
+            self.opt_enable_heuristics.stateChanged.disconnect()
+            self.opt_unwrap_lines.stateChanged.disconnect()
+        except:
+            pass
         
     def set_value_handler(self, g, val):
         if val is None and g is self.opt_html_unwrap_factor:
