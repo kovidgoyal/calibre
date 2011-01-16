@@ -16,7 +16,7 @@ from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QDate, \
 
 from calibre.gui2 import error_dialog, file_icon_provider, dynamic, \
                            choose_files, choose_images, ResizableDialog, \
-                           warning_dialog, question_dialog
+                           warning_dialog, question_dialog, UNDEFINED_QDATE
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -491,11 +491,15 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.formats.setAcceptDrops(True)
         self.cover_changed = False
         self.cpixmap = None
-        self.pubdate.setMinimumDate(QDate(100,1,1))
+        self.pubdate.setMinimumDate(UNDEFINED_QDATE)
         pubdate_format = tweaks['gui_pubdate_display_format']
         if pubdate_format is not None:
             self.pubdate.setDisplayFormat(pubdate_format)
-        self.date.setMinimumDate(QDate(100,1,1))
+        self.date.setMinimumDate(UNDEFINED_QDATE)
+        self.pubdate.setSpecialValueText(_('Undefined'))
+        self.date.setSpecialValueText(_('Undefined'))
+        self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
+
 
         self.connect(self.cover, SIGNAL('cover_changed(PyQt_PyObject)'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
@@ -614,6 +618,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.original_title = unicode(self.title.text()).strip()
 
         self.show()
+
+    def clear_pubdate(self, *args):
+        self.pubdate.setDate(UNDEFINED_QDATE)
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
