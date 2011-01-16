@@ -505,7 +505,7 @@ class FileDialog(QObject):
         self.selected_files = []
         if mode == QFileDialog.AnyFile:
             f = unicode(QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, ""))
-            if f and os.path.exists(f):
+            if f:
                 self.selected_files.append(f)
         elif mode == QFileDialog.ExistingFile:
             f = unicode(QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, ""))
