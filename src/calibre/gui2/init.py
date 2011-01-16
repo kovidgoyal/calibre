@@ -243,7 +243,6 @@ class LayoutMixin(object): # {{{
         self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)
 
     def update_link_clicked(self, url):
-        print 11111111, url
         url = unicode(url)
         if url.startswith('update:'):
             version = url.partition(':')[-1]
