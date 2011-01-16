@@ -148,6 +148,9 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
         if len(mo.group(0)) == 2: return '%02d'%(dt.year % 100)
         return '%04d'%dt.year
 
+    if dt == UNDEFINED_DATE:
+        return ''
+
     format = re.sub('d{1,4}', format_day, format)
     format = re.sub('M{1,4}', format_month, format)
     return re.sub('yyyy|yy', format_year, format)
