@@ -458,7 +458,10 @@ class HTMLPreProcessor(object):
             if search_pattern:
                 try:
                     search_re = re.compile(search_pattern)
-                    rules.insert(0,  (search_re, getattr(self.extra_opts, replace, '')))
+                    replace_txt = getattr(self.extra_opts, replace, '')
+                    if replace_txt == None:
+                        replace_txt = ''
+                    rules.insert(0, (search_re, replace_txt))
                 except Exception as e:
                     self.log.error('Failed to parse %s regexp because %s' % (search, e))
 
