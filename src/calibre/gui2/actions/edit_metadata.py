@@ -94,7 +94,7 @@ class EditMetadataAction(InterfaceAction):
             get_social_metadata = config['get_social_metadata']
         else:
             get_social_metadata = set_social_metadata
-        from calibre.gui2.metadata import DoDownload
+        from calibre.gui2.metadata.bulk_download import DoDownload
         if set_social_metadata is not None and set_social_metadata:
             x = _('social metadata')
         else:
