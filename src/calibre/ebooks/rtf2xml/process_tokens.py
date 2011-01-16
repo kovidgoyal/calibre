@@ -70,7 +70,7 @@ class ProcessTokens:
         ';'                  :	('mc', ';', self.ms_sub_func),
         # this must be wrong
         '-'                  :	('mc', '-', self.ms_sub_func),
-        'line'               :  ('mi', 'hardline-break', self.hardline_func), #calibre
+        'line'               :  ('mi', 'hardline-break', self.direct_conv_func), #calibre
         # misc => ml
         '*'                  :	('ml', 'asterisk__', self.default_func),
         ':'                  :	('ml', 'colon_____', self.default_func),
@@ -78,7 +78,6 @@ class ProcessTokens:
         'backslash'          :	('nu', '\\', self.text_func),
         'ob'                 :	('nu', '{', self.text_func),
         'cb'                 :	('nu', '}', self.text_func),
-        #'line'               :  ('nu', ' ', self.text_func), calibre
         # paragraph formatting => pf
         'page'               :  ('pf', 'page-break', self.default_func),
         'par'                :	('pf', 'par-end___', self.default_func),
@@ -231,11 +230,15 @@ class ProcessTokens:
         'trhdr'              :  ('tb', 'row-header', self.default_func),
         # preamble => pr
         # document information => di
+        # TODO integrate \userprops
         'info'               :	('di', 'doc-info__', self.default_func),
+        'title'              :	('di', 'title_____', self.default_func),
         'author'             :	('di', 'author____', self.default_func),
         'operator'           :	('di', 'operator__', self.default_func),
-        'title'              :	('di', 'title_____', self.default_func),
+        'manager'            :	('di', 'manager___', self.default_func),
+        'company'            :	('di', 'company___', self.default_func),
         'keywords'           :  ('di', 'keywords__', self.default_func),
+        'category'           :  ('di', 'category__', self.default_func),
         'doccomm'            :  ('di', 'doc-notes_', self.default_func),
         'comment'            :  ('di', 'doc-notes_', self.default_func),
         'subject'            :  ('di', 'subject___', self.default_func),
@@ -244,11 +247,19 @@ class ProcessTokens:
         'mo'                 :	('di', 'month_____', self.default_func),
         'dy'                 :	('di', 'day_______', self.default_func),
         'min'                :	('di', 'minute____', self.default_func),
+        'sec'                :	('di', 'second____', self.default_func),
         'revtim'             :	('di', 'revis-time', self.default_func),
+        'edmins'             :	('di', 'edit-time_', self.default_func),
+        'printim'            :	('di', 'print-time', self.default_func),
+        'buptim'             :	('di', 'backuptime', self.default_func),
         'nofwords'           :	('di', 'num-of-wor', self.default_func),
         'nofchars'           :	('di', 'num-of-chr', self.default_func),
+        'nofcharsws'         :	('di', 'numofchrws', self.default_func),
         'nofpages'           :	('di', 'num-of-pag', self.default_func),
-        'edmins'             :	('di', 'edit-time_', self.default_func),
+        'version'            :	('di', 'version___', self.default_func),
+        'vern'               :	('di', 'intern-ver', self.default_func),
+        'hlinkbase'          :	('di', 'linkbase__', self.default_func),
+        'id'                 :	('di', 'internalID', self.default_func),
         # headers and footers => hf
         'headerf'            :	('hf', 'head-first', self.default_func),
         'headerl'            :	('hf', 'head-left_', self.default_func),
@@ -605,7 +616,7 @@ class ProcessTokens:
     def ms_sub_func(self, pre, token, num):
         return 'tx<mc<__________<%s\n' % token
 
-    def hardline_func(self, pre, token, num):
+    def direct_conv_func(self, pre, token, num):
         return 'mi<tg<empty_____<%s\n' % token
 
     def default_func(self, pre, token, num):

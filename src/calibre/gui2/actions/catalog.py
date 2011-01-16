@@ -28,7 +28,7 @@ class GenerateCatalogAction(InterfaceAction):
 
         if not ids:
             return error_dialog(self.gui, _('No books selected'),
-                    _('No books selected to generate catalog for'),
+                    _('No books selected for catalog generation'),
                     show=True)
 
 		db = self.gui.library_view.model().db
@@ -55,9 +55,9 @@ class GenerateCatalogAction(InterfaceAction):
 
     def catalog_generated(self, job):
         if job.result:
-            # Search terms nulled catalog results
-            return error_dialog(self.gui, _('No books found'),
-                    _("No books to catalog\nCheck job details"),
+            # Error during catalog generation
+            return error_dialog(self.gui, _('Catalog generation terminated'),
+                    job.result,
                     show=True)
         if job.failed:
             return self.gui.job_exception(job)
