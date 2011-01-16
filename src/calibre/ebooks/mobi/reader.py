@@ -632,9 +632,18 @@ class MobiReader(object):
                 attrib['class'] = cls
 
         for tag in svg_tags:
-            p = tag.getparent()
-            if hasattr(p, 'remove'):
-                p.remove(tag)
+            images = tag.xpath('descendant::img[@src]')
+            parent = tag.getparent()
+
+            if images and hasattr(parent, 'find'):
+                index = parent.index(tag)
+                for img in images:
+                    img.getparent().remove(img)
+                    img.tail = img.text = None
+                    parent.insert(index, img)
+
+            if hasattr(parent, 'remove'):
+                parent.remove(tag)
 
     def create_opf(self, htmlfile, guide=None, root=None):
         mi = getattr(self.book_header.exth, 'mi', self.embedded_mi)

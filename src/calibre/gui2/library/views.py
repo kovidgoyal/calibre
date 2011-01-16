@@ -680,10 +680,21 @@ class BooksView(QTableView): # {{{
     def set_editable(self, editable, supports_backloading):
         self._model.set_editable(editable)
 
+    def move_highlighted_row(self, forward):
+        rows = self.selectionModel().selectedRows()
+        if len(rows) > 0:
+            current_row = rows[0].row()
+        else:
+            current_row = None
+        id_to_select = self._model.get_next_highlighted_id(current_row, forward)
+        if id_to_select is not None:
+            self.select_rows([id_to_select], using_ids=True)
+
     def search_proxy(self, txt):
         self._model.search(txt)
-        if self._model.lowest_row_matching is not None:
-            self.select_rows([self._model.lowest_row_matching], using_ids=False)
+        id_to_select = self._model.get_current_highlighted_id()
+        if id_to_select is not None:
+            self.select_rows([id_to_select], using_ids=True)
         self.setFocus(Qt.OtherFocusReason)
 
     def connect_to_search_box(self, sb, search_done):

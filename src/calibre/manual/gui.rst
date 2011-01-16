@@ -478,6 +478,10 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Focus the search bar
     * - :kbd:`Shift+Ctrl+F`
       - Open the advanced search dialog
+    * - :kbd:`N or F3`
+      - Find the next book that matches the current search (only works if the highlight checkbox next to the search bar is checked)
+    * - :kbd:`Shift+N or Shift+F3`
+      - Find the next book that matches the current search (only works if the highlight checkbox next to the search bar is checked)
     * - :kbd:`Ctrl+D` 
       - Download metadata and shortcuts
     * - :kbd:`Ctrl+R` 

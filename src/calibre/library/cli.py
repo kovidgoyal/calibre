@@ -693,8 +693,12 @@ def command_catalog(args, dbpath):
                             }
 
     with plugin:
-        plugin.run(args[1], opts, get_db(dbpath, opts))
-    return 0
+        ret = plugin.run(args[1], opts, get_db(dbpath, opts))
+    if ret is None:
+        ret = 0
+    else:
+        ret = 1
+    return ret
 
 # end of GR additions
 
@@ -986,8 +990,8 @@ def command_restore_database(args, dbpath):
         return 1
 
     if not opts.really_do_it:
-        prints(_('You must provide the --really-do-it option to do a'
-            ' recovery'), end='\n\n')
+        prints(_('You must provide the %s option to do a'
+            ' recovery')%'--really-do-it', end='\n\n')
         parser.print_help()
         return 1
 

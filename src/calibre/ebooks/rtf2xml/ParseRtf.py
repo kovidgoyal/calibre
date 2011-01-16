@@ -226,10 +226,6 @@ class ParseRtf:
         try:
             return_value = process_tokens_obj.process_tokens()
         except InvalidRtfException, msg:
-            try:
-                os.remove(self.__temp_file)
-            except OSError:
-                pass
             #Check to see if the file is correctly encoded
             encode_obj = default_encoding.DefaultEncoding(
             in_file = self.__temp_file,
@@ -241,14 +237,17 @@ class ParseRtf:
             check_encoding_obj = check_encoding.CheckEncoding(
                     bug_handler = RtfInvalidCodeException,
                         )
-            enc = encode_obj.get_codepage()
-            if enc != 'mac_roman':
-                enc = 'cp' + enc
+            enc = 'cp' + encode_obj.get_codepage()
+            msg = 'Exception in token processing'
             if check_encoding_obj.check_encoding(self.__file, enc):
                 file_name = self.__file if isinstance(self.__file, str) \
                                     else self.__file.encode('utf-8')
                 msg = 'File %s does not appear to be correctly encoded.\n' % file_name
-                raise InvalidRtfException, msg
+            try:
+                os.remove(self.__temp_file)
+            except OSError:
+                pass
+            raise InvalidRtfException, msg
         delete_info_obj = delete_info.DeleteInfo(
             in_file = self.__temp_file,
             copy = self.__copy,

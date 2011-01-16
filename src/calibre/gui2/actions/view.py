@@ -92,7 +92,12 @@ class ViewAction(InterfaceAction):
         formats = [list(f.upper().split(',')) if f else None for f in formats]
         all_fmts = set([])
         for x in formats:
-            for f in x: all_fmts.add(f)
+            if x:
+                for f in x: all_fmts.add(f)
+        if not all_fmts:
+            error_dialog(self.gui,  _('Format unavailable'),
+                    _('Selected books have no formats'), show=True)
+            return
         d = ChooseFormatDialog(self.gui, _('Choose the format to view'),
                 list(sorted(all_fmts)))
         if d.exec_() == d.Accepted:
