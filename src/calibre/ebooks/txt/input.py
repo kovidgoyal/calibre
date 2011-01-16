@@ -137,11 +137,6 @@ class TXTInput(InputFormatPlugin):
                 setattr(options, 'format_scene_breaks', True)
                 setattr(options, 'dehyphenate', True)
 
-        # Dehyphenate in cleanup mode for missed txt and markdown conversion
-        dehyphenator = Dehyphenator(options.verbose, log=getattr(self, 'log', None))
-        html = dehyphenator(html,'txt_cleanup', length)
-        html = dehyphenator(html,'html_cleanup', length)
-
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')
         for opt in html_input.options:
