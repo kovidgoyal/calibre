@@ -78,13 +78,14 @@ class RTFInput(InputFormatPlugin):
     def generate_xml(self, stream):
         from calibre.ebooks.rtf2xml.ParseRtf import ParseRtf
         ofile = 'dataxml.xml'
-        run_lev, debug_dir = 1, None
+        run_lev, debug_dir, indent_out = 1, None, 0
         #just to check if the debug process is lauched, no need of this directory in fact
         if getattr(self.opts, 'debug_pipeline', None) is not None:
             try:
                 os.mkdir('rtfdebug')
                 debug_dir = 'rtfdebug'
                 run_lev = 4
+                indent_out = 1
             except:
                 pass
         parser = ParseRtf(
@@ -108,7 +109,7 @@ class RTFInput(InputFormatPlugin):
 
             # Indent resulting XML.
             # Default is 0 (no indent).
-            indent = 1,
+            indent = indent_out,
 
             # Form lists from RTF. Default is 1.
             form_lists = 1,
@@ -157,33 +158,9 @@ class RTFInput(InputFormatPlugin):
             with open(name, 'wb') as f:
                 f.write(data)
             imap[count] = name
-            #open(name+'.hex', 'wb').write(enc)
+            # with open(name+'.hex', 'wb') as f:
+                # f.write(enc)
         return self.convert_images(imap)
-
-        # count = 0
-        # raw = open(picts, 'rb').read()
-        # starts = []
-        # for match in re.finditer(r'\{\\pict([^}]+)\}', raw):
-            # starts.append(match.start(1))
-
-        # imap = {}
-        # for start in starts:
-            # pos, bc = start, 1
-            # while bc > 0:
-                # if raw[pos] == '}': bc -= 1
-                # elif raw[pos] == '{': bc += 1
-                # pos += 1
-            # pict = raw[start:pos+1]
-            # enc = re.sub(r'[^a-zA-Z0-9]', '', pict)
-            # if len(enc) % 2 == 1:
-                # enc = enc[:-1]
-            # data = enc.decode('hex')
-            # count += 1
-            # name = (('%4d'%count).replace(' ', '0'))+'.wmf'
-            # open(name, 'wb').write(data)
-            # imap[count] = name
-            # #open(name+'.hex', 'wb').write(enc)
-        # return self.convert_images(imap)
 
     def convert_images(self, imap):
         self.default_img = None
