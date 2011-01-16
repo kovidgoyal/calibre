@@ -36,7 +36,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.opt_sr3_search.break_cycles()
 
     def pre_commit_check(self):
-        for x in ('sr1-search', 'sr2-search', 'sr3-search'):
+        for x in ('sr1_search', 'sr2_search', 'sr3_search'):
             x = getattr(self, 'opt_'+x)
             try:
                 pat = unicode(x.regex)
@@ -45,5 +45,4 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 error_dialog(self, _('Invalid regular expression'),
                              _('Invalid regular expression: %s')%err).exec_()
                 return False
-            
-
+        return True
