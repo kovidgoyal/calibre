@@ -453,27 +453,19 @@ class HTMLPreProcessor(object):
         if not getattr(self.extra_opts, 'keep_ligatures', False):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
 
-        if getattr(self.extra_opts, 'sr3_search', None):
-            try:
-                rules.insert(0,  (re.compile(self.extra_opts.sr3_search), self.extra_opts.sr3_replace))
-            except:
-                import traceback
-                print 'Failed to parse sr3-search regexp'
-                traceback.print_exc()
-        if getattr(self.extra_opts, 'sr2_search', None):
-            try:
-                rules.insert(0, (re.compile(self.extra_opts.sr2_search), self.extra_opts.sr2_replace))
-            except:
-                import traceback
-                print 'Failed to parse sr2-search regexp'
-                traceback.print_exc()
-        if getattr(self.extra_opts, 'sr1_search', None):
-            try:
-                rules.insert(0, (re.compile(self.extra_opts.sr1_search), self.extra_opts.sr1_replace))
-            except:
-                import traceback
-                print 'Failed to parse sr1-search regexp'
-                traceback.print_exc()
+        for search, replace in [['sr3_search', 'sr3_replace'], ['sr2_search', 'sr2_replace'], ['sr1_search', 'sr1_replace']]:
+            replace_pattern = ''
+            if getattr(self.extra_opts, search, None):
+                search_pattern = getattr(self.extra_opts, search, None)
+                if getattr(self.extra_opts, replace, None):
+                    replace_pattern = getattr(self.extra_opts, replace, None)
+                try:
+                    rules.insert(0,  (re.compile(search_pattern), replace_pattern))
+                except:
+                    import traceback
+                    print 'Failed to parse sr3-search regexp'
+                    traceback.print_exc()
+
 
         end_rules = []
         # delete soft hyphens - moved here so it's executed after header/footer removal
