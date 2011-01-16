@@ -38,7 +38,10 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Function name:</string>
+        <string>Function &amp;name:</string>
+       </property>
+       <property name="buddy">
+        <cstring>function</cstring>
        </property>
       </widget>
      </item>
@@ -48,20 +51,26 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Documentation:</string>
+        <string>&amp;Documentation:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+       <property name="buddy">
+        <cstring>documentation</cstring>
        </property>
       </widget>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Python code:</string>
+        <string>Python &amp;code:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+       <property name="buddy">
+        <cstring>source_code</cstring>
        </property>
       </widget>
      </item>
