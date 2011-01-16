@@ -322,11 +322,11 @@ class HeuristicProcessor(object):
         html = re.sub(ur'\s*<o:p>\s*</o:p>', ' ', html)
         # Delete microsoft 'smart' tags
         html = re.sub('(?i)</?st1:\w+>', '', html)
-        # Get rid of empty span, bold, font, & italics tags
-        html = re.sub(r'\s*<font[^>]*>\s*</font>\s*', '', html)
+        # Get rid of empty span, bold, font, em, & italics tags
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
-        html = re.sub(r"\s*<[ibu][^>]*>\s*(<[ibu][^>]*>\s*</[ibu]>\s*){0,2}\s*</[ibu]>", " ", html)
+        html = re.sub(r"\s*<(font|[ibu]|em)[^>]*>\s*(<(font|[ibu]|em)[^>]*>\s*</(font|[ibu]|em)>\s*){0,2}\s*</(font|[ibu]|em)>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
+        html = re.sub(r"\s*<(font|[ibu]|em)[^>]*>\s*(<(font|[ibu]|em)[^>]*>\s*</(font|[ibu]|em)>\s*){0,2}\s*</(font|[ibu]|em)>", " ", html)
         self.deleted_nbsps = True
         return html
 
@@ -376,27 +376,31 @@ class HeuristicProcessor(object):
         except:
             self.log("Can't get wordcount")
 
-        if 0 < self.totalwords < 50:
+        print "found "+unicode(self.totalwords)+" words in the flow"
+        if self.totalwords < 50:
             self.log("flow is too short, not running heuristics")
             return html
 
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = self.arrange_htm_line_endings(html)
 
-        ###### Check Markup ######
-        #
-        # some lit files don't have any <p> tags or equivalent (generally just plain text between
-        # <pre> tags), check and  mark up line endings if required before proceeding
-        if self.no_markup(html, 0.1):
-            self.log("not enough paragraph markers, adding now")
-            # markup using text processing
-            html = self.markup_pre(html)
+        if self.cleanup_required():
+            ###### Check Markup ######
+            #
+            # some lit files don't have any <p> tags or equivalent (generally just plain text between
+            # <pre> tags), check and  mark up line endings if required before proceeding
+            # fix indents must run after this step
+            if self.no_markup(html, 0.1):
+                self.log("not enough paragraph markers, adding now")
+                # markup using text processing
+                html = self.markup_pre(html)
 
         # Replace series of non-breaking spaces with text-indent
         if getattr(self.extra_opts, 'fix_indents', False):
             html = self.fix_nbsp_indents(html)
 
         if self.cleanup_required():
+            # fix indents must run before this step, as it removes non-breaking spaces
             html = self.cleanup_markup(html)
 
         # ADE doesn't render <br />, change to empty paragraphs
@@ -420,26 +424,26 @@ class HeuristicProcessor(object):
             self.log("deleting blank lines")
             html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
             html = self.blankreg.sub('', html)
+
+        # Determine line ending type
+        # Some OCR sourced files have line breaks in the html using a combination of span & p tags
+        # span are used for hard line breaks, p for new paragraphs.  Determine which is used so
+        # that lines can be un-wrapped across page boundaries
+        format = self.analyze_line_endings(html)
+
+        # Check Line histogram to determine if the document uses hard line breaks, If 50% or
+        # more of the lines break in the same region of the document then unwrapping is required
+        docanalysis = DocAnalysis(format, html)
+        hardbreaks = docanalysis.line_histogram(.50)
+        self.log("Hard line breaks check returned "+unicode(hardbreaks))
+
+        # Calculate Length
+        unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
+        length = docanalysis.line_length(unwrap_factor)
+        self.log("Median line length is " + unicode(length) + ", calculated with " + format + " format")
             
         ###### Unwrap lines ######
         if getattr(self.extra_opts, 'unwrap_lines', False):
-            # Determine line ending type
-            # Some OCR sourced files have line breaks in the html using a combination of span & p tags
-            # span are used for hard line breaks, p for new paragraphs.  Determine which is used so
-            # that lines can be un-wrapped across page boundaries
-            format = self.analyze_line_endings(html)
-
-            # Check Line histogram to determine if the document uses hard line breaks, If 50% or
-            # more of the lines break in the same region of the document then unwrapping is required
-            docanalysis = DocAnalysis(format, html)
-            hardbreaks = docanalysis.line_histogram(.50)
-            self.log("Hard line breaks check returned "+unicode(hardbreaks))
-
-            # Calculate Length
-            unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
-            length = docanalysis.line_length(unwrap_factor)
-            self.log("Median line length is " + unicode(length) + ", calculated with " + format + " format")
-
             # only go through unwrapping code if the histogram shows unwrapping is required or if the user decreased the default unwrap_factor
             if hardbreaks or unwrap_factor < 0.4:
                 self.log("Unwrapping required, unwrapping Lines")
@@ -447,15 +451,16 @@ class HeuristicProcessor(object):
                 dehyphenator = Dehyphenator()
                 html = dehyphenator(html,'html', length)
                 html = self.punctuation_unwrap(length, html, 'html')
-                #check any remaining hyphens, but only unwrap if there is a match
-                dehyphenator = Dehyphenator()
+                # unwrap remaining hyphens based on line length, but only remove if there is a match
+                dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
                 html = dehyphenator(html,'html_cleanup', length)
 
         if getattr(self.extra_opts, 'dehyphenate', False):
             # dehyphenate in cleanup mode to fix anything previous conversions/editing missed
             self.log("Fixing hyphenated content")
-            dehyphenator = Dehyphenator()
+            dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
             html = dehyphenator(html,'html_cleanup', length)
+            html = dehyphenator(html, 'individual_words', length)
 
         # If still no sections after unwrapping mark split points on lines with no punctuation
         if self.html_preprocess_sections < self.min_chapters and getattr(self.extra_opts, 'markup_chapter_headings', False):

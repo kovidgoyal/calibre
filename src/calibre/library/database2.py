@@ -690,11 +690,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi = Metadata(None)
 
         aut_list = row[fm['au_map']]
-        aut_list = [p.split(':::') for p in aut_list.split(':#:')]
+        if aut_list:
+            aut_list = [p.split(':::') for p in aut_list.split(':#:') if p]
+        else:
+            aut_list = []
         aum = []
         aus = {}
         for (author, author_sort) in aut_list:
-            aum.append(author)
+            aum.append(author.replace('|', ','))
             aus[author] = author_sort.replace('|', ',')
         mi.title       = row[fm['title']]
         mi.authors     = aum

@@ -693,8 +693,12 @@ def command_catalog(args, dbpath):
                             }
 
     with plugin:
-        plugin.run(args[1], opts, get_db(dbpath, opts))
-    return 0
+        ret = plugin.run(args[1], opts, get_db(dbpath, opts))
+    if ret is None:
+        ret = 0
+    else:
+        ret = 1
+    return ret
 
 # end of GR additions
 

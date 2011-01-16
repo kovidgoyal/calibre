@@ -730,7 +730,7 @@ class TagsModel(QAbstractItemModel): # {{{
             else:
                 collapse_model = 'partition'
                 collapse_template = tweaks['categories_collapsed_popularity_template']
-        collapse_letter = None
+        collapse_letter = collapse_letter_sk = None
 
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
@@ -782,8 +782,17 @@ class TagsModel(QAbstractItemModel): # {{{
                         ts = tag.sort
                         if not ts:
                             ts = ' '
-                        if upper(ts[0]) != collapse_letter:
+                        try:
+                            sk = sort_key(ts)[0]
+                        except:
+                            sk = ts[0]
+
+                        if sk != collapse_letter_sk:
                             collapse_letter = upper(ts[0])
+                            try:
+                                collapse_letter_sk = sort_key(collapse_letter)[0]
+                            except:
+                                collapse_letter_sk = collapse_letter
                             sub_cat = TagTreeItem(parent=category,
                                      data = collapse_letter,
                                      category_icon = category_node.icon,
