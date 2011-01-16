@@ -46,9 +46,6 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.function.setCurrentIndex(0)
         self.function.currentIndexChanged[str].connect(self.function_changed)
 
-        print self.textbox.tabStopWidth()
-        print self.source_code.tabStopWidth()
-
     def function_changed(self, toWhat):
         name = unicode(toWhat)
         self.source_code.clear()
