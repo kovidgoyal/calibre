@@ -299,6 +299,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.pubdate.setDisplayFormat(pubdate_format)
         self.pubdate.setSpecialValueText(_('Undefined'))
         self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
+        self.pubdate.dateChanged.connect(self.do_apply_pubdate)
 
         if len(self.db.custom_field_keys(include_composites=False)) == 0:
             self.central_widget.removeTab(1)
@@ -314,6 +315,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.do_again = False
         self.central_widget.setCurrentIndex(tab)
         self.exec_()
+
+    def do_apply_pubdate(self, *args):
+        self.apply_pubdate.setChecked(True)
 
     def clear_pubdate(self, *args):
         self.pubdate.setDate(UNDEFINED_QDATE)

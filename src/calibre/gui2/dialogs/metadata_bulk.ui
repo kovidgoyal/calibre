@@ -367,6 +367,9 @@ from the value in the box</string>
                <property name="displayFormat">
                 <string>MMM yyyy</string>
                </property>
+               <property name="calendarPopup">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item>
@@ -871,8 +874,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>826</width>
-                <height>313</height>
+                <width>197</width>
+                <height>60</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
