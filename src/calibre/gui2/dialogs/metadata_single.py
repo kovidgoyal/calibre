@@ -556,7 +556,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         tags = self.db.tags(row)
         self.original_tags = ', '.join(tags.split(',')) if tags else ''
         self.tags.setText(self.original_tags)
-        self.tags.update_tags_cache(self.db.all_tags())
+        self.tags.update_items_cache(self.db.all_tags())
         rating = self.db.rating(row)
         if rating > 0:
             self.rating.setValue(int(rating/2.))
@@ -776,7 +776,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if d.result() == QDialog.Accepted:
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
-            self.tags.update_tags_cache(self.db.all_tags())
+            self.tags.update_items_cache(self.db.all_tags())
 
 
     def fetch_metadata(self):

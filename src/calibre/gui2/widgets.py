@@ -426,46 +426,47 @@ class EnLineEdit(LineEditECM, QLineEdit):
     pass
 
 
-class TagsCompleter(QCompleter):
+class ItemsCompleter(QCompleter):
 
     '''
     A completer object that completes a list of tags. It is used in conjunction
     with a CompleterLineEdit.
     '''
 
-    def __init__(self, parent, all_tags):
-        QCompleter.__init__(self, all_tags, parent)
-        self.all_tags = set(all_tags)
+    def __init__(self, parent, all_items):
+        QCompleter.__init__(self, all_items, parent)
+        self.all_items = set(all_items)
 
-    def update(self, text_tags, completion_prefix):
-        tags = list(self.all_tags.difference(text_tags))
-        model = QStringListModel(tags, self)
+    def update(self, text_items, completion_prefix):
+        items = list(self.all_items.difference(text_items))
+        model = QStringListModel(items, self)
         self.setModel(model)
 
         self.setCompletionPrefix(completion_prefix)
         if completion_prefix.strip() != '':
             self.complete()
 
-    def update_tags_cache(self, tags):
-        self.all_tags = set(tags)
-        model = QStringListModel(tags, self)
+    def update_items_cache(self, items):
+        self.all_items = set(items)
+        model = QStringListModel(items, self)
         self.setModel(model)
 
 
-class TagsLineEdit(EnLineEdit):
+class CompleteLineEdit(EnLineEdit):
 
     '''
     A QLineEdit that can complete parts of text separated by separator.
     '''
 
-    def __init__(self, parent=0, tags=[]):
+    def __init__(self, parent=0, complete_items=[], sep=',', space_before_sep=False):
         EnLineEdit.__init__(self, parent)
 
-        self.separator = ','
+        self.separator = sep
+        self.space_before_sep = space_before_sep
 
         self.connect(self, SIGNAL('textChanged(QString)'), self.text_changed)
 
-        self.completer = TagsCompleter(self, tags)
+        self.completer = ItemsCompleter(self, complete_items)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
 
         self.connect(self,
@@ -476,32 +477,43 @@ class TagsLineEdit(EnLineEdit):
 
         self.completer.setWidget(self)
 
-    def update_tags_cache(self, tags):
-        self.completer.update_tags_cache(tags)
+    def update_items_cache(self, complete_items):
+        self.completer.update_items_cache(complete_items)
+        
+    def set_separator(self, sep):
+        self.separator = sep
+        
+    def set_space_before_sep(self, space_before):
+        self.space_before_sep = space_before
 
     def text_changed(self, text):
         all_text = unicode(text)
         text = all_text[:self.cursorPosition()]
-        prefix = text.split(',')[-1].strip()
+        prefix = text.split(self.separator)[-1].strip()
 
-        text_tags = []
+        text_items = []
         for t in all_text.split(self.separator):
             t1 = unicode(t).strip()
             if t1 != '':
-                text_tags.append(t)
-        text_tags = list(set(text_tags))
+                text_items.append(t)
+        text_items = list(set(text_items))
 
         self.emit(SIGNAL('text_changed(PyQt_PyObject, PyQt_PyObject)'),
-            text_tags, prefix)
+            text_items, prefix)
 
     def complete_text(self, text):
         cursor_pos = self.cursorPosition()
         before_text = unicode(self.text())[:cursor_pos]
         after_text = unicode(self.text())[cursor_pos:]
-        prefix_len = len(before_text.split(',')[-1].strip())
-        self.setText('%s%s%s %s' % (before_text[:cursor_pos - prefix_len],
-            text, self.separator, after_text))
-        self.setCursorPosition(cursor_pos - prefix_len + len(text) + 2)
+        prefix_len = len(before_text.split(self.separator)[-1].strip())
+        if self.space_before_sep:
+            complete_text_pat = '%s%s %s %s'
+            len_extra = 3
+        else:
+            complete_text_pat = '%s%s%s %s'
+            len_extra = 2
+        self.setText(complete_text_pat % (before_text[:cursor_pos - prefix_len], text, self.separator, after_text))
+        self.setCursorPosition(cursor_pos - prefix_len + len(text) + len_extra)
 
 
 class EnComboBox(QComboBox):

@@ -1059,6 +1059,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def all_authors(self):
         return [ (i[0], i[1]) for i in \
                 self.conn.get('SELECT id, name FROM authors')]
+        
+    def all_author_names(self):
+        return [i[0].strip() for i in self.conn.get('SELECT name FROM authors') if i[0].strip()]
 
     def all_publishers(self):
         return [ (i[0], i[1]) for i in \

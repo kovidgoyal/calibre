@@ -190,7 +190,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="TagsLineEdit" name="tags">
+        <widget class="CompleteLineEdit" name="tags">
          <property name="toolTip">
           <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
          </property>
@@ -310,7 +310,7 @@
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>TagsLineEdit</class>
+   <class>CompleteLineEdit</class>
    <extends>QLineEdit</extends>
    <header>widgets.h</header>
   </customwidget>

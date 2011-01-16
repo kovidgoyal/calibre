@@ -42,7 +42,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.series_box.setAutoCompletionCaseSensitivity(Qt.CaseInsensitive)
 
         all_tags = db.all_tags()
-        self.tags_box.update_tags_cache(all_tags)
+        self.tags_box.update_items_cache(all_tags)
 
         self.box_last_values = copy.deepcopy(box_values)
         if self.box_last_values:
