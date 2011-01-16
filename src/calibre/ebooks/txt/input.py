@@ -106,7 +106,7 @@ class TXTInput(InputFormatPlugin):
                     log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
 
             # Dehyphenate
-            dehyphenator = Dehyphenator()
+            dehyphenator = Dehyphenator(options.verbose, log=getattr(self, 'log', None))
             txt = dehyphenator(txt,'txt', length)
 
             # We don't check for block because the processor assumes block.
@@ -138,7 +138,7 @@ class TXTInput(InputFormatPlugin):
                 setattr(options, 'dehyphenate', True)
 
         # Dehyphenate in cleanup mode for missed txt and markdown conversion
-        dehyphenator = Dehyphenator()
+        dehyphenator = Dehyphenator(options.verbose, log=getattr(self, 'log', None))
         html = dehyphenator(html,'txt_cleanup', length)
         html = dehyphenator(html,'html_cleanup', length)
 

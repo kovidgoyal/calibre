@@ -174,13 +174,19 @@ class Dehyphenator(object):
     retain hyphens.
     '''
 
-    def __init__(self):
+    def __init__(self, verbose=0, log=None):
+        self.log = default_log if log is None else log
+        self.verbose = verbose
         # Add common suffixes to the regex below to increase the likelihood of a match -
         # don't add suffixes which are also complete words, such as 'able' or 'sex'
-        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|m?ents?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex|ian)$", re.IGNORECASE)
+        # only remove if it's not already the point of hyphenation
+        self.suffix_string = "((ed)?ly|'?e?s||a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|m?ents?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex|ian)$"
+        self.suffixes = re.compile(r"^%s" % self.suffix_string, re.IGNORECASE)
+        self.removesuffixes = re.compile(r"%s" % self.suffix_string, re.IGNORECASE)
         # remove prefixes if the prefix was not already the point of hyphenation
-        self.prefixes = re.compile(r'^(dis|re|un|in|ex)$', re.IGNORECASE)
-        self.removeprefix = re.compile(r'^(dis|re|un|in|ex)', re.IGNORECASE)
+        self.prefix_string = '^(dis|re|un|in|ex)'
+        self.prefixes = re.compile(r'%s$' % self.prefix_string, re.IGNORECASE)
+        self.removeprefix = re.compile(r'%s' % self.prefix_string, re.IGNORECASE)
 
     def dehyphenate(self, match):
         firsthalf = match.group('firstpart')
@@ -191,31 +197,44 @@ class Dehyphenator(object):
             wraptags = ''
         hyphenated = unicode(firsthalf) + "-" + unicode(secondhalf)
         dehyphenated = unicode(firsthalf) + unicode(secondhalf)
-        lookupword = self.removesuffixes.sub('', dehyphenated)
-        if self.prefixes.match(firsthalf) is None:
+        if self.suffixes.match(secondhalf) is None:
+            lookupword = self.removesuffixes.sub('', dehyphenated)
+        else:
+            lookupword = dehyphenated
+        if len(firsthalf) > 3 and self.prefixes.match(firsthalf) is None:
             lookupword = self.removeprefix.sub('', lookupword)
-        #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
+        if self.verbose > 2:
+            self.log("lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated))
         try:
             searchresult = self.html.find(lookupword.lower())
         except:
             return hyphenated
         if self.format == 'html_cleanup' or self.format == 'txt_cleanup':
             if self.html.find(lookupword) != -1 or searchresult != -1:
-                #print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
+                if self.verbose > 2:
+                    self.log("    Cleanup:returned dehyphenated word: " + str(dehyphenated))
                 return dehyphenated
             elif self.html.find(hyphenated) != -1:
-                #print "Cleanup:returned hyphenated word: " + str(hyphenated)
+                if self.verbose > 2:
+                    self.log("        Cleanup:returned hyphenated word: " + str(hyphenated))
                 return hyphenated
             else:
-                #print "Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf)
+                if self.verbose > 2:
+                    self.log("            Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf))
                 return firsthalf+u'\u2014'+wraptags+secondhalf
 
         else:
+            if len(firsthalf) <= 2 and len(secondhalf) <= 2:
+                if self.verbose > 2:
+                    self.log("too short, returned hyphenated word: " + str(hyphenated))
+                return hyphenated
             if self.html.find(lookupword) != -1 or searchresult != -1:
-                #print "returned dehyphenated word: " + str(dehyphenated)
+                if self.verbose > 2:
+                    self.log("     returned dehyphenated word: " + str(dehyphenated))
                 return dehyphenated
             else:
-                #print "           returned hyphenated word: " + str(hyphenated)
+                if self.verbose > 2:
+                    self.log("          returned hyphenated word: " + str(hyphenated))
                 return hyphenated
 
     def __call__(self, html, format, length=1):
@@ -228,7 +247,7 @@ class Dehyphenator(object):
         elif format == 'txt':
             intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)(\u0020|\u0009)*(?P<wraptags>(\n(\u0020|\u0009)*)+)(?P<secondpart>[\w\d]+)'% length)
         elif format == 'individual_words':
-            intextmatch = re.compile(u'>[^<]*\b(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)"\s>]+)(-|‐)\u0020*(?P<secondpart>\w+)\b[^<]*<') # for later, not called anywhere yet
+            intextmatch = re.compile(u'(?!<)(?P<firstpart>\w+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)') # for later, not called anywhere yet
         elif format == 'html_cleanup':
             intextmatch = re.compile(u'(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)')
         elif format == 'txt_cleanup':
@@ -512,7 +531,7 @@ class HTMLPreProcessor(object):
 
         if is_pdftohtml and length > -1:
             # Dehyphenate
-            dehyphenator = Dehyphenator()
+            dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
             html = dehyphenator(html,'html', length)
 
         if is_pdftohtml:
