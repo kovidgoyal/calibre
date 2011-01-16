@@ -454,18 +454,13 @@ class HTMLPreProcessor(object):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
 
         for search, replace in [['sr3_search', 'sr3_replace'], ['sr2_search', 'sr2_replace'], ['sr1_search', 'sr1_replace']]:
-            replace_pattern = ''
-            if getattr(self.extra_opts, search, None):
-                search_pattern = getattr(self.extra_opts, search, None)
-                if getattr(self.extra_opts, replace, None):
-                    replace_pattern = getattr(self.extra_opts, replace, None)
+            search_pattern = getattr(self.extra_opts, search, '')
+            if search_pattern:
                 try:
-                    rules.insert(0,  (re.compile(search_pattern), replace_pattern))
-                except:
-                    import traceback
-                    print 'Failed to parse sr3-search regexp'
-                    traceback.print_exc()
-
+                    search_re = re.compile(search_pattern)
+                    rules.insert(0,  (search_re, getattr(self.extra_opts, replace, '')))
+                except Exception as e:
+                    self.log.error('Failed to parse %s regexp because %s' % (search, e))
 
         end_rules = []
         # delete soft hyphens - moved here so it's executed after header/footer removal

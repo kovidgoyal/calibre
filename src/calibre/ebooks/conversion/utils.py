@@ -35,12 +35,12 @@ class HeuristicProcessor(object):
         title = match.group('title')
         if not title:
             self.html_preprocess_sections = self.html_preprocess_sections + 1
-            self.log("marked " + unicode(self.html_preprocess_sections) +
+            self.log.debug("marked " + unicode(self.html_preprocess_sections) +
                     " chapters. - " + unicode(chap))
             return '<h2>'+chap+'</h2>\n'
         else:
             self.html_preprocess_sections = self.html_preprocess_sections + 1
-            self.log("marked " + unicode(self.html_preprocess_sections) +
+            self.log.debug("marked " + unicode(self.html_preprocess_sections) +
                     " chapters & titles. - " + unicode(chap) + ", " + unicode(title))
             return '<h2>'+chap+'</h2>\n<h3>'+title+'</h3>\n'
 
@@ -48,7 +48,7 @@ class HeuristicProcessor(object):
         chap = match.group('section')
         styles = match.group('styles')
         self.html_preprocess_sections = self.html_preprocess_sections + 1
-        self.log("marked " + unicode(self.html_preprocess_sections) +
+        self.log.debug("marked " + unicode(self.html_preprocess_sections) +
                 " section markers based on punctuation. - " + unicode(chap))
         return '<'+styles+' style="page-break-before:always">'+chap
 
@@ -91,7 +91,7 @@ class HeuristicProcessor(object):
         line_end = line_end_ere.findall(raw)
         tot_htm_ends = len(htm_end)
         tot_ln_fds = len(line_end)
-        self.log("There are " + unicode(tot_ln_fds) + " total Line feeds, and " +
+        self.log.debug("There are " + unicode(tot_ln_fds) + " total Line feeds, and " +
                 unicode(tot_htm_ends) + " marked up endings")
 
         if percent > 1:
@@ -100,7 +100,7 @@ class HeuristicProcessor(object):
             percent = 0
 
         min_lns = tot_ln_fds * percent
-        self.log("There must be fewer than " + unicode(min_lns) + " unmarked lines to add markup")
+        self.log.debug("There must be fewer than " + unicode(min_lns) + " unmarked lines to add markup")
         if min_lns > tot_htm_ends:
             return True
 
@@ -171,7 +171,7 @@ class HeuristicProcessor(object):
         #print "minimum chapters required are: "+str(self.min_chapters)
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
-        self.log("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
+        self.log.debug("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
 
         # Build the Regular Expressions in pieces
         init_lookahead = "(?=<(p|div))"
@@ -221,7 +221,7 @@ class HeuristicProcessor(object):
                     break
                 full_chapter_line = chapter_line_open+chapter_header_open+chapter_type+chapter_header_close+chapter_line_close
                 n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-                self.log("Marked " + unicode(self.html_preprocess_sections) + " headings, " + log_message)
+                self.log.debug("Marked " + unicode(self.html_preprocess_sections) + " headings, " + log_message)
                 if lookahead_ignorecase:
                     chapter_marker = init_lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
                     chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
@@ -244,7 +244,7 @@ class HeuristicProcessor(object):
         words_per_chptr = wordcount
         if words_per_chptr > 0 and self.html_preprocess_sections > 0:
             words_per_chptr = wordcount / self.html_preprocess_sections
-        self.log("Total wordcount is: "+ str(wordcount)+", Average words per section is: "+str(words_per_chptr)+", Marked up "+str(self.html_preprocess_sections)+" chapters")
+        self.log.debug("Total wordcount is: "+ str(wordcount)+", Average words per section is: "+str(words_per_chptr)+", Marked up "+str(self.html_preprocess_sections)+" chapters")
         return html
 
     def punctuation_unwrap(self, length, content, format):
@@ -291,7 +291,7 @@ class HeuristicProcessor(object):
     def markup_pre(self, html):
         pre = re.compile(r'<pre>', re.IGNORECASE)
         if len(pre.findall(html)) >= 1:
-            self.log("Running Text Processing")
+            self.log.debug("Running Text Processing")
             outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
             html = outerhtml.sub(self.txt_process, html)
         else:
@@ -311,7 +311,7 @@ class HeuristicProcessor(object):
         txtindent = re.compile(ur'<p(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}', re.IGNORECASE)
         html = txtindent.sub(self.insert_indent, html)
         if self.found_indents > 1:
-            self.log("replaced "+unicode(self.found_indents)+ " nbsp indents with inline styles")
+            self.log.debug("replaced "+unicode(self.found_indents)+ " nbsp indents with inline styles")
         return html
 
     def cleanup_markup(self, html):
@@ -351,7 +351,7 @@ class HeuristicProcessor(object):
         blanklines = self.blankreg.findall(html)
         lines = self.linereg.findall(html)
         if len(lines) > 1:
-            self.log("There are " + unicode(len(blanklines)) + " blank lines. " +
+            self.log.debug("There are " + unicode(len(blanklines)) + " blank lines. " +
                     unicode(float(len(blanklines)) / float(len(lines))) + " percent blank")
                     
             if float(len(blanklines)) / float(len(lines)) > 0.40:
@@ -367,18 +367,18 @@ class HeuristicProcessor(object):
 
 
     def __call__(self, html):
-        self.log("*********  Heuristic processing HTML  *********")
+        self.log.debug("*********  Heuristic processing HTML  *********")
 
         # Count the words in the document to estimate how many chapters to look for and whether
         # other types of processing are attempted
         try:
             self.totalwords = self.get_word_count(html)
         except:
-            self.log("Can't get wordcount")
+            self.log.warn("Can't get wordcount")
 
         print "found "+unicode(self.totalwords)+" words in the flow"
         if self.totalwords < 50:
-            self.log("flow is too short, not running heuristics")
+            self.log.warn("flow is too short, not running heuristics")
             return html
 
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
@@ -391,7 +391,7 @@ class HeuristicProcessor(object):
             # <pre> tags), check and  mark up line endings if required before proceeding
             # fix indents must run after this step
             if self.no_markup(html, 0.1):
-                self.log("not enough paragraph markers, adding now")
+                self.log.debug("not enough paragraph markers, adding now")
                 # markup using text processing
                 html = self.markup_pre(html)
 
@@ -421,7 +421,7 @@ class HeuristicProcessor(object):
         # If more than 40% of the lines are empty paragraphs and the user has enabled delete
         # blank paragraphs then delete blank lines to clean up spacing
         if blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
-            self.log("deleting blank lines")
+            self.log.debug("deleting blank lines")
             html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
             html = self.blankreg.sub('', html)
 
@@ -435,18 +435,18 @@ class HeuristicProcessor(object):
         # more of the lines break in the same region of the document then unwrapping is required
         docanalysis = DocAnalysis(format, html)
         hardbreaks = docanalysis.line_histogram(.50)
-        self.log("Hard line breaks check returned "+unicode(hardbreaks))
+        self.log.debug("Hard line breaks check returned "+unicode(hardbreaks))
 
         # Calculate Length
         unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
         length = docanalysis.line_length(unwrap_factor)
-        self.log("Median line length is " + unicode(length) + ", calculated with " + format + " format")
+        self.log.debug("Median line length is " + unicode(length) + ", calculated with " + format + " format")
             
         ###### Unwrap lines ######
         if getattr(self.extra_opts, 'unwrap_lines', False):
             # only go through unwrapping code if the histogram shows unwrapping is required or if the user decreased the default unwrap_factor
             if hardbreaks or unwrap_factor < 0.4:
-                self.log("Unwrapping required, unwrapping Lines")
+                self.log.debug("Unwrapping required, unwrapping Lines")
                 # Dehyphenate with line length limiters
                 dehyphenator = Dehyphenator()
                 html = dehyphenator(html,'html', length)
@@ -457,14 +457,14 @@ class HeuristicProcessor(object):
 
         if getattr(self.extra_opts, 'dehyphenate', False):
             # dehyphenate in cleanup mode to fix anything previous conversions/editing missed
-            self.log("Fixing hyphenated content")
+            self.log.debug("Fixing hyphenated content")
             dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
             html = dehyphenator(html,'html_cleanup', length)
             html = dehyphenator(html, 'individual_words', length)
 
         # If still no sections after unwrapping mark split points on lines with no punctuation
         if self.html_preprocess_sections < self.min_chapters and getattr(self.extra_opts, 'markup_chapter_headings', False):
-            self.log("Looking for more split points based on punctuation,"
+            self.log.debug("Looking for more split points based on punctuation,"
                     " currently have " + unicode(self.html_preprocess_sections))
             chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
             html = chapdetect3.sub(self.chapter_break, html)
