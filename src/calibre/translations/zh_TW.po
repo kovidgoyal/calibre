@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-14 23:15+0000\n"
-"PO-Revision-Date: 2010-09-03 19:15+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-16 00:18+0000\n"
+"Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-15 04:59+0000\n"
+"X-Launchpad-Export-Date: 2011-01-16 05:00+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "Language: zh_TW\n"
 
@@ -342,7 +342,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 msgid "Adding books"
-msgstr ""
+msgstr "加入書籍"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:808
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:820
@@ -353,11 +353,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Control how calibre reads metadata from files when adding books"
-msgstr ""
+msgstr "控制當加入書籍時 calibre 如何從檔案讀取元數據"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:818
 msgid "Saving books to disk"
-msgstr ""
+msgstr "將書籍儲存至磁碟"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:824
 msgid ""
@@ -367,7 +367,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Sending books to devices"
-msgstr ""
+msgstr "將書籍傳送至裝置"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:836
 msgid "Control how calibre transfers files to your ebook reader"
@@ -398,7 +398,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Sharing books by email"
-msgstr ""
+msgstr "以電子郵件分享書籍"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:866
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:878
@@ -409,7 +409,7 @@ msgstr ""
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
-msgstr ""
+msgstr "設定以電子郵件分享書籍。可以用於自動將下載的新聞傳送至您的裝置"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:876
 msgid "Sharing over the net"
@@ -1176,7 +1176,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:79
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
-msgstr ""
+msgstr "使用自動管理時重新整理個別封面 (新聞閱讀器)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:81
 msgid ""
@@ -3887,7 +3887,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:167
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:126
 msgid "%d books"
-msgstr ""
+msgstr "%d 本書"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:153
 msgid "Choose calibre library to work with"
@@ -4047,7 +4047,7 @@ msgstr "C"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "Convert books"
-msgstr ""
+msgstr "轉換書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:28
 msgid "Convert individually"
@@ -4111,7 +4111,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:153
 msgid "Copied %d books to %s"
-msgstr ""
+msgstr "將 %d 本書複製到 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:168
 msgid ""
@@ -4292,11 +4292,11 @@ msgstr "E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:24
 msgid "Edit metadata"
-msgstr ""
+msgstr "編輯元數據"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:28
 msgid "Merge book records"
-msgstr ""
+msgstr "合併書籍紀錄"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:29
 msgid "M"
@@ -4367,7 +4367,7 @@ msgstr "不能編輯元數據"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:223
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:226
 msgid "Cannot merge books"
-msgstr ""
+msgstr "不能合併書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:227
 msgid "At least two books must be selected for merging"
@@ -7068,7 +7068,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:71
 msgid "Manage authors"
-msgstr ""
+msgstr "管理作者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:72
 msgid "Sort by author"
@@ -7256,7 +7256,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:271
 msgid "Editing meta information for <b>%d books</b>"
-msgstr ""
+msgstr "編輯 <b>%d 本書</b>的元數據資訊"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:300
 msgid ""
@@ -9381,7 +9381,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:289
 msgid "Successfully downloaded metadata for %d out of %d books"
-msgstr ""
+msgstr "成功的下載 %d / %d 書籍的元數據"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:291
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:661
@@ -10282,7 +10282,7 @@ msgstr "以 &OPF 檔案儲存元數據"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
 msgid "Manual management"
-msgstr ""
+msgstr "手動管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:71
@@ -10292,11 +10292,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:72
 msgid "Automatic management"
-msgstr ""
+msgstr "自動管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:69
 msgid "Metadata &management:"
-msgstr ""
+msgstr "元數據管理(&M):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:73
 msgid ""
@@ -10760,16 +10760,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:272
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:276
 msgid "Manage %s"
-msgstr ""
+msgstr "管理 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:279
 msgid "Manage Saved Searches"
-msgstr ""
+msgstr "管理已儲存的搜尋"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:286
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:290
 msgid "Manage User Categories"
-msgstr ""
+msgstr "管理使用者分類"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:297
 msgid "Show all categories"
@@ -10867,7 +10867,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1300
 msgid "Manage &user categories"
-msgstr ""
+msgstr "管理使用者分類(&U)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1303
 msgid "Add your own categories to the Tag Browser"
@@ -10875,7 +10875,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:64
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
-msgstr ""
+msgstr "轉換書籍 %(num)d / %(total)d (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:204
@@ -12981,7 +12981,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:105
 msgid "Browsing %d books"
-msgstr ""
+msgstr "瀏覽 %d 本書"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:122
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:252

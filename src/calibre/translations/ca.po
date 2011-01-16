@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-14 23:15+0000\n"
-"PO-Revision-Date: 2011-01-14 20:16+0000\n"
+"PO-Revision-Date: 2011-01-15 20:47+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-15 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-01-16 04:48+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -401,7 +401,7 @@ msgstr "Canvia els camps de les metadades abans de desar/enviar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Template Functions"
-msgstr ""
+msgstr "Funcions de plantilla"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:855
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
@@ -412,7 +412,7 @@ msgstr "Avançat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Creeu les funcions de la vostra plantilla"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Sharing books by email"
@@ -1260,6 +1260,8 @@ msgstr ""
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Actualitza les portades per separat quan s'utilitzi l'administració "
+"automàtica (lectors nous)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:81
 msgid ""
@@ -1267,6 +1269,9 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
+"Establiu aquesta opció per carregar portades dels llibres per separat cada "
+"cop que es connecti el dispositiu. Desactiveu-la si el número de llibres al "
+"lector no permet un rendiment acceptable."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1633,7 +1638,7 @@ msgstr ""
 "Especifica el perfil d'entrada. El perfil d'entrada proporciona informació "
 "al sistema de conversió de com interpretar informació diversa del document "
 "d'entrada. Per exemple, longituds depenent de la resolució (longitud en "
-"píxels). Les possibilitats són:"
+"píxels). Les opcions són:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:127
 msgid ""
@@ -1646,7 +1651,7 @@ msgstr ""
 "sistema de conversió sobre com optimitzar el document creat per al "
 "dispositiu indicat. En alguns casos, el perfil de sortida es requereix per a "
 "produir documents compatibles amb el dispositiu. Per exemple el format EPUB "
-"al lector de SONY. Les possibilitats són:"
+"al lector de SONY. Les opcions són:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:138
 msgid ""
@@ -3754,11 +3759,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/delete_info.py:203
 msgid "No action in dictionary state is \"%s\" \n"
-msgstr ""
+msgstr "No existeix l'acció «%s» a l'estat del diccionari \n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/hex_2_utf8.py:296
 msgid "error no state found in hex_2_utf8"
-msgstr ""
+msgstr "hi ha hagut un error d'absència d'esta a hex_2_utf8"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -3832,6 +3837,15 @@ msgid ""
 "paragraph.* unformatted: Most lines have hard line breaks, few/no blank "
 "lines or indents."
 msgstr ""
+"Estructura del paràgraf.\n"
+"les opcions són ['auto', 'block', 'single', 'print', 'unformatted']\n"
+"* auto: Intenta detectar automàticament el tipus de paràgraf.\n"
+"* block: Considera que una línia en blanc és un salt de paràgraf.\n"
+"* single: Assumeix que cada línia és un paràgraf.\n"
+"* print: Assumeix que cada línia que comença amb dos o més espais inicia un "
+"paràgraf.\n"
+"* unformatted: La majoria de línies tenen salts de línia manuals i hi ha "
+"poques (o cap) línies en blanc o sagnies."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:38
 msgid ""
@@ -3845,6 +3859,15 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Format que s'utilitza dins del document:\n"
+"* auto: Decideix automàticament el procés de format que s'utilitza.\n"
+"* none: No es processa el format del document. Tot és un paràgraf i no "
+"s'aplica cap estil.\n"
+"* heuristic: Processa fent servir l'heurística per determinar formats com "
+"els títols de capítol i el text en cursiva.\n"
+"* textile: Processa utilitzant el format Textile.\n"
+"* markdown: Processa utilitzant el format Markdown. Per a més informació "
+"quant al Markdown vegeu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:48
 msgid ""
@@ -4279,6 +4302,8 @@ msgid ""
 "No books to catalog\n"
 "Check job details"
 msgstr ""
+"No hi ha llibres per catalogar\n"
+"Comproveu els detalls de la tasca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:70
 msgid "Catalog generated."
@@ -4836,7 +4861,7 @@ msgstr "metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:102
 msgid "Downloading {0} for {1} book(s)"
-msgstr ""
+msgstr "S'està descarregant {0} per a {1} llibre(s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:186
@@ -4941,11 +4966,11 @@ msgstr "Ajuda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:12
 msgid "Move to next match"
-msgstr ""
+msgstr "Passa a la coincidència següent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 msgid "Move to next highlighted match"
-msgstr ""
+msgstr "Passa a la coincidència realçada següent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:340
@@ -4959,15 +4984,15 @@ msgstr "F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:25
 msgid "Move to previous item"
-msgstr ""
+msgstr "Passa a l'element anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Move to previous highlighted item"
-msgstr ""
+msgstr "Passa a l'element realçat anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Shift+N"
-msgstr ""
+msgstr "Maj+N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
@@ -5698,7 +5723,7 @@ msgstr "Llibres per &títol"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:303
 msgid "Books by Author"
-msgstr ""
+msgstr "Llibres per autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:304
 msgid ""
@@ -5707,6 +5732,10 @@ msgid ""
 "excludes tags of the form [tag], \n"
 "e.g., [Project Gutenberg]</p>"
 msgstr ""
+"<p>Patró per defecte \n"
+"\\[.+\\]\n"
+"exclou etiquetes del tipus [tag], \n"
+"per exemple, [Projecte Gutenberg]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid "Excluded genres"
@@ -5733,6 +5762,8 @@ msgid ""
 "<p>Comma-separated list of tags to exclude.\n"
 "Default: ~,Catalog"
 msgstr ""
+"<p>Llista separada per comes d'etiquetes que s'exclouran.\n"
+"Per defecte: ~,catàleg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
@@ -5750,6 +5781,7 @@ msgstr "Patró d'exclusió"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Matching books will be displayed with a check mark"
 msgstr ""
+"Es mostraran els llibres que coincideixen amb una marca de verificació"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
@@ -5773,7 +5805,7 @@ msgstr "Etiqueta de «desitjat»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Books tagged as Wishlist items will be displayed with an X"
-msgstr ""
+msgstr "Es mostraran els llibres etiquetats com a «desitjats» amb una X"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Thumbnail width"
@@ -7658,7 +7690,7 @@ msgstr "Suprimeix del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:54
 msgid "This book is DRMed"
-msgstr ""
+msgstr "Llibre amb DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:55
 msgid ""
@@ -7666,6 +7698,9 @@ msgid ""
 "cannot read or convert this book in calibre, \n"
 "<a href=\"http://bugs.calibre-ebook.com/wiki/DRM\">click here</a>."
 msgstr ""
+"<p>El llibre està bloquejat per <b>DRM</b>. Per a més informació del DRM i "
+"perquè no podeu llegir o convertir el llibre al calibre, \n"
+"<a href=\"http://bugs.calibre-ebook.com/wiki/DRM\">feu clic aquí</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:35
 msgid "Author sort"
@@ -8483,13 +8518,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:794
 msgid "Timed out"
-msgstr ""
+msgstr "Temps d'espera esgotat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:795
 msgid ""
 "The download of social metadata timed out, the servers are probably busy. "
 "Try again later."
 msgstr ""
+"El temps d'espera de la descàrrega de metadades socials s'ha esgotat, "
+"probablement els servidors estan ocupats. Intenteu-ho més tard."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:802
 msgid "There were errors"
@@ -9334,7 +9371,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:274
 msgid "Choose builtin recipe"
-msgstr ""
+msgstr "Tria una recepta integrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:320
 msgid "Choose a recipe file"
@@ -9795,13 +9832,16 @@ msgstr "Reinicia la cerca ràpida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
 msgid "&Highlight"
-msgstr ""
+msgstr "&Realça"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:199
 msgid ""
 "When searching, highlight matched books, instead of restricting the book "
 "list to the matches.<p> You can use the N or F3 keys to go to the next match."
 msgstr ""
+"Realça els llibres que coincideixin en cercar, en lloc de restringir la "
+"llista de llibres a les coincidències.<p> Podeu utilitzar les tecles N o F3 "
+"per anar a la coincidència següent."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:215
 msgid "Copy current search text (instead of search name)"
@@ -10011,6 +10051,8 @@ msgid ""
 "Ignore custom plugins, useful if you installed a plugin that is preventing "
 "calibre from starting"
 msgstr ""
+"Ignora els connectors personalitzats. Útil si heu instal·lat un connector "
+"que no deixa que el calibre s'engegui."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:662
@@ -10915,7 +10957,7 @@ msgstr "&Instal·la les eines de la línia de comandaments"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:31
 msgid "Open Editor"
-msgstr ""
+msgstr "Obre l'editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:65
 msgid "Device currently connected: "
@@ -11033,7 +11075,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:162
 msgid "Add plugin"
-msgstr ""
+msgstr "Afegeix un connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:170
 msgid ""
@@ -11041,17 +11083,22 @@ msgid ""
 "virus/malware. Only install it if you got it from a trusted source. Are you "
 "sure you want to proceed?"
 msgstr ""
+"Hi ha un <b>risc de seguretat</b> en la instal·lació de connectors. Els "
+"connectors poden contenir virus o programari maliciós. Instal·leu-los només "
+"si els heu aconseguit d'una font de confiança. Voleu continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:225
 msgid "Success"
-msgstr ""
+msgstr "Amb èxit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:181
 msgid ""
 "Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
 "have to restart calibre for the plugin to take effect."
 msgstr ""
+"S'ha instal·lat el connector <b>{0}</b> sota <b> connectors {1}</b> amb "
+"èxit. Potser caldrà reiniciar el calibre per activar el connector."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:192
 msgid "No valid plugin path"
@@ -11079,7 +11126,7 @@ msgstr "El connector %s no necessita personalització"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:220
 msgid "Plugin {0} successfully removed"
-msgstr ""
+msgstr "S'ha suprimit el connector {0} amb èxit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:228
 msgid "Cannot remove builtin plugin"
@@ -11112,7 +11159,7 @@ msgstr "&Suprimeix el connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:63
 msgid "&Add a new plugin"
-msgstr ""
+msgstr "&Afegeix un connector nou"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
@@ -11439,63 +11486,63 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:159
 msgid "Template functions"
-msgstr ""
+msgstr "Funcions de plantilla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:128
 msgid "You cannot delete a built-in function"
-msgstr ""
+msgstr "No es pot suprimir una funció integrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:138
 msgid "Function not defined"
-msgstr ""
+msgstr "Funció no definida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:145
 msgid "Name already used"
-msgstr ""
+msgstr "El nom ja s'està utilitzant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:149
 msgid "Argument count must be -1 or greater than zero"
-msgstr ""
+msgstr "El compte d'arguments ha de ser -1 o major de zero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:160
 msgid "Exception while compiling function"
-msgstr ""
+msgstr "Hi ha hagut una excepció compilant la funció"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:96
 msgid "&Function:"
-msgstr ""
+msgstr "&Funció:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:97
 msgid "Enter the name of the function to create."
-msgstr ""
+msgstr "Introduïu el nom de la funció que es crearà."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:98
 msgid "Arg &count:"
-msgstr ""
+msgstr "&Compte d'arguments"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:99
 msgid "Set this to -1 if the function takes a variable number of arguments"
-msgstr ""
+msgstr "Establiu-lo a -1 si la funció conté un número variable d'arguments"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:100
 msgid "&Documentation:"
-msgstr ""
+msgstr "&Documentació:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:102
 msgid "&Delete"
-msgstr ""
+msgstr "&Suprimeix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:103
 msgid "&Replace"
-msgstr ""
+msgstr "Su&bstitueix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:104
 msgid "C&reate"
-msgstr ""
+msgstr "C&rea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
-msgstr ""
+msgstr "Codi de &programa: (cal seguir les regles de sagnat de python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
@@ -12250,13 +12297,15 @@ msgstr "Tipus de lletra estàndard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:125
 msgid "Still editing"
-msgstr ""
+msgstr "Encara s'està editant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:126
 msgid ""
 "You are in the middle of editing a keyboard shortcut first complete that, by "
 "clicking outside the  shortcut editing box."
 msgstr ""
+"Esteu editant una drecera de teclat, cal completar-ho primer fent clic fora "
+"del quadre d'edició de dreceres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:514
 msgid "&Lookup in dictionary"
@@ -13136,6 +13185,11 @@ msgid ""
 "this'.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Llista separada per comes de paraules de les etiquetes que indiquen que el "
+"llibre s'ha d'excloure de la sortida. Per exemple: «omet» coincidirà amb "
+"«omet aquest llibre» i «li agradarà al senyor Omet». Per defecte: "
+"«%default»\n"
+"S'aplica als formats de sortida ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:610
 msgid ""
@@ -13143,6 +13197,9 @@ msgid ""
 "Author section is always generated.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Inclou la secció «Autors» al catàleg. Si s'ignora aquesta opció, la secció "
+"«Llibres per autor» es genera sempre. Per defecte: «%default»\n"
+"S'aplica als formats de sortida ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:618
 msgid ""
@@ -13283,6 +13340,15 @@ msgid ""
 "then rebuild the catalog.\n"
 "*** Terminating catalog generation ***\n"
 msgstr ""
+"\n"
+"\n"
+"*** Error a les metadades ***\n"
+"Valors inconsistents d'ordre per autor per a l'autor «{0}», no es pot "
+"continuar generant el catàleg.\n"
+"Cal seleccionar tots el llibres de «{0}», aplicar un valor d'ordre per autor "
+"correcte al quadre\n"
+"d'edició de metadades i tornar a generar el catàleg.\n"
+"*** Es cancel·la la generació del catàleg ***\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -13934,7 +14000,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:989
 msgid "You must provide the %s option to do a recovery"
-msgstr ""
+msgstr "Heu d'introduir l'opció %s per fer una recuperació"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1026
 msgid ""
@@ -14561,7 +14627,7 @@ msgstr " a prop "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:38
 msgid "end of program"
-msgstr ""
+msgstr "final del programa"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:75
 msgid "syntax error - program ends before EOF"
@@ -14599,49 +14665,59 @@ msgstr "Aquesta variable no existeix "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:57
 msgid "No documentation provided"
-msgstr ""
+msgstr "No s'ha facilitat cap documentació"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:95
 msgid ""
 "strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x and y as "
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"strcmp(x, y, lt, eq, gt) -- fa una comparació, sense distinció de majúscules "
+"i minúscules, de x i y com a cadenes.  if x < y. S'obté «eq» si x == y. En "
+"cas contrari s'obté «gt»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:110
 msgid ""
 "cmp(x, y, lt, eq, gt) -- compares x and y after converting both to numbers. "
 "Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"cmp(x, y, lt, eq, gt) -- compara x i y després de convertir les dues a "
+"números. S'obté «lt» si x < y. S'obté «eq» si x == y. En la resta de casos "
+"s'obté «gt»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:125
 msgid ""
 "strcat(a, b, ...) -- can take any number of arguments. Returns a string "
 "formed by concatenating all the arguments"
 msgstr ""
+"strcat(a, b, ...) -- pot prendre qualsevol nombre d'arguments. S'obté una "
+"cadena formada per la concatenació de tots els arguments"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:138
 msgid ""
 "add(x, y) -- returns x + y. Throws an exception if either x or y are not "
 "numbers."
-msgstr ""
+msgstr "add(x, y) -- s'obté x + y. Dóna un error si x o y no són nombres."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:148
 msgid ""
 "subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"subtract(x, y) -- s'obté x - y. Dóna un error si x o y no són nombres."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:158
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"multiply(x, y) -- s'obté x * y. Dóna un error si x o y no són nombres."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:168
 msgid ""
 "divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
 "numbers."
-msgstr ""
+msgstr "divide(x, y) -- s'obté x / y. Dóna un error si x o y no són nombres."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:178
 msgid ""
@@ -14652,6 +14728,12 @@ msgid ""
 "automatically. For example, template('[[title_sort]]') will evaluate the "
 "template {title_sort} and return its value."
 msgstr ""
+"template(x) -- avalua x com a plantilla. L'avaluació es fa en el seu "
+"context, de manera que les variables no es comparteixen entre el que la "
+"crida i l'avaluació de la plantilla. Com que els caràcters { i } són "
+"especials, heu de fer servir [[ per al caràcter { i ]] per al caràcter }; es "
+"converteixen automàticament. Per exemple, template('[[ordena_títols]]') "
+"avaluarà la plantilla {ordena_títols} i s'obtindrà el seu valor."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:193
 msgid ""
@@ -14659,12 +14741,18 @@ msgid ""
 "'assign'ed to) instead of the book metadata.  This permits using the "
 "template processor to construct complex results from local variables."
 msgstr ""
+"eval(plantilla) -- avalua la plantilla passant les variables locals (les que "
+"s'han assignat) en lloc de les metadades del llibre. Permet fer servir el "
+"processador de plantilles per construir resultats complexos de variables "
+"locals."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:206
 msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr ""
+"assign(id, val) -- assigna «val» a «id» i s'obté «val». «id» ha de ser un "
+"identificador, no una expressió."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:216
 msgid ""
@@ -14672,10 +14760,13 @@ msgid ""
 "start calibre from the command line (calibre-debug -g), the output will go "
 "to a black hole."
 msgstr ""
+"print(a, b, ...) -- imprimeix els arguments a una sortida estàndard. Si no "
+"esteu fent servir el calibre des de la línia de comandaments (calibre-debug-"
+"g), la sortida anirà a un forat negre."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:227
 msgid "field(name) -- returns the metadata field named by name"
-msgstr ""
+msgstr "field(nom) -- s'obté el camp de metadades identificat per «nom»"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:235
 msgid ""
@@ -14686,6 +14777,12 @@ msgid ""
 "substr('12345', 1, 0) returns '2345', and substr('12345', 1, -1) returns "
 "'234'."
 msgstr ""
+"substr(str, inici, fi) -- s'obté des del caràcter al lloc definit per "
+"«inici» al darrer caràcter definit per «fi» de «str». El primer caràcter a "
+"«str» és el que està al lloc zero. Si «fi» és negatiu indica el número de "
+"caràcters comptant des de la dreta. Si «fi» és zero, indica el darrer "
+"caràcter. Per exemple, amb substr('12345', 1, 0) s'obté «2345», i amb "
+"substr('12345', 1, -1) s'obté «234»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:248
 msgid ""
@@ -14696,6 +14793,12 @@ msgid ""
 "the value of some other composite field. This is extremely useful when "
 "constructing variable save paths"
 msgstr ""
+"lookup(val, patró, camp, patró, camp, ..., resta_camps) -- igual que "
+"«switch», excepte que els arguments són noms de camps (metadades), no text. "
+"S'obtindrà el valor del camp corresponent i s'utilitzarà. Podeu utilitzar "
+"aquesta funció en un camp compost per fer servir el valor en algun altre "
+"camp compost ja que les columnes compostes són camps. És molt útil quan per "
+"dissenyar camins per desar variables."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:263
 msgid "lookup requires either 2 or an odd number of arguments"
@@ -14706,6 +14809,8 @@ msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
+"test(val, text si no està buit, text si està buit) -- s'obté «text si no "
+"està buit» si el camp no està buit, «text si està buit» en cas contrari"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:287
 msgid ""
@@ -14713,6 +14818,10 @@ msgid ""
 "contains matches for the regular expression `pattern`. Returns `text if "
 "match` if matches are found, otherwise it returns `text if no match`"
 msgstr ""
+"contains(val, patró, text si coincideix, text si no coincideix) -- comprova "
+"si el camp conté coincidències per a l'expressió regular «patró». S'obté "
+"«text si coincideix» si hi ha coincidències, «text si no coincideix» en cas "
+"contrari"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:302
 msgid ""
@@ -14722,6 +14831,9 @@ msgid ""
 "else_value is returned. You can have as many `pattern, value` pairs as you "
 "want"
 msgstr ""
+"switch(val, patró, valor, patró, valor, ..., no_valor) -- comprova si el "
+"camp coincideix amb l'expressió regular «patró» i s'obté «valor» si és així. "
+"Si no coincideix cap patró s'obté «no_valor»"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:310
 msgid "switch requires an odd number of arguments"
@@ -14733,12 +14845,18 @@ msgid ""
 "expression. All instances of `pattern` are replaced with `replacement`. As "
 "in all of calibre, these are python-compatible regular expressions"
 msgstr ""
+"re(val, patró, reemplaçament) -- s'obté el camp després d'aplicar "
+"l'expressió regular. Es reemplaça amb «reemplaçament» tots els «patró» que "
+"es trobin. Com tot en el calibre, han de ser expressions regulars "
+"compatibles amb python"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:333
 msgid ""
 "ifempty(val, text if empty) -- return val if val is not empty, otherwise "
 "return `text if empty`"
 msgstr ""
+"ifempty(val, text si és buit) -- s'obté «val» si «val» no està buit, en cas "
+"contrari s'obté «text si és buit»"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:345
 msgid ""
@@ -14753,6 +14871,17 @@ msgid ""
 "chars + the length of `middle text`, then the field will be used intact. For "
 "example, the title `The Dome` would not be changed."
 msgstr ""
+"shorten(val, caràcters a l'esquerra, text al mig, caràcters a la dreta) -- "
+"S'obté una versió escurçada del camp que consisteix amb caràcters del "
+"començament del camp «caràcters a l'esquerra», seguits pel «text al mig» i "
+"els «caràcters a la dreta» del final de la cadena. «caràcters a l'esquerra» "
+"i «caràcters a la dreta» han de ser enters. Per exemple, si el títol d'un "
+"llibre és «Lleis de la Confederació Catalano-Aragonesa en l'Època de Tirant "
+"lo Blanc» i voleu que càpiga en un espai màxim de 15 caràcters, si feu "
+"servir {title:shorten(9,-,5)} el resultat serà «Lleis de -Blanc». Si la "
+"longitud del camp és menor que la suma dels caràcters a l'esquerra, els de "
+"la dreta i la llargària del «text al mig», es fa servir el camp sense "
+"canviar-lo. Per exemple «La Catedral» no canviaria."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:370
 msgid ""
@@ -14761,6 +14890,10 @@ msgid ""
 "comma as the separator, but authors uses an ampersand. Examples: "
 "{tags:count(,)}, {authors:count(&)}"
 msgstr ""
+"count(val, separador) -- interpreta el valor com una llista d'elements "
+"separats pel «separador» i s'obté el número d'elements a la llista. La "
+"majoria de llistes fan servir una coma com a separador, però per als autors "
+"es fa servir el signe &. Exemples: {tags:count(,)}, {authors:count(&)}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:381
 msgid ""
@@ -14770,22 +14903,30 @@ msgid ""
 "If the item is not in the list, then the empty value is returned. The "
 "separator has the same meaning as in the count function."
 msgstr ""
+"list_item(val, índex, separador) -- interpreta el valor com una llista "
+"d'elements separats pel «separador» i s'obté el número d'ordre a l'índex de "
+"l'element. El darrer element es pot obtenir amb «list_item(-1,separador)». "
+"Si l'element no és a la llista s'obté un valor buit. El separador té el "
+"mateix significat que a la funció «count»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:401
 msgid "uppercase(val) -- return value of the field in upper case"
-msgstr ""
+msgstr "uppercase(val) -- s'obté el valor del camp en majúscules"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:409
 msgid "lowercase(val) -- return value of the field in lower case"
-msgstr ""
+msgstr "lowercase(val) -- s'obté el valor del camp en minúscules"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:417
 msgid "titlecase(val) -- return value of the field in title case"
 msgstr ""
+"titlecase(val) -- s'obté el valor del camp amb les inicials en majúscula"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:425
 msgid "capitalize(val) -- return value of the field capitalized"
 msgstr ""
+"capitalize(val) -- s'obté el valor del camp amb la primera lletra en "
+"majúscula"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -15216,6 +15357,11 @@ msgid ""
 "a link, it will be ignored.By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"S'ignorarà qualsevol enllaç que coincideixi amb l'expressió regular. Aquesta "
+"opció es pot especificar múltiples vegades; en aquest cas s'ignorarà "
+"qualsevol enllaç que coincideixi amb qualsevol expressió regular. Per "
+"defecte no s'ignora cap enllaç. Si s'especifica filtre i coincidència per "
+"expressió regular, s'aplica primer el filtre."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
