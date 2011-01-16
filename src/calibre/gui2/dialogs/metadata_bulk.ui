@@ -75,12 +75,30 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QCheckBox" name="auto_author_sort">
-             <property name="text">
-              <string>A&amp;utomatically set author sort</string>
+           <item row="0" column="1">
+            <widget class="EnComboBox" name="authors">
+             <property name="editable">
+              <bool>true</bool>
              </property>
             </widget>
+           </item>
+           <item row="1" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QCheckBox" name="auto_author_sort">
+               <property name="text">
+                <string>A&amp;utomatically set author sort</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="swap_title_and_author">
+               <property name="text">
+                <string>&amp;Swap title and author</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_8">
@@ -95,7 +113,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1" colspan="2">
+           <item row="2" column="1">
             <widget class="EnLineEdit" name="author_sort">
              <property name="toolTip">
               <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
@@ -115,7 +133,7 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1" colspan="2">
+           <item row="3" column="1">
             <widget class="QSpinBox" name="rating">
              <property name="toolTip">
               <string>Rating of this book. 0-5 stars</string>
@@ -156,7 +174,7 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1" colspan="2">
+           <item row="4" column="1">
             <widget class="EnComboBox" name="publisher">
              <property name="editable">
               <bool>true</bool>
@@ -220,7 +238,7 @@
               <string>Check this box to remove all tags from the books.</string>
              </property>
              <property name="text">
-              <string>Remove all</string>
+              <string>Remove &amp;all</string>
              </property>
             </widget>
            </item>
@@ -241,52 +259,35 @@
             </widget>
            </item>
            <item row="7" column="1">
-            <layout class="QHBoxLayout" name="HLayout_34">
-             <item>
-              <widget class="EnComboBox" name="series">
-               <property name="toolTip">
-                <string>List of known series. You can add new series.</string>
-               </property>
-               <property name="whatsThis">
-                <string>List of known series. You can add new series.</string>
-               </property>
-               <property name="editable">
-                <bool>true</bool>
-               </property>
-               <property name="insertPolicy">
-                <enum>QComboBox::InsertAlphabetically</enum>
-               </property>
-               <property name="sizeAdjustPolicy">
-                <enum>QComboBox::AdjustToContents</enum>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="clear_series">
-               <property name="toolTip">
-                <string>If checked, the series will be cleared</string>
-               </property>
-               <property name="text">
-                <string>Clear series</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="HSpacer_344">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>0</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
+            <widget class="EnComboBox" name="series">
+             <property name="toolTip">
+              <string>List of known series. You can add new series.</string>
+             </property>
+             <property name="whatsThis">
+              <string>List of known series. You can add new series.</string>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="insertPolicy">
+              <enum>QComboBox::InsertAlphabetically</enum>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToContents</enum>
+             </property>
+            </widget>
            </item>
-           <item row="8" column="1" colspan="2">
+           <item row="7" column="2">
+            <widget class="QCheckBox" name="clear_series">
+             <property name="toolTip">
+              <string>If checked, the series will be cleared</string>
+             </property>
+             <property name="text">
+              <string>&amp;Clear series</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
             <layout class="QHBoxLayout" name="HLayout_3">
              <item>
               <widget class="QCheckBox" name="autonumber_series">
@@ -297,7 +298,7 @@ you selected them. So if you selected Book A and then Book B,
 Book A will have series number 1 and Book B series number 2.</string>
                </property>
                <property name="text">
-                <string>Automatically number books in this series</string>
+                <string>&amp;Automatically number books in this series</string>
                </property>
               </widget>
              </item>
@@ -312,7 +313,7 @@ for that series. Checking this box will tell calibre to start numbering
 from the value in the box</string>
                </property>
                <property name="text">
-                <string>Force numbers to start with </string>
+                <string>&amp;Force numbers to start with:</string>
                </property>
               </widget>
              </item>
@@ -332,19 +333,6 @@ from the value in the box</string>
                </property>
               </widget>
              </item>
-             <item>
-              <spacer name="HSpacer_34">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>10</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
             </layout>
            </item>
            <item row="9" column="0">
@@ -358,59 +346,56 @@ from the value in the box</string>
             </widget>
            </item>
            <item row="9" column="1">
-            <widget class="QComboBox" name="remove_format"/>
-           </item>
-           <item row="0" column="1">
-            <widget class="EnComboBox" name="authors">
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="11" column="0" colspan="2">
-            <widget class="QCheckBox" name="swap_title_and_author">
-             <property name="text">
-              <string>&amp;Swap title and author</string>
-             </property>
-            </widget>
-           </item>
-           <item row="12" column="0" colspan="2">
-            <widget class="QCheckBox" name="change_title_to_title_case">
-             <property name="toolTip">
-              <string>Force the title to be in title case. If both this and swap authors are checked,
-title and author are swapped before the title case is set</string>
-             </property>
-             <property name="text">
-              <string>Change title to title case</string>
-             </property>
-            </widget>
-           </item>
-           <item row="10" column="0" colspan="2">
-            <widget class="QCheckBox" name="remove_conversion_settings">
-             <property name="toolTip">
-              <string>Remove stored conversion settings for the selected books.
-
-Future conversion of these books will use the default settings.</string>
-             </property>
-             <property name="text">
-              <string>Remove &amp;stored conversion settings for the selected books</string>
-             </property>
-            </widget>
-           </item>
-           <item row="14" column="0" colspan="3">
-            <spacer name="verticalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
+            <widget class="QComboBox" name="remove_format">
+             <property name="maximumSize">
               <size>
-               <width>20</width>
-               <height>40</height>
+               <width>120</width>
+               <height>16777215</height>
               </size>
              </property>
-            </spacer>
+            </widget>
            </item>
-           <item row="13" column="0" colspan="3">
+           <item row="10" column="0" colspan="3">
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QCheckBox" name="change_title_to_title_case">
+               <property name="toolTip">
+                <string>Force the title to be in title case. If both this and swap authors are checked,
+title and author are swapped before the title case is set</string>
+               </property>
+               <property name="text">
+                <string>Change title to title &amp;case</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="remove_conversion_settings">
+               <property name="toolTip">
+                <string>Remove stored conversion settings for the selected books.
+
+Future conversion of these books will use the default settings.</string>
+               </property>
+               <property name="text">
+                <string>Remove &amp;stored conversion settings for the selected books</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="11" column="0" colspan="3">
             <widget class="QGroupBox" name="groupBox">
              <property name="title">
               <string>Change &amp;cover</string>
@@ -439,6 +424,19 @@ Future conversion of these books will use the default settings.</string>
               </item>
              </layout>
             </widget>
+           </item>
+           <item row="12" column="0">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -902,14 +900,10 @@ not multiple and the destination field is multiple</string>
   <tabstop>remove_tags</tabstop>
   <tabstop>remove_all_tags</tabstop>
   <tabstop>series</tabstop>
-  <tabstop>clear_series</tabstop>
   <tabstop>autonumber_series</tabstop>
   <tabstop>series_numbering_restarts</tabstop>
   <tabstop>series_start_number</tabstop>
   <tabstop>remove_format</tabstop>
-  <tabstop>remove_conversion_settings</tabstop>
-  <tabstop>swap_title_and_author</tabstop>
-  <tabstop>change_title_to_title_case</tabstop>
   <tabstop>button_box</tabstop>
   <tabstop>search_field</tabstop>
   <tabstop>search_mode</tabstop>
