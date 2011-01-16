@@ -279,8 +279,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.changed = False
 
         all_tags = self.db.all_tags()
-        self.tags.update_tags_cache(all_tags)
-        self.remove_tags.update_tags_cache(all_tags)
+        self.tags.update_items_cache(all_tags)
+        self.remove_tags.update_items_cache(all_tags)
 
         self.initialize_combos()
 
@@ -726,6 +726,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             name = name.strip().replace('|', ',')
             self.authors.addItem(name)
         self.authors.setEditText('')
+        
+        self.authors.set_separator('&')
+        self.authors.set_space_before_sep(True)
+        self.authors.update_items_cache(self.db.all_author_names())
 
     def initialize_series(self):
         all_series = self.db.all_series()
@@ -751,8 +755,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         if d.result() == QDialog.Accepted:
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
-            self.tags.update_tags_cache(self.db.all_tags())
-            self.remove_tags.update_tags_cache(self.db.all_tags())
+            self.tags.update_items_cache(self.db.all_tags())
+            self.remove_tags.update_items_cache(self.db.all_tags())
 
     def auto_number_changed(self, state):
         if state:

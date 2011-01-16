@@ -76,7 +76,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="EnComboBox" name="authors">
+            <widget class="CompleteComboBox" name="authors">
              <property name="editable">
               <bool>true</bool>
              </property>
@@ -195,7 +195,7 @@
             </widget>
            </item>
            <item row="5" column="1">
-            <widget class="TagsLineEdit" name="tags">
+            <widget class="CompleteLineEdit" name="tags">
              <property name="toolTip">
               <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
              </property>
@@ -229,7 +229,7 @@
             </widget>
            </item>
            <item row="6" column="1">
-            <widget class="TagsLineEdit" name="remove_tags">
+            <widget class="CompleteLineEdit" name="remove_tags">
              <property name="toolTip">
               <string>Comma separated list of tags to remove from the books. </string>
              </property>
@@ -955,7 +955,12 @@ not multiple and the destination field is multiple</string>
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>TagsLineEdit</class>
+   <class>CompleteComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CompleteLineEdit</class>
    <extends>QLineEdit</extends>
    <header>widgets.h</header>
   </customwidget>

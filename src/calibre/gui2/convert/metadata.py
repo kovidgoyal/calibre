@@ -68,6 +68,9 @@ class MetadataWidget(Widget, Ui_Form):
     def initialize_metadata_options(self):
         self.initialize_combos()
         self.author.editTextChanged.connect(self.deduce_author_sort)
+        self.author.set_separator('&')
+        self.author.set_space_before_sep(True)
+        self.author.update_items_cache(self.db.all_author_names())
 
         mi = self.db.get_metadata(self.book_id, index_is_id=True)
         self.title.setText(mi.title)
@@ -75,7 +78,7 @@ class MetadataWidget(Widget, Ui_Form):
             self.publisher.setCurrentIndex(self.publisher.findText(mi.publisher))
         self.author_sort.setText(mi.author_sort if mi.author_sort else '')
         self.tags.setText(', '.join(mi.tags if mi.tags else []))
-        self.tags.update_tags_cache(self.db.all_tags())
+        self.tags.update_items_cache(self.db.all_tags())
         self.comment.setPlainText(mi.comments if mi.comments else '')
         if mi.series:
             self.series.setCurrentIndex(self.series.findText(mi.series))
