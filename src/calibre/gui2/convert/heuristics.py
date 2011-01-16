@@ -53,7 +53,7 @@ class HeuristicsWidget(Widget, Ui_Form):
         self.opt_delete_blank_paragraphs.setEnabled(state)
         self.opt_format_scene_breaks.setEnabled(state)
         self.opt_dehyphenate.setEnabled(state)
-        self.opt_renumber_headings(state)
+        self.opt_renumber_headings.setEnabled(state)
         
         self.opt_unwrap_lines.setEnabled(state)
         if state and self.opt_unwrap_lines.checkState() == Qt.Checked:

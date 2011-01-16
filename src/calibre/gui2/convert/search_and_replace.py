@@ -12,7 +12,7 @@ from calibre.gui2 import error_dialog
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
 
-    TITLE = _('Search and Replace')
+    TITLE = _('Search &\nReplace')
     HELP  = _('Modify the document text and structure using user defined patterns.')
     COMMIT_NAME = 'search_and_replace'
 
@@ -24,9 +24,9 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 )
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
-        self.opt_sr1_search.set_msg(_('Regular Expression'))
-        self.opt_sr2_search.set_msg(_('Regular Expression'))
-        self.opt_sr3_search.set_msg(_('Regular Expression'))
+        self.opt_sr1_search.set_msg(_('Search Regular Expression'))
+        self.opt_sr2_search.set_msg(_('Search Regular Expression'))
+        self.opt_sr3_search.set_msg(_('Search Regular Expression'))
         
     def break_cycles(self):
         Widget.break_cycles(self)
