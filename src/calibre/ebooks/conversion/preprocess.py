@@ -247,7 +247,7 @@ class Dehyphenator(object):
         elif format == 'txt':
             intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)(\u0020|\u0009)*(?P<wraptags>(\n(\u0020|\u0009)*)+)(?P<secondpart>[\w\d]+)'% length)
         elif format == 'individual_words':
-            intextmatch = re.compile(u'(?!<)(?P<firstpart>\w+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)') # for later, not called anywhere yet
+            intextmatch = re.compile(u'(?!<)(?P<firstpart>\w+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)')
         elif format == 'html_cleanup':
             intextmatch = re.compile(u'(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)')
         elif format == 'txt_cleanup':
