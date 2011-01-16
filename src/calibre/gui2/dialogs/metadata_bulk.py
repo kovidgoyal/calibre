@@ -726,6 +726,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             name = name.strip().replace('|', ',')
             self.authors.addItem(name)
         self.authors.setEditText('')
+        
+        self.authors.set_separator('&')
+        self.authors.set_space_before_sep(True)
+        self.authors.update_items_cache(self.db.all_author_names())
 
     def initialize_series(self):
         all_series = self.db.all_series()

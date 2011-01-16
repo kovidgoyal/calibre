@@ -724,6 +724,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             au = _('Unknown')
         au = ' & '.join([a.strip().replace('|', ',') for a in au.split(',')])
         self.authors.setEditText(au)
+        
+        self.authors.set_separator('&')
+        self.authors.set_space_before_sep(True)
+        self.authors.update_items_cache(self.db.all_author_names())
 
     def initialize_series(self):
         self.series.setSizeAdjustPolicy(self.series.AdjustToContentsOnFirstShow)

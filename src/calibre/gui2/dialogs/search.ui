@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>731</width>
-    <height>411</height>
+    <width>752</width>
+    <height>472</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Advanced Search</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../resources/images.qrc">
+   <iconset>
     <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
@@ -265,7 +265,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="EnComboBox" name="authors_box">
+        <widget class="CompleteComboBox" name="authors_box">
          <property name="toolTip">
           <string>Enter an author's name. Only one author can be used.</string>
          </property>
@@ -362,6 +362,11 @@
   <customwidget>
    <class>CompleteLineEdit</class>
    <extends>QLineEdit</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CompleteComboBox</class>
+   <extends>QComboBox</extends>
    <header>widgets.h</header>
   </customwidget>
  </customwidgets>

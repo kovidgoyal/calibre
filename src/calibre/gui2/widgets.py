@@ -540,6 +540,22 @@ class EnComboBox(QComboBox):
             idx = 0
         self.setCurrentIndex(idx)
 
+class CompleteComboBox(EnComboBox):
+    
+    def __init__(self, *args):
+        EnComboBox.__init__(self, *args)
+        self.setLineEdit(CompleteLineEdit(self))
+
+    def update_items_cache(self, complete_items):
+        self.lineEdit().update_items_cache(complete_items)
+        
+    def set_separator(self, sep):
+        self.lineEdit().set_separator(sep)
+        
+    def set_space_before_sep(self, space_before):
+        self.lineEdit().set_space_before_sep(space_before)
+
+
 class HistoryLineEdit(QComboBox):
 
     lost_focus = pyqtSignal()

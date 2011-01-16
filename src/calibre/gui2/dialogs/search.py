@@ -31,6 +31,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.authors_box.setEditText('')
         self.authors_box.completer().setCompletionMode(QCompleter.PopupCompletion)
         self.authors_box.setAutoCompletionCaseSensitivity(Qt.CaseInsensitive)
+        self.authors_box.set_separator('&')
+        self.authors_box.set_space_before_sep(True)
+        self.authors_box.update_items_cache(self.db.all_author_names())
 
         all_series = db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
