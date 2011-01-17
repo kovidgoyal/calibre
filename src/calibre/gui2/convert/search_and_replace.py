@@ -25,8 +25,14 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
         self.opt_sr1_search.set_msg(_('Search Regular Expression'))
+        self.opt_sr1_search.set_book_id(book_id)
+        self.opt_sr1_search.set_db(db)
         self.opt_sr2_search.set_msg(_('Search Regular Expression'))
+        self.opt_sr2_search.set_book_id(book_id)
+        self.opt_sr2_search.set_db(db)
         self.opt_sr3_search.set_msg(_('Search Regular Expression'))
+        self.opt_sr3_search.set_book_id(book_id)
+        self.opt_sr3_search.set_db(db)
         
     def break_cycles(self):
         Widget.break_cycles(self)
