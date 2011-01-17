@@ -901,10 +901,7 @@ class BasicNewsRecipe(Recipe):
         if self.test:
             feeds = feeds[:2]
         self.has_single_feed = len(feeds) == 1
-
-        if self.use_embedded_content is None:
-            self.use_embedded_content = feeds[0].has_embedded_content()
-
+        
         index = os.path.join(self.output_dir, 'index.html')
 
         html = self.feeds2index(feeds)
@@ -939,7 +936,9 @@ class BasicNewsRecipe(Recipe):
                     url = None
                 if not url:
                     continue
-                func, arg = (self.fetch_embedded_article, article) if self.use_embedded_content else \
+                func, arg = (self.fetch_embedded_article, article) \
+                            if self.use_embedded_content or (self.use_embedded_content == None and feed.has_embedded_content()) \
+                            else \
                             ((self.fetch_obfuscated_article if self.articles_are_obfuscated \
                               else self.fetch_article), url)
                 req = WorkRequest(func, (arg, art_dir, f, a, len(feed)),
