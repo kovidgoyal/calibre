@@ -530,17 +530,18 @@ more blank lines are a paragraph boundary::
 
 TXT input supports a number of options to differentiate how paragraphs are detected.
 
-    :guilabel:`Auto`
-        Analyzes the text file and attempts to determine how paragraphs are defined.
+    :guilabel:`Paragraph Style: Auto`
+        Analyzes the text file and attempts to automatically determine how paragraphs are defined.  This
+        option will generally work fine, if you achieve undesirable results try one of the manual options.
 
-    :guilabel:`Treat each line as a paragraph`
+    :guilabel:`Paragraph Style: Single`
         Assumes that every line is a paragraph::
 
             This is the first.
             This is the second.
             This is the third.
         
-    :guilabel:`Assume print formatting`
+    :guilabel:`Paragraph Style: Print`
         Assumes that every paragraph starts with an indent (either a tab or 2+ spaces). Paragraphs end when
         the next line that starts with an indent is reached::
 
@@ -551,11 +552,13 @@ TXT input supports a number of options to differentiate how paragraphs are detec
             This is the
             third.
 
-    :guilabel:`Unformatted`
+    :guilabel:`Paragraph Style: Unformatted`
         Assumes that the document has no formatting, but does use hard line breaks.  Punctuation
         and median line length are used to attempt to re-create paragraphs.
 
-    :guilabel:`Process using Textile`
+    :guilabel:`Formatting Style: Auto`
+
+    :guilabel:`Formatting Style: Heuristic`
 
     :guilabel:`Process using markdown`
         |app| also supports running TXT input though a transformation preprocessor known as markdown. Markdown

@@ -23,6 +23,7 @@ class HeuristicProcessor(object):
         self.min_chapters = 1
         self.chapters_no_title = 0
         self.chapters_with_title = 0
+        self.blanks_deleted = False
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
         self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sid=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
@@ -422,6 +423,7 @@ class HeuristicProcessor(object):
         # blank paragraphs then delete blank lines to clean up spacing
         if blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
             self.log.debug("deleting blank lines")
+            self.blanks_deleted = True
             html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
             html = self.blankreg.sub('', html)
 
@@ -479,6 +481,9 @@ class HeuristicProcessor(object):
         if getattr(self.extra_opts, 'format_scene_breaks', False):
             # Center separator lines
             html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em">' + '\g<break>' + '</p>', html)
+            if not self.blanks_deleted:
+                html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
+            html = re.sub('<p\s+id="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs to preserve original formatting
