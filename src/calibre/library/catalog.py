@@ -1429,12 +1429,29 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.updateProgressFullStep("Sorting database")
             self.booksByAuthor = list(self.booksByTitle)
-            self.booksByAuthor = sorted(self.booksByAuthor, key=self.booksByAuthorSorter_author)
-#             for book in self.booksByAuthor:
-#                 print "{0:<30}  {1:<30}  {2:<30}".format(book['title'],book['author'],book['author_sort'])
-#             print
-#             stop
 
+            # Test for author_sort mismatches
+            self.booksByAuthor = sorted(self.booksByAuthor, key=self.booksByAuthorSorter_author)
+            # Build the unique_authors set from existing data
+            authors = [(record['author'], record['author_sort']) for record in self.booksByAuthor]
+            current_author = authors[0]
+            for (i,author) in enumerate(authors):
+                if author != current_author and i:
+                    # Exit if author matches previous, but author_sort doesn't match
+                    if author[0] == current_author[0]:
+                        error_msg = _('''
+Inconsistent Author Sort values for Author '{0}' ('{1}' <> '{2}'), unable to build catalog.\n
+Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog,
+then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
+                        self.opts.log.warn('\n*** Metadata error ***')
+                        self.opts.log.warn(error_msg)
+
+                        self.error.append('Metadata error')
+                        self.error.append(error_msg)
+                        return False
+
+
+            self.booksByAuthor = sorted(self.booksByAuthor, key=self.booksByAuthorSorter_author_sort)
             # Build the unique_authors set from existing data
             authors = [(record['author'], record['author_sort'].capitalize()) for record in self.booksByAuthor]
 
@@ -1449,20 +1466,6 @@ class EPUB_MOBI(CatalogPlugin):
                 if author != current_author:
                     # Note that current_author and author are tuples: (friendly, sort)
                     multiple_authors = True
-
-                if author != current_author and i:
-                    # Exit if author matches previous, but author_sort doesn't match
-                    if author[0] == current_author[0]:
-                        error_msg = _('''
-Inconsistent Author Sort values for Author '{0}', unable to continue building catalog.\n
-Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog,
-then rebuild the catalog.\n''').format(author[0])
-                        self.opts.log.warn('\n*** Metadata error ***')
-                        self.opts.log.warn(error_msg)
-
-                        self.error.append('Metadata error')
-                        self.error.append(error_msg)
-                        return False
 
                     # New author, save the previous author/sort/count
                     unique_authors.append((current_author[0], icu_title(current_author[1]),
@@ -1939,7 +1942,8 @@ then rebuild the catalog.\n''').format(author[0])
             current_author = ''
             current_letter = ''
             current_series = None
-            for book in sorted(self.booksByAuthor, key = self.booksByAuthorSorter_author_sort):
+            #for book in sorted(self.booksByAuthor, key = self.booksByAuthorSorter_author_sort):
+            for book in self.booksByAuthor:
 
                 book_count += 1
                 if self.letter_or_symbol(book['author_sort'][0].upper()) != current_letter :
@@ -2118,7 +2122,7 @@ then rebuild the catalog.\n''').format(author[0])
             def add_books_to_HTML_by_month(this_months_list, dtc):
                 if len(this_months_list):
 
-                    this_months_list = sorted(this_months_list, key=self.booksByAuthorSorter_author_sort)
+                    #this_months_list = sorted(this_months_list, key=self.booksByAuthorSorter_author_sort)
 
                     # Create a new month anchor
                     date_string = strftime(u'%B %Y', current_date.timetuple())
