@@ -492,7 +492,9 @@ OptionRecommendation(name='enable_heuristics',
 OptionRecommendation(name='markup_chapter_headings',
     recommended_value=False, level=OptionRecommendation.LOW,
     help=_('Detect unformatted chapter headings and sub headings. Change ' 
-           'them to h2 and h3 tags.')),
+           'them to h2 and h3 tags.  This setting will not create a TOC, '
+           'but can be used in conjunction with structure detection to create '
+           'one.')),
            
 OptionRecommendation(name='italicize_common_cases',
     recommended_value=False, level=OptionRecommendation.LOW,
@@ -501,7 +503,7 @@ OptionRecommendation(name='italicize_common_cases',
            
 OptionRecommendation(name='fix_indents',
     recommended_value=False, level=OptionRecommendation.LOW,
-    help=_('Turn indentation created from multiple &nbsp; entities '
+    help=_('Turn indentation created from multiple non-breaking space entities '
            'into CSS indents.')),
            
 OptionRecommendation(name='html_unwrap_factor',

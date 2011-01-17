@@ -21,8 +21,10 @@ class HeuristicProcessor(object):
         self.deleted_nbsps = False
         self.totalwords = 0
         self.min_chapters = 1
+        self.max_chapters = 150
         self.chapters_no_title = 0
         self.chapters_with_title = 0
+        self.blanks_deleted = False
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
         self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sid=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
@@ -131,7 +133,7 @@ class HeuristicProcessor(object):
     def markup_italicis(self, html):
         ITALICIZE_WORDS = [
             'Etc.', 'etc.', 'viz.', 'ie.', 'i.e.', 'Ie.', 'I.e.', 'eg.',
-            'e.g.', 'Eg.', 'E.g.', 'et al.', 'et cetra', 'n.b.', 'N.b.',
+            'e.g.', 'Eg.', 'E.g.', 'et al.', 'et cetera', 'n.b.', 'N.b.',
             'nota bene', 'Nota bene', 'Ste.', 'Mme.', 'Mdme.',
             'Mlle.', 'Mons.', 'PS.', 'PPS.',
         ]
@@ -165,10 +167,12 @@ class HeuristicProcessor(object):
         with minimum false positives.  Exits after finding a successful pattern
         '''
         # Typical chapters are between 2000 and 7000 words, use the larger number to decide the
-        # minimum of chapters to search for
+        # minimum of chapters to search for.  A max limit is calculated to prevent things like OCR
+        # or pdf page numbers from being treated as TOC markers
         if wordcount > 7000:
-            self.min_chapters = int(ceil(wordcount / 7000.))
-        #print "minimum chapters required are: "+str(self.min_chapters)
+            self.min_chapters = int(ceil(wordcount / 15000.))
+            self.max_chapters = int(ceil(wordcount / 1200.))
+        print "minimum chapters required are: "+str(self.min_chapters)
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
         self.log.debug("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
@@ -201,44 +205,85 @@ class HeuristicProcessor(object):
         n_lookahead_open = "\s+(?!"
         n_lookahead_close = ")"
 
-        default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\'’\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
+        default_title = r"(<[ibu][^>]*>)?\s{0,3}(?!Chapter)([\w\'’\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
+        simple_title = r"(<[ibu][^>]*>)?\s{0,3}(?!Chapter).{0,50}?(</[ibu][^>]*>)?(?=<)"
+
+        analysis_result = []
 
         chapter_types = [
-            [r"[^'\"]?(CHAPTER|Kapitel)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, "Searching for most common chapter headings", 'chapter'],  # Highest frequency headings which include titles
-            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, "Searching for common section headings", 'common'],
-            [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•=]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, "Searching for emphasized lines", 'emphasized'], # Emphasized lines
-            [r"[^'\"]?(\d+(\.|:))\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings", 'numeric'],  # Numeric Chapters
-            [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, "Searching for letter spaced headings", 'letter_spaced'],  # Spaced Lettering
-            [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles", 'numeric_title'], # Numeric Titles
-            [r"[^'\"]?(\d+)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, "Searching for simple numeric headings", 'plain_number'],  # Numeric Chapters, no dot or colon
-            [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters", 'uppercase' ] # Uppercase Chapters
+            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Epilogue|CHAPTER|Kapitel|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, True, True, False, "Searching for common section headings", 'common'],
+            [r"[^'\"]?(CHAPTER|Kapitel)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, True, True, False, "Searching for most common chapter headings", 'chapter'],  # Highest frequency headings which include titles
+            [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•=]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, True, True, False, "Searching for emphasized lines", 'emphasized'], # Emphasized lines
+            [r"[^'\"]?(\d+(\.|:))\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, True, True, False, "Searching for numeric chapter headings", 'numeric'],  # Numeric Chapters
+            [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, True, True, False, "Searching for letter spaced headings", 'letter_spaced'],  # Spaced Lettering
+            [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, True, True, False, "Searching for numeric chapters with titles", 'numeric_title'], # Numeric Titles
+            [r"[^'\"]?(\d+)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, True, True, False, "Searching for simple numeric headings", 'plain_number'],  # Numeric Chapters, no dot or colon
+            [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, True, False, False, "Searching for chapters with Uppercase Characters", 'uppercase' ] # Uppercase Chapters
             ]
 
         def recurse_patterns(html, analyze):
             # Start with most typical chapter headings, get more aggressive until one works
-            for [chapter_type, lookahead_ignorecase, log_message, type_name] in chapter_types:
+            for [chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name] in chapter_types:
+                n_lookahead = ''
+                hits = 0
+                self.chapters_no_title = 0
+                self.chapters_with_title = 0
+
+                if n_lookahead_req:
+                    lp_n_lookahead_open = n_lookahead_open
+                    lp_n_lookahead_close = n_lookahead_close
+                else:
+                    lp_n_lookahead_open = ''
+                    lp_n_lookahead_close = ''
+
+                if strict_title:
+                    lp_title = default_title
+                else:
+                    lp_title = simple_title
+                 
+                if ignorecase:
+                    arg_ignorecase = r'(?i)'
+                else:
+                    arg_ignorecase = ''
+
+                if title_req:
+                    lp_opt_title_open = ''
+                    lp_opt_title_close = ''        
+                else:
+                    lp_opt_title_open = opt_title_open
+                    lp_opt_title_close = opt_title_close
+
                 if self.html_preprocess_sections >= self.min_chapters:
                     break
                 full_chapter_line = chapter_line_open+chapter_header_open+chapter_type+chapter_header_close+chapter_line_close
-                n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
-                self.log.debug("Marked " + unicode(self.html_preprocess_sections) + " headings, " + log_message)
-                if lookahead_ignorecase:
-                    chapter_marker = init_lookahead+full_chapter_line+blank_lines+n_lookahead_open+n_lookahead+n_lookahead_close+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close
-                    chapdetect = re.compile(r'%s' % chapter_marker, re.IGNORECASE)
-                else:
-                    chapter_marker = init_lookahead+full_chapter_line+blank_lines+opt_title_open+title_line_open+title_header_open+default_title+title_header_close+title_line_close+opt_title_close+n_lookahead_open+n_lookahead+n_lookahead_close
-                    chapdetect = re.compile(r'%s' % chapter_marker, re.UNICODE)
+                if n_lookahead_req:
+                    n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
+                if not analyze:
+                    self.log.debug("Marked " + unicode(self.html_preprocess_sections) + " headings, " + log_message)
+
+                chapter_marker = arg_ignorecase+init_lookahead+full_chapter_line+blank_lines+lp_n_lookahead_open+n_lookahead+lp_n_lookahead_close+lp_opt_title_open+title_line_open+title_header_open+lp_title+title_header_close+title_line_close+lp_opt_title_close
+                chapdetect = re.compile(r'%s' % chapter_marker)
+
                 if analyze:
                     hits = len(chapdetect.findall(html))
-                    print unicode(type_name)+" had "+unicode(hits)+" hits"
-                    chapdetect.sub(self.analyze_title_matches, html)
-                    print unicode(self.chapters_no_title)+" chapters with no title"
-                    print unicode(self.chapters_with_title)+" chapters with titles"
+                    if hits:
+                        chapdetect.sub(self.analyze_title_matches, html)
+                        if float(self.chapters_with_title) / float(hits) > .5:
+                            title_req = True
+                            strict_title = False
+                        self.log.debug(unicode(type_name)+" had "+unicode(hits)+" hits - "+unicode(self.chapters_no_title)+" chapters with no title, "+unicode(self.chapters_with_title)+" chapters with titles, "+unicode(float(self.chapters_with_title) / float(hits))+" percent. ")
+                        print "max chapters is "+str(self.max_chapters)
+                        if type_name == 'common':
+                            analysis_result.append([chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name])
+                        elif self.min_chapters <= hits < self.max_chapters:
+                            analysis_result.append([chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name])
+                            break
                 else:
                     html = chapdetect.sub(self.chapter_head, html)
             return html
 
         recurse_patterns(html, True)
+        chapter_types = analysis_result
         html = recurse_patterns(html, False)
 
         words_per_chptr = wordcount
@@ -292,7 +337,7 @@ class HeuristicProcessor(object):
         pre = re.compile(r'<pre>', re.IGNORECASE)
         if len(pre.findall(html)) >= 1:
             self.log.debug("Running Text Processing")
-            outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*)(?=</pre>).*', re.IGNORECASE|re.DOTALL)
+            outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*?)</pre>', re.IGNORECASE|re.DOTALL)
             html = outerhtml.sub(self.txt_process, html)
         else:
             # Add markup naively
@@ -422,6 +467,7 @@ class HeuristicProcessor(object):
         # blank paragraphs then delete blank lines to clean up spacing
         if blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
             self.log.debug("deleting blank lines")
+            self.blanks_deleted = True
             html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
             html = self.blankreg.sub('', html)
 
@@ -479,6 +525,9 @@ class HeuristicProcessor(object):
         if getattr(self.extra_opts, 'format_scene_breaks', False):
             # Center separator lines
             html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em">' + '\g<break>' + '</p>', html)
+            if not self.blanks_deleted:
+                html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
+            html = re.sub('<p\s+id="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs to preserve original formatting

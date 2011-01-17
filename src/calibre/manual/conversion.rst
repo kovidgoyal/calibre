@@ -255,6 +255,46 @@ you are producing are meant for a particular device type, choose the correspondi
 
 The Output profile also controls the screen size. This will cause, for example, images to be auto-resized to be fit to the screen in some output formats. So choose a profile of a device that has a screen size similar to your device.
 
+.. _heuristic-processing:
+
+Heuristic Processing
+---------------------
+
+:guilabel:`Preprocess input`
+    This option activates various algorithms that try to detect and correct common cases of
+    badly formatted input documents. Things like hard line breaks, large blocks of text with no formatting, etc.
+    Turn this option on if your input document suffers from bad formatting. But be aware that in
+    some cases, this option can lead to worse results, so use with care.
+
+:guilabel:`Line-unwrap factor`
+    This option control the algorithm |app| uses to remove hard line breaks. For example, if the value of this
+    option is 0.4, that means calibre will remove hard line breaks from the end of lines whose lengths are less
+    than the length of 40% of all lines in the document. 
+
+:guilabel:`Unwrap lines`
+    Lorem ipsum
+    
+:guilabel:`Detect and markup unformatted chapter headings and sub headings`
+    Lorem ipsum
+
+:guilabel:`Renumber sequences of &lt;h1&gt; or &lt;h2&gt; tags to prevent splitting`
+    Lorem ipsum
+    
+:guilabel:`Delete blank lines between paragraphs`
+    Lorem ipsum
+
+:guilabel:`Ensure scene breaks are consistently formatted`
+    Lorem ipsum
+
+:guilabel:`Remove unnecessary hyphens`
+    Lorem ipsum
+
+:guilabel:`Italicize common words and patterns`
+    Lorem ipsum
+
+:guilabel:`Replace entity indents with CSS indents`
+    Lorem ipsum
+
 .. _structure-detection:
 
 Structure Detection
@@ -330,16 +370,6 @@ There are a few more options in this section.
     two covers. This option will simply remove the first image from the source document, thereby
     ensuring that the converted book has only one cover, the one specified in |app|.
 
-:guilabel:`Preprocess input`
-    This option activates various algorithms that try to detect and correct common cases of
-    badly formatted input documents. Things like hard line breaks, large blocks of text with no formatting, etc.
-    Turn this option on if your input document suffers from bad formatting. But be aware that in
-    some cases, this option can lead to worse results, so use with care.
-
-:guilabel:`Line-unwrap factor`
-    This option control the algorithm |app| uses to remove hard line breaks. For example, if the value of this
-    option is 0.4, that means calibre will remove hard line breaks from the end of lines whose lengths are less
-    than the length of 40% of all lines in the document. 
     
 Table of Contents
 ------------------
@@ -500,14 +530,18 @@ more blank lines are a paragraph boundary::
 
 TXT input supports a number of options to differentiate how paragraphs are detected.
 
-    :guilabel:`Treat each line as a paragraph`
+    :guilabel:`Paragraph Style: Auto`
+        Analyzes the text file and attempts to automatically determine how paragraphs are defined.  This
+        option will generally work fine, if you achieve undesirable results try one of the manual options.
+
+    :guilabel:`Paragraph Style: Single`
         Assumes that every line is a paragraph::
 
             This is the first.
             This is the second.
             This is the third.
         
-    :guilabel:`Assume print formatting`
+    :guilabel:`Paragraph Style: Print`
         Assumes that every paragraph starts with an indent (either a tab or 2+ spaces). Paragraphs end when
         the next line that starts with an indent is reached::
 
@@ -517,6 +551,14 @@ TXT input supports a number of options to differentiate how paragraphs are detec
             
             This is the
             third.
+
+    :guilabel:`Paragraph Style: Unformatted`
+        Assumes that the document has no formatting, but does use hard line breaks.  Punctuation
+        and median line length are used to attempt to re-create paragraphs.
+
+    :guilabel:`Formatting Style: Auto`
+
+    :guilabel:`Formatting Style: Heuristic`
 
     :guilabel:`Process using markdown`
         |app| also supports running TXT input though a transformation preprocessor known as markdown. Markdown
