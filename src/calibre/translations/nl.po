@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-14 23:15+0000\n"
-"PO-Revision-Date: 2011-01-10 17:08+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-16 19:49+0000\n"
+"Last-Translator: Oscar Schrover <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-16 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-01-17 04:46+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -25,7 +25,7 @@ msgstr "Stel metagegevens van %s bestanden in"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
-msgstr "Doet helemaal niets"
+msgstr "Geen respons"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:87
@@ -173,11 +173,11 @@ msgstr "Basis"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:130
 msgid "Customize"
-msgstr "Aanpassen"
+msgstr "Wijzigen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:294
 msgid "File type"
-msgstr "Bestandstype"
+msgstr "Bestandssoort"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:330
 msgid "Metadata reader"
@@ -193,7 +193,7 @@ msgstr "Catalogus generator"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:499
 msgid "User Interface Action"
-msgstr "Actie gebruikers interface"
+msgstr "Gebruiker werkt met interface"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:525
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
@@ -257,7 +257,7 @@ msgstr "Haal de omslag uit bestanden met stripverhalen"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:311
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:321
 msgid "Read metadata from %s files"
-msgstr "lees de metagegevens uit %s bestanden"
+msgstr "lees de metagegevens van %s bestanden"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:269
 msgid "Read metadata from ebooks in RAR archives"
@@ -278,7 +278,7 @@ msgstr "Stel metagegevens van %s bestanden in"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:727
 msgid "Look and Feel"
-msgstr "Uiterlijk en Vormgeving"
+msgstr "Uiterlijk en bedieningsgemak"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:741
@@ -290,7 +290,8 @@ msgstr "Interface"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:733
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
 msgstr ""
-"Pas het uiterlijk en gedrag van de calibre interface aan naar je smaak"
+"Pas op basis van je voorkeuren het uiterlijk en de vorm van de calibre "
+"interface aan."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:739
 msgid "Behavior"
@@ -298,7 +299,7 @@ msgstr "Gedrag"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Change the way calibre behaves"
-msgstr "Verander de manier waarop calibre zich gedraagt"
+msgstr "Wijzig de manier waarop Calibre reageert"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:217
@@ -311,7 +312,7 @@ msgstr "Voeg/Verwijder je eigen kolommen toe aan de calibre boekenlijst"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Customize the toolbar"
-msgstr "Werkbalk aanpassen"
+msgstr "Gereedschapsbalk aanpassen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
 msgid ""
@@ -386,7 +387,7 @@ msgstr "Stuur boeken naar apparaten"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:836
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr "Bepaal hoe calibre bestanden naar je ebook reader overplaats"
+msgstr "Bepaald hoe calibre de bestanden naar je ebook reader verstuurt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Metadata plugboards"
@@ -398,7 +399,7 @@ msgstr "Verander velden met metagegevens voor het opslaan/versturen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Template Functions"
-msgstr ""
+msgstr "Eigenschappen sjabloon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:855
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
@@ -409,7 +410,7 @@ msgstr "Geavanceerd"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Bepaal de eigenschappen van je sjabloon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Sharing books by email"
@@ -448,8 +449,7 @@ msgstr "Plugins"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr ""
-"Voeg toe/verwijder/customize de verschillende delen van de calibre "
-"functionaliteit"
+"Voeg toe/verwijder/of pas diverse onderdelen van calibre's werking  aan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:901
 msgid "Tweaks"
@@ -833,7 +833,7 @@ msgstr "Communiceer met de Sanda Bambook eBook reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:41
 msgid "Device IP Address (restart calibre after changing)"
@@ -1246,11 +1246,19 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"Normaliter ziet de gebruiker van de Sony reader een weergave van de "
+"afbeelding van de omslag. Met deze optie, zal calibre een afzonderlijke "
+"omslag naar de reader sturen, wat van pas komt wanneer je DRMED boeken "
+"overzet waarvan je niet de omslag wijzigen kunt. Waarschuwing:  Deze optie "
+"kan slechts gebruikt worden bij de nieuwste Sony readers: 350, 650, 950 en "
+"nieuwer"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:79
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Ververs afzonderlijke omslagen wanneer automatisch management wordt gebruikt "
+"(nieuwste readers)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:81
 msgid ""
@@ -1258,6 +1266,9 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
+"Stel deze optie in waneer afzonderlijke boekomslagen wordt opgeladen telkens "
+"wanneer U contact maakt met Uw apparaat. Schakel deze optie uit wanneer door "
+"een groot aantal boeken op uw reader de prestaties sterk teruglopen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68

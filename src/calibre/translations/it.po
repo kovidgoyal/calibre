@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-14 23:15+0000\n"
-"PO-Revision-Date: 2011-01-11 00:19+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-16 06:56+0000\n"
+"Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-16 04:52+0000\n"
+"X-Launchpad-Export-Date: 2011-01-17 04:47+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -4816,7 +4816,7 @@ msgstr "metadati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:102
 msgid "Downloading {0} for {1} book(s)"
-msgstr ""
+msgstr "Scaricamento {0} per {1} libri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:186
@@ -4903,11 +4903,11 @@ msgstr "Aiuto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:12
 msgid "Move to next match"
-msgstr ""
+msgstr "Prossima corrispondenza"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 msgid "Move to next highlighted match"
-msgstr ""
+msgstr "Prossima corrispondenza evidenziata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:340
@@ -4921,15 +4921,15 @@ msgstr "F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:25
 msgid "Move to previous item"
-msgstr ""
+msgstr "All'elemento precedente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Move to previous highlighted item"
-msgstr ""
+msgstr "All'elemento selezionato precedente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Shift+N"
-msgstr ""
+msgstr "Shift+N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
@@ -5659,7 +5659,7 @@ msgstr "Libri per &titolo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:303
 msgid "Books by Author"
-msgstr ""
+msgstr "Libri per autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:304
 msgid ""
@@ -8127,7 +8127,7 @@ msgstr "&Modello:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:456
 msgid "Enter a template to be used as the source for the search/replace"
-msgstr ""
+msgstr "Inserisci un modello da usare come fonte per cerca/sostituisci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:457
 msgid "&Search for:"
@@ -8177,6 +8177,9 @@ msgid ""
 "field is processed. In regular expression mode, only the matched text is "
 "processed"
 msgstr ""
+"Specifica come il testo deve essere elaborato dopo il cerca e sostituisci. "
+"Nel modo carattere, l'intero campo viene elaborato. Nel modo espressioni "
+"regolari, solo il testo che corrisponde viene elaborato."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:466
 msgid "&Destination field:"
@@ -8418,7 +8421,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:794
 msgid "Timed out"
-msgstr ""
+msgstr "Scaduto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:795
 msgid ""
@@ -8859,7 +8862,7 @@ msgstr "Ricerca avanzata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:199
 msgid "&What kind of match to use:"
-msgstr ""
+msgstr "&Che tipo di corrispondenza da usare:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
@@ -9707,7 +9710,7 @@ msgstr "Resetta ricerca veloce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
 msgid "&Highlight"
-msgstr ""
+msgstr "&Evidenzia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:199
 msgid ""
@@ -9733,7 +9736,7 @@ msgstr "S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:375
 msgid "Edit template"
-msgstr ""
+msgstr "Modifica modello"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:66
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:241
@@ -10329,7 +10332,7 @@ msgstr "Colonna testuale per mantenere informazioni sulle serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:31
 msgid "Text, but with a fixed set of permitted values"
-msgstr ""
+msgstr "Testo, ma con una lista fissa di valori permessi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:35
 msgid "Floating point numbers"
@@ -10608,11 +10611,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "Disabled"
-msgstr ""
+msgstr "Disabilitato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:61
 msgid "Partitioned"
-msgstr ""
+msgstr "Partizionato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:140
 msgid "User Interface &layout (needs restart):"
@@ -10795,7 +10798,7 @@ msgstr "&Installa gli strumenti per i comandi di linea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:31
 msgid "Open Editor"
-msgstr ""
+msgstr "Apri editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:65
 msgid "Device currently connected: "
@@ -10893,7 +10896,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:162
 msgid "Add plugin"
-msgstr ""
+msgstr "Aggiungi plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:170
 msgid ""
@@ -10905,13 +10908,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:225
 msgid "Success"
-msgstr ""
+msgstr "Riuscito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:181
 msgid ""
 "Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
 "have to restart calibre for the plugin to take effect."
 msgstr ""
+"Plugin <b>{0}</b> installato correttamente in <b> {1} plugins</b>. È "
+"necessario riavviare calibre per poter utilizzare il plugin."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:192
 msgid "No valid plugin path"
@@ -10939,7 +10944,7 @@ msgstr "Plugin: %s non richiede personalizzazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:220
 msgid "Plugin {0} successfully removed"
-msgstr ""
+msgstr "Plugin {0} rimosso con successo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:228
 msgid "Cannot remove builtin plugin"
@@ -10973,7 +10978,7 @@ msgstr "&Rimuovi il plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:63
 msgid "&Add a new plugin"
-msgstr ""
+msgstr "&Aggiungi un nuovo plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
@@ -11307,7 +11312,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:145
 msgid "Name already used"
-msgstr ""
+msgstr "Nome già utilizzato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:149
 msgid "Argument count must be -1 or greater than zero"
@@ -11339,15 +11344,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:102
 msgid "&Delete"
-msgstr ""
+msgstr "&Elimina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:103
 msgid "&Replace"
-msgstr ""
+msgstr "S&ostituisci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:104
 msgid "C&reate"
-msgstr ""
+msgstr "C&rea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
@@ -11617,7 +11622,7 @@ msgstr "Il nome della ricerca salvata %s è già in uso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1223
 msgid "Find item in tag browser"
-msgstr ""
+msgstr "Cerca elemento nel browser dei tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1226
 msgid ""
@@ -11631,11 +11636,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1235
 msgid "ALT+f"
-msgstr ""
+msgstr "ALT+f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1239
 msgid "F&ind"
-msgstr ""
+msgstr "&Cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1240
 msgid "Find the first/next matching item"
@@ -11643,7 +11648,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1247
 msgid "Collapse all categories"
-msgstr ""
+msgstr "Contrai tutte le categorie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1268
 msgid "No More Matches.</b><p> Click Find again to go to first match"
@@ -11752,7 +11757,7 @@ msgstr "Guida rapida di Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:291
 msgid "Debug mode"
-msgstr ""
+msgstr "Modalità debug"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:292
 msgid ""
@@ -11971,11 +11976,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "disabled"
-msgstr ""
+msgstr "disabilitato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid " secs"
-msgstr ""
+msgstr " sec"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
 msgid "Mouse &wheel flips pages"

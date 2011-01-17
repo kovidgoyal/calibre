@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-14 23:15+0000\n"
-"PO-Revision-Date: 2011-01-11 03:50+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-16 11:15+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-16 04:59+0000\n"
+"X-Launchpad-Export-Date: 2011-01-17 04:47+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -394,7 +394,7 @@ msgstr "Change metadata fields before saving/sending"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Template Functions"
-msgstr ""
+msgstr "Template Functions"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:855
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
@@ -405,7 +405,7 @@ msgstr "Advanced"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Create your own template functions"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Sharing books by email"
@@ -1242,6 +1242,7 @@ msgstr ""
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Refresh separate covers when using automatic management (newer readers)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:81
 msgid ""
@@ -1249,6 +1250,9 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
+"Set this option to have separate book covers uploaded every time you connect "
+"your device. Unset this option if you have so many books on the reader that "
+"performance is unacceptable."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -3677,11 +3681,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/delete_info.py:203
 msgid "No action in dictionary state is \"%s\" \n"
-msgstr ""
+msgstr "No action in dictionary state is \"%s\" \n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/hex_2_utf8.py:296
 msgid "error no state found in hex_2_utf8"
-msgstr ""
+msgstr "error no state found in hex_2_utf8"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -3755,6 +3759,14 @@ msgid ""
 "paragraph.* unformatted: Most lines have hard line breaks, few/no blank "
 "lines or indents."
 msgstr ""
+"Paragraph structure.\n"
+"choices are ['auto', 'block', 'single', 'print', 'unformatted']\n"
+"* auto: Try to auto detect paragraph type.\n"
+"* block: Treat a blank line as a paragraph break.\n"
+"* single: Assume every line is a paragraph.\n"
+"* print:  Assume every line starting with 2+ spaces or a tab starts a "
+"paragraph.* unformatted: Most lines have hard line breaks, few/no blank "
+"lines or indents."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:38
 msgid ""
@@ -3768,6 +3780,15 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Formatting used within the document.* auto: Automatically decide which "
+"formatting processor to use.\n"
+"* none: Do not process the document formatting. Everything is a paragraph "
+"and no styling is applied.\n"
+"* heuristic: Process using heuristics to determine formatting such as "
+"chapter headings and italic text.\n"
+"* textile: Processing using textile formatting.\n"
+"* markdown: Processing using markdown formatting. To learn more about "
+"markdown see"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:48
 msgid ""
@@ -4192,6 +4213,8 @@ msgid ""
 "No books to catalog\n"
 "Check job details"
 msgstr ""
+"No books to catalogue\n"
+"Check job details"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:70
 msgid "Catalog generated."
@@ -4740,7 +4763,7 @@ msgstr "metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:102
 msgid "Downloading {0} for {1} book(s)"
-msgstr ""
+msgstr "Downloading {0} for {1} book(s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:186
@@ -4844,11 +4867,11 @@ msgstr "Help"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:12
 msgid "Move to next match"
-msgstr ""
+msgstr "Move to next match"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 msgid "Move to next highlighted match"
-msgstr ""
+msgstr "Move to next highlighted match"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:340
@@ -4862,15 +4885,15 @@ msgstr "F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:25
 msgid "Move to previous item"
-msgstr ""
+msgstr "Move to previous item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Move to previous highlighted item"
-msgstr ""
+msgstr "Move to previous highlighted item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Shift+N"
-msgstr ""
+msgstr "Shift+N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
@@ -5598,7 +5621,7 @@ msgstr "Books by &Title"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:303
 msgid "Books by Author"
-msgstr ""
+msgstr "Books by Author"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:304
 msgid ""
@@ -5607,6 +5630,10 @@ msgid ""
 "excludes tags of the form [tag], \n"
 "e.g., [Project Gutenberg]</p>"
 msgstr ""
+"<p>Default pattern \n"
+"\\[.+\\]\n"
+"excludes tags of the form [tag], \n"
+"e.g., [Project Gutenberg]</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid "Excluded genres"
@@ -5632,6 +5659,8 @@ msgid ""
 "<p>Comma-separated list of tags to exclude.\n"
 "Default: ~,Catalog"
 msgstr ""
+"<p>Comma-separated list of tags to exclude.\n"
+"Default: ~,Catalog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
@@ -5648,7 +5677,7 @@ msgstr "Exclusion pattern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Matching books will be displayed with a check mark"
-msgstr ""
+msgstr "Matching books will be displayed with a check mark"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
@@ -5672,7 +5701,7 @@ msgstr "&Wishlist tag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Books tagged as Wishlist items will be displayed with an X"
-msgstr ""
+msgstr "Books tagged as Wishlist items will be displayed with an X"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Thumbnail width"
@@ -7538,7 +7567,7 @@ msgstr "Delete from device"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:54
 msgid "This book is DRMed"
-msgstr ""
+msgstr "This book is DRMed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:55
 msgid ""
@@ -7546,6 +7575,9 @@ msgid ""
 "cannot read or convert this book in calibre, \n"
 "<a href=\"http://bugs.calibre-ebook.com/wiki/DRM\">click here</a>."
 msgstr ""
+"<p>This book is locked by <b>DRM</b>. To learn more about DRM and why you "
+"cannot read or convert this book in calibre, \n"
+"<a href=\"http://bugs.calibre-ebook.com/wiki/DRM\">click here</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:35
 msgid "Author sort"
@@ -8350,13 +8382,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:794
 msgid "Timed out"
-msgstr ""
+msgstr "Timed out"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:795
 msgid ""
 "The download of social metadata timed out, the servers are probably busy. "
 "Try again later."
 msgstr ""
+"The download of social metadata timed out, the servers are probably busy. "
+"Try again later."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:802
 msgid "There were errors"
@@ -9185,7 +9219,7 @@ msgstr "A custom recipe named %s already exists. Do you want to replace it?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:274
 msgid "Choose builtin recipe"
-msgstr ""
+msgstr "Choose builtin recipe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:320
 msgid "Choose a recipe file"
@@ -9640,13 +9674,15 @@ msgstr "Reset Quick Search"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
 msgid "&Highlight"
-msgstr ""
+msgstr "&Highlight"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:199
 msgid ""
 "When searching, highlight matched books, instead of restricting the book "
 "list to the matches.<p> You can use the N or F3 keys to go to the next match."
 msgstr ""
+"When searching, highlight matched books, instead of restricting the book "
+"list to the matches.<p> You can use the N or F3 keys to go to the next match."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:215
 msgid "Copy current search text (instead of search name)"
@@ -9856,6 +9892,8 @@ msgid ""
 "Ignore custom plugins, useful if you installed a plugin that is preventing "
 "calibre from starting"
 msgstr ""
+"Ignore custom plugins, useful if you installed a plugin that is preventing "
+"calibre from starting"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:662
@@ -10728,7 +10766,7 @@ msgstr "&Install command line tools"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:31
 msgid "Open Editor"
-msgstr ""
+msgstr "Open Editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:65
 msgid "Device currently connected: "
@@ -10844,7 +10882,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:162
 msgid "Add plugin"
-msgstr ""
+msgstr "Add plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:170
 msgid ""
@@ -10852,17 +10890,22 @@ msgid ""
 "virus/malware. Only install it if you got it from a trusted source. Are you "
 "sure you want to proceed?"
 msgstr ""
+"Installing plugins is a <b>security risk</b>. Plugins can contain a "
+"virus/malware. Only install it if you got it from a trusted source. Are you "
+"sure you want to proceed?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:225
 msgid "Success"
-msgstr ""
+msgstr "Success"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:181
 msgid ""
 "Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
 "have to restart calibre for the plugin to take effect."
 msgstr ""
+"Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
+"have to restart calibre for the plugin to take effect."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:192
 msgid "No valid plugin path"
@@ -10890,7 +10933,7 @@ msgstr "Plugin: %s does not need customization"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:220
 msgid "Plugin {0} successfully removed"
-msgstr ""
+msgstr "Plugin {0} successfully removed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:228
 msgid "Cannot remove builtin plugin"
@@ -10923,7 +10966,7 @@ msgstr "&Remove plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:63
 msgid "&Add a new plugin"
-msgstr ""
+msgstr "&Add a new plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
@@ -11236,6 +11279,70 @@ msgid ""
 "        </p>\n"
 "        "
 msgstr ""
+"\n"
+"        <p>Here you can add and remove functions used in template "
+"processing. A\n"
+"        template function is written in python. It takes information from "
+"the\n"
+"        book, processes it in some way, then returns a string result. "
+"Functions\n"
+"        defined here are usable in templates in the same way that builtin\n"
+"        functions are usable. The function must be named <b>evaluate</b>, "
+"and\n"
+"        must have the signature shown below.</p>\n"
+"        <p><code>evaluate(self, formatter, kwargs, mi, locals, your "
+"parameters)\n"
+"        &rarr; returning a unicode string</code></p>\n"
+"        <p>The parameters of the evaluate function are:\n"
+"        <ul>\n"
+"        <li><b>formatter</b>: the instance of the formatter being used to\n"
+"        evaluate the current template. You can use this to do recursive\n"
+"        template evaluation.</li>\n"
+"        <li><b>kwargs</b>: a dictionary of metadata. Field values are in "
+"this\n"
+"        dictionary.\n"
+"        <li><b>mi</b>: a Metadata instance. Used to get field information.\n"
+"        This parameter can be None in some cases, such as when evaluating\n"
+"        non-book templates.</li>\n"
+"        <li><b>locals</b>: the local variables assigned to by the current\n"
+"        template program.</li>\n"
+"        <li><b>your parameters</b>: You must supply one or more formal\n"
+"        parameters. The number must match the arg count box, unless arg "
+"count is\n"
+"        -1 (variable number or arguments), in which case the last argument "
+"must\n"
+"        be *args. At least one argument is required, and is usually the "
+"value of\n"
+"        the field being operated upon. Note that when writing in basic "
+"template\n"
+"        mode, the user does not provide this first argument. Instead it is\n"
+"        supplied by the formatter.</li>\n"
+"        </ul></p>\n"
+"        <p>\n"
+"        The following example function checks the value of the field. If "
+"the\n"
+"        field is not empty, the field's value is returned, otherwise the "
+"value\n"
+"        EMPTY is returned.\n"
+"        <pre>\n"
+"        name: my_ifempty\n"
+"        arg count: 1\n"
+"        doc: my_ifempty(val) -- return val if it is not empty, otherwise the "
+"string 'EMPTY'\n"
+"        program code:\n"
+"        def evaluate(self, formatter, kwargs, mi, locals, val):\n"
+"            if val:\n"
+"                return val\n"
+"            else:\n"
+"                return 'EMPTY'</pre>\n"
+"        This function can be called in any of the three template program "
+"modes:\n"
+"        <ul>\n"
+"        <li>single-function mode: {tags:my_ifempty()}</li>\n"
+"        <li>template program mode: {tags:'my_ifempty($)'}</li>\n"
+"        <li>general program mode: program: my_ifempty(field('tags'))</li>\n"
+"        </p>\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:137
@@ -11243,63 +11350,63 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:159
 msgid "Template functions"
-msgstr ""
+msgstr "Template functions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:128
 msgid "You cannot delete a built-in function"
-msgstr ""
+msgstr "You cannot delete a built-in function"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:138
 msgid "Function not defined"
-msgstr ""
+msgstr "Function not defined"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:145
 msgid "Name already used"
-msgstr ""
+msgstr "Name already used"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:149
 msgid "Argument count must be -1 or greater than zero"
-msgstr ""
+msgstr "Argument count must be -1 or greater than zero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:160
 msgid "Exception while compiling function"
-msgstr ""
+msgstr "Exception while compiling function"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:96
 msgid "&Function:"
-msgstr ""
+msgstr "&Function:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:97
 msgid "Enter the name of the function to create."
-msgstr ""
+msgstr "Enter the name of the function to create."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:98
 msgid "Arg &count:"
-msgstr ""
+msgstr "Arg &count:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:99
 msgid "Set this to -1 if the function takes a variable number of arguments"
-msgstr ""
+msgstr "Set this to -1 if the function takes a variable number of arguments"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:100
 msgid "&Documentation:"
-msgstr ""
+msgstr "&Documentation:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:102
 msgid "&Delete"
-msgstr ""
+msgstr "&Delete"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:103
 msgid "&Replace"
-msgstr ""
+msgstr "&Replace"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:104
 msgid "C&reate"
-msgstr ""
+msgstr "C&reate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
-msgstr ""
+msgstr "&Program Code: (be sure to follow python indenting rules)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
@@ -12040,13 +12147,15 @@ msgstr "The standard font type"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:125
 msgid "Still editing"
-msgstr ""
+msgstr "Still editing"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:126
 msgid ""
 "You are in the middle of editing a keyboard shortcut first complete that, by "
 "clicking outside the  shortcut editing box."
 msgstr ""
+"You are in the middle of editing a keyboard shortcut first complete that, by "
+"clicking outside the  shortcut editing box."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:514
 msgid "&Lookup in dictionary"
@@ -12509,12 +12618,13 @@ msgstr "Mail successfully sent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
 msgid "OK to proceed?"
-msgstr ""
+msgstr "OK to proceed?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:96
 msgid ""
 "This will display your email password on the screen. Is it OK to proceed?"
 msgstr ""
+"This will display your email password on the screen. Is it OK to proceed?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:139
 msgid ""
@@ -12909,6 +13019,10 @@ msgid ""
 "this'.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Comma-separated list of tag words indicating book should be excluded from "
+"output.For example: 'skip' will match 'skip this book' and 'Skip will like "
+"this'.Default: '%default'\n"
+"Applies to: ePub, MOBI output formats"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:610
 msgid ""
@@ -12916,6 +13030,9 @@ msgid ""
 "Author section is always generated.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Include 'Authors' section in catalogue.This switch is ignored - Books By "
+"Author section is always generated.Default: '%default'\n"
+"Applies to: ePub, MOBI output formats"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:618
 msgid ""
@@ -13053,6 +13170,15 @@ msgid ""
 "then rebuild the catalog.\n"
 "*** Terminating catalog generation ***\n"
 msgstr ""
+"\n"
+"\n"
+"*** Metadata error ***\n"
+"Inconsistent Author Sort values for Author '{0}', unable to continue "
+"building catalogue.\n"
+"Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
+"dialog,\n"
+"then rebuild the catalogue.\n"
+"*** Terminating catalogue generation ***\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -13693,7 +13819,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:989
 msgid "You must provide the %s option to do a recovery"
-msgstr ""
+msgstr "You must provide the %s option to do a recovery"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1026
 msgid ""
@@ -14310,7 +14436,7 @@ msgstr " near "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:38
 msgid "end of program"
-msgstr ""
+msgstr "end of program"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:75
 msgid "syntax error - program ends before EOF"
@@ -14346,49 +14472,63 @@ msgstr "No such variable "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:57
 msgid "No documentation provided"
-msgstr ""
+msgstr "No documentation provided"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:95
 msgid ""
 "strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x and y as "
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x and y as "
+"strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:110
 msgid ""
 "cmp(x, y, lt, eq, gt) -- compares x and y after converting both to numbers. "
 "Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"cmp(x, y, lt, eq, gt) -- compares x and y after converting both to numbers. "
+"Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:125
 msgid ""
 "strcat(a, b, ...) -- can take any number of arguments. Returns a string "
 "formed by concatenating all the arguments"
 msgstr ""
+"strcat(a, b, ...) -- can take any number of arguments. Returns a string "
+"formed by concatenating all the arguments"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:138
 msgid ""
 "add(x, y) -- returns x + y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"add(x, y) -- returns x + y. Throws an exception if either x or y are not "
+"numbers."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:148
 msgid ""
 "subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
+"not numbers."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:158
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
+"not numbers."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:168
 msgid ""
 "divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
+"numbers."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:178
 msgid ""
@@ -14399,6 +14539,12 @@ msgid ""
 "automatically. For example, template('[[title_sort]]') will evaluate the "
 "template {title_sort} and return its value."
 msgstr ""
+"template(x) -- evaluates x as a template. The evaluation is done in its own "
+"context, meaning that variables are not shared between the caller and the "
+"template evaluation. Because the { and } characters are special, you must "
+"use [[ for the { character and ]] for the } character; they are converted "
+"automatically. For example, template('[[title_sort]]') will evaluate the "
+"template {title_sort} and return its value."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:193
 msgid ""
@@ -14406,12 +14552,17 @@ msgid ""
 "'assign'ed to) instead of the book metadata.  This permits using the "
 "template processor to construct complex results from local variables."
 msgstr ""
+"eval(template) -- evaluates the template, passing the local variables (those "
+"'assign'ed to) instead of the book metadata.  This permits using the "
+"template processor to construct complex results from local variables."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:206
 msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr ""
+"assign(id, val) -- assigns val to id, then returns val. id must be an "
+"identifier, not an expression"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:216
 msgid ""
@@ -14419,10 +14570,13 @@ msgid ""
 "start calibre from the command line (calibre-debug -g), the output will go "
 "to a black hole."
 msgstr ""
+"print(a, b, ...) -- prints the arguments to standard output. Unless you "
+"start calibre from the command line (calibre-debug -g), the output will go "
+"to a black hole."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:227
 msgid "field(name) -- returns the metadata field named by name"
-msgstr ""
+msgstr "field(name) -- returns the metadata field named by name"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:235
 msgid ""
@@ -14433,6 +14587,12 @@ msgid ""
 "substr('12345', 1, 0) returns '2345', and substr('12345', 1, -1) returns "
 "'234'."
 msgstr ""
+"substr(str, start, end) -- returns the start'th through the end'th "
+"characters of str. The first character in str is the zero'th character. If "
+"end is negative, then it indicates that many characters counting from the "
+"right. If end is zero, then it indicates the last character. For example, "
+"substr('12345', 1, 0) returns '2345', and substr('12345', 1, -1) returns "
+"'234'."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:248
 msgid ""
@@ -14443,6 +14603,12 @@ msgid ""
 "the value of some other composite field. This is extremely useful when "
 "constructing variable save paths"
 msgstr ""
+"lookup(val, pattern, field, pattern, field, ..., else_field) -- like switch, "
+"except the arguments are field (metadata) names, not text. The value of the "
+"appropriate field will be fetched and used. Note that because composite "
+"columns are fields, you can use this function in one composite field to use "
+"the value of some other composite field. This is extremely useful when "
+"constructing variable save paths"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:263
 msgid "lookup requires either 2 or an odd number of arguments"
@@ -14453,6 +14619,8 @@ msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
+"test(val, text if not empty, text if empty) -- return `text if not empty` if "
+"the field is not empty, otherwise return `text if empty`"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:287
 msgid ""
@@ -14460,6 +14628,9 @@ msgid ""
 "contains matches for the regular expression `pattern`. Returns `text if "
 "match` if matches are found, otherwise it returns `text if no match`"
 msgstr ""
+"contains(val, pattern, text if match, text if not match) -- checks if field "
+"contains matches for the regular expression `pattern`. Returns `text if "
+"match` if matches are found, otherwise it returns `text if no match`"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:302
 msgid ""
@@ -14469,6 +14640,11 @@ msgid ""
 "else_value is returned. You can have as many `pattern, value` pairs as you "
 "want"
 msgstr ""
+"switch(val, pattern, value, pattern, value, ..., else_value) -- for each "
+"`pattern, value` pair, checks if the field matches the regular expression "
+"`pattern` and if so, returns that `value`. If no pattern matches, then "
+"else_value is returned. You can have as many `pattern, value` pairs as you "
+"want"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:310
 msgid "switch requires an odd number of arguments"
@@ -14480,12 +14656,17 @@ msgid ""
 "expression. All instances of `pattern` are replaced with `replacement`. As "
 "in all of calibre, these are python-compatible regular expressions"
 msgstr ""
+"re(val, pattern, replacement) -- return the field after applying the regular "
+"expression. All instances of `pattern` are replaced with `replacement`. As "
+"in all of calibre, these are python-compatible regular expressions"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:333
 msgid ""
 "ifempty(val, text if empty) -- return val if val is not empty, otherwise "
 "return `text if empty`"
 msgstr ""
+"ifempty(val, text if empty) -- return val if val is not empty, otherwise "
+"return `text if empty`"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:345
 msgid ""
@@ -14500,6 +14681,16 @@ msgid ""
 "chars + the length of `middle text`, then the field will be used intact. For "
 "example, the title `The Dome` would not be changed."
 msgstr ""
+"shorten(val, left chars, middle text, right chars) -- Return a shortened "
+"version of the field, consisting of `left chars` characters from the "
+"beginning of the field, followed by `middle text`, followed by `right chars` "
+"characters from the end of the string. `Left chars` and `right chars` must "
+"be integers. For example, assume the title of the book is `Ancient English "
+"Laws in the Times of Ivanhoe`, and you want it to fit in a space of at most "
+"15 characters. If you use {title:shorten(9,-,5)}, the result will be "
+"`Ancient E-nhoe`. If the field's length is less than left chars + right "
+"chars + the length of `middle text`, then the field will be used intact. For "
+"example, the title `The Dome` would not be changed."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:370
 msgid ""
@@ -14508,6 +14699,10 @@ msgid ""
 "comma as the separator, but authors uses an ampersand. Examples: "
 "{tags:count(,)}, {authors:count(&)}"
 msgstr ""
+"count(val, separator) -- interprets the value as a list of items separated "
+"by `separator`, returning the number of items in the list. Most lists use a "
+"comma as the separator, but authors uses an ampersand. Examples: "
+"{tags:count(,)}, {authors:count(&)}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:381
 msgid ""
@@ -14517,22 +14712,27 @@ msgid ""
 "If the item is not in the list, then the empty value is returned. The "
 "separator has the same meaning as in the count function."
 msgstr ""
+"list_item(val, index, separator) -- interpret the value as a list of items "
+"separated by `separator`, returning the `index`th item. The first item is "
+"number zero. The last item can be returned using `list_item(-1,separator)`. "
+"If the item is not in the list, then the empty value is returned. The "
+"separator has the same meaning as in the count function."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:401
 msgid "uppercase(val) -- return value of the field in upper case"
-msgstr ""
+msgstr "uppercase(val) -- return value of the field in upper case"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:409
 msgid "lowercase(val) -- return value of the field in lower case"
-msgstr ""
+msgstr "lowercase(val) -- return value of the field in lower case"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:417
 msgid "titlecase(val) -- return value of the field in title case"
-msgstr ""
+msgstr "titlecase(val) -- return value of the field in title case"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:425
 msgid "capitalize(val) -- return value of the field capitalized"
-msgstr ""
+msgstr "capitalize(val) -- return value of the field capitalized"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -14956,6 +15156,10 @@ msgid ""
 "a link, it will be ignored.By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"Any link that matches this regular expression will be ignored. This option "
+"can be specified multiple times, in which case as long as any regexp matches "
+"a link, it will be ignored. By default, no links are ignored. If both filter "
+"regexp and match regexp are specified, then filter regexp is applied first."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."

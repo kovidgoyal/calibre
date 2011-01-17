@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-14 23:15+0000\n"
-"PO-Revision-Date: 2011-01-16 00:18+0000\n"
+"PO-Revision-Date: 2011-01-16 10:55+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-16 05:00+0000\n"
+"X-Launchpad-Export-Date: 2011-01-17 04:47+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "Language: zh_TW\n"
 
@@ -220,6 +220,8 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
+"建立 PMLZ 壓縮檔，在 pmlname_img 或 images 目錄中包含 PML 檔案和所有的圖片。這個外掛程式會在您每次將 PML "
+"檔案加入書庫時執行。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:92
 msgid "Extract cover from comic files"
@@ -281,7 +283,7 @@ msgstr "介面"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:733
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr ""
+msgstr "調整 calibre 介面的外觀和感覺以符合您的喜好"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:739
 msgid "Behavior"
@@ -289,7 +291,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Change the way calibre behaves"
-msgstr ""
+msgstr "改變 calibre 的行為"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:217
@@ -298,7 +300,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Add/remove your own columns to the calibre book list"
-msgstr ""
+msgstr "在 calibre 書籍清單中加入/移除您自己的欄位"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Customize the toolbar"
@@ -308,7 +310,7 @@ msgstr ""
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
-msgstr ""
+msgstr "自訂工具列和關聯選單，改變每次可用的動作"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:773
 msgid "Input Options"
@@ -322,7 +324,7 @@ msgstr "轉換"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:779
 msgid "Set conversion options specific to each input format"
-msgstr ""
+msgstr "設定每個輸入格式指定的轉換選項"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:784
 msgid "Common Options"
@@ -330,7 +332,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Set conversion options common to all formats"
-msgstr ""
+msgstr "設定所有格式的轉換選項指令"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Output Options"
@@ -338,7 +340,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:801
 msgid "Set conversion options specific to each output format"
-msgstr ""
+msgstr "設定每個輸出格式指定的轉換選項"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 msgid "Adding books"
@@ -363,7 +365,7 @@ msgstr "將書籍儲存至磁碟"
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
-msgstr ""
+msgstr "控制當使用儲存至磁碟時 calibre 要如何從資料庫中匯出檔案到磁碟"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Sending books to devices"
@@ -371,7 +373,7 @@ msgstr "將書籍傳送至裝置"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:836
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr ""
+msgstr "控制 calibre 要如何傳輸檔案到您的電子書閱讀器"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Metadata plugboards"
@@ -379,7 +381,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "在儲存/傳送前改變元數據欄位"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Template Functions"
@@ -419,7 +421,7 @@ msgstr ""
 msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
-msgstr ""
+msgstr "設定 calibre 內容伺服器可以讓您在任何地方，使用任何裝置透過網際網路存取您的 calibre 書庫"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:889
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:163
@@ -432,11 +434,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:901
 msgid "Tweaks"
-msgstr ""
+msgstr "調整"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:907
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr ""
+msgstr "詳細校調 calibre 在各種狀況的行為"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:912
 msgid "Miscellaneous"
@@ -482,7 +484,7 @@ msgstr "如果您不瞭解輸入文件的詳情請使用本預設的配置文件
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:453
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
-msgstr "這個設定檔是用於 SONY PRS 產品線。即 500/505/600/700 等。"
+msgstr "這個設定檔適用於 SONY PRS 產品線。即 500/505/600/700 等。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:73
 msgid "This profile is intended for the SONY PRS 300."
@@ -562,17 +564,17 @@ msgstr "若您希望在電腦和設備上閱讀文檔，請使用這個預設的
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:278
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr ""
+msgstr "適用於 iPad 及類似具有解析度 768x1024 的裝置"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:437
 msgid "Intended for generic tablet devices, does no resizing of images"
-msgstr ""
+msgstr "適用於一般平板裝置，不重新設定圖片的大小"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:445
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
-msgstr ""
+msgstr "適用於 Samsung Galaxy 及類似具有解析度 600x1280 的裝置"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -698,13 +700,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:98
 msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "偵測到 Apple 裝置，執行 iTunes，請稍候 ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:100
 msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
-msgstr ""
+msgstr "不能直接從 iDevice 複製書籍。請從 iTunes Library 拖曳到桌面，然後加入 calibre 的書庫視窗。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:260
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:263
@@ -718,7 +720,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2972
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3012
 msgid "%d of %d"
-msgstr ""
+msgstr "%d / %d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:385
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:992
@@ -728,11 +730,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:560
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "以叢書做為 iTunes/iBooks 中的分類"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:562
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "快取 iTunes/iBooks 封面"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:574
 msgid ""
@@ -740,12 +742,17 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"有些書籍在 iTunes 資料庫中找不到。\n"
+"可能已使用 iBooks 程式刪除了。\n"
+"點選「顯示詳細資料」來查看清單。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:911
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"某些封面圖片無法轉換。\n"
+"點選「顯示詳細資料」來查看清單。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2553
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:447
@@ -783,18 +790,18 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:41
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "裝置 IP 位址 (改變後請重新啟動 calibre)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:46
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
-msgstr ""
+msgstr "無法直接從 Bambook 將書籍加入書庫。請將書籍儲存至磁碟後再從磁碟將檔案加入書庫。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:66
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
-msgstr ""
+msgstr "無法連線到 Bambook，您需要先安裝 Bambook 書庫。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:74
 msgid ""
@@ -802,10 +809,12 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"無法連線到 Bambook。\n"
+"如果您嘗試透過 Wi-Fi 連線，請確定 Bambook 的 IP 位址已經正確的設定了。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:111
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:217
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:233
@@ -866,7 +875,7 @@ msgstr "正在傳送元數據到裝置..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:132
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDK 尚未安裝。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -905,7 +914,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "與 PocketBook 602/603/902/903 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
@@ -930,7 +939,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:32
 msgid "Use an arbitrary folder as a device."
-msgstr ""
+msgstr "使用任意資料夾做為裝置。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:28
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:14
@@ -987,7 +996,7 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:44
 msgid "Cannot get files from this device"
-msgstr ""
+msgstr "不能從這個裝置取得檔案"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -1033,7 +1042,7 @@ msgstr ""
 msgid ""
 "The Kobo supports only one collection currently: the \"Im_Reading\" list.  "
 "Create a tag called \"Im_Reading\" "
-msgstr ""
+msgstr "Kobo 的支援目前只能有一個收藏：「Im_Reading」清單。請建立一個名為「Im_Reading」的標籤 "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:446
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:279
@@ -1196,7 +1205,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3/K5 reader."
-msgstr ""
+msgstr "與 Teclast K3/K5 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:36
 msgid "Communicate with the Newsmy reader."
@@ -10137,7 +10146,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:225
 msgid "Success"
-msgstr ""
+msgstr "成功"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:181
 msgid ""
@@ -10544,7 +10553,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:104
 msgid "C&reate"
-msgstr ""
+msgstr "建立(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
@@ -10552,15 +10561,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
-msgstr ""
+msgstr "在書庫與裝置檢視之間切換"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:39
 msgid "Separator"
-msgstr ""
+msgstr "分隔線"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:55
 msgid "Choose library"
-msgstr ""
+msgstr "選擇書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:206
 msgid "The main toolbar"
@@ -12588,7 +12597,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:850
 msgid "Name:"
-msgstr ""
+msgstr "名稱："
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:851
 msgid "Search string:"
@@ -12600,7 +12609,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:860
 msgid "added"
-msgstr ""
+msgstr "已加入"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:865
 msgid "Error: You must specify a name"
@@ -12969,7 +12978,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:86
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:107
 msgid "Go to"
-msgstr ""
+msgstr "移至"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:102
 msgid "First"
