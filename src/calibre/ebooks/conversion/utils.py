@@ -170,9 +170,9 @@ class HeuristicProcessor(object):
         # minimum of chapters to search for.  A max limit is calculated to prevent things like OCR
         # or pdf page numbers from being treated as TOC markers
         if wordcount > 7000:
-            self.min_chapters = int(ceil(wordcount / 7000.))
-            self.max_chapters = int(ceil(wordcount / 100.))
-        #print "minimum chapters required are: "+str(self.min_chapters)
+            self.min_chapters = int(ceil(wordcount / 15000.))
+            self.max_chapters = int(ceil(wordcount / 1200.))
+        print "minimum chapters required are: "+str(self.min_chapters)
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
         self.log.debug("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
@@ -272,6 +272,7 @@ class HeuristicProcessor(object):
                             title_req = True
                             strict_title = False
                         self.log.debug(unicode(type_name)+" had "+unicode(hits)+" hits - "+unicode(self.chapters_no_title)+" chapters with no title, "+unicode(self.chapters_with_title)+" chapters with titles, "+unicode(float(self.chapters_with_title) / float(hits))+" percent. ")
+                        print "max chapters is "+str(self.max_chapters)
                         if type_name == 'common':
                             analysis_result.append([chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name])
                         elif self.min_chapters <= hits < self.max_chapters:

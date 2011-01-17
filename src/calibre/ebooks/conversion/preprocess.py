@@ -473,12 +473,6 @@ class HTMLPreProcessor(object):
             # unwrap/delete soft hyphens with formatting
             end_rules.append((re.compile(u'[­]\s*(</(i|u|b)>)+(</p>\s*<p>\s*)+\s*(<(i|u|b)>)+\s*(?=[[a-z\d])'), lambda match: ''))
 
-        # Make the more aggressive chapter marking regex optional with the preprocess option to
-        # reduce false positives and move after header/footer removal
-        if getattr(self.extra_opts, 'preprocess_html', None):
-            if is_pdftohtml:
-                end_rules.append((re.compile(r'<p>\s*(?P<chap>(<[ibu]>){0,2}\s*([A-Z \'"!]{3,})\s*([\dA-Z:]+\s){0,4}\s*(</[ibu]>){0,2})\s*<p>\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<p>)?'), chap_head),)
-
         length = -1
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
             docanalysis = DocAnalysis('pdf', html)
@@ -525,11 +519,10 @@ class HTMLPreProcessor(object):
             html = dehyphenator(html,'html', length)
 
         if is_pdftohtml:
-            from calibre.ebooks.conversion.utils import PreProcessor
-            pdf_markup = PreProcessor(self.extra_opts, None)
+            from calibre.ebooks.conversion.utils import HeuristicProcessor
+            pdf_markup = HeuristicProcessor(self.extra_opts, None)
             totalwords = 0
-            totalwords = pdf_markup.get_word_count(html)
-            if totalwords > 7000:
+            if pdf_markup.get_word_count(html) > 7000:
                 html = pdf_markup.markup_chapters(html, totalwords, True)
 
         #dump(html, 'post-preprocess')
