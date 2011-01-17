@@ -4314,10 +4314,9 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
             # Date of publication
             pubdate = book['date']
-            if pubdate:
-                pubmonth, pubyear = pubdate.split(' ')
-            else:
-                pubmonth = pubyear = ''
+            pubmonth, pubyear = pubdate.split()
+            if pubyear == '101':
+                pubdate = pubmonth = pubyear = ''
 
             # Thumb
             _soup = BeautifulSoup('<html>',selfClosingTags=['img'])
