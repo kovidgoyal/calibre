@@ -1360,6 +1360,7 @@ class EPUB_MOBI(CatalogPlugin):
                 return False
             self.fetchBookmarks()
             if self.opts.generate_descriptions:
+                self.generateThumbnails()
                 self.generateHTMLDescriptions()
             self.generateHTMLByAuthor()
             if self.opts.generate_titles:
@@ -1372,8 +1373,7 @@ class EPUB_MOBI(CatalogPlugin):
                 self.generateHTMLByDateAdded()
                 if self.generateRecentlyRead:
                     self.generateHTMLByDateRead()
-            if self.opts.generate_descriptions:
-                self.generateThumbnails()
+
             self.generateOPF()
             self.generateNCXHeader()
             self.generateNCXByAuthor("Authors")
@@ -1452,6 +1452,12 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
 
             self.booksByAuthor = sorted(self.booksByAuthor, key=self.booksByAuthorSorter_author_sort)
+
+#             for book in self.booksByAuthor:
+#                 print '{0:<10} {1:<5} {2:<20} {3:<20} {4:<20} {5:<20}'.format(book['series'], book['series_index'], book['title'],
+#                                                 book['author'], book['authors'],book['author_sort'])
+#             print
+
             # Build the unique_authors set from existing data
             authors = [(record['author'], record['author_sort'].capitalize()) for record in self.booksByAuthor]
 
@@ -2848,23 +2854,26 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 thumb_generated = True
                 valid_cover = True
                 try:
-                    thumbs.append("thumbnail_%d.jpg" % int(title['id']))
                     self.generateThumbnail(title, image_dir, thumb_file)
+                    thumbs.append("thumbnail_%d.jpg" % int(title['id']))
                 except:
                     if 'cover' in title and os.path.exists(title['cover']):
                         valid_cover = False
-                        self.opts.log.warn(" *** Invalid cover file for '%s' ***" % (title['title']))
+                        self.opts.log.warn(" *** Invalid cover file for '%s'***" %
+                                             (title['title']))
                         if not self.error:
                             self.error.append('Invalid cover files')
                         self.error.append("Warning: invalid cover file for '%s', default cover substituted.\n" % (title['title']))
+
                     thumb_generated = False
 
                 if not thumb_generated:
-                    self.opts.log.warn(" using default cover for '%s'" % (title['title']))
-                    # Check to make sure default is current
-                    # Check to see if thumbnail exists
+                    self.opts.log.warn(" using default cover for '%s' (%d)" % (title['title'], title['id']))
+                    # Confirm thumb exists, default is current
                     default_thumb_fp = os.path.join(image_dir,"thumbnail_default.jpg")
                     cover = os.path.join(self.catalogPath, "DefaultCover.png")
+                    title['cover'] = cover
+
                     if not os.path.exists(cover):
                         shutil.copyfile(I('book.png'), cover)
 
@@ -2877,17 +2886,15 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         if thumb_timestamp < cover_timestamp:
                             if False and self.verbose:
                                 self.opts.log.warn("updating thumbnail_default for %s" % title['title'])
-                            #title['cover'] = os.path.join(self.catalogPath,"DefaultCover.jpg")
-                            title['cover'] = cover
                             self.generateThumbnail(title, image_dir,
                                                 "thumbnail_default.jpg" if valid_cover else thumb_file)
                     else:
                         if False and self.verbose:
                             self.opts.log.warn(" generating new thumbnail_default.jpg")
-                        #title['cover'] = os.path.join(self.catalogPath,"DefaultCover.jpg")
-                        title['cover'] = cover
                         self.generateThumbnail(title, image_dir,
                                                 "thumbnail_default.jpg" if valid_cover else thumb_file)
+                    # Clear the book's cover property
+                    title['cover'] = None
 
 
             # Write thumb_width to the file, validating cache contents
@@ -3881,7 +3888,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             outfile.write(self.ncxSoup.prettify())
 
 
-        # --------------- Helpers ---------------
+        # ======================== Helpers ========================
         def author_to_author_sort(self, author):
             tokens = author.split()
             tokens = tokens[-1:] + tokens[:-1]
@@ -3894,14 +3901,14 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             Sort non-series books before series books
             '''
             if not book['series']:
-                key = '%s %s' % (book['author_sort'],
+                key = '%s %s' % (book['author_sort'].capitalize(),
                                  book['title_sort'].capitalize())
             else:
                 index = book['series_index']
                 integer = int(index)
                 fraction = index-integer
                 series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
-                key = '%s ~%s %s' % (book['author_sort'],
+                key = '%s ~%s %s' % (book['author_sort'].capitalize(),
                                      self.generateSortTitle(book['series']),
                                      series_index)
             return key
@@ -4315,7 +4322,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             # Thumb
             _soup = BeautifulSoup('<html>',selfClosingTags=['img'])
             thumb = Tag(_soup,"img")
-            if 'cover' in book:
+            if 'cover' in book and book['cover']:
                 thumb['src']  = "../images/thumbnail_%d.jpg" % int(book['id'])
             else:
                 thumb['src']  = "../images/thumbnail_default.jpg"
