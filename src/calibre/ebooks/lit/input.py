@@ -22,7 +22,7 @@ class LITInput(InputFormatPlugin):
         from calibre.ebooks.lit.reader import LitReader
         from calibre.ebooks.conversion.plumber import create_oebbook
         self.log = log
-        return create_oebbook(log, stream, options, self, reader=LitReader)
+        return create_oebbook(log, stream, options, reader=LitReader)
 
     def postprocess_book(self, oeb, opts, log):
         from calibre.ebooks.oeb.base import XHTML_NS, XPath, XHTML
@@ -39,10 +39,13 @@ class LITInput(InputFormatPlugin):
                 body = body[0]
                 if len(body) == 1 and body[0].tag == XHTML('pre'):
                     pre = body[0]
-                    from calibre.ebooks.txt.processor import convert_basic
+                    from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
+                    separate_paragraphs_single_line
                     from lxml import etree
                     import copy
-                    html = convert_basic(pre.text).replace('<html>',
+                    html = separate_paragraphs_single_line(pre.text)
+                    html = preserve_spaces(html)
+                    html = convert_basic(html).replace('<html>',
                             '<html xmlns="%s">'%XHTML_NS)
                     root = etree.fromstring(html)
                     body = XPath('//h:body')(root)
