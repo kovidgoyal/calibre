@@ -13,7 +13,7 @@ from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
     QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect
 
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
-    TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
+    TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate, \
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate, \
     CcEnumDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
@@ -76,8 +76,8 @@ class BooksView(QTableView): # {{{
         self.rating_delegate = RatingDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
-        self.tags_delegate = TagsDelegate(self)
-        self.authors_delegate = TextDelegate(self)
+        self.tags_delegate = CompleteDelegate(self, ',', 'all_tags')
+        self.authors_delegate = CompleteDelegate(self, '&', 'all_author_names', True)
         self.series_delegate = TextDelegate(self)
         self.publisher_delegate = TextDelegate(self)
         self.text_delegate = TextDelegate(self)
@@ -410,8 +410,7 @@ class BooksView(QTableView): # {{{
         self.save_state()
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
-        self.authors_delegate.set_auto_complete_function(
-                lambda: [(x, y.replace('|', ',')) for (x, y) in db.all_authors()])
+        self.authors_delegate.set_database(db)
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
 

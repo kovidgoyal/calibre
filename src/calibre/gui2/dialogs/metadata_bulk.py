@@ -279,8 +279,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.changed = False
 
         all_tags = self.db.all_tags()
-        self.tags.update_tags_cache(all_tags)
-        self.remove_tags.update_tags_cache(all_tags)
+        self.tags.update_items_cache(all_tags)
+        self.remove_tags.update_items_cache(all_tags)
 
         self.initialize_combos()
 
@@ -299,6 +299,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.pubdate.setDisplayFormat(pubdate_format)
         self.pubdate.setSpecialValueText(_('Undefined'))
         self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
+        self.pubdate.dateChanged.connect(self.do_apply_pubdate)
 
         if len(self.db.custom_field_keys(include_composites=False)) == 0:
             self.central_widget.removeTab(1)
@@ -314,6 +315,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.do_again = False
         self.central_widget.setCurrentIndex(tab)
         self.exec_()
+
+    def do_apply_pubdate(self, *args):
+        self.apply_pubdate.setChecked(True)
 
     def clear_pubdate(self, *args):
         self.pubdate.setDate(UNDEFINED_QDATE)
@@ -722,6 +726,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             name = name.strip().replace('|', ',')
             self.authors.addItem(name)
         self.authors.setEditText('')
+        
+        self.authors.set_separator('&')
+        self.authors.set_space_before_sep(True)
+        self.authors.update_items_cache(self.db.all_author_names())
 
     def initialize_series(self):
         all_series = self.db.all_series()
@@ -747,8 +755,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         if d.result() == QDialog.Accepted:
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
-            self.tags.update_tags_cache(self.db.all_tags())
-            self.remove_tags.update_tags_cache(self.db.all_tags())
+            self.tags.update_items_cache(self.db.all_tags())
+            self.remove_tags.update_items_cache(self.db.all_tags())
 
     def auto_number_changed(self, state):
         if state:

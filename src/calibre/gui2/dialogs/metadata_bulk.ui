@@ -76,7 +76,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="EnComboBox" name="authors">
+            <widget class="CompleteComboBox" name="authors">
              <property name="editable">
               <bool>true</bool>
              </property>
@@ -195,7 +195,7 @@
             </widget>
            </item>
            <item row="5" column="1">
-            <widget class="TagsLineEdit" name="tags">
+            <widget class="CompleteLineEdit" name="tags">
              <property name="toolTip">
               <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
              </property>
@@ -229,7 +229,7 @@
             </widget>
            </item>
            <item row="6" column="1">
-            <widget class="TagsLineEdit" name="remove_tags">
+            <widget class="CompleteLineEdit" name="remove_tags">
              <property name="toolTip">
               <string>Comma separated list of tags to remove from the books. </string>
              </property>
@@ -366,6 +366,9 @@ from the value in the box</string>
               <widget class="QDateEdit" name="pubdate">
                <property name="displayFormat">
                 <string>MMM yyyy</string>
+               </property>
+               <property name="calendarPopup">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -871,8 +874,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>826</width>
-                <height>313</height>
+                <width>197</width>
+                <height>60</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
@@ -952,7 +955,12 @@ not multiple and the destination field is multiple</string>
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>TagsLineEdit</class>
+   <class>CompleteComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CompleteLineEdit</class>
    <extends>QLineEdit</extends>
    <header>widgets.h</header>
   </customwidget>

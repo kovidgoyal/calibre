@@ -265,7 +265,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="EnComboBox" name="authors_box">
+        <widget class="CompleteComboBox" name="authors_box">
          <property name="toolTip">
           <string>Enter an author's name. Only one author can be used.</string>
          </property>
@@ -279,7 +279,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="TagsLineEdit" name="tags_box">
+        <widget class="CompleteLineEdit" name="tags_box">
          <property name="toolTip">
           <string>Enter tags separated by spaces</string>
          </property>
@@ -360,8 +360,13 @@
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>TagsLineEdit</class>
+   <class>CompleteLineEdit</class>
    <extends>QLineEdit</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CompleteComboBox</class>
+   <extends>QComboBox</extends>
    <header>widgets.h</header>
   </customwidget>
  </customwidgets>
