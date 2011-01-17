@@ -101,6 +101,17 @@ We just need some information from you:
 Once you send us the output for a particular operating system, support for the device in that operating system
 will appear in the next release of |app|.
 
+My device is not being detected by |app|?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Follow these steps to find the problem:
+
+    * Make sure that you are connecting only a single device to your computer at a time. Do not have another |app| supported device like an iPhone/iPad etc. at the same time.
+    * Make sure you are running the latest version of |app|. The latest version can always be downloaded from `http://calibre-ebook.com/download`_.
+    * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk that you can access using Windows explorer or whatever the file management program on your computer is
+    * In calibre, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled.
+    * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `http://bugs.calibre-ebook.com`_.
+
 How does |app| manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -437,9 +448,23 @@ My antivirus program claims |app| is a virus/trojan?
 
 Your antivirus program is wrong. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
 
+How do I backup |app|?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The most important thing to backup is the |app| library folder, that contains all your books and metadata. This is the folder you chose for your |app| library when you ran |app| for the first time. You can get the path to the library folder by clicking the |app| icon on the main toolbar. You must backup this complete folder with all its files and sub-folders. 
+
+You can switch |app| to using a backed up library folder by simply clicking the |app| icon on the toolbar and choosing your backup library folder. 
+
+If you want to backup the |app| configuration/plugins, you have to backup the config directory. You can find this config directory via :guilabel:`Preferences->Miscellaneous`. Note that restoring configuration directories is not officially supported, but should work in most cases. Just copy the contents of the backup directory into the current configuration directory to restore.
+
 How do I use purchased EPUB books with |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. This prevents |app| from opening them. You can still use |app| to store and transfer them to your e-book reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with |app| will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" e-book. The e-book file will be stored in the folder "My Digital Editions", from where you can add it to |app|.
+
+I am getting a "Permission Denied" error?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A permission denied error can occur because of many possible reasons, none of them having anything to do with |app|. You can get permission denied errors if you are using an SD card with write protect enabled. Or if you, or some program you used changed the file permissions of the files in question to read only. Or if there is a filesystem error on the device which caused your operating system to mount the filesystem in read only mode or mark a particular file as read only pending recovery. Or if the files have their owner set to a user other than you. You will need to fix the underlying cause of the permissions error before resuming to use |app|. Read the error message carefully, see what file it points to and fix the permissions on that file.
 
 Can I have the comment metadata show up on my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

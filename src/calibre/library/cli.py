@@ -693,10 +693,7 @@ def command_catalog(args, dbpath):
                             }
 
     with plugin:
-        plugin.run(args[1], opts, get_db(dbpath, opts))
-    return 0
-
-# end of GR additions
+        return int(bool(plugin.run(args[1], opts, get_db(dbpath, opts))))
 
 def parse_series_string(db, label, value):
     val = unicode(value).strip()

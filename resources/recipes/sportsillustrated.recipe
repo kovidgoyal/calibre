@@ -1,5 +1,5 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+#from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from urllib import quote
 
 class SportsIllustratedRecipe(BasicNewsRecipe) :
@@ -91,7 +91,7 @@ class SportsIllustratedRecipe(BasicNewsRecipe) :
         #   expire : no idea what value to use
         # All this comes from the Javascript function that redirects to the print version. It's called PT() and is defined in the file 48.js
 
-    def preprocess_html(self, soup):
+    '''def preprocess_html(self, soup):
         header = soup.find('div', attrs = {'class' : 'siv_artheader'})
         homeMadeSoup = BeautifulSoup('<html><head></head><body></body></html>')
         body = homeMadeSoup.body
@@ -115,4 +115,5 @@ class SportsIllustratedRecipe(BasicNewsRecipe) :
             body.append(para)
 
         return homeMadeSoup
+        '''
 

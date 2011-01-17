@@ -1037,7 +1037,7 @@ class EPUB_MOBI(CatalogPlugin):
                          'by_recently_added_series_title_template',
                          'by_month_added_normal_title_template',
                          'by_month_added_series_title_template']
-            execfile(P(os.path.join('catalog','section_list_templates.py')),locals())
+            execfile(P('catalog/section_list_templates.py'), locals())
             for t in templates:
                 setattr(self,t,eval(t))
 
@@ -4252,13 +4252,13 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                             xmlns=XHTML_NS,
                             )
 
-                generated_html = P(os.path.join('catalog','template.xhtml'),
+                generated_html = P('catalog/template.xhtml',
                         data=True).decode('utf-8').format(**args)
                 generated_html = substitute_entites(generated_html)
                 return BeautifulSoup(generated_html)
 
             # Generate the template arguments
-            css = P(os.path.join('catalog','stylesheet.css'), data=True).decode('utf-8')
+            css = P('catalog/stylesheet.css', data=True).decode('utf-8')
             title_str = title = escape(book['title'])
             series = ''
             series_index = ''
@@ -4443,7 +4443,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
         def generateMastheadImage(self, out_path):
             from calibre.ebooks.conversion.config import load_defaults
             from calibre.utils.fonts import fontconfig
-            font_path = default_font = P(os.path.join('fonts','liberation','LiberationSerif-Bold.ttf'))
+            font_path = default_font = P('fonts/liberation/LiberationSerif-Bold.ttf')
             recs = load_defaults('mobi_output')
             masthead_font_family = recs.get('masthead_font', 'Default')
 
@@ -4482,12 +4482,16 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
         def generateRatingString(self, book):
             rating = ''
-            if 'rating' in book:
-                stars = int(book['rating']) / 2
-                if stars:
-                    star_string = self.FULL_RATING_SYMBOL * stars
-                    empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
-                    rating = '%s%s' % (star_string,empty_stars)
+            try:
+                if 'rating' in book:
+                    stars = int(book['rating']) / 2
+                    if stars:
+                        star_string = self.FULL_RATING_SYMBOL * stars
+                        empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
+                        rating = '%s%s' % (star_string,empty_stars)
+            except:
+                # Rating could be None
+                pass
             return rating
 
         def generateShortDescription(self, description, dest=None):
@@ -4828,13 +4832,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             fine_progress = float((micro_step_pct*step_range)/100)
             self.progressInt = coarse_progress + fine_progress
             self.reporter(self.progressInt, self.progressString)
-
-        class NotImplementedError:
-            def __init__(self, error):
-                self.error.append(error)
-
-            def logerror(self):
-                self.opts.log.info('%s not implemented' % error)
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
         opts.log = log
