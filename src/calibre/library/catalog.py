@@ -1637,7 +1637,10 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                                                                title['title_sort'][0:40])).decode('mac-roman'))
                 return True
             else:
-                self.error.append( _("No books found to catalog.\nCheck 'Excluded books' criteria in E-book options."))
+                error_msg = _("No books found to catalog.\nCheck 'Excluded books' criteria in E-book options.\n")
+                self.opts.log.error('*** ' + error_msg + ' ***')
+                self.error.append(_('No books available to include in catalog'))
+                self.error.append(error_msg)
                 return False
 
         def fetchBookmarks(self):
@@ -3164,8 +3167,13 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     # Add the author tag
                     cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
                     cmTag['name'] = "author"
-                    navStr = '%s | %s' % (self.formatNCXText(book['author'], dest='author'),
-                          book['date'].split()[1])
+
+                    if book['date']:
+                        navStr = '%s | %s' % (self.formatNCXText(book['author'], dest='author'),
+                              book['date'].split()[1])
+                    else:
+                        navStr = '%s' % (self.formatNCXText(book['author'], dest='author'))
+
                     if 'tags' in book and len(book['tags']):
                         navStr = self.formatNCXText(navStr + ' | ' + ' &middot; '.join(sorted(book['tags'])), dest='author')
                     cmTag.insert(0, NavigableString(navStr))
