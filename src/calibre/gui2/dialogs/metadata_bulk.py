@@ -15,15 +15,16 @@ from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import composite_formatter
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
-from calibre.gui2 import error_dialog, ResizableDialog
+from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import sort_key, capitalize
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import identify_data
+from calibre.utils.date import qt_to_dt
 
-def get_cover_data(path):
+def get_cover_data(path): # {{{
     old = prefs['read_file_metadata']
     if not old:
         prefs['read_file_metadata'] = True
@@ -46,7 +47,7 @@ def get_cover_data(path):
         prefs['read_file_metadata'] = old
 
     return cdata, area
-
+# }}}
 
 
 class MyBlockingBusy(QDialog): # {{{
@@ -132,7 +133,8 @@ class MyBlockingBusy(QDialog): # {{{
         remove_all, remove, add, au, aus, do_aus, rating, pub, do_series, \
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
-            series_start_value, do_title_case, cover_action, clear_series = self.args
+            series_start_value, do_title_case, cover_action, clear_series, \
+            pubdate = self.args
 
 
         # first loop: do author and title. These will commit at the end of each
@@ -209,6 +211,9 @@ class MyBlockingBusy(QDialog): # {{{
             if clear_series:
                 self.db.set_series(id, '', notify=False, commit=False)
 
+            if pubdate is not None:
+                self.db.set_pubdate(id, pubdate, notify=False, commit=False)
+
             if do_series:
                 if do_series_restart:
                     if self.series_start_value is None:
@@ -274,8 +279,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.changed = False
 
         all_tags = self.db.all_tags()
-        self.tags.update_tags_cache(all_tags)
-        self.remove_tags.update_tags_cache(all_tags)
+        self.tags.update_items_cache(all_tags)
+        self.remove_tags.update_items_cache(all_tags)
 
         self.initialize_combos()
 
@@ -288,6 +293,13 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
+        self.pubdate.setMinimumDate(UNDEFINED_QDATE)
+        pubdate_format = tweaks['gui_pubdate_display_format']
+        if pubdate_format is not None:
+            self.pubdate.setDisplayFormat(pubdate_format)
+        self.pubdate.setSpecialValueText(_('Undefined'))
+        self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
+        self.pubdate.dateChanged.connect(self.do_apply_pubdate)
 
         if len(self.db.custom_field_keys(include_composites=False)) == 0:
             self.central_widget.removeTab(1)
@@ -303,6 +315,12 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.do_again = False
         self.central_widget.setCurrentIndex(tab)
         self.exec_()
+
+    def do_apply_pubdate(self, *args):
+        self.apply_pubdate.setChecked(True)
+
+    def clear_pubdate(self, *args):
+        self.pubdate.setDate(UNDEFINED_QDATE)
 
     def button_clicked(self, which):
         if which == self.button_box.button(QDialogButtonBox.Apply):
@@ -708,6 +726,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             name = name.strip().replace('|', ',')
             self.authors.addItem(name)
         self.authors.setEditText('')
+        
+        self.authors.set_separator('&')
+        self.authors.set_space_before_sep(True)
+        self.authors.update_items_cache(self.db.all_author_names())
 
     def initialize_series(self):
         all_series = self.db.all_series()
@@ -733,8 +755,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         if d.result() == QDialog.Accepted:
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
-            self.tags.update_tags_cache(self.db.all_tags())
-            self.remove_tags.update_tags_cache(self.db.all_tags())
+            self.tags.update_items_cache(self.db.all_tags())
+            self.remove_tags.update_items_cache(self.db.all_tags())
 
     def auto_number_changed(self, state):
         if state:
@@ -783,6 +805,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         do_remove_conv = self.remove_conversion_settings.isChecked()
         do_auto_author = self.auto_author_sort.isChecked()
         do_title_case = self.change_title_to_title_case.isChecked()
+        pubdate = None
+        if self.apply_pubdate.isChecked():
+            pubdate = qt_to_dt(self.pubdate.date())
+
         cover_action = None
         if self.cover_remove.isChecked():
             cover_action = 'remove'
@@ -794,7 +820,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         args = (remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
-                series_start_value, do_title_case, cover_action, clear_series)
+                series_start_value, do_title_case, cover_action, clear_series,
+                pubdate)
 
         bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
                 %len(self.ids), args, self.db, self.ids,

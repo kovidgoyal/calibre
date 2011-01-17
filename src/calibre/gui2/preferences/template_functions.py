@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback
+import json, traceback
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -73,6 +73,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.textBrowser.setHtml(help_text)
 
     def initialize(self):
+        try:
+            with open(P('template-functions.json'), 'rb') as f:
+                self.builtin_source_dict = json.load(f, encoding='utf-8')
+        except:
+            self.builtin_source_dict = {}
+
         self.funcs = formatter_functions.get_functions()
         self.builtins = formatter_functions.get_builtins()
 
@@ -179,8 +185,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         func = self.funcs[txt]
         self.argument_count.setValue(func.arg_count)
         self.documentation.setText(func.doc)
-        self.program.setPlainText(func.program_text)
         if txt in self.builtins:
+            if hasattr(func, 'program_text'):
+                self.program.setPlainText(func.program_text)
+            elif txt in self.builtin_source_dict:
+                self.program.setPlainText(self.builtin_source_dict[txt])
+            else:
+                self.program.setPlainText(_('function source code not available'))
             self.documentation.setReadOnly(True)
             self.argument_count.setReadOnly(True)
             self.program.setReadOnly(True)

@@ -274,9 +274,9 @@ class TemplateFormatter(string.Formatter):
                     colon += 1
 
                 funcs = formatter_functions.get_functions()
-                if fmt[colon:p] in funcs:
-                    field = fmt[colon:p]
-                    func = funcs[field]
+                fname = fmt[colon:p]
+                if fname in funcs:
+                    func = funcs[fname]
                     if func.arg_count == 2:
                         # only one arg expected. Don't bother to scan. Avoids need
                         # for escaping characters
@@ -292,6 +292,8 @@ class TemplateFormatter(string.Formatter):
                     else:
                         val = func.eval_(self, self.kwargs, self.book, self.locals,
                                         val, *args).strip()
+                else:
+                    return _('%s: unknown function')%fname
         if val:
             val = self._do_format(val, dispfmt)
         if not val:
