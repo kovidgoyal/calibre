@@ -193,6 +193,9 @@ class LUMIREAD(USBMS):
 
     THUMBNAIL_HEIGHT = 200
 
+    VENDOR_NAME = 'ACER'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'LUMIREAD_600'
+
     def upload_cover(self, path, filename, metadata, filepath):
         if metadata.thumbnail and metadata.thumbnail[-1]:
             cfilepath = filepath.replace('/', os.sep)
