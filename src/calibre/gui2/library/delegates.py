@@ -292,7 +292,7 @@ class CcEnumDelegate(QStyledItemDelegate): # {{{
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
-        editor = QComboBox(parent)
+        editor = DelegateCB(parent)
         editor.addItem('')
         for v in m.custom_columns[col]['display']['enum_values']:
             editor.addItem(v)
