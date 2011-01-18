@@ -151,13 +151,13 @@ class PreProcessor(object):
         n_lookahead_open = "\s+(?!"
         n_lookahead_close = ")"
 
-        default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\'\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
+        default_title = r"(<[ibu][^>]*>)?\s{0,3}([\w\:\'\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
 
         chapter_types = [
             [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Chapter|Kapitel|Epilogue|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, "Searching for common Chapter Headings"],
+            [r"([A-Z-]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, "Searching for letter spaced headings"],  # Spaced Lettering
             [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, "Searching for emphasized lines"], # Emphasized lines
             [r"[^'\"]?(\d+(\.|:)|CHAPTER)\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, "Searching for numeric chapter headings"],  # Numeric Chapters
-            [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, "Searching for letter spaced headings"],  # Spaced Lettering
             [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, "Searching for numeric chapters with titles"], # Numeric Titles
             [r"[^'\"]?(\d+|CHAPTER)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, "Searching for simple numeric chapter headings"],  # Numeric Chapters, no dot or colon
             [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, "Searching for chapters with Uppercase Characters" ] # Uppercase Chapters
@@ -186,7 +186,7 @@ class PreProcessor(object):
 
     def punctuation_unwrap(self, length, content, format):
         # define the pieces of the regex
-        lookahead = "(?<=.{"+str(length)+"}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðß,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
+        lookahead = "(?<=.{"+str(length)+"}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðßě,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
         line_ending = "\s*</(span|p|div)>\s*(</(p|span|div)>)?"
         blanklines = "\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*"
         line_opening = "<(span|div|p)[^>]*>\s*(<(span|div|p)[^>]*>)?\s*"
@@ -357,6 +357,6 @@ class PreProcessor(object):
         html = blankreg.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
 
         # Center separator lines
-        html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center">' + '\g<break>' + '</p>', html)
+        html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center">' + '\g<break>' + '</p>', html)
 
         return html
