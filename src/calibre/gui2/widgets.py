@@ -311,32 +311,6 @@ class FontFamilyModel(QAbstractListModel):
     def index_of(self, family):
         return self.families.index(family.strip())
 
-class BasicComboModel(QAbstractListModel):
-
-    def __init__(self, items, *args):
-        QAbstractListModel.__init__(self, *args)
-        self.items = [i for i in items]
-        self.items.sort()
-
-    def rowCount(self, *args):
-        return len(self.items)
-
-    def data(self, index, role):
-        try:
-            item = self.items[index.row()]
-        except:
-            traceback.print_exc()
-            return NONE
-        if role == Qt.DisplayRole:
-            return QVariant(item)
-        if role == Qt.FontRole:
-            return QVariant(QFont(item))
-        return NONE
-
-    def index_of(self, item):
-        return self.items.index(item.strip())
-
-
 class BasicListItem(QListWidgetItem):
 
     def __init__(self, text, user_data=None):

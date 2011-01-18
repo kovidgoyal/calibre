@@ -7,7 +7,6 @@ import os, glob, re, textwrap
 from lxml import etree
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.conversion.utils import PreProcessor
 
 border_style_map = {
         'single' : 'solid',
@@ -319,13 +318,9 @@ class RTFInput(InputFormatPlugin):
             res = transform.tostring(result)
             res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             # Replace newlines inserted by the 'empty_paragraphs' option in rtf2xml with html blank lines
-            if not getattr(self.opts, 'remove_paragraph_spacing', False):
-                res = re.sub('\s*<body>', '<body>', res)
-                res = re.sub('(?<=\n)\n{2}',
-                        u'<p>\u00a0</p>\n'.encode('utf-8'), res)
-            if self.opts.preprocess_html:
-                preprocessor = PreProcessor(self.opts, log=getattr(self, 'log', None))
-                res = preprocessor(res.decode('utf-8')).encode('utf-8')
+            res = re.sub('\s*<body>', '<body>', res)
+            res = re.sub('(?<=\n)\n{2}',
+                    u'<p>\u00a0</p>\n'.encode('utf-8'), res)
             f.write(res)
         self.write_inline_css(inline_class, border_styles)
         stream.seek(0)

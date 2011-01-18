@@ -12,7 +12,7 @@ from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
-    convert_heuristic, normalize_line_endings, convert_textile
+    normalize_line_endings, convert_textile
 from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
@@ -106,7 +106,7 @@ class TXTInput(InputFormatPlugin):
                     log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
 
             # Dehyphenate
-            dehyphenator = Dehyphenator()
+            dehyphenator = Dehyphenator(options.verbose, log=getattr(self, 'log', None))
             txt = dehyphenator(txt,'txt', length)
 
             # We don't check for block because the processor assumes block.
@@ -118,24 +118,24 @@ class TXTInput(InputFormatPlugin):
                 txt = separate_paragraphs_print_formatted(txt)
 
             if options.paragraph_type == 'unformatted':
-                from calibre.ebooks.conversion.utils import PreProcessor
+                from calibre.ebooks.conversion.utils import HeuristicProcessor
                 # get length
 
                 # unwrap lines based on punctuation
-                preprocessor = PreProcessor(options, log=getattr(self, 'log', None))
+                preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
                 txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
 
             flow_size = getattr(options, 'flow_size', 0)
+            html = convert_basic(txt, epub_split_size_kb=flow_size)
 
             if options.formatting_type == 'heuristic':
-                html = convert_heuristic(txt, epub_split_size_kb=flow_size)
-            else:
-                html = convert_basic(txt, epub_split_size_kb=flow_size)
-
-        # Dehyphenate in cleanup mode for missed txt and markdown conversion
-        dehyphenator = Dehyphenator()
-        html = dehyphenator(html,'txt_cleanup', length)
-        html = dehyphenator(html,'html_cleanup', length)
+                setattr(options, 'enable_heuristics', True)
+                setattr(options, 'markup_chapter_headings', True)
+                setattr(options, 'italicize_common_cases', True)
+                setattr(options, 'fix_indents', True)
+                setattr(options, 'delete_blank_paragraphs', True)
+                setattr(options, 'format_scene_breaks', True)
+                setattr(options, 'dehyphenate', True)
 
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')
