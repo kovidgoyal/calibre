@@ -139,17 +139,17 @@ class HeuristicProcessor(object):
         ]
         
         ITALICIZE_STYLE_PATS = [
-            r'(?msu)_(?P<words>.+?)_',
-            r'(?msu)/(?P<words>[^<>]+?)/',
-            r'(?msu)~~(?P<words>.+?)~~',
-            r'(?msu)\*(?P<words>.+?)\*',
-            r'(?msu)~(?P<words>.+?)~',
-            r'(?msu)_/(?P<words>[^<>]+?)/_',
-            r'(?msu)_\*(?P<words>.+?)\*_',
-            r'(?msu)\*/(?P<words>[^<>]+?)/\*',
-            r'(?msu)_\*/(?P<words>[^<>]+?)/\*_',
-            r'(?msu)/:(?P<words>[^<>]+?):/',
-            r'(?msu)\|:(?P<words>.+?):\|',
+            r'(?msu)_(?P<words>[^\s][^<>_]+?[^\s])?_',
+            r'(?msu)/(?P<words>[^\s][^<>/]+?[^\s])?/',
+            r'(?msu)~~(?P<words>[^\s][^<>~]+?[^\s])?~~',
+            r'(?msu)\*(?P<words>[^\s][^<>\*]+?[^\s])?\*',
+            r'(?msu)~(?P<words>[^\s][^<>~]+?[^\s])?~',
+            r'(?msu)_/(?P<words>[^\s][^<>/_]+?[^\s])?/_',
+            r'(?msu)_\*(?P<words>[^\s][^<>\*_]+?[^\s])?\*_',
+            r'(?msu)\*/(?P<words>[^\s][^<>/\*]+?[^\s])?/\*',
+            r'(?msu)_\*/(?P<words>[^\s][^<>\*_]+?[^\s])?/\*_',
+            r'(?msu)/:(?P<words>[^\s][^<>:/]+?[^\s])?:/',
+            r'(?msu)\|:(?P<words>[^\s][^<>:\|]+?[^\s])?:\|',
         ]
         
         for word in ITALICIZE_WORDS:
