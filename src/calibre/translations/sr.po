@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-14 23:15+0000\n"
-"PO-Revision-Date: 2011-01-11 00:46+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-17 12:07+0000\n"
+"Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-16 04:55+0000\n"
+"X-Launchpad-Export-Date: 2011-01-18 04:33+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -394,7 +394,7 @@ msgstr "Izmeni metapodatke pre snimanja/slanja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Template Functions"
-msgstr ""
+msgstr "Šablonske funkcije"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:855
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
@@ -405,7 +405,7 @@ msgstr "Napredno"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Napravite sopstvene šablonske funkcije"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Sharing books by email"
@@ -1240,6 +1240,8 @@ msgstr ""
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Osvežite zasebne omote kada je u upotrebi automatsko upravljanje (noviji "
+"čitači)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:81
 msgid ""
@@ -1247,6 +1249,9 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
+"Omogućite ovu opciju da bi se zasebni omoti prenosili na čitač svaki put "
+"kada je uređaj priključen. Onemogućite je ako imate toliko knjiga da ova "
+"aktivnosti uzima previše vremena."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -3701,11 +3706,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/delete_info.py:203
 msgid "No action in dictionary state is \"%s\" \n"
-msgstr ""
+msgstr "Nijedna akcija u rečničkom stanju je \"%s\" \n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/hex_2_utf8.py:296
 msgid "error no state found in hex_2_utf8"
-msgstr ""
+msgstr "greška: nijje pronađeno nijedno stanje u hex_2_utf8"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -3775,6 +3780,15 @@ msgid ""
 "paragraph.* unformatted: Most lines have hard line breaks, few/no blank "
 "lines or indents."
 msgstr ""
+"Struktura pasusa.\n"
+"mogućnosti su ['auto', 'block', 'single', 'print', 'unformatted']\n"
+"* auto: Pokušaj da automatski odrediš vrstu pasusa\n"
+"* block: Prazni redovi razdvajaju pasuse\n"
+"* single: Svaki red je jedan pasus\n"
+"* print: Svaki red koji počinje s 2, ili više razmaka, ili tabulatorom je "
+"jedan pasus\n"
+"* unformatted: Većina linija sadrži znak za kraj reda, i ima malo ili nimalo "
+"praznih, ili uvučenih redova"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:38
 msgid ""
@@ -3788,6 +3802,15 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Formatiranje korišćeno u dokumentu.\n"
+"* auto: Automatski odredi vrstu obrade formatiranja.\n"
+"* none: Ne obrađuj formatiranje. Sve je pasus i neće biti primenjeni "
+"stilovi.\n"
+"* heuristic: Koristi heuristiku za određivanje vrste formatiranja, npr. "
+"poglavlja i kurziva.\n"
+"* textile: Obradi korišćenjem \"textile\" formatiranja.\n"
+"* markdown: Obradi korišćenjem \"markdown\" formatiranja. Za više "
+"informacija o \"markdown\" formatiranju vidi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:48
 msgid ""
@@ -4212,6 +4235,8 @@ msgid ""
 "No books to catalog\n"
 "Check job details"
 msgstr ""
+"Nema knjiga za katologizaciju\n"
+"Proverite detalje zadatog posla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:70
 msgid "Catalog generated."
@@ -4765,7 +4790,7 @@ msgstr "metapodaci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:102
 msgid "Downloading {0} for {1} book(s)"
-msgstr ""
+msgstr "Preuzimam {0} od {1} knjiga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:186

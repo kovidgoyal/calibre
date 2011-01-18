@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-14 23:15+0000\n"
-"PO-Revision-Date: 2011-01-16 10:55+0000\n"
+"PO-Revision-Date: 2011-01-17 08:29+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-17 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-01-18 04:34+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "Language: zh_TW\n"
 
@@ -3621,7 +3621,7 @@ msgstr "加入書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:27
 msgid "Add books to the calibre library/device from files on your computer"
-msgstr ""
+msgstr "從您電腦上的檔案加入書籍至 calibre 書庫/裝置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:28
 msgid "A"
@@ -3738,7 +3738,7 @@ msgstr "無法從以下項目讀取元數據"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:267
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:286
 msgid "Add to library"
-msgstr ""
+msgstr "加入書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:267
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:116
@@ -3751,7 +3751,7 @@ msgstr "尚未選取書籍"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:280
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
-msgstr ""
+msgstr "下列書籍為虛擬的，不能加入 calibre 書庫："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:286
 msgid "No book files found"
@@ -3759,11 +3759,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
-msgstr ""
+msgstr "加入書籍至書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
-msgstr ""
+msgstr "從連接的裝置將書籍加入您的 calibre 書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:550
@@ -3900,11 +3900,11 @@ msgstr "%d 本書"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:153
 msgid "Choose calibre library to work with"
-msgstr ""
+msgstr "選擇要使用的 calibre 書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:162
 msgid "Switch/create library..."
-msgstr ""
+msgstr "切換/建立書庫..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
@@ -3914,12 +3914,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:175
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:78
 msgid "Rename library"
-msgstr ""
+msgstr "重新命名書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
 msgid "Delete library"
-msgstr ""
+msgstr "刪除書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:180
 msgid "Pick a random book"
@@ -3939,7 +3939,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:208
 msgid "Check library"
-msgstr ""
+msgstr "檢查書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:212
 msgid "Check database integrity"
@@ -3956,11 +3956,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:290
 msgid "Choose a new name for the library <b>%s</b>. "
-msgstr ""
+msgstr "選擇書庫 <b>%s</b> 的新名稱。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:291
 msgid "Note that the actual library folder will be renamed."
-msgstr ""
+msgstr "注意實際的書庫資料夾會被重新命名。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:298
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:191
@@ -3979,7 +3979,7 @@ msgstr ""
 msgid ""
 "Failed to rename the library at %s. The most common cause for this is if one "
 "of the files in the library is open in another program."
-msgstr ""
+msgstr "無法重新命名在 %s 的書庫。最可能的原因是書庫中的檔案可能被其他程式開啟了。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:316
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:53
@@ -4024,13 +4024,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:378
 msgid "No library found"
-msgstr ""
+msgstr "找不到書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:379
 msgid ""
 "No existing calibre library was found at %s. It will be removed from the "
 "list of known libraries."
-msgstr ""
+msgstr "在 %s 找不到現有的 calibre 書庫。它將從已知書庫清單中移除。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:416
@@ -4080,11 +4080,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:83
 msgid "Copy to library"
-msgstr ""
+msgstr "複製到書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:84
 msgid "Copy selected books to the specified library"
-msgstr ""
+msgstr "將選擇的書籍複製到指定的書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:117
 msgid "(delete after copy)"
@@ -4096,11 +4096,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:131
 msgid "No library"
-msgstr ""
+msgstr "沒有書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:132
 msgid "No library found at %s"
-msgstr ""
+msgstr "在 %s 找不到書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:139
@@ -4232,7 +4232,7 @@ msgstr ""
 msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
-msgstr ""
+msgstr "選取的書籍會被<b>永遠刪除</b>並且移除您 calibre 書庫中的檔案。您確定嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:274
 msgid ""
@@ -4269,7 +4269,7 @@ msgstr "寄電子郵件到"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:84
 msgid " and delete from library"
-msgstr ""
+msgstr " 並從書庫刪除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 msgid "Setup email based sharing of books"
@@ -4565,7 +4565,7 @@ msgid ""
 "You are trying to save files into the calibre library. This can cause "
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
-msgstr ""
+msgstr "您正嘗試將檔案儲存到 caliber 書庫中。這樣會造成您的書庫損毀。儲存至磁碟是指從您的 calibre 書庫將檔案匯出至別處。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:136
 msgid "Error while saving"
@@ -4847,7 +4847,7 @@ msgstr ""
 msgid ""
 "This folder and its sub-folders will be scanned for books to import into "
 "calibre's library"
-msgstr ""
+msgstr "這個資料夾和它的子資料夾都會被掃描以將書籍匯入 calibre 書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:57
@@ -6627,7 +6627,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:495
 msgid "Send and delete from library"
-msgstr ""
+msgstr "傳送並從書庫刪除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:538
 msgid "Eject device"
@@ -6817,7 +6817,7 @@ msgstr "分類選項"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:26
 msgid "Check Library"
-msgstr ""
+msgstr "檢查書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:35
 msgid "&Run the check"
@@ -6860,7 +6860,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:134
 msgid "Path from library"
-msgstr ""
+msgstr "書庫的路徑"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:89
@@ -6880,7 +6880,7 @@ msgstr "選擇格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:43
 msgid "Choose location for calibre library"
-msgstr ""
+msgstr "選擇 calibre 書庫的位置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:50
 msgid "Same as current"
@@ -6888,15 +6888,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:51
 msgid "The location %s contains the current calibre library"
-msgstr ""
+msgstr "位置 %s 包含目前的 calibre 書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:56
 msgid "No existing library found"
-msgstr ""
+msgstr "找不到現有的書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:57
 msgid "There is no existing calibre library at %s"
-msgstr ""
+msgstr "在 %s 找不到現有的書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:61
 msgid "Not empty"
@@ -6925,11 +6925,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:77
 msgid "Choose your calibre library"
-msgstr ""
+msgstr "選擇您的 calibre 書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:78
 msgid "Your calibre library is currently located at {0}"
-msgstr ""
+msgstr "您的 calibre 書庫目前位於 {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:79
 msgid "New &Location:"
@@ -6937,15 +6937,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:80
 msgid "Use &existing library at the new location"
-msgstr ""
+msgstr "在新的位置使用現有的書庫(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:81
 msgid "&Create an empty library at the new location"
-msgstr ""
+msgstr "在新的位置建立空的書庫(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:82
 msgid "&Copy structure from the current library"
-msgstr ""
+msgstr "從目前的書庫複製結構(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:83
 msgid ""
@@ -6955,7 +6955,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:85
 msgid "&Move current library to new location"
-msgstr ""
+msgstr "將目前的書庫移動至新的位置(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
@@ -8959,7 +8959,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:64
 msgid "Show books in calibre library"
-msgstr ""
+msgstr "顯示 calibre 書庫中的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:66
 msgid "Show books in the main memory of the device"
@@ -9075,7 +9075,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:969
 msgid "In Library"
-msgstr ""
+msgstr "於書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:973
 msgid "Size"
@@ -9238,24 +9238,24 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:662
 msgid "Calibre Library"
-msgstr "Calibre 書庫"
+msgstr "Calibre Library"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:89
 msgid "Choose a location for your calibre e-book library"
-msgstr ""
+msgstr "選擇您的 calibre 電子書庫的位置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:98
 msgid "Failed to create library"
-msgstr ""
+msgstr "建立書庫失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:99
 msgid "Failed to create calibre library at: %r."
-msgstr ""
+msgstr "無法建立書庫於：%r。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:188
 msgid "Choose a location for your new calibre e-book library"
-msgstr ""
+msgstr "選擇您的新 calibre 電子書庫的位置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:157
 msgid "Initializing user interface..."
@@ -9267,7 +9267,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:183
 msgid "The database repair failed. Starting with a new empty library."
-msgstr ""
+msgstr "資料庫修復失敗。開始建立一個新的空白書庫。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:197
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:230
@@ -9288,6 +9288,7 @@ msgid ""
 "and repair it automatically? If you say No, a new empty calibre library will "
 "be created."
 msgstr ""
+"您的 calibre 資料庫似乎損壞了。您是否要 calibre 嘗試自動修復它？如果您回答否，將會建立一個新的空白 calibre 書庫。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:218
 msgid ""
@@ -9297,7 +9298,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:231
 msgid ""
 "Bad database location %r. Will start with  a new, empty calibre library"
-msgstr ""
+msgstr "錯誤的資料庫位置 %r。將會重開一個新的，空白的 calibre 書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:241
 msgid "Starting %s: Loading books..."
@@ -9503,7 +9504,7 @@ msgstr "偏好的輸出格式(&O):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:150
 msgid "Restriction to apply when the current library is opened:"
-msgstr ""
+msgstr "當目前的書庫開啟時套用限制："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:151
 msgid ""
@@ -11600,7 +11601,7 @@ msgstr "選擇書籍的位置"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:655
 msgid ""
 "You must choose an empty folder for the calibre library. %s is not empty."
-msgstr ""
+msgstr "您必須選擇一個空的資料夾做為 caliber 書庫。%s 並不是空的。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:729
 msgid "welcome wizard"
@@ -11684,6 +11685,7 @@ msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
+"<p>選擇您的書籍存放的位置。當您將書籍加入 calibre，它們會複製到這裡，使用一個<b>空白資料夾</b>做為新的 calibre 書庫："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -13143,7 +13145,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:269
 msgid "Books in your library"
-msgstr ""
+msgstr "書籍在您的書庫"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:275
 msgid "By "
@@ -13217,7 +13219,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:723
 msgid "Tags to apply to books added to the library"
-msgstr ""
+msgstr "要套用到加入書庫的書籍的標籤"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:727
 msgid "List of named saved searches"
