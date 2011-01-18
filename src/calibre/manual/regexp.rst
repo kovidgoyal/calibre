@@ -21,7 +21,7 @@ This is, inevitably, going to be somewhat technical- after all, regular expressi
 Where in |app| can you use regular expressions?
 ---------------------------------------------------
 
-There are a few places |app| uses regular expressions. There's the header/footer removal in conversion options, metadata detection from filenames in the import settings and, since last version, there's the option to use regular expressions to search and replace in metadata of multiple books.
+There are a few places |app| uses regular expressions. There's the Search & Replace in conversion options, metadata detection from filenames in the import settings and Search & Replace when editing the metadata of books in bulk.
 
 What on earth *is* a regular expression?
 ------------------------------------------------

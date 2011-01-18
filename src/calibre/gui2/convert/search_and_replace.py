@@ -15,6 +15,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
     TITLE = _('Search &\nReplace')
     HELP  = _('Modify the document text and structure using user defined patterns.')
     COMMIT_NAME = 'search_and_replace'
+    ICON = I('search.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
@@ -24,19 +25,19 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 )
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
-        self.opt_sr1_search.set_msg(_('Search Regular Expression'))
+        self.opt_sr1_search.set_msg(_('&Search Regular Expression'))
         self.opt_sr1_search.set_book_id(book_id)
         self.opt_sr1_search.set_db(db)
-        self.opt_sr2_search.set_msg(_('Search Regular Expression'))
+        self.opt_sr2_search.set_msg(_('&Search Regular Expression'))
         self.opt_sr2_search.set_book_id(book_id)
         self.opt_sr2_search.set_db(db)
-        self.opt_sr3_search.set_msg(_('Search Regular Expression'))
+        self.opt_sr3_search.set_msg(_('&Search Regular Expression'))
         self.opt_sr3_search.set_book_id(book_id)
         self.opt_sr3_search.set_db(db)
-        
+
     def break_cycles(self):
         Widget.break_cycles(self)
-        
+
         self.opt_sr1_search.break_cycles()
         self.opt_sr2_search.break_cycles()
         self.opt_sr3_search.break_cycles()
@@ -45,10 +46,11 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         for x in ('sr1_search', 'sr2_search', 'sr3_search'):
             x = getattr(self, 'opt_'+x)
             try:
-                pat = unicode(x.regex)
-                re.compile(pat)
+                pat = unicode(x.regex).strip()
+                if pat:
+                    re.compile(pat)
             except Exception, err:
                 error_dialog(self, _('Invalid regular expression'),
-                             _('Invalid regular expression: %s')%err).exec_()
+                             _('Invalid regular expression: %s')%err, show=True)
                 return False
         return True

@@ -85,8 +85,8 @@ class CommonOptions(Base):
 
     def load_conversion_widgets(self):
         self.conversion_widgets = [LookAndFeelWidget, HeuristicsWidget,
-                SearchAndReplaceWidget, PageSetupWidget,
-                StructureDetectionWidget, TOCWidget]
+                PageSetupWidget,
+                StructureDetectionWidget, TOCWidget, SearchAndReplaceWidget,]
 
 class InputOptions(Base):
 
