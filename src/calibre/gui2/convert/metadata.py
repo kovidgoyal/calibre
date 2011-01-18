@@ -18,6 +18,7 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.convert import Widget
 from calibre.utils.icu import sort_key
+from calibre.library.comments import comments_to_html
 
 def create_opf_file(db, book_id):
     mi = db.get_metadata(book_id, index_is_id=True)
@@ -57,6 +58,7 @@ class MetadataWidget(Widget, Ui_Form):
             self.initialize_metadata_options()
         self.initialize_options(get_option, get_help, db, book_id)
         self.connect(self.cover_button, SIGNAL("clicked()"), self.select_cover)
+        self.comment.hide_toolbars()
 
     def deduce_author_sort(self, *args):
         au = unicode(self.author.currentText())
@@ -79,7 +81,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.author_sort.setText(mi.author_sort if mi.author_sort else '')
         self.tags.setText(', '.join(mi.tags if mi.tags else []))
         self.tags.update_items_cache(self.db.all_tags())
-        self.comment.setPlainText(mi.comments if mi.comments else '')
+        self.comment.html = comments_to_html(mi.comments) if mi.comments else ''
         if mi.series:
             self.series.setCurrentIndex(self.series.findText(mi.series))
         if mi.series_index is not None:
@@ -154,7 +156,7 @@ class MetadataWidget(Widget, Ui_Form):
         author_sort = unicode(self.author_sort.text()).strip()
         if author_sort:
             mi.author_sort = author_sort
-        comments = unicode(self.comment.toPlainText()).strip()
+        comments = self.comment.html
         if comments:
             mi.comments = comments
         mi.series_index = float(self.series_index.value())
