@@ -353,6 +353,17 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         model.setData(index, QVariant(editor.textbox.html), Qt.EditRole)
 # }}}
 
+class DelegateCB(QComboBox): # {{{
+
+    def __init__(self, parent):
+        QComboBox.__init__(self, parent)
+
+    def event(self, e):
+        if e.type() == e.ShortcutOverride:
+            e.accept()
+        return QComboBox.event(self, e)
+# }}}
+
 class CcBoolDelegate(QStyledItemDelegate): # {{{
     def __init__(self, parent):
         '''
@@ -361,7 +372,7 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
         QStyledItemDelegate.__init__(self, parent)
 
     def createEditor(self, parent, option, index):
-        editor = QComboBox(parent)
+        editor = DelegateCB(parent)
         items = [_('Y'), _('N'), ' ']
         icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
         if tweaks['bool_custom_columns_are_tristate'] == 'no':
