@@ -111,7 +111,7 @@ class Kobo(Device):
     id = 'kobo'
 
 class Booq(Device):
-    name = 'Booq Reader'
+    name = 'bq Classic'
     manufacturer = 'Booq'
     output_profile = 'sony'
     output_format = 'EPUB'
@@ -125,7 +125,18 @@ class TheBook(Device):
     id = 'thebook'
 
 class Avant(Booq):
-    name = 'Booq Avant'
+    name = 'bq Avant'
+
+class AvantXL(Booq):
+    name = 'bq Avant XL'
+    output_profile = 'ipad'
+
+class BooqPocketPlus(Booq):
+    name = 'bq Pocket Plus'
+    output_profile = 'sony300'
+
+class BooqCervantes(Booq):
+    name = 'bq Cervantes'
 
 class Sony300(Sony505):
 

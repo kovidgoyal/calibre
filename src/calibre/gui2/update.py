@@ -52,8 +52,7 @@ class UpdateNotification(QDialog):
         self.label = QLabel('<p>'+
             _('%s has been updated to version <b>%s</b>. '
             'See the <a href="http://calibre-ebook.com/whats-new'
-            '">new features</a>. Visit the download pa'
-            'ge?')%(__appname__, version))
+            '">new features</a>.')%(__appname__, version))
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
         self.setWindowTitle(_('Update available!'))
@@ -94,13 +93,13 @@ class UpdateMixin(object):
                     type=Qt.QueuedConnection)
             self.update_checker.start()
 
-    def update_found(self, version):
+    def update_found(self, version, force=False):
         os = 'windows' if iswindows else 'osx' if isosx else 'linux'
         url = 'http://calibre-ebook.com/download_%s'%os
         self.status_bar.new_version_available(version, url)
 
-        if config.get('new_version_notification') and \
-                dynamic.get('update to version %s'%version, True):
+        if force or (config.get('new_version_notification') and \
+                dynamic.get('update to version %s'%version, True)):
             self._update_notification__ = UpdateNotification(version,
                     parent=self)
             self._update_notification__.show()

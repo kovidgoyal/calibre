@@ -100,246 +100,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label">
-                    <property name="text">
-                     <string>Title &amp;sort: </string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>title_sort</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="EnLineEdit" name="title_sort">
-                    <property name="toolTip">
-                     <string>Specify how this book should be sorted when by title. For example, The Exorcist might be sorted as Exorcist, The.</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="label_2">
-                    <property name="text">
-                     <string>&amp;Author(s): </string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>authors</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="EnComboBox" name="authors">
-                    <property name="editable">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="label_8">
-                    <property name="text">
-                     <string>Author S&amp;ort: </string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>author_sort</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="EnLineEdit" name="author_sort">
-                    <property name="toolTip">
-                     <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.
-If the box is colored green, then text matches the individual author's sort strings. If it is colored red, then the authors and this text do not match.</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0">
-                   <widget class="QLabel" name="label_6">
-                    <property name="text">
-                     <string>&amp;Rating:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>rating</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="1" colspan="2">
-                   <widget class="QSpinBox" name="rating">
-                    <property name="toolTip">
-                     <string>Rating of this book. 0-5 stars</string>
-                    </property>
-                    <property name="whatsThis">
-                     <string>Rating of this book. 0-5 stars</string>
-                    </property>
-                    <property name="buttonSymbols">
-                     <enum>QAbstractSpinBox::PlusMinus</enum>
-                    </property>
-                    <property name="suffix">
-                     <string> stars</string>
-                    </property>
-                    <property name="maximum">
-                     <number>5</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QLabel" name="label_3">
-                    <property name="text">
-                     <string>&amp;Publisher: </string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>publisher</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="1" colspan="2">
-                   <widget class="EnComboBox" name="publisher">
-                    <property name="editable">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="6" column="0">
-                   <widget class="QLabel" name="label_4">
-                    <property name="text">
-                     <string>Ta&amp;gs: </string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>tags</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="0">
-                   <widget class="QLabel" name="label_7">
-                    <property name="text">
-                     <string>&amp;Series:</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::PlainText</enum>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>series</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="1">
-                   <layout class="QHBoxLayout" name="_3">
-                    <property name="spacing">
-                     <number>5</number>
-                    </property>
-                    <item>
-                     <widget class="EnComboBox" name="series">
-                      <property name="toolTip">
-                       <string>List of known series. You can add new series.</string>
-                      </property>
-                      <property name="whatsThis">
-                       <string>List of known series. You can add new series.</string>
-                      </property>
-                      <property name="editable">
-                       <bool>true</bool>
-                      </property>
-                      <property name="insertPolicy">
-                       <enum>QComboBox::InsertAlphabetically</enum>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item row="8" column="1" colspan="2">
-                   <widget class="QDoubleSpinBox" name="series_index">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="prefix">
-                     <string>Book </string>
-                    </property>
-                    <property name="maximum">
-                     <double>9999.989999999999782</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="9" column="0">
-                   <widget class="QLabel" name="label_9">
-                    <property name="text">
-                     <string>IS&amp;BN:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>isbn</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="9" column="1" colspan="2">
-                   <widget class="QLineEdit" name="isbn"/>
-                  </item>
-                  <item row="10" column="0">
-                   <widget class="QLabel" name="label_11">
-                    <property name="text">
-                     <string>&amp;Date:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>date</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="10" column="1" colspan="2">
-                   <widget class="QDateEdit" name="date">
-                    <property name="displayFormat">
-                     <string>dd MMM yyyy</string>
-                    </property>
-                    <property name="calendarPopup">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="11" column="0">
-                   <widget class="QLabel" name="label_10">
-                    <property name="text">
-                     <string>Publishe&amp;d:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="buddy">
-                     <cstring>pubdate</cstring>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="11" column="1" colspan="2">
-                   <widget class="QDateEdit" name="pubdate">
-                    <property name="displayFormat">
-                     <string>MMM yyyy</string>
-                    </property>
-                    <property name="calendarPopup">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="0" column="2" rowspan="4">
                    <layout class="QVBoxLayout" name="verticalLayout_7">
                     <item>
@@ -446,10 +206,136 @@ Using this button to create author sort will change author sort from red to gree
                     </item>
                    </layout>
                   </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label">
+                    <property name="text">
+                     <string>Title &amp;sort: </string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>title_sort</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="EnLineEdit" name="title_sort">
+                    <property name="toolTip">
+                     <string>Specify how this book should be sorted when by title. For example, The Exorcist might be sorted as Exorcist, The.</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_2">
+                    <property name="text">
+                     <string>&amp;Author(s): </string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>authors</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="CompleteComboBox" name="authors">
+                    <property name="editable">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_8">
+                    <property name="text">
+                     <string>Author S&amp;ort: </string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>author_sort</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="EnLineEdit" name="author_sort">
+                    <property name="toolTip">
+                     <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.
+If the box is colored green, then text matches the individual author's sort strings. If it is colored red, then the authors and this text do not match.</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="label_6">
+                    <property name="text">
+                     <string>&amp;Rating:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>rating</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1" colspan="2">
+                   <widget class="QSpinBox" name="rating">
+                    <property name="toolTip">
+                     <string>Rating of this book. 0-5 stars</string>
+                    </property>
+                    <property name="whatsThis">
+                     <string>Rating of this book. 0-5 stars</string>
+                    </property>
+                    <property name="buttonSymbols">
+                     <enum>QAbstractSpinBox::PlusMinus</enum>
+                    </property>
+                    <property name="suffix">
+                     <string> stars</string>
+                    </property>
+                    <property name="maximum">
+                     <number>5</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="label_3">
+                    <property name="text">
+                     <string>&amp;Publisher: </string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>publisher</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1" colspan="2">
+                   <widget class="EnComboBox" name="publisher">
+                    <property name="editable">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="label_4">
+                    <property name="text">
+                     <string>Ta&amp;gs: </string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>tags</cstring>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="6" column="1">
                    <layout class="QHBoxLayout" name="_2">
                     <item>
-                     <widget class="TagsLineEdit" name="tags">
+                     <widget class="CompleteLineEdit" name="tags">
                       <property name="toolTip">
                        <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
                       </property>
@@ -471,6 +357,45 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                    </widget>
                   </item>
+                  <item row="7" column="0">
+                   <widget class="QLabel" name="label_7">
+                    <property name="text">
+                     <string>&amp;Series:</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::PlainText</enum>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>series</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="1">
+                   <layout class="QHBoxLayout" name="_3">
+                    <property name="spacing">
+                     <number>5</number>
+                    </property>
+                    <item>
+                     <widget class="EnComboBox" name="series">
+                      <property name="toolTip">
+                       <string>List of known series. You can add new series.</string>
+                      </property>
+                      <property name="whatsThis">
+                       <string>List of known series. You can add new series.</string>
+                      </property>
+                      <property name="editable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="insertPolicy">
+                       <enum>QComboBox::InsertAlphabetically</enum>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
                   <item row="7" column="2">
                    <widget class="QToolButton" name="remove_series_button">
                     <property name="toolTip">
@@ -478,6 +403,92 @@ Using this button to create author sort will change author sort from red to gree
                     </property>
                     <property name="text">
                      <string>...</string>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="../../../../resources/images.qrc">
+                      <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="1" colspan="2">
+                   <widget class="QDoubleSpinBox" name="series_index">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="prefix">
+                     <string>Book </string>
+                    </property>
+                    <property name="maximum">
+                     <double>9999.989999999999782</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="0">
+                   <widget class="QLabel" name="label_9">
+                    <property name="text">
+                     <string>IS&amp;BN:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>isbn</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="1" colspan="2">
+                   <widget class="QLineEdit" name="isbn"/>
+                  </item>
+                  <item row="10" column="0">
+                   <widget class="QLabel" name="label_11">
+                    <property name="text">
+                     <string>&amp;Date:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>date</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="10" column="1" colspan="2">
+                   <widget class="QDateEdit" name="date">
+                    <property name="displayFormat">
+                     <string>dd MMM yyyy</string>
+                    </property>
+                    <property name="calendarPopup">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="11" column="0">
+                   <widget class="QLabel" name="label_10">
+                    <property name="text">
+                     <string>Publishe&amp;d:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy">
+                     <cstring>pubdate</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="11" column="1">
+                   <widget class="QDateEdit" name="pubdate">
+                    <property name="displayFormat">
+                     <string>MMM yyyy</string>
+                    </property>
+                    <property name="calendarPopup">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="11" column="2">
+                   <widget class="QToolButton" name="clear_pubdate_button">
+                    <property name="toolTip">
+                     <string>Clear published date</string>
                     </property>
                     <property name="icon">
                      <iconset resource="../../../../resources/images.qrc">
@@ -831,8 +842,13 @@ Using this button to create author sort will change author sort from red to gree
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>TagsLineEdit</class>
+   <class>CompleteLineEdit</class>
    <extends>QLineEdit</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CompleteComboBox</class>
+   <extends>QComboBox</extends>
    <header>widgets.h</header>
   </customwidget>
   <customwidget>

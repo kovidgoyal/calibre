@@ -196,6 +196,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def modify_plugin(self, op=''):
         index = self.plugin_view.currentIndex()
         if index.isValid():
+            if not index.parent().isValid():
+                name = unicode(index.data().toString())
+                return error_dialog(self, _('Error'), '<p>'+
+                        _('Select an actual plugin under <b>%s</b> to customize')%name,
+                        show=True, show_copy_button=False)
+
             plugin = self._plugin_model.index_to_plugin(index)
             if op == 'toggle':
                 if not plugin.can_be_disabled:
