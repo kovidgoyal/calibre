@@ -321,9 +321,6 @@ class RTFInput(InputFormatPlugin):
             res = re.sub('\s*<body>', '<body>', res)
             res = re.sub('(?<=\n)\n{2}',
                     u'<p>\u00a0</p>\n'.encode('utf-8'), res)
-            if self.opts.enable_heuristics:
-                preprocessor = PreProcessor(self.opts, log=getattr(self, 'log', None))
-                res = preprocessor(res.decode('utf-8')).encode('utf-8')
             f.write(res)
         self.write_inline_css(inline_class, border_styles)
         stream.seek(0)
