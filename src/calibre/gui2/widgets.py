@@ -479,10 +479,10 @@ class CompleteLineEdit(EnLineEdit):
 
     def update_items_cache(self, complete_items):
         self.completer.update_items_cache(complete_items)
-        
+
     def set_separator(self, sep):
         self.separator = sep
-        
+
     def set_space_before_sep(self, space_before):
         self.space_before_sep = space_before
 
@@ -527,7 +527,7 @@ class EnComboBox(QComboBox):
     def __init__(self, *args):
         QComboBox.__init__(self, *args)
         self.setLineEdit(EnLineEdit(self))
-        self.setAutoCompletionCaseSensitivity(Qt.CaseSensitive)
+        self.setAutoCompletionCaseSensitivity(Qt.CaseInsensitive)
         self.setMinimumContentsLength(20)
 
     def text(self):
@@ -541,17 +541,17 @@ class EnComboBox(QComboBox):
         self.setCurrentIndex(idx)
 
 class CompleteComboBox(EnComboBox):
-    
+
     def __init__(self, *args):
         EnComboBox.__init__(self, *args)
         self.setLineEdit(CompleteLineEdit(self))
 
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)
-        
+
     def set_separator(self, sep):
         self.lineEdit().set_separator(sep)
-        
+
     def set_space_before_sep(self, space_before):
         self.lineEdit().set_space_before_sep(space_before)
 
