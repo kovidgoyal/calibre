@@ -33,8 +33,8 @@ class PALMPRE(USBMS):
 
 class AVANT(USBMS):
     name           = 'Booq Avant Device Interface'
-    gui_name       = 'Avant'
-    description    = _('Communicate with the Booq Avant')
+    gui_name       = 'bq Avant'
+    description    = _('Communicate with the Bq Avant')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 

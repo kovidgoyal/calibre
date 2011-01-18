@@ -178,7 +178,7 @@ class INVESBOOK(EB600):
 
 class BOOQ(EB600):
     name = 'Booq Device Interface'
-    gui_name = 'Booq'
+    gui_name = 'bq Reader'
 
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'pdf', 'doc', 'rtf', 'txt', 'html']
 

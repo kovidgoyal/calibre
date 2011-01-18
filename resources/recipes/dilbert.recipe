@@ -28,7 +28,7 @@ class DilbertBig(BasicNewsRecipe):
                             ,'publisher'       : publisher
                          }
 
-    feeds = [(u'Dilbert', u'http://feeds.dilbert.com/DilbertDailyStrip' )]
+    feeds = [(u'Dilbert', u'http://feed.dilbert.com/dilbert/daily_strip' )]
 
     def get_article_url(self, article):
         return article.get('feedburner_origlink', None)
