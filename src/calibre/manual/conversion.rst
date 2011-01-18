@@ -331,6 +331,22 @@ remove all non-breaking-space entities.
     Some documents use a convention of defining text indents using non-breaking space entities.  When this option is enabled |app| will
     attempt to detect this sort of formatting and convert them to a 3% text indent using css.
 
+.. search-replace:
+
+Search & Replace
+---------------------
+
+These options are useful primarily for conversion of PDF documents. Often, the conversion leaves
+behind page headers and footers in the text. These options use regular expressions to try and detect
+the headers and footers and remove them. Remember that they operate on the intermediate XHTML produced
+by the conversion pipeline. There is also a wizard to help you customize the regular expressions for
+your document.  These options can also be used for generic search and replace of any content by additionally 
+specifying a replacement expression.
+
+The search works by using a python regular expression. All matched text is simply removed from
+the document or replaced using the replacement pattern. You can learn more about regular expressions and 
+their syntax at http://docs.python.org/library/re.html.
+
 .. _structure-detection:
 
 Structure Detection
@@ -373,21 +389,6 @@ which means that |app| will insert page breaks before every `<h1>` and `<h2>` ta
 .. note::
     
     The default expressions may change depending on the input format you are converting.
-
-Removing headers and footers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-These options are useful primarily for conversion of PDF documents. Often, the conversion leaves
-behind page headers and footers in the text. These options use regular expressions to try and detect
-the headers and footers and remove them. Remember that they operate on the intermediate XHTML produced
-by the conversion pipeline. There is also a wizard to help you customize the regular expressions for
-your document.
-
-The header and footer regular expressions are used in conjunction with the remove header and footer options.
-If the remove option is not enabled the regular expression will not be applied to remove the matched text.
-The removal works by using a python regular expression. All matched text is simply removed from
-the document. You can learn more about regular expressions and their syntax at
-http://docs.python.org/library/re.html.
 
 Miscellaneous
 ~~~~~~~~~~~~~~
