@@ -1027,17 +1027,12 @@ class EPUB_MOBI(CatalogPlugin):
                 self.__totalSteps += 3
 
             # Load section list templates
-            templates = ['by_authors_normal_title_template',
-                         'by_authors_series_title_template',
-                         'by_titles_normal_title_template',
-                         'by_titles_series_title_template',
-                         'by_series_title_template',
-                         'by_genres_normal_title_template',
-                         'by_genres_series_title_template',
-                         'by_recently_added_normal_title_template',
-                         'by_recently_added_series_title_template',
-                         'by_month_added_normal_title_template',
-                         'by_month_added_series_title_template']
+            templates = []
+            with open(P('catalog/section_list_templates.py'), 'r') as f:
+                for line in f:
+                    t = re.match("(by_.+_template)",line)
+                    if t:
+                        templates.append(t.group(1))
             execfile(P('catalog/section_list_templates.py'), locals())
             for t in templates:
                 setattr(self,t,eval(t))
@@ -1441,7 +1436,9 @@ class EPUB_MOBI(CatalogPlugin):
                     # Exit if author matches previous, but author_sort doesn't match
                     if author[0] == current_author[0]:
                         error_msg = _('''
-Inconsistent Author Sort values for Author '{0}' ('{1}' <> '{2}'), unable to build catalog.\n
+Inconsistent Author Sort values for Author '{0}':
+'{1}' <> '{2}',
+unable to build catalog.\n
 Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog,
 then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         self.opts.log.warn('\n*** Metadata error ***')
@@ -1450,14 +1447,10 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         self.error.append('Metadata error')
                         self.error.append(error_msg)
                         return False
+                    current_author = author
 
 
             self.booksByAuthor = sorted(self.booksByAuthor, key=self.booksByAuthorSorter_author_sort)
-
-#             for book in self.booksByAuthor:
-#                 print '{0:<10} {1:<5} {2:<20} {3:<20} {4:<20} {5:<20}'.format(book['series'], book['series_index'], book['title'],
-#                                                 book['author'], book['authors'],book['author_sort'])
-#             print
 
             # Build the unique_authors set from existing data
             authors = [(record['author'], capitalize(record['author_sort'])) for record in self.booksByAuthor]
@@ -1566,7 +1559,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
                 this_title['rating'] = record['rating'] if record['rating'] else 0
 
-                if re.match('0100-01-01',str(record['pubdate'].date())):
+                if re.match('0101-01-01',str(record['pubdate'].date())):
                     this_title['date'] = None
                 else:
                     this_title['date'] = strftime(u'%B %Y', record['pubdate'].timetuple())
@@ -2683,7 +2676,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 #aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
 
                 # Reassert 'date' since this is the result of a new search
-                if re.match('0100-01-01',str(book['pubdate'].date())):
+                if re.match('0101-01-01',str(book['pubdate'].date())):
                     book['date'] = None
                 else:
                     book['date'] = strftime(u'%B %Y', book['pubdate'].timetuple())
@@ -4314,10 +4307,11 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 formats = ' &middot; '.join(formats)
 
             # Date of publication
-            pubdate = book['date']
-            pubmonth, pubyear = pubdate.split()
-            if pubyear == '101':
-                pubdate = pubmonth = pubyear = ''
+            if book['date']:
+                pubdate = book['date']
+                pubmonth, pubyear = pubdate.split()
+            else:
+                pubdate = pubyear = pubmonth = ''
 
             # Thumb
             _soup = BeautifulSoup('<html>',selfClosingTags=['img'])
