@@ -347,6 +347,51 @@ from the value in the box</string>
              </item>
             </layout>
            </item>
+           <item row="9" column="0">
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>&amp;Date:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>adddate</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QDateEdit" name="adddate">
+               <property name="displayFormat">
+                <string>d MMM yyyy</string>
+               </property>
+               <property name="calendarPopup">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="clear_adddate_button">
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../../resources/images.qrc">
+                 <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="9" column="2">
+            <widget class="QCheckBox" name="apply_adddate">
+             <property name="text">
+              <string>&amp;Apply date</string>
+             </property>
+            </widget>
+           </item>
            <item row="10" column="0">
             <widget class="QLabel" name="label_9">
              <property name="text">
@@ -394,6 +439,42 @@ from the value in the box</string>
               <string>&amp;Apply date</string>
              </property>
             </widget>
+           </item>
+           <item row="11" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Remove &amp;format:</string>
+             </property>
+             <property name="buddy">
+              <cstring>remove_format</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="1">
+            <widget class="QComboBox" name="remove_format">
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="0">
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>15</height>
+              </size>
+             </property>
+            </spacer>
            </item>
            <item row="13" column="0" colspan="3">
             <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -477,42 +558,6 @@ Future conversion of these books will use the default settings.</string>
               </size>
              </property>
             </spacer>
-           </item>
-           <item row="12" column="0">
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>15</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="11" column="0">
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>Remove &amp;format:</string>
-             </property>
-             <property name="buddy">
-              <cstring>remove_format</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="11" column="1">
-            <widget class="QComboBox" name="remove_format">
-             <property name="maximumSize">
-              <size>
-               <width>120</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
            </item>
           </layout>
          </widget>
