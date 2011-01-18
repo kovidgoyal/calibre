@@ -9,7 +9,6 @@ import os
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.pdb import PDBError, IDENTITY_TO_NAME, get_reader
-from calibre.ebooks.conversion.utils import PreProcessor
 
 class PDBInput(InputFormatPlugin):
 
@@ -32,8 +31,3 @@ class PDBInput(InputFormatPlugin):
         opf = reader.extract_content(os.getcwd())
 
         return opf
-
-    def preprocess_html(self, options, html):
-        self.options = options
-        preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
-        return preprocessor(html)

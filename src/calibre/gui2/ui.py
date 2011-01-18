@@ -485,7 +485,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             if 'calibre.ebooks.DRMError' in job.details:
                 if not minz:
                     from calibre.gui2.dialogs.drm_error import DRMErrorMessage
-                    d = DRMErrorMessage(self, job.description.split(':')[-1])
+                    d = DRMErrorMessage(self, _('Cannot convert') + ' ' +
+                        job.description.split(':')[-1].partition('(')[-1][:-1])
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)

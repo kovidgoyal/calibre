@@ -148,7 +148,6 @@ class StatusBar(QStatusBar): # {{{
                 self.get_version() + ' ' + _('created by Kovid Goyal')
         self.device_string = ''
         self.update_label = QLabel('')
-        self.update_label.setOpenExternalLinks(True)
         self.addPermanentWidget(self.update_label)
         self.update_label.setVisible(False)
         self._font = QFont()
@@ -174,8 +173,9 @@ class StatusBar(QStatusBar): # {{{
         self.clearMessage()
 
     def new_version_available(self, ver, url):
-        msg = (u'<span style="color:red; font-weight: bold">%s: <a href="%s">%s<a></span>') % (
-                _('Update found'), url, ver)
+        msg = (u'<span style="color:red; font-weight: bold">%s: <a'
+               ' href="update:%s">%s<a></span>') % (
+                _('Update found'), ver, ver)
         self.update_label.setText(msg)
         self.update_label.setCursor(Qt.PointingHandCursor)
         self.update_label.setVisible(True)
@@ -240,6 +240,13 @@ class LayoutMixin(object): # {{{
             self.status_bar.addPermanentWidget(button)
         self.status_bar.addPermanentWidget(self.jobs_button)
         self.setStatusBar(self.status_bar)
+        self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)
+
+    def update_link_clicked(self, url):
+        url = unicode(url)
+        if url.startswith('update:'):
+            version = url.partition(':')[-1]
+            self.update_found(version, force=True)
 
     def finalize_layout(self):
         self.status_bar.initialize(self.system_tray_icon)

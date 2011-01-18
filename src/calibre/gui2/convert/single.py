@@ -16,6 +16,8 @@ from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics,
 from calibre.gui2.convert.single_ui import Ui_Dialog
 from calibre.gui2.convert.metadata import MetadataWidget
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.gui2.convert.heuristics import HeuristicsWidget
+from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
@@ -170,6 +172,8 @@ class Config(ResizableDialog, Ui_Dialog):
         self.mw = widget_factory(MetadataWidget)
         self.setWindowTitle(_('Convert')+ ' ' + unicode(self.mw.title.text()))
         lf = widget_factory(LookAndFeelWidget)
+        hw = widget_factory(HeuristicsWidget)
+        sr = widget_factory(SearchAndReplaceWidget)
         ps = widget_factory(PageSetupWidget)
         sd = widget_factory(StructureDetectionWidget)
         toc = widget_factory(TOCWidget)
@@ -203,7 +207,7 @@ class Config(ResizableDialog, Ui_Dialog):
             if not c: break
             self.stack.removeWidget(c)
 
-        widgets = [self.mw, lf, ps, sd, toc]
+        widgets = [self.mw, lf, hw, sr, ps, sd, toc]
         if input_widget is not None:
             widgets.append(input_widget)
         if output_widget is not None:

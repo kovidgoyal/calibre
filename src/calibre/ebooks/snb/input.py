@@ -41,7 +41,7 @@ class SNBInput(InputFormatPlugin):
             raise ValueError("Invalid SNB file")
         log.debug("Handle meta data ...")
         from calibre.ebooks.conversion.plumber import create_oebbook
-        oeb = create_oebbook(log, None, options, self,
+        oeb = create_oebbook(log, None, options,
                 encoding=options.input_encoding, populate=False)
         meta = snbFile.GetFileStream('snbf/book.snbf')
         if meta != None:

@@ -14,7 +14,7 @@ from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
         QPushButton
 
 from calibre.utils.date import qt_to_dt, now
-from calibre.gui2.widgets import TagsLineEdit, EnComboBox
+from calibre.gui2.widgets import CompleteLineEdit, EnComboBox
 from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.utils.config import tweaks
@@ -212,7 +212,7 @@ class Text(Base):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
-            w = TagsLineEdit(parent, values)
+            w = CompleteLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         else:
             w = EnComboBox(parent)
@@ -226,7 +226,7 @@ class Text(Base):
         val = self.normalize_db_val(val)
         if self.col_metadata['is_multiple']:
             self.setter(val)
-            self.widgets[1].update_tags_cache(self.all_values)
+            self.widgets[1].update_items_cache(self.all_values)
         else:
             idx = None
             for i, c in enumerate(self.all_values):
@@ -656,7 +656,7 @@ class RemoveTags(QWidget):
         layout.setSpacing(5)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.tags_box = TagsLineEdit(parent, values)
+        self.tags_box = CompleteLineEdit(parent, values)
         layout.addWidget(self.tags_box, stretch = 1)
         # self.tags_box.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
 
@@ -678,7 +678,7 @@ class BulkText(BulkBase):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
-            w = TagsLineEdit(parent, values)
+            w = CompleteLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             self.widgets = [QLabel('&'+self.col_metadata['name']+': ' +
                                    _('tags to add'), parent), w]
@@ -697,7 +697,7 @@ class BulkText(BulkBase):
 
     def initialize(self, book_ids):
         if self.col_metadata['is_multiple']:
-            self.widgets[1].update_tags_cache(self.all_values)
+            self.widgets[1].update_items_cache(self.all_values)
         else:
             val = self.get_initial_value(book_ids)
             self.initial_val = val = self.normalize_db_val(val)

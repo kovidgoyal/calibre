@@ -33,8 +33,8 @@ class PALMPRE(USBMS):
 
 class AVANT(USBMS):
     name           = 'Booq Avant Device Interface'
-    gui_name       = 'Avant'
-    description    = _('Communicate with the Booq Avant')
+    gui_name       = 'bq Avant'
+    description    = _('Communicate with the Bq Avant')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -192,6 +192,9 @@ class LUMIREAD(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     THUMBNAIL_HEIGHT = 200
+
+    VENDOR_NAME = 'ACER'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'LUMIREAD_600'
 
     def upload_cover(self, path, filename, metadata, filepath):
         if metadata.thumbnail and metadata.thumbnail[-1]:

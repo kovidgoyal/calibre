@@ -554,6 +554,8 @@ class SMTP:
 
         def encode_cram_md5(challenge, user, password):
             challenge = base64.decodestring(challenge)
+            if isinstance(password, unicode): # Added by Kovid, see http://bugs.python.org/issue5285
+                password = password.encode('utf-8')
             response = user + " " + hmac.HMAC(password, challenge).hexdigest()
             return encode_base64(response, eol="")
 
