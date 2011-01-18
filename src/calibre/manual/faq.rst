@@ -101,6 +101,17 @@ We just need some information from you:
 Once you send us the output for a particular operating system, support for the device in that operating system
 will appear in the next release of |app|.
 
+My device is not being detected by |app|?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Follow these steps to find the problem:
+
+    * Make sure that you are connecting only a single device to your computer at a time. Do not have another |app| supported device like an iPhone/iPad etc. at the same time.
+    * Make sure you are running the latest version of |app|. The latest version can always be downloaded from `http://calibre-ebook.com/download`_.
+    * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk that you can access using Windows explorer or whatever the file management program on your computer is
+    * In calibre, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled.
+    * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `http://bugs.calibre-ebook.com`_.
+
 How does |app| manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

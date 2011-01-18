@@ -1018,7 +1018,8 @@ class DeviceMixin(object): # {{{
         ids = [self.library_view.model().id(r) \
                for r in self.library_view.selectionModel().selectedRows()] \
                                 if send_ids is None else send_ids
-        if not self.device_manager or not ids or len(ids) == 0:
+        if not self.device_manager or not ids or len(ids) == 0 or \
+                not self.device_manager.is_device_connected:
             return
 
         settings = self.device_manager.device.settings()
