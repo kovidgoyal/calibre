@@ -34,6 +34,9 @@ path_to_ebook to the database.
                       help=_('Log debugging information to console'))
     parser.add_option('--no-update-check', default=False, action='store_true',
             help=_('Do not check for updates'))
+    parser.add_option('--ignore-plugins', default=False, action='store_true',
+            help=_('Ignore custom plugins, useful if you installed a plugin'
+                ' that is preventing calibre from starting'))
     return parser
 
 def init_qt(args):
@@ -303,7 +306,7 @@ def run_gui(opts, args, actions, listener, app, gui_debug=None):
                 runner.main.system_tray_icon.hide()
             except:
                 pass
-    if runner.main.gui_debug is not None:
+    if getattr(runner.main, 'gui_debug', None) is not None:
         e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
         import subprocess
         creationflags = 0

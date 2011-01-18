@@ -386,11 +386,13 @@ class LineEditECM(object):
         action_lower_case = case_menu.addAction(_('Lower Case'))
         action_swap_case = case_menu.addAction(_('Swap Case'))
         action_title_case = case_menu.addAction(_('Title Case'))
+        action_capitalize = case_menu.addAction(_('Capitalize'))
 
         self.connect(action_upper_case, SIGNAL('triggered()'), self.upper_case)
         self.connect(action_lower_case, SIGNAL('triggered()'), self.lower_case)
         self.connect(action_swap_case, SIGNAL('triggered()'), self.swap_case)
         self.connect(action_title_case, SIGNAL('triggered()'), self.title_case)
+        self.connect(action_capitalize, SIGNAL('triggered()'), self.capitalize)
 
         menu.addMenu(case_menu)
         menu.exec_(event.globalPos())
@@ -408,6 +410,10 @@ class LineEditECM(object):
         from calibre.utils.titlecase import titlecase
         self.setText(titlecase(unicode(self.text())))
 
+    def capitalize(self):
+        from calibre.utils.icu import capitalize
+        self.setText(capitalize(unicode(self.text())))
+
 
 class EnLineEdit(LineEditECM, QLineEdit):
 
@@ -420,46 +426,47 @@ class EnLineEdit(LineEditECM, QLineEdit):
     pass
 
 
-class TagsCompleter(QCompleter):
+class ItemsCompleter(QCompleter):
 
     '''
     A completer object that completes a list of tags. It is used in conjunction
     with a CompleterLineEdit.
     '''
 
-    def __init__(self, parent, all_tags):
-        QCompleter.__init__(self, all_tags, parent)
-        self.all_tags = set(all_tags)
+    def __init__(self, parent, all_items):
+        QCompleter.__init__(self, all_items, parent)
+        self.all_items = set(all_items)
 
-    def update(self, text_tags, completion_prefix):
-        tags = list(self.all_tags.difference(text_tags))
-        model = QStringListModel(tags, self)
+    def update(self, text_items, completion_prefix):
+        items = list(self.all_items.difference(text_items))
+        model = QStringListModel(items, self)
         self.setModel(model)
 
         self.setCompletionPrefix(completion_prefix)
         if completion_prefix.strip() != '':
             self.complete()
 
-    def update_tags_cache(self, tags):
-        self.all_tags = set(tags)
-        model = QStringListModel(tags, self)
+    def update_items_cache(self, items):
+        self.all_items = set(items)
+        model = QStringListModel(items, self)
         self.setModel(model)
 
 
-class TagsLineEdit(EnLineEdit):
+class CompleteLineEdit(EnLineEdit):
 
     '''
     A QLineEdit that can complete parts of text separated by separator.
     '''
 
-    def __init__(self, parent=0, tags=[]):
+    def __init__(self, parent=0, complete_items=[], sep=',', space_before_sep=False):
         EnLineEdit.__init__(self, parent)
 
-        self.separator = ','
+        self.separator = sep
+        self.space_before_sep = space_before_sep
 
         self.connect(self, SIGNAL('textChanged(QString)'), self.text_changed)
 
-        self.completer = TagsCompleter(self, tags)
+        self.completer = ItemsCompleter(self, complete_items)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
 
         self.connect(self,
@@ -470,32 +477,43 @@ class TagsLineEdit(EnLineEdit):
 
         self.completer.setWidget(self)
 
-    def update_tags_cache(self, tags):
-        self.completer.update_tags_cache(tags)
+    def update_items_cache(self, complete_items):
+        self.completer.update_items_cache(complete_items)
+        
+    def set_separator(self, sep):
+        self.separator = sep
+        
+    def set_space_before_sep(self, space_before):
+        self.space_before_sep = space_before
 
     def text_changed(self, text):
         all_text = unicode(text)
         text = all_text[:self.cursorPosition()]
-        prefix = text.split(',')[-1].strip()
+        prefix = text.split(self.separator)[-1].strip()
 
-        text_tags = []
+        text_items = []
         for t in all_text.split(self.separator):
             t1 = unicode(t).strip()
             if t1 != '':
-                text_tags.append(t)
-        text_tags = list(set(text_tags))
+                text_items.append(t)
+        text_items = list(set(text_items))
 
         self.emit(SIGNAL('text_changed(PyQt_PyObject, PyQt_PyObject)'),
-            text_tags, prefix)
+            text_items, prefix)
 
     def complete_text(self, text):
         cursor_pos = self.cursorPosition()
         before_text = unicode(self.text())[:cursor_pos]
         after_text = unicode(self.text())[cursor_pos:]
-        prefix_len = len(before_text.split(',')[-1].strip())
-        self.setText('%s%s%s %s' % (before_text[:cursor_pos - prefix_len],
-            text, self.separator, after_text))
-        self.setCursorPosition(cursor_pos - prefix_len + len(text) + 2)
+        prefix_len = len(before_text.split(self.separator)[-1].strip())
+        if self.space_before_sep:
+            complete_text_pat = '%s%s %s %s'
+            len_extra = 3
+        else:
+            complete_text_pat = '%s%s%s %s'
+            len_extra = 2
+        self.setText(complete_text_pat % (before_text[:cursor_pos - prefix_len], text, self.separator, after_text))
+        self.setCursorPosition(cursor_pos - prefix_len + len(text) + len_extra)
 
 
 class EnComboBox(QComboBox):
@@ -521,6 +539,22 @@ class EnComboBox(QComboBox):
             self.insertItem(0, text)
             idx = 0
         self.setCurrentIndex(idx)
+
+class CompleteComboBox(EnComboBox):
+    
+    def __init__(self, *args):
+        EnComboBox.__init__(self, *args)
+        self.setLineEdit(CompleteLineEdit(self))
+
+    def update_items_cache(self, complete_items):
+        self.lineEdit().update_items_cache(complete_items)
+        
+    def set_separator(self, sep):
+        self.lineEdit().set_separator(sep)
+        
+    def set_space_before_sep(self, space_before):
+        self.lineEdit().set_space_before_sep(space_before)
+
 
 class HistoryLineEdit(QComboBox):
 
@@ -551,7 +585,11 @@ class HistoryLineEdit(QComboBox):
             item = unicode(self.itemText(i))
             if item not in items:
                 items.append(item)
-
+        self.blockSignals(True)
+        self.clear()
+        self.addItems(items)
+        self.setEditText(ct)
+        self.blockSignals(False)
         history.set(self.store_name, items)
 
     def setText(self, t):
@@ -611,6 +649,31 @@ class ComboBoxWithHelp(QComboBox):
     def hidePopup(self):
         QComboBox.hidePopup(self)
         self.set_state()
+
+
+class EncodingComboBox(QComboBox):
+    '''
+    A combobox that holds text encodings support
+    by Python. This is only populated with the most
+    common and standard encodings. There is no good
+    way to programatically list all supported encodings
+    using encodings.aliases.aliases.keys(). It
+    will not work.
+    '''
+
+    ENCODINGS = ['', 'cp1252', 'latin1', 'utf-8', '', 'ascii', 'big5', 'cp1250', 'cp1251', 'cp1253',
+        'cp1254', 'cp1255', 'cp1256', 'euc_jp', 'euc_kr', 'gb2312', 'gb18030',
+        'hz', 'iso2022_jp', 'iso2022_kr', 'iso8859_5', 'shift_jis',
+    ]
+
+    def __init__(self, parent=None):
+        QComboBox.__init__(self, parent)
+        self.setEditable(True)
+        self.setLineEdit(EnLineEdit(self))
+
+        for item in self.ENCODINGS:
+            self.addItem(item)
+
 
 class PythonHighlighter(QSyntaxHighlighter):
 

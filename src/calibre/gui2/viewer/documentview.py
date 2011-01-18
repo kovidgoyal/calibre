@@ -120,6 +120,13 @@ class ConfigDialog(QDialog, Ui_Dialog):
 
 
     def accept(self, *args):
+        if self.shortcut_config.is_editing:
+            from calibre.gui2 import info_dialog
+            info_dialog(self, _('Still editing'),
+                    _('You are in the middle of editing a keyboard shortcut'
+                        ' first complete that, by clicking outside the '
+                        ' shortcut editing box.'), show=True)
+            return
         c = config()
         c.set('serif_family', unicode(self.serif_family.currentFont().family()))
         c.set('sans_family', unicode(self.sans_family.currentFont().family()))
@@ -279,7 +286,7 @@ class Document(QWebPage): # {{{
 
     @pyqtSignature("")
     def init_hyphenate(self):
-        if self.hyphenate:
+        if self.hyphenate and getattr(self, 'loaded_lang', ''):
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
 
     def after_load(self):
@@ -449,7 +456,7 @@ class Document(QWebPage): # {{{
         return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
 
     def set_bottom_padding(self, amount):
-        s = QSize(-1, -1) if amount == 0 else QSize(self.width,
+        s = QSize(-1, -1) if amount == 0 else QSize(self.viewportSize().width(),
                 self.height+amount)
         self.setPreferredContentsSize(s)
 
@@ -820,6 +827,7 @@ class DocumentView(QWebView): # {{{
                         self.flipper.initialize(self.current_page_image())
                     self.manager.next_document()
                 return
+            #oheight = self.document.height
             lower_limit = opos + delta_y # Max value of top y co-ord after scrolling
             max_y = self.document.height - window_height # The maximum possible top y co-ord
             if max_y < lower_limit:
@@ -835,6 +843,7 @@ class DocumentView(QWebView): # {{{
             if epf:
                 self.flipper.initialize(self.current_page_image())
             #print 'Document height:', self.document.height
+            #print 'Height change:', (self.document.height - oheight)
             max_y = self.document.height - window_height
             lower_limit = min(max_y, lower_limit)
             #print 'Scroll to:', lower_limit
@@ -842,6 +851,7 @@ class DocumentView(QWebView): # {{{
                 self.document.scroll_to(self.document.xpos, lower_limit)
             actually_scrolled = self.document.ypos - opos
             #print 'After scroll pos:', self.document.ypos
+            #print 'Scrolled by:', self.document.ypos - opos
             self.find_next_blank_line(window_height - actually_scrolled)
             #print 'After blank line pos:', self.document.ypos
             if epf:

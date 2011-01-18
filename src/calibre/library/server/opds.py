@@ -101,7 +101,19 @@ def html_to_lxml(raw):
     root = html.fragment_fromstring(raw)
     root.set('xmlns', "http://www.w3.org/1999/xhtml")
     raw = etree.tostring(root, encoding=None)
-    return etree.fromstring(raw)
+    try:
+        return etree.fromstring(raw)
+    except:
+        for x in root.iterdescendants():
+            remove = []
+            for attr in x.attrib:
+                if ':' in attr:
+                    remove.append(attr)
+            for a in remove:
+                del x.attrib[a]
+        raw = etree.tostring(root, encoding=None)
+        return etree.fromstring(raw)
+
 
 def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
                   ignore_count=False, add_kind=False):
@@ -116,9 +128,9 @@ def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
         count = ''
     if item.category == 'authors' and \
             tweaks['categories_use_field_for_author_name'] == 'author_sort':
-        name = xml(item.sort)
+        name = item.sort
     else:
-        name = xml(item.name)
+        name = item.name
     return E.entry(
             TITLE(name + ('' if not add_kind else ' (%s)'%item_kind)),
             ID(id_),

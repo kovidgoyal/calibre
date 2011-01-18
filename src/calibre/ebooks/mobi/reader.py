@@ -139,7 +139,7 @@ class BookHeader(object):
                     65001: 'utf-8',
                     }[self.codepage]
             except (IndexError, KeyError):
-                self.codec = 'cp1252' if user_encoding is None else user_encoding
+                self.codec = 'cp1252' if not user_encoding else user_encoding
                 log.warn('Unknown codepage %d. Assuming %s' % (self.codepage,
                     self.codec))
             if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length \
@@ -513,11 +513,14 @@ class MobiReader(object):
         mobi_version = self.book_header.mobi_version
         for x in root.xpath('//ncx'):
             x.getparent().remove(x)
+        svg_tags = []
         for i, tag in enumerate(root.iter(etree.Element)):
             tag.attrib.pop('xmlns', '')
             for x in tag.attrib:
                 if ':' in x:
                     del tag.attrib[x]
+            if tag.tag and barename(tag.tag) == 'svg':
+                svg_tags.append(tag)
             if tag.tag and barename(tag.tag.lower()) in \
                 ('country-region', 'place', 'placetype', 'placename',
                     'state', 'city', 'street', 'address', 'content', 'form'):
@@ -539,7 +542,17 @@ class MobiReader(object):
                         elif tag.tag == 'img':
                             tag.set('height', height)
                         else:
-                            styles.append('margin-top: %s' % self.ensure_unit(height))
+                            if tag.tag == 'div' and not tag.text and \
+                                    (not tag.tail or not tag.tail.strip()) and \
+                                    not len(list(tag.iterdescendants())):
+                                # Paragraph spacer
+                                # Insert nbsp so that the element is never
+                                # discarded by a renderer
+                                tag.text = u'\u00a0' # nbsp
+                                styles.append('height: %s' %
+                                        self.ensure_unit(height))
+                            else:
+                                styles.append('margin-top: %s' % self.ensure_unit(height))
             if attrib.has_key('width'):
                 width = attrib.pop('width').strip()
                 if width and re.search(r'\d+', width):
@@ -627,6 +640,20 @@ class MobiReader(object):
                 cls = attrib.get('class', '')
                 cls = cls + (' ' if cls else '') + ncls
                 attrib['class'] = cls
+
+        for tag in svg_tags:
+            images = tag.xpath('descendant::img[@src]')
+            parent = tag.getparent()
+
+            if images and hasattr(parent, 'find'):
+                index = parent.index(tag)
+                for img in images:
+                    img.getparent().remove(img)
+                    img.tail = img.text = None
+                    parent.insert(index, img)
+
+            if hasattr(parent, 'remove'):
+                parent.remove(tag)
 
     def create_opf(self, htmlfile, guide=None, root=None):
         mi = getattr(self.book_header.exth, 'mi', self.embedded_mi)

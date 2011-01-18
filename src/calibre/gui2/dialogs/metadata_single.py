@@ -16,7 +16,7 @@ from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QDate, \
 
 from calibre.gui2 import error_dialog, file_icon_provider, dynamic, \
                            choose_files, choose_images, ResizableDialog, \
-                           warning_dialog, question_dialog
+                           warning_dialog, question_dialog, UNDEFINED_QDATE
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -491,11 +491,15 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.formats.setAcceptDrops(True)
         self.cover_changed = False
         self.cpixmap = None
-        self.pubdate.setMinimumDate(QDate(100,1,1))
+        self.pubdate.setMinimumDate(UNDEFINED_QDATE)
         pubdate_format = tweaks['gui_pubdate_display_format']
         if pubdate_format is not None:
             self.pubdate.setDisplayFormat(pubdate_format)
-        self.date.setMinimumDate(QDate(100,1,1))
+        self.date.setMinimumDate(UNDEFINED_QDATE)
+        self.pubdate.setSpecialValueText(_('Undefined'))
+        self.date.setSpecialValueText(_('Undefined'))
+        self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
+
 
         self.connect(self.cover, SIGNAL('cover_changed(PyQt_PyObject)'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
@@ -552,7 +556,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         tags = self.db.tags(row)
         self.original_tags = ', '.join(tags.split(',')) if tags else ''
         self.tags.setText(self.original_tags)
-        self.tags.update_tags_cache(self.db.all_tags())
+        self.tags.update_items_cache(self.db.all_tags())
         rating = self.db.rating(row)
         if rating > 0:
             self.rating.setValue(int(rating/2.))
@@ -614,6 +618,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.original_title = unicode(self.title.text()).strip()
 
         self.show()
+
+    def clear_pubdate(self, *args):
+        self.pubdate.setDate(UNDEFINED_QDATE)
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
@@ -717,6 +724,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             au = _('Unknown')
         au = ' & '.join([a.strip().replace('|', ',') for a in au.split(',')])
         self.authors.setEditText(au)
+        
+        self.authors.set_separator('&')
+        self.authors.set_space_before_sep(True)
+        self.authors.update_items_cache(self.db.all_author_names())
 
     def initialize_series(self):
         self.series.setSizeAdjustPolicy(self.series.AdjustToContentsOnFirstShow)
@@ -769,7 +780,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if d.result() == QDialog.Accepted:
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
-            self.tags.update_tags_cache(self.db.all_tags())
+            self.tags.update_items_cache(self.db.all_tags())
 
 
     def fetch_metadata(self):
@@ -790,7 +801,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         if d.opt_get_social_metadata.isChecked():
                             d2 = SocialMetadata(book, self)
                             d2.exec_()
-                            if d2.exceptions:
+                            if d2.timed_out:
+                                warning_dialog(self, _('Timed out'),
+                                    _('The download of social'
+                                    ' metadata timed out, the servers are'
+                                    ' probably busy. Try again later.'),
+                                    show=True)
+                            elif d2.exceptions:
                                 det = '\n'.join([x[0]+'\n\n'+x[-1]+'\n\n\n' for
                                     x in d2.exceptions])
                                 warning_dialog(self, _('There were errors'),
@@ -823,7 +840,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                                 if book.series_index is not None:
                                     self.series_index.setValue(book.series_index)
                         if book.has_cover:
-                            if d.opt_auto_download_cover.isChecked() and book.has_cover:
+                            if d.opt_auto_download_cover.isChecked():
                                 self.fetch_cover()
                             else:
                                 self.fetch_cover_button.setFocus(Qt.OtherFocusReason)

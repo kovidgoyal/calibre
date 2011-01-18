@@ -80,7 +80,7 @@ def icu_case_sensitive_strcmp(collator, a, b):
 
 def icu_capitalize(s):
     s = lower(s)
-    return s.replace(s[0], upper(s[0]), 1)
+    return s.replace(s[0], upper(s[0]), 1) if s else s
 
 load_icu()
 load_collator()

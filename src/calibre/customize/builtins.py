@@ -478,7 +478,7 @@ from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600, LUMIREAD, ALURATEK_COLOR, \
-        TREKSTOR, EEEREADER
+        TREKSTOR, EEEREADER, NEXTBOOK
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
@@ -606,6 +606,7 @@ plugins += [
     BAMBOOK,
     TREKSTOR,
     EEEREADER,
+    NEXTBOOK,
     ITUNES,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
@@ -704,13 +705,17 @@ class ActionTweakEpub(InterfaceActionBase):
     name = 'Tweak ePub'
     actual_plugin = 'calibre.gui2.actions.tweak_epub:TweakEpubAction'
 
+class ActionNextMatch(InterfaceActionBase):
+    name = 'Next Match'
+    actual_plugin = 'calibre.gui2.actions.next_match:NextMatchAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
-        ActionCopyToLibrary, ActionTweakEpub]
+        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch]
 
 # }}}
 
@@ -842,6 +847,17 @@ class Plugboard(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.plugboard'
     description = _('Change metadata fields before saving/sending')
 
+class TemplateFunctions(PreferencesPlugin):
+    name = 'TemplateFunctions'
+    icon = I('template_funcs.png')
+    gui_name = _('Template Functions')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.template_functions'
+    description = _('Create your own template functions')
+
 class Email(PreferencesPlugin):
     name = 'Email'
     icon = I('mail.png')
@@ -903,6 +919,6 @@ class Misc(PreferencesPlugin):
 
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
-        Email, Server, Plugins, Tweaks, Misc]
+        Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
 
 #}}}

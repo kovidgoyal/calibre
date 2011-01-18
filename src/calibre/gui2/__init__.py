@@ -53,6 +53,8 @@ gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['toolbar_text'] = 'auto'
 gprefs.defaults['show_child_bar'] = False
 gprefs.defaults['font'] = None
+gprefs.defaults['tags_browser_partition_method'] = 'first letter'
+gprefs.defaults['tags_browser_collapse_at'] = 100
 
 # }}}
 
@@ -83,7 +85,7 @@ def _config():
     c.add_opt('LRF_ebook_viewer_options', default=None,
               help=_('Options for the LRF ebook viewer'))
     c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT',
-        'MOBI', 'PRC', 'HTML', 'FB2', 'PDB', 'RB', 'SNB'],
+        'MOBI', 'PRC', 'AZW', 'HTML', 'FB2', 'PDB', 'RB', 'SNB'],
               help=_('Formats that are viewed using the internal viewer'))
     c.add_opt('column_map', default=ALL_COLUMNS,
               help=_('Columns to be displayed in the book list'))
@@ -267,10 +269,14 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
 
     return d.exec_() == yes_button
 
-def info_dialog(parent, title, msg, det_msg='', show=False):
+def info_dialog(parent, title, msg, det_msg='', show=False,
+        show_copy_button=True):
     d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(I('dialog_information.png')))
+    if not show_copy_button:
+        d.cb.setVisible(False)
+
     if show:
         return d.exec_()
     return d
@@ -499,7 +505,7 @@ class FileDialog(QObject):
         self.selected_files = []
         if mode == QFileDialog.AnyFile:
             f = unicode(QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, ""))
-            if f and os.path.exists(f):
+            if f:
                 self.selected_files.append(f)
         elif mode == QFileDialog.ExistingFile:
             f = unicode(QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, ""))

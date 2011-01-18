@@ -16,7 +16,9 @@
 #                                                                       #
 #########################################################################
 import sys, os, tempfile
+
 from calibre.ebooks.rtf2xml import copy
+
 class Pict:
     """Process graphic information"""
     def __init__(self,
@@ -36,13 +38,11 @@ class Pict:
         self.__ob_count = 0
         self.__cb_count = 0
         self.__pict_count = 0
-        self.__in_pict = 0
-        self.__already_found_pict = 0
+        self.__in_pict = False
+        self.__already_found_pict = False
         self.__orig_file = orig_file
         self.__initiate_pict_dict()
         self.__out_file = out_file
-        # this is left over
-        self.__no_ask = 1
 
     def __initiate_pict_dict(self):
         self.__pict_dict = {
@@ -71,57 +71,43 @@ class Pict:
                 self.__out_file))
         else:
             dir_name = os.path.dirname(self.__orig_file)
-        # self.__output_to_file_func()
         self.__dir_name = base_name + "_rtf_pict_dir/"
         self.__dir_name = os.path.join(dir_name, self.__dir_name)
         if not os.path.isdir(self.__dir_name):
             try:
                 os.mkdir(self.__dir_name)
             except OSError, msg:
-                msg = str(msg)
-                msg += "Couldn't make directory '%s':\n" % (self.__dir_name)
+                msg = "%sCouldn't make directory '%s':\n" % (str(msg), self.__dir_name)
                 raise self.__bug_handler
         else:
-            if self.__no_ask:
-                user_response = 'r'
-            else:
-                msg = 'Do you want to remove all files in %s?\n' % self.__dir_name
-                msg += 'Type "r" to remove.\n'
-                msg +=  'Type any other key to keep files in place.\n'
-                sys.stderr.write(msg)
-                user_response = raw_input()
-            if user_response == 'r':
-                if self.__run_level > 1:
-                    sys.stderr.write('Removing files from old pict directory...\n')
-                all_files = os.listdir(self.__dir_name)
-                for the_file in all_files:
-                    the_file = os.path.join(self.__dir_name, the_file)
-                    try:
-                        os.remove(the_file)
-                    except OSError:
-                        pass
-                if self.__run_level > 1:
-                    sys.stderr.write('Files removed.\n')
+            if self.__run_level > 1:
+                sys.stderr.write('Removing files from old pict directory...\n')
+            all_files = os.listdir(self.__dir_name)
+            for the_file in all_files:
+                the_file = os.path.join(self.__dir_name, the_file)
+                try:
+                    os.remove(the_file)
+                except OSError:
+                    pass
+            if self.__run_level > 1:
+                sys.stderr.write('Files removed.\n')
 
     def __create_pict_file(self):
         """Create a file for all the pict data to be written to.
         """
         self.__pict_file = os.path.join(self.__dir_name, 'picts.rtf')
-        write_pic_obj = open(self.__pict_file, 'w')
-        write_pic_obj.close()
         self.__write_pic_obj = open(self.__pict_file, 'a')
 
     def __in_pict_func(self, line):
         if self.__cb_count == self.__pict_br_count:
-            self.__in_pict = 0
+            self.__in_pict = False
             self.__write_pic_obj.write("}\n")
-            return 1
+            return True
         else:
             action = self.__pict_dict.get(self.__token_info)
             if action:
-                line = action(line)
-                self.__write_pic_obj.write(line)
-            return 0
+                self.__write_pic_obj.write(action(line))
+            return False
 
     def __default(self, line, write_obj):
         """Determine if each token marks the beginning of pict data.
@@ -142,53 +128,50 @@ class Pict:
             write_obj.write('mi<mk<pict-end__\n')
             if not self.__already_found_pict:
                 self.__create_pict_file()
-                self.__already_found_pict=1;
+                self.__already_found_pict=True;
                 self.__print_rtf_header()
             self.__in_pict = 1
             self.__pict_br_count = self.__ob_count
             self.__cb_count = 0
             self.__write_pic_obj.write("{\\pict\n")
-            return 0
-        return 1
+            return False
+        return True
 
     def __print_rtf_header(self):
         """Print to pict file the necessary RTF data for the file to be
         recognized as an RTF file.
         """
-        self.__write_pic_obj.write("{\\rtf1 \n")
-        self.__write_pic_obj.write("{\\fonttbl\\f0\\null;} \n")
-        self.__write_pic_obj.write("{\\colortbl\\red255\\green255\\blue255;} \n")
-        self.__write_pic_obj.write("\\pard \n")
+        self.__write_pic_obj.write("{\\rtf1 \n{\\fonttbl\\f0\\null;} \n")
+        self.__write_pic_obj.write("{\\colortbl\\red255\\green255\\blue255;} \n\\pard \n")
 
     def process_pict(self):
         self.__make_dir()
-        read_obj = open(self.__file)
-        write_obj = open(self.__write_to, 'w')
-        line_to_read = 'dummy'
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            self.__token_info = line[:16]
-            if self.__token_info == 'ob<nu<open-brack':
-                self.__ob_count = line[-5:-1]
-            if self.__token_info == 'cb<nu<clos-brack':
-                self.__cb_count = line[-5:-1]
-            if not self.__in_pict:
-                to_print = self.__default(line, write_obj)
-                if to_print :
-                    write_obj.write(line)
-            else:
-                to_print = self.__in_pict_func(line)
-                if to_print :
-                    write_obj.write(line)
-        if self.__already_found_pict:
-            self.__write_pic_obj.write("}\n")
-            self.__write_pic_obj.close()
-        read_obj.close()
-        write_obj.close()
+        with open(self.__file) as read_obj:
+            with open(self.__write_to, 'w') as write_obj:
+                for line in read_obj:
+                    self.__token_info = line[:16]
+                    if self.__token_info == 'ob<nu<open-brack':
+                        self.__ob_count = line[-5:-1]
+                    if self.__token_info == 'cb<nu<clos-brack':
+                        self.__cb_count = line[-5:-1]
+                    if not self.__in_pict:
+                        to_print = self.__default(line, write_obj)
+                        if to_print :
+                            write_obj.write(line)
+                    else:
+                        to_print = self.__in_pict_func(line)
+                        if to_print :
+                            write_obj.write(line)
+                if self.__already_found_pict:
+                    self.__write_pic_obj.write("}\n")
+                    self.__write_pic_obj.close()
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "pict.data")
+            try:
+                copy_obj.copy_file(self.__pict_file, "pict.rtf")
+            except:
+                pass
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
         if self.__pict_count == 0:

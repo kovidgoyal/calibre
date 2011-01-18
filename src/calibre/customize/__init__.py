@@ -80,6 +80,100 @@ class Plugin(object): # {{{
         '''
         pass
 
+    def config_widget(self):
+        '''
+        Implement this method and :meth:`save_settings` in your plugin to
+        use a custom configuration dialog, rather then relying on the simple
+        string based default customization.
+
+        This method, if implemented, must return a QWidget. The widget can have
+        an optional method validate() that takes no arguments and is called
+        immediately after the user clicks OK. Changes are applied if and only
+        if the method returns True.
+        '''
+        raise NotImplementedError()
+
+    def save_settings(self, config_widget):
+        '''
+        Save the settings specified by the user with config_widget.
+
+        :param config_widget: The widget returned by :meth:`config_widget`.
+
+        '''
+        raise NotImplementedError()
+
+    def do_user_config(self, parent=None):
+        '''
+        This method shows a configuration dialog for this plugin. It returns
+        True if the user clicks OK, False otherwise. The changes are
+        automatically applied.
+        '''
+        from PyQt4.Qt import QDialog, QDialogButtonBox, QVBoxLayout, \
+                QLabel, Qt, QLineEdit
+        from calibre.gui2 import gprefs
+
+        prefname = 'plugin config dialog:'+self.type + ':' + self.name
+        geom = gprefs.get(prefname, None)
+
+        config_dialog = QDialog(parent)
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        v = QVBoxLayout(config_dialog)
+
+        def size_dialog():
+            if geom is None:
+                config_dialog.resize(config_dialog.sizeHint())
+            else:
+                config_dialog.restoreGeometry(geom)
+
+        button_box.accepted.connect(config_dialog.accept)
+        button_box.rejected.connect(config_dialog.reject)
+        config_dialog.setWindowTitle(_('Customize') + ' ' + self.name)
+        try:
+            config_widget = self.config_widget()
+        except NotImplementedError:
+            config_widget = None
+
+        if config_widget is not None:
+            v.addWidget(config_widget)
+            v.addWidget(button_box)
+            size_dialog()
+            config_dialog.exec_()
+
+            if config_dialog.result() == QDialog.Accepted:
+                if hasattr(config_widget, 'validate'):
+                    if config_widget.validate():
+                        self.save_settings(config_widget)
+                else:
+                    self.save_settings(config_widget)
+        else:
+            from calibre.customize.ui import plugin_customization, \
+                customize_plugin
+            help_text = self.customization_help(gui=True)
+            help_text = QLabel(help_text, config_dialog)
+            help_text.setWordWrap(True)
+            help_text.setTextInteractionFlags(Qt.LinksAccessibleByMouse
+                    | Qt.LinksAccessibleByKeyboard)
+            help_text.setOpenExternalLinks(True)
+            v.addWidget(help_text)
+            sc = plugin_customization(self)
+            if not sc:
+                sc = ''
+            sc = sc.strip()
+            sc = QLineEdit(sc, config_dialog)
+            v.addWidget(sc)
+            v.addWidget(button_box)
+            size_dialog()
+            config_dialog.exec_()
+
+            if config_dialog.result() == QDialog.Accepted:
+                sc = unicode(sc.text()).strip()
+                customize_plugin(self, sc)
+
+        geom = bytearray(config_dialog.saveGeometry())
+        gprefs[prefname] = geom
+
+        return config_dialog.result()
+
     def load_resources(self, names):
         '''
         If this plugin comes in a ZIP file (user added plugin), this method
@@ -307,6 +401,14 @@ class CatalogPlugin(Plugin): # {{{
     #:  cli_options parsed in library.cli:catalog_option_parser()
     cli_options = []
 
+    def _field_sorter(self, key):
+        '''
+        Custom fields sort after standard fields
+        '''
+        if key.startswith('#'):
+            return '~%s' % key[1:]
+        else:
+            return key
 
     def search_sort_db(self, db, opts):
 
@@ -315,18 +417,18 @@ class CatalogPlugin(Plugin): # {{{
         if opts.sort_by:
             # 2nd arg = ascending
             db.sort(opts.sort_by, True)
-
         return db.get_data_as_dict(ids=opts.ids)
 
-    def get_output_fields(self, opts):
+    def get_output_fields(self, db, opts):
         # Return a list of requested fields, with opts.sort_by first
-        all_fields = set(
+        all_std_fields = set(
                           ['author_sort','authors','comments','cover','formats',
                            'id','isbn','ondevice','pubdate','publisher','rating',
                            'series_index','series','size','tags','timestamp',
                            'title','uuid'])
+        all_custom_fields = set(db.custom_field_keys())
+        all_fields = all_std_fields.union(all_custom_fields)
 
-        fields = all_fields
         if opts.fields != 'all':
             # Make a list from opts.fields
             requested_fields = set(opts.fields.split(','))
@@ -337,7 +439,7 @@ class CatalogPlugin(Plugin): # {{{
         if not opts.connected_device['is_device_connected'] and 'ondevice' in fields:
             fields.pop(int(fields.index('ondevice')))
 
-        fields.sort()
+        fields = sorted(fields, key=self._field_sorter)
         if opts.sort_by and opts.sort_by in fields:
             fields.insert(0,fields.pop(int(fields.index(opts.sort_by))))
         return fields

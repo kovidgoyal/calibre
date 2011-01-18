@@ -28,6 +28,8 @@ class LaRepubblica(BasicNewsRecipe):
     recursion             = 10
 
     remove_javascript = True
+    no_stylesheets    = True
+
     def get_article_url(self, article):
         link = article.get('id', article.get('guid', None))
         if link is None:

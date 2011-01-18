@@ -227,7 +227,7 @@ class EbookIterator(object):
                 self.log.warn('Missing spine item:', repr(spath))
 
         cover = self.opf.cover
-        if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf') and cover:
+        if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf', 'fb2') and cover:
             cfile = os.path.join(self.base, 'calibre_iterator_cover.html')
             chtml = (TITLEPAGE%os.path.relpath(cover, self.base).replace(os.sep,
                 '/')).encode('utf-8')

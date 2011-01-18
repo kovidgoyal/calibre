@@ -1,0 +1,44 @@
+# -*- coding: utf-8 -*-
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1283848012(BasicNewsRecipe):
+    description   = 'The WallaNews.'
+    cover_url      = 'http://ftp5.bizportal.co.il/web/giflib/news/rsPhoto/sz_5/rsz_220_220_logo_walla.gif'
+    title          = u'Walla'
+    language              = 'he'
+    __author__ = 'marbs'
+    extra_css='img {max-width:100%;} body{direction: rtl;},title{direction: rtl; } ,article_description{direction: rtl; }, a.article{direction: rtl; } ,calibre_feed_description{direction: rtl; }'
+    simultaneous_downloads = 5
+#    remove_javascript     = True
+    timefmt        = '[%a, %d %b, %Y]'
+    oldest_article = 1
+    max_articles_per_feed = 100
+ #   remove_attributes = ['width']
+    keep_only_tags =dict(name='div', attrs={'class':'wp-0-b w3'})
+    remove_tags = [dict(name='div', attrs={'class':'tagsContainer'})]
+    max_articles_per_feed = 100
+#    preprocess_regexps = [
+#        (re.compile(r'<p>&nbsp;</p>', re.DOTALL|re.IGNORECASE), lambda match: '')
+#        ]
+
+
+    feeds          = [(u'חדשות', u'http://rss.walla.co.il/?w=/1/0/1/@rss'),
+                           (u'עסקים', u'http://rss.walla.co.il/?w=/2/3/1/@rss'),
+                           (u'תרבות', u'http://rss.walla.co.il/?w=/4/249/1/@rss'),
+                           (u'בריאות', u'http://rss.walla.co.il/?w=/5/18/1/@rss'),
+                           (u'TECH', u'http://rss.walla.co.il/?w=/6/4/1/@rss'),
+                           (u'אסטרולוגיה', u'http://rss.walla.co.il/?w=/8/3307/1/@rss'),
+                           (u'בעלי חיים', u'http://rss.walla.co.il/?w=/59/5703/1/@rss'),
+                           (u'רכב', u'http://rss.walla.co.il/?w=/31/4700/1/@rss'),
+                           (u'סלבס', u'http://rss.walla.co.il/?w=/22/3600/1/@rss'),
+                           (u'אוכל', u'http://rss.walla.co.il/?w=/9/903/1/@rss'),
+                           (u'אופנה', u'http://rss.walla.co.il/?w=/24/2120/1/@rss'),
+                           (u'ברנזה', u'http://rss.walla.co.il/?w=/27/3900/1/@rss'),
+                           (u'ZONE', u'http://rss.walla.co.il/?w=/18/500/1/@rss'),
+                           (u'ספורט', u'http://rss.walla.co.il/?w=/3/7/1/@rss')]
+
+    def print_version(self, url):
+        print_url = url + '/@@/item/printer'
+        return print_url
+

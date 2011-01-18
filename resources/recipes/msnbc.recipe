@@ -1,10 +1,9 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 msnbc.msn.com
 '''
 
-import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class MsNBC(BasicNewsRecipe):
@@ -19,7 +18,16 @@ class MsNBC(BasicNewsRecipe):
     publisher              = 'msnbc.com'
     category               = 'news, USA, world'
     language               = 'en'
-    extra_css              = ' body{ font-family: sans-serif } .head{font-family: serif; font-size: xx-large; font-weight: bold; color: #CC0000} .abstract{font-weight: bold} .source{font-size: small} .updateTime{font-size: small} '
+    extra_css              = """
+                                body{ font-family: Georgia,Times,serif }
+                                .hide{display: none}
+                                .caption{font-family: Arial,sans-serif; font-size: x-small}
+                                .entry-summary{font-family: Arial,sans-serif}
+                                .copyright{font-size: 0.95em; font-style: italic}
+                                .source-org{font-size: small; font-family: Arial,sans-serif}
+                                img{display: block; margin-bottom: 0.5em}
+                                span.byline{display: none}
+                            """
 
     conversion_options = {
                              'comments' : description
@@ -28,14 +36,20 @@ class MsNBC(BasicNewsRecipe):
                             ,'publisher': publisher
                          }
 
-    preprocess_regexps = [
-        (re.compile(r'</style></head>', re.DOTALL|re.IGNORECASE),lambda match: '</style>')
-       ,(re.compile(r'<div class="head">', re.DOTALL|re.IGNORECASE),lambda match: '</head><body><div class="head">'),
-    ]
+    remove_tags_before = dict(name='h1', attrs={'id':'headline'})
+    remove_tags_after = dict(name='span', attrs={'class':['copyright','Linear copyright']})
+    keep_only_tags=[
+                      dict(attrs={'id':['headline','deck','byline','source','intelliTXT']})
+                     ,dict(attrs={'class':['gl_headline','articleText','drawer-content Linear','v-center3','byline','textBodyBlack']})
+                   ]
+    remove_attributes=['property','lang','rel','xmlns:fb','xmlns:v','xmlns:dc','xmlns:dcmitype','xmlns:og','xmlns:media','xmlns:vcard','typeof','itemscope','itemtype','itemprop','about','type','size','width','height','onreadystatechange','data','border','hspace','vspace']
 
-    remove_tags_before = dict(name='div', attrs={'class':'head'})
-    remove_tags_after = dict(name='div', attrs={'class':'copyright'})
-    remove_tags      = [dict(name=['iframe','object','link','script','form'])]
+    remove_tags      = [
+                          dict(name=['iframe','object','link','embed','meta','table'])
+                         ,dict(name='span', attrs={'class':['copyright','Linear copyright']})
+                         ,dict(name='div', attrs={'class':'social'})
+                       ]
+
 
     feeds = [
                (u'US News'       , u'http://rss.msnbc.msn.com/id/3032524/device/rss/rss.xml'      )
@@ -48,11 +62,26 @@ class MsNBC(BasicNewsRecipe):
               ,(u'Tech & Science', u'http://rss.msnbc.msn.com/id/3032117/device/rss/rss.xml'      )
             ]
 
-    def print_version(self, url):
-        return url + 'print/1/displaymode/1098/'
-
     def preprocess_html(self, soup):
-        for item in soup.head.findAll('div'):
-            item.extract()
+        for item in soup.body.findAll('html'):
+            item.name='div'
+        for item in soup.body.findAll('div'):
+            if item.has_key('id') and item['id'].startswith('vine-'):
+               item.extract()
+            if item.has_key('class') and ( item['class'].startswith('ad') or item['class'].startswith('vine')):
+               item.extract()
+        for item in soup.body.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        for item in soup.body.findAll('ol'):
+            if item.has_key('class') and item['class'].startswith('grid'):
+               item.extract()
+        for item in soup.body.findAll('span'):
+            if ( item.has_key('id') and item['id'].startswith('byLine') and item.string is None) or ( item.has_key('class') and item['class'].startswith('inline') ):
+               item.extract()
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
         return soup
 

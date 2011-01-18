@@ -16,6 +16,7 @@ from calibre.ebooks.metadata.book import TOP_LEVEL_CLASSIFIERS
 from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date
+from calibre.utils.icu import sort_key
 from calibre.utils.formatter import TemplateFormatter
 
 
@@ -38,15 +39,16 @@ class SafeFormat(TemplateFormatter):
 
     def get_value(self, key, args, kwargs):
         try:
+            key = key.lower()
             if key != 'title_sort':
-                key = field_metadata.search_term_to_field_key(key.lower())
+                key = field_metadata.search_term_to_field_key(key)
             b = self.book.get_user_metadata(key, False)
             if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
                 v = ''
             elif b and b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0:
                 v = ''
             else:
-                ign, v = self.book.format_field(key.lower(), series_with_index=False)
+                ign, v = self.book.format_field(key, series_with_index=False)
             if v is None:
                 return ''
             if v == '':
@@ -159,6 +161,11 @@ class Metadata(object):
         try:
             return self.__getattribute__(field)
         except AttributeError:
+            if field.startswith('#') and field.endswith('_index'):
+                try:
+                    return self.get_extra(field[:-6])
+                except:
+                    pass
             return default
 
     def get_extra(self, field):
@@ -317,14 +324,16 @@ class Metadata(object):
             if metadata is None:
                 traceback.print_stack()
                 return
-            metadata = copy.deepcopy(metadata)
-            if '#value#' not in metadata:
-                if metadata['datatype'] == 'text' and metadata['is_multiple']:
-                    metadata['#value#'] = []
+            m = {}
+            for k in metadata:
+                m[k] = copy.copy(metadata[k])
+            if '#value#' not in m:
+                if m['datatype'] == 'text' and m['is_multiple']:
+                    m['#value#'] = []
                 else:
-                    metadata['#value#'] = None
+                    m['#value#'] = None
             _data = object.__getattribute__(self, '_data')
-            _data['user_metadata'][field] = metadata
+            _data['user_metadata'][field] = m
 
     def template_to_attribute(self, other, ops):
         '''
@@ -484,7 +493,7 @@ class Metadata(object):
         return authors_to_string(self.authors)
 
     def format_tags(self):
-        return u', '.join([unicode(t) for t in self.tags])
+        return u', '.join([unicode(t) for t in sorted(self.tags, key=sort_key)])
 
     def format_rating(self):
         return unicode(self.rating)
@@ -524,7 +533,7 @@ class Metadata(object):
             orig_res = res
             datatype = cmeta['datatype']
             if datatype == 'text' and cmeta['is_multiple']:
-                res = u', '.join(res)
+                res = u', '.join(sorted(res, key=sort_key))
             elif datatype == 'series' and series_with_index:
                 if self.get_extra(key) is not None:
                     res = res + \
@@ -554,7 +563,7 @@ class Metadata(object):
             elif key == 'series_index':
                 res = self.format_series_index(res)
             elif datatype == 'text' and fmeta['is_multiple']:
-                res = u', '.join(res)
+                res = u', '.join(sorted(res, key=sort_key))
             elif datatype == 'series' and series_with_index:
                 res = res + ' [%s]'%self.format_series_index()
             elif datatype == 'datetime':

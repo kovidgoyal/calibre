@@ -8,15 +8,15 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os
 
 from PyQt4.Qt import Qt, QModelIndex, QAbstractItemModel, QVariant, QIcon, \
-        QBrush, QDialog, QDialogButtonBox, QVBoxLayout, QLabel, QLineEdit
+        QBrush
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugins_ui import Ui_Form
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
-                                 disable_plugin, customize_plugin, \
-                                 plugin_customization, add_plugin, \
+                                 disable_plugin, plugin_customization, add_plugin, \
                                  remove_plugin
-from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files
+from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files, \
+        question_dialog
 
 class PluginModel(QAbstractItemModel): # {{{
 
@@ -77,6 +77,16 @@ class PluginModel(QAbstractItemModel): # {{{
                     return self.index(j, 0, parent)
         return QModelIndex()
 
+    def plugin_to_index_by_properties(self, plugin):
+        for i, category in enumerate(self.categories):
+            parent = self.index(i, 0, QModelIndex())
+            for j, p in enumerate(self._data[category]):
+                if plugin.name == p.name and plugin.type == p.type and \
+                        plugin.author == p.author and plugin.version == p.version:
+                    return self.index(j, 0, parent)
+        return QModelIndex()
+
+
     def refresh_plugin(self, plugin, rescan=False):
         if rescan:
             self.populate()
@@ -129,14 +139,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.plugin_view.setModel(self._plugin_model)
         self.plugin_view.setStyleSheet(
                 "QTreeView::item { padding-bottom: 10px;}")
+        self.plugin_view.doubleClicked.connect(self.double_clicked)
         self.toggle_plugin_button.clicked.connect(self.toggle_plugin)
         self.customize_plugin_button.clicked.connect(self.customize_plugin)
         self.remove_plugin_button.clicked.connect(self.remove_plugin)
-        self.button_plugin_browse.clicked.connect(self.find_plugin)
         self.button_plugin_add.clicked.connect(self.add_plugin)
 
     def toggle_plugin(self, *args):
         self.modify_plugin(op='toggle')
+
+    def double_clicked(self, index):
+        if index.parent().isValid():
+            self.modify_plugin(op='customize')
 
     def customize_plugin(self, *args):
         self.modify_plugin(op='customize')
@@ -145,23 +159,39 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.modify_plugin(op='remove')
 
     def add_plugin(self):
-        path = unicode(self.plugin_path.text())
-        if path and os.access(path, os.R_OK) and path.lower().endswith('.zip'):
-            add_plugin(path)
+        path = choose_files(self, 'add a plugin dialog', _('Add plugin'),
+                filters=[(_('Plugins'), ['zip'])], all_files=False,
+                    select_only_single_file=True)
+        if not path:
+            return
+        path = path[0]
+        if path and  os.access(path, os.R_OK) and path.lower().endswith('.zip'):
+            if not question_dialog(self, _('Are you sure?'), '<p>' + \
+                    _('Installing plugins is a <b>security risk</b>. '
+                    'Plugins can contain a virus/malware. '
+                        'Only install it if you got it from a trusted source.'
+                        ' Are you sure you want to proceed?'),
+                    show_copy_button=False):
+                return
+            plugin = add_plugin(path)
             self._plugin_model.populate()
             self._plugin_model.reset()
             self.changed_signal.emit()
-            self.plugin_path.setText('')
+            info_dialog(self, _('Success'),
+                    _('Plugin <b>{0}</b> successfully installed under <b>'
+                        ' {1} plugins</b>. You may have to restart calibre '
+                        'for the plugin to take effect.').format(plugin.name, plugin.type),
+                    show=True, show_copy_button=False)
+            idx = self._plugin_model.plugin_to_index_by_properties(plugin)
+            if idx.isValid():
+                self.plugin_view.scrollTo(idx,
+                        self.plugin_view.PositionAtCenter)
+                self.plugin_view.scrollTo(idx,
+                        self.plugin_view.PositionAtCenter)
         else:
             error_dialog(self, _('No valid plugin path'),
                          _('%s is not a valid plugin path')%path).exec_()
 
-    def find_plugin(self):
-        path = choose_files(self, 'choose plugin dialog', _('Choose plugin'),
-                            filters=[('Plugins', ['zip'])], all_files=False,
-                            select_only_single_file=True)
-        if path:
-            self.plugin_path.setText(path[0])
 
     def modify_plugin(self, op=''):
         index = self.plugin_view.currentIndex()
@@ -184,55 +214,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         _('Plugin: %s does not need customization')%plugin.name).exec_()
                     return
                 self.changed_signal.emit()
-
-                config_dialog = QDialog(self)
-                button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-                v = QVBoxLayout(config_dialog)
-
-                button_box.accepted.connect(config_dialog.accept)
-                button_box.rejected.connect(config_dialog.reject)
-                config_dialog.setWindowTitle(_('Customize') + ' ' + plugin.name)
-
-                if hasattr(plugin, 'config_widget'):
-                    config_widget = plugin.config_widget()
-                    v.addWidget(config_widget)
-                    v.addWidget(button_box)
-                    config_dialog.exec_()
-
-                    if config_dialog.result() == QDialog.Accepted:
-                        if hasattr(config_widget, 'validate'):
-                            if config_widget.validate():
-                                plugin.save_settings(config_widget)
-                        else:
-                            plugin.save_settings(config_widget)
-                        self._plugin_model.refresh_plugin(plugin)
-                else:
-                    help_text = plugin.customization_help(gui=True)
-                    help_text = QLabel(help_text, config_dialog)
-                    help_text.setWordWrap(True)
-                    help_text.setTextInteractionFlags(Qt.LinksAccessibleByMouse
-                            | Qt.LinksAccessibleByKeyboard)
-                    help_text.setOpenExternalLinks(True)
-                    v.addWidget(help_text)
-                    sc = plugin_customization(plugin)
-                    if not sc:
-                        sc = ''
-                    sc = sc.strip()
-                    sc = QLineEdit(sc, config_dialog)
-                    v.addWidget(sc)
-                    v.addWidget(button_box)
-                    config_dialog.exec_()
-
-                    if config_dialog.result() == QDialog.Accepted:
-                        sc = unicode(sc.text()).strip()
-                        customize_plugin(plugin, sc)
-
+                if plugin.do_user_config():
                     self._plugin_model.refresh_plugin(plugin)
             elif op == 'remove':
+                msg = _('Plugin {0} successfully removed').format(plugin.name)
                 if remove_plugin(plugin):
                     self._plugin_model.populate()
                     self._plugin_model.reset()
                     self.changed_signal.emit()
+                    info_dialog(self, _('Success'), msg, show=True,
+                            show_copy_button=False)
                 else:
                     error_dialog(self, _('Cannot remove builtin plugin'),
                          plugin.name + _(' cannot be removed. It is a '

@@ -28,7 +28,7 @@ class PMLOutput(OutputFormatPlugin):
     file_type = 'pmlz'
 
     options = set([
-        OptionRecommendation(name='output_encoding', recommended_value='cp1252',
+        OptionRecommendation(name='pml_output_encoding', recommended_value='cp1252',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \
             'The default is cp1252.')),
@@ -48,7 +48,7 @@ class PMLOutput(OutputFormatPlugin):
             pmlmlizer = PMLMLizer(log)
             pml = unicode(pmlmlizer.extract_content(oeb_book, opts))
             with open(os.path.join(tdir, 'index.pml'), 'wb') as out:
-                out.write(pml.encode(opts.output_encoding, 'replace'))
+                out.write(pml.encode(opts.pml_output_encoding, 'replace'))
 
             self.write_images(oeb_book.manifest, pmlmlizer.image_hrefs, tdir, opts)
 

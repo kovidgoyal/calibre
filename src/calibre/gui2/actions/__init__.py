@@ -36,6 +36,11 @@ class InterfaceAction(QObject):
 
         self.gui.iactions['Save To Disk']
 
+    To access the actual plugin, use the :attr:`interface_action_base_plugin`
+    attribute, this attribute only becomes available after the plugin has been
+    initialized. Useful if you want to use methods from the plugin class like
+    do_user_config().
+
     The QAction specified by :attr:`action_spec` is automatically create and
     made available as ``self.qaction``.
 
@@ -83,6 +88,7 @@ class InterfaceAction(QObject):
         self.setObjectName(self.name)
         self.gui = parent
         self.site_customization = site_customization
+        self.interface_action_base_plugin = None
 
     def do_genesis(self):
         self.Dispatcher = partial(Dispatcher, parent=self)
@@ -105,7 +111,10 @@ class InterfaceAction(QObject):
         action.setWhatsThis(text)
         action.setAutoRepeat(False)
         if shortcut:
-            action.setShortcut(shortcut)
+            if isinstance(shortcut, list):
+                action.setShortcuts(shortcut)
+            else:
+                action.setShortcut(shortcut)
         setattr(self, attr, action)
         return action
 
@@ -161,6 +170,14 @@ class InterfaceAction(QObject):
 
         :param db: The LibraryDatabase corresponding to the current library.
 
+        '''
+        pass
+
+    def gui_layout_complete(self):
+        '''
+        Called once per action when the layout of the main GUI is
+        completed. If your action needs to make changes to the layout, they
+        should be done here, rather than in :meth:`initialization_complete`.
         '''
         pass
 
