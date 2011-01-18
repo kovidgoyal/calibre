@@ -46,9 +46,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         for x in ('sr1_search', 'sr2_search', 'sr3_search'):
             x = getattr(self, 'opt_'+x)
             try:
-                pat = unicode(x.regex).strip()
-                if pat:
-                    re.compile(pat)
+                pat = unicode(x.regex)
+                re.compile(pat)
             except Exception, err:
                 error_dialog(self, _('Invalid regular expression'),
                              _('Invalid regular expression: %s')%err, show=True)
