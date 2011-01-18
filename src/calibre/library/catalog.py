@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, isoformat, now as nowf
+from calibre.utils.icu import capitalize
 from calibre.utils.logging import default_log as log
 from calibre.utils.zipfile import ZipFile, ZipInfo
 from calibre.utils.magick.draw import thumbnail
@@ -1026,17 +1027,12 @@ class EPUB_MOBI(CatalogPlugin):
                 self.__totalSteps += 3
 
             # Load section list templates
-            templates = ['by_authors_normal_title_template',
-                         'by_authors_series_title_template',
-                         'by_titles_normal_title_template',
-                         'by_titles_series_title_template',
-                         'by_series_title_template',
-                         'by_genres_normal_title_template',
-                         'by_genres_series_title_template',
-                         'by_recently_added_normal_title_template',
-                         'by_recently_added_series_title_template',
-                         'by_month_added_normal_title_template',
-                         'by_month_added_series_title_template']
+            templates = []
+            with open(P('catalog/section_list_templates.py'), 'r') as f:
+                for line in f:
+                    t = re.match("(by_.+_template)",line)
+                    if t:
+                        templates.append(t.group(1))
             execfile(P('catalog/section_list_templates.py'), locals())
             for t in templates:
                 setattr(self,t,eval(t))
@@ -1440,7 +1436,9 @@ class EPUB_MOBI(CatalogPlugin):
                     # Exit if author matches previous, but author_sort doesn't match
                     if author[0] == current_author[0]:
                         error_msg = _('''
-Inconsistent Author Sort values for Author '{0}' ('{1}' <> '{2}'), unable to build catalog.\n
+Inconsistent Author Sort values for Author '{0}':
+'{1}' <> '{2}',
+unable to build catalog.\n
 Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog,
 then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         self.opts.log.warn('\n*** Metadata error ***')
@@ -1449,17 +1447,13 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         self.error.append('Metadata error')
                         self.error.append(error_msg)
                         return False
+                    current_author = author
 
 
             self.booksByAuthor = sorted(self.booksByAuthor, key=self.booksByAuthorSorter_author_sort)
 
-#             for book in self.booksByAuthor:
-#                 print '{0:<10} {1:<5} {2:<20} {3:<20} {4:<20} {5:<20}'.format(book['series'], book['series_index'], book['title'],
-#                                                 book['author'], book['authors'],book['author_sort'])
-#             print
-
             # Build the unique_authors set from existing data
-            authors = [(record['author'], record['author_sort'].capitalize()) for record in self.booksByAuthor]
+            authors = [(record['author'], capitalize(record['author_sort'])) for record in self.booksByAuthor]
 
             # authors[] contains a list of all book authors, with multiple entries for multiple books by author
             #        authors[]: (([0]:friendly  [1]:sort))
@@ -1565,7 +1559,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
                 this_title['rating'] = record['rating'] if record['rating'] else 0
 
-                if re.match('0100-01-01',str(record['pubdate'].date())):
+                if re.match('0101-01-01',str(record['pubdate'].date())):
                     this_title['date'] = None
                 else:
                     this_title['date'] = strftime(u'%B %Y', record['pubdate'].timetuple())
@@ -2682,7 +2676,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 #aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
 
                 # Reassert 'date' since this is the result of a new search
-                if re.match('0100-01-01',str(book['pubdate'].date())):
+                if re.match('0101-01-01',str(book['pubdate'].date())):
                     book['date'] = None
                 else:
                     book['date'] = strftime(u'%B %Y', book['pubdate'].timetuple())
@@ -2756,7 +2750,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         this_book = {}
                         this_book['author'] = book['author']
                         this_book['title'] = book['title']
-                        this_book['author_sort'] = book['author_sort'].capitalize()
+                        this_book['author_sort'] = capitalize(book['author_sort'])
                         this_book['read'] = book['read']
                         this_book['tags'] = book['tags']
                         this_book['id'] = book['id']
@@ -3901,14 +3895,14 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             Sort non-series books before series books
             '''
             if not book['series']:
-                key = '%s %s' % (book['author_sort'].capitalize(),
-                                 book['title_sort'].capitalize())
+                key = '%s %s' % (capitalize(book['author_sort']),
+                                 capitalize(book['title_sort']))
             else:
                 index = book['series_index']
                 integer = int(index)
                 fraction = index-integer
                 series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
-                key = '%s ~%s %s' % (book['author_sort'].capitalize(),
+                key = '%s ~%s %s' % (capitalize(book['author_sort']),
                                      self.generateSortTitle(book['series']),
                                      series_index)
             return key
@@ -3919,7 +3913,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             '''
             if not book['series']:
                 key = '%s %s' % (self.author_to_author_sort(book['author']),
-                                 book['title_sort'].capitalize())
+                                 capitalize(book['title_sort']))
             else:
                 index = book['series_index']
                 integer = int(index)
@@ -4313,10 +4307,11 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 formats = ' &middot; '.join(formats)
 
             # Date of publication
-            pubdate = book['date']
-            pubmonth, pubyear = pubdate.split()
-            if pubyear == '101':
-                pubdate = pubmonth = pubyear = ''
+            if book['date']:
+                pubdate = book['date']
+                pubmonth, pubyear = pubdate.split()
+            else:
+                pubdate = pubyear = pubmonth = ''
 
             # Thumb
             _soup = BeautifulSoup('<html>',selfClosingTags=['img'])
@@ -4570,7 +4565,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         if self.letter_or_symbol(word[0]) != word[0]:
                             if word[0] > 'A' or (ord('9') < ord(word[0]) < ord('A')) :
                                 translated.append('/')
-                        translated.append(word.capitalize())
+                        translated.append(capitalize(word))
 
                 else:
                     if re.search('[0-9]+',word[0]):

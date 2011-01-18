@@ -6,6 +6,8 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
+    These templates control the content of titles displayed in the various sections
+
     Available fields:
     {title}          Title of the book
     {series}         Series name
@@ -14,6 +16,7 @@ __docformat__ = 'restructuredtext en'
     {rating_parens}  Rating, in parentheses
     {pubyear}        Year the book was published
     {pubyear_parens} Year the book was published, in parentheses
+
 '''
 # Books by Author
 by_authors_normal_title_template = '{title} {pubyear_parens}'
