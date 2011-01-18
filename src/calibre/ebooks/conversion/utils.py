@@ -102,8 +102,7 @@ class HeuristicProcessor(object):
 
         min_lns = tot_ln_fds * percent
         #self.log.debug("There must be fewer than " + unicode(min_lns) + " unmarked lines to add markup")
-        if min_lns > tot_htm_ends:
-            return True
+        return min_lns > tot_htm_ends
 
     def dump(self, raw, where):
         import os

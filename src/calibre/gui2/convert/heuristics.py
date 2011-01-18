@@ -25,21 +25,21 @@ class HeuristicsWidget(Widget, Ui_Form):
                 )
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
-        
+
         self.opt_enable_heuristics.stateChanged.connect(self.enable_heuristics)
         self.opt_unwrap_lines.stateChanged.connect(self.enable_unwrap)
-        
+
         self.enable_heuristics(self.opt_enable_heuristics.checkState())
 
     def break_cycles(self):
         Widget.break_cycles(self)
-        
+
         try:
             self.opt_enable_heuristics.stateChanged.disconnect()
             self.opt_unwrap_lines.stateChanged.disconnect()
         except:
             pass
-        
+
     def set_value_handler(self, g, val):
         if val is None and g is self.opt_html_unwrap_factor:
             g.setValue(0.0)
@@ -57,7 +57,7 @@ class HeuristicsWidget(Widget, Ui_Form):
         self.opt_format_scene_breaks.setEnabled(state)
         self.opt_dehyphenate.setEnabled(state)
         self.opt_renumber_headings.setEnabled(state)
-        
+
         self.opt_unwrap_lines.setEnabled(state)
         if state and self.opt_unwrap_lines.checkState() == Qt.Checked:
             self.opt_html_unwrap_factor.setEnabled(True)
