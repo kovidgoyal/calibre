@@ -285,10 +285,14 @@ remove all non-breaking-space entities.
 :guilabel:`Detect and markup unformatted chapter headings and sub headings`
     If your document does not have Chapter Markers and titles formatted differently from the rest of the text,
     |app| can use this option to attempt detection them and surround them with heading tags. &lt;h2&gt; tags are used 
-    for chapter headings; &lt;h3&gt; tags are used for any titles that are detected.  This function will 
-    not create a TOC, but in many cases it will cause |app|'s default chapter detection settings to correctly
-    detect chapters and build a TOC.  Adjust the Xpath under Structure Detection if a TOC is not automatically
-    created.  The inserted heading tags are not formatted, to apply formatting use the 'extra_css' option under
+    for chapter headings; &lt;h3&gt; tags are used for any titles that are detected.  
+    
+    This function will not create a TOC, but in many cases it will cause |app|'s default chapter detection settings 
+    to correctly detect chapters and build a TOC.  Adjust the Xpath under Structure Detection if a TOC is not automatically
+    created.  If there are no other headings used in the document then setting "//h:h2" under Structure Detection would
+    be the easiest way to create a TOC for the document.
+    
+    The inserted headings are not formatted, to apply formatting use the 'extra_css' option under
     the Look and Feel conversion settings.  For example, to center heading tags, use the following::
 
         h2, h3 { text-align: center }

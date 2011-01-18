@@ -174,7 +174,7 @@ class HeuristicProcessor(object):
             if wordcount > 200000:
                 typical_chapters = 15000.
             self.min_chapters = int(ceil(wordcount / typical_chapters))
-        print "minimum chapters required are: "+str(self.min_chapters)
+        self.log.debug("minimum chapters required are: "+str(self.min_chapters))
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
         self.log.debug("found " + unicode(self.html_preprocess_sections) + " pre-existing headings")
@@ -208,12 +208,12 @@ class HeuristicProcessor(object):
         n_lookahead_close = ")"
 
         default_title = r"(<[ibu][^>]*>)?\s{0,3}(?!Chapter)([\w\:\'’\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
-        simple_title = r"(<[ibu][^>]*>)?\s{0,3}(?!Chapter).{0,50}?(</[ibu][^>]*>)?(?=<)"
+        simple_title = r"(<[ibu][^>]*>)?\s{0,3}(?!(Chapter|\s+<)).{0,65}?(</[ibu][^>]*>)?(?=<)"
 
         analysis_result = []
 
         chapter_types = [
-            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Epilogue|CHAPTER|Kapitel|Volume\s|Prologue|Book\s|Part\s|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, True, True, False, "Searching for common section headings", 'common'],
+            [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Epilogue|CHAPTER|Kapitel|Volume\b|Prologue|Book\b|Part\b|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, True, True, False, "Searching for common section headings", 'common'],
             [r"[^'\"]?(CHAPTER|Kapitel)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, True, True, False, "Searching for most common chapter headings", 'chapter'],  # Highest frequency headings which include titles
             [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•=]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, True, True, False, "Searching for emphasized lines", 'emphasized'], # Emphasized lines
             [r"[^'\"]?(\d+(\.|:))\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, True, True, False, "Searching for numeric chapter headings", 'numeric'],  # Numeric Chapters
@@ -274,10 +274,9 @@ class HeuristicProcessor(object):
                             title_req = True
                             strict_title = False
                         self.log.debug(unicode(type_name)+" had "+unicode(hits)+" hits - "+unicode(self.chapters_no_title)+" chapters with no title, "+unicode(self.chapters_with_title)+" chapters with titles, "+unicode(float(self.chapters_with_title) / float(hits))+" percent. ")
-                        print "max chapters is "+str(self.max_chapters)
                         if type_name == 'common':
                             analysis_result.append([chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name])
-                        elif self.min_chapters <= hits < self.max_chapters:
+                        elif self.min_chapters <= hits < max_chapters:
                             analysis_result.append([chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name])
                             break
                 else:
@@ -423,7 +422,6 @@ class HeuristicProcessor(object):
         except:
             self.log.warn("Can't get wordcount")
 
-        print "found "+unicode(self.totalwords)+" words in the flow"
         if self.totalwords < 50:
             self.log.warn("flow is too short, not running heuristics")
             return html
