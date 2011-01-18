@@ -7,8 +7,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.conversion.utils import HeuristicProcessor
-
 
 class LITInput(InputFormatPlugin):
 

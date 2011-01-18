@@ -54,7 +54,7 @@ class HeuristicProcessor(object):
         return '<'+styles+' style="page-break-before:always">'+chap
 
     def analyze_title_matches(self, match):
-        chap = match.group('chap')
+        #chap = match.group('chap')
         title = match.group('title')
         if not title:
             self.chapters_no_title = self.chapters_no_title + 1
@@ -102,8 +102,7 @@ class HeuristicProcessor(object):
 
         min_lns = tot_ln_fds * percent
         #self.log.debug("There must be fewer than " + unicode(min_lns) + " unmarked lines to add markup")
-        if min_lns > tot_htm_ends:
-            return True
+        return min_lns > tot_htm_ends
 
     def dump(self, raw, where):
         import os
@@ -136,7 +135,7 @@ class HeuristicProcessor(object):
             'nota bene', 'Nota bene', 'Ste.', 'Mme.', 'Mdme.',
             'Mlle.', 'Mons.', 'PS.', 'PPS.',
         ]
-        
+
         ITALICIZE_STYLE_PATS = [
             r'(?msu)(?<=\s)_(?P<words>\S[^_]{0,40}?\S)?_(?=\s)',
             r'(?msu)(?<=\s)/(?P<words>\S[^/]{0,40}?\S)?/(?=\s)',
@@ -150,7 +149,7 @@ class HeuristicProcessor(object):
             r'(?msu)(?<=\s)/:(?P<words>\S[^:/]{0,40}?\S)?:/(?=\s)',
             r'(?msu)(?<=\s)\|:(?P<words>\S[^:\|]{0,40}?\S)?:\|(?=\s)',
         ]
-        
+
         for word in ITALICIZE_WORDS:
             html = html.replace(word, '<i>%s</i>' % word)
 
@@ -242,7 +241,7 @@ class HeuristicProcessor(object):
                     lp_title = default_title
                 else:
                     lp_title = simple_title
-                 
+
                 if ignorecase:
                     arg_ignorecase = r'(?i)'
                 else:
@@ -250,7 +249,7 @@ class HeuristicProcessor(object):
 
                 if title_req:
                     lp_opt_title_open = ''
-                    lp_opt_title_close = ''        
+                    lp_opt_title_close = ''
                 else:
                     lp_opt_title_open = opt_title_open
                     lp_opt_title_close = opt_title_close
@@ -399,7 +398,7 @@ class HeuristicProcessor(object):
         if len(lines) > 1:
             self.log.debug("There are " + unicode(len(blanklines)) + " blank lines. " +
                     unicode(float(len(blanklines)) / float(len(lines))) + " percent blank")
-                    
+
             if float(len(blanklines)) / float(len(lines)) > 0.40:
                 return True
             else:
@@ -460,7 +459,7 @@ class HeuristicProcessor(object):
         if getattr(self.extra_opts, 'markup_chapter_headings', False):
             html = self.markup_chapters(html, self.totalwords, blanks_between_paragraphs)
 
-        if getattr(self.extra_opts, 'italicize_common_cases', False): 
+        if getattr(self.extra_opts, 'italicize_common_cases', False):
             html = self.markup_italicis(html)
 
         # If more than 40% of the lines are empty paragraphs and the user has enabled delete
@@ -487,7 +486,7 @@ class HeuristicProcessor(object):
         unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
         length = docanalysis.line_length(unwrap_factor)
         self.log.debug("Median line length is " + unicode(length) + ", calculated with " + format + " format")
-            
+
         ###### Unwrap lines ######
         if getattr(self.extra_opts, 'unwrap_lines', False):
             # only go through unwrapping code if the histogram shows unwrapping is required or if the user decreased the default unwrap_factor
