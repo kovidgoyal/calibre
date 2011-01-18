@@ -52,7 +52,7 @@ def is_date_undefined(qt_or_dt):
         return True
     if hasattr(d, 'toString'):
         d = datetime(d.year(), d.month(), d.day(), tzinfo=utc_tz)
-    return d.year == UNDEFINED_DATE.year and \
+    return d.year <= UNDEFINED_DATE.year and \
             d.month == UNDEFINED_DATE.month and \
             d.day == UNDEFINED_DATE.day
 

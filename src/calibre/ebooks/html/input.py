@@ -21,7 +21,7 @@ from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.customize.conversion import OptionRecommendation
 from calibre.constants import islinux, isfreebsd, iswindows
-from calibre import unicode_path
+from calibre import unicode_path, as_unicode
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.conversion.utils import PreProcessor
@@ -112,7 +112,7 @@ class HTMLFile(object):
             with open(self.path, 'rb') as f:
                 src = f.read()
         except IOError, err:
-            msg = 'Could not read from file: %s with error: %s'%(self.path, unicode(err))
+            msg = 'Could not read from file: %s with error: %s'%(self.path, as_unicode(err))
             if level == 0:
                 raise IOError(msg)
             raise IgnoreFile(msg, err.errno)
