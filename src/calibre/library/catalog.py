@@ -18,7 +18,7 @@ from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
-from calibre.utils.date import format_date, isoformat, now as nowf
+from calibre.utils.date import format_date, isoformat, now as nowf, UNDEFINED_DATE, utc_tz
 from calibre.utils.icu import capitalize
 from calibre.utils.logging import default_log as log
 from calibre.utils.zipfile import ZipFile, ZipInfo
@@ -1559,6 +1559,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
                 this_title['rating'] = record['rating'] if record['rating'] else 0
 
+                #pubdate = record['pubdate'].astimezone(utc_tz)
+                #if pubdate == UNDEFINED_DATE:
                 if re.match('0101-01-01',str(record['pubdate'].date())):
                     this_title['date'] = None
                 else:
@@ -2676,6 +2678,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 #aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
 
                 # Reassert 'date' since this is the result of a new search
+                #if book['pubdate'] == UNDEFINED_DATE:  # tz doesn't match
                 if re.match('0101-01-01',str(book['pubdate'].date())):
                     book['date'] = None
                 else:
