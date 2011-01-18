@@ -48,6 +48,8 @@ UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
 
 def is_date_undefined(qt_or_dt):
     d = qt_or_dt
+    if d is None:
+        return True
     if hasattr(d, 'toString'):
         d = datetime(d.year(), d.month(), d.day(), tzinfo=utc_tz)
     return d.year == UNDEFINED_DATE.year and \
