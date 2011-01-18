@@ -1,4 +1,5 @@
 #!/usr/bin/env  python
+# -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -22,6 +23,10 @@ class NYTimes(BasicNewsRecipe):
     # will be included. Note: oldest_article is ignored if webEdition = False
     webEdition = False
     oldest_article = 7
+
+    # replace paid Kindle Version:  the name will be changed to "The New York Times" to cause
+    # previous paid versions of the new york times to best sent to the back issues folder on the kindle
+    replaceKindleVersion = False
 
     # includeSections: List of sections to include. If empty, all sections found will be included.
     # Otherwise, only the sections named will be included. For example,
@@ -93,6 +98,10 @@ class NYTimes(BasicNewsRecipe):
     elif webEdition:
         title='New York Times (Web)'
         description = 'New York Times on the Web'
+        needs_subscription = True
+    elif replaceKindleVersion:
+	title='The New York Times'
+        description = 'Today\'s New York Times'
         needs_subscription = True
     else:
         title='New York Times'
@@ -623,7 +632,7 @@ class NYTimes(BasicNewsRecipe):
 							self.log(">>> No class:'columnGroup first' found <<<")
 		except:
 			self.log("ERROR: One picture per article in postprocess_html")
-									
+
 		try:
 			# Change captions to italic
 			for caption in soup.findAll(True, {'class':'caption'}) :
@@ -637,7 +646,7 @@ class NYTimes(BasicNewsRecipe):
 					caption.replaceWith(cTag)
 		except:
 			self.log("ERROR:  Problem in change captions to italic")
-		
+
 		try:
 			# Change <nyt_headline> to <h2>
 			h1 = soup.find('h1')
@@ -675,7 +684,7 @@ class NYTimes(BasicNewsRecipe):
 		except:
 			self.log("ERROR:  Problem in Change <h1> to <h3> - used in editorial blogs")
 
-		try:		
+		try:
 			# Change <span class="bold"> to <b>
 			for subhead in soup.findAll(True, {'class':'bold'}) :
 				if subhead.contents:
@@ -684,15 +693,15 @@ class NYTimes(BasicNewsRecipe):
 					subhead.replaceWith(bTag)
 		except:
 			self.log("ERROR:  Problem in Change <h1> to <h3> - used in editorial blogs")
-		
-		try:		
+
+		try:
 			divTag = soup.find('div',attrs={'id':'articleBody'})
 			if divTag:
 				divTag['class'] = divTag['id']
 		except:
 			self.log("ERROR:  Problem in soup.find(div,attrs={id:articleBody})")
-			
-		try:	
+
+		try:
 			# Add class="authorId" to <div> so we can format with CSS
 			divTag = soup.find('div',attrs={'id':'authorId'})
 			if divTag and divTag.contents[0]:
@@ -700,10 +709,10 @@ class NYTimes(BasicNewsRecipe):
 				tag['class'] = "authorId"
 				tag.insert(0, self.fixChars(self.tag_to_string(divTag.contents[0],
 								 use_alt=False)))
-				divTag.replaceWith(tag)		
+				divTag.replaceWith(tag)
 		except:
 			self.log("ERROR:  Problem in Add class=authorId to <div> so we can format with CSS")
-		
+
 		return soup
     def populate_article_metadata(self, article, soup, first):
         shortparagraph = ""
