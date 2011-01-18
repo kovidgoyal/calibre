@@ -92,8 +92,8 @@ class HeuristicProcessor(object):
         line_end = line_end_ere.findall(raw)
         tot_htm_ends = len(htm_end)
         tot_ln_fds = len(line_end)
-        self.log.debug("There are " + unicode(tot_ln_fds) + " total Line feeds, and " +
-                unicode(tot_htm_ends) + " marked up endings")
+        #self.log.debug("There are " + unicode(tot_ln_fds) + " total Line feeds, and " +
+        #        unicode(tot_htm_ends) + " marked up endings")
 
         if percent > 1:
             percent = 1
@@ -101,7 +101,7 @@ class HeuristicProcessor(object):
             percent = 0
 
         min_lns = tot_ln_fds * percent
-        self.log.debug("There must be fewer than " + unicode(min_lns) + " unmarked lines to add markup")
+        #self.log.debug("There must be fewer than " + unicode(min_lns) + " unmarked lines to add markup")
         if min_lns > tot_htm_ends:
             return True
 

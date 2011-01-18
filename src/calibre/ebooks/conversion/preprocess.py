@@ -175,7 +175,7 @@ class Dehyphenator(object):
     '''
 
     def __init__(self, verbose=0, log=None):
-        self.log = default_log if log is None else log
+        self.log = log
         self.verbose = verbose
         # Add common suffixes to the regex below to increase the likelihood of a match -
         # don't add suffixes which are also complete words, such as 'able' or 'sex'

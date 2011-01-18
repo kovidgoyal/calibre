@@ -118,11 +118,11 @@ class TXTInput(InputFormatPlugin):
                 txt = separate_paragraphs_print_formatted(txt)
 
             if options.paragraph_type == 'unformatted':
-                from calibre.ebooks.conversion.utils import PreProcessor
+                from calibre.ebooks.conversion.utils import HeuristicProcessor
                 # get length
 
                 # unwrap lines based on punctuation
-                preprocessor = PreProcessor(options, log=getattr(self, 'log', None))
+                preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
                 txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
 
             flow_size = getattr(options, 'flow_size', 0)
