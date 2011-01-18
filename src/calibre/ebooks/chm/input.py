@@ -75,7 +75,7 @@ class CHMInput(InputFormatPlugin):
     def _create_oebbook(self, hhcpath, basedir, opts, log, mi):
         from calibre.ebooks.conversion.plumber import create_oebbook
         from calibre.ebooks.oeb.base import DirContainer
-        oeb = create_oebbook(log, None, opts, self,
+        oeb = create_oebbook(log, None, opts,
                 encoding=opts.input_encoding, populate=False)
         self.oeb = oeb
 

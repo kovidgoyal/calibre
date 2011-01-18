@@ -295,7 +295,7 @@ class HTMLInput(InputFormatPlugin):
             return oeb
 
         from calibre.ebooks.conversion.plumber import create_oebbook
-        return create_oebbook(log, stream.name, opts, self,
+        return create_oebbook(log, stream.name, opts,
                 encoding=opts.input_encoding)
 
     def is_case_sensitive(self, path):

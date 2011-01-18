@@ -299,9 +299,9 @@ class HeuristicProcessor(object):
         supports a range of html markup and text files
         '''
         # define the pieces of the regex
-        lookahead = "(?<=.{"+str(length)+"}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðßě,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
-        em_en_lookahead = "(?<=.{"+str(length)+"}[\u2013\u2014])"
-        soft_hyphen = "\xad"
+        lookahead = "(?<=.{"+str(length)+u"}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðßě,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
+        em_en_lookahead = "(?<=.{"+str(length)+u"}[\u2013\u2014])"
+        soft_hyphen = u"\xad"
         line_ending = "\s*</(span|[iubp]|div)>\s*(</(span|[iubp]|div)>)?"
         blanklines = "\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*"
         line_opening = "<(span|[iubp]|div)[^>]*>\s*(<(span|[iubp]|div)[^>]*>)?\s*"
