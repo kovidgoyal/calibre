@@ -11,7 +11,7 @@ from calibre.gui2.convert import Widget
 
 class HeuristicsWidget(Widget, Ui_Form):
 
-    TITLE = _('Heuristics')
+    TITLE = _('Heuristic Processing')
     HELP  = _('Modify the document text and structure using common patterns.')
     COMMIT_NAME = 'heuristics'
 

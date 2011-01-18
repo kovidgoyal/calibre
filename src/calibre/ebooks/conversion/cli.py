@@ -130,7 +130,7 @@ def add_pipeline_options(parser, plumber):
                   ]
                   ),
                   
-              'HEURISTICS' : (
+              'HEURISTIC PROCESSING' : (
                   _('Modify the document text and structure using common patterns.'),
                   [
                       'enable_heuristics', 'markup_chapter_headings',
@@ -182,7 +182,7 @@ def add_pipeline_options(parser, plumber):
 
               }
 
-    group_order = ['', 'LOOK AND FEEL', 'HEURISTICS',
+    group_order = ['', 'LOOK AND FEEL', 'HEURISTIC PROCESSING',
             'SEARCH AND REPLACE', 'STRUCTURE DETECTION',
             'TABLE OF CONTENTS', 'METADATA', 'DEBUG']
 

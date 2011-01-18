@@ -260,40 +260,72 @@ The Output profile also controls the screen size. This will cause, for example, 
 Heuristic Processing
 ---------------------
 
-:guilabel:`Preprocess input`
-    This option activates various algorithms that try to detect and correct common cases of
-    badly formatted input documents. Things like hard line breaks, large blocks of text with no formatting, etc.
-    Turn this option on if your input document suffers from bad formatting. But be aware that in
-    some cases, this option can lead to worse results, so use with care.
+Heuristic Processing provides a variety of functions which can be used that try to detect and correct 
+common problems in poorly formatted input documents.  Use these functions if your input document suffers 
+from bad formatting. Because these functions rely on common patterns, be aware that in some cases an 
+option may lead to worse results, so use with care.  As an example, several of these options will
+remove all non-breaking-space entities.
 
-:guilabel:`Line-unwrap factor`
-    This option control the algorithm |app| uses to remove hard line breaks. For example, if the value of this
-    option is 0.4, that means calibre will remove hard line breaks from the end of lines whose lengths are less
-    than the length of 40% of all lines in the document. 
+:guilabel:`Preprocess input`
+    This option activates various activates |app|'s Heuristic Processing stage of the conversion pipeline.
+    This must be enabled in order for various sub-functions to be applied
 
 :guilabel:`Unwrap lines`
-    Lorem ipsum
+    Enabling this option will cause |app| to attempt to detect and correct hard line breaks that exist 
+    within a document using punctuation clues and line length.  |app| will first attempt to detect whether 
+    hard line breaks exist, if they do not appear to exist |app| will not attempt to unwrap lines.  The 
+    line-unwrap factor can be reduced if you want to 'force' |app| to unwrap lines.
+
+:guilabel:`Line-unwrap factor`
+    This option controls the algorithm |app| uses to remove hard line breaks. For example, if the value of this
+    option is 0.4, that means calibre will remove hard line breaks from the end of lines whose lengths are less
+    than the length of 40% of all lines in the document.  If your document only has a few line breaks which need
+    correction, then this value should be reduced to somewhere between 0.1 and 0.2.
     
 :guilabel:`Detect and markup unformatted chapter headings and sub headings`
-    Lorem ipsum
+    If your document does not have Chapter Markers and titles formatted differently from the rest of the text,
+    |app| can use this option to attempt detection them and surround them with heading tags. &lt;h2&gt; tags are used 
+    for chapter headings; &lt;h3&gt; tags are used for any titles that are detected.  This function will 
+    not create a TOC, but in many cases it will cause |app|'s default chapter detection settings to correctly
+    detect chapters and build a TOC.  Adjust the Xpath under Structure Detection if a TOC is not automatically
+    created.  The inserted heading tags are not formatted, to apply formatting use the 'extra_css' option under
+    the Look and Feel conversion settings.  For example, to center heading tags, use the following::
 
-:guilabel:`Renumber sequences of &lt;h1&gt; or &lt;h2&gt; tags to prevent splitting`
-    Lorem ipsum
-    
+        h2, h3 { text-align: center }
+
+:guilabel:`Renumber sequences of &lt;h1&gt; or &lt;h2&gt; tags`
+    Some publishers format chapter headings using multiple &lt;h1&gt; or &lt;h2&gt; tags sequentially.  
+    |app|'s default conversion settings will cause such titles to be split into two pieces.  This option 
+    will re-number the heading tags to prevent splitting.
+
 :guilabel:`Delete blank lines between paragraphs`
-    Lorem ipsum
+    This option will cause |app| to analyze blank lines included within the document.  If every paragraph is interleaved
+    with a blank line, then |app| will remove all those blank paragraphs.  Sequences of multiple blank lines will be
+    considered scene breaks and retained as a single paragraph.  This option differs from the 'Remove Paragraph Spacing' 
+    option under 'Look and Feel' in that it actually modifies the HTML content, while the other option modifies the document
+    styles.  This option can also remove paragraphs which were inserted using |app|'s 'Insert blank line' option.
 
 :guilabel:`Ensure scene breaks are consistently formatted`
-    Lorem ipsum
+    With this option |app| will attempt to detect common scene-break markers and ensure that they are center aligned.  
+    It also attempts to detect scene breaks defined by white space and replace them with a horizontal rule 15% of the
+    page width.  Some readers may find this desirable as these 'soft' scene breaks often become page breaks on readers, and 
+    thus become difficult to distinguish.
 
 :guilabel:`Remove unnecessary hyphens`
-    Lorem ipsum
+    |app| will analyze all hyphenated content in the document when this option is enabled.  The document itself is used
+    as a dictionary for analysis.  This allows |app| to accurately remove hyphens for any words in the document in any language, 
+    along with made-up and obscure scientific words.  The primary drawback is words appearing only a single time in the document 
+    will not be changed.  Analysis happens in two passes, the first pass analyzes line endings.  Lines are only unwrapped if the 
+    word exists with or without a hyphen in the document.  The second pass analyzes all hyphenated words throughout the document, 
+    hyphens are removed if the word exists elsewhere in the document without a match.
 
 :guilabel:`Italicize common words and patterns`
-    Lorem ipsum
+    When enabled, |app| will look for common words and patterns that denote italics and italicize them.  Examples are common text
+    conventions such as ~word~ or phrases that should generally be italicized, e.g. latin phrases like 'etc.' or 'et cetera'.
 
 :guilabel:`Replace entity indents with CSS indents`
-    Lorem ipsum
+    Some documents use a convention of defining text indents using non-breaking space entities.  When this option is enabled |app| will
+    attempt to detect this sort of formatting and convert them to a 3% text indent using css.
 
 .. _structure-detection:
 
@@ -518,21 +550,24 @@ at `mobileread <http://www.mobileread.com/forums/showthread.php?t=28313>`_.
 Convert TXT documents
 ~~~~~~~~~~~~~~~~~~~~~~
 
-TXT documents have no well defined way to specify formatting like bold, italics, etc, or document structure like paragraphs, headings, sections and so on.
-Since TXT documents provide no way to explicitly mark parts of
-the text, by default |app| only groups lines in the input document into paragraphs. The default is to assume one or
-more blank lines are a paragraph boundary::
-
-    This is the first.
-    
-    This is the
-    second paragraph.
+TXT documents have no well defined way to specify formatting like bold, italics, etc, or document 
+structure like paragraphs, headings, sections and so on, but there are a variety of conventions commonly 
+used.  By default |app| attempts automatic detection of the correct formatting and markup based on those
+conventions.
 
 TXT input supports a number of options to differentiate how paragraphs are detected.
 
     :guilabel:`Paragraph Style: Auto`
         Analyzes the text file and attempts to automatically determine how paragraphs are defined.  This
         option will generally work fine, if you achieve undesirable results try one of the manual options.
+
+    :guilabel:`Paragraph Style: Block`
+        Assumes one or more blank lines are a paragraph boundary::
+        
+            This is the first.
+    
+            This is the
+            second paragraph.
 
     :guilabel:`Paragraph Style: Single`
         Assumes that every line is a paragraph::
@@ -557,15 +592,22 @@ TXT input supports a number of options to differentiate how paragraphs are detec
         and median line length are used to attempt to re-create paragraphs.
 
     :guilabel:`Formatting Style: Auto`
+        Attemtps to detect the type of formatting markup being used.  If no markup is used then heuristic
+        formatting will be applied.
 
     :guilabel:`Formatting Style: Heuristic`
+        Analyses the document for common chapter headings, scene breaks, and italicized words and applies the
+        appropriate html markup during conversion.
 
-    :guilabel:`Process using markdown`
+    :guilabel:`Formatting Style: Markdown`
         |app| also supports running TXT input though a transformation preprocessor known as markdown. Markdown
         allows for basic formatting to be added to TXT documents, such as bold, italics, section headings, tables,
         lists, a Table of Contents, etc. Marking chapter headings with a leading # and setting the chapter XPath detection
         expression to "//h:h1" is the easiest way to have a proper table of contents generated from a TXT document.
         You can learn more about the markdown syntax at `daringfireball <http://daringfireball.net/projects/markdown/syntax>`_.
+
+    :guilabel:`Formatting Style: None`
+        Applies no special formatting to the text, the document is converted to html with no other changes.
 
 
 Convert PDF documents
