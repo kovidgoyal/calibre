@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, isoformat, now as nowf
+from calibre.utils.icu import capitalize
 from calibre.utils.logging import default_log as log
 from calibre.utils.zipfile import ZipFile, ZipInfo
 from calibre.utils.magick.draw import thumbnail
@@ -1459,7 +1460,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 #             print
 
             # Build the unique_authors set from existing data
-            authors = [(record['author'], record['author_sort'].capitalize()) for record in self.booksByAuthor]
+            authors = [(record['author'], capitalize(record['author_sort'])) for record in self.booksByAuthor]
 
             # authors[] contains a list of all book authors, with multiple entries for multiple books by author
             #        authors[]: (([0]:friendly  [1]:sort))
@@ -2756,7 +2757,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         this_book = {}
                         this_book['author'] = book['author']
                         this_book['title'] = book['title']
-                        this_book['author_sort'] = book['author_sort'].capitalize()
+                        this_book['author_sort'] = capitalize(book['author_sort'])
                         this_book['read'] = book['read']
                         this_book['tags'] = book['tags']
                         this_book['id'] = book['id']
@@ -3901,14 +3902,14 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             Sort non-series books before series books
             '''
             if not book['series']:
-                key = '%s %s' % (book['author_sort'].capitalize(),
-                                 book['title_sort'].capitalize())
+                key = '%s %s' % (capitalize(book['author_sort']),
+                                 capitalize(book['title_sort']))
             else:
                 index = book['series_index']
                 integer = int(index)
                 fraction = index-integer
                 series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
-                key = '%s ~%s %s' % (book['author_sort'].capitalize(),
+                key = '%s ~%s %s' % (capitalize(book['author_sort']),
                                      self.generateSortTitle(book['series']),
                                      series_index)
             return key
@@ -3919,7 +3920,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             '''
             if not book['series']:
                 key = '%s %s' % (self.author_to_author_sort(book['author']),
-                                 book['title_sort'].capitalize())
+                                 capitalize(book['title_sort']))
             else:
                 index = book['series_index']
                 integer = int(index)
@@ -4570,7 +4571,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         if self.letter_or_symbol(word[0]) != word[0]:
                             if word[0] > 'A' or (ord('9') < ord(word[0]) < ord('A')) :
                                 translated.append('/')
-                        translated.append(word.capitalize())
+                        translated.append(capitalize(word))
 
                 else:
                     if re.search('[0-9]+',word[0]):
