@@ -496,12 +496,9 @@ class HeuristicProcessor(object):
             if hardbreaks or unwrap_factor < 0.4:
                 self.log.debug("Unwrapping required, unwrapping Lines")
                 # Dehyphenate with line length limiters
-                dehyphenator = Dehyphenator()
+                dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
                 html = dehyphenator(html,'html', length)
                 html = self.punctuation_unwrap(length, html, 'html')
-                # unwrap remaining hyphens based on line length, but only remove if there is a match
-                dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
-                html = dehyphenator(html,'html_cleanup', length)
 
         if getattr(self.extra_opts, 'dehyphenate', False):
             # dehyphenate in cleanup mode to fix anything previous conversions/editing missed
