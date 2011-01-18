@@ -266,14 +266,14 @@ from bad formatting. Because these functions rely on common patterns, be aware t
 option may lead to worse results, so use with care.  As an example, several of these options will
 remove all non-breaking-space entities.
 
-:guilabel:`Preprocess input`
-    This option activates various activates |app|'s Heuristic Processing stage of the conversion pipeline.
+:guilabel:`Enable heuristic processing`
+    This option activates |app|'s Heuristic Processing stage of the conversion pipeline.
     This must be enabled in order for various sub-functions to be applied
 
 :guilabel:`Unwrap lines`
     Enabling this option will cause |app| to attempt to detect and correct hard line breaks that exist 
-    within a document using punctuation clues and line length.  |app| will first attempt to detect whether 
-    hard line breaks exist, if they do not appear to exist |app| will not attempt to unwrap lines.  The 
+    within a document using punctuation clues and line length. |app| will first attempt to detect whether 
+    hard line breaks exist, if they do not appear to exist |app| will not attempt to unwrap lines. The 
     line-unwrap factor can be reduced if you want to 'force' |app| to unwrap lines.
 
 :guilabel:`Line-unwrap factor`
@@ -284,21 +284,21 @@ remove all non-breaking-space entities.
     
 :guilabel:`Detect and markup unformatted chapter headings and sub headings`
     If your document does not have Chapter Markers and titles formatted differently from the rest of the text,
-    |app| can use this option to attempt detection them and surround them with heading tags. &lt;h2&gt; tags are used 
-    for chapter headings; &lt;h3&gt; tags are used for any titles that are detected.  
+    |app| can use this option to attempt detection them and surround them with heading tags. <h2> tags are used 
+    for chapter headings; <h3> tags are used for any titles that are detected.  
     
     This function will not create a TOC, but in many cases it will cause |app|'s default chapter detection settings 
-    to correctly detect chapters and build a TOC.  Adjust the Xpath under Structure Detection if a TOC is not automatically
+    to correctly detect chapters and build a TOC.  Adjust the XPath under Structure Detection if a TOC is not automatically
     created.  If there are no other headings used in the document then setting "//h:h2" under Structure Detection would
     be the easiest way to create a TOC for the document.
     
-    The inserted headings are not formatted, to apply formatting use the 'extra_css' option under
+    The inserted headings are not formatted, to apply formatting use the :guilabel:`Extra CSS` option under
     the Look and Feel conversion settings.  For example, to center heading tags, use the following::
 
         h2, h3 { text-align: center }
 
-:guilabel:`Renumber sequences of &lt;h1&gt; or &lt;h2&gt; tags`
-    Some publishers format chapter headings using multiple &lt;h1&gt; or &lt;h2&gt; tags sequentially.  
+:guilabel:`Renumber sequences of <h1> or <h2> tags`
+    Some publishers format chapter headings using multiple <h1> or <h2> tags sequentially.  
     |app|'s default conversion settings will cause such titles to be split into two pieces.  This option 
     will re-number the heading tags to prevent splitting.
 
@@ -345,7 +345,7 @@ specifying a replacement expression.
 
 The search works by using a python regular expression. All matched text is simply removed from
 the document or replaced using the replacement pattern. You can learn more about regular expressions and 
-their syntax at http://docs.python.org/library/re.html.
+their syntax at :ref:`regexptutorial`.
 
 .. _structure-detection:
 
