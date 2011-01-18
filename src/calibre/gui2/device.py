@@ -19,7 +19,7 @@ from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
         warning_dialog, info_dialog, choose_dir
 from calibre.ebooks.metadata import authors_to_string
-from calibre import preferred_encoding, prints, force_unicode
+from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.devices.apple.driver import ITUNES_ASYNC
@@ -68,13 +68,7 @@ class DeviceJob(BaseJob): # {{{
             if self._aborted:
                 return
             self.failed = True
-            try:
-                ex = unicode(err)
-            except:
-                try:
-                    ex = str(err).decode(preferred_encoding, 'replace')
-                except:
-                    ex = repr(err)
+            ex = as_unicode(err)
             self._details = ex + '\n\n' + \
                 traceback.format_exc()
             self.exception = err
