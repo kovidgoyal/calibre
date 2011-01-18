@@ -91,13 +91,14 @@ class AddAction(InterfaceAction):
                 self.gui.library_view.model().db.import_book(MetaInformation(None), [])
             self.gui.library_view.model().books_added(num)
 
-    def add_isbns(self, books):
+    def add_isbns(self, books, add_tags=[]):
         from calibre.ebooks.metadata import MetaInformation
         ids = set([])
+        db = self.gui.library_view.model().db
+
         for x in books:
             mi = MetaInformation(None)
             mi.isbn = x['isbn']
-            db = self.gui.library_view.model().db
             if x['path'] is not None:
                 ids.add(db.import_book(mi, [x['path']]))
             else:
@@ -109,6 +110,8 @@ class AddAction(InterfaceAction):
             self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
         finally:
             config['overwrite_author_title_metadata'] = orig
+        if add_tags and ids:
+            db.bulk_modify_tags(ids, add=add_tags)
 
 
     def files_dropped(self, paths):
@@ -166,7 +169,7 @@ class AddAction(InterfaceAction):
         from calibre.gui2.dialogs.add_from_isbn import AddFromISBN
         d = AddFromISBN(self.gui)
         if d.exec_() == d.Accepted:
-            self.add_isbns(d.books)
+            self.add_isbns(d.books, add_tags=d.set_tags)
 
     def add_books(self, *args):
         '''

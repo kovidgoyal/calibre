@@ -251,7 +251,7 @@ class Serializer(object):
         tag = prefixname(elem.tag, nsrmap)
         # Previous layers take care of @name
         id = elem.attrib.pop('id', None)
-        if id is not None:
+        if id:
             href = '#'.join((item.href, id))
             offset = self.anchor_offset or buffer.tell()
             self.id_offsets[urlnormalize(href)] = offset

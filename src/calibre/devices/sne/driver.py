@@ -33,6 +33,6 @@ class SNE(USBMS):
     STORAGE_CARD_VOLUME_LABEL = 'SNE Storage Card'
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Books'
-    SUPPORTS_SUB_DIRS = False
+    SUPPORTS_SUB_DIRS = True
 
 

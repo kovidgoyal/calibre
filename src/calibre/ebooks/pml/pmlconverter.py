@@ -34,18 +34,15 @@ class PML_HTMLizer(object):
         'ra',
         'c',
         'r',
-        't',
         's',
         'l',
         'k',
-        'T',
         'FN',
         'SB',
     ]
 
     STATES_VALUE_REQ = [
         'a',
-        'T',
         'FN',
         'SB',
     ]
@@ -96,8 +93,6 @@ class PML_HTMLizer(object):
         'Sb': 'sb',
         'c': 'c',
         'r': 'r',
-        't': 't',
-        'T': 'T',
         'i': 'i',
         'I': 'i',
         'u': 'u',
@@ -133,8 +128,6 @@ class PML_HTMLizer(object):
     DIV_STATES = [
         'c',
         'r',
-        't',
-        'T',
         'FN',
         'SB',
     ]
@@ -255,8 +248,6 @@ class PML_HTMLizer(object):
 
         for key, val in self.state.items():
             if val[0]:
-                if key == 'T':
-                    self.state['T'][0] = False
                 if key in self.DIV_STATES:
                     div.append(key)
                 elif key in self.SPAN_STATES:
@@ -506,6 +497,9 @@ class PML_HTMLizer(object):
         self.toc = TOC()
         self.file_name = file_name
 
+        indent_state = {'t': False, 'T': False}
+        adv_indent_val = ''
+
         for s in self.STATES:
             self.state[s] = [False, ''];
 
@@ -515,6 +509,8 @@ class PML_HTMLizer(object):
 
             parsed = []
             empty = True
+            basic_indent = indent_state['t']
+            adv_indent = indent_state['T']
 
             # Must use StringIO, cStringIO does not support unicode
             line = StringIO.StringIO(line)
@@ -527,7 +523,7 @@ class PML_HTMLizer(object):
                 if c == '\\':
                     c = line.read(1)
 
-                    if c in 'qcrtTiIuobBlk':
+                    if c in 'qcriIuobBlk':
                         text = self.process_code(c, line)
                     elif c in 'FS':
                         l = line.read(1)
@@ -574,6 +570,15 @@ class PML_HTMLizer(object):
                     elif c == 'w':
                         empty = False
                         text = '<hr width="%s" />' % self.code_value(line)
+                    elif c == 't':
+                        indent_state[c] = not indent_state[c]
+                        if indent_state[c]:
+                            basic_indent = True
+                    elif c == 'T':
+                        indent_state[c] = not indent_state[c]
+                        if indent_state[c]:
+                            adv_indent = True
+                            adv_indent_val = self.code_value(line)
                     elif c == '-':
                         empty = False
                         text = '&shy;'
@@ -590,6 +595,16 @@ class PML_HTMLizer(object):
             if not empty:
                 text = self.end_line()
                 parsed.append(text)
+                
+                if basic_indent:
+                    parsed.insert(0, self.STATES_TAGS['t'][0])
+                    parsed.append(self.STATES_TAGS['t'][1])
+                elif adv_indent:
+                    parsed.insert(0, self.STATES_TAGS['T'][0] % adv_indent_val)
+                    parsed.append(self.STATES_TAGS['T'][1])
+                    indent_state['T'] = False
+                    adv_indent_val = ''
+                
                 output.append(u''.join(parsed))
             line.close()
 
