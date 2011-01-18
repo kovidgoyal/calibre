@@ -21,7 +21,6 @@ class HeuristicProcessor(object):
         self.deleted_nbsps = False
         self.totalwords = 0
         self.min_chapters = 1
-        self.max_chapters = 150
         self.chapters_no_title = 0
         self.chapters_with_title = 0
         self.blanks_deleted = False
@@ -169,9 +168,12 @@ class HeuristicProcessor(object):
         # Typical chapters are between 2000 and 7000 words, use the larger number to decide the
         # minimum of chapters to search for.  A max limit is calculated to prevent things like OCR
         # or pdf page numbers from being treated as TOC markers
+        max_chapters = 150
+        typical_chapters = 7000.
         if wordcount > 7000:
-            self.min_chapters = int(ceil(wordcount / 15000.))
-            self.max_chapters = int(ceil(wordcount / 1200.))
+            if wordcount > 200000:
+                typical_chapters = 15000.
+            self.min_chapters = int(ceil(wordcount / typical_chapters))
         print "minimum chapters required are: "+str(self.min_chapters)
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
