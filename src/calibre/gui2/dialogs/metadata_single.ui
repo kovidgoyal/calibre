@@ -20,7 +20,7 @@
    <string>Edit Meta Information</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
   </property>
   <property name="sizeGripEnabled">
@@ -43,8 +43,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>955</width>
-        <height>665</height>
+        <width>986</width>
+        <height>677</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -125,7 +125,7 @@ Using this button to create title sort will change title sort from red to green.
                        <string>...</string>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="../../../../resources/images.qrc">
                         <normaloff>:/images/auto_author_sort.png</normaloff>:/images/auto_author_sort.png</iconset>
                       </property>
                      </widget>
@@ -152,7 +152,7 @@ Using this button to create title sort will change title sort from red to green.
                        <string>...</string>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="../../../../resources/images.qrc">
                         <normaloff>:/images/swap.png</normaloff>:/images/swap.png</iconset>
                       </property>
                       <property name="iconSize">
@@ -186,7 +186,7 @@ Using this button to create author sort will change author sort from red to gree
                        <string>...</string>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="../../../../resources/images.qrc">
                         <normaloff>:/images/auto_author_sort.png</normaloff>:/images/auto_author_sort.png</iconset>
                       </property>
                      </widget>
@@ -352,7 +352,7 @@ If the box is colored green, then text matches the individual author's sort stri
                      <string>Open Tag Editor</string>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="../../../../resources/images.qrc">
                       <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
                     </property>
                    </widget>
@@ -405,7 +405,7 @@ If the box is colored green, then text matches the individual author's sort stri
                      <string>...</string>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="../../../../resources/images.qrc">
                       <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
                     </property>
                    </widget>
@@ -491,7 +491,7 @@ If the box is colored green, then text matches the individual author's sort stri
                      <string>Clear published date</string>
                     </property>
                     <property name="icon">
-                     <iconset>
+                     <iconset resource="../../../../resources/images.qrc">
                       <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
                     </property>
                    </widget>
@@ -550,8 +550,14 @@ If the box is colored green, then text matches the individual author's sort stri
                   </item>
                   <item>
                    <layout class="QVBoxLayout" name="_4">
+                    <property name="spacing">
+                     <number>6</number>
+                    </property>
                     <property name="sizeConstraint">
                      <enum>QLayout::SetMaximumSize</enum>
+                    </property>
+                    <property name="margin">
+                     <number>0</number>
                     </property>
                     <item>
                      <widget class="QLabel" name="label_5">
@@ -565,13 +571,19 @@ If the box is colored green, then text matches the individual author's sort stri
                     </item>
                     <item>
                      <layout class="QHBoxLayout" name="_5">
+                      <property name="spacing">
+                       <number>6</number>
+                      </property>
+                      <property name="margin">
+                       <number>0</number>
+                      </property>
                       <item>
                        <widget class="QPushButton" name="cover_button">
                         <property name="text">
                          <string>&amp;Browse</string>
                         </property>
                         <property name="icon">
-                         <iconset>
+                         <iconset resource="../../../../resources/images.qrc">
                           <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
                         </property>
                        </widget>
@@ -585,7 +597,7 @@ If the box is colored green, then text matches the individual author's sort stri
                          <string>T&amp;rim</string>
                         </property>
                         <property name="icon">
-                         <iconset>
+                         <iconset resource="../../../../resources/images.qrc">
                           <normaloff>:/images/trim.png</normaloff>:/images/trim.png</iconset>
                         </property>
                        </widget>
@@ -599,7 +611,7 @@ If the box is colored green, then text matches the individual author's sort stri
                          <string>&amp;Remove</string>
                         </property>
                         <property name="icon">
-                         <iconset>
+                         <iconset resource="../../../../resources/images.qrc">
                           <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
                         </property>
                        </widget>
@@ -690,7 +702,7 @@ If the box is colored green, then text matches the individual author's sort stri
                        <string>...</string>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="../../../../resources/images.qrc">
                         <normaloff>:/images/add_book.png</normaloff>:/images/add_book.png</iconset>
                       </property>
                       <property name="iconSize">
@@ -710,7 +722,7 @@ If the box is colored green, then text matches the individual author's sort stri
                        <string>...</string>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="../../../../resources/images.qrc">
                         <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
                       </property>
                       <property name="iconSize">
@@ -730,7 +742,7 @@ If the box is colored green, then text matches the individual author's sort stri
                        <string>...</string>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="../../../../resources/images.qrc">
                         <normaloff>:/images/book.png</normaloff>:/images/book.png</iconset>
                       </property>
                       <property name="iconSize">
@@ -750,7 +762,7 @@ If the box is colored green, then text matches the individual author's sort stri
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="../../../../resources/images.qrc">
                         <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
                       </property>
                       <property name="iconSize">
@@ -835,6 +847,11 @@ If the box is colored green, then text matches the individual author's sort stri
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
+   <class>CompleteComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
    <class>FormatList</class>
    <extends>QListWidget</extends>
    <header location="global">calibre/gui2/widgets.h</header>
@@ -850,11 +867,6 @@ If the box is colored green, then text matches the individual author's sort stri
    <extends>QWidget</extends>
    <header location="global">calibre/gui2/comments_editor.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CompleteComboBox</class>
-   <extends>QComboBox</extends>
-   <header>widgets.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

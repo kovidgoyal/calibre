@@ -104,13 +104,17 @@ class FB2Input(InputFormatPlugin):
         entries = [(f, guess_type(f)[0]) for f in os.listdir('.')]
         opf.create_manifest(entries)
         opf.create_spine(['index.xhtml'])
-
-        for img in doc.xpath('//f:coverpage/f:image', namespaces=NAMESPACES):
-            href = img.get('{%s}href'%XLINK_NS, img.get('href', None))
-            if href is not None:
-                if href.startswith('#'):
-                    href = href[1:]
-                opf.guide.set_cover(os.path.abspath(href))
+        if mi.cover_data and mi.cover_data[1]:
+            with open('fb2_cover_calibre_mi.jpg', 'wb') as f:
+                f.write(mi.cover_data[1])
+            opf.guide.set_cover(os.path.abspath('fb2_cover_calibre_mi.jpg'))
+        else:
+            for img in doc.xpath('//f:coverpage/f:image', namespaces=NAMESPACES):
+                href = img.get('{%s}href'%XLINK_NS, img.get('href', None))
+                if href is not None:
+                    if href.startswith('#'):
+                        href = href[1:]
+                    opf.guide.set_cover(os.path.abspath(href))
 
         opf.render(open('metadata.opf', 'wb'))
         return os.path.join(os.getcwd(), 'metadata.opf')

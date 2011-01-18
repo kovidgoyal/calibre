@@ -27,6 +27,9 @@ class NikkeiNet_sub_economy(BasicNewsRecipe):
                        {'class':"JSID_basePageMove JSID_baseAsyncSubmit cmn-form_area JSID_optForm_utoken"},
                        {'class':"cmn-article_keyword cmn-clearfix"},
                        {'class':"cmn-print_headline cmn-clearfix"},
+                       {'class':"cmn-article_list"},
+                       dict(id="ABOUT-NIKKEI"),
+                       {'class':"cmn-sub_market"},
                          ]
     remove_tags_after = {'class':"cmn-pr_list"}
 

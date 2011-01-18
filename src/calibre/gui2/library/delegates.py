@@ -184,29 +184,6 @@ class TagsDelegate(QStyledItemDelegate): # {{{
         return editor
 # }}}
 
-class AuthorsDelegate(QStyledItemDelegate): # {{{
-    def __init__(self, parent):
-        QStyledItemDelegate.__init__(self, parent)
-        self.db = None
-
-    def set_database(self, db):
-        self.db = db
-
-    def createEditor(self, parent, option, index):
-        if self.db:
-            col = index.model().column_map[index.column()]
-            if not index.model().is_custom_column(col):
-                editor = CompleteLineEdit(parent, self.db.all_author_names(), '&', True)
-            else:
-                editor = CompleteLineEdit(parent,
-                        sorted(list(self.db.all_custom(label=self.db.field_metadata.key_to_label(col))),
-                               key=sort_key), '&', True)
-                return editor
-        else:
-            editor = EnLineEdit(parent)
-        return editor
-# }}}
-
 class CompleteDelegate(QStyledItemDelegate): # {{{
     def __init__(self, parent, sep, items_func_name, space_before_sep=False):
         QStyledItemDelegate.__init__(self, parent)

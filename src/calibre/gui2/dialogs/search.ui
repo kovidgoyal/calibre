@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>752</width>
-    <height>472</height>
+    <width>731</width>
+    <height>411</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Advanced Search</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">

@@ -593,6 +593,11 @@ class Editor(QWidget): # {{{
     def code_dirtied(self, *args):
         self.source_dirty = True
 
+    def hide_toolbars(self):
+        self.toolbar1.setVisible(False)
+        self.toolbar2.setVisible(False)
+        self.toolbar3.setVisible(False)
+
 # }}}
 
 if __name__ == '__main__':

@@ -49,7 +49,6 @@ def get_cover_data(path): # {{{
     return cdata, area
 # }}}
 
-
 class MyBlockingBusy(QDialog): # {{{
 
     do_one_signal = pyqtSignal()
@@ -134,7 +133,7 @@ class MyBlockingBusy(QDialog): # {{{
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
             series_start_value, do_title_case, cover_action, clear_series, \
-            pubdate = self.args
+            pubdate, adddate = self.args
 
 
         # first loop: do author and title. These will commit at the end of each
@@ -213,6 +212,9 @@ class MyBlockingBusy(QDialog): # {{{
 
             if pubdate is not None:
                 self.db.set_pubdate(id, pubdate, notify=False, commit=False)
+
+            if adddate is not None:
+                self.db.set_timestamp(id, adddate, notify=False, commit=False)
 
             if do_series:
                 if do_series_restart:
@@ -300,6 +302,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.pubdate.setSpecialValueText(_('Undefined'))
         self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
         self.pubdate.dateChanged.connect(self.do_apply_pubdate)
+        self.adddate.setMinimumDate(UNDEFINED_QDATE)
+        self.adddate.setSpecialValueText(_('Undefined'))
+        self.clear_adddate_button.clicked.connect(self.clear_adddate)
+        self.adddate.dateChanged.connect(self.do_apply_adddate)
 
         if len(self.db.custom_field_keys(include_composites=False)) == 0:
             self.central_widget.removeTab(1)
@@ -321,6 +327,12 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
     def clear_pubdate(self, *args):
         self.pubdate.setDate(UNDEFINED_QDATE)
+
+    def do_apply_adddate(self, *args):
+        self.apply_adddate.setChecked(True)
+
+    def clear_adddate(self, *args):
+        self.adddate.setDate(UNDEFINED_QDATE)
 
     def button_clicked(self, which):
         if which == self.button_box.button(QDialogButtonBox.Apply):
@@ -726,7 +738,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             name = name.strip().replace('|', ',')
             self.authors.addItem(name)
         self.authors.setEditText('')
-        
+
         self.authors.set_separator('&')
         self.authors.set_space_before_sep(True)
         self.authors.update_items_cache(self.db.all_author_names())
@@ -805,9 +817,11 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         do_remove_conv = self.remove_conversion_settings.isChecked()
         do_auto_author = self.auto_author_sort.isChecked()
         do_title_case = self.change_title_to_title_case.isChecked()
-        pubdate = None
+        pubdate = adddate = None
         if self.apply_pubdate.isChecked():
             pubdate = qt_to_dt(self.pubdate.date())
+        if self.apply_adddate.isChecked():
+            adddate = qt_to_dt(self.adddate.date())
 
         cover_action = None
         if self.cover_remove.isChecked():
@@ -821,7 +835,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, cover_action, clear_series,
-                pubdate)
+                pubdate, adddate)
 
         bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
                 %len(self.ids), args, self.db, self.ids,
