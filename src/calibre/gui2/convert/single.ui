@@ -100,7 +100,7 @@
       </size>
      </property>
      <property name="spacing">
-      <number>20</number>
+      <number>10</number>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -129,8 +129,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>805</width>
-        <height>484</height>
+        <width>810</width>
+        <height>494</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
