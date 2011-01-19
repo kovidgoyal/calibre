@@ -9,13 +9,14 @@ __docformat__ = 'restructuredtext en'
 elpais.es
 '''
 
+from time import strftime
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElPais(BasicNewsRecipe):
     __author__        = 'Kovid Goyal & Lorenzo Vigentini & Jordi Balcells'
     description   = 'Main daily newspaper from Spain'
 
-    cover_url      = 'http://www.elpais.com/im/tit_logo_global.gif'
     title          = u'El Pais'
     publisher      = u'Ediciones El Pa\xeds SL'
     category       = 'News, politics, culture, economy, general interest'
@@ -62,6 +63,6 @@ class ElPais(BasicNewsRecipe):
                         (u'Vi\xf1etas', u'http://www.elpais.com/rss/feed.html?feedId=17058')
                         ]
 
-def print_version(self, url):
-    url = url+'?print=1'
-    return url
+    def get_cover_url(self):
+        return 'http://img5.kiosko.net/' + strftime("%Y/%m/%d") + '/es/elpais.750.jpg'
+
