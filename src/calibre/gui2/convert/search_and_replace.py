@@ -12,7 +12,7 @@ from calibre.gui2 import error_dialog
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
 
-    TITLE = _('Search &\nReplace')
+    TITLE = _(u'Search\u00a0&\nReplace')
     HELP  = _('Modify the document text and structure using user defined patterns.')
     COMMIT_NAME = 'search_and_replace'
     ICON = I('search.png')
