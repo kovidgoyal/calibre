@@ -98,6 +98,9 @@ class Device(DeviceConfig, DevicePlugin):
     # copy these back to the library
     BACKLOADING_ERROR_MESSAGE = None
 
+    #: The maximum length of paths created on the device
+    MAX_PATH_LEN = 250
+
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
@@ -874,12 +877,8 @@ class Device(DeviceConfig, DevicePlugin):
         return {}
 
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
-        return self._create_upload_path(path, mdata, fname,
-               create_dirs=create_dirs, maxlen=250)
-
-    def _create_upload_path(self, path, mdata, fname, create_dirs=True,
-                            maxlen=None):
         path = os.path.abspath(path)
+        maxlen = self.MAX_PATH_LEN
 
         special_tag = None
         if mdata.tags:

@@ -42,16 +42,16 @@ def supports_long_names(path):
     else:
         return True
 
-def shorten_component(s, byWhat):
+def shorten_component(s, by_what):
     l = len(s)
-    if l < byWhat:
+    if l < by_what:
         return s
-    l = int((l-byWhat)/2)
+    l = (l - by_what)//2
     if l <= 0:
         return s
-    return s[0:l] + s[-l:]
+    return s[:l] + s[-l:]
 
-def shorten_components_to(length, components, more_to_take = 0):
+def shorten_components_to(length, components, more_to_take=0):
     filepath = os.sep.join(components)
     extra = len(filepath) - (length - more_to_take)
     if extra < 1:
@@ -62,7 +62,7 @@ def shorten_components_to(length, components, more_to_take = 0):
         deltas.append(int(ceil(pct*extra)))
     ans = []
 
-    for i,x in enumerate(components):
+    for i, x in enumerate(components):
         delta = deltas[i]
         if delta > len(x):
             r = x[0] if x is components[-1] else ''

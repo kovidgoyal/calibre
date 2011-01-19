@@ -75,7 +75,7 @@ class FormatterFunction(object):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             info = ': '.join(traceback.format_exception(exc_type, exc_value,
                                         exc_traceback)[-2:]).replace('\n', '')
-            return _('Exception ' + info)
+            return _('Exception ') + info
 
 all_builtin_functions = []
 class BuiltinFormatterFunction(FormatterFunction):

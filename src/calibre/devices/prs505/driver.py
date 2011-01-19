@@ -98,6 +98,9 @@ class PRS505(USBMS):
 
     THUMBNAIL_HEIGHT = 200
 
+    MAX_PATH_LEN = 201 # 250 - (max(len(CACHE_THUMBNAIL), len(MEDIA_THUMBNAIL)) +
+                       # len('main_thumbnail.jpg') + 1)
+
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
 
@@ -225,12 +228,6 @@ class PRS505(USBMS):
         self.plugboards = plugboards
         self.plugboard_func = pb_func
 
-    def create_upload_path(self, path, mdata, fname, create_dirs=True):
-        maxlen = 250 - (max(len(CACHE_THUMBNAIL), len(MEDIA_THUMBNAIL)) +
-                        len('main_thumbnail.jpg') + 1)
-        return self._create_upload_path(path, mdata, fname,
-                                        create_dirs=create_dirs, maxlen=maxlen)
-
     def upload_cover(self, path, filename, metadata, filepath):
         opts = self.settings()
         if not opts.extra_customization[self.OPT_UPLOAD_COVERS]:
@@ -238,7 +235,10 @@ class PRS505(USBMS):
             debug_print('PRS505: not uploading cover')
             return
         debug_print('PRS505: uploading cover')
-        self._upload_cover(path, filename, metadata, filepath)
+        try:
+            self._upload_cover(path, filename, metadata, filepath)
+        except:
+            debug_print('FAILED to upload cover', filepath)
 
     def _upload_cover(self, path, filename, metadata, filepath):
         if metadata.thumbnail and metadata.thumbnail[-1]:
