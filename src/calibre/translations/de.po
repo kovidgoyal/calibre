@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-14 23:15+0000\n"
-"PO-Revision-Date: 2011-01-10 15:53+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-18 22:03+0000\n"
+"Last-Translator: Jan Beisenkamp <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-16 04:50+0000\n"
+"X-Launchpad-Export-Date: 2011-01-19 04:39+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -395,7 +395,7 @@ msgstr "Ändere Metadaten-Felder vor dem Speichern/Senden"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Template Functions"
-msgstr ""
+msgstr "Funktionen für Vorlagen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:855
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
@@ -406,7 +406,7 @@ msgstr "Erweitert"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Erstellen sie eine Funktionen für Vorlagen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Sharing books by email"
@@ -606,6 +606,8 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Gedacht für das Samsung Galaxy und ähnliche Tablet-Geräte mit einer "
+"Auflösung von 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -833,7 +835,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:41
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "Geräte IP Adresse (Neustart erforderlich)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:46
 msgid ""
@@ -857,6 +859,9 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"Verbindung zum Bambook misslungen.\n"
+"Wenn sie versuchen die Verbindung über WLan aufzubauen stellen sie sicher, "
+"dass die IP Adresse des Bambook richtig eingestellt ist."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:111
 msgid "Bambook"
@@ -1155,11 +1160,11 @@ msgstr "Kommunikation mit dem Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:251
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "Kommunikation mit dem EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:271
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Kommunikation mit dem Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1229,7 +1234,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:72
 msgid "Upload separate cover thumbnails for books (newer readers)"
-msgstr ""
+msgstr "Separaten Cover-Thumbnail für Bücher überspielen (neuere Reader)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid ""
@@ -1239,11 +1244,18 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"Normalerweise laden SONY Reader die Coverbilder aus den Ebook Dateien. Mit "
+"dieser Option sendet Calibre eine separates Coverbild an den Reader, was "
+"nützlich ist wenn man DRM-geschütze Bücher überträgt, in welchen das Cover "
+"nicht geändert werden kann. ACHTUNG: Diese Option sollte nur mit neuer "
+"Readern genutzt werden: 350, 650, 950 und neuer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:79
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Aktualisiere separate Cover wenn automatisches Management genutzt wird "
+"(neuere Reader)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:81
 msgid ""
@@ -1251,6 +1263,9 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
+"Aktivieren sie diese Option um bei jedem Anschliessen ihr Gerätes die "
+"separaten Cover zu übertragen. Deaktivieren sie diese Option wenn sie so "
+"viele Bücher auf ihrem Reader haben das die Performance inakzeptabel wird."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -2353,8 +2368,8 @@ msgid ""
 "Extract the contents of the generated ZIP file to the specified directory. "
 "WARNING: The contents of the directory will be deleted."
 msgstr ""
-"Extrahiere den Ihnhalt der erstellten ZIP Datei in den gewählten Ordner. "
-"ACHTUNG: Der Ihnhalt des Ordners wird dabei gelöscht."
+"Extrahiere den Inhalt der erstellten ZIP Datei in den gewählten Ordner. "
+"ACHTUNG: Der Inhalt des Ordners wird dabei gelöscht."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."

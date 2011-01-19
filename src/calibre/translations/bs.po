@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-14 23:15+0000\n"
-"PO-Revision-Date: 2010-12-16 22:50+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-18 21:03+0000\n"
+"Last-Translator: Senad Sopovic <Unknown>\n"
 "Language-Team: Bosnian <bs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-16 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-01-19 04:39+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
-msgstr ""
+msgstr "Radi apsolutno ništa"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:87
@@ -167,15 +167,15 @@ msgstr "Baza"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:130
 msgid "Customize"
-msgstr ""
+msgstr "Prilagoditi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:294
 msgid "File type"
-msgstr "Vrsta datoteke"
+msgstr "tip datoteke"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:330
 msgid "Metadata reader"
-msgstr ""
+msgstr "Metapodaci čitač"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:360
 msgid "Metadata writer"
@@ -183,11 +183,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:390
 msgid "Catalog generator"
-msgstr ""
+msgstr "Katalog proizvođač"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:499
 msgid "User Interface Action"
-msgstr ""
+msgstr "Korisničko sučelje Akcija"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:525
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
@@ -197,7 +197,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:301
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "Postavke"
+msgstr "Podešavanja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:15
 msgid ""

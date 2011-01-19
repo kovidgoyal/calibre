@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-14 23:15+0000\n"
-"PO-Revision-Date: 2011-01-15 21:49+0000\n"
-"Last-Translator: jminiesta <jesus.iniesta.03@gmail.com>\n"
+"PO-Revision-Date: 2011-01-18 19:53+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-16 04:56+0000\n"
+"X-Launchpad-Export-Date: 2011-01-19 04:40+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:511
@@ -11507,7 +11507,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:159
 msgid "Template functions"
-msgstr ""
+msgstr "Funciones de plantilla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:128
 msgid "You cannot delete a built-in function"
@@ -13208,6 +13208,10 @@ msgid ""
 "this'.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Lista palabars en etiquetas que indican que debe excluirse un libro de la "
+"salida, separadas por comas. Por ejemplo: «salta» coincide con «salta este "
+"libro» y con «folklore de Salta». Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:610
 msgid ""
@@ -13215,6 +13219,10 @@ msgid ""
 "Author section is always generated.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Incluye una sección «Autores» en el catálogo. Esta opción no tiene efecto, "
+"siempre se genera una sección de Libros por autor. Valor predeterminado: "
+"«%default»\n"
+"Se aplica a: formatos de salida ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:618
 msgid ""
@@ -13355,6 +13363,15 @@ msgid ""
 "then rebuild the catalog.\n"
 "*** Terminating catalog generation ***\n"
 msgstr ""
+"\n"
+"\n"
+"*** Error de metadatos ***\n"
+"Valores de orden de autor para «{0}» inconsistentes, no se puede continuar "
+"generando el catálogo.\n"
+"Seleccione todos los libros de «{0}» y aplique el orden de autor correcto en "
+"el cuadro de edición de metadatos,\n"
+"después vuelva a generar el catálogo.\n"
+"*** Abortando la generación del catálogo ***\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -14007,7 +14024,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:989
 msgid "You must provide the %s option to do a recovery"
-msgstr ""
+msgstr "Debe proporcionar la opción %s para hacer una recuperación"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1026
 msgid ""
@@ -14683,42 +14700,52 @@ msgid ""
 "strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x and y as "
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"strcmp(x, y, mn, ig, my) -- compara x e y como cadenas de caracteres sin "
+"distinguir mayúsculas y minúsculas. Devuelve mn si x < y. Devuelve ig si x = "
+"y. Devuelve my en otros casos."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:110
 msgid ""
 "cmp(x, y, lt, eq, gt) -- compares x and y after converting both to numbers. "
 "Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"cmp(x, y, mn, ig, my) -- compara x e y después de convertirlas en números. "
+"Devuelve mn si x < y. Devuelve ig si x = y. Devuelve my en otros casos."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:125
 msgid ""
 "strcat(a, b, ...) -- can take any number of arguments. Returns a string "
 "formed by concatenating all the arguments"
 msgstr ""
+"strcat(a, b, ...) -- admite un número arbitrario de argumentos. Devuelve una "
+"cadena consistente en la unión de todos los argumentos consecutivamente."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:138
 msgid ""
 "add(x, y) -- returns x + y. Throws an exception if either x or y are not "
 "numbers."
-msgstr ""
+msgstr "add(x, y) -- devuelve x + y. Da un error si x o y no es un número."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:148
 msgid ""
 "subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"subtract(x, y) -- devuelve x - y. Da un error si x o y no es un número."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:158
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"multiply(x, y) -- devuelve x * y. Da un error si x o y no es un número."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:168
 msgid ""
 "divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"divide(x, y) -- devuelve x / y. Da un error si x o y no es un número."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:178
 msgid ""
@@ -14729,6 +14756,13 @@ msgid ""
 "automatically. For example, template('[[title_sort]]') will evaluate the "
 "template {title_sort} and return its value."
 msgstr ""
+"template(x) -- evalúa x como una plantilla. La evaluación se realiza en un "
+"contexto propio, lo que significa que las variables no se comparten entre el "
+"proceso que llama a la función y la evaluación de la plantilla. Dado que los "
+"caracteres { y } tienen un uso especial, debe usar [[ en lugar de { y ]] "
+"para }; se convertirán automáticamente. Por ejemplo, "
+"template('[[orden_de_título]]') evaluará la plantilla {orden_de_título} y "
+"devolverá su valor."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:193
 msgid ""
@@ -14736,12 +14770,18 @@ msgid ""
 "'assign'ed to) instead of the book metadata.  This permits using the "
 "template processor to construct complex results from local variables."
 msgstr ""
+"eval(plantilla) -- evalúa la plantilla, pasando las variables locales (las "
+"definidas con «assign») en lugar de los metadatos del libro. Esto permit "
+"usar el procesador de plantillas para elaborar resultados complejos a partir "
+"de variables locales."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:206
 msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr ""
+"assign(id, val) -- asigna val a id y devuelve val. id debe ser un "
+"identificador, no una expresión"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:216
 msgid ""
@@ -14749,10 +14789,13 @@ msgid ""
 "start calibre from the command line (calibre-debug -g), the output will go "
 "to a black hole."
 msgstr ""
+"print(a, b, ...) -- escribe los argumentos en la salida estándar. Sólo será "
+"visible si inicia calibre a partir de línea de órdenes (calibre-debug -g)."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:227
 msgid "field(name) -- returns the metadata field named by name"
 msgstr ""
+"field(nombre) -- devuelve el campo de metadatos identificado por nombre."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:235
 msgid ""
@@ -14763,6 +14806,11 @@ msgid ""
 "substr('12345', 1, 0) returns '2345', and substr('12345', 1, -1) returns "
 "'234'."
 msgstr ""
+"substr(cad, inicio, fin) -- devuelve los caracteres entre la posición inicio "
+"y fin de la cadena cad. El primer carácter de cad está en la posición cero. "
+"Si fin es negativo, entonces indica la posición contando por la derecha. Si "
+"fin es cero, indica el último carácter. Por ejemplo, substr('12345', 1, 0) "
+"devuelve '2345', y substr('12345', 1, -1) devuelve '234'."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:248
 msgid ""
@@ -14773,6 +14821,12 @@ msgid ""
 "the value of some other composite field. This is extremely useful when "
 "constructing variable save paths"
 msgstr ""
+"lookup(val, patrón, campo, patrón, campo, ..., otro_campo) -- como «switch», "
+"pero los argumentos son nombres de campo (metadatos), no texto. Se usará el "
+"valor del campo apropiado. Tenga en cuenta que puesto que las columnas "
+"compuestas son campos, puede usar esta función en un campo compuesto para "
+"usar el valor de otro campo compuesto. Esto es muy útil para construir rutas "
+"de guardado variables."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:263
 msgid "lookup requires either 2 or an odd number of arguments"
@@ -14783,6 +14837,8 @@ msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
+"test(val, texto_si_no_vacío, texto_si_vacío) -- devuelve texto_si_no_vacío "
+"si el campo no está vació, devuelve texto_si_vacío en caso contrario."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:287
 msgid ""
@@ -14790,6 +14846,10 @@ msgid ""
 "contains matches for the regular expression `pattern`. Returns `text if "
 "match` if matches are found, otherwise it returns `text if no match`"
 msgstr ""
+"contains(val, patrón, texto_si_coincide, texto_si_no_coincide) -- comprueba "
+"si el campo contiene coincidencias para la expresión regular patrón. "
+"Devuelve texto_si_coincide si se encuentran coincidencias, en caso contrario "
+"devuelve texto_si_no_coincide."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:302
 msgid ""
@@ -14799,6 +14859,11 @@ msgid ""
 "else_value is returned. You can have as many `pattern, value` pairs as you "
 "want"
 msgstr ""
+"switch(val, patrón, valor, patrón, valor, ..., otro_valor) -- para cada "
+"pareja «patrón, valor», comprueba si el campo contiene coincidencias para la "
+"expresión regular patrón y, en tal caso, devuelve ese valor. Si no coincide "
+"ningún patrón, devuelve otro_valor. Puede emplear tantas parejas «patrón, "
+"valor» como desee."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:310
 msgid "switch requires an odd number of arguments"
@@ -14810,12 +14875,18 @@ msgid ""
 "expression. All instances of `pattern` are replaced with `replacement`. As "
 "in all of calibre, these are python-compatible regular expressions"
 msgstr ""
+"re(val, patrón, sustitución) -- devuelve el campo después de aplicar la "
+"expresión regular. Todas las veces que aparezca patrón se sustituirá por "
+"sustitución. Como en todo calibre, se trata de expresiones regulares "
+"compatibles con python."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:333
 msgid ""
 "ifempty(val, text if empty) -- return val if val is not empty, otherwise "
 "return `text if empty`"
 msgstr ""
+"ifempty(val, texto_si_vacío) -- devuelve val si no está vacío, en caso "
+"contrario devuelve texto_si_vacío."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:345
 msgid ""
@@ -14830,6 +14901,15 @@ msgid ""
 "chars + the length of `middle text`, then the field will be used intact. For "
 "example, the title `The Dome` would not be changed."
 msgstr ""
+"shorten(val, car_izq, texto_medio, car_der) -- devuelve una versión "
+"abreviada del campo, consistente en car_izq caracteres del principio del "
+"campo, seguidos de texto_medio, seguido de car_der caracteres del final del "
+"campo. car_izq y car_der deben ser números enteros. Por ejemplo, supongamos "
+"que el título del libro es «Novísima recopilacion de las leyes de España» y "
+"que quiere que quepa en un espacio de 15 caracteres a lo sumo. Si usa "
+"{title:shorten(9,-,5)}, el resultado será «Novísima -spaña». Si la longitud "
+"del campo es menor de car_izq + car_der + la longitud de texto_medio, se "
+"usará el campo intacto. Por ejemplo, el título «La colmena» no se cambiará."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:370
 msgid ""
@@ -14838,6 +14918,10 @@ msgid ""
 "comma as the separator, but authors uses an ampersand. Examples: "
 "{tags:count(,)}, {authors:count(&)}"
 msgstr ""
+"count(val, separador) -- interpreta el campo como una lista de elementos "
+"separados por separador y devuelve el número de elementos de la lista. La "
+"mayoría de las listas usan una coma como separador, pero «authors» usa un "
+"ampersand. Ejemplos: {tags:count(,)}, {authors,count(&)}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:381
 msgid ""
@@ -14847,22 +14931,30 @@ msgid ""
 "If the item is not in the list, then the empty value is returned. The "
 "separator has the same meaning as in the count function."
 msgstr ""
+"list_item(val, índice, separador) -- interpreta el campo como una lista de "
+"elementos separados por separador y devuelve el elemento número índice. El "
+"primer elemento es el número cero. El último elemento puede obtenerse con "
+"«list_item(-1, separador)». Si el elemento no está en la lista devuelve un "
+"valor vacío. El separador tiene el mismo significado que en la función "
+"«count»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:401
 msgid "uppercase(val) -- return value of the field in upper case"
-msgstr ""
+msgstr "uppercase(val) -- devuelve el valor del campo en mayúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:409
 msgid "lowercase(val) -- return value of the field in lower case"
-msgstr ""
+msgstr "lowercase(val) -- devuelve el valor del campo en minúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:417
 msgid "titlecase(val) -- return value of the field in title case"
 msgstr ""
+"titlecase(val) -- devuelve el valor del campo con las iniciales en mayúscula"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:425
 msgid "capitalize(val) -- return value of the field capitalized"
 msgstr ""
+"capitalize(val) -- devuelve el valor del campo con la primera letra mayúscula"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -15294,6 +15386,11 @@ msgid ""
 "a link, it will be ignored.By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"Se omitirá cualquier enlace que coincida con esta expresión regular. Esta "
+"opción puede especificarse múltiples veces, lo que hará que se omitan los "
+"enlaces que coincidan con cualquiera de las expresiones. De manera "
+"predeterminada no se omite ningún enlace. Si se especifica tanto filter-"
+"regexp como match-regexp, se aplica primero filter-regexp."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
