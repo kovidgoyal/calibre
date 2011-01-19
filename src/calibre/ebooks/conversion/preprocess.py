@@ -459,7 +459,7 @@ class HTMLPreProcessor(object):
                 try:
                     search_re = re.compile(search_pattern)
                     replace_txt = getattr(self.extra_opts, replace, '')
-                    if replace_txt == None:
+                    if not replace_txt:
                         replace_txt = ''
                     rules.insert(0, (search_re, replace_txt))
                 except Exception as e:

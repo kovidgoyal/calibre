@@ -7,22 +7,29 @@ class DallasNews(BasicNewsRecipe):
     max_articles_per_feed = 25
 
     no_stylesheets = True
-    remove_tags_before = dict(name='h2', attrs={'class':'vitstoryheadline'})
-    remove_tags_after  = dict(name='div', attrs={'style':'width: 100%; clear: right'})
-    remove_tags_after  = dict(name='div', attrs={'id':'article_tools_bottom'})
+    use_embedded_content = False
+    remove_tags_before = dict(name='h1')
+    keep_only_tags = {'class':lambda x: x and 'article' in x}
     remove_tags = [
-       dict(name='iframe'),
-       dict(name='div', attrs={'class':'biblockmore'}),
-       dict(name='div', attrs={'style':'width: 100%; clear: right'}),
-       dict(name='div', attrs={'id':'article_tools_bottom'}),
-       #dict(name='ul', attrs={'class':'articleTools'}),
+            {'class':['DMNSocialTools', 'article ', 'article first ', 'article premium']},
     ]
 
     feeds          = [
-                      ('Latest News', 'http://www.dallasnews.com/newskiosk/rss/dallasnewslatestnews.xml'),
-                      ('Local News', 'http://www.dallasnews.com/newskiosk/rss/dallasnewslocalnews.xml'),
-		      ('Nation and World', 'http://www.dallasnews.com/newskiosk/rss/dallasnewsnationworld.xml'),
-		      ('Politics', 'http://www.dallasnews.com/newskiosk/rss/dallasnewsnationalpolitics.xml'),
-		      ('Science', 'http://www.dallasnews.com/newskiosk/rss/dallasnewsscience.xml'),
+                      ('Local News',
+                          'http://www.dallasnews.com/news/politics/local-politics/?rss'),
+                      ('National Politics',
+                          'http://www.dallasnews.com/news/politics/national-politic/?rss'),
+                      ('State Politics',
+                          'http://www.dallasnews.com/news/politics/state-politics/?rss'),
+                      ('Religion',
+                         'http://www.dallasnews.com/news/religion/?rss'),
+                      ('Crime',
+                          'http://www.dallasnews.com/news/crime/headlines/?rss'),
+                      ('Celebrity News',
+                          'http://www.dallasnews.com/entertainment/celebrity-news/?rss&listname=TopStories'),
+                      ('Nation',
+                          'http://www.dallasnews.com/news/nation-world/nation/?rss'),
+                      ('World',
+                          'http://www.dallasnews.com/news/nation-world/world/?rss'),
                     ]
 
