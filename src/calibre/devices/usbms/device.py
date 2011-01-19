@@ -874,8 +874,12 @@ class Device(DeviceConfig, DevicePlugin):
         return {}
 
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
+        return self._create_upload_path(path, mdata, fname,
+               create_dirs=create_dirs, maxlen=250)
+
+    def _create_upload_path(self, path, mdata, fname, create_dirs=True,
+                            maxlen=None):
         path = os.path.abspath(path)
-        extra_components = []
 
         special_tag = None
         if mdata.tags:
@@ -902,7 +906,7 @@ class Device(DeviceConfig, DevicePlugin):
         app_id = str(getattr(mdata, 'application_id', ''))
         # The db id will be in the created filename
         extra_components = get_components(template, mdata, fname,
-                timefmt=opts.send_timefmt, length=250-len(app_id)-1)
+                timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1)
         if not extra_components:
             extra_components.append(sanitize(self.filename_callback(fname,
                 mdata)))
@@ -937,11 +941,10 @@ class Device(DeviceConfig, DevicePlugin):
             return ans
 
         extra_components = list(map(remove_trailing_periods, extra_components))
-        components = shorten_components_to(250 - len(path), extra_components)
+        components = shorten_components_to(maxlen - len(path), extra_components)
         components = self.sanitize_path_components(components)
         filepath = os.path.join(path, *components)
         filedir = os.path.dirname(filepath)
-
 
         if create_dirs and not os.path.exists(filedir):
             os.makedirs(filedir)

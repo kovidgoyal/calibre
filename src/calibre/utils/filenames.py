@@ -42,30 +42,44 @@ def supports_long_names(path):
     else:
         return True
 
-def shorten_components_to(length, components):
+def shorten_component(s, byWhat):
+    l = len(s)
+    if l < byWhat:
+        return s
+    l = int((l-byWhat)/2)
+    if l <= 0:
+        return s
+    return s[0:l] + s[-l:]
+
+def shorten_components_to(length, components, more_to_take = 0):
     filepath = os.sep.join(components)
-    extra = len(filepath) - length
+    extra = len(filepath) - (length - more_to_take)
     if extra < 1:
         return components
-    delta = int(ceil(extra/float(len(components))))
-    ans = []
+    deltas = []
     for x in components:
+        pct = len(x)/float(len(filepath))
+        deltas.append(int(ceil(pct*extra)))
+    ans = []
+
+    for i,x in enumerate(components):
+        delta = deltas[i]
         if delta > len(x):
             r = x[0] if x is components[-1] else ''
         else:
             if x is components[-1]:
                 b, e = os.path.splitext(x)
                 if e == '.': e = ''
-                r = b[:-delta]+e
+                r = shorten_component(b, delta)+e
                 if r.startswith('.'): r = x[0]+r
             else:
-                r = x[:-delta]
+                r = shorten_component(x, delta)
             r = r.strip()
             if not r:
                 r = x.strip()[0] if x.strip() else 'x'
         ans.append(r)
     if len(os.sep.join(ans)) > length:
-        return shorten_components_to(length, ans)
+        return shorten_components_to(length, components, more_to_take+2)
     return ans
 
 def find_executable_in_path(name, path=None):

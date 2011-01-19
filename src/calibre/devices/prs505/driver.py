@@ -201,10 +201,13 @@ class PRS505(USBMS):
                                 self._card_b_prefix if idx == 2 \
                                     else self._main_prefix
                 for book in bl:
-                    p = os.path.join(prefix, book.lpath)
-                    self._upload_cover(os.path.dirname(p),
-                                      os.path.splitext(os.path.basename(p))[0],
-                                      book, p)
+                    try:
+                        p = os.path.join(prefix, book.lpath)
+                        self._upload_cover(os.path.dirname(p),
+                                          os.path.splitext(os.path.basename(p))[0],
+                                          book, p)
+                    except:
+                        debug_print('FAILED to upload cover', p)
         else:
             debug_print('PRS505: NOT uploading covers in sync_booklists')
 
@@ -221,6 +224,12 @@ class PRS505(USBMS):
     def set_plugboards(self, plugboards, pb_func):
         self.plugboards = plugboards
         self.plugboard_func = pb_func
+
+    def create_upload_path(self, path, mdata, fname, create_dirs=True):
+        maxlen = 250 - (max(len(CACHE_THUMBNAIL), len(MEDIA_THUMBNAIL)) +
+                        len('main_thumbnail.jpg') + 1)
+        return self._create_upload_path(path, mdata, fname,
+                                        create_dirs=create_dirs, maxlen=maxlen)
 
     def upload_cover(self, path, filename, metadata, filepath):
         opts = self.settings()
