@@ -42,6 +42,12 @@ option.
 For full documentation of the conversion system see
 ''') + 'http://calibre-ebook.com/user_manual/conversion.html'
 
+HEURISTIC_OPTIONS = ['markup_chapter_headings',
+                      'italicize_common_cases', 'fix_indents',
+                      'html_unwrap_factor', 'unwrap_lines',
+                      'delete_blank_paragraphs', 'format_scene_breaks',
+                      'dehyphenate', 'renumber_headings']
+
 def print_help(parser, log):
     help = parser.format_help().encode(preferred_encoding, 'replace')
     log(help)
@@ -83,6 +89,8 @@ def option_recommendation_to_cli_option(add_option, rec):
     if opt.long_switch == 'verbose':
         attrs['action'] = 'count'
         attrs.pop('type', '')
+    if opt.name in HEURISTIC_OPTIONS and rec.recommended_value is True:
+        switches = ['--disable-'+opt.long_switch]
     add_option(Option(*switches, **attrs))
 
 def add_input_output_options(parser, plumber):
@@ -129,18 +137,15 @@ def add_pipeline_options(parser, plumber):
                       'asciiize',
                   ]
                   ),
-                  
+
               'HEURISTIC PROCESSING' : (
-                  _('Modify the document text and structure using common patterns.'),
-                  [
-                      'enable_heuristics', 'markup_chapter_headings',
-                      'italicize_common_cases', 'fix_indents',
-                      'html_unwrap_factor', 'unwrap_lines',
-                      'delete_blank_paragraphs', 'format_scene_breaks',
-                      'dehyphenate', 'renumber_headings',
-                  ]
+                  _('Modify the document text and structure using common'
+                     ' patterns. Disabled by default. Use %s to enable. '
+                     ' Individual actions can be diable with the %s options.')
+                  % ('--enable-heuristics', '--disable-*'),
+                  ['enable_heuristics'] + HEURISTIC_OPTIONS
                   ),
-                  
+
               'SEARCH AND REPLACE' : (
                  _('Modify the document text and structure using user defined patterns.'),
                  [
