@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import functools, re
 
-from calibre import entity_to_unicode
+from calibre import entity_to_unicode, as_unicode
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'
@@ -174,13 +174,19 @@ class Dehyphenator(object):
     retain hyphens.
     '''
 
-    def __init__(self):
+    def __init__(self, verbose=0, log=None):
+        self.log = log
+        self.verbose = verbose
         # Add common suffixes to the regex below to increase the likelihood of a match -
         # don't add suffixes which are also complete words, such as 'able' or 'sex'
-        self.removesuffixes = re.compile(r"((ed)?ly|('e)?s|a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|m?ents?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex|ian)$", re.IGNORECASE)
+        # only remove if it's not already the point of hyphenation
+        self.suffix_string = "((ed)?ly|'?e?s||a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|m?ents?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex|ian)$"
+        self.suffixes = re.compile(r"^%s" % self.suffix_string, re.IGNORECASE)
+        self.removesuffixes = re.compile(r"%s" % self.suffix_string, re.IGNORECASE)
         # remove prefixes if the prefix was not already the point of hyphenation
-        self.prefixes = re.compile(r'^(dis|re|un|in|ex)$', re.IGNORECASE)
-        self.removeprefix = re.compile(r'^(dis|re|un|in|ex)', re.IGNORECASE)
+        self.prefix_string = '^(dis|re|un|in|ex)'
+        self.prefixes = re.compile(r'%s$' % self.prefix_string, re.IGNORECASE)
+        self.removeprefix = re.compile(r'%s' % self.prefix_string, re.IGNORECASE)
 
     def dehyphenate(self, match):
         firsthalf = match.group('firstpart')
@@ -191,31 +197,44 @@ class Dehyphenator(object):
             wraptags = ''
         hyphenated = unicode(firsthalf) + "-" + unicode(secondhalf)
         dehyphenated = unicode(firsthalf) + unicode(secondhalf)
-        lookupword = self.removesuffixes.sub('', dehyphenated)
-        if self.prefixes.match(firsthalf) is None:
+        if self.suffixes.match(secondhalf) is None:
+            lookupword = self.removesuffixes.sub('', dehyphenated)
+        else:
+            lookupword = dehyphenated
+        if len(firsthalf) > 3 and self.prefixes.match(firsthalf) is None:
             lookupword = self.removeprefix.sub('', lookupword)
-        #print "lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated)
+        if self.verbose > 2:
+            self.log("lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated))
         try:
             searchresult = self.html.find(lookupword.lower())
         except:
             return hyphenated
         if self.format == 'html_cleanup' or self.format == 'txt_cleanup':
             if self.html.find(lookupword) != -1 or searchresult != -1:
-                #print "Cleanup:returned dehyphenated word: " + str(dehyphenated)
+                if self.verbose > 2:
+                    self.log("    Cleanup:returned dehyphenated word: " + str(dehyphenated))
                 return dehyphenated
             elif self.html.find(hyphenated) != -1:
-                #print "Cleanup:returned hyphenated word: " + str(hyphenated)
+                if self.verbose > 2:
+                    self.log("        Cleanup:returned hyphenated word: " + str(hyphenated))
                 return hyphenated
             else:
-                #print "Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf)
+                if self.verbose > 2:
+                    self.log("            Cleanup:returning original text "+str(firsthalf)+" + linefeed "+str(secondhalf))
                 return firsthalf+u'\u2014'+wraptags+secondhalf
 
         else:
+            if len(firsthalf) <= 2 and len(secondhalf) <= 2:
+                if self.verbose > 2:
+                    self.log("too short, returned hyphenated word: " + str(hyphenated))
+                return hyphenated
             if self.html.find(lookupword) != -1 or searchresult != -1:
-                #print "returned dehyphenated word: " + str(dehyphenated)
+                if self.verbose > 2:
+                    self.log("     returned dehyphenated word: " + str(dehyphenated))
                 return dehyphenated
             else:
-                #print "           returned hyphenated word: " + str(hyphenated)
+                if self.verbose > 2:
+                    self.log("          returned hyphenated word: " + str(hyphenated))
                 return hyphenated
 
     def __call__(self, html, format, length=1):
@@ -228,7 +247,7 @@ class Dehyphenator(object):
         elif format == 'txt':
             intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)(\u0020|\u0009)*(?P<wraptags>(\n(\u0020|\u0009)*)+)(?P<secondpart>[\w\d]+)'% length)
         elif format == 'individual_words':
-            intextmatch = re.compile(u'>[^<]*\b(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)"\s>]+)(-|‐)\u0020*(?P<secondpart>\w+)\b[^<]*<') # for later, not called anywhere yet
+            intextmatch = re.compile(u'(?!<)(?P<firstpart>\w+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)')
         elif format == 'html_cleanup':
             intextmatch = re.compile(u'(?P<firstpart>[^\[\]\\\^\$\.\|\?\*\+\(\)“"\s>]+)(-|‐)\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)')
         elif format == 'txt_cleanup':
@@ -397,10 +416,8 @@ class HTMLPreProcessor(object):
                      (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
                      ]
-    def __init__(self, input_plugin_preprocess, plugin_preprocess,
-            extra_opts=None):
-        self.input_plugin_preprocess = input_plugin_preprocess
-        self.plugin_preprocess = plugin_preprocess
+    def __init__(self, log=None, extra_opts=None):
+        self.log = log
         self.extra_opts = extra_opts
 
     def is_baen(self, src):
@@ -436,39 +453,26 @@ class HTMLPreProcessor(object):
         if not getattr(self.extra_opts, 'keep_ligatures', False):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
 
+        for search, replace in [['sr3_search', 'sr3_replace'], ['sr2_search', 'sr2_replace'], ['sr1_search', 'sr1_replace']]:
+            search_pattern = getattr(self.extra_opts, search, '')
+            if search_pattern:
+                try:
+                    search_re = re.compile(search_pattern)
+                    replace_txt = getattr(self.extra_opts, replace, '')
+                    if not replace_txt:
+                        replace_txt = ''
+                    rules.insert(0, (search_re, replace_txt))
+                except Exception as e:
+                    self.log.error('Failed to parse %r regexp because %s' %
+                            (search, as_unicode(e)))
+
         end_rules = []
-        if getattr(self.extra_opts, 'remove_header', None):
-            try:
-                rules.insert(0,
-                    (re.compile(self.extra_opts.header_regex), lambda match : '')
-                )
-            except:
-                import traceback
-                print 'Failed to parse remove_header regexp'
-                traceback.print_exc()
-
-        if getattr(self.extra_opts, 'remove_footer', None):
-            try:
-                rules.insert(0,
-                    (re.compile(self.extra_opts.footer_regex), lambda match : '')
-                )
-            except:
-                import traceback
-                print 'Failed to parse remove_footer regexp'
-                traceback.print_exc()
-
         # delete soft hyphens - moved here so it's executed after header/footer removal
         if is_pdftohtml:
             # unwrap/delete soft hyphens
             end_rules.append((re.compile(u'[­](</p>\s*<p>\s*)+\s*(?=[[a-z\d])'), lambda match: ''))
             # unwrap/delete soft hyphens with formatting
             end_rules.append((re.compile(u'[­]\s*(</(i|u|b)>)+(</p>\s*<p>\s*)+\s*(<(i|u|b)>)+\s*(?=[[a-z\d])'), lambda match: ''))
-
-        # Make the more aggressive chapter marking regex optional with the preprocess option to
-        # reduce false positives and move after header/footer removal
-        if getattr(self.extra_opts, 'preprocess_html', None):
-            if is_pdftohtml:
-                end_rules.append((re.compile(r'<p>\s*(?P<chap>(<[ibu]>){0,2}\s*([A-Z \'"!]{3,})\s*([\dA-Z:]+\s){0,4}\s*(</[ibu]>){0,2})\s*<p>\s*(?P<title>(<[ibu]>){0,2}(\s*\w+){1,4}\s*(</[ibu]>){0,2}\s*<p>)?'), chap_head),)
 
         length = -1
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
@@ -512,15 +516,14 @@ class HTMLPreProcessor(object):
 
         if is_pdftohtml and length > -1:
             # Dehyphenate
-            dehyphenator = Dehyphenator()
+            dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
             html = dehyphenator(html,'html', length)
 
         if is_pdftohtml:
-            from calibre.ebooks.conversion.utils import PreProcessor
-            pdf_markup = PreProcessor(self.extra_opts, None)
+            from calibre.ebooks.conversion.utils import HeuristicProcessor
+            pdf_markup = HeuristicProcessor(self.extra_opts, None)
             totalwords = 0
-            totalwords = pdf_markup.get_word_count(html)
-            if totalwords > 7000:
+            if pdf_markup.get_word_count(html) > 7000:
                 html = pdf_markup.markup_chapters(html, totalwords, True)
 
         #dump(html, 'post-preprocess')
@@ -540,8 +543,10 @@ class HTMLPreProcessor(object):
             unidecoder = Unidecoder()
             html = unidecoder.decode(html)
 
-        if self.plugin_preprocess:
-            html = self.input_plugin_preprocess(self.extra_opts, html)
+        if getattr(self.extra_opts, 'enable_heuristics', False):
+            from calibre.ebooks.conversion.utils import HeuristicProcessor
+            preprocessor = HeuristicProcessor(self.extra_opts, self.log)
+            html = preprocessor(html)
 
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = self.smarten_punctuation(html)

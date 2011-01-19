@@ -12,7 +12,6 @@ import os, re
 
 from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.metadata.opf2 import OPFCreator
-from calibre.ebooks.txt.heuristicprocessor import TXTHeuristicProcessor
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
 
@@ -66,10 +65,6 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
             lines.append(u'<p>%s</p>' % prepare_string_for_xml(line.replace('\n', ' ')))
 
     return HTML_TEMPLATE % (title, u'\n'.join(lines))
-
-def convert_heuristic(txt, title='', epub_split_size_kb=0):
-    tp = TXTHeuristicProcessor()
-    return tp.convert(txt, title, epub_split_size_kb)
 
 def convert_markdown(txt, title='', disable_toc=False):
     from calibre.ebooks.markdown import markdown

@@ -229,7 +229,11 @@ class PRS505(USBMS):
             debug_print('PRS505: not uploading cover')
             return
         debug_print('PRS505: uploading cover')
-        self._upload_cover(path, filename, metadata, filepath)
+        try:
+            self._upload_cover(path, filename, metadata, filepath)
+        except:
+            import traceback
+            traceback.print_exc()
 
     def _upload_cover(self, path, filename, metadata, filepath):
         if metadata.thumbnail and metadata.thumbnail[-1]:

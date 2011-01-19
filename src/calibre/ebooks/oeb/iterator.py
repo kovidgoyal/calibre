@@ -199,8 +199,8 @@ class EbookIterator(object):
                     not hasattr(self.pathtoopf, 'manifest'):
                 if hasattr(self.pathtoopf, 'manifest'):
                     self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
-                self.pathtoopf = create_oebbook(self.log, self.pathtoopf, plumber.opts,
-                        plumber.input_plugin)
+                self.pathtoopf = create_oebbook(self.log, self.pathtoopf,
+                        plumber.opts)
 
         if hasattr(self.pathtoopf, 'manifest'):
             self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
