@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import functools, re
 
-from calibre import entity_to_unicode
+from calibre import entity_to_unicode, as_unicode
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'
@@ -463,7 +463,8 @@ class HTMLPreProcessor(object):
                         replace_txt = ''
                     rules.insert(0, (search_re, replace_txt))
                 except Exception as e:
-                    self.log.error('Failed to parse %s regexp because %s' % (search, e))
+                    self.log.error('Failed to parse %r regexp because %s' %
+                            (search, as_unicode(e)))
 
         end_rules = []
         # delete soft hyphens - moved here so it's executed after header/footer removal

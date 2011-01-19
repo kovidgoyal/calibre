@@ -207,7 +207,7 @@ class Config(ResizableDialog, Ui_Dialog):
             if not c: break
             self.stack.removeWidget(c)
 
-        widgets = [self.mw, lf, hw, sr, ps, sd, toc]
+        widgets = [self.mw, lf, hw, ps, sd, toc, sr]
         if input_widget is not None:
             widgets.append(input_widget)
         if output_widget is not None:

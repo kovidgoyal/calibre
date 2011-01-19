@@ -5,7 +5,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class IHNed(BasicNewsRecipe):
 
 
-    stahnout_vsechny = False
+    stahnout_vsechny = True
         #True   = stahuje vsechny z homepage
         #False  = stahuje pouze dnesni clanky (ze dne, kdy je skript spusten)
 

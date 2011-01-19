@@ -53,6 +53,7 @@ class TXTInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
+        self.log = log
         log.debug('Reading text from file...')
 
         txt = stream.read()
@@ -106,7 +107,7 @@ class TXTInput(InputFormatPlugin):
                     log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
 
             # Dehyphenate
-            dehyphenator = Dehyphenator(options.verbose, log=getattr(self, 'log', None))
+            dehyphenator = Dehyphenator(options.verbose, log=self.log)
             txt = dehyphenator(txt,'txt', length)
 
             # We don't check for block because the processor assumes block.

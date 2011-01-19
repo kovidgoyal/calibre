@@ -483,29 +483,29 @@ OptionRecommendation(name='pubdate',
 OptionRecommendation(name='timestamp',
     recommended_value=None, level=OptionRecommendation.LOW,
     help=_('Set the book timestamp (used by the date column in calibre).')),
-    
+
 OptionRecommendation(name='enable_heuristics',
     recommended_value=False, level=OptionRecommendation.LOW,
-    help=_('Enable heurisic processing. This option must be set for any '
+    help=_('Enable heuristic processing. This option must be set for any '
            'heuristic processing to take place.')),
 
 OptionRecommendation(name='markup_chapter_headings',
     recommended_value=False, level=OptionRecommendation.LOW,
-    help=_('Detect unformatted chapter headings and sub headings. Change ' 
+    help=_('Detect unformatted chapter headings and sub headings. Change '
            'them to h2 and h3 tags.  This setting will not create a TOC, '
            'but can be used in conjunction with structure detection to create '
            'one.')),
-           
+
 OptionRecommendation(name='italicize_common_cases',
     recommended_value=False, level=OptionRecommendation.LOW,
     help=_('Look for common words and patterns that denote '
            'italics and italicize them.')),
-           
+
 OptionRecommendation(name='fix_indents',
     recommended_value=False, level=OptionRecommendation.LOW,
     help=_('Turn indentation created from multiple non-breaking space entities '
            'into CSS indents.')),
-           
+
 OptionRecommendation(name='html_unwrap_factor',
     recommended_value=0.40, level=OptionRecommendation.LOW,
     help=_('Scale used to determine the length at which a line should '
@@ -513,31 +513,31 @@ OptionRecommendation(name='html_unwrap_factor',
             'default is 0.4, just below the median line length.  If only a '
             'few lines in the document require unwrapping this value should '
             'be reduced')),
-            
+
 OptionRecommendation(name='unwrap_lines',
     recommended_value=False, level=OptionRecommendation.LOW,
     help=_('Unwrap lines using punctuation and other formatting clues.')),
-    
+
 OptionRecommendation(name='delete_blank_paragraphs',
     recommended_value=False, level=OptionRecommendation.LOW,
     help=_('Remove empty paragraphs from the document when they exist between '
            'every other paragraph')),
-    
+
 OptionRecommendation(name='format_scene_breaks',
     recommended_value=False, level=OptionRecommendation.LOW,
-    help=_('left aligned scene break markers are center aligned. '
+    help=_('Left aligned scene break markers are center aligned. '
            'Replace soft scene breaks that use multiple blank lines with'
            'horizontal rules.')),
 
 OptionRecommendation(name='dehyphenate',
     recommended_value=False, level=OptionRecommendation.LOW,
-    help=_('Analyses hyphenated words throughout the document.  The '
+    help=_('Analyze hyphenated words throughout the document.  The '
            'document itself is used as a dictionary to determine whether hyphens '
            'should be retained or removed.')),
 
 OptionRecommendation(name='renumber_headings',
     recommended_value=False, level=OptionRecommendation.LOW,
-    help=_('Looks for occurences of sequential <h1> or <h2> tags. '
+    help=_('Looks for occurrences of sequential <h1> or <h2> tags. '
            'The tags are renumbered to prevent splitting in the middle '
            'of chapter headings.')),
 
@@ -545,10 +545,10 @@ OptionRecommendation(name='sr1_search',
     recommended_value='', level=OptionRecommendation.LOW,
     help=_('Search pattern (regular expression) to be replaced with '
            'sr1-replace.')),
-    
+
 OptionRecommendation(name='sr1_replace',
     recommended_value='', level=OptionRecommendation.LOW,
-    help=_('Replace characters to replace the text found with sr1-search.')),
+    help=_('Replacement to replace the text found with sr1-search.')),
 
 OptionRecommendation(name='sr2_search',
     recommended_value='', level=OptionRecommendation.LOW,
@@ -557,7 +557,7 @@ OptionRecommendation(name='sr2_search',
 
 OptionRecommendation(name='sr2_replace',
     recommended_value='', level=OptionRecommendation.LOW,
-    help=_('Replace characters to replace the text found with sr2-search.')),
+    help=_('Replacement to replace the text found with sr2-search.')),
 
 OptionRecommendation(name='sr3_search',
     recommended_value='', level=OptionRecommendation.LOW,
@@ -566,7 +566,7 @@ OptionRecommendation(name='sr3_search',
 
 OptionRecommendation(name='sr3_replace',
     recommended_value='', level=OptionRecommendation.LOW,
-    help=_('Replace characters to replace the text found with sr3-search.')),
+    help=_('Replacement to replace the text found with sr3-search.')),
 ]
         # }}}
 
