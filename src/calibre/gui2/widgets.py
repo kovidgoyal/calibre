@@ -163,6 +163,7 @@ class FormatList(QListWidget):
 class ImageView(QWidget):
 
     BORDER_WIDTH = 1
+    cover_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -202,8 +203,7 @@ class ImageView(QWidget):
             if not pmap.isNull():
                 self.setPixmap(pmap)
                 event.accept()
-                self.emit(SIGNAL('cover_changed(PyQt_PyObject)'), open(path,
-                    'rb').read())
+                self.cover_changed.emit(open(path, 'rb').read())
                 break
 
     def dragMoveEvent(self, event):
@@ -272,7 +272,7 @@ class ImageView(QWidget):
             pmap = cb.pixmap(cb.Selection)
         if not pmap.isNull():
             self.setPixmap(pmap)
-            self.emit(SIGNAL('cover_changed(PyQt_PyObject)'),
+            self.cover_changed.emit(
                     pixmap_to_data(pmap))
     # }}}
 

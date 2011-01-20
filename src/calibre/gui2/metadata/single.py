@@ -9,14 +9,15 @@ import textwrap, re, os
 
 from PyQt4.Qt import QDialogButtonBox, Qt, QTabWidget, QScrollArea, \
     QVBoxLayout, QIcon, QToolButton, QWidget, QLabel, QGridLayout, \
-    QDoubleSpinBox, QListWidgetItem, QSize, pyqtSignal
+    QDoubleSpinBox, QListWidgetItem, QSize, pyqtSignal, QPixmap, \
+    QSplitter
 
 from calibre.gui2 import ResizableDialog, file_icon_provider, \
         choose_files, error_dialog
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 from calibre.gui2.widgets import EnLineEdit, CompleteComboBox, \
-        EnComboBox, FormatList
+        EnComboBox, FormatList, ImageView
 from calibre.ebooks.metadata import title_sort, authors_to_string, \
         string_to_authors
 from calibre.utils.date import local_tz
@@ -40,6 +41,7 @@ class BasicMetadataWidget(object):
 
     @dynamic_property
     def current_val(self):
+        # Present in most but not all basic metadata widgets
         def fget(self):
             return None
         def fset(self, val):
@@ -563,6 +565,66 @@ class FormatsManager(QWidget): # {{{
 
 # }}}
 
+class Cover(ImageView):
+
+    def __init__(self, parent):
+        ImageView.__init__(self, parent)
+        self._cdata = None
+        self.cover_changed.connect(self.set_pixmap_from_data)
+
+    def set_pixmap_from_data(self, data):
+        if not data:
+            self.current_val = None
+            return
+        orig = self.current_val
+        self.current_val = data
+        if self.current_val is None:
+            error_dialog(self, _('Invalid cover'),
+                    _('Could not change cover as the image is invalid.'),
+                    show=True)
+            self.current_val = orig
+
+    def initialize(self, db, id_):
+        self._cdata = None
+        self.current_val = db.cover(id_, index_is_id=True)
+        self.original_val = self.current_val
+
+    @property
+    def changed(self):
+        return self.current_val != self.original_val
+
+    @dynamic_property
+    def current_val(self):
+        def fget(self):
+            return self._cdata
+        def fset(self, cdata):
+            self._cdata = None
+            pm = QPixmap()
+            if cdata:
+                pm.loadFromData(cdata)
+            if pm.isNull():
+                pm = QPixmap(I('default_cover.png'))
+            else:
+                self._cdata = cdata
+            self.setPixmap(pm)
+            tt = _('This book has no cover')
+            if self._cdata:
+                tt = _('Cover size: %dx%d pixels') % \
+                (pm.width(), pm.height())
+            self.setToolTip(tt)
+
+        return property(fget=fget, fset=fset)
+
+    def commit(self, db, id_):
+        if self.changed:
+            if self.current_val:
+                db.set_cover(id_, self.current_val, notify=False, commit=False)
+            else:
+                db.remove_cover(id_, notify=False, commit=False)
+        return True
+
+
+
 class MetadataSingleDialog(ResizableDialog):
 
     view_format = pyqtSignal(object)
@@ -644,6 +706,9 @@ class MetadataSingleDialog(ResizableDialog):
         self.formats_manager = FormatsManager(self)
         self.basic_metadata_widgets.append(self.formats_manager)
 
+        self.cover = Cover(self)
+        self.basic_metadata_widgets.append(self.cover)
+
     # }}}
 
     def do_layout(self): # {{{
@@ -678,9 +743,14 @@ class MetadataSingleDialog(ResizableDialog):
                 self.series_index, icon='trash.png')
 
         tl.addWidget(self.formats_manager, 0, 6, 3, 1)
+
+        self.splitter = QSplitter(Qt.Horizontal, self)
+        self.splitter.addWidget(self.cover)
+        l.addWidget(self.splitter)
     # }}}
 
     def __call__(self, id_, has_next=False, has_previous=False):
+        # TODO: Next and previous buttons
         self.book_id = id_
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)
