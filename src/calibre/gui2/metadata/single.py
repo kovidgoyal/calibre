@@ -880,6 +880,50 @@ class ISBNEdit(QLineEdit): # {{{
 
 # }}}
 
+class PublisherEdit(EnComboBox): # {{{
+    LABEL = _('&Publisher:')
+
+    def __init__(self, parent):
+        EnComboBox.__init__(self, parent)
+        self.setSizeAdjustPolicy(
+                self.AdjustToMinimumContentsLengthWithIcon)
+
+    @dynamic_property
+    def current_val(self):
+
+        def fget(self):
+            return unicode(self.currentText()).strip()
+
+        def fset(self, val):
+            if not val:
+                val = ''
+            self.setEditText(val.strip())
+            self.setCursorPosition(0)
+
+        return property(fget=fget, fset=fset)
+
+    def initialize(self, db, id_):
+        all_publishers = db.all_publishers()
+        all_publishers.sort(key=lambda x : sort_key(x[1]))
+        publisher_id = db.publisher_id(id_, index_is_id=True)
+        idx, c = None, 0
+        for i in all_publishers:
+            id, name = i
+            if id == publisher_id:
+                idx = c
+            self.addItem(name)
+            c += 1
+
+        self.setEditText('')
+        if idx is not None:
+            self.setCurrentIndex(idx)
+
+    def commit(self, db, id_):
+        db.set_publisher(id_, self.current_val, notify=False, commit=False)
+        return True
+
+# }}}
+
 class MetadataSingleDialog(ResizableDialog):
 
     view_format = pyqtSignal(object)
@@ -979,6 +1023,9 @@ class MetadataSingleDialog(ResizableDialog):
         self.isbn = ISBNEdit(self)
         self.basic_metadata_widgets.append(self.isbn)
 
+        self.publisher = PublisherEdit(self)
+        self.basic_metadata_widgets.append(self.publisher)
+
     # }}}
 
     def do_layout(self): # {{{
@@ -1042,6 +1089,7 @@ class MetadataSingleDialog(ResizableDialog):
         create_row2(1, self.rating)
         create_row2(2, self.tags, self.tags_editor_button)
         create_row2(3, self.isbn)
+        create_row2(4, self.publisher)
 
         self.tabs[0].gb2 = gb = QGroupBox(_('&Comments'), self)
         gb.l = l = QVBoxLayout()
