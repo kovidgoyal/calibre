@@ -25,7 +25,8 @@ from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
 from calibre.utils.date import utcfromtimestamp
-
+from calibre.gui2.comments_editor import Editor
+from calibre.library.comments import comments_to_html
 
 '''
 The interface common to all widgets used to set basic metadata
@@ -565,7 +566,7 @@ class FormatsManager(QWidget): # {{{
 
 # }}}
 
-class Cover(ImageView):
+class Cover(ImageView): # {{{
 
     def __init__(self, parent):
         ImageView.__init__(self, parent)
@@ -713,7 +714,30 @@ class Cover(ImageView):
                 db.remove_cover(id_, notify=False, commit=False)
         return True
 
+# }}}
 
+class CommentsEdit(Editor): # {{{
+
+    @dynamic_property
+    def current_val(self):
+        def fget(self):
+            return self.html
+        def fset(self, val):
+            if not val or not val.strip():
+                val = ''
+            else:
+                val = comments_to_html(val)
+            self.html = val
+        return property(fget=fget, fset=fset)
+
+    def initialize(self, db, id_):
+        self.current_val = db.comments(id_, index_is_id=True)
+        self.original_val = self.current_val
+
+    def commit(self, db, id_):
+        db.set_comment(id_, self.current_val, notify=False, commit=False)
+        return True
+# }}}
 
 class MetadataSingleDialog(ResizableDialog):
 
@@ -799,6 +823,9 @@ class MetadataSingleDialog(ResizableDialog):
         self.cover = Cover(self)
         self.basic_metadata_widgets.append(self.cover)
 
+        self.comments = CommentsEdit(self)
+        self.basic_metadata_widgets.append(self.comments)
+
     # }}}
 
     def do_layout(self): # {{{
@@ -851,6 +878,13 @@ class MetadataSingleDialog(ResizableDialog):
         w.setLayout(w.l)
         l.addWidget(gb, 0, 0, 1, 3)
         self.splitter.addWidget(w)
+
+        self.tabs[0].gb2 = gb = QGroupBox(_('&Comments'), self)
+        gb.l = l = QVBoxLayout()
+        gb.setLayout(l)
+        l.addWidget(self.comments)
+        self.splitter.addWidget(gb)
+
     # }}}
 
     def __call__(self, id_, has_next=False, has_previous=False):
