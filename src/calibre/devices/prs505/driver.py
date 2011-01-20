@@ -98,6 +98,9 @@ class PRS505(USBMS):
 
     THUMBNAIL_HEIGHT = 200
 
+    MAX_PATH_LEN = 201 # 250 - (max(len(CACHE_THUMBNAIL), len(MEDIA_THUMBNAIL)) +
+                       # len('main_thumbnail.jpg') + 1)
+
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
 
@@ -201,10 +204,13 @@ class PRS505(USBMS):
                                 self._card_b_prefix if idx == 2 \
                                     else self._main_prefix
                 for book in bl:
-                    p = os.path.join(prefix, book.lpath)
-                    self._upload_cover(os.path.dirname(p),
-                                      os.path.splitext(os.path.basename(p))[0],
-                                      book, p)
+                    try:
+                        p = os.path.join(prefix, book.lpath)
+                        self._upload_cover(os.path.dirname(p),
+                                          os.path.splitext(os.path.basename(p))[0],
+                                          book, p)
+                    except:
+                        debug_print('FAILED to upload cover', p)
         else:
             debug_print('PRS505: NOT uploading covers in sync_booklists')
 
@@ -232,8 +238,7 @@ class PRS505(USBMS):
         try:
             self._upload_cover(path, filename, metadata, filepath)
         except:
-            import traceback
-            traceback.print_exc()
+            debug_print('FAILED to upload cover', filepath)
 
     def _upload_cover(self, path, filename, metadata, filepath):
         if metadata.thumbnail and metadata.thumbnail[-1]:

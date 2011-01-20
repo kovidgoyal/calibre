@@ -519,12 +519,12 @@ OptionRecommendation(name='unwrap_lines',
     help=_('Unwrap lines using punctuation and other formatting clues.')),
 
 OptionRecommendation(name='delete_blank_paragraphs',
-    recommended_value=False, level=OptionRecommendation.LOW,
+    recommended_value=True, level=OptionRecommendation.LOW,
     help=_('Remove empty paragraphs from the document when they exist between '
            'every other paragraph')),
 
 OptionRecommendation(name='format_scene_breaks',
-    recommended_value=False, level=OptionRecommendation.LOW,
+    recommended_value=True, level=OptionRecommendation.LOW,
     help=_('Left aligned scene break markers are center aligned. '
            'Replace soft scene breaks that use multiple blank lines with'
            'horizontal rules.')),
@@ -536,7 +536,7 @@ OptionRecommendation(name='dehyphenate',
            'should be retained or removed.')),
 
 OptionRecommendation(name='renumber_headings',
-    recommended_value=False, level=OptionRecommendation.LOW,
+    recommended_value=True, level=OptionRecommendation.LOW,
     help=_('Looks for occurrences of sequential <h1> or <h2> tags. '
            'The tags are renumbered to prevent splitting in the middle '
            'of chapter headings.')),
