@@ -11,7 +11,7 @@ from PyQt4.Qt import QDialogButtonBox, Qt, QTabWidget, QScrollArea, \
     QVBoxLayout, QIcon, QToolButton, QWidget, QLabel, QGridLayout, \
     QDoubleSpinBox, QListWidgetItem, QSize, pyqtSignal, QPixmap, \
     QSplitter, QPushButton, QGroupBox, QHBoxLayout, QSpinBox, \
-    QMessageBox
+    QMessageBox, QLineEdit
 
 from calibre.gui2 import ResizableDialog, file_icon_provider, \
         choose_files, error_dialog, choose_images, question_dialog
@@ -20,7 +20,7 @@ from calibre.utils.config import tweaks
 from calibre.gui2.widgets import EnLineEdit, CompleteComboBox, \
         EnComboBox, FormatList, ImageView, CompleteLineEdit
 from calibre.ebooks.metadata import title_sort, authors_to_string, \
-        string_to_authors
+        string_to_authors, check_isbn
 from calibre.utils.date import local_tz
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -839,6 +839,47 @@ class TagsEdit(CompleteLineEdit): # {{{
 
 # }}}
 
+class ISBNEdit(QLineEdit): # {{{
+    LABEL = _('IS&BN:')
+
+    def __init__(self, parent):
+        QLineEdit.__init__(self, parent)
+        self.pat = re.compile(r'[^0-9a-zA-Z]')
+        self.textChanged.connect(self.validate)
+
+    @dynamic_property
+    def current_val(self):
+        def fget(self):
+            return self.pat.sub('', unicode(self.text()).strip())
+        def fset(self, val):
+            if not val:
+                val = ''
+            self.setText(val.strip())
+        return property(fget=fget, fset=fset)
+
+    def initialize(self, db, id_):
+        self.current_val = db.isbn(id_, index_is_id=True)
+        self.original_val = self.current_val
+
+    def commit(self, db, id_):
+        db.set_isbn(id_, self.current_val, notify=False, commit=False)
+        return True
+
+    def validate(self, *args):
+        isbn = self.current_val
+        tt = _('This ISBN number is valid')
+        if not isbn:
+            col = 'rgba(0,255,0,0%)'
+        elif check_isbn(isbn) is not None:
+            col = 'rgba(0,255,0,20%)'
+        else:
+            col = 'rgba(255,0,0,20%)'
+            tt = _('This ISBN number is invalid')
+        self.setToolTip(tt)
+        self.setStyleSheet('QLineEdit { background-color: %s }'%col)
+
+# }}}
+
 class MetadataSingleDialog(ResizableDialog):
 
     view_format = pyqtSignal(object)
@@ -935,6 +976,8 @@ class MetadataSingleDialog(ResizableDialog):
         self.tags_editor_button.clicked.connect(self.tags_editor)
         self.basic_metadata_widgets.append(self.tags)
 
+        self.isbn = ISBNEdit(self)
+        self.basic_metadata_widgets.append(self.isbn)
 
     # }}}
 
@@ -998,6 +1041,7 @@ class MetadataSingleDialog(ResizableDialog):
         l.addWidget(gb, 0, 0, 1, 3)
         create_row2(1, self.rating)
         create_row2(2, self.tags, self.tags_editor_button)
+        create_row2(3, self.isbn)
 
         self.tabs[0].gb2 = gb = QGroupBox(_('&Comments'), self)
         gb.l = l = QVBoxLayout()
