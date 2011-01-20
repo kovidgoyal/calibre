@@ -10,10 +10,10 @@ import textwrap, re, os
 from PyQt4.Qt import QDialogButtonBox, Qt, QTabWidget, QScrollArea, \
     QVBoxLayout, QIcon, QToolButton, QWidget, QLabel, QGridLayout, \
     QDoubleSpinBox, QListWidgetItem, QSize, pyqtSignal, QPixmap, \
-    QSplitter
+    QSplitter, QPushButton, QGroupBox, QHBoxLayout
 
 from calibre.gui2 import ResizableDialog, file_icon_provider, \
-        choose_files, error_dialog
+        choose_files, error_dialog, choose_images
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 from calibre.gui2.widgets import EnLineEdit, CompleteComboBox, \
@@ -569,8 +569,98 @@ class Cover(ImageView):
 
     def __init__(self, parent):
         ImageView.__init__(self, parent)
+        self.dialog = parent
         self._cdata = None
         self.cover_changed.connect(self.set_pixmap_from_data)
+
+        self.select_cover_button = QPushButton(QIcon(I('document_open.png')),
+                _('&Browse'), parent)
+        self.trim_cover_button = QPushButton(QIcon(I('trim.png')),
+                _('T&rim'), parent)
+        self.remove_cover_button = QPushButton(QIcon(I('trash.png')),
+            _('&Remove'), parent)
+
+        self.select_cover_button.clicked.connect(self.select_cover)
+        self.remove_cover_button.clicked.connect(self.remove_cover)
+        self.trim_cover_button.clicked.connect(self.trim_cover)
+
+        self.download_cover_button = QPushButton(_('Download co&ver'), parent)
+        self.generate_cover_button = QPushButton(_('&Generate cover'), parent)
+
+        self.download_cover_button.clicked.connect(self.download_cover)
+        self.generate_cover_button.clicked.connect(self.generate_cover)
+
+        self.buttons = [self.select_cover_button, self.remove_cover_button,
+                self.trim_cover_button, self.download_cover_button,
+                self.generate_cover_button]
+
+    def select_cover(self, *args):
+        files = choose_images(self, 'change cover dialog',
+                             _('Choose cover for ') +
+                             self.dialog.title.current_val)
+        if not files:
+            return
+        _file = files[0]
+        if _file:
+            _file = os.path.abspath(_file)
+            if not os.access(_file, os.R_OK):
+                d = error_dialog(self, _('Cannot read'),
+                        _('You do not have permission to read the file: ') + _file)
+                d.exec_()
+                return
+            cf, cover = None, None
+            try:
+                cf = open(_file, "rb")
+                cover = cf.read()
+            except IOError, e:
+                d = error_dialog(self, _('Error reading file'),
+                        _("<p>There was an error reading from file: <br /><b>")
+                        + _file + "</b></p><br />"+str(e))
+                d.exec_()
+            if cover:
+                orig = self.current_val
+                self.current_val = cover
+                if self.current_val is None:
+                    self.current_val = orig
+                    error_dialog(self,
+                        _("Not a valid picture"),
+                            _file + _(" is not a valid picture"), show=True)
+
+    def remove_cover(self, *args):
+        self.current_val = None
+
+    def trim_cover(self, *args):
+        from calibre.utils.magick import Image
+        cdata = self.current_val
+        if not cdata:
+            return
+        im = Image()
+        im.load(cdata)
+        im.trim(10)
+        cdata = im.export('png')
+        self.current_val = cdata
+
+    def download_cover(self, *args):
+        pass # TODO: Implement this
+
+    def generate_cover(self, *args):
+        from calibre.ebooks import calibre_cover
+        from calibre.ebooks.metadata import fmt_sidx
+        from calibre.gui2 import config
+        title = self.dialog.title.current_val
+        author = authors_to_string(self.dialog.authors.current_val)
+        if not title or not author:
+            return error_dialog(self, _('Specify title and author'),
+                    _('You must specify a title and author before generating '
+                        'a cover'), show=True)
+        series = self.dialog.series.current_val
+        series_string = None
+        if series:
+            series_string = _('Book %s of %s')%(
+                    fmt_sidx(self.dialog.series_index.current_val,
+                    use_roman=config['use_roman_numerals_for_series_number']), series)
+        self.current_val = calibre_cover(title, author,
+                series_string=series_string)
 
     def set_pixmap_from_data(self, data):
         if not data:
@@ -747,6 +837,20 @@ class MetadataSingleDialog(ResizableDialog):
         self.splitter = QSplitter(Qt.Horizontal, self)
         self.splitter.addWidget(self.cover)
         l.addWidget(self.splitter)
+        self.tabs[0].gb = gb = QGroupBox(_('Change cover'), self)
+        gb.l = l = QGridLayout()
+        gb.setLayout(l)
+        for i, b in enumerate(self.cover.buttons[:3]):
+            l.addWidget(b, 0, i, 1, 1)
+        gb.hl = QHBoxLayout()
+        for b in self.cover.buttons[3:]:
+            gb.hl.addWidget(b)
+        l.addLayout(gb.hl, 1, 0, 1, 3)
+        self.tabs[0].middle = w = QWidget(self)
+        w.l = l = QGridLayout()
+        w.setLayout(w.l)
+        l.addWidget(gb, 0, 0, 1, 3)
+        self.splitter.addWidget(w)
     # }}}
 
     def __call__(self, id_, has_next=False, has_previous=False):
