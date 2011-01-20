@@ -106,7 +106,7 @@ class PDNOVEL(USBMS):
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
     THUMBNAIL_HEIGHT = 130
 
-    EBOOK_DIR_MAIN = 'eBooks'
+    EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'eBooks'
     SUPPORTS_SUB_DIRS = False
     DELETE_EXTS = ['.jpg', '.jpeg', '.png']
 
