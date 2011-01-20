@@ -580,7 +580,7 @@ class EPUB_MOBI(CatalogPlugin):
                            "pipeline to the specified "
                            "directory. Useful if you are unsure at which stage "
                            "of the conversion process a bug is occurring.\n"
-                           "Default: '%default'None\n"
+                           "Default: '%default'\n"
                            "Applies to: ePub, MOBI output formats")),
                    Option('--exclude-book-marker',
                           default=':',
@@ -1370,7 +1370,9 @@ class EPUB_MOBI(CatalogPlugin):
                 self.generateHTMLByTags()
                 # If this is the only Section, and there are no genres, bail
                 if self.opts.section_list == ['Genres'] and not self.genres:
-                    error_msg = _("No Genres found to catalog.\nCheck 'Excluded genres'\nin E-book options.\n")
+                    error_msg = _("No enabled genres found to catalog.\n")
+                    if not self.opts.cli_environment:
+                        error_msg += "Check 'Excluded genres'\nin E-book options.\n"
                     self.opts.log.error(error_msg)
                     self.error.append(_('No books available to catalog'))
                     self.error.append(error_msg)
@@ -2792,14 +2794,16 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                             genre_list.append(tag_list)
 
             if self.opts.verbose:
-                self.opts.log.info("     Genre summary: %d active genre tags used in generating catalog with %d titles" %
+                if len(genre_list):
+                    self.opts.log.info("     Genre summary: %d active genre tags used in generating catalog with %d titles" %
                                     (len(genre_list), len(self.booksByTitle)))
 
-                for genre in genre_list:
-                    for key in genre:
-                        self.opts.log.info("      %s: %d %s" % (self.getFriendlyGenreTag(key),
-                                           len(genre[key]),
-                                           'titles' if len(genre[key]) > 1 else 'title'))
+                    for genre in genre_list:
+                        for key in genre:
+                            self.opts.log.info("      %s: %d %s" % (self.getFriendlyGenreTag(key),
+                                               len(genre[key]),
+                                               'titles' if len(genre[key]) > 1 else 'title'))
+
 
             # Write the results
             # genre_list = [ {friendly_tag:[{book},{book}]}, {friendly_tag:[{book},{book}]}, ...]
@@ -3105,13 +3109,15 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 navPointTag.insert(1, contentTag)
             elif self.opts.generate_genres:
                 contentTag = Tag(soup, 'content')
-                contentTag['src'] = "content/ByGenres.html"
+                #contentTag['src'] = "content/ByGenres.html"
+                contentTag['src'] = "%s" % self.genres[0]['file']
                 navPointTag.insert(1, contentTag)
             elif self.opts.generate_recently_added:
                 contentTag = Tag(soup, 'content')
                 contentTag['src'] = "content/ByDateAdded.html"
                 navPointTag.insert(1, contentTag)
             else:
+                # Descriptions only
                 sort_descriptions_by = self.booksByAuthor if self.opts.sort_descriptions_by_author \
                                                           else self.booksByTitle
                 contentTag = Tag(soup, 'content')
@@ -3125,7 +3131,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             navMapTag.insert(0,navPointTag)
 
             ncx.insert(0,navMapTag)
-
             self.ncxSoup = soup
 
         def generateNCXDescriptions(self, tocTitle):
@@ -3911,7 +3916,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             # Add this section to the body
             body.insert(btc, navPointTag)
             btc += 1
-
             self.ncxSoup = ncx_soup
 
         def writeNCX(self):
@@ -4055,12 +4059,34 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             # Remove the special marker tags from the database's tag list,
             # return sorted list of normalized genre tags
 
+            def format_tag_list(tags, indent=5, line_break=70, header='Tag list'):
+                def next_tag(sorted_tags):
+                    for (i, tag) in enumerate(sorted_tags):
+                        if i < len(tags) - 1:
+                            yield tag + ", "
+                        else:
+                            yield tag
+
+                ans = '%s%d %s:\n' %  (' ' * indent, len(tags), header)
+                ans += ' ' * (indent + 1)
+                out_str = ''
+                sorted_tags = sorted(tags)
+                for tag in next_tag(sorted_tags):
+                    out_str += tag
+                    if len(out_str) >= line_break:
+                        ans += out_str + '\n'
+                        out_str = ' ' * (indent + 1)
+                return ans + out_str
+
             normalized_tags = []
             friendly_tags = []
+            excluded_tags = []
             for tag in tags:
-                if tag[0] in self.markerTags:
+                if tag in self.markerTags:
+                    excluded_tags.append(tag)
                     continue
                 if re.search(self.opts.exclude_genre, tag):
+                    excluded_tags.append(tag)
                     continue
                 if tag == ' ':
                     continue
@@ -4079,32 +4105,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         if genre_tags_dict[key] == normalized:
                             self.opts.log.warn("       %s" % key)
             if self.verbose:
-                def next_tag(tags):
-                    for (i, tag) in enumerate(tags):
-                        if i < len(tags) - 1:
-                            yield tag + ", "
-                        else:
-                            yield tag
-
-                self.opts.log.info(u'     %d genre tags in database (excluding genres matching %s):' % \
-                                     (len(genre_tags_dict), self.opts.exclude_genre))
-
-                # Display friendly/normalized genres
-                # friendly => normalized
-                if False:
-                    sorted_tags = ['%s => %s' % (key, genre_tags_dict[key]) for key in sorted(genre_tags_dict.keys())]
-                    for tag in next_tag(sorted_tags):
-                        self.opts.log(u'      %s' % tag)
-                else:
-                    sorted_tags = ['%s' % (key) for key in sorted(genre_tags_dict.keys())]
-                    out_str = ''
-                    line_break = 70
-                    for tag in next_tag(sorted_tags):
-                        out_str += tag
-                        if len(out_str) >= line_break:
-                            self.opts.log.info('      %s' % out_str)
-                            out_str = ''
-                    self.opts.log.info('      %s' % out_str)
+                self.opts.log.info('%s' % format_tag_list(genre_tags_dict, header="enabled genre tags in database"))
+                self.opts.log.info('%s' % format_tag_list(excluded_tags, header="excluded genre tags"))
 
             return genre_tags_dict
 
@@ -4969,7 +4971,13 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             else:
                 opts.log.warn('\n*** No enabled Sections, terminating catalog generation ***')
                 return ["No Included Sections","No enabled Sections.\nCheck E-book options tab\n'Included sections'\n"]
-        build_log.append(u" Sections: %s" % ', '.join(sections_list))
+        if opts.fmt == 'mobi' and sections_list == ['Descriptions']:
+                warning = _("\n*** Adding 'By Authors' Section required for MOBI output ***")
+                opts.log.warn(warning)
+                sections_list.insert(0,'Authors')
+                opts.generate_authors = True
+
+        opts.log(u" Sections: %s" % ', '.join(sections_list))
         opts.section_list = sections_list
 
         # Limit thumb_width to 1.0" - 2.0"
@@ -5017,7 +5025,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             if catalog_source_built:
                 log.info(" Completed catalog source generation\n")
             else:
-                log.warn(" *** Errors during catalog generation, check log for details ***")
+                log.error(" *** Terminated catalog generation, check log for details ***")
 
         if catalog_source_built:
             recommendations = []
