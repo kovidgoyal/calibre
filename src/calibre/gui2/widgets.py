@@ -123,6 +123,8 @@ IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
 
 class FormatList(QListWidget):
     DROPABBLE_EXTENSIONS = BOOK_EXTENSIONS
+    formats_dropped = pyqtSignal(object, object)
+    delete_format = pyqtSignal()
 
     @classmethod
     def paths_from_event(cls, event):
@@ -146,15 +148,14 @@ class FormatList(QListWidget):
     def dropEvent(self, event):
         paths = self.paths_from_event(event)
         event.setDropAction(Qt.CopyAction)
-        self.emit(SIGNAL('formats_dropped(PyQt_PyObject,PyQt_PyObject)'),
-                event, paths)
+        self.formats_dropped.emit(event, paths)
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
-            self.emit(SIGNAL('delete_format()'))
+            self.delete_format.emit()
         else:
             return QListWidget.keyPressEvent(self, event)
 
