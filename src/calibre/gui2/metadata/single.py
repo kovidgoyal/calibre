@@ -5,19 +5,26 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, re
+import textwrap, re, os
 
 from PyQt4.Qt import QDialogButtonBox, Qt, QTabWidget, QScrollArea, \
     QVBoxLayout, QIcon, QToolButton, QWidget, QLabel, QGridLayout, \
-    QDoubleSpinBox
+    QDoubleSpinBox, QListWidgetItem, QSize, pyqtSignal
 
-from calibre.gui2 import ResizableDialog
+from calibre.gui2 import ResizableDialog, file_icon_provider, \
+        choose_files, error_dialog
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 from calibre.gui2.widgets import EnLineEdit, CompleteComboBox, \
-        EnComboBox
+        EnComboBox, FormatList
 from calibre.ebooks.metadata import title_sort, authors_to_string, \
         string_to_authors
+from calibre.utils.date import local_tz
+from calibre import strftime
+from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.customize.ui import run_plugins_on_import
+from calibre.utils.date import utcfromtimestamp
+
 
 '''
 The interface common to all widgets used to set basic metadata
@@ -385,14 +392,180 @@ class SeriesIndexEdit(QDoubleSpinBox):
 
 # }}}
 
-class BuddyLabel(QLabel):
+class BuddyLabel(QLabel): # {{{
 
     def __init__(self, buddy):
         QLabel.__init__(self, buddy.LABEL)
         self.setBuddy(buddy)
         self.setAlignment(Qt.AlignRight|Qt.AlignVCenter)
+# }}}
+
+class Format(QListWidgetItem): # {{{
+
+    def __init__(self, parent, ext, size, path=None, timestamp=None):
+        self.path = path
+        self.ext = ext
+        self.size = float(size)/(1024*1024)
+        text = '%s (%.2f MB)'%(self.ext.upper(), self.size)
+        QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext),
+                                 text, parent, QListWidgetItem.UserType)
+        if timestamp is not None:
+            ts = timestamp.astimezone(local_tz)
+            t = strftime('%a, %d %b %Y [%H:%M:%S]', ts.timetuple())
+            text = _('Last modified: %s')%t
+            self.setToolTip(text)
+            self.setStatusTip(text)
+
+# }}}
+
+class FormatsManager(QWidget): # {{{
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.dialog = parent
+        self.changed = False
+
+        self.l = l = QGridLayout()
+        self.setLayout(l)
+        self.cover_from_format_button = QToolButton(self)
+        self.cover_from_format_button.setToolTip(
+                _('Set the cover for the book from the selected format'))
+        self.cover_from_format_button.setIcon(QIcon(I('book.png')))
+        self.cover_from_format_button.setIconSize(QSize(32, 32))
+
+        self.metadata_from_format_button = QToolButton(self)
+        self.metadata_from_format_button.setIcon(QIcon(I('edit_input.png')))
+        self.metadata_from_format_button.setIconSize(QSize(32, 32))
+        # TODO: Implement the *_from_format buttons
+
+        self.add_format_button = QToolButton(self)
+        self.add_format_button.setIcon(QIcon(I('add_book.png')))
+        self.add_format_button.setIconSize(QSize(32, 32))
+        self.add_format_button.clicked.connect(self.add_format)
+
+        self.remove_format_button = QToolButton(self)
+        self.remove_format_button.setIcon(QIcon(I('trash.png')))
+        self.remove_format_button.setIconSize(QSize(32, 32))
+        self.remove_format_button.clicked.connect(self.remove_format)
+
+        self.formats = FormatList(self)
+        self.formats.setAcceptDrops(True)
+        self.formats.formats_dropped.connect(self.formats_dropped)
+        self.formats.delete_format.connect(self.remove_format)
+        self.formats.itemDoubleClicked.connect(self.show_format)
+        self.formats.setDragDropMode(self.formats.DropOnly)
+        self.formats.setIconSize(QSize(32, 32))
+        self.formats.setMaximumWidth(200)
+
+        l.addWidget(self.cover_from_format_button,    0, 0, 1, 1)
+        l.addWidget(self.metadata_from_format_button, 2, 0, 1, 1)
+        l.addWidget(self.add_format_button,           0, 2, 1, 1)
+        l.addWidget(self.remove_format_button,        2, 2, 1, 1)
+        l.addWidget(self.formats,                     0, 1, 3, 1)
+
+
+
+    def initialize(self, db, id_):
+        self.changed = False
+        exts = db.formats(id_, index_is_id=True)
+        if exts:
+            exts = exts.split(',')
+            for ext in exts:
+                if not ext:
+                    ext = ''
+                size = db.sizeof_format(id_, ext, index_is_id=True)
+                timestamp = db.format_last_modified(id_, ext)
+                if size is None:
+                    continue
+                Format(self.formats, ext, size, timestamp=timestamp)
+
+    def commit(self, db, id_):
+        if not self.changed:
+            return True
+        old_extensions, new_extensions, paths = set(), set(), {}
+        for row in range(self.formats.count()):
+            fmt = self.formats.item(row)
+            ext, path = fmt.ext.lower(), fmt.path
+            if 'unknown' in ext.lower():
+                ext = None
+            if path:
+                new_extensions.add(ext)
+                paths[ext] = path
+            else:
+                old_extensions.add(ext)
+        for ext in new_extensions:
+            db.add_format(id_, ext, open(paths[ext], 'rb'), notify=False,
+                    index_is_id=True)
+        db_extensions = set([f.lower() for f in db.formats(id_,
+            index_is_id=True).split(',')])
+        extensions = new_extensions.union(old_extensions)
+        for ext in db_extensions:
+            if ext not in extensions:
+                db.remove_format(id_, ext, notify=False, index_is_id=True)
+
+        self.changed = False
+        return True
+
+    def add_format(self, *args):
+        files = choose_files(self, 'add formats dialog',
+                             _("Choose formats for ") +
+                             self.dialog.title.current_val,
+                             [(_('Books'), BOOK_EXTENSIONS)])
+        self._add_formats(files)
+
+    def _add_formats(self, paths):
+        added = False
+        if not paths:
+            return added
+        bad_perms = []
+        for _file in paths:
+            _file = os.path.abspath(_file)
+            if not os.access(_file, os.R_OK):
+                bad_perms.append(_file)
+                continue
+
+            nfile = run_plugins_on_import(_file)
+            if nfile is not None:
+                _file = nfile
+            stat = os.stat(_file)
+            size = stat.st_size
+            ext = os.path.splitext(_file)[1].lower().replace('.', '')
+            timestamp = utcfromtimestamp(stat.st_mtime)
+            for row in range(self.formats.count()):
+                fmt = self.formats.item(row)
+                if fmt.ext.lower() == ext:
+                    self.formats.takeItem(row)
+                    break
+            Format(self.formats, ext, size, path=_file, timestamp=timestamp)
+            self.changed = True
+            added = True
+        if bad_perms:
+            error_dialog(self, _('No permission'),
+                    _('You do not have '
+                'permission to read the following files:'),
+                det_msg='\n'.join(bad_perms), show=True)
+
+        return added
+
+    def formats_dropped(self, event, paths):
+        if self._add_formats(paths):
+            event.accept()
+
+    def remove_format(self, *args):
+        rows = self.formats.selectionModel().selectedRows(0)
+        for row in rows:
+            self.formats.takeItem(row.row())
+            self.changed = True
+
+    def show_format(self, item, *args):
+        fmt = item.ext
+        self.dialog.view_format.emit(fmt)
+
+# }}}
 
 class MetadataSingleDialog(ResizableDialog):
+
+    view_format = pyqtSignal(object)
 
     def __init__(self, db, parent=None):
         self.db = db
@@ -427,7 +600,7 @@ class MetadataSingleDialog(ResizableDialog):
         self.do_layout()
     # }}}
 
-    def create_basic_metadata_widgets(self):
+    def create_basic_metadata_widgets(self): # {{{
         self.basic_metadata_widgets = []
         # Title
         self.title = TitleEdit(self)
@@ -468,7 +641,12 @@ class MetadataSingleDialog(ResizableDialog):
         self.series_index = SeriesIndexEdit(self, self.series)
         self.basic_metadata_widgets.extend([self.series, self.series_index])
 
-    def do_layout(self):
+        self.formats_manager = FormatsManager(self)
+        self.basic_metadata_widgets.append(self.formats_manager)
+
+    # }}}
+
+    def do_layout(self): # {{{
         self.central_widget.clear()
         self.tabs = []
         self.labels = []
@@ -499,6 +677,8 @@ class MetadataSingleDialog(ResizableDialog):
         create_row(2, self.series, self.remove_unused_series_button,
                 self.series_index, icon='trash.png')
 
+        tl.addWidget(self.formats_manager, 0, 6, 3, 1)
+    # }}}
 
     def __call__(self, id_, has_next=False, has_previous=False):
         self.book_id = id_
