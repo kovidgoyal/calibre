@@ -75,7 +75,6 @@ def option_recommendation_to_cli_option(add_option, rec):
     opt = rec.option
     switches = ['-'+opt.short_switch] if opt.short_switch else []
     switches.append('--'+opt.long_switch)
-    flip_switches = ['italicize_common_cases', 'markup_chapter_headings', 'unwrap_lines', 'dehyphenate', 'fix_indents']
     attrs = dict(dest=opt.name, help=opt.help,
                      choices=opt.choices, default=rec.recommended_value)
     if isinstance(rec.recommended_value, type(True)):
