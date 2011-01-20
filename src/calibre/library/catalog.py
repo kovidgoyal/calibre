@@ -1519,7 +1519,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 for tag in exclude_tags:
                     search_terms.append("tag:=%s" % tag)
                 search_phrase = "not (%s)" % " or ".join(search_terms)
-
             # If a list of ids are provided, don't use search_text
             if self.opts.ids:
                 self.opts.search_text = search_phrase
@@ -4958,15 +4957,18 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             sections_list.append('Descriptions')
 
         if not sections_list:
-            opts.log.warn('\n*** No enabled Sections, terminating catalog generation ***')
-            opts.log.warn('When invoking from the CLI, add one or more of the Section switches:\n'
-                          ' --generate-authors\n'
-                          ' --generate-titles\n'
-                          ' --generate-series\n'
-                          ' --generate-genres\n'
-                          ' --generate-recently-added\n'
-                          ' --generate-descriptions')
-            return ["No Included Sections","No enabled Sections.\nCheck E-book options tab\n'Included sections'\n"]
+            if opts.cli_environment:
+                opts.log.warn('*** No Section switches specified, enabling all Sections ***')
+                opts.generate_authors = True
+                opts.generate_titles = True
+                opts.generate_series = True
+                opts.generate_genres = True
+                opts.generate_recently_added = True
+                opts.generate_descriptions = True
+                sections_list = ['Authors','Titles','Series','Genres','Recently Added','Descriptions']
+            else:
+                opts.log.warn('\n*** No enabled Sections, terminating catalog generation ***')
+                return ["No Included Sections","No enabled Sections.\nCheck E-book options tab\n'Included sections'\n"]
         build_log.append(u" Sections: %s" % ', '.join(sections_list))
         opts.section_list = sections_list
 
