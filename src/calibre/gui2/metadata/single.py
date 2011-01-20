@@ -10,14 +10,15 @@ import textwrap, re, os
 from PyQt4.Qt import QDialogButtonBox, Qt, QTabWidget, QScrollArea, \
     QVBoxLayout, QIcon, QToolButton, QWidget, QLabel, QGridLayout, \
     QDoubleSpinBox, QListWidgetItem, QSize, pyqtSignal, QPixmap, \
-    QSplitter, QPushButton, QGroupBox, QHBoxLayout
+    QSplitter, QPushButton, QGroupBox, QHBoxLayout, QSpinBox, \
+    QMessageBox
 
 from calibre.gui2 import ResizableDialog, file_icon_provider, \
-        choose_files, error_dialog, choose_images
+        choose_files, error_dialog, choose_images, question_dialog
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 from calibre.gui2.widgets import EnLineEdit, CompleteComboBox, \
-        EnComboBox, FormatList, ImageView
+        EnComboBox, FormatList, ImageView, CompleteLineEdit
 from calibre.ebooks.metadata import title_sort, authors_to_string, \
         string_to_authors
 from calibre.utils.date import local_tz
@@ -27,6 +28,7 @@ from calibre.customize.ui import run_plugins_on_import
 from calibre.utils.date import utcfromtimestamp
 from calibre.gui2.comments_editor import Editor
 from calibre.library.comments import comments_to_html
+from calibre.gui2.dialogs.tag_editor import TagEditor
 
 '''
 The interface common to all widgets used to set basic metadata
@@ -739,6 +741,104 @@ class CommentsEdit(Editor): # {{{
         return True
 # }}}
 
+class RatingEdit(QSpinBox): # {{{
+    LABEL = _('&Rating:')
+    TOOLTIP = _('Rating of this book. 0-5 stars')
+
+    def __init__(self, parent):
+        QSpinBox.__init__(self, parent)
+        self.setToolTip(self.TOOLTIP)
+        self.setWhatsThis(self.TOOLTIP)
+        self.setMaximum(5)
+        self.setSuffix(' ' + _('stars'))
+
+    @dynamic_property
+    def current_val(self):
+        def fget(self):
+            return self.value()
+        def fset(self, val):
+            if val is None:
+                val = 0
+            val = int(val)
+            if val < 0:
+                val = 0
+            if val > 5:
+                val = 5
+            self.setValue(val)
+        return property(fget=fget, fset=fset)
+
+    def initialize(self, db, id_):
+        val = db.rating(id_, index_is_id=True)
+        if val > 0:
+            val = int(val/2.)
+        else:
+            val = 0
+        self.current_val = val
+        self.original_val = self.current_val
+
+    def commit(self, db, id_):
+        db.set_rating(id_, 2*self.current_val, notify=False, commit=False)
+        return True
+
+# }}}
+
+class TagsEdit(CompleteLineEdit): # {{{
+    LABEL = _('Ta&gs:')
+    TOOLTIP = '<p>'+_('Tags categorize the book. This is particularly '
+            'useful while searching. <br><br>They can be any words'
+            'or phrases, separated by commas.')
+
+    def __init__(self, parent):
+        CompleteLineEdit.__init__(self, parent)
+        self.setToolTip(self.TOOLTIP)
+        self.setWhatsThis(self.TOOLTIP)
+
+    @dynamic_property
+    def current_val(self):
+        def fget(self):
+            return [x.strip() for x in unicode(self.text()).split(',')]
+        def fset(self, val):
+            if not val:
+                val = []
+            self.setText(', '.join([x.strip() for x in val]))
+        return property(fget=fget, fset=fset)
+
+    def initialize(self, db, id_):
+        tags = db.tags(id_, index_is_id=True)
+        tags = tags.split(',') if tags else []
+        self.current_val = tags
+        self.update_items_cache(db.all_tags())
+        self.original_val = self.current_val
+
+    @property
+    def changed(self):
+        return self.current_val != self.original_val
+
+    def edit(self, db, id_):
+        if self.changed:
+            if question_dialog(self, _('Tags changed'),
+                    _('You have changed the tags. In order to use the tags'
+                       ' editor, you must either discard or apply these '
+                       'changes'), show_copy_button=False,
+                    buttons=QMessageBox.Apply|QMessageBox.Discard,
+                    yes_button=QMessageBox.Apply):
+                self.commit(db, id_)
+                db.commit()
+                self.original_val = self.current_val
+            else:
+                self.current_val = self.original_val
+        d = TagEditor(self, db, id_)
+        if d.exec_() == TagEditor.Accepted:
+            self.current_val = d.tags
+            self.update_items_cache(db.all_tags())
+
+
+    def commit(self, db, id_):
+        db.set_tags(id_, self.current_val, notify=False, commit=False)
+        return True
+
+# }}}
+
 class MetadataSingleDialog(ResizableDialog):
 
     view_format = pyqtSignal(object)
@@ -778,7 +878,7 @@ class MetadataSingleDialog(ResizableDialog):
 
     def create_basic_metadata_widgets(self): # {{{
         self.basic_metadata_widgets = []
-        # Title
+
         self.title = TitleEdit(self)
         self.deduce_title_sort_button = QToolButton(self)
         self.deduce_title_sort_button.setToolTip(
@@ -791,7 +891,6 @@ class MetadataSingleDialog(ResizableDialog):
                 self.deduce_title_sort_button)
         self.basic_metadata_widgets.extend([self.title, self.title_sort])
 
-        # Authors
         self.authors = AuthorsEdit(self)
         self.deduce_author_sort_button = QToolButton(self)
         self.deduce_author_sort_button.setToolTip(_(
@@ -825,6 +924,17 @@ class MetadataSingleDialog(ResizableDialog):
 
         self.comments = CommentsEdit(self)
         self.basic_metadata_widgets.append(self.comments)
+
+        self.rating = RatingEdit(self)
+        self.basic_metadata_widgets.append(self.rating)
+
+        self.tags = TagsEdit(self)
+        self.tags_editor_button = QToolButton(self)
+        self.tags_editor_button.setToolTip(_('Open Tag Editor'))
+        self.tags_editor_button.setIcon(QIcon(I('chapters.png')))
+        self.tags_editor_button.clicked.connect(self.tags_editor)
+        self.basic_metadata_widgets.append(self.tags)
+
 
     # }}}
 
@@ -876,8 +986,18 @@ class MetadataSingleDialog(ResizableDialog):
         self.tabs[0].middle = w = QWidget(self)
         w.l = l = QGridLayout()
         w.setLayout(w.l)
-        l.addWidget(gb, 0, 0, 1, 3)
+        l.setMargin(0)
         self.splitter.addWidget(w)
+        def create_row2(row, widget, button=None):
+            ql = BuddyLabel(widget)
+            l.addWidget(ql, row, 0, 1, 1)
+            l.addWidget(widget, row, 1, 1, 2 if button is None else 1)
+            if button is not None:
+                l.addWidget(button, row, 2, 1, 1)
+
+        l.addWidget(gb, 0, 0, 1, 3)
+        create_row2(1, self.rating)
+        create_row2(2, self.tags, self.tags_editor_button)
 
         self.tabs[0].gb2 = gb = QGroupBox(_('&Comments'), self)
         gb.l = l = QVBoxLayout()
@@ -910,6 +1030,9 @@ class MetadataSingleDialog(ResizableDialog):
                 if unicode(self.series.itemText(i)) == idx:
                     self.series.setCurrentIndex(i)
                     break
+
+    def tags_editor(self, *args):
+        self.tags.edit(self.db, self.book_id)
 
 
 if __name__ == '__main__':

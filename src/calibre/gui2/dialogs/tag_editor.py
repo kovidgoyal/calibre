@@ -10,13 +10,13 @@ from calibre.utils.icu import sort_key
 
 class TagEditor(QDialog, Ui_TagEditor):
 
-    def __init__(self, window, db, index=None):
+    def __init__(self, window, db, id_=None):
         QDialog.__init__(self, window)
         Ui_TagEditor.__init__(self)
         self.setupUi(self)
 
         self.db = db
-        self.index = index
+        self.index = db.row(id_)
         if self.index is not None:
             tags = self.db.tags(self.index)
         else:
