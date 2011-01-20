@@ -6,16 +6,17 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import Qt, QVBoxLayout, QHBoxLayout, QWidget, \
-        QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, \
-        QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox
+from PyQt4.Qt import Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, \
+        QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, \
+        QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem, \
+        QSizePolicy
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import ResizableDialog
 from calibre.gui2.metadata.basic_widgets import TitleEdit, AuthorsEdit, \
     AuthorSortEdit, TitleSortEdit, SeriesEdit, SeriesIndexEdit, ISBNEdit, \
     RatingEdit, PublisherEdit, TagsEdit, FormatsManager, Cover, CommentsEdit, \
-    BuddyLabel
+    BuddyLabel, DateEdit, PubdateEdit
 
 class MetadataSingleDialog(ResizableDialog):
 
@@ -119,6 +120,17 @@ class MetadataSingleDialog(ResizableDialog):
         self.publisher = PublisherEdit(self)
         self.basic_metadata_widgets.append(self.publisher)
 
+        self.timestamp = DateEdit(self)
+        self.pubdate = PubdateEdit(self)
+        self.basic_metadata_widgets.extend([self.timestamp, self.pubdate])
+
+        self.fetch_metadata_button = QPushButton(
+                _('&Fetch metadata from server'), self)
+        self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
+        font = self.fmb_font = QFont()
+        font.setBold(True)
+        self.fetch_metadata_button.setFont(font)
+
     # }}}
 
     def do_layout(self): # {{{
@@ -172,6 +184,7 @@ class MetadataSingleDialog(ResizableDialog):
         l.setMargin(0)
         self.splitter.addWidget(w)
         def create_row2(row, widget, button=None):
+            row += 1
             ql = BuddyLabel(widget)
             l.addWidget(ql, row, 0, 1, 1)
             l.addWidget(widget, row, 1, 1, 2 if button is None else 1)
@@ -179,10 +192,19 @@ class MetadataSingleDialog(ResizableDialog):
                 l.addWidget(button, row, 2, 1, 1)
 
         l.addWidget(gb, 0, 0, 1, 3)
+        self.tabs[0].spc_one = QSpacerItem(10, 10, QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
+        l.addItem(self.tabs[0].spc_one, 1, 0, 1, 3)
         create_row2(1, self.rating)
         create_row2(2, self.tags, self.tags_editor_button)
         create_row2(3, self.isbn)
-        create_row2(4, self.publisher)
+        create_row2(4, self.timestamp, self.timestamp.clear_button)
+        create_row2(5, self.pubdate, self.pubdate.clear_button)
+        create_row2(6, self.publisher)
+        self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
+        l.addItem(self.tabs[0].spc_two, 8, 0, 1, 3)
+        l.addWidget(self.fetch_metadata_button, 9, 0, 1, 3)
 
         self.tabs[0].gb2 = gb = QGroupBox(_('&Comments'), self)
         gb.l = l = QVBoxLayout()
@@ -218,6 +240,9 @@ class MetadataSingleDialog(ResizableDialog):
 
     def tags_editor(self, *args):
         self.tags.edit(self.db, self.book_id)
+
+    def fetch_metadata(self, *args):
+        pass # TODO: fetch metadata
 
 
 if __name__ == '__main__':

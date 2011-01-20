@@ -7,11 +7,10 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os
 
-from PyQt4.Qt import Qt, \
+from PyQt4.Qt import Qt, QDateEdit, QDate, \
     QIcon, QToolButton, QWidget, QLabel, QGridLayout, \
     QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, \
-    QPushButton, QSpinBox, \
-    QMessageBox, QLineEdit
+    QPushButton, QSpinBox, QMessageBox, QLineEdit
 
 from calibre.gui2.widgets import EnLineEdit, CompleteComboBox, \
         EnComboBox, FormatList, ImageView, CompleteLineEdit
@@ -19,9 +18,9 @@ from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 from calibre.ebooks.metadata import title_sort, authors_to_string, \
         string_to_authors, check_isbn
-from calibre.gui2 import file_icon_provider, \
+from calibre.gui2 import file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE, \
         choose_files, error_dialog, choose_images, question_dialog
-from calibre.utils.date import local_tz
+from calibre.utils.date import local_tz, qt_to_dt
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
@@ -924,4 +923,62 @@ class PublisherEdit(EnComboBox): # {{{
 
 # }}}
 
+class DateEdit(QDateEdit): # {{{
 
+    TOOLTIP = ''
+    LABEL = _('&Date:')
+    FMT = 'd MMM yyyy'
+    ATTR = 'timestamp'
+
+    def __init__(self, parent):
+        QDateEdit.__init__(self, parent)
+        self.setToolTip(self.TOOLTIP)
+        self.setWhatsThis(self.TOOLTIP)
+        fmt = self.FMT
+        if fmt is None:
+            fmt = tweaks['gui_pubdate_display_format']
+            if fmt is None:
+                fmt = 'MMM yyyy'
+        self.setDisplayFormat(fmt)
+        self.setCalendarPopup(True)
+        self.setMinimumDate(UNDEFINED_QDATE)
+        self.setSpecialValueText(_('Undefined'))
+        self.clear_button = QToolButton(parent)
+        self.clear_button.setIcon(QIcon(I('trash.png')))
+        self.clear_button.setToolTip(_('Clear date'))
+        self.clear_button.clicked.connect(self.reset_date)
+
+    def reset_date(self, *args):
+        self.current_val = None
+
+    @dynamic_property
+    def current_val(self):
+        def fget(self):
+            return qt_to_dt(self.date())
+        def fset(self, val):
+            if val is None:
+                val = UNDEFINED_DATE
+            self.setDate(QDate(val.year, val.month, val.day))
+        return property(fget=fget, fset=fset)
+
+    def initialize(self, db, id_):
+        self.current_val = getattr(db, self.ATTR)(id_, index_is_id=True)
+        self.original_val = self.current_val
+
+    def commit(self, db, id_):
+        if self.changed:
+            getattr(db, 'set_'+self.ATTR)(id_, self.current_val, commit=False,
+                notify=False)
+        return True
+
+    @property
+    def changed(self):
+        o, c = self.original_val, self.current_val
+        return o.year != c.year or o.month != c.month or o.day != c.day
+
+class PubdateEdit(DateEdit):
+    LABEL = _('Publishe&d:')
+    FMT = None
+    ATTR = 'pubdate'
+
+# }}}
