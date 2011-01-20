@@ -201,7 +201,7 @@ class Dehyphenator(object):
             lookupword = self.removesuffixes.sub('', dehyphenated)
         else:
             lookupword = dehyphenated
-        if len(firsthalf) > 3 and self.prefixes.match(firsthalf) is None:
+        if len(firsthalf) > 4 and self.prefixes.match(firsthalf) is None:
             lookupword = self.removeprefix.sub('', lookupword)
         if self.verbose > 2:
             self.log("lookup word is: "+str(lookupword)+", orig is: " + str(hyphenated))

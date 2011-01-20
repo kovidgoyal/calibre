@@ -71,20 +71,40 @@ class TXTInput(InputFormatPlugin):
         txt = txt.decode(ienc, 'replace')
 
         txt = _ent_pat.sub(xml_entity_to_unicode, txt)
+
+        # Normalize line endings
+        txt = normalize_line_endings(txt)
+
+        if options.formatting_type == 'auto':
+            options.formatting_type = detect_formatting_type(txt)
+
+        if options.formatting_type == 'heuristic':
+            setattr(options, 'enable_heuristics', True)
+            setattr(options, 'markup_chapter_headings', True)
+            setattr(options, 'italicize_common_cases', True)
+            setattr(options, 'fix_indents', True)
+            setattr(options, 'preserve_spaces', True)
+            setattr(options, 'delete_blank_paragraphs', True)
+            setattr(options, 'format_scene_breaks', True)
+            setattr(options, 'dehyphenate', True)
+
+        # Determine the paragraph type of the document.
+        if options.paragraph_type == 'auto':
+            options.paragraph_type = detect_paragraph_type(txt)
+            if options.paragraph_type == 'unknown':
+                log.debug('Could not reliably determine paragraph type using block')
+                options.paragraph_type = 'block'
+            else:
+                log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
+
         # Preserve spaces will replace multiple spaces to a space
         # followed by the &nbsp; entity.
         if options.preserve_spaces:
             txt = preserve_spaces(txt)
 
-        # Normalize line endings
-        txt = normalize_line_endings(txt)
-
         # Get length for hyphen removal and punctuation unwrap
         docanalysis = DocAnalysis('txt', txt)
         length = docanalysis.line_length(.5)
-
-        if options.formatting_type == 'auto':
-            options.formatting_type = detect_formatting_type(txt)
 
         if options.formatting_type == 'markdown':
             log.debug('Running text though markdown conversion...')
@@ -96,16 +116,8 @@ class TXTInput(InputFormatPlugin):
         elif options.formatting_type == 'textile':
             log.debug('Running text though textile conversion...')
             html = convert_textile(txt)
-        else:
-            # Determine the paragraph type of the document.
-            if options.paragraph_type == 'auto':
-                options.paragraph_type = detect_paragraph_type(txt)
-                if options.paragraph_type == 'unknown':
-                    log.debug('Could not reliably determine paragraph type using block')
-                    options.paragraph_type = 'block'
-                else:
-                    log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
 
+        else:
             # Dehyphenate
             dehyphenator = Dehyphenator(options.verbose, log=self.log)
             txt = dehyphenator(txt,'txt', length)
@@ -128,15 +140,6 @@ class TXTInput(InputFormatPlugin):
 
             flow_size = getattr(options, 'flow_size', 0)
             html = convert_basic(txt, epub_split_size_kb=flow_size)
-
-            if options.formatting_type == 'heuristic':
-                setattr(options, 'enable_heuristics', True)
-                setattr(options, 'markup_chapter_headings', True)
-                setattr(options, 'italicize_common_cases', True)
-                setattr(options, 'fix_indents', True)
-                setattr(options, 'delete_blank_paragraphs', True)
-                setattr(options, 'format_scene_breaks', True)
-                setattr(options, 'dehyphenate', True)
 
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')
