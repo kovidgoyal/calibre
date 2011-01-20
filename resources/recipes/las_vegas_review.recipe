@@ -3,12 +3,17 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1274742400(BasicNewsRecipe):
 
     title = u'Las Vegas Review Journal'
-    __author__ = 'Joel'
+    __author__ = 'Kovid Goyal'
     language = 'en'
 
     oldest_article = 7
 
     max_articles_per_feed = 100
+    keep_only_tags = [dict(id='content-main')]
+    remove_tags = [dict(id=['right-col-content', 'trending-topics']),
+            {'class':['ppy-outer']}
+            ]
+    no_stylesheets = True
 
     feeds = [
             (u'News', u'http://www.lvrj.com/news.rss'),
