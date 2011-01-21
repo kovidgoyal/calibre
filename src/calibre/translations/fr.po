@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-19 18:33+0000\n"
-"PO-Revision-Date: 2011-01-16 10:03+0000\n"
+"PO-Revision-Date: 2011-01-21 02:10+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-20 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-01-21 04:37+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1124,7 +1124,7 @@ msgstr "Communiquer avec le Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:37
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Communique avec le Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:58
 msgid "Communicate with the Sweex MM300"
@@ -1596,6 +1596,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:16
 msgid "Modify the document text and structure using user defined patterns."
 msgstr ""
+"Modifier le texte et la structure du document en utilisant des modèles "
+"définis par l'utilisateur."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:159
 msgid "Control auto-detection of document structure."
@@ -2129,6 +2131,8 @@ msgid ""
 "Remove empty paragraphs from the document when they exist between every "
 "other paragraph"
 msgstr ""
+"Supprimer les paragraphes vides du document quand ils sont présents entre "
+"tous les autres paragraphes"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:528
 msgid ""
@@ -5040,7 +5044,7 @@ msgstr "Aller à la prochaine correspondance"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 msgid "Move to next highlighted match"
-msgstr ""
+msgstr "Aller à la correspondance suivante surlignée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:376
@@ -5058,7 +5062,7 @@ msgstr "Aller à l'article précédent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Move to previous highlighted item"
-msgstr ""
+msgstr "Aller à la correspondance précédente surlignée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Shift+N"
@@ -5846,6 +5850,8 @@ msgid ""
 "<p>Comma-separated list of tags to exclude.\n"
 "Default: ~,Catalog"
 msgstr ""
+"<p>Liste d'étiquettes à exclure séparées par des virgules.\n"
+"Par défaut: ~,Catalog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
@@ -5882,7 +5888,7 @@ msgstr "Autres options"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "&Wishlist tag"
-msgstr ""
+msgstr "Etiquette Liste de &voeux"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Books tagged as Wishlist items will be displayed with an X"
@@ -5895,6 +5901,7 @@ msgstr "Largeur &Thumbnail"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid "Size hint for Description cover thumbnails"
 msgstr ""
+"Indice de taille pour les vignettes des couverture dans la Description"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid " inch"
@@ -5926,7 +5933,7 @@ msgstr "Fusionner du contenu additionnel avant Commentaires"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:334
 msgid "&Before"
-msgstr ""
+msgstr "Avant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:335
 msgid "Merge additional content after Comments"
@@ -6379,10 +6386,13 @@ msgid ""
 "Heuristic\n"
 "Processing"
 msgstr ""
+"Traitement\n"
+"Heuristique"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics.py:15
 msgid "Modify the document text and structure using common patterns."
 msgstr ""
+"Modifier le texte et la structure document en utilisant des modèles communs."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:90
 msgid ""
@@ -6398,11 +6408,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:91
 msgid "Enable &heuristic processing"
-msgstr ""
+msgstr "Activer le traitement &heuristique"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:92
 msgid "Heuristic Processing"
-msgstr ""
+msgstr "Traitement Heuristique"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:93
 msgid "Unwrap lines"
@@ -6910,12 +6920,15 @@ msgid ""
 "&\n"
 "Replace"
 msgstr ""
+"Cherche\n"
+"&\n"
+"Remplace"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:34
 msgid "&Search Regular Expression"
-msgstr ""
+msgstr "Chercher Une Expression Régulière"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:86
@@ -6929,21 +6942,21 @@ msgstr "Expression régulière incorrecte : %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:148
 msgid "First expression"
-msgstr ""
+msgstr "Première expression"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:153
 msgid "&Replacement Text"
-msgstr ""
+msgstr "Texte de &remplacement"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Second Expression"
-msgstr ""
+msgstr "Deuxième expression"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:152
 msgid "Third expression"
-msgstr ""
+msgstr "Troisième expression"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:154
 msgid ""
@@ -7165,7 +7178,7 @@ msgstr "Libellé texte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:55
 msgid "Use a wizard to help construct the Regular expression"
-msgstr ""
+msgstr "Utiliser un assistant pour aider à construire l'expression régulière"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:73
 msgid "Match HTML &tags with tag name:"
@@ -7876,7 +7889,7 @@ msgstr "Effacer de l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:54
 msgid "This book is DRMed"
-msgstr ""
+msgstr "Ce livre a des DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:55
 msgid ""
@@ -8291,7 +8304,7 @@ msgstr "Cocher cette cas pour supprimer toutes les étiquettes des livres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:468
 msgid "Remove &all"
-msgstr ""
+msgstr "Supprimer tout"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:472
 msgid "If checked, the series will be cleared"
@@ -8334,7 +8347,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:482
 msgid "&Force numbers to start with:"
-msgstr ""
+msgstr "&Forcer les nombres à commencer avec:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:483
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:440
@@ -8343,7 +8356,7 @@ msgstr "&Date :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:484
 msgid "d MMM yyyy"
-msgstr ""
+msgstr "d MMM yyyy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:486
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:491
@@ -8352,12 +8365,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:487
 msgid "&Published:"
-msgstr ""
+msgstr "&Publié:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:489
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:444
 msgid "Clear published date"
-msgstr ""
+msgstr "Effacer la date de publication"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:492
 msgid "Remove &format:"
@@ -8551,6 +8564,8 @@ msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
 msgstr ""
+"Utilisé lors de l'affichage de résultats de tests pour séparer les valeurs "
+"dans les champs à valeur multiples"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:534
 msgid "Test text"
@@ -9489,7 +9504,7 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:71
 msgid "Function &name:"
-msgstr ""
+msgstr "&Nom de la fonction:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:100
@@ -9498,7 +9513,7 @@ msgstr "&Documentation:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:73
 msgid "Python &code:"
-msgstr ""
+msgstr "&Code python:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:56
 msgid "Test email settings"
@@ -10083,7 +10098,7 @@ msgstr "Réinitialisation de la recherche rapide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
 msgid "&Highlight"
-msgstr ""
+msgstr "&Surligner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:199
 msgid ""
@@ -11367,7 +11382,7 @@ msgstr "%s n'est pas un répertoire correct pour les plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:202
 msgid "Select an actual plugin under <b>%s</b> to customize"
-msgstr ""
+msgstr "Sélectionner un plugin actuel sous <b>%s</b> pour le personnaliser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:208
 msgid "Plugin cannot be disabled"
@@ -11760,11 +11775,11 @@ msgstr "Fonction non définie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:151
 msgid "Name already used"
-msgstr ""
+msgstr "Nom déjà utilisé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:155
 msgid "Argument count must be -1 or greater than zero"
-msgstr ""
+msgstr "Le nombre d'arguments doit être -1 ou supérieur à 0"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:166
 msgid "Exception while compiling function"
@@ -12091,7 +12106,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1244
 msgid "ALT+f"
-msgstr ""
+msgstr "ALT+f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1248
 msgid "F&ind"
@@ -12099,7 +12114,7 @@ msgstr "Trouver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1249
 msgid "Find the first/next matching item"
-msgstr ""
+msgstr "Trouver le premier/prochain article correspondant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1256
 msgid "Collapse all categories"
@@ -12280,6 +12295,8 @@ msgid ""
 "%s has been updated to version <b>%s</b>. See the <a href=\"http://calibre-"
 "ebook.com/whats-new\">new features</a>."
 msgstr ""
+"%s a été mis à jour en version <b>%s</b>. Voir les <a href=\"http://calibre-"
+"ebook.com/whats-new\">nouvelles fonctionnalités</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:58
 msgid "Update available!"
@@ -13054,13 +13071,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:150
 msgid "Setup sending email using"
-msgstr ""
+msgstr "Mise en place de l'envoi de méls utilisant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:152
 msgid ""
 "If you don't have an account, you can sign up for a free {name} email "
 "account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
+"Si vous n'avez pas de compte, vous pouvez créer un compte email {name} "
+"gratuit à <a href=\"http://{url}\">http://{url}</a>. {extra}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:159
 msgid "Your %s &email address:"
@@ -14902,7 +14921,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:343
 msgid "No such variable "
-msgstr ""
+msgstr "Cette variable n'est pas définie "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:57
 msgid "No documentation provided"
@@ -19589,3 +19608,6 @@ msgstr "Ne pas télécharger les feuilles de style CSS."
 #~ msgstr ""
 #~ "Aucun livre à cataloguer\n"
 #~ "Vérifier le détail du travail"
+
+#~ msgid "\""
+#~ msgstr "\""

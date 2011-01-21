@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-19 18:33+0000\n"
-"PO-Revision-Date: 2011-01-18 19:53+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2011-01-20 12:02+0000\n"
+"Last-Translator: Calabacin <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-20 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-01-21 04:37+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:511
@@ -1601,6 +1601,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:16
 msgid "Modify the document text and structure using user defined patterns."
 msgstr ""
+"Modificar el texto y la estructura del documento utilizando patrones "
+"definidos por el usuario."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:159
 msgid "Control auto-detection of document structure."
@@ -2088,6 +2090,8 @@ msgid ""
 "Enable heuristic processing. This option must be set for any heuristic "
 "processing to take place."
 msgstr ""
+"Activar el procesado heurístico. Esta opción debe estar activada para que se "
+"pueda realizar cualquier tipo de procesado heurístico."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:494
 msgid ""
@@ -2100,12 +2104,16 @@ msgstr ""
 msgid ""
 "Look for common words and patterns that denote italics and italicize them."
 msgstr ""
+"Buscar palabras y patrones que habitualmente estén en cursiva y ponerlos en "
+"cursiva."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:506
 msgid ""
 "Turn indentation created from multiple non-breaking space entities into CSS "
 "indents."
 msgstr ""
+"Convertir los sangrados creados a partir de varios espacios duros en "
+"sangrados de CSS."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:511
 msgid ""
@@ -2124,6 +2132,7 @@ msgid ""
 "Remove empty paragraphs from the document when they exist between every "
 "other paragraph"
 msgstr ""
+"Eliminar del documento los párrafos vacíos que hay entre otros párrafos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:528
 msgid ""
@@ -6348,10 +6357,14 @@ msgid ""
 "Heuristic\n"
 "Processing"
 msgstr ""
+"Procesamiento\n"
+"heurístico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics.py:15
 msgid "Modify the document text and structure using common patterns."
 msgstr ""
+"Modificar el texto y la estructura del documento utilizando patrones "
+"habituales."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:90
 msgid ""
@@ -6364,6 +6377,15 @@ msgid ""
 "the <a href=\"http://calibre-ebook.com/user_manual/conversion.html#heuristic-"
 "processing\">User Manual</a>."
 msgstr ""
+"<b>Procesado heurístico</b> significa que Calibre buscará patrones "
+"habituales en un libro y los arreglará. Como el nombre indica, este proceso "
+"se basa en conjeturas, con lo que podría terminar empeorando el resultado de "
+"una conversión si Calibre se equivoca en sus conjeturas. Por este motivo, "
+"esta opción está desactiva por defecto. A menudo, si una conversión no "
+"ocurre como se espera, activar la heurística puede mejorar el resultado. Lea "
+"más acerca de las distintas opciones de procesamiento heurístico en el <a "
+"href=\"http://calibre-ebook.com/user_manual/conversion.html#heuristic-"
+"processing\">Manual del usuario.</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:91
 msgid "Enable &heuristic processing"
@@ -6371,7 +6393,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:92
 msgid "Heuristic Processing"
-msgstr ""
+msgstr "Procesado heurístico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:93
 msgid "Unwrap lines"
@@ -6391,7 +6413,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:97
 msgid "Delete blank lines between paragraphs"
-msgstr ""
+msgstr "Borrar líneas en blanco entre párrafos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:98
 msgid "Ensure scene breaks are consistently formatted"
@@ -6898,7 +6920,7 @@ msgstr "Expresión regular no valida: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:148
 msgid "First expression"
-msgstr ""
+msgstr "Primera expresión"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:151
@@ -6908,11 +6930,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Second Expression"
-msgstr ""
+msgstr "Segunda expresión"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:152
 msgid "Third expression"
-msgstr ""
+msgstr "Tercera expresión"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:154
 msgid ""
@@ -7503,6 +7525,9 @@ msgid ""
 "If checked, books are placed into sub directories based on their metadata on "
 "the device. If unchecked, books are all put into the top level directory."
 msgstr ""
+"Si se activa, los libros se almacenarán en subdirectorios según los "
+"metadados en el dispositivo. Si no se activa, los libros se pondrán todos en "
+"el mismo directorio."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:83
 msgid "Use sub directories"
@@ -8250,7 +8275,7 @@ msgstr "Marque esta casilla para eliminar todas las etiquetas de los libros."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:468
 msgid "Remove &all"
-msgstr ""
+msgstr "Eliminar &todos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:472
 msgid "If checked, the series will be cleared"
@@ -8275,7 +8300,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:478
 msgid "&Automatically number books in this series"
-msgstr ""
+msgstr "Numerar &automáticamente los libros de esta serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:479
 msgid ""
@@ -8290,7 +8315,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:482
 msgid "&Force numbers to start with:"
-msgstr ""
+msgstr "&Obligar a que los números empiecen por:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:483
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:440
@@ -8304,16 +8329,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:486
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:491
 msgid "&Apply date"
-msgstr ""
+msgstr "&Aplicar la fecha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:487
 msgid "&Published:"
-msgstr ""
+msgstr "&Publicado:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:489
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:444
 msgid "Clear published date"
-msgstr ""
+msgstr "Borar la fecha de publicación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:492
 msgid "Remove &format:"
@@ -9443,7 +9468,7 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:71
 msgid "Function &name:"
-msgstr ""
+msgstr "&Nombre de la función:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:100
@@ -9452,7 +9477,7 @@ msgstr "&Documentación:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:73
 msgid "Python &code:"
-msgstr ""
+msgstr "&Códico Python:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:56
 msgid "Test email settings"
@@ -13551,7 +13576,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1642
 msgid "No books available to include in catalog"
-msgstr ""
+msgstr "No hay libros disponibles para meter en el catálogo."
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -14869,7 +14894,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:296
 msgid "%s: unknown function"
-msgstr ""
+msgstr "%s: función desconocida"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:343
 msgid "No such variable "
@@ -14881,7 +14906,7 @@ msgstr "No se ha proporcionado documentación"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:78
 msgid "Exception "
-msgstr ""
+msgstr "Excepción "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:96
 msgid ""
@@ -15386,7 +15411,7 @@ msgstr "\tEnlaces fallidos:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:842
 msgid "Could not fetch article."
-msgstr ""
+msgstr "No se ha podido obtener el artículo."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:844
 msgid "The debug traceback is available earlier in this log"
