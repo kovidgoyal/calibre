@@ -61,7 +61,7 @@ class MetadataSingleDialog(ResizableDialog):
         self.l.addWidget(self.button_box)
 
         self.setWindowIcon(QIcon(I('edit_input.png')))
-        self.setWindowTitle(_('Edit Meta Information'))
+        self.setWindowTitle(_('Edit Metadata'))
 
         self.create_basic_metadata_widgets()
 
@@ -299,7 +299,7 @@ class MetadataSingleDialog(ResizableDialog):
         title = self.title.current_val
         if len(title) > 50:
             title = title[:50] + u'\u2026'
-        self.setWindowTitle(_('Edit Meta Information') + ' - ' +
+        self.setWindowTitle(_('Edit Metadata') + ' - ' +
                 title)
 
     def swap_title_author(self, *args):
