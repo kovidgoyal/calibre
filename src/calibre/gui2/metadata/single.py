@@ -170,6 +170,22 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.__custom_col_layouts = [layout]
     # }}}
 
+    def set_custom_metadata_tab_order(self, before=None, after=None):
+        sto = QWidget.setTabOrder
+        if getattr(self, 'custom_metadata_widgets', []):
+            ans = self.custom_metadata_widgets
+            for i in range(len(ans)-1):
+                if before is not None and i == 0:
+                    pass# Do something
+                if len(ans[i+1].widgets) == 2:
+                    sto(ans[i].widgets[-1], ans[i+1].widgets[1])
+                else:
+                    sto(ans[i].widgets[-1], ans[i+1].widgets[0])
+                for c in range(2, len(ans[i].widgets), 2):
+                    sto(ans[i].widgets[c-1], ans[i].widgets[c+1])
+            if after is not None:
+                pass # Do something
+
     def do_layout(self): # {{{
         raise NotImplementedError()
 
@@ -349,9 +365,9 @@ class MetadataSingleDialogBase(ResizableDialog):
             if x is not None:
                 disconnect(x.clicked)
 
-class MetadataSingleDialog(MetadataSingleDialogBase):
+class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
 
-    def do_layout(self): # {{{
+    def do_layout(self):
         if len(self.db.custom_column_label_map) == 0:
             self.central_widget.tabBar().setVisible(False)
         self.central_widget.clear()
@@ -458,25 +474,16 @@ class MetadataSingleDialog(MetadataSingleDialogBase):
         l.addWidget(self.comments)
         self.splitter.addWidget(gb)
 
-        if getattr(self, 'custom_metadata_widgets', []):
-            ans = self.custom_metadata_widgets
-            for i in range(len(ans)-1):
-                if len(ans[i+1].widgets) == 2:
-                    sto(ans[i].widgets[-1], ans[i+1].widgets[1])
-                else:
-                    sto(ans[i].widgets[-1], ans[i+1].widgets[0])
-                for c in range(2, len(ans[i].widgets), 2):
-                    sto(ans[i].widgets[c-1], ans[i].widgets[c+1])
+        self.set_custom_metadata_tab_order()
 
-    # }}}
+# }}}
 
-
-class MetadataSingleDialogAlt(MetadataSingleDialogBase):
+class MetadataSingleDialogAlt(MetadataSingleDialogBase): # {{{
 
     cc_two_column = False
     one_line_comments_toolbar = True
 
-    def do_layout(self): # {{{
+    def do_layout(self):
         self.central_widget.clear()
         self.tabs = []
         self.labels = []
@@ -602,7 +609,7 @@ class MetadataSingleDialogAlt(MetadataSingleDialogBase):
         self.formats_manager.formats.setMaximumWidth(10000)
         self.formats_manager.formats.setIconSize(QSize(64, 64))
 
-    # }}}
+# }}}
 
 
 def edit_metadata(db, row_list, current_row, parent=None, view_slot=None):
