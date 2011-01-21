@@ -262,7 +262,7 @@ class RTFMLizer(object):
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
             if 'block' in tag_stack:
-                text += '%s ' % txt2rtf(elem.tail)
+                text += '%s' % txt2rtf(elem.tail)
             else:
                 text += '{\\par \\pard \\hyphpar %s}' % txt2rtf(elem.tail)
 
