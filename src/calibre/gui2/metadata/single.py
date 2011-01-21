@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 
 from PyQt4.Qt import Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, \
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, \
@@ -101,7 +102,10 @@ class MetadataSingleDialog(ResizableDialog):
 
         self.formats_manager = FormatsManager(self)
         self.basic_metadata_widgets.append(self.formats_manager)
-
+        self.formats_manager.metadata_from_format_button.clicked.connect(
+                self.metadata_from_format)
+        self.formats_manager.cover_from_format_button.clicked.connect(
+                self.cover_from_format)
         self.cover = Cover(self)
         self.basic_metadata_widgets.append(self.cover)
 
@@ -262,6 +266,64 @@ class MetadataSingleDialog(ResizableDialog):
 
     def tags_editor(self, *args):
         self.tags.edit(self.db, self.book_id)
+
+    def metadata_from_format(self, *args):
+        mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
+                self.book_id)
+        if mi is not None:
+            self.update_from_mi(mi)
+
+    def cover_from_format(self, *args):
+        mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
+                self.book_id)
+        if mi is None:
+            return
+        cdata = None
+        if mi.cover and os.access(mi.cover, os.R_OK):
+            cdata = open(mi.cover).read()
+        elif mi.cover_data[1] is not None:
+            cdata = mi.cover_data[1]
+        if cdata is None:
+            error_dialog(self, _('Could not read cover'),
+                         _('Could not read cover from %s format')%ext).exec_()
+            return
+        orig = self.cover.current_val
+        self.cover.current_val = cdata
+        if self.cover.current_val is None:
+            self.cover.current_val = orig
+            return error_dialog(self, _('Could not read cover'),
+                         _('The cover in the %s format is invalid')%ext,
+                         show=True)
+            return
+
+    def update_from_mi(self, mi):
+        if not mi.is_null('title'):
+            self.title.current_val = mi.title
+        if not mi.is_null('authors'):
+            self.authors.current_val = mi.authors
+        if not mi.is_null('author_sort'):
+            self.author_sort.current_val = mi.author_sort
+        if not mi.is_null('rating'):
+            try:
+                self.rating.current_val = mi.rating
+            except:
+                pass
+        if not mi.is_null('publisher'):
+            self.publisher.current_val = mi.publisher
+        if not mi.is_null('tags'):
+            self.tags.current_val = mi.tags
+        if not mi.is_null('isbn'):
+            self.isbn.current_val = mi.isbn
+        if not mi.is_null('pubdate'):
+            self.pubdate.current_val = mi.pubdate
+        if not mi.is_null('series') and mi.series.strip():
+            self.series.current_val = mi.series
+            if mi.series_index is not None:
+                self.series_index.current_val = float(mi.series_index)
+        if mi.comments and mi.comments.strip():
+            self.comments.current_val = mi.comments
+
+
 
     def fetch_metadata(self, *args):
         pass # TODO: fetch metadata
