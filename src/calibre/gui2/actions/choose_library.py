@@ -32,7 +32,7 @@ class LibraryUsageStats(object): # {{{
         locs = list(self.stats.keys())
         locs.sort(cmp=lambda x, y: cmp(self.stats[x], self.stats[y]),
                 reverse=True)
-        for key in locs[15:]:
+        for key in locs[25:]:
             self.stats.pop(key)
         gprefs.set('library_usage_stats', self.stats)
 

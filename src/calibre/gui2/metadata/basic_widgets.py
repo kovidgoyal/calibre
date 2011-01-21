@@ -15,9 +15,10 @@ from PyQt4.Qt import Qt, QDateEdit, QDate, \
 from calibre.gui2.widgets import EnLineEdit, CompleteComboBox, \
         EnComboBox, FormatList, ImageView, CompleteLineEdit
 from calibre.utils.icu import sort_key
-from calibre.utils.config import tweaks
+from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import title_sort, authors_to_string, \
         string_to_authors, check_isbn
+from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE, \
         choose_files, error_dialog, choose_images, question_dialog
 from calibre.utils.date import local_tz, qt_to_dt
@@ -440,7 +441,6 @@ class FormatsManager(QWidget): # {{{
         self.metadata_from_format_button = QToolButton(self)
         self.metadata_from_format_button.setIcon(QIcon(I('edit_input.png')))
         self.metadata_from_format_button.setIconSize(QSize(32, 32))
-        # TODO: Implement the *_from_format buttons
 
         self.add_format_button = QToolButton(self)
         self.add_format_button.setIcon(QIcon(I('add_book.png')))
@@ -564,6 +564,36 @@ class FormatsManager(QWidget): # {{{
     def show_format(self, item, *args):
         fmt = item.ext
         self.dialog.view_format.emit(fmt)
+
+    def get_selected_format_metadata(self, db, id_):
+        old = prefs['read_file_metadata']
+        if not old:
+            prefs['read_file_metadata'] = True
+        try:
+            row = self.formats.currentRow()
+            fmt = self.formats.item(row)
+            if fmt is None:
+                if self.formats.count() == 1:
+                    fmt = self.formats.item(0)
+                if fmt is None:
+                    error_dialog(self, _('No format selected'),
+                        _('No format selected')).exec_()
+                    return None, None
+            ext = fmt.ext.lower()
+            if fmt.path is None:
+                stream = db.format(id_, ext, as_file=True, index_is_id=True)
+            else:
+                stream = open(fmt.path, 'r+b')
+            try:
+                mi = get_metadata(stream, ext)
+                return mi, ext
+            except:
+                error_dialog(self, _('Could not read metadata'),
+                            _('Could not read metadata from %s format')%ext).exec_()
+            return None, None
+        finally:
+            if old != prefs['read_file_metadata']:
+                prefs['read_file_metadata'] = old
 
 # }}}
 
