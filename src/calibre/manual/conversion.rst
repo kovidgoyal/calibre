@@ -260,11 +260,11 @@ The Output profile also controls the screen size. This will cause, for example, 
 Heuristic Processing
 ---------------------
 
-Heuristic Processing provides a variety of functions which can be used that try to detect and correct 
+Heuristic Processing provides a variety of functions which can be used to try and detect and correct 
 common problems in poorly formatted input documents.  Use these functions if your input document suffers 
-from bad formatting. Because these functions rely on common patterns, be aware that in some cases an 
+from poor formatting. Because these functions rely on common patterns, be aware that in some cases an 
 option may lead to worse results, so use with care.  As an example, several of these options will
-remove all non-breaking-space entities.
+remove all non-breaking-space entities, or may include false positive matches relating to the function.
 
 :guilabel:`Enable heuristic processing`
     This option activates |app|'s Heuristic Processing stage of the conversion pipeline.
@@ -283,7 +283,7 @@ remove all non-breaking-space entities.
     correction, then this value should be reduced to somewhere between 0.1 and 0.2.
     
 :guilabel:`Detect and markup unformatted chapter headings and sub headings`
-    If your document does not have Chapter Markers and titles formatted differently from the rest of the text,
+    If your document does not have chapter headings and titles formatted differently from the rest of the text,
     |app| can use this option to attempt detection them and surround them with heading tags. <h2> tags are used 
     for chapter headings; <h3> tags are used for any titles that are detected.  
     
@@ -331,21 +331,23 @@ remove all non-breaking-space entities.
     Some documents use a convention of defining text indents using non-breaking space entities.  When this option is enabled |app| will
     attempt to detect this sort of formatting and convert them to a 3% text indent using css.
 
-.. search-replace:
+.. _search-replace:
 
 Search & Replace
 ---------------------
 
-These options are useful primarily for conversion of PDF documents. Often, the conversion leaves
-behind page headers and footers in the text. These options use regular expressions to try and detect
-the headers and footers and remove them. Remember that they operate on the intermediate XHTML produced
-by the conversion pipeline. There is also a wizard to help you customize the regular expressions for
-your document.  These options can also be used for generic search and replace of any content by additionally 
-specifying a replacement expression.
+These options are useful primarily for conversion of PDF documents or OCR conversions, though they can 
+also be used to fix many document specific problems. As an example, some conversions can leaves behind page  
+headers and footers in the text. These options use regular expressions to try and detect headers, footers, 
+or other arbitrary text and remove or replace them. Remember that they operate on the intermediate XHTML produced 
+by the conversion pipeline. There is a wizard to help you customize the regular expressions for 
+your document.  Click the magic wand beside the expression box, and click the 'Test' button after composing 
+your search expression.  Successful matches will be highlighted in Yellow.
 
-The search works by using a python regular expression. All matched text is simply removed from
-the document or replaced using the replacement pattern. You can learn more about regular expressions and 
-their syntax at :ref:`regexptutorial`.
+The search works by using a python regular expression. All matched text is simply removed from 
+the document or replaced using the replacement pattern. The replacement pattern is optional, if left blank 
+then text matching the search pattern will be deleted from the document.  You can learn more about regular expressions  
+and their syntax at :ref:`regexptutorial`.
 
 .. _structure-detection:
 

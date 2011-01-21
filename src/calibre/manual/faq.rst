@@ -108,8 +108,8 @@ Follow these steps to find the problem:
 
     * Make sure that you are connecting only a single device to your computer at a time. Do not have another |app| supported device like an iPhone/iPad etc. at the same time.
     * Make sure you are running the latest version of |app|. The latest version can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
-    * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk that you can access using Windows explorer or whatever the file management program on your computer is
-    * In calibre, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled.
+    * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk that you can access using Windows explorer or whatever the file management program on your computer is.
+    * In calibre, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled, the plugin icon next to it should be green when it is enabled.
     * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
 
 How does |app| manage collections on my SONY reader?
@@ -441,7 +441,7 @@ menu, choose "Validate fonts".
 I downloaded the installer, but it is not working?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Downloading from the internet can sometimes result in a corrupted download. If the |app| installer you downloaded is not opening, try downloading it again. If re-downloading it does not work, download it from `an alternate location <http://sourceforge.net/projects/calibre/files/>`_. If the installer still doesn't work, then something on your computer is preventing it from running. Best place to ask for more help is in the `forums <http://www.mobileread.com/forums/usercp.php>`_.
+Downloading from the internet can sometimes result in a corrupted download. If the |app| installer you downloaded is not opening, try downloading it again. If re-downloading it does not work, download it from `an alternate location <http://sourceforge.net/projects/calibre/files/>`_. If the installer still doesn't work, then something on your computer is preventing it from running. Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <http://www.wisecleaner.com>`_. Best place to ask for more help is in the `forums <http://www.mobileread.com/forums/usercp.php>`_.
 
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

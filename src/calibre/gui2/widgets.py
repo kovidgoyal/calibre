@@ -123,6 +123,8 @@ IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
 
 class FormatList(QListWidget):
     DROPABBLE_EXTENSIONS = BOOK_EXTENSIONS
+    formats_dropped = pyqtSignal(object, object)
+    delete_format = pyqtSignal()
 
     @classmethod
     def paths_from_event(cls, event):
@@ -146,15 +148,14 @@ class FormatList(QListWidget):
     def dropEvent(self, event):
         paths = self.paths_from_event(event)
         event.setDropAction(Qt.CopyAction)
-        self.emit(SIGNAL('formats_dropped(PyQt_PyObject,PyQt_PyObject)'),
-                event, paths)
+        self.formats_dropped.emit(event, paths)
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
-            self.emit(SIGNAL('delete_format()'))
+            self.delete_format.emit()
         else:
             return QListWidget.keyPressEvent(self, event)
 
@@ -162,6 +163,7 @@ class FormatList(QListWidget):
 class ImageView(QWidget):
 
     BORDER_WIDTH = 1
+    cover_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -201,8 +203,7 @@ class ImageView(QWidget):
             if not pmap.isNull():
                 self.setPixmap(pmap)
                 event.accept()
-                self.emit(SIGNAL('cover_changed(PyQt_PyObject)'), open(path,
-                    'rb').read())
+                self.cover_changed.emit(open(path, 'rb').read())
                 break
 
     def dragMoveEvent(self, event):
@@ -271,7 +272,7 @@ class ImageView(QWidget):
             pmap = cb.pixmap(cb.Selection)
         if not pmap.isNull():
             self.setPixmap(pmap)
-            self.emit(SIGNAL('cover_changed(PyQt_PyObject)'),
+            self.cover_changed.emit(
                     pixmap_to_data(pmap))
     # }}}
 
