@@ -77,9 +77,9 @@ class TitleEdit(EnLineEdit):
     def commit(self, db, id_):
         title = self.current_val
         if self.COMMIT:
-            getattr(db, 'set_', self.TITLE_ATTR)(id_, title, notify=False)
+            getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False)
         else:
-            getattr(db, 'set_', self.TITLE_ATTR)(id_, title, notify=False,
+            getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
                     commit=False)
         return True
 

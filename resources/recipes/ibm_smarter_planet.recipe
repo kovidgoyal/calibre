@@ -5,6 +5,7 @@ class AdvancedUserRecipe1293122276(BasicNewsRecipe):
     __author__ = 'Jack Mason'
     author  = 'IBM Global Business Services'
     publisher             = 'IBM'
+    language = 'en'
     category              = 'news, technology, IT, internet of things, analytics'
     oldest_article = 7
     max_articles_per_feed = 30
