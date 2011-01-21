@@ -379,7 +379,8 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
             w = bulk_widgets[type](db, col, parent)
         else:
             w = widgets[type](db, col, parent)
-        w.initialize(book_id)
+        if book_id is not None:
+            w.initialize(book_id)
         return w
     x = db.custom_column_num_map
     cols = list(x)
