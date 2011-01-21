@@ -775,7 +775,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 self.original_tags = unicode(self.tags.text())
             else:
                 self.tags.setText(self.original_tags)
-        d = TagEditor(self, self.db, self.row)
+        d = TagEditor(self, self.db, self.id)
         d.exec_()
         if d.result() == QDialog.Accepted:
             tag_string = ', '.join(d.tags)

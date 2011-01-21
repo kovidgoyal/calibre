@@ -5,394 +5,22 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, re
 
-from PyQt4.Qt import QDialogButtonBox, Qt, QTabWidget, QScrollArea, \
-    QVBoxLayout, QIcon, QToolButton, QWidget, QLabel, QGridLayout, \
-    QDoubleSpinBox
+from PyQt4.Qt import Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, \
+        QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, \
+        QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem, \
+        QSizePolicy
 
+from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import ResizableDialog
-from calibre.utils.icu import sort_key
-from calibre.utils.config import tweaks
-from calibre.gui2.widgets import EnLineEdit, CompleteComboBox, \
-        EnComboBox
-from calibre.ebooks.metadata import title_sort, authors_to_string, \
-        string_to_authors
-
-'''
-The interface common to all widgets used to set basic metadata
-class BasicMetadataWidget(object):
-
-    LABEL = "label text"
-
-    def initialize(self, db, id_):
-        pass
-
-    def commit(self, db, id_):
-        return True
-
-    @dynamic_property
-    def current_val(self):
-        def fget(self):
-            return None
-        def fset(self, val):
-            pass
-        return property(fget=fget, fset=fset)
-'''
-
-# Title {{{
-class TitleEdit(EnLineEdit):
-
-    TITLE_ATTR = 'title'
-    COMMIT = True
-    TOOLTIP = _('Change the title of this book')
-    LABEL = _('&Title:')
-
-    def __init__(self, parent):
-        self.dialog = parent
-        EnLineEdit.__init__(self, parent)
-        self.setToolTip(self.TOOLTIP)
-        self.setWhatsThis(self.TOOLTIP)
-
-    def get_default(self):
-        return _('Unknown')
-
-    def initialize(self, db, id_):
-        title = getattr(db, self.TITLE_ATTR)(id_, index_is_id=True)
-        self.current_val = title
-        self.original_val = self.current_val
-
-    def commit(self, db, id_):
-        title = self.current_val
-        if self.COMMIT:
-            getattr(db, 'set_', self.TITLE_ATTR)(id_, title, notify=False)
-        else:
-            getattr(db, 'set_', self.TITLE_ATTR)(id_, title, notify=False,
-                    commit=False)
-        return True
-
-    @dynamic_property
-    def current_val(self):
-
-        def fget(self):
-            title = unicode(self.text()).strip()
-            if not title:
-                title = self.get_default()
-            return title
-
-        def fset(self, val):
-            if hasattr(val, 'strip'):
-                val = val.strip()
-            if not val:
-                val = self.get_default()
-            self.setText(val)
-            self.setCursorPosition(0)
-
-        return property(fget=fget, fset=fset)
-
-class TitleSortEdit(TitleEdit):
-
-    TITLE_ATTR = 'title_sort'
-    COMMIT = False
-    TOOLTIP = _('Specify how this book should be sorted when by title.'
-            ' For example, The Exorcist might be sorted as Exorcist, The.')
-    LABEL = _('Title &sort:')
-
-    def __init__(self, parent, title_edit, autogen_button):
-        TitleEdit.__init__(self, parent)
-        self.title_edit = title_edit
-
-        base = self.TOOLTIP
-        ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
-                            _(' The green color indicates that the current '
-                              'title sort matches the current title'))
-        bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
-                _(' The red color warns that the current '
-                  'title sort does not match the current title. '
-                  'No action is required if this is what you want.'))
-        self.tooltips = (ok_tooltip, bad_tooltip)
-
-        self.title_edit.textChanged.connect(self.update_state)
-        self.textChanged.connect(self.update_state)
-
-        autogen_button.clicked.connect(self.auto_generate)
-        self.update_state()
-
-    def update_state(self, *args):
-        ts = title_sort(self.title_edit.current_val)
-        normal = ts == self.current_val
-        if normal:
-            col = 'rgb(0, 255, 0, 20%)'
-        else:
-            col = 'rgb(255, 0, 0, 20%)'
-        self.setStyleSheet('QLineEdit { color: black; '
-                              'background-color: %s; }'%col)
-        tt = self.tooltips[0 if normal else 1]
-        self.setToolTip(tt)
-        self.setWhatsThis(tt)
-
-    def auto_generate(self, *args):
-        self.current_val = title_sort(self.title_edit.current_val)
-
-# }}}
-
-# Authors {{{
-class AuthorsEdit(CompleteComboBox):
-
-    TOOLTIP = ''
-    LABEL = _('&Author(s):')
-
-    def __init__(self, parent):
-        self.dialog = parent
-        CompleteComboBox.__init__(self, parent)
-        self.setToolTip(self.TOOLTIP)
-        self.setWhatsThis(self.TOOLTIP)
-        self.setEditable(True)
-        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
-
-    def get_default(self):
-        return _('Unknown')
-
-    def initialize(self, db, id_):
-        all_authors = db.all_authors()
-        all_authors.sort(key=lambda x : sort_key(x[1]))
-        for i in all_authors:
-            id, name = i
-            name = [name.strip().replace('|', ',') for n in name.split(',')]
-            self.addItem(authors_to_string(name))
-
-        self.set_separator('&')
-        self.set_space_before_sep(True)
-        self.update_items_cache(db.all_author_names())
-
-        au = db.authors(id_, index_is_id=True)
-        if not au:
-            au = _('Unknown')
-        self.current_val = [a.strip().replace('|', ',') for a in au.split(',')]
-        self.original_val = self.current_val
-
-    def commit(self, db, id_):
-        authors = self.current_val
-        db.set_authors(id_, authors, notify=False)
-        return True
-
-    @dynamic_property
-    def current_val(self):
-
-        def fget(self):
-            au = unicode(self.text()).strip()
-            if not au:
-                au = self.get_default()
-            return string_to_authors(au)
-
-        def fset(self, val):
-            if not val:
-                val = [self.get_default()]
-            self.setEditText(' & '.join([x.strip() for x in val]))
-            self.lineEdit().setCursorPosition(0)
-
-
-        return property(fget=fget, fset=fset)
-
-class AuthorSortEdit(EnLineEdit):
-
-    TOOLTIP = _('Specify how the author(s) of this book should be sorted. '
-            'For example Charles Dickens should be sorted as Dickens, '
-            'Charles.\nIf the box is colored green, then text matches '
-            'the individual author\'s sort strings. If it is colored '
-            'red, then the authors and this text do not match.')
-    LABEL = _('Author s&ort:')
-
-    def __init__(self, parent, authors_edit, autogen_button, db):
-        EnLineEdit.__init__(self, parent)
-        self.authors_edit = authors_edit
-        self.db = db
-
-        base = self.TOOLTIP
-        ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
-                _(' The green color indicates that the current '
-                    'author sort matches the current author'))
-        bad_tooltip = '<p>'+textwrap.fill(base + '<br><br>'+
-                _(' The red color indicates that the current '
-                    'author sort does not match the current author. '
-                    'No action is required if this is what you want.'))
-        self.tooltips = (ok_tooltip, bad_tooltip)
-
-        self.authors_edit.editTextChanged.connect(self.update_state)
-        self.textChanged.connect(self.update_state)
-
-        autogen_button.clicked.connect(self.auto_generate)
-        self.update_state()
-
-    @dynamic_property
-    def current_val(self):
-
-        def fget(self):
-            return unicode(self.text()).strip()
-
-        def fset(self, val):
-            if not val:
-                val = ''
-            self.setText(val.strip())
-            self.setCursorPosition(0)
-
-        return property(fget=fget, fset=fset)
-
-    def update_state(self, *args):
-        au = unicode(self.authors_edit.text())
-        au = re.sub(r'\s+et al\.$', '', au)
-        au = self.db.author_sort_from_authors(string_to_authors(au))
-
-        normal = au == self.current_val
-        if normal:
-            col = 'rgb(0, 255, 0, 20%)'
-        else:
-            col = 'rgb(255, 0, 0, 20%)'
-        self.setStyleSheet('QLineEdit { color: black; '
-                              'background-color: %s; }'%col)
-        tt = self.tooltips[0 if normal else 1]
-        self.setToolTip(tt)
-        self.setWhatsThis(tt)
-
-    def auto_generate(self, *args):
-        au = unicode(self.authors_edit.text())
-        au = re.sub(r'\s+et al\.$', '', au)
-        authors = string_to_authors(au)
-        self.current_val = self.db.author_sort_from_authors(authors)
-
-    def initialize(self, db, id_):
-        self.current_val = db.author_sort(id_, index_is_id=True)
-
-    def commit(self, db, id_):
-        aus = self.current_val
-        db.set_author_sort(id_, aus, notify=False, commit=False)
-        return True
-
-# }}}
-
-# Series {{{
-class SeriesEdit(EnComboBox):
-
-    TOOLTIP = _('List of known series. You can add new series.')
-    LABEL = _('&Series:')
-
-    def __init__(self, parent):
-        EnComboBox.__init__(self, parent)
-        self.dialog = parent
-        self.setSizeAdjustPolicy(
-                self.AdjustToMinimumContentsLengthWithIcon)
-        self.setToolTip(self.TOOLTIP)
-        self.setWhatsThis(self.TOOLTIP)
-        self.setEditable(True)
-
-    @dynamic_property
-    def current_val(self):
-
-        def fget(self):
-            return unicode(self.currentText()).strip()
-
-        def fset(self, val):
-            if not val:
-                val = ''
-            self.setEditText(val.strip())
-            self.setCursorPosition(0)
-
-        return property(fget=fget, fset=fset)
-
-    def initialize(self, db, id_):
-        all_series = db.all_series()
-        all_series.sort(key=lambda x : sort_key(x[1]))
-        series_id = db.series_id(id_, index_is_id=True)
-        idx, c = None, 0
-        for i in all_series:
-            id, name = i
-            if id == series_id:
-                idx = c
-            self.addItem(name)
-            c += 1
-
-        self.lineEdit().setText('')
-        if idx is not None:
-            self.setCurrentIndex(idx)
-        self.original_val = self.current_val
-
-    def commit(self, db, id_):
-        series = self.current_val
-        db.set_series(id_, series, notify=False, commit=True)
-        return True
-
-class SeriesIndexEdit(QDoubleSpinBox):
-
-    TOOLTIP = ''
-    LABEL = _('&Number:')
-
-    def __init__(self, parent, series_edit):
-        QDoubleSpinBox.__init__(self, parent)
-        self.dialog = parent
-        self.db = self.original_series_name = None
-        self.setMaximum(1000000)
-        self.series_edit = series_edit
-        series_edit.currentIndexChanged.connect(self.enable)
-        series_edit.editTextChanged.connect(self.enable)
-        series_edit.lineEdit().editingFinished.connect(self.increment)
-        self.enable()
-
-    def enable(self, *args):
-        self.setEnabled(bool(self.series_edit.current_val))
-
-    @dynamic_property
-    def current_val(self):
-
-        def fget(self):
-            return self.value()
-
-        def fset(self, val):
-            if val is None:
-                val = 1.0
-            val = float(val)
-            self.setValue(val)
-
-        return property(fget=fget, fset=fset)
-
-    def initialize(self, db, id_):
-        self.db = db
-        if self.series_edit.current_val:
-            val = db.series_index(id_, index_is_id=True)
-        else:
-            val = 1.0
-        self.current_val = val
-        self.original_val = self.current_val
-        self.original_series_name = self.series_edit.original_val
-
-    def commit(self, db, id_):
-        db.set_series_index(id_, self.current_val, notify=False, commit=False)
-        return True
-
-    def increment(self):
-        if self.db is not None:
-            try:
-                series = self.series_edit.current_val
-                if series and series != self.original_series_name:
-                    ns = 1.0
-                    if tweaks['series_index_auto_increment'] != 'const':
-                        ns = self.db.get_next_series_num_for(series)
-                    self.current_val = ns
-                    self.original_series_name = series
-            except:
-                import traceback
-                traceback.print_exc()
-
-
-# }}}
-
-class BuddyLabel(QLabel):
-
-    def __init__(self, buddy):
-        QLabel.__init__(self, buddy.LABEL)
-        self.setBuddy(buddy)
-        self.setAlignment(Qt.AlignRight|Qt.AlignVCenter)
+from calibre.gui2.metadata.basic_widgets import TitleEdit, AuthorsEdit, \
+    AuthorSortEdit, TitleSortEdit, SeriesEdit, SeriesIndexEdit, ISBNEdit, \
+    RatingEdit, PublisherEdit, TagsEdit, FormatsManager, Cover, CommentsEdit, \
+    BuddyLabel, DateEdit, PubdateEdit
 
 class MetadataSingleDialog(ResizableDialog):
+
+    view_format = pyqtSignal(object)
 
     def __init__(self, db, parent=None):
         self.db = db
@@ -427,9 +55,9 @@ class MetadataSingleDialog(ResizableDialog):
         self.do_layout()
     # }}}
 
-    def create_basic_metadata_widgets(self):
+    def create_basic_metadata_widgets(self): # {{{
         self.basic_metadata_widgets = []
-        # Title
+
         self.title = TitleEdit(self)
         self.deduce_title_sort_button = QToolButton(self)
         self.deduce_title_sort_button.setToolTip(
@@ -442,7 +70,6 @@ class MetadataSingleDialog(ResizableDialog):
                 self.deduce_title_sort_button)
         self.basic_metadata_widgets.extend([self.title, self.title_sort])
 
-        # Authors
         self.authors = AuthorsEdit(self)
         self.deduce_author_sort_button = QToolButton(self)
         self.deduce_author_sort_button.setToolTip(_(
@@ -468,7 +95,45 @@ class MetadataSingleDialog(ResizableDialog):
         self.series_index = SeriesIndexEdit(self, self.series)
         self.basic_metadata_widgets.extend([self.series, self.series_index])
 
-    def do_layout(self):
+        self.formats_manager = FormatsManager(self)
+        self.basic_metadata_widgets.append(self.formats_manager)
+
+        self.cover = Cover(self)
+        self.basic_metadata_widgets.append(self.cover)
+
+        self.comments = CommentsEdit(self)
+        self.basic_metadata_widgets.append(self.comments)
+
+        self.rating = RatingEdit(self)
+        self.basic_metadata_widgets.append(self.rating)
+
+        self.tags = TagsEdit(self)
+        self.tags_editor_button = QToolButton(self)
+        self.tags_editor_button.setToolTip(_('Open Tag Editor'))
+        self.tags_editor_button.setIcon(QIcon(I('chapters.png')))
+        self.tags_editor_button.clicked.connect(self.tags_editor)
+        self.basic_metadata_widgets.append(self.tags)
+
+        self.isbn = ISBNEdit(self)
+        self.basic_metadata_widgets.append(self.isbn)
+
+        self.publisher = PublisherEdit(self)
+        self.basic_metadata_widgets.append(self.publisher)
+
+        self.timestamp = DateEdit(self)
+        self.pubdate = PubdateEdit(self)
+        self.basic_metadata_widgets.extend([self.timestamp, self.pubdate])
+
+        self.fetch_metadata_button = QPushButton(
+                _('&Fetch metadata from server'), self)
+        self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
+        font = self.fmb_font = QFont()
+        font.setBold(True)
+        self.fetch_metadata_button.setFont(font)
+
+    # }}}
+
+    def do_layout(self): # {{{
         self.central_widget.clear()
         self.tabs = []
         self.labels = []
@@ -499,8 +164,58 @@ class MetadataSingleDialog(ResizableDialog):
         create_row(2, self.series, self.remove_unused_series_button,
                 self.series_index, icon='trash.png')
 
+        tl.addWidget(self.formats_manager, 0, 6, 3, 1)
+
+        self.splitter = QSplitter(Qt.Horizontal, self)
+        self.splitter.addWidget(self.cover)
+        l.addWidget(self.splitter)
+        self.tabs[0].gb = gb = QGroupBox(_('Change cover'), self)
+        gb.l = l = QGridLayout()
+        gb.setLayout(l)
+        for i, b in enumerate(self.cover.buttons[:3]):
+            l.addWidget(b, 0, i, 1, 1)
+        gb.hl = QHBoxLayout()
+        for b in self.cover.buttons[3:]:
+            gb.hl.addWidget(b)
+        l.addLayout(gb.hl, 1, 0, 1, 3)
+        self.tabs[0].middle = w = QWidget(self)
+        w.l = l = QGridLayout()
+        w.setLayout(w.l)
+        l.setMargin(0)
+        self.splitter.addWidget(w)
+        def create_row2(row, widget, button=None):
+            row += 1
+            ql = BuddyLabel(widget)
+            l.addWidget(ql, row, 0, 1, 1)
+            l.addWidget(widget, row, 1, 1, 2 if button is None else 1)
+            if button is not None:
+                l.addWidget(button, row, 2, 1, 1)
+
+        l.addWidget(gb, 0, 0, 1, 3)
+        self.tabs[0].spc_one = QSpacerItem(10, 10, QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
+        l.addItem(self.tabs[0].spc_one, 1, 0, 1, 3)
+        create_row2(1, self.rating)
+        create_row2(2, self.tags, self.tags_editor_button)
+        create_row2(3, self.isbn)
+        create_row2(4, self.timestamp, self.timestamp.clear_button)
+        create_row2(5, self.pubdate, self.pubdate.clear_button)
+        create_row2(6, self.publisher)
+        self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
+        l.addItem(self.tabs[0].spc_two, 8, 0, 1, 3)
+        l.addWidget(self.fetch_metadata_button, 9, 0, 1, 3)
+
+        self.tabs[0].gb2 = gb = QGroupBox(_('&Comments'), self)
+        gb.l = l = QVBoxLayout()
+        gb.setLayout(l)
+        l.addWidget(self.comments)
+        self.splitter.addWidget(gb)
+
+    # }}}
 
     def __call__(self, id_, has_next=False, has_previous=False):
+        # TODO: Next and previous buttons
         self.book_id = id_
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)
@@ -522,6 +237,12 @@ class MetadataSingleDialog(ResizableDialog):
                 if unicode(self.series.itemText(i)) == idx:
                     self.series.setCurrentIndex(i)
                     break
+
+    def tags_editor(self, *args):
+        self.tags.edit(self.db, self.book_id)
+
+    def fetch_metadata(self, *args):
+        pass # TODO: fetch metadata
 
 
 if __name__ == '__main__':
