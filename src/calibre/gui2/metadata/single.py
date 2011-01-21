@@ -12,7 +12,7 @@ from PyQt4.Qt import Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, \
         QSizePolicy
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
-from calibre.gui2 import ResizableDialog
+from calibre.gui2 import ResizableDialog, error_dialog, gprefs
 from calibre.gui2.metadata.basic_widgets import TitleEdit, AuthorsEdit, \
     AuthorSortEdit, TitleSortEdit, SeriesEdit, SeriesIndexEdit, ISBNEdit, \
     RatingEdit, PublisherEdit, TagsEdit, FormatsManager, Cover, CommentsEdit, \
@@ -53,12 +53,16 @@ class MetadataSingleDialog(ResizableDialog):
         self.create_basic_metadata_widgets()
 
         self.do_layout()
+        geom = gprefs.get('metasingle_window_geometry3', None)
+        if geom is not None:
+            self.restoreGeometry(bytes(geom))
     # }}}
 
     def create_basic_metadata_widgets(self): # {{{
         self.basic_metadata_widgets = []
 
         self.title = TitleEdit(self)
+        self.title.textChanged.connect(self.update_window_title)
         self.deduce_title_sort_button = QToolButton(self)
         self.deduce_title_sort_button.setToolTip(
             _('Automatically create the title sort entry based on the current '
@@ -144,6 +148,9 @@ class MetadataSingleDialog(ResizableDialog):
         self.tabs[0].setLayout(l)
         l.addLayout(tl)
 
+        sto = QWidget.setTabOrder
+        sto(self.fetch_metadata_button, self.title)
+
         def create_row(row, one, two, three, col=1, icon='forward.png'):
             ql = BuddyLabel(one)
             tl.addWidget(ql, row, col+0, 1, 1)
@@ -156,13 +163,18 @@ class MetadataSingleDialog(ResizableDialog):
             tl.addWidget(ql, row, col+3, 1, 1)
             self.labels.append(ql)
             tl.addWidget(three, row, col+4, 1, 1)
+            sto(one, two)
+            sto(two, three)
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
 
         create_row(0, self.title, self.deduce_title_sort_button, self.title_sort)
+        sto(self.title_sort, self.authors)
         create_row(1, self.authors, self.deduce_author_sort_button, self.author_sort)
+        sto(self.author_sort, self.series)
         create_row(2, self.series, self.remove_unused_series_button,
                 self.series_index, icon='trash.png')
+        sto(self.series_index, self.swap_title_author_button)
 
         tl.addWidget(self.formats_manager, 0, 6, 3, 1)
 
@@ -219,6 +231,16 @@ class MetadataSingleDialog(ResizableDialog):
         self.book_id = id_
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)
+        self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
+
+
+    def update_window_title(self, *args):
+        title = self.title.current_val
+        if len(title) > 50:
+            title = title[:50] + u'\u2026'
+        self.setWindowTitle(_('Edit Meta Information') + ' - ' +
+                title)
+
 
     def swap_title_author(self, *args):
         title = self.title.current_val
@@ -243,6 +265,30 @@ class MetadataSingleDialog(ResizableDialog):
 
     def fetch_metadata(self, *args):
         pass # TODO: fetch metadata
+
+    def accept(self):
+        for widget in self.basic_metadata_widgets:
+            try:
+                if not widget.commit(self.db, self.book_id):
+                    return
+            except IOError, err:
+                if err.errno == 13: # Permission denied
+                    import traceback
+                    fname = err.filename if err.filename else 'file'
+                    return error_dialog(self, _('Permission denied'),
+                            _('Could not open %s. Is it being used by another'
+                            ' program?')%fname, det_msg=traceback.format_exc(),
+                            show=True)
+                raise
+        self.save_state()
+        ResizableDialog.accept(self)
+
+    def reject(self):
+        self.save_state()
+        ResizableDialog.reject(self)
+
+    def save_state(self):
+        gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
 
 
 if __name__ == '__main__':
