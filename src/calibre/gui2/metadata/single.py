@@ -6,6 +6,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
+from functools import partial
 
 from PyQt4.Qt import Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, \
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, \
@@ -27,6 +28,7 @@ class MetadataSingleDialog(ResizableDialog):
 
     def __init__(self, db, parent=None):
         self.db = db
+        self.changed = set([])
         ResizableDialog.__init__(self, parent)
 
     def setupUi(self, *args): # {{{
@@ -37,6 +39,14 @@ class MetadataSingleDialog(ResizableDialog):
                 self)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
+        self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
+                self)
+        self.next_button.clicked.connect(partial(self.do_one, delta=1))
+        self.prev_button = QPushButton(QIcon(I('back.png')), _('Previous'),
+                self)
+        self.button_box.addButton(self.prev_button, self.button_box.ActionRole)
+        self.button_box.addButton(self.next_button, self.button_box.ActionRole)
+        self.prev_button.clicked.connect(partial(self.do_one, delta=-1))
 
         self.scroll_area = QScrollArea(self)
         self.scroll_area.setFrameShape(QScrollArea.NoFrame)
@@ -184,6 +194,7 @@ class MetadataSingleDialog(ResizableDialog):
         l.addLayout(tl)
 
         sto = QWidget.setTabOrder
+        sto(self.button_box, self.fetch_metadata_button)
         sto(self.fetch_metadata_button, self.title)
 
         def create_row(row, one, two, three, col=1, icon='forward.png'):
@@ -272,14 +283,14 @@ class MetadataSingleDialog(ResizableDialog):
 
     # }}}
 
-    def __call__(self, id_, has_next=False, has_previous=False):
-        # TODO: Next and previous buttons
+    def __call__(self, id_):
         self.book_id = id_
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)
         for widget in self.custom_metadata_widgets:
             widget.initialize(id_)
-        self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
+        # Commented out as it doesn't play nice with Next, Prev buttons
+        #self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
 
 
     def update_window_title(self, *args):
@@ -288,7 +299,6 @@ class MetadataSingleDialog(ResizableDialog):
             title = title[:50] + u'\u2026'
         self.setWindowTitle(_('Edit Meta Information') + ' - ' +
                 title)
-
 
     def swap_title_author(self, *args):
         title = self.title.current_val
@@ -371,6 +381,7 @@ class MetadataSingleDialog(ResizableDialog):
         pass # TODO: fetch metadata
 
     def apply_changes(self):
+        self.changed.add(self.book_id)
         for widget in self.basic_metadata_widgets:
             try:
                 if not widget.commit(self.db, self.book_id):
@@ -404,13 +415,58 @@ class MetadataSingleDialog(ResizableDialog):
     def save_state(self):
         gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
 
+    def start(self, row_list, current_row, view_slot=None):
+        self.row_list = row_list
+        self.current_row = current_row
+        if view_slot is not None:
+            self.view_format.connect(view_slot)
+        self.do_one()
+        ret = self.exec_()
+        self.break_cycles()
+        return ret
+
+    def do_one(self, delta=0):
+        self.current_row += delta
+        prev = next_ = None
+        if self.current_row > 0:
+            prev = self.db.title(self.row_list[self.current_row-1])
+        if self.current_row < len(self.row_list) - 1:
+            next_ = self.db.title(self.row_list[self.current_row+1])
+
+        if next_ is not None:
+            tip = _('Save changes and edit the metadata of %s')%next_
+            self.next_button.setToolTip(tip)
+        self.next_button.setVisible(next_ is not None)
+        if prev is not None:
+            tip = _('Save changes and edit the metadata of %s')%prev
+            self.prev_button.setToolTip(tip)
+        self.prev_button.setVisible(prev is not None)
+        self(self.db.id(self.row_list[self.current_row]))
+
+    def break_cycles(self):
+        # Break any reference cycles that could prevent python
+        # from garbage collecting this dialog
+        def disconnect(signal):
+            try:
+                signal.disconnect()
+            except:
+                pass # Fails if view format was never connected
+        disconnect(self.view_format)
+        for b in ('next_button', 'prev_button'):
+            x = getattr(self, b, None)
+            if x is not None:
+                disconnect(x.clicked)
+
+def edit_metadata(db, row_list, current_row, parent=None, view_slot=None):
+    d = MetadataSingleDialog(db, parent)
+    d.start(row_list, current_row, view_slot=view_slot)
+    return d.changed
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     app = QApplication([])
     from calibre.library import db
     db = db()
-    d = MetadataSingleDialog(db)
-    d(db.data[0][0])
-    d.exec_()
+    row_list = list(range(len(db.data)))
+    edit_metadata(db, row_list, 0)
 
