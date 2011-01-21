@@ -224,6 +224,10 @@ class Dehyphenator(object):
                 return firsthalf+u'\u2014'+wraptags+secondhalf
 
         else:
+            if self.format == 'individual_words' and len(firsthalf) + len(secondhalf) <= 6:
+                if self.verbose > 2:
+                    self.log("too short, returned hyphenated word: " + str(hyphenated))
+                return hyphenated
             if len(firsthalf) <= 2 and len(secondhalf) <= 2:
                 if self.verbose > 2:
                     self.log("too short, returned hyphenated word: " + str(hyphenated))
