@@ -440,6 +440,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             except:
                 import traceback
                 traceback.print_exc()
+            olddb.break_cycles()
         if self.device_connected:
             self.set_books_in_library(self.booklists(), reset=True)
             self.refresh_ondevice()
@@ -449,7 +450,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
 
     def set_window_title(self):
-        self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())
+        self.setWindowTitle(__appname__ + u' - || %s ||'%self.iactions['Choose Library'].library_name())
 
     def location_selected(self, location):
         '''

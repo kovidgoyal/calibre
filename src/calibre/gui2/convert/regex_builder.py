@@ -47,6 +47,8 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 return False
         else:
             self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
+            self.preview.setExtraSelections([])
+            return False
         return True
 
     def do_test(self):

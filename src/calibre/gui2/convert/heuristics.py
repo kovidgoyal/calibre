@@ -11,9 +11,10 @@ from calibre.gui2.convert import Widget
 
 class HeuristicsWidget(Widget, Ui_Form):
 
-    TITLE = _('Heuristic Processing')
+    TITLE = _('Heuristic\nProcessing')
     HELP  = _('Modify the document text and structure using common patterns.')
     COMMIT_NAME = 'heuristics'
+    ICON = I('heuristics.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
@@ -46,23 +47,8 @@ class HeuristicsWidget(Widget, Ui_Form):
             return True
 
     def enable_heuristics(self, state):
-        if state == Qt.Checked:
-            state = True
-        else:
-            state = False
-        self.opt_markup_chapter_headings.setEnabled(state)
-        self.opt_italicize_common_cases.setEnabled(state)
-        self.opt_fix_indents.setEnabled(state)
-        self.opt_delete_blank_paragraphs.setEnabled(state)
-        self.opt_format_scene_breaks.setEnabled(state)
-        self.opt_dehyphenate.setEnabled(state)
-        self.opt_renumber_headings.setEnabled(state)
-
-        self.opt_unwrap_lines.setEnabled(state)
-        if state and self.opt_unwrap_lines.checkState() == Qt.Checked:
-            self.opt_html_unwrap_factor.setEnabled(True)
-        else:
-            self.opt_html_unwrap_factor.setEnabled(False)
+        state = state == Qt.Checked
+        self.heuristic_options.setEnabled(state)
 
     def enable_unwrap(self, state):
         if state == Qt.Checked:

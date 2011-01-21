@@ -31,7 +31,7 @@ class StructureDetectionWidget(Widget, Ui_Form):
         self.opt_chapter.set_msg(_('Detect chapters at (XPath expression):'))
         self.opt_page_breaks_before.set_msg(_('Insert page breaks before '
             '(XPath expression):'))
-        
+
     def break_cycles(self):
         Widget.break_cycles(self)
 

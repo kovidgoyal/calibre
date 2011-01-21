@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>938</width>
+    <width>724</width>
     <height>470</height>
    </rect>
   </property>
@@ -15,114 +15,163 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QCheckBox" name="opt_enable_heuristics">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>&amp;Preprocess input file to possibly improve structure detection</string>
+      <string>&lt;b&gt;Heuristic processing&lt;/b&gt; means that calibre will scan your book for common patterns and fix them. As the name implies, this involves guesswork, which means that it could end up worsening the result of a conversion, if calibre guesses wrong. Therefore, it is disabled by default. Often, if a conversion does not turn out as you expect, turning on heuristics can improve matters. Read more about the various heuristic processing options in the &lt;a href=&quot;http://calibre-ebook.com/user_manual/conversion.html#heuristic-processing&quot;&gt;User Manual&lt;/a&gt;.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>15</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="opt_enable_heuristics">
+     <property name="text">
+      <string>Enable &amp;heuristic processing</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="heuristic_options">
      <property name="title">
       <string>Heuristic Processing</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0" colspan="2">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
        <widget class="QCheckBox" name="opt_unwrap_lines">
         <property name="text">
          <string>Unwrap lines</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="huf_label">
-        <property name="text">
-         <string>Line &amp;un-wrap factor during preprocess:</string>
-        </property>
-        <property name="buddy">
-         <cstring>opt_html_unwrap_factor</cstring>
-        </property>
-       </widget>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="huf_label">
+          <property name="text">
+           <string>Line &amp;un-wrap factor :</string>
+          </property>
+          <property name="buddy">
+           <cstring>opt_html_unwrap_factor</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="opt_html_unwrap_factor">
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.050000000000000</double>
+          </property>
+          <property name="value">
+           <double>0.400000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
-      <item row="1" column="2">
-       <widget class="QDoubleSpinBox" name="opt_html_unwrap_factor">
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="maximum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.050000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.400000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="0" colspan="4">
+      <item>
        <widget class="QCheckBox" name="opt_markup_chapter_headings">
         <property name="text">
          <string>Detect and markup unformatted chapter headings and sub headings</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="4">
+      <item>
        <widget class="QCheckBox" name="opt_renumber_headings">
         <property name="text">
          <string>Renumber sequences of &lt;h1&gt; or &lt;h2&gt; tags to prevent splitting</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
+      <item>
        <widget class="QCheckBox" name="opt_delete_blank_paragraphs">
         <property name="text">
          <string>Delete blank lines between paragraphs</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="3">
+      <item>
        <widget class="QCheckBox" name="opt_format_scene_breaks">
         <property name="text">
          <string>Ensure scene breaks are consistently formatted</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="2">
+      <item>
        <widget class="QCheckBox" name="opt_dehyphenate">
         <property name="text">
          <string>Remove unnecessary hyphens</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="0" colspan="2">
+      <item>
        <widget class="QCheckBox" name="opt_italicize_common_cases">
         <property name="text">
          <string>Italicize common words and patterns</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="0" colspan="2">
+      <item>
        <widget class="QCheckBox" name="opt_fix_indents">
         <property name="text">
          <string>Replace entity indents with CSS indents</string>
         </property>
        </widget>
       </item>
-      <item row="9" column="0" colspan="2">
+      <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>

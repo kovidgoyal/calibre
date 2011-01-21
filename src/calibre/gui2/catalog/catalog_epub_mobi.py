@@ -144,6 +144,9 @@ class PluginWidget(QWidget,Ui_Form):
         # Hook changes to thumb_width
         self.thumb_width.valueChanged.connect(self.thumb_width_changed)
 
+        # Hook changes to Description section
+        self.generate_descriptions.stateChanged.connect(self.generate_descriptions_changed)
+
     def options(self):
         # Save/return the current options
         # exclude_genre stores literally
@@ -265,7 +268,7 @@ class PluginWidget(QWidget,Ui_Form):
         custom_fields = {}
         for custom_field in all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
-            if field_md['datatype'] in ['text','comments']:
+            if field_md['datatype'] in ['text','comments','composite']:
                 custom_fields[field_md['name']] = {'field':custom_field,
                                                    'datatype':field_md['datatype']}
         # Blank field first
@@ -323,6 +326,28 @@ class PluginWidget(QWidget,Ui_Form):
                     self.exclude_spec_hl.addWidget(dw)
         else:
             self.exclude_pattern.setEnabled(False)
+
+    def generate_descriptions_changed(self,new_state):
+        '''
+        Process changes to Descriptions section
+        0: unchecked
+        2: checked
+        '''
+
+        return
+
+        if new_state == 0:
+            # unchecked
+            self.merge_source_field.setEnabled(False)
+            self.merge_before.setEnabled(False)
+            self.merge_after.setEnabled(False)
+            self.include_hr.setEnabled(False)
+        elif new_state == 2:
+            # checked
+            self.merge_source_field.setEnabled(True)
+            self.merge_before.setEnabled(True)
+            self.merge_after.setEnabled(True)
+            self.include_hr.setEnabled(True)
 
     def header_note_source_field_changed(self,new_index):
         '''

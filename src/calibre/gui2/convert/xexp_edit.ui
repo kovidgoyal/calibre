@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>434</width>
+    <width>430</width>
     <height>74</height>
    </rect>
   </property>
@@ -59,7 +59,7 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../../../../resources/images.qrc">
        <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
      </property>
      <property name="iconSize">

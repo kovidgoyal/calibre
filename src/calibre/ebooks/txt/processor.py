@@ -176,9 +176,9 @@ def detect_formatting_type(txt):
     # Block quote.
     textile_count += len(re.findall(r'(?mu)^bq\.', txt))
     # Images
-    textile_count += len(re.findall(r'\![^\s]+(:[^\s]+)*', txt))
+    textile_count += len(re.findall(r'\![^\s]+(?=.*?/)(:[^\s]+)*', txt))
     # Links
-    textile_count += len(re.findall(r'"(\(.+?\))*[^\(]+?(\(.+?\))*":[^\s]+', txt))
+    textile_count += len(re.findall(r'"(?=".*?\()(\(.+?\))*[^\(]+?(\(.+?\))*":[^\s]+', txt))
 
     if markdown_count > 5 or textile_count > 5:
         if markdown_count > textile_count:

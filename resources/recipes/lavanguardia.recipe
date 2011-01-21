@@ -20,8 +20,8 @@ class LaVanguardia(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    delay                 = 1
-    encoding              = 'cp1252'
+    delay                 = 5
+ #   encoding              = 'cp1252'
     language = 'es'
 
     direction             = 'ltr'
@@ -35,8 +35,8 @@ class LaVanguardia(BasicNewsRecipe):
     html2epub_options  = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     feeds              = [
-                            (u'Ciudadanos'           , u'http://feeds.feedburner.com/lavanguardia/ciudadanos'   )
-                           ,(u'Cultura'              , u'http://feeds.feedburner.com/lavanguardia/cultura'      )
+                            (u'Portada'           , u'http://feeds.feedburner.com/lavanguardia/home'   )
+                          ,(u'Cultura'              , u'http://feeds.feedburner.com/lavanguardia/cultura'      )
                            ,(u'Deportes'             , u'http://feeds.feedburner.com/lavanguardia/deportes'     )
                            ,(u'Economia'             , u'http://feeds.feedburner.com/lavanguardia/economia'     )
                            ,(u'El lector opina'      , u'http://feeds.feedburner.com/lavanguardia/lectoropina'  )
@@ -45,17 +45,17 @@ class LaVanguardia(BasicNewsRecipe):
                            ,(u'Internet y tecnologia', u'http://feeds.feedburner.com/lavanguardia/internet'     )
                            ,(u'Motor'                , u'http://feeds.feedburner.com/lavanguardia/motor'        )
                            ,(u'Politica'             , u'http://feeds.feedburner.com/lavanguardia/politica'     )
-                           ,(u'Sucessos'             , u'http://feeds.feedburner.com/lavanguardia/sucesos'      )
+                           ,(u'Sucesos'             , u'http://feeds.feedburner.com/lavanguardia/sucesos'      )
                          ]
 
 
     keep_only_tags = [
-                       dict(name='div', attrs={'class':'element1_3'})
-                     ]
+                       dict(name='div', attrs={'class':'detalle  noticia'})
+                    ]
 
     remove_tags        = [
                              dict(name=['object','link','script'])
-                            ,dict(name='div', attrs={'class':['colC','peu']})
+                            ,dict(name='div', attrs={'class':['colC','peu','jstoolbar']})
                          ]
 
     remove_tags_after = [dict(name='div', attrs={'class':'text'})]
@@ -67,4 +67,3 @@ class LaVanguardia(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-

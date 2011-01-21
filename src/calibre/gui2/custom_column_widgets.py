@@ -379,7 +379,8 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
             w = bulk_widgets[type](db, col, parent)
         else:
             w = widgets[type](db, col, parent)
-        w.initialize(book_id)
+        if book_id is not None:
+            w.initialize(book_id)
         return w
     x = db.custom_column_num_map
     cols = list(x)
@@ -599,7 +600,7 @@ class BulkEnumeration(BulkBase, Enumeration):
         value = None
         ret_value = None
         dialog_shown = False
-        for book_id in book_ids:
+        for i,book_id in enumerate(book_ids):
             val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
             if val and val not in self.col_metadata['display']['enum_values']:
                 if not dialog_shown:
@@ -610,7 +611,7 @@ class BulkEnumeration(BulkBase, Enumeration):
                             show=True, show_copy_button=False)
                     dialog_shown = True
                 ret_value = ' nochange '
-            elif value is not None and value != val:
+            elif (value is not None and value != val) or (val and i != 0):
                 ret_value = ' nochange '
             value = val
         if ret_value is None:

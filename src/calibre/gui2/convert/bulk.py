@@ -94,7 +94,7 @@ class BulkConfig(Config):
             if not c: break
             self.stack.removeWidget(c)
 
-        widgets = [lf, hw, sr, ps, sd, toc]
+        widgets = [lf, hw, ps, sd, toc, sr]
         if output_widget is not None:
             widgets.append(output_widget)
         for w in widgets:
