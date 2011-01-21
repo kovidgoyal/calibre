@@ -219,11 +219,14 @@ class MetadataSingleDialog(ResizableDialog):
         self.tabs[0].gb = gb = QGroupBox(_('Change cover'), self)
         gb.l = l = QGridLayout()
         gb.setLayout(l)
+        sto(self.swap_title_author_button, self.cover.buttons[0])
         for i, b in enumerate(self.cover.buttons[:3]):
             l.addWidget(b, 0, i, 1, 1)
+            sto(b, self.cover.buttons[i+1])
         gb.hl = QHBoxLayout()
         for b in self.cover.buttons[3:]:
             gb.hl.addWidget(b)
+        sto(self.cover.buttons[-2], self.cover.buttons[-1])
         l.addLayout(gb.hl, 1, 0, 1, 3)
         self.tabs[0].middle = w = QWidget(self)
         w.l = l = QGridLayout()
@@ -237,23 +240,31 @@ class MetadataSingleDialog(ResizableDialog):
             l.addWidget(widget, row, 1, 1, 2 if button is None else 1)
             if button is not None:
                 l.addWidget(button, row, 2, 1, 1)
+            if button is not None:
+                sto(widget, button)
 
         l.addWidget(gb, 0, 0, 1, 3)
         self.tabs[0].spc_one = QSpacerItem(10, 10, QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
         l.addItem(self.tabs[0].spc_one, 1, 0, 1, 3)
+        sto(self.cover.buttons[-1], self.rating)
         create_row2(1, self.rating)
+        sto(self.rating, self.tags)
         create_row2(2, self.tags, self.tags_editor_button)
+        sto(self.tags_editor_button, self.isbn)
         create_row2(3, self.isbn)
+        sto(self.isbn, self.timestamp)
         create_row2(4, self.timestamp, self.timestamp.clear_button)
+        sto(self.timestamp.clear_button, self.pubdate)
         create_row2(5, self.pubdate, self.pubdate.clear_button)
+        sto(self.pubdate.clear_button, self.publisher)
         create_row2(6, self.publisher)
         self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
         l.addItem(self.tabs[0].spc_two, 8, 0, 1, 3)
         l.addWidget(self.fetch_metadata_button, 9, 0, 1, 3)
 
-        self.tabs[0].gb2 = gb = QGroupBox(_('&Comments'), self)
+        self.tabs[0].gb2 = gb = QGroupBox(_('Co&mments'), self)
         gb.l = l = QVBoxLayout()
         gb.setLayout(l)
         l.addWidget(self.comments)
