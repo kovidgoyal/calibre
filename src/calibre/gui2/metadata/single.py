@@ -192,6 +192,8 @@ class MetadataSingleDialog(ResizableDialog):
             self.tabs.append(w)
             self.central_widget.addTab(w, _('&Custom metadata'))
         l.addLayout(tl)
+        l.addItem(QSpacerItem(10, 15, QSizePolicy.Expanding,
+            QSizePolicy.Fixed))
 
         sto = QWidget.setTabOrder
         sto(self.button_box, self.fetch_metadata_button)
