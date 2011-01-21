@@ -475,12 +475,8 @@ class MetadataSingleDialogAlt(MetadataSingleDialogBase):
     cc_two_column = False
     one_line_comments_toolbar = True
 
-    def tab_clicked(self, t):
-        print 'here', t
-
     def do_layout(self): # {{{
         self.central_widget.clear()
-        self.central_widget.currentChanged.connect(self.tab_clicked)
         self.tabs = []
         self.labels = []
         sto = QWidget.setTabOrder
@@ -602,7 +598,7 @@ class MetadataSingleDialogAlt(MetadataSingleDialogBase):
 
 
 def edit_metadata(db, row_list, current_row, parent=None, view_slot=None):
-    d = MetadataSingleDialog(db, parent)
+    d = MetadataSingleDialogAlt(db, parent)
     d.start(row_list, current_row, view_slot=view_slot)
     return d.changed
 
