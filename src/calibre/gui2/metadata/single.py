@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 
 from PyQt4.Qt import Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, \
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, \
@@ -12,11 +13,13 @@ from PyQt4.Qt import Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, \
         QSizePolicy
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
-from calibre.gui2 import ResizableDialog
+from calibre.gui2 import ResizableDialog, error_dialog, gprefs
 from calibre.gui2.metadata.basic_widgets import TitleEdit, AuthorsEdit, \
     AuthorSortEdit, TitleSortEdit, SeriesEdit, SeriesIndexEdit, ISBNEdit, \
     RatingEdit, PublisherEdit, TagsEdit, FormatsManager, Cover, CommentsEdit, \
     BuddyLabel, DateEdit, PubdateEdit
+from calibre.gui2.custom_column_widgets import populate_metadata_page
+from calibre.utils.config import tweaks
 
 class MetadataSingleDialog(ResizableDialog):
 
@@ -52,13 +55,23 @@ class MetadataSingleDialog(ResizableDialog):
 
         self.create_basic_metadata_widgets()
 
+        if len(self.db.custom_column_label_map) == 0:
+            self.central_widget.tabBar().setVisible(False)
+        else:
+            self.create_custom_metadata_widgets()
+
+
         self.do_layout()
+        geom = gprefs.get('metasingle_window_geometry3', None)
+        if geom is not None:
+            self.restoreGeometry(bytes(geom))
     # }}}
 
     def create_basic_metadata_widgets(self): # {{{
         self.basic_metadata_widgets = []
 
         self.title = TitleEdit(self)
+        self.title.textChanged.connect(self.update_window_title)
         self.deduce_title_sort_button = QToolButton(self)
         self.deduce_title_sort_button.setToolTip(
             _('Automatically create the title sort entry based on the current '
@@ -97,7 +110,10 @@ class MetadataSingleDialog(ResizableDialog):
 
         self.formats_manager = FormatsManager(self)
         self.basic_metadata_widgets.append(self.formats_manager)
-
+        self.formats_manager.metadata_from_format_button.clicked.connect(
+                self.metadata_from_format)
+        self.formats_manager.cover_from_format_button.clicked.connect(
+                self.cover_from_format)
         self.cover = Cover(self)
         self.basic_metadata_widgets.append(self.cover)
 
@@ -131,6 +147,25 @@ class MetadataSingleDialog(ResizableDialog):
         font.setBold(True)
         self.fetch_metadata_button.setFont(font)
 
+
+    # }}}
+
+    def create_custom_metadata_widgets(self): # {{{
+        self.custom_metadata_widgets_parent = w = QWidget(self)
+        layout = QGridLayout()
+        w.setLayout(layout)
+        self.custom_metadata_widgets, self.__cc_spacers = \
+            populate_metadata_page(layout, self.db, None, parent=w, bulk=False,
+                two_column=tweaks['metadata_single_use_2_cols_for_custom_fields'])
+        self.__custom_col_layouts = [layout]
+        ans = self.custom_metadata_widgets
+        for i in range(len(ans)-1):
+            if len(ans[i+1].widgets) == 2:
+                w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[1])
+            else:
+                w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[0])
+            for c in range(2, len(ans[i].widgets), 2):
+                w.setTabOrder(ans[i].widgets[c-1], ans[i].widgets[c+1])
     # }}}
 
     def do_layout(self): # {{{
@@ -142,7 +177,14 @@ class MetadataSingleDialog(ResizableDialog):
         self.tabs[0].l = l = QVBoxLayout()
         self.tabs[0].tl = tl = QGridLayout()
         self.tabs[0].setLayout(l)
+        w = getattr(self, 'custom_metadata_widgets_parent', None)
+        if w is not None:
+            self.tabs.append(w)
+            self.central_widget.addTab(w, _('&Custom metadata'))
         l.addLayout(tl)
+
+        sto = QWidget.setTabOrder
+        sto(self.fetch_metadata_button, self.title)
 
         def create_row(row, one, two, three, col=1, icon='forward.png'):
             ql = BuddyLabel(one)
@@ -156,13 +198,18 @@ class MetadataSingleDialog(ResizableDialog):
             tl.addWidget(ql, row, col+3, 1, 1)
             self.labels.append(ql)
             tl.addWidget(three, row, col+4, 1, 1)
+            sto(one, two)
+            sto(two, three)
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
 
         create_row(0, self.title, self.deduce_title_sort_button, self.title_sort)
+        sto(self.title_sort, self.authors)
         create_row(1, self.authors, self.deduce_author_sort_button, self.author_sort)
+        sto(self.author_sort, self.series)
         create_row(2, self.series, self.remove_unused_series_button,
                 self.series_index, icon='trash.png')
+        sto(self.series_index, self.swap_title_author_button)
 
         tl.addWidget(self.formats_manager, 0, 6, 3, 1)
 
@@ -219,6 +266,18 @@ class MetadataSingleDialog(ResizableDialog):
         self.book_id = id_
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)
+        for widget in self.custom_metadata_widgets:
+            widget.initialize(id_)
+        self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
+
+
+    def update_window_title(self, *args):
+        title = self.title.current_val
+        if len(title) > 50:
+            title = title[:50] + u'\u2026'
+        self.setWindowTitle(_('Edit Meta Information') + ' - ' +
+                title)
+
 
     def swap_title_author(self, *args):
         title = self.title.current_val
@@ -241,8 +300,98 @@ class MetadataSingleDialog(ResizableDialog):
     def tags_editor(self, *args):
         self.tags.edit(self.db, self.book_id)
 
+    def metadata_from_format(self, *args):
+        mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
+                self.book_id)
+        if mi is not None:
+            self.update_from_mi(mi)
+
+    def cover_from_format(self, *args):
+        mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
+                self.book_id)
+        if mi is None:
+            return
+        cdata = None
+        if mi.cover and os.access(mi.cover, os.R_OK):
+            cdata = open(mi.cover).read()
+        elif mi.cover_data[1] is not None:
+            cdata = mi.cover_data[1]
+        if cdata is None:
+            error_dialog(self, _('Could not read cover'),
+                         _('Could not read cover from %s format')%ext).exec_()
+            return
+        orig = self.cover.current_val
+        self.cover.current_val = cdata
+        if self.cover.current_val is None:
+            self.cover.current_val = orig
+            return error_dialog(self, _('Could not read cover'),
+                         _('The cover in the %s format is invalid')%ext,
+                         show=True)
+            return
+
+    def update_from_mi(self, mi):
+        if not mi.is_null('title'):
+            self.title.current_val = mi.title
+        if not mi.is_null('authors'):
+            self.authors.current_val = mi.authors
+        if not mi.is_null('author_sort'):
+            self.author_sort.current_val = mi.author_sort
+        if not mi.is_null('rating'):
+            try:
+                self.rating.current_val = mi.rating
+            except:
+                pass
+        if not mi.is_null('publisher'):
+            self.publisher.current_val = mi.publisher
+        if not mi.is_null('tags'):
+            self.tags.current_val = mi.tags
+        if not mi.is_null('isbn'):
+            self.isbn.current_val = mi.isbn
+        if not mi.is_null('pubdate'):
+            self.pubdate.current_val = mi.pubdate
+        if not mi.is_null('series') and mi.series.strip():
+            self.series.current_val = mi.series
+            if mi.series_index is not None:
+                self.series_index.current_val = float(mi.series_index)
+        if mi.comments and mi.comments.strip():
+            self.comments.current_val = mi.comments
+
     def fetch_metadata(self, *args):
         pass # TODO: fetch metadata
+
+    def apply_changes(self):
+        for widget in self.basic_metadata_widgets:
+            try:
+                if not widget.commit(self.db, self.book_id):
+                    return False
+            except IOError, err:
+                if err.errno == 13: # Permission denied
+                    import traceback
+                    fname = err.filename if err.filename else 'file'
+                    error_dialog(self, _('Permission denied'),
+                            _('Could not open %s. Is it being used by another'
+                            ' program?')%fname, det_msg=traceback.format_exc(),
+                            show=True)
+                    return False
+                raise
+        for widget in getattr(self, 'custom_metadata_widgets', []):
+            widget.commit(self.book_id)
+
+        self.db.commit()
+        return True
+
+    def accept(self):
+        self.save_state()
+        if not self.apply_changes():
+            return
+        ResizableDialog.accept(self)
+
+    def reject(self):
+        self.save_state()
+        ResizableDialog.reject(self)
+
+    def save_state(self):
+        gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
 
 
 if __name__ == '__main__':
