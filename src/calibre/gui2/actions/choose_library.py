@@ -32,7 +32,7 @@ class LibraryUsageStats(object): # {{{
         locs = list(self.stats.keys())
         locs.sort(cmp=lambda x, y: cmp(self.stats[x], self.stats[y]),
                 reverse=True)
-        for key in locs[15:]:
+        for key in locs[25:]:
             self.stats.pop(key)
         gprefs.set('library_usage_stats', self.stats)
 
@@ -384,7 +384,14 @@ class ChooseLibraryAction(InterfaceAction):
             return
 
         prefs['library_path'] = loc
+        #from calibre.utils.mem import memory
+        #import weakref, gc
+        #ref = weakref.ref(self.gui.library_view.model().db)
+        #before = memory()/1024**2
         self.gui.library_moved(loc)
+        #print gc.get_referrers(ref)[0]
+        #for i in xrange(3): gc.collect()
+        #print 'leaked:', memory()/1024**2 - before
 
     def qs_requested(self, idx, *args):
         self.switch_requested(self.qs_locations[idx])

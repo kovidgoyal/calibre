@@ -440,6 +440,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             except:
                 import traceback
                 traceback.print_exc()
+            olddb.break_cycles()
         if self.device_connected:
             self.set_books_in_library(self.booklists(), reset=True)
             self.refresh_ondevice()
