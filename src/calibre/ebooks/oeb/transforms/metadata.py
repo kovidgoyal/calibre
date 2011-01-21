@@ -84,13 +84,9 @@ def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
     if not mi.is_null('rights'):
         m.clear('rights')
         m.add('rights', mi.rights)
-    elif override_input_metadata:
-        m.clear('rights')
     if not mi.is_null('publication_type'):
         m.clear('publication_type')
         m.add('publication_type', mi.publication_type)
-    elif override_input_metadata:
-        m.clear('publication_type')
 
     if not m.timestamp:
         m.add('timestamp', isoformat(now()))
