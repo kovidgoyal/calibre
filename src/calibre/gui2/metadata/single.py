@@ -170,7 +170,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.__custom_col_layouts = [layout]
     # }}}
 
-    def set_custom_metadata_tab_order(self, before=None, after=None):
+    def set_custom_metadata_tab_order(self, before=None, after=None): # {{{
         sto = QWidget.setTabOrder
         if getattr(self, 'custom_metadata_widgets', []):
             ans = self.custom_metadata_widgets
@@ -185,11 +185,10 @@ class MetadataSingleDialogBase(ResizableDialog):
                     sto(ans[i].widgets[c-1], ans[i].widgets[c+1])
             if after is not None:
                 pass # Do something
-
-    def do_layout(self): # {{{
-        raise NotImplementedError()
-
     # }}}
+
+    def do_layout(self):
+        raise NotImplementedError()
 
     def __call__(self, id_):
         self.book_id = id_
@@ -201,6 +200,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         #self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
 
 
+    # Miscellaneous interaction methods {{{
     def update_window_title(self, *args):
         title = self.title.current_val
         if len(title) > 50:
@@ -287,6 +287,7 @@ class MetadataSingleDialogBase(ResizableDialog):
 
     def fetch_metadata(self, *args):
         pass # TODO: fetch metadata
+    # }}}
 
     def apply_changes(self):
         self.changed.add(self.book_id)
@@ -323,6 +324,7 @@ class MetadataSingleDialogBase(ResizableDialog):
     def save_state(self):
         gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
 
+    # Dialog use methods {{{
     def start(self, row_list, current_row, view_slot=None):
         self.row_list = row_list
         self.current_row = current_row
@@ -364,6 +366,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             x = getattr(self, b, None)
             if x is not None:
                 disconnect(x.clicked)
+    # }}}
 
 class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
 
