@@ -18,6 +18,8 @@ from calibre.gui2.metadata.basic_widgets import TitleEdit, AuthorsEdit, \
     AuthorSortEdit, TitleSortEdit, SeriesEdit, SeriesIndexEdit, ISBNEdit, \
     RatingEdit, PublisherEdit, TagsEdit, FormatsManager, Cover, CommentsEdit, \
     BuddyLabel, DateEdit, PubdateEdit
+from calibre.gui2.custom_column_widgets import populate_metadata_page
+from calibre.utils.config import tweaks
 
 class MetadataSingleDialog(ResizableDialog):
 
@@ -52,6 +54,12 @@ class MetadataSingleDialog(ResizableDialog):
         self.setWindowTitle(_('Edit Meta Information'))
 
         self.create_basic_metadata_widgets()
+
+        if len(self.db.custom_column_label_map) == 0:
+            self.central_widget.tabBar().setVisible(False)
+        else:
+            self.create_custom_metadata_widgets()
+
 
         self.do_layout()
         geom = gprefs.get('metasingle_window_geometry3', None)
@@ -139,6 +147,25 @@ class MetadataSingleDialog(ResizableDialog):
         font.setBold(True)
         self.fetch_metadata_button.setFont(font)
 
+
+    # }}}
+
+    def create_custom_metadata_widgets(self): # {{{
+        self.custom_metadata_widgets_parent = w = QWidget(self)
+        layout = QGridLayout()
+        w.setLayout(layout)
+        self.custom_metadata_widgets, self.__cc_spacers = \
+            populate_metadata_page(layout, self.db, None, parent=w, bulk=False,
+                two_column=tweaks['metadata_single_use_2_cols_for_custom_fields'])
+        self.__custom_col_layouts = [layout]
+        ans = self.custom_metadata_widgets
+        for i in range(len(ans)-1):
+            if len(ans[i+1].widgets) == 2:
+                w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[1])
+            else:
+                w.setTabOrder(ans[i].widgets[-1], ans[i+1].widgets[0])
+            for c in range(2, len(ans[i].widgets), 2):
+                w.setTabOrder(ans[i].widgets[c-1], ans[i].widgets[c+1])
     # }}}
 
     def do_layout(self): # {{{
@@ -150,6 +177,10 @@ class MetadataSingleDialog(ResizableDialog):
         self.tabs[0].l = l = QVBoxLayout()
         self.tabs[0].tl = tl = QGridLayout()
         self.tabs[0].setLayout(l)
+        w = getattr(self, 'custom_metadata_widgets_parent', None)
+        if w is not None:
+            self.tabs.append(w)
+            self.central_widget.addTab(w, _('&Custom metadata'))
         l.addLayout(tl)
 
         sto = QWidget.setTabOrder
@@ -235,6 +266,8 @@ class MetadataSingleDialog(ResizableDialog):
         self.book_id = id_
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)
+        for widget in self.custom_metadata_widgets:
+            widget.initialize(id_)
         self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
 
 
@@ -323,26 +356,34 @@ class MetadataSingleDialog(ResizableDialog):
         if mi.comments and mi.comments.strip():
             self.comments.current_val = mi.comments
 
-
-
     def fetch_metadata(self, *args):
         pass # TODO: fetch metadata
 
-    def accept(self):
+    def apply_changes(self):
         for widget in self.basic_metadata_widgets:
             try:
                 if not widget.commit(self.db, self.book_id):
-                    return
+                    return False
             except IOError, err:
                 if err.errno == 13: # Permission denied
                     import traceback
                     fname = err.filename if err.filename else 'file'
-                    return error_dialog(self, _('Permission denied'),
+                    error_dialog(self, _('Permission denied'),
                             _('Could not open %s. Is it being used by another'
                             ' program?')%fname, det_msg=traceback.format_exc(),
                             show=True)
+                    return False
                 raise
+        for widget in getattr(self, 'custom_metadata_widgets', []):
+            widget.commit(self.book_id)
+
+        self.db.commit()
+        return True
+
+    def accept(self):
         self.save_state()
+        if not self.apply_changes():
+            return
         ResizableDialog.accept(self)
 
     def reject(self):
