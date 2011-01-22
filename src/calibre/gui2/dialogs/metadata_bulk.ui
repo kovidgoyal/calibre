@@ -44,8 +44,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>842</width>
-        <height>589</height>
+        <width>832</width>
+        <height>574</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -55,7 +55,7 @@
        <item>
         <widget class="QTabWidget" name="central_widget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tabWidgetPage1">
           <attribute name="title">
@@ -574,7 +574,7 @@ Future conversion of these books will use the default settings.</string>
            <property name="sizeConstraint">
             <enum>QLayout::SetMinimumSize</enum>
            </property>
-           <item row="1" column="0" colspan="3">
+           <item row="1" column="0" colspan="4">
             <widget class="QLabel" name="s_r_heading">
              <property name="wordWrap">
               <bool>true</bool>
@@ -591,7 +591,7 @@ Future conversion of these books will use the default settings.</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="11" column="0">
             <widget class="QLabel" name="xlabel_21">
              <property name="text">
               <string>Search &amp;field:</string>
@@ -601,14 +601,14 @@ Future conversion of these books will use the default settings.</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="11" column="2">
             <widget class="QComboBox" name="search_field">
              <property name="toolTip">
               <string>The name of the field that you want to search</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="2">
+           <item row="11" column="3">
             <layout class="QHBoxLayout" name="HLayout_3">
              <item>
               <widget class="QLabel" name="xlabel_24">
@@ -642,7 +642,7 @@ Future conversion of these books will use the default settings.</string>
              </item>
             </layout>
            </item>
-           <item row="4" column="0">
+           <item row="12" column="0">
             <widget class="QLabel" name="template_label">
              <property name="text">
               <string>Te&amp;mplate:</string>
@@ -652,7 +652,7 @@ Future conversion of these books will use the default settings.</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="12" column="2">
             <widget class="HistoryLineEdit" name="s_r_template">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -665,7 +665,7 @@ Future conversion of these books will use the default settings.</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
+           <item row="13" column="0">
             <widget class="QLabel" name="xlabel_2">
              <property name="text">
               <string>&amp;Search for:</string>
@@ -675,7 +675,7 @@ Future conversion of these books will use the default settings.</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="13" column="2">
             <widget class="HistoryLineEdit" name="search_for">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -688,7 +688,7 @@ Future conversion of these books will use the default settings.</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="2">
+           <item row="13" column="3">
             <widget class="QCheckBox" name="case_sensitive">
              <property name="toolTip">
               <string>Check this box if the search string must match exactly upper and lower case. Uncheck it if case is to be ignored</string>
@@ -701,7 +701,7 @@ Future conversion of these books will use the default settings.</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
+           <item row="14" column="0">
             <widget class="QLabel" name="xlabel_4">
              <property name="text">
               <string>&amp;Replace with:</string>
@@ -711,14 +711,14 @@ Future conversion of these books will use the default settings.</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="14" column="2">
             <widget class="HistoryLineEdit" name="replace_with">
              <property name="toolTip">
               <string>The replacement text. The matched search text will be replaced with this string</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="2">
+           <item row="14" column="3">
             <layout class="QHBoxLayout" name="verticalLayout">
              <item>
               <widget class="QLabel" name="label_41">
@@ -753,7 +753,7 @@ field is processed. In regular expression mode, only the matched text is process
              </item>
             </layout>
            </item>
-           <item row="7" column="0">
+           <item row="15" column="0">
             <widget class="QLabel" name="destination_field_label">
              <property name="text">
               <string>&amp;Destination field:</string>
@@ -763,7 +763,7 @@ field is processed. In regular expression mode, only the matched text is process
              </property>
             </widget>
            </item>
-           <item row="7" column="1">
+           <item row="15" column="2">
             <widget class="QComboBox" name="destination_field">
              <property name="toolTip">
               <string>The field that the text will be put into after all replacements.
@@ -771,7 +771,7 @@ If blank, the source field is used if the field is modifiable</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="2">
+           <item row="15" column="3">
             <layout class="QHBoxLayout" name="verticalLayout">
              <item>
               <widget class="QLabel" name="replace_mode_label">
@@ -820,7 +820,7 @@ not multiple and the destination field is multiple</string>
              </item>
             </layout>
            </item>
-           <item row="8" column="1" colspan="2">
+           <item row="16" column="2" colspan="2">
             <layout class="QHBoxLayout" name="horizontalLayout_21">
              <item>
               <spacer name="HSpacer_347">
@@ -906,7 +906,7 @@ not multiple and the destination field is multiple</string>
              </item>
             </layout>
            </item>
-           <item row="9" column="0" colspan="4">
+           <item row="17" column="0" colspan="5">
             <widget class="QScrollArea" name="scrollArea11">
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -919,8 +919,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>197</width>
-                <height>60</height>
+                <width>810</width>
+                <height>264</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
@@ -967,6 +967,77 @@ not multiple and the destination field is multiple</string>
               </layout>
              </widget>
             </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="xlabel_22">
+             <property name="text">
+              <string>Load query:</string>
+             </property>
+             <property name="buddy">
+              <cstring>search_field</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QComboBox" name="query_field">
+             <property name="toolTip">
+              <string>The name of the field that you want to search</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="4">
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="save_button">
+               <property name="text">
+                <string>Save</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="remove_button">
+               <property name="text">
+                <string>Remove</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -1030,6 +1101,9 @@ not multiple and the destination field is multiple</string>
   <tabstop>series_numbering_restarts</tabstop>
   <tabstop>series_start_number</tabstop>
   <tabstop>button_box</tabstop>
+  <tabstop>query_field</tabstop>
+  <tabstop>save_button</tabstop>
+  <tabstop>remove_button</tabstop>
   <tabstop>search_field</tabstop>
   <tabstop>search_mode</tabstop>
   <tabstop>s_r_template</tabstop>
@@ -1045,6 +1119,23 @@ not multiple and the destination field is multiple</string>
   <tabstop>multiple_separator</tabstop>
   <tabstop>test_text</tabstop>
   <tabstop>test_result</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>central_widget</tabstop>
+  <tabstop>swap_title_and_author</tabstop>
+  <tabstop>clear_series</tabstop>
+  <tabstop>adddate</tabstop>
+  <tabstop>clear_adddate_button</tabstop>
+  <tabstop>apply_adddate</tabstop>
+  <tabstop>pubdate</tabstop>
+  <tabstop>clear_pubdate_button</tabstop>
+  <tabstop>apply_pubdate</tabstop>
+  <tabstop>remove_format</tabstop>
+  <tabstop>change_title_to_title_case</tabstop>
+  <tabstop>remove_conversion_settings</tabstop>
+  <tabstop>cover_generate</tabstop>
+  <tabstop>cover_remove</tabstop>
+  <tabstop>cover_from_fmt</tabstop>
+  <tabstop>scrollArea11</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/images.qrc"/>
