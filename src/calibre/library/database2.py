@@ -362,7 +362,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.last_update_check = self.last_modified()
 
     def break_cycles(self):
-        self.data = self.field_metadata = self.prefs = self.listeners = None
+        self.data.break_cycles()
+        self.data = self.field_metadata = self.prefs = self.listeners = \
+            self.refresh_ondevice = None
 
     def initialize_database(self):
         metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
