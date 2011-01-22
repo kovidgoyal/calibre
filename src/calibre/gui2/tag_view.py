@@ -114,6 +114,9 @@ class TagsView(QTreeView): # {{{
 
     def set_database(self, db, tag_match, sort_by):
         self.hidden_categories = config['tag_browser_hidden_categories']
+        old = getattr(self, '_model', None)
+        if old is not None:
+            old.break_cycles()
         self._model = TagsModel(db, parent=self,
                                 hidden_categories=self.hidden_categories,
                                 search_restriction=None,
@@ -371,6 +374,9 @@ class TagsView(QTreeView): # {{{
     # model. Reason: it is much easier than reconstructing the browser tree.
     def set_new_model(self, filter_categories_by=None):
         try:
+            old = getattr(self, '_model', None)
+            if old is not None:
+                old.break_cycles()
             self._model = TagsModel(self.db, parent=self,
                                     hidden_categories=self.hidden_categories,
                                     search_restriction=self.search_restriction,
@@ -543,6 +549,9 @@ class TagsModel(QAbstractItemModel): # {{{
                     category_icon=self.category_icon_map[r],
                     tooltip=tt, category_key=r)
         self.refresh(data=data)
+
+    def break_cycles(self):
+        self.db = self.root_item = None
 
     def mimeTypes(self):
         return ["application/calibre+from_library"]
@@ -1109,8 +1118,7 @@ class TagBrowserMixin(object): # {{{
 
     def __init__(self, db):
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
-        self.tags_view.set_database(self.library_view.model().db,
-                self.tag_match, self.sort_by)
+        self.tags_view.set_database(db, self.tag_match, self.sort_by)
         self.tags_view.tags_marked.connect(self.search.set_search_string)
         self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
