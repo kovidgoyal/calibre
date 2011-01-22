@@ -44,12 +44,12 @@
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Occurences:</string>
+        <string>Occurrences:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="occurances">
+      <widget class="QLabel" name="occurrences">
        <property name="text">
         <string>0</string>
        </property>
