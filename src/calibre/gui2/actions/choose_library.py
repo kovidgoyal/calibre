@@ -384,13 +384,13 @@ class ChooseLibraryAction(InterfaceAction):
             return
 
         prefs['library_path'] = loc
-        from calibre.utils.mem import memory
-        import weakref
-        from PyQt4.Qt import QTimer
-        self.dbref = weakref.ref(self.gui.library_view.model().db)
-        self.before_mem = memory()/1024**2
+        #from calibre.utils.mem import memory
+        #import weakref
+        #from PyQt4.Qt import QTimer
+        #self.dbref = weakref.ref(self.gui.library_view.model().db)
+        #self.before_mem = memory()/1024**2
         self.gui.library_moved(loc)
-        QTimer.singleShot(1000, self.debug_leak)
+        #QTimer.singleShot(1000, self.debug_leak)
 
     def debug_leak(self):
         import gc
