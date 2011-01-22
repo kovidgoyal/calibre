@@ -35,6 +35,10 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.connect(self.button_box, SIGNAL('clicked(QAbstractButton*)'), self.button_clicked)
         self.connect(self.regex, SIGNAL('textChanged(QString)'), self.regex_valid)
         self.connect(self.test, SIGNAL('clicked()'), self.do_test)
+        self.connect(self.previous, SIGNAL('clicked()'), self.goto_previous)
+        self.connect(self.next, SIGNAL('clicked()'), self.goto_next)
+        
+        self.match_locs = []
 
     def regex_valid(self):
         regex = unicode(self.regex.text())
@@ -42,17 +46,23 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             try:
                 re.compile(regex)
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(0,255,0,20%); }')
+                return True
             except:
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgb(255,0,0,20%); }')
-                return False
         else:
             self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
             self.preview.setExtraSelections([])
-            return False
-        return True
+        
+        self.match_locs = []
+        self.next.setEnabled(False)
+        self.previous.setEnabled(False)
+        self.occurances.setText('0')
+        
+        return False
 
     def do_test(self):
         selections = []
+        self.match_locs = []
         if self.regex_valid():
             text = unicode(self.preview.toPlainText())
             regex = unicode(self.regex.text())
@@ -66,9 +76,43 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                     es.cursor.setPosition(match.start(), QTextCursor.MoveAnchor)
                     es.cursor.setPosition(match.end(), QTextCursor.KeepAnchor)
                     selections.append(es)
+                    self.match_locs.append((match.start(), match.end()))
             except:
                 pass
         self.preview.setExtraSelections(selections)
+        if self.match_locs:
+            self.next.setEnabled(True)
+            self.previous.setEnabled(True)
+        self.occurances.setText('%s' % len(self.match_locs))
+
+    def goto_previous(self):
+        pos = self.preview.textCursor().position()
+        if self.match_locs:
+            match_loc = len(self.match_locs) - 1
+            for i in xrange(len(self.match_locs) - 1, -1, -1):
+                loc = self.match_locs[i][1]
+                if pos > loc:
+                    match_loc = i
+                    break
+            self.goto_loc(self.match_locs[match_loc][1], operation=QTextCursor.Left, n=self.match_locs[match_loc][1] - self.match_locs[match_loc][0])
+    
+    def goto_next(self):
+        pos = self.preview.textCursor().position()
+        if self.match_locs:
+            match_loc = 0
+            for i in xrange(len(self.match_locs)):
+                loc = self.match_locs[i][0]
+                if pos < loc:
+                    match_loc = i
+                    break
+            self.goto_loc(self.match_locs[match_loc][0], n=self.match_locs[match_loc][1] - self.match_locs[match_loc][0])
+
+    def goto_loc(self, loc, operation=QTextCursor.Right, mode=QTextCursor.KeepAnchor, n=0):
+        cursor = QTextCursor(self.preview.document())
+        cursor.setPosition(loc)
+        if n:
+            cursor.movePosition(operation, mode, n)
+        self.preview.setTextCursor(cursor)
 
     def select_format(self, db, book_id):
         format = None
