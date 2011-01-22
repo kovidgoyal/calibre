@@ -486,6 +486,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Download metadata and shortcuts
     * - :kbd:`Ctrl+R` 
       - Restart calibre
+    * - :kbd:`Shift+Ctrl+E`
+      - Add empty books to calibre
     * - :kbd:`Ctrl+Q` 
       - Quit calibre
 

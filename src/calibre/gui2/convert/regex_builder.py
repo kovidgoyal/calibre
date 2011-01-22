@@ -37,7 +37,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.connect(self.test, SIGNAL('clicked()'), self.do_test)
         self.connect(self.previous, SIGNAL('clicked()'), self.goto_previous)
         self.connect(self.next, SIGNAL('clicked()'), self.goto_next)
-        
+
         self.match_locs = []
 
     def regex_valid(self):
@@ -52,12 +52,12 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         else:
             self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
             self.preview.setExtraSelections([])
-        
+
         self.match_locs = []
         self.next.setEnabled(False)
         self.previous.setEnabled(False)
-        self.occurances.setText('0')
-        
+        self.occurrences.setText('0')
+
         return False
 
     def do_test(self):
@@ -83,7 +83,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         if self.match_locs:
             self.next.setEnabled(True)
             self.previous.setEnabled(True)
-        self.occurances.setText('%s' % len(self.match_locs))
+        self.occurrences.setText(str(len(self.match_locs)))
 
     def goto_previous(self):
         pos = self.preview.textCursor().position()
@@ -95,7 +95,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                     match_loc = i
                     break
             self.goto_loc(self.match_locs[match_loc][1], operation=QTextCursor.Left, n=self.match_locs[match_loc][1] - self.match_locs[match_loc][0])
-    
+
     def goto_next(self):
         pos = self.preview.textCursor().position()
         if self.match_locs:

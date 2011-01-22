@@ -72,7 +72,8 @@ class Plumber(object):
         ]
 
     def __init__(self, input, output, log, report_progress=DummyReporter(),
-            dummy=False, merge_plugin_recs=True, abort_after_input_dump=False):
+            dummy=False, merge_plugin_recs=True, abort_after_input_dump=False,
+            override_input_metadata=False):
         '''
         :param input: Path to input file.
         :param output: Path to output file/directory
@@ -87,6 +88,7 @@ class Plumber(object):
         self.log = log
         self.ui_reporter = report_progress
         self.abort_after_input_dump = abort_after_input_dump
+        self.override_input_metadata = override_input_metadata
 
         # Pipeline options {{{
         # Initialize the conversion options that are independent of input and
@@ -924,7 +926,8 @@ OptionRecommendation(name='sr3_replace',
         self.opts.dest = self.opts.output_profile
 
         from calibre.ebooks.oeb.transforms.metadata import MergeMetadata
-        MergeMetadata()(self.oeb, self.user_metadata, self.opts)
+        MergeMetadata()(self.oeb, self.user_metadata, self.opts,
+                override_input_metadata=self.override_input_metadata)
         pr(0.2)
         self.flush()
 
