@@ -19,7 +19,7 @@ from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
         warning_dialog, info_dialog, choose_dir
 from calibre.ebooks.metadata import authors_to_string
-from calibre import preferred_encoding, prints, force_unicode
+from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.devices.apple.driver import ITUNES_ASYNC
@@ -68,13 +68,7 @@ class DeviceJob(BaseJob): # {{{
             if self._aborted:
                 return
             self.failed = True
-            try:
-                ex = unicode(err)
-            except:
-                try:
-                    ex = str(err).decode(preferred_encoding, 'replace')
-                except:
-                    ex = repr(err)
+            ex = as_unicode(err)
             self._details = ex + '\n\n' + \
                 traceback.format_exc()
             self.exception = err
@@ -637,7 +631,7 @@ class DeviceMixin(object): # {{{
             self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder', path=dir)
 
     def connect_to_bambook(self):
-        self.device_manager.mount_device(kls=BAMBOOKWifi, kind='bambook', 
+        self.device_manager.mount_device(kls=BAMBOOKWifi, kind='bambook',
                                          path=BAMBOOK.settings().extra_customization)
 
     def connect_to_itunes(self):
@@ -1018,7 +1012,8 @@ class DeviceMixin(object): # {{{
         ids = [self.library_view.model().id(r) \
                for r in self.library_view.selectionModel().selectedRows()] \
                                 if send_ids is None else send_ids
-        if not self.device_manager or not ids or len(ids) == 0:
+        if not self.device_manager or not ids or len(ids) == 0 or \
+                not self.device_manager.is_device_connected:
             return
 
         settings = self.device_manager.device.settings()
@@ -1266,8 +1261,8 @@ class DeviceMixin(object): # {{{
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
             # Build a cache (map) of the library, so the search isn't On**2
-            self.db_book_title_cache = {}
-            self.db_book_uuid_cache = {}
+            db_book_title_cache = {}
+            db_book_uuid_cache = {}
             # It might be possible to get here without having initialized the
             # library view. In this case, simply give up
             try:
@@ -1278,8 +1273,8 @@ class DeviceMixin(object): # {{{
             for id in db.data.iterallids():
                 mi = db.get_metadata(id, index_is_id=True)
                 title = clean_string(mi.title)
-                if title not in self.db_book_title_cache:
-                    self.db_book_title_cache[title] = \
+                if title not in db_book_title_cache:
+                    db_book_title_cache[title] = \
                                 {'authors':{}, 'author_sort':{}, 'db_ids':{}}
                 # If there are multiple books in the library with the same title
                 # and author, then remember the last one. That is OK, because as
@@ -1287,12 +1282,14 @@ class DeviceMixin(object): # {{{
                 # as another.
                 if mi.authors:
                     authors = clean_string(authors_to_string(mi.authors))
-                    self.db_book_title_cache[title]['authors'][authors] = mi
+                    db_book_title_cache[title]['authors'][authors] = mi
                 if mi.author_sort:
                     aus = clean_string(mi.author_sort)
-                    self.db_book_title_cache[title]['author_sort'][aus] = mi
-                self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
-                self.db_book_uuid_cache[mi.uuid] = mi
+                    db_book_title_cache[title]['author_sort'][aus] = mi
+                db_book_title_cache[title]['db_ids'][mi.application_id] = mi
+                db_book_uuid_cache[mi.uuid] = mi
+            self.db_book_title_cache = db_book_title_cache
+            self.db_book_uuid_cache = db_book_uuid_cache
 
         # Now iterate through all the books on the device, setting the
         # in_library field. If the UUID matches a book in the library, then

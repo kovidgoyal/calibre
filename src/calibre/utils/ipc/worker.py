@@ -28,6 +28,9 @@ PARALLEL_FUNCS = {
       'gui_convert'     :
         ('calibre.gui2.convert.gui_conversion', 'gui_convert', 'notification'),
 
+      'gui_convert_override'     :
+        ('calibre.gui2.convert.gui_conversion', 'gui_convert_override', 'notification'),
+
       'gui_catalog'     :
         ('calibre.gui2.convert.gui_conversion', 'gui_catalog', 'notification'),
 

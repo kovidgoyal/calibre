@@ -38,6 +38,7 @@ from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
+from calibre.utils.formatter_functions import load_user_template_functions
 
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
@@ -185,6 +186,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         migrate_preference('saved_searches', {})
         set_saved_searches(self, 'saved_searches')
 
+        load_user_template_functions(self.prefs.get('user_template_functions', []))
+
         self.conn.executescript('''
         DROP TRIGGER IF EXISTS author_insert_trg;
         CREATE TEMP TRIGGER author_insert_trg
@@ -256,7 +259,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'pubdate',
              'flags',
              'uuid',
-             'has_cover'
+             'has_cover',
+            ('au_map', 'authors', 'author', 'aum_sortconcat(link.id, authors.name, authors.sort)')
             ]
         lines = []
         for col in columns:
@@ -273,9 +277,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'timestamp':3,
              'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
-             'publisher':9, 'series_index':10,
-             'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15,
-             'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19, 'cover':20}
+             'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
+             'formats':13, 'isbn':14, 'path':15, 'lccn':16, 'pubdate':17,
+             'flags':18, 'uuid':19, 'cover':20, 'au_map':21}
 
         for k,v in self.FIELD_MAP.iteritems():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
@@ -297,10 +301,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             base,
                             prefer_custom=True)
 
-        self.FIELD_MAP['ondevice'] = base+1
-        self.field_metadata.set_field_record_index('ondevice', base+1, prefer_custom=False)
-        self.FIELD_MAP['all_metadata'] = base+2
-        self.field_metadata.set_field_record_index('all_metadata', base+2, prefer_custom=False)
+        self.FIELD_MAP['ondevice'] = base = base+1
+        self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -342,10 +344,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.has_id  = self.data.has_id
         self.count   = self.data.count
 
-        # Count times get_metadata is called, and how many times in the cache
-        self.gm_count  = 0
-        self.gm_missed = 0
-
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
                      'title', 'timestamp', 'uuid', 'pubdate', 'ondevice'):
@@ -363,6 +361,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.refresh()
         self.last_update_check = self.last_modified()
 
+    def break_cycles(self):
+        self.data = self.field_metadata = self.prefs = self.listeners = None
 
     def initialize_database(self):
         metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
@@ -687,61 +687,53 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         Convenience method to return metadata as a :class:`Metadata` object.
         Note that the list of formats is not verified.
         '''
-        self.gm_count += 1
-        mi = self.data.get(idx, self.FIELD_MAP['all_metadata'],
-                           row_is_id = index_is_id)
-        if mi is not None:
-            if get_cover:
-                # Always get the cover, because the value can be wrong if the
-                # original mi was from the OPF
-                mi.cover = self.cover(idx, index_is_id=index_is_id, as_path=True)
-            return mi
-
-        self.gm_missed += 1
+        row = self.data._data[idx] if index_is_id else self.data[idx]
+        fm = self.FIELD_MAP
         mi = Metadata(None)
-        self.data.set(idx, self.FIELD_MAP['all_metadata'], mi,
-                      row_is_id = index_is_id)
 
-        aut_list = self.authors_with_sort_strings(idx, index_is_id=index_is_id)
+        aut_list = row[fm['au_map']]
+        if aut_list:
+            aut_list = [p.split(':::') for p in aut_list.split(':#:') if p]
+        else:
+            aut_list = []
         aum = []
         aus = {}
         for (author, author_sort) in aut_list:
-            aum.append(author)
-            aus[author] = author_sort
-        mi.title       = self.title(idx, index_is_id=index_is_id)
+            aum.append(author.replace('|', ','))
+            aus[author] = author_sort.replace('|', ',')
+        mi.title       = row[fm['title']]
         mi.authors     = aum
-        mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
+        mi.author_sort = row[fm['author_sort']]
         mi.author_sort_map = aus
-        mi.comments    = self.comments(idx, index_is_id=index_is_id)
-        mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
-        mi.timestamp   = self.timestamp(idx, index_is_id=index_is_id)
-        mi.pubdate     = self.pubdate(idx, index_is_id=index_is_id)
-        mi.uuid        = self.uuid(idx, index_is_id=index_is_id)
-        mi.title_sort  = self.title_sort(idx, index_is_id=index_is_id)
-        mi.formats     = self.formats(idx, index_is_id=index_is_id,
-                                        verify_formats=False)
-        if hasattr(mi.formats, 'split'):
-            mi.formats = mi.formats.split(',')
+        mi.comments    = row[fm['comments']]
+        mi.publisher   = row[fm['publisher']]
+        mi.timestamp   = row[fm['timestamp']]
+        mi.pubdate     = row[fm['pubdate']]
+        mi.uuid        = row[fm['uuid']]
+        mi.title_sort  = row[fm['sort']]
+        formats = row[fm['formats']]
+        if not formats:
+            formats = None
         else:
-            mi.formats = None
-        tags = self.tags(idx, index_is_id=index_is_id)
+            formats = formats.split(',')
+        mi.formats = formats
+        tags = row[fm['tags']]
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
-        mi.series = self.series(idx, index_is_id=index_is_id)
+        mi.series = row[fm['series']]
         if mi.series:
-            mi.series_index = self.series_index(idx, index_is_id=index_is_id)
-        mi.rating = self.rating(idx, index_is_id=index_is_id)
-        mi.isbn = self.isbn(idx, index_is_id=index_is_id)
+            mi.series_index = row[fm['series_index']]
+        mi.rating = row[fm['rating']]
+        mi.isbn = row[fm['isbn']]
         id = idx if index_is_id else self.id(idx)
         mi.application_id = id
         mi.id = id
-        for key,meta in self.field_metadata.iteritems():
-            if meta['is_custom']:
-                mi.set_user_metadata(key, meta)
-                mi.set(key, val=self.get_custom(idx, label=meta['label'],
-                                                index_is_id=index_is_id),
-                            extra=self.get_custom_extra(idx, label=meta['label'],
-                                                        index_is_id=index_is_id))
+        for key, meta in self.field_metadata.custom_iteritems():
+            mi.set_user_metadata(key, meta)
+            mi.set(key, val=self.get_custom(idx, label=meta['label'],
+                                            index_is_id=index_is_id),
+                        extra=self.get_custom_extra(idx, label=meta['label'],
+                                                    index_is_id=index_is_id))
         if get_cover:
             mi.cover = self.cover(id, index_is_id=True, as_path=True)
         return mi
@@ -877,18 +869,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def formats(self, index, index_is_id=False, verify_formats=True):
         ''' Return available formats as a comma separated list or None if there are no available formats '''
-        id = index if index_is_id else self.id(index)
-        try:
-            formats = self.conn.get('SELECT format FROM data WHERE book=?', (id,))
-            formats = map(lambda x:x[0], formats)
-        except:
+        id_ = index if index_is_id else self.id(index)
+        formats = self.data.get(id_, self.FIELD_MAP['formats'], row_is_id=True)
+        if not formats:
             return None
         if not verify_formats:
-            return ','.join(formats)
+            return formats
+        formats = formats.split(',')
         ans = []
-        for format in formats:
-            if self.format_abspath(id, format, index_is_id=True) is not None:
-                ans.append(format)
+        for fmt in formats:
+            if self.format_abspath(id_, fmt, index_is_id=True) is not None:
+                ans.append(fmt)
         if not ans:
             return None
         return ','.join(ans)
@@ -1388,7 +1379,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if r is not None:
                 if (now - r[self.FIELD_MAP['timestamp']]) > delta:
                     tags = r[self.FIELD_MAP['tags']]
-                    if tags and tag in tags.lower():
+                    if tags and tag in [x.strip() for x in
+                            tags.lower().split(',')]:
                         yield r[self.FIELD_MAP['id']]
 
     def get_next_series_num_for(self, series):
@@ -1607,6 +1599,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                       ','.join([a.replace(',', '|') for a in authors]),
                       row_is_id=True)
         self.data.set(id, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
+        aum = self.authors_with_sort_strings(id, index_is_id=True)
+        self.data.set(id, self.FIELD_MAP['au_map'],
+            ':#:'.join([':::'.join((au.replace(',', '|'), aus)) for (au, aus) in aum]),
+            row_is_id=True)
 
     def set_authors(self, id, authors, notify=True, commit=True):
         '''

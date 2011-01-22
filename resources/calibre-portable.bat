@@ -1,6 +1,4 @@
 @echo OFF
-REM			CalibreRun.bat
-REM			~~~~~~~~~~~~~~
 REM Batch File to start a Calibre configuration on Windows
 REM giving explicit control of the location of:
 REM  - Calibe Program Files
@@ -24,7 +22,10 @@ REM -------------------------------------
 REM Set up Calibre Config folder
 REM -------------------------------------
 
-If EXIST CalibreConfig SET CALIBRE_CONFIG_DIRECTORY=%cd%\CalibreConfig
+IF EXIST CalibreConfig (
+	SET CALIBRE_CONFIG_DIRECTORY=%cd%\CalibreConfig
+	ECHO CONFIG=%cd%\CalibreConfig
+)
 
 
 REM --------------------------------------------------------------
@@ -38,24 +39,53 @@ REM drive letter of the USB stick.
 REM Comment out any of the following that are not to be used
 REM --------------------------------------------------------------
 
-SET CALIBRE_LIBRARY_DIRECTORY=U:\eBOOKS\CalibreLibrary
-IF EXIST CalibreLibrary SET CALIBRE_LIBRARY_DIRECTORY=%cd%\CalibreLibrary
-IF EXIST CalibreBooks SET CALIBRE_LIBRARY_DIRECTORY=%cd%\CalibreBooks
+IF EXIST U:\eBooks\CalibreLibrary (
+	SET CALIBRE_LIBRARY_DIRECTORY=U:\eBOOKS\CalibreLibrary
+	ECHO LIBRARY=U:\eBOOKS\CalibreLibrary
+)
+IF EXIST CalibreLibrary (
+	SET CALIBRE_LIBRARY_DIRECTORY=%cd%\CalibreLibrary
+	ECHO LIBRARY=%cd%\CalibreLibrary
+)
+IF EXIST CalibreBooks (
+	SET CALIBRE_LIBRARY_DIRECTORY=%cd%\CalibreBooks
+	ECHO LIBRARY=%cd%\CalibreBooks
+)
 
 
 REM --------------------------------------------------------------
-REM Specify Location of metadata database  (optional)
+REM Specify Location of metadata database (optional)
 REM
 REM Location where the metadata.db file is located.  If not set
 REM the same location as Books files will be assumed.  This.
 REM options is used to get better performance when the Library is
 REM on a (slow) network drive.  Putting the metadata.db file 
-REM locally gives a big performance improvement.
+REM locally makes gives a big performance improvement.
+REM
+REM NOTE.  If you use this option, then the ability to switch
+REM        libraries within Calibre will be disabled.  Therefore
+REM        you do not want to set it if the metadata.db file
+REM        is at the same location as the book files.
 REM --------------------------------------------------------------
 
-IF EXIST CalibreBooks SET SET CALIBRE_OVERRIDE_DATABASE_PATH=%cd%\CalibreBooks\metadata.db
-IF EXIST CalibreMetadata SET CALIBRE_OVERRIDE_DATABASE_PATH=%cd%\CalibreMetadata\metadata.db
-
+IF EXIST CalibreBooks (
+	IF NOT "%CALIBRE_LIBRARY_DIRECTORY%" == "%cd%\CalibreBooks" (
+		SET SET CALIBRE_OVERRIDE_DATABASE_PATH=%cd%\CalibreBooks\metadata.db
+		ECHO DATABASE=%cd%\CalibreBooks\metadata.db
+		ECHO '
+		ECHO ***CAUTION*** Library Switching will be disabled 
+		ECHO '
+	)
+)
+IF EXIST CalibreMetadata (
+	IF NOT "%CALIBRE_LIBRARY_DIRECTORY%" == "%cd%\CalibreMetadata" (
+		SET CALIBRE_OVERRIDE_DATABASE_PATH=%cd%\CalibreMetadata\metadata.db
+		ECHO DATABASE=%cd%\CalibreMetadata\metadata.db
+		ECHO '
+		ECHO ***CAUTION*** Library Switching will be disabled 
+		ECHO '
+	)
+)
 
 REM --------------------------------------------------------------
 REM Specify Location of source (optional)
@@ -63,13 +93,20 @@ REM
 REM It is easy to run Calibre from source
 REM Just set the environment variable to where the source is located
 REM When running from source the GUI will have a '*' after the version.
+REM number that is displayed at the bottom of the Calibre main screen.
 REM --------------------------------------------------------------
 
-IF EXIST Calibre\src SET CALIBRE_DEVELOP_FROM=%cd%\Calibre\src
-
+IF EXIST Calibre\src (
+	SET CALIBRE_DEVELOP_FROM=%cd%\Calibre\src
+	ECHO SOURCE=%cd%\Calibre\src
+)
+IF EXIST D:\Calibre\Calibre\src (
+	SET CALIBRE_DEVELOP_FROM=D:\Calibre\Calibre\src
+	ECHO SOURCE=D:\Calibre\Calibre\src
+)
 
 REM --------------------------------------------------------------
-REM Specify Location of calibre binaries (optinal)
+REM Specify Location of calibre binaries (optional)
 REM
 REM To avoid needing Calibre to be set in the search path, ensure
 REM that Calibre Program Files is current directory when starting.
@@ -78,21 +115,15 @@ REM This folder can be populated by cpying the Calibre2 folder from
 REM an existing isntallation or by isntalling direct to here.
 REM --------------------------------------------------------------
 
-IF EXIST Calibre2 CD Calibre2
+IF EXIST Calibre2 (
+	Calibre2 CD Calibre2
+	ECHO PROGRAMS=%cd%
+)
 
-
-REM --------------------------------------------
-REM Display settings that will be used
-REM --------------------------------------------
-
-echo PROGRAMS=%cd%
-echo SOURCE=%CALIBRE_DEVELOP_FROM%
-echo CONFIG=%CALIBRE_CONFIG_DIRECTORY%
-echo LIBRARY=%CALIBRE_LIBRARY_DIRECTORY%
-echo DATABASE=%CALIBRE_OVERRIDE_DATABASE_PATH%
-
+REM ----------------------------------------------------------
 REM  The following gives a chance to check the settings before
 REM  starting Calibre.  It can be commented out if not wanted.
+REM ----------------------------------------------------------
 
 echo "Press CTRL-C if you do not want to continue"
 pause
@@ -111,4 +142,4 @@ REM Use with /WAIT to wait until Calibre completes to run a task on exit
 REM --------------------------------------------------------
 
 echo "Starting up Calibre"
-START /belownormal Calibre --with-library %CALIBRE_LIBRARY_DIRECTORY%
+START /belownormal Calibre --with-library "%CALIBRE_LIBRARY_DIRECTORY%"

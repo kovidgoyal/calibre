@@ -10,7 +10,7 @@ import os
 from calibre.utils.date import isoformat, now
 from calibre import guess_type
 
-def meta_info_to_oeb_metadata(mi, m, log):
+def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
     from calibre.ebooks.oeb.base import OPF
     if not mi.is_null('title'):
         m.clear('title')
@@ -29,15 +29,23 @@ def meta_info_to_oeb_metadata(mi, m, log):
     if not mi.is_null('book_producer'):
         m.filter('contributor', lambda x : x.role.lower() == 'bkp')
         m.add('contributor', mi.book_producer, role='bkp')
+    elif override_input_metadata:
+        m.filter('contributor', lambda x : x.role.lower() == 'bkp')
     if not mi.is_null('comments'):
         m.clear('description')
         m.add('description', mi.comments)
+    elif override_input_metadata:
+         m.clear('description')
     if not mi.is_null('publisher'):
         m.clear('publisher')
         m.add('publisher', mi.publisher)
+    elif override_input_metadata:
+        m.clear('publisher')
     if not mi.is_null('series'):
         m.clear('series')
         m.add('series', mi.series)
+    elif override_input_metadata:
+        m.clear('series')
     if not mi.is_null('isbn'):
         has = False
         for x in m.identifier:
@@ -46,19 +54,27 @@ def meta_info_to_oeb_metadata(mi, m, log):
                 has = True
         if not has:
             m.add('identifier', mi.isbn, scheme='ISBN')
+    elif override_input_metadata:
+        m.filter('identifier', lambda x: x.scheme.lower() == 'isbn')
     if not mi.is_null('language'):
         m.clear('language')
         m.add('language', mi.language)
     if not mi.is_null('series_index'):
         m.clear('series_index')
         m.add('series_index', mi.format_series_index())
+    elif override_input_metadata:
+        m.clear('series_index')
     if not mi.is_null('rating'):
         m.clear('rating')
         m.add('rating', '%.2f'%mi.rating)
+    elif override_input_metadata:
+        m.clear('rating')
     if not mi.is_null('tags'):
         m.clear('subject')
         for t in mi.tags:
             m.add('subject', t)
+    elif override_input_metadata:
+        m.clear('subject')
     if not mi.is_null('pubdate'):
         m.clear('date')
         m.add('date', isoformat(mi.pubdate))
@@ -71,6 +87,7 @@ def meta_info_to_oeb_metadata(mi, m, log):
     if not mi.is_null('publication_type'):
         m.clear('publication_type')
         m.add('publication_type', mi.publication_type)
+
     if not m.timestamp:
         m.add('timestamp', isoformat(now()))
 
@@ -78,11 +95,12 @@ def meta_info_to_oeb_metadata(mi, m, log):
 class MergeMetadata(object):
     'Merge in user metadata, including cover'
 
-    def __call__(self, oeb, mi, opts):
+    def __call__(self, oeb, mi, opts, override_input_metadata=False):
         self.oeb, self.log = oeb, oeb.log
         m = self.oeb.metadata
         self.log('Merging user specified metadata...')
-        meta_info_to_oeb_metadata(mi, m, oeb.log)
+        meta_info_to_oeb_metadata(mi, m, oeb.log,
+                override_input_metadata=override_input_metadata)
         cover_id = self.set_cover(mi, opts.prefer_metadata_cover)
         m.clear('cover')
         if cover_id is not None:

@@ -16,7 +16,7 @@ from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, \
                      QComboBox, QTextDocument
 
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
-from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
+from calibre.gui2.widgets import EnLineEdit, CompleteLineEdit
 from calibre.utils.date import now, format_date
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
@@ -173,12 +173,37 @@ class TagsDelegate(QStyledItemDelegate): # {{{
         if self.db:
             col = index.model().column_map[index.column()]
             if not index.model().is_custom_column(col):
-                editor = TagsLineEdit(parent, self.db.all_tags())
+                editor = CompleteLineEdit(parent, self.db.all_tags())
             else:
-                editor = TagsLineEdit(parent,
+                editor = CompleteLineEdit(parent,
                         sorted(list(self.db.all_custom(label=self.db.field_metadata.key_to_label(col))),
                                key=sort_key))
                 return editor
+        else:
+            editor = EnLineEdit(parent)
+        return editor
+# }}}
+
+class CompleteDelegate(QStyledItemDelegate): # {{{
+    def __init__(self, parent, sep, items_func_name, space_before_sep=False):
+        QStyledItemDelegate.__init__(self, parent)
+        self.sep = sep
+        self.items_func_name = items_func_name
+        self.space_before_sep = space_before_sep
+
+    def set_database(self, db):
+        self.db = db
+
+    def createEditor(self, parent, option, index):
+        if self.db and hasattr(self.db, self.items_func_name):
+            col = index.model().column_map[index.column()]
+            if not index.model().is_custom_column(col):
+                editor = CompleteLineEdit(parent, getattr(self.db, self.items_func_name)(),
+                    self.sep, self.space_before_sep)
+            else:
+                editor = CompleteLineEdit(parent,
+                    sorted(list(self.db.all_custom(label=self.db.field_metadata.key_to_label(col))),
+                    key=sort_key), self.sep, self.space_before_sep)
         else:
             editor = EnLineEdit(parent)
         return editor
@@ -267,7 +292,7 @@ class CcEnumDelegate(QStyledItemDelegate): # {{{
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
-        editor = QComboBox(parent)
+        editor = DelegateCB(parent)
         editor.addItem('')
         for v in m.custom_columns[col]['display']['enum_values']:
             editor.addItem(v)
@@ -328,6 +353,17 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         model.setData(index, QVariant(editor.textbox.html), Qt.EditRole)
 # }}}
 
+class DelegateCB(QComboBox): # {{{
+
+    def __init__(self, parent):
+        QComboBox.__init__(self, parent)
+
+    def event(self, e):
+        if e.type() == e.ShortcutOverride:
+            e.accept()
+        return QComboBox.event(self, e)
+# }}}
+
 class CcBoolDelegate(QStyledItemDelegate): # {{{
     def __init__(self, parent):
         '''
@@ -336,7 +372,7 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
         QStyledItemDelegate.__init__(self, parent)
 
     def createEditor(self, parent, option, index):
-        editor = QComboBox(parent)
+        editor = DelegateCB(parent)
         items = [_('Y'), _('N'), ' ']
         icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
         if tweaks['bool_custom_columns_are_tristate'] == 'no':

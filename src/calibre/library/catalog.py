@@ -18,7 +18,8 @@ from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
-from calibre.utils.date import format_date, isoformat, now as nowf
+from calibre.utils.date import format_date, isoformat, is_date_undefined, now as nowf
+from calibre.utils.icu import capitalize
 from calibre.utils.logging import default_log as log
 from calibre.utils.zipfile import ZipFile, ZipInfo
 from calibre.utils.magick.draw import thumbnail
@@ -27,7 +28,6 @@ FIELDS = ['all', 'author_sort', 'authors', 'comments',
           'cover', 'formats', 'id', 'isbn', 'ondevice', 'pubdate', 'publisher', 'rating',
           'series_index', 'series', 'size', 'tags', 'timestamp', 'title',
           'uuid']
-
 
 #Allowed fields for template
 TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate',
@@ -546,9 +546,9 @@ class EPUB_MOBI(CatalogPlugin):
     name = 'Catalog_EPUB_MOBI'
     description = 'EPUB/MOBI catalog generator'
     supported_platforms = ['windows', 'osx', 'linux']
-    minimum_calibre_version = (0, 6, 34)
+    minimum_calibre_version = (0, 7, 40)
     author = 'Greg Riker'
-    version = (0, 0, 1)
+    version = (1, 0, 0)
     file_types = set(['epub','mobi'])
 
     THUMB_SMALLEST = "1.0"
@@ -580,7 +580,7 @@ class EPUB_MOBI(CatalogPlugin):
                            "pipeline to the specified "
                            "directory. Useful if you are unsure at which stage "
                            "of the conversion process a bug is occurring.\n"
-                           "Default: '%default'None\n"
+                           "Default: '%default'\n"
                            "Applies to: ePub, MOBI output formats")),
                    Option('--exclude-book-marker',
                           default=':',
@@ -599,40 +599,47 @@ class EPUB_MOBI(CatalogPlugin):
                           default=('~,'+_('Catalog')),
                           dest='exclude_tags',
                           action = None,
-                          help=_("Comma-separated list of tag words indicating book should be excluded from output.  Case-insensitive.\n"
-                          "--exclude-tags=skip will match 'skip this book' and 'Skip will like this'.\n"
+                          help=_("Comma-separated list of tag words indicating book should be excluded from output."
+                              "For example: 'skip' will match 'skip this book' and 'Skip will like this'."
+                              "Default: '%default'\n"
+                              "Applies to: ePub, MOBI output formats")),
+                   Option('--generate-authors',
+                          default=False,
+                          dest='generate_authors',
+                          action = 'store_true',
+                          help=_("Include 'Authors' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-descriptions',
-                          default=True,
+                          default=False,
                           dest='generate_descriptions',
                           action = 'store_true',
-                          help=_("Include book descriptions in catalog.\n"
+                          help=_("Include 'Descriptions' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-genres',
-                          default=True,
+                          default=False,
                           dest='generate_genres',
                           action = 'store_true',
                           help=_("Include 'Genres' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-titles',
-                          default=True,
+                          default=False,
                           dest='generate_titles',
                           action = 'store_true',
                           help=_("Include 'Titles' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-series',
-                          default=True,
+                          default=False,
                           dest='generate_series',
                           action = 'store_true',
                           help=_("Include 'Series' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-recently-added',
-                          default=True,
+                          default=False,
                           dest='generate_recently_added',
                           action = 'store_true',
                           help=_("Include 'Recently Added' section in catalog.\n"
@@ -892,15 +899,7 @@ class EPUB_MOBI(CatalogPlugin):
         '''
         Generates catalog source files from calibre database
 
-        Implementation notes
-        - 'Marker tags' in a book's metadata are used to flag special conditions:
-                    (Defaults)
-                    '~' : Do not catalog this book
-                    '+' : Mark this book as read (check mark) in lists
-                    '*' : Display trailing text as 'Note: <text>' in top frame next to cover
-            '[<source>] : Source of content (e.g., Amazon, Project Gutenberg).  Do not create genre
-
-        - Program flow
+        Flow of control:
             gui2.actions.catalog:generate_catalog()
             gui2.tools:generate_catalog() or library.cli:command_catalog()
             called from gui2.convert.gui_conversion:gui_catalog()
@@ -945,7 +944,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.__creator = opts.creator
             self.__db = db
             self.__descriptionClip = opts.descriptionClip
-            self.__error = None
+            self.__error = []
             self.__generateForKindle = True if (self.opts.fmt == 'mobi' and \
                                        self.opts.output_profile and \
                                        self.opts.output_profile.startswith("kindle")) else False
@@ -975,7 +974,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.__thumbWidth = 0
             self.__thumbHeight = 0
             self.__title = opts.catalog_title
-            self.__totalSteps = 8.0
+            self.__totalSteps = 6.0
             self.__useSeriesPrefixInTitlesSection = False
             self.__verbose = opts.verbose
 
@@ -1013,17 +1012,32 @@ class EPUB_MOBI(CatalogPlugin):
                                              (self.__archive_path, float(cached_thumb_width)))
 
             # Tweak build steps based on optional sections:  1 call for HTML, 1 for NCX
+            incremental_jobs = 0
+            if self.opts.generate_authors:
+                incremental_jobs += 2
             if self.opts.generate_titles:
-                self.__totalSteps += 2
+                incremental_jobs += 2
             if self.opts.generate_recently_added:
-                self.__totalSteps += 2
+                incremental_jobs += 2
                 if self.generateRecentlyRead:
-                    self.__totalSteps += 2
+                    incremental_jobs += 2
             if self.opts.generate_series:
-                self.__totalSteps += 2
+                incremental_jobs += 2
             if self.opts.generate_descriptions:
                 # +1 thumbs
-                self.__totalSteps += 3
+                incremental_jobs += 3
+            self.__totalSteps += incremental_jobs
+
+            # Load section list templates
+            templates = []
+            with open(P('catalog/section_list_templates.py'), 'r') as f:
+                for line in f:
+                    t = re.match("(by_.+_template)",line)
+                    if t:
+                        templates.append(t.group(1))
+            execfile(P('catalog/section_list_templates.py'), locals())
+            for t in templates:
+                setattr(self,t,eval(t))
 
         # Accessors
         if True:
@@ -1136,7 +1150,9 @@ class EPUB_MOBI(CatalogPlugin):
             def error(self):
                 def fget(self):
                     return self.__error
-                return property(fget=fget)
+                def fset(self, val):
+                    self.__error = val
+                return property(fget=fget,fset=fset)
             @dynamic_property
             def generateForKindle(self):
                 def fget(self):
@@ -1338,26 +1354,38 @@ class EPUB_MOBI(CatalogPlugin):
             if self.booksByTitle is None:
                 if not self.fetchBooksByTitle():
                     return False
-            self.fetchBooksByAuthor()
+            if not self.fetchBooksByAuthor():
+                return False
             self.fetchBookmarks()
             if self.opts.generate_descriptions:
+                self.generateThumbnails()
                 self.generateHTMLDescriptions()
-            self.generateHTMLByAuthor()
+            if self.opts.generate_authors:
+                self.generateHTMLByAuthor()
             if self.opts.generate_titles:
                 self.generateHTMLByTitle()
             if self.opts.generate_series:
                 self.generateHTMLBySeries()
             if self.opts.generate_genres:
                 self.generateHTMLByTags()
+                # If this is the only Section, and there are no genres, bail
+                if self.opts.section_list == ['Genres'] and not self.genres:
+                    error_msg = _("No enabled genres found to catalog.\n")
+                    if not self.opts.cli_environment:
+                        error_msg += "Check 'Excluded genres'\nin E-book options.\n"
+                    self.opts.log.error(error_msg)
+                    self.error.append(_('No books available to catalog'))
+                    self.error.append(error_msg)
+                    return False
             if self.opts.generate_recently_added:
                 self.generateHTMLByDateAdded()
                 if self.generateRecentlyRead:
                     self.generateHTMLByDateRead()
-            if self.opts.generate_descriptions:
-                self.generateThumbnails()
+
             self.generateOPF()
             self.generateNCXHeader()
-            self.generateNCXByAuthor("Authors")
+            if self.opts.generate_authors:
+                self.generateNCXByAuthor("Authors")
             if self.opts.generate_titles:
                 self.generateNCXByTitle("Titles")
             if self.opts.generate_series:
@@ -1402,16 +1430,84 @@ class EPUB_MOBI(CatalogPlugin):
                 except:
                     pass
 
+        def fetchBooksByAuthor(self):
+            '''
+            Generate a list of titles sorted by author from the database
+            return = Success
+            '''
+
+            self.updateProgressFullStep("Sorting database")
+            self.booksByAuthor = list(self.booksByTitle)
+
+            # Test for author_sort mismatches
+            self.booksByAuthor = sorted(self.booksByAuthor, key=self.booksByAuthorSorter_author)
+            # Build the unique_authors set from existing data
+            authors = [(record['author'], record['author_sort']) for record in self.booksByAuthor]
+            current_author = authors[0]
+            for (i,author) in enumerate(authors):
+                if author != current_author and i:
+                    # Exit if author matches previous, but author_sort doesn't match
+                    if author[0] == current_author[0]:
+                        error_msg = _('''
+Inconsistent Author Sort values for Author '{0}':
+'{1}' <> '{2}',
+unable to build catalog.\n
+Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog,
+then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
+                        self.opts.log.warn('\n*** Metadata error ***')
+                        self.opts.log.warn(error_msg)
+
+                        self.error.append('Metadata error')
+                        self.error.append(error_msg)
+                        return False
+                    current_author = author
+
+
+            self.booksByAuthor = sorted(self.booksByAuthor, key=self.booksByAuthorSorter_author_sort)
+
+            # Build the unique_authors set from existing data
+            authors = [(record['author'], capitalize(record['author_sort'])) for record in self.booksByAuthor]
+
+            # authors[] contains a list of all book authors, with multiple entries for multiple books by author
+            #        authors[]: (([0]:friendly  [1]:sort))
+            # unique_authors[]: (([0]:friendly  [1]:sort  [2]:book_count))
+            books_by_current_author = 0
+            current_author = authors[0]
+            multiple_authors = False
+            unique_authors = []
+            for (i,author) in enumerate(authors):
+                if author != current_author:
+                    # Note that current_author and author are tuples: (friendly, sort)
+                    multiple_authors = True
+
+                    # New author, save the previous author/sort/count
+                    unique_authors.append((current_author[0], icu_title(current_author[1]),
+                                           books_by_current_author))
+                    current_author = author
+                    books_by_current_author = 1
+                elif i==0 and len(authors) == 1:
+                    # Allow for single-book lists
+                    unique_authors.append((current_author[0], icu_title(current_author[1]),
+                                           books_by_current_author))
+                else:
+                    books_by_current_author += 1
+            else:
+                # Add final author to list or single-author dataset
+                if (current_author == author and len(authors) > 1) or not multiple_authors:
+                    unique_authors.append((current_author[0], icu_title(current_author[1]),
+                                           books_by_current_author))
+
+            if False and self.verbose:
+                self.opts.log.info("\nfetchBooksByauthor(): %d unique authors" % len(unique_authors))
+                for author in unique_authors:
+                    self.opts.log.info((u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
+                       author[2])).encode('utf-8'))
+
+            self.authors = unique_authors
+            return True
+
         def fetchBooksByTitle(self):
-
             self.updateProgressFullStep("Fetching database")
-
-            # Get the database as a dictionary
-            # Sort by title
-            # Search is a string like this:
-            # not tag:<exclude_tag> author:"Riker"
-            # So we need to merge opts.exclude_tag with opts.search_text
-            # not tag:"~" author:"Riker"
 
             self.opts.sort_by = 'title'
 
@@ -1425,7 +1521,6 @@ class EPUB_MOBI(CatalogPlugin):
                 for tag in exclude_tags:
                     search_terms.append("tag:=%s" % tag)
                 search_phrase = "not (%s)" % " or ".join(search_terms)
-
             # If a list of ids are provided, don't use search_text
             if self.opts.ids:
                 self.opts.search_text = search_phrase
@@ -1435,7 +1530,6 @@ class EPUB_MOBI(CatalogPlugin):
                 else:
                     self.opts.search_text = search_phrase
 
-            #print "fetchBooksByTitle(): opts.search_text: %s" % self.opts.search_text
             # Fetch the database as a dictionary
             data = self.plugin.search_sort_db(self.db, self.opts)
             data = self.processExclusions(data)
@@ -1443,8 +1537,6 @@ class EPUB_MOBI(CatalogPlugin):
             # Populate this_title{} from data[{},{}]
             titles = []
             for record in data:
-                if False:
-                    print "available record metadata:\n%s" % sorted(record.keys())
                 this_title = {}
 
                 this_title['id'] = record['id']
@@ -1454,7 +1546,6 @@ class EPUB_MOBI(CatalogPlugin):
                 if record['series']:
                     this_title['series'] = record['series']
                     this_title['series_index'] = record['series_index']
-                    this_title['title'] = self.generateSeriesTitle(this_title)
                 else:
                     this_title['series'] = None
                     this_title['series_index'] = 0.0
@@ -1479,7 +1570,12 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['publisher'] = re.sub('&', '&amp;', record['publisher'])
 
                 this_title['rating'] = record['rating'] if record['rating'] else 0
-                this_title['date'] = strftime(u'%B %Y', record['pubdate'].timetuple())
+
+                if is_date_undefined(record['pubdate']):
+                    this_title['date'] = None
+                else:
+                    this_title['date'] = strftime(u'%B %Y', record['pubdate'].timetuple())
+
                 this_title['timestamp'] = record['timestamp']
 
                 if record['comments']:
@@ -1524,19 +1620,20 @@ class EPUB_MOBI(CatalogPlugin):
                     this_title['formats'] = formats
 
                 # Add user notes to be displayed in header
-                # Special case handling for datetime fields
+                # Special case handling for datetime fields and lists
                 if self.opts.header_note_source_field:
                     field_md = self.__db.metadata_for_field(self.opts.header_note_source_field)
                     notes = self.__db.get_field(record['id'],
                                         self.opts.header_note_source_field,
                                         index_is_id=True)
-                    if notes and field_md['datatype'] == 'datetime':
-                        # Reformat date fields to match UI presentation: dd MMM YYYY
-                        notes = format_date(notes,'dd MMM yyyy')
-
                     if notes:
+                        if field_md['datatype'] == 'text':
+                            if isinstance(notes,list):
+                                notes = ' &middot; '.join(notes)
+                        elif field_md['datatype'] == 'datetime':
+                            notes = format_date(notes,'dd MMM yyyy')
                         this_title['notes'] = {'source':field_md['name'],
-                                               'content':notes}
+                                                   'content':notes}
 
                 titles.append(this_title)
 
@@ -1552,78 +1649,11 @@ class EPUB_MOBI(CatalogPlugin):
                                                                title['title_sort'][0:40])).decode('mac-roman'))
                 return True
             else:
+                error_msg = _("No books found to catalog.\nCheck 'Excluded books' criteria in E-book options.\n")
+                self.opts.log.error('*** ' + error_msg + ' ***')
+                self.error.append(_('No books available to include in catalog'))
+                self.error.append(error_msg)
                 return False
-
-        def fetchBooksByAuthor(self):
-            # Generate a list of titles sorted by author from the database
-
-            self.updateProgressFullStep("Sorting database")
-
-            '''
-            # Sort titles case-insensitive, by author
-            self.booksByAuthor = sorted(self.booksByTitle,
-                                 key=lambda x:(x['author_sort'].upper(), x['author_sort'].upper()))
-            '''
-
-            self.booksByAuthor = list(self.booksByTitle)
-            self.booksByAuthor.sort(self.author_compare)
-
-            if False and self.verbose:
-                self.opts.log.info("fetchBooksByAuthor(): %d books" % len(self.booksByAuthor))
-                self.opts.log.info(" %-30s %-20s %s" % ('title', 'series', 'series_index'))
-                for title in self.booksByAuthor:
-                    self.opts.log.info((u" %-30s %-20s%5s " % \
-                                        (title['title'][:30],
-                                         title['series'][:20] if title['series'] else '',
-                                         title['series_index'],
-                                         )).encode('utf-8'))
-                raise SystemExit
-
-            # Build the unique_authors set from existing data
-            authors = [(record['author'], record['author_sort'].capitalize()) for record in self.booksByAuthor]
-
-            # authors[] contains a list of all book authors, with multiple entries for multiple books by author
-            #        authors[]: (([0]:friendly  [1]:sort))
-            # unique_authors[]: (([0]:friendly  [1]:sort  [2]:book_count))
-            books_by_current_author = 0
-            current_author = authors[0]
-            multiple_authors = False
-            unique_authors = []
-            for (i,author) in enumerate(authors):
-                if author != current_author:
-                    # Note that current_author and author are tuples: (friendly, sort)
-                    multiple_authors = True
-
-                if author != current_author and i:
-                    # Warn if friendly matches previous, but sort doesn't
-                    if author[0] == current_author[0]:
-                        self.opts.log.warn("Warning: multiple entries for Author '%s' with differing Author Sort metadata:" % author[0])
-                        self.opts.log.warn(" '%s' != '%s'" % (author[1], current_author[1]))
-
-                    # New author, save the previous author/sort/count
-                    unique_authors.append((current_author[0], icu_title(current_author[1]),
-                                           books_by_current_author))
-                    current_author = author
-                    books_by_current_author = 1
-                elif i==0 and len(authors) == 1:
-                    # Allow for single-book lists
-                    unique_authors.append((current_author[0], icu_title(current_author[1]),
-                                           books_by_current_author))
-                else:
-                    books_by_current_author += 1
-            else:
-                # Add final author to list or single-author dataset
-                if (current_author == author and len(authors) > 1) or not multiple_authors:
-                    unique_authors.append((current_author[0], icu_title(current_author[1]),
-                                           books_by_current_author))
-
-            if False and self.verbose:
-                self.opts.log.info("\nfetchBooksByauthor(): %d unique authors" % len(unique_authors))
-                for author in unique_authors:
-                    self.opts.log.info((u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
-                       author[2])).encode('utf-8'))
-
-            self.authors = unique_authors
 
         def fetchBookmarks(self):
             '''
@@ -1724,13 +1754,12 @@ class EPUB_MOBI(CatalogPlugin):
                 self.bookmarked_books = {}
 
         def generateHTMLDescriptions(self):
-            # Write each title to a separate HTML file in contentdir
+            '''
+            Write each title to a separate HTML file in contentdir
+            '''
             self.updateProgressFullStep("'Descriptions'")
 
             for (title_num, title) in enumerate(self.booksByTitle):
-                if False:
-                    self.opts.log.info("%3s: %s - %s" % (title['id'], title['title'], title['author']))
-
                 self.updateProgressMicroStep("Description %d of %d" % \
                                              (title_num, len(self.booksByTitle)),
                                              float(title_num*100/len(self.booksByTitle))/100)
@@ -1738,16 +1767,15 @@ class EPUB_MOBI(CatalogPlugin):
                 # Generate the header from user-customizable template
                 soup = self.generateHTMLDescriptionHeader(title)
 
-
-
                 # Write the book entry to contentdir
                 outfile = open("%s/book_%d.html" % (self.contentDir, int(title['id'])), 'w')
                 outfile.write(soup.prettify())
                 outfile.close()
 
         def generateHTMLByTitle(self):
-            # Write books by title A-Z to HTML file
-
+            '''
+            Write books by title A-Z to HTML file
+            '''
             self.updateProgressFullStep("'Titles'")
 
             soup = self.generateHTMLEmptyHeader("Books By Alpha Title")
@@ -1785,22 +1813,11 @@ class EPUB_MOBI(CatalogPlugin):
             current_letter = ""
 
             # Re-sort title list without leading series/series_index
+            # Incoming title <series> <series_index>: <title>
             if not self.useSeriesPrefixInTitlesSection:
                 nspt = deepcopy(self.booksByTitle)
-                for book in nspt:
-                    if book['series']:
-                        tokens = book['title'].partition(':')
-                        book['title'] = '%s (%s)' % (tokens[2].strip(), tokens[0])
-                        book['title_sort'] = self.generateSortTitle(book['title'])
-                nspt = sorted(nspt,
-                                     key=lambda x:(x['title_sort'].upper(), x['title_sort'].upper()))
+                nspt = sorted(nspt, key=lambda x:(x['title_sort'].upper(), x['title_sort'].upper()))
                 self.booksByTitle_noSeriesPrefix = nspt
-                if False and self.verbose:
-                    self.opts.log.info("no_series_prefix_titles: %d books" % len(nspt))
-                    self.opts.log.info(" %-40s %-40s" % ('title', 'title_sort'))
-                    for title in nspt:
-                        self.opts.log.info((u" %-40s %-40s" % (title['title'][0:40],
-                                                               title['title_sort'][0:40])).encode('utf-8'))
 
             # Loop through the books by title
             title_list = self.booksByTitle
@@ -1856,7 +1873,14 @@ class EPUB_MOBI(CatalogPlugin):
                 aTag = Tag(soup, "a")
                 if self.opts.generate_descriptions:
                     aTag['href'] = "book_%d.html" % (int(float(book['id'])))
-                aTag.insert(0,escape(book['title']))
+
+                # Generate the title from the template
+                args = self.generateFormatArgs(book)
+                if book['series']:
+                    formatted_title = self.by_titles_series_title_template.format(**args).rstrip()
+                else:
+                    formatted_title = self.by_titles_normal_title_template.format(**args).rstrip()
+                aTag.insert(0,NavigableString(escape(formatted_title)))
                 pBookTag.insert(ptc, aTag)
                 ptc += 1
 
@@ -1867,7 +1891,8 @@ class EPUB_MOBI(CatalogPlugin):
                 # Link to author
                 emTag = Tag(soup, "em")
                 aTag = Tag(soup, "a")
-                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(book['author']))
+                if self.opts.generate_authors:
+                    aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(book['author']))
                 aTag.insert(0, NavigableString(book['author']))
                 emTag.insert(0,aTag)
                 pBookTag.insert(ptc, emTag)
@@ -1894,7 +1919,9 @@ class EPUB_MOBI(CatalogPlugin):
             self.htmlFileList_1.append("content/ByAlphaTitle.html")
 
         def generateHTMLByAuthor(self):
-            # Write books by author A-Z
+            '''
+            Write books by author A-Z
+            '''
             self.updateProgressFullStep("'Authors'")
 
             friendly_name = "Authors"
@@ -1931,7 +1958,9 @@ class EPUB_MOBI(CatalogPlugin):
             current_author = ''
             current_letter = ''
             current_series = None
+            #for book in sorted(self.booksByAuthor, key = self.booksByAuthorSorter_author_sort):
             for book in self.booksByAuthor:
+
                 book_count += 1
                 if self.letter_or_symbol(book['author_sort'][0].upper()) != current_letter :
                     # Start a new letter with Index letter
@@ -2045,14 +2074,18 @@ class EPUB_MOBI(CatalogPlugin):
                 aTag = Tag(soup, "a")
                 if self.opts.generate_descriptions:
                     aTag['href'] = "book_%d.html" % (int(float(book['id'])))
-                # Use series, series index if avail else title, + year of publication
+
+                # Generate the title from the template
+                args = self.generateFormatArgs(book)
                 if current_series:
-                    aTag.insert(0,'%s (%s)' % (escape(book['title'][len(book['series'])+1:]),
-                                               book['date'].split()[1]))
+                    #aTag.insert(0,'%s%s' % (escape(book['title'][len(book['series'])+1:]),pubyear))
+                    formatted_title = self.by_authors_series_title_template.format(**args).rstrip()
                 else:
-                    aTag.insert(0,'%s (%s)' % (escape(book['title']),
-                                               book['date'].split()[1]))
+                    #aTag.insert(0,'%s%s' % (escape(book['title']), pubyear))
+                    formatted_title = self.by_authors_normal_title_template.format(**args).rstrip()
                     non_series_books += 1
+                aTag.insert(0,NavigableString(escape(formatted_title)))
+
                 pBookTag.insert(ptc, aTag)
                 ptc += 1
 
@@ -2089,7 +2122,6 @@ class EPUB_MOBI(CatalogPlugin):
             # Add the divTag to the body
             body.insert(btc, divTag)
 
-
             # Write the generated file to contentdir
             outfile_spec = "%s/ByAlphaAuthor.html" % (self.contentDir)
             outfile = open(outfile_spec, 'w')
@@ -2098,13 +2130,15 @@ class EPUB_MOBI(CatalogPlugin):
             self.htmlFileList_1.append("content/ByAlphaAuthor.html")
 
         def generateHTMLByDateAdded(self):
-            # Write books by reverse chronological order
+            '''
+            Write books by reverse chronological order
+            '''
             self.updateProgressFullStep("'Recently Added'")
 
             def add_books_to_HTML_by_month(this_months_list, dtc):
                 if len(this_months_list):
 
-                    this_months_list.sort(self.author_compare)
+                    #this_months_list = sorted(this_months_list, key=self.booksByAuthorSorter_author_sort)
 
                     # Create a new month anchor
                     date_string = strftime(u'%B %Y', current_date.timetuple())
@@ -2128,21 +2162,12 @@ class EPUB_MOBI(CatalogPlugin):
                             pAuthorTag = Tag(soup, "p")
                             pAuthorTag['class'] = "author_index"
                             aTag = Tag(soup, "a")
-                            aTag['name'] = "%s" % self.generateAuthorAnchor(current_author)
+                            if self.opts.generate_authors:
+                                aTag['name'] = "%s" % self.generateAuthorAnchor(current_author)
                             aTag.insert(0,NavigableString(current_author))
                             pAuthorTag.insert(0,aTag)
                             divTag.insert(dtc,pAuthorTag)
                             dtc += 1
-
-                        '''
-                        # Insert an <hr /> between non-series and series
-                        if not current_series and non_series_books and new_entry['series']:
-                            # Insert an <hr />
-                            hrTag = Tag(soup,'hr')
-                            hrTag['class'] = "series_divider"
-                            divTag.insert(dtc,hrTag)
-                            dtc += 1
-                        '''
 
                         # Check for series
                         if new_entry['series'] and new_entry['series'] != current_series:
@@ -2191,11 +2216,15 @@ class EPUB_MOBI(CatalogPlugin):
                         aTag = Tag(soup, "a")
                         if self.opts.generate_descriptions:
                             aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
+
+                        # Generate the title from the template
+                        args = self.generateFormatArgs(new_entry)
                         if current_series:
-                            aTag.insert(0,escape(new_entry['title'][len(new_entry['series'])+1:]))
+                            formatted_title = self.by_month_added_series_title_template.format(**args).rstrip()
                         else:
-                            aTag.insert(0,escape(new_entry['title']))
+                            formatted_title = self.by_month_added_normal_title_template.format(**args).rstrip()
                             non_series_books += 1
+                        aTag.insert(0,NavigableString(escape(formatted_title)))
                         pBookTag.insert(ptc, aTag)
                         ptc += 1
 
@@ -2243,7 +2272,14 @@ class EPUB_MOBI(CatalogPlugin):
                         aTag = Tag(soup, "a")
                         if self.opts.generate_descriptions:
                             aTag['href'] = "book_%d.html" % (int(float(new_entry['id'])))
-                        aTag.insert(0,escape(new_entry['title']))
+
+                        # Generate the title from the template
+                        args = self.generateFormatArgs(new_entry)
+                        if new_entry['series']:
+                            formatted_title = self.by_recently_added_series_title_template.format(**args).rstrip()
+                        else:
+                            formatted_title = self.by_recently_added_normal_title_template.format(**args).rstrip()
+                        aTag.insert(0,NavigableString(escape(formatted_title)))
                         pBookTag.insert(ptc, aTag)
                         ptc += 1
 
@@ -2254,7 +2290,8 @@ class EPUB_MOBI(CatalogPlugin):
                         # Link to author
                         emTag = Tag(soup, "em")
                         aTag = Tag(soup, "a")
-                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
+                        if self.opts.generate_authors:
+                            aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
                         aTag.insert(0, NavigableString(new_entry['author']))
                         emTag.insert(0,aTag)
                         pBookTag.insert(ptc, emTag)
@@ -2301,17 +2338,12 @@ class EPUB_MOBI(CatalogPlugin):
             divTag = Tag(soup, "div")
             dtc = 0
 
-            # Add books by date range
+            # >>> Books by date range <<<
             if self.useSeriesPrefixInTitlesSection:
                 self.booksByDateRange = sorted(self.booksByTitle,
                                  key=lambda x:(x['timestamp'], x['timestamp']),reverse=True)
             else:
                 nspt = deepcopy(self.booksByTitle)
-                for book in nspt:
-                    if book['series']:
-                        tokens = book['title'].partition(':')
-                        book['title'] = '%s (%s)' % (tokens[2].strip(), tokens[0])
-                        book['title_sort'] = self.generateSortTitle(book['title'])
                 self.booksByDateRange = sorted(nspt, key=lambda x:(x['timestamp'], x['timestamp']),reverse=True)
 
             date_range_list = []
@@ -2333,15 +2365,6 @@ class EPUB_MOBI(CatalogPlugin):
 
                 dtc = add_books_to_HTML_by_date_range(date_range_list, date_range, dtc)
                 date_range_list = [book]
-
-            '''
-            if books_added_in_date_range:
-                # Add an <hr> separating date ranges from months
-                hrTag = Tag(soup,'hr')
-                hrTag['class'] = "description_divider"
-                divTag.insert(dtc,hrTag)
-                dtc += 1
-            '''
 
             # >>>> Books by month <<<<
             # Sort titles case-insensitive for by month using series prefix
@@ -2373,7 +2396,9 @@ class EPUB_MOBI(CatalogPlugin):
             self.htmlFileList_2.append("content/ByDateAdded.html")
 
         def generateHTMLByDateRead(self):
-            # Write books by active bookmarks
+            '''
+            Write books by active bookmarks
+            '''
             friendly_name = 'Recently Read'
             self.updateProgressFullStep("'%s'" % friendly_name)
             if not self.bookmarked_books:
@@ -2415,7 +2440,8 @@ class EPUB_MOBI(CatalogPlugin):
                         # Link to author
                         emTag = Tag(soup, "em")
                         aTag = Tag(soup, "a")
-                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
+                        if self.opts.generate_authors:
+                            aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
                         aTag.insert(0, NavigableString(new_entry['author']))
                         emTag.insert(0,aTag)
                         pBookTag.insert(ptc, emTag)
@@ -2463,7 +2489,8 @@ class EPUB_MOBI(CatalogPlugin):
                         # Link to author
                         emTag = Tag(soup, "em")
                         aTag = Tag(soup, "a")
-                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
+                        if self.opts.generate_authors:
+                            aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
                         aTag.insert(0, NavigableString(new_entry['author']))
                         emTag.insert(0,aTag)
                         pBookTag.insert(ptc, emTag)
@@ -2510,32 +2537,6 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.booksByDateRead = sorted(bookmarked_books,
                              key=lambda x:(x['bookmark_timestamp'], x['bookmark_timestamp']),reverse=True)
-
-            '''
-            # >>>> Recently by date range <<<<
-            date_range_list = []
-            today_time = datetime.datetime.utcnow()
-            today_time.replace(hour=23, minute=59, second=59)
-            books_added_in_date_range = False
-            for (i, date) in enumerate(self.DATE_RANGE):
-                date_range_limit = self.DATE_RANGE[i]
-                if i:
-                    date_range = '%d to %d days ago' % (self.DATE_RANGE[i-1], self.DATE_RANGE[i])
-                else:
-                    date_range = 'Last %d days' % (self.DATE_RANGE[i])
-
-                for book in self.booksByDateRead:
-                    bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
-                    delta = today_time-bookmark_time
-                    if delta.days <= date_range_limit:
-                        date_range_list.append(book)
-                        books_added_in_date_range = True
-                    else:
-                        break
-
-                dtc = add_books_to_HTML_by_date_range(date_range_list, date_range, dtc)
-                date_range_list = [book]
-            '''
 
             # >>>> Recently read by day <<<<
             current_date = datetime.date.fromordinal(1)
@@ -2691,10 +2692,14 @@ class EPUB_MOBI(CatalogPlugin):
                 # Use series, series index if avail else just title
                 #aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
 
-                # Link to book
-                aTag.insert(0,'%d. %s (%s)' % (book['series_index'],
-                                               escape(book['title']),
-                                               strftime(u'%Y', book['pubdate'].timetuple())))
+                if is_date_undefined(book['pubdate']):
+                    book['date'] = None
+                else:
+                    book['date'] = strftime(u'%B %Y', book['pubdate'].timetuple())
+
+                args = self.generateFormatArgs(book)
+                formatted_title = self.by_series_title_template.format(**args).rstrip()
+                aTag.insert(0,NavigableString(escape(formatted_title)))
                 pBookTag.insert(ptc, aTag)
                 ptc += 1
 
@@ -2704,7 +2709,8 @@ class EPUB_MOBI(CatalogPlugin):
 
                 # Link to author
                 aTag = Tag(soup, "a")
-                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
+                if self.opts.generate_authors:
+                    aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
                                                 self.generateAuthorAnchor(escape(' & '.join(book['authors']))))
                 aTag.insert(0, NavigableString(' &amp; '.join(book['authors'])))
                 pBookTag.insert(ptc, aTag)
@@ -2738,10 +2744,11 @@ class EPUB_MOBI(CatalogPlugin):
             self.htmlFileList_1.append("content/BySeries.html")
 
         def generateHTMLByTags(self):
-            # Generate individual HTML files for each tag, e.g. Fiction, Nonfiction ...
-            # Note that special tags - ~+*[] -  have already been filtered from books[]
-            # There may be synonomous tags
-
+            '''
+            Generate individual HTML files for each tag, e.g. Fiction, Nonfiction ...
+            Note that special tags -  have already been filtered from books[]
+            There may be synonomous tags
+            '''
             self.updateProgressFullStep("'Genres'")
 
             self.genre_tags_dict = self.filterDbTags(self.db.all_tags())
@@ -2760,11 +2767,13 @@ class EPUB_MOBI(CatalogPlugin):
                         this_book = {}
                         this_book['author'] = book['author']
                         this_book['title'] = book['title']
-                        this_book['author_sort'] = book['author_sort'].capitalize()
+                        this_book['author_sort'] = capitalize(book['author_sort'])
                         this_book['read'] = book['read']
                         this_book['tags'] = book['tags']
                         this_book['id'] = book['id']
                         this_book['series'] = book['series']
+                        this_book['series_index'] = book['series_index']
+                        this_book['date'] = book['date']
                         normalized_tag = self.genre_tags_dict[friendly_tag]
                         genre_tag_list = [key for genre in genre_list for key in genre]
                         if normalized_tag in genre_tag_list:
@@ -2785,14 +2794,16 @@ class EPUB_MOBI(CatalogPlugin):
                             genre_list.append(tag_list)
 
             if self.opts.verbose:
-                self.opts.log.info("     Genre summary: %d active genre tags used in generating catalog with %d titles" %
+                if len(genre_list):
+                    self.opts.log.info("     Genre summary: %d active genre tags used in generating catalog with %d titles" %
                                     (len(genre_list), len(self.booksByTitle)))
 
-                for genre in genre_list:
-                    for key in genre:
-                        self.opts.log.info("      %s: %d %s" % (self.getFriendlyGenreTag(key),
-                                           len(genre[key]),
-                                           'titles' if len(genre[key]) > 1 else 'title'))
+                    for genre in genre_list:
+                        for key in genre:
+                            self.opts.log.info("      %s: %d %s" % (self.getFriendlyGenreTag(key),
+                                               len(genre[key]),
+                                               'titles' if len(genre[key]) > 1 else 'title'))
+
 
             # Write the results
             # genre_list = [ {friendly_tag:[{book},{book}]}, {friendly_tag:[{book},{book}]}, ...]
@@ -2821,13 +2832,7 @@ class EPUB_MOBI(CatalogPlugin):
                             unique_authors.append((current_author[0], current_author[1], books_by_current_author))
                         else:
                             books_by_current_author += 1
-                    '''
-                    # Extract the unique entries
-                    unique_authors = []
-                    for author in authors:
-                        if not author in unique_authors:
-                            unique_authors.append(author)
-                    '''
+
                     # Write the genre book list as an article
                     titles_spanned = self.generateHTMLByGenre(genre, True if index==0 else False,
                                           genre_tag_set[genre],
@@ -2841,18 +2846,14 @@ class EPUB_MOBI(CatalogPlugin):
                                               'books':genre_tag_set[genre],
                                               'titles_spanned':titles_spanned})
 
-            if False and self.opts.verbose:
-                for genre in master_genre_list:
-                    print "genre['tag']: %s" % genre['tag']
-                    for book in genre['books']:
-                        print book['title']
             self.genres = master_genre_list
 
         def generateThumbnails(self):
-            # Generate a thumbnail per cover.  If a current thumbnail exists, skip
-            # If a cover doesn't exist, use default
-            # Return list of active thumbs
-
+            '''
+            Generate a thumbnail per cover.  If a current thumbnail exists, skip
+            If a cover doesn't exist, use default
+            Return list of active thumbs
+            '''
             self.updateProgressFullStep("'Thumbnails'")
             thumbs = ['thumbnail_default.jpg']
             image_dir = "%s/images" % self.catalogPath
@@ -2861,56 +2862,55 @@ class EPUB_MOBI(CatalogPlugin):
                 self.updateProgressMicroStep("Thumbnail %d of %d" % \
                     (i,len(self.booksByTitle)),
                         i/float(len(self.booksByTitle)))
-                # Check to see if source file exists
-                if 'cover' in title and os.path.isfile(title['cover']):
-                    # Add the thumb spec to thumbs[]
-                    thumbs.append("thumbnail_%d.jpg" % int(title['id']))
 
-                    # Check to see if thumbnail exists
-                    thumb_fp = "%s/thumbnail_%d.jpg" % (image_dir,int(title['id']))
-                    thumb_file = 'thumbnail_%d.jpg' % int(title['id'])
-                    if os.path.isfile(thumb_fp):
-                        # Check to see if cover is newer than thumbnail
-                        # os.path.getmtime() = modified time
-                        # os.path.ctime() = creation time
-                        cover_timestamp = os.path.getmtime(title['cover'])
-                        thumb_timestamp = os.path.getmtime(thumb_fp)
-                        if thumb_timestamp < cover_timestamp:
-                           self.generateThumbnail(title, image_dir, thumb_file)
-                    else:
-                        self.generateThumbnail(title, image_dir, thumb_file)
-                else:
-                    # Use default cover
-                    if False and self.verbose:
-                        self.opts.log.warn(" using default cover for '%s'" % \
-                        (title['title']))
-                    # Check to make sure default is current
-                    # Check to see if thumbnail exists
-                    thumb_fp = "%s/thumbnail_default.jpg" % (image_dir)
-                    cover = "%s/DefaultCover.png" % (self.catalogPath)
+                thumb_file = 'thumbnail_%d.jpg' % int(title['id'])
+                thumb_generated = True
+                valid_cover = True
+                try:
+                    self.generateThumbnail(title, image_dir, thumb_file)
+                    thumbs.append("thumbnail_%d.jpg" % int(title['id']))
+                except:
+                    if 'cover' in title and os.path.exists(title['cover']):
+                        valid_cover = False
+                        self.opts.log.warn(" *** Invalid cover file for '%s'***" %
+                                             (title['title']))
+                        if not self.error:
+                            self.error.append('Invalid cover files')
+                        self.error.append("Warning: invalid cover file for '%s', default cover substituted.\n" % (title['title']))
+
+                    thumb_generated = False
+
+                if not thumb_generated:
+                    self.opts.log.warn(" using default cover for '%s' (%d)" % (title['title'], title['id']))
+                    # Confirm thumb exists, default is current
+                    default_thumb_fp = os.path.join(image_dir,"thumbnail_default.jpg")
+                    cover = os.path.join(self.catalogPath, "DefaultCover.png")
+                    title['cover'] = cover
+
                     if not os.path.exists(cover):
                         shutil.copyfile(I('book.png'), cover)
 
-                    if os.path.isfile(thumb_fp):
+                    if os.path.isfile(default_thumb_fp):
                         # Check to see if default cover is newer than thumbnail
                         # os.path.getmtime() = modified time
                         # os.path.ctime() = creation time
                         cover_timestamp = os.path.getmtime(cover)
-                        thumb_timestamp = os.path.getmtime(thumb_fp)
+                        thumb_timestamp = os.path.getmtime(default_thumb_fp)
                         if thumb_timestamp < cover_timestamp:
                             if False and self.verbose:
                                 self.opts.log.warn("updating thumbnail_default for %s" % title['title'])
-                            #title['cover'] = "%s/DefaultCover.jpg" % self.catalogPath
-                            title['cover'] = cover
-                            self.generateThumbnail(title, image_dir, "thumbnail_default.jpg")
+                            self.generateThumbnail(title, image_dir,
+                                                "thumbnail_default.jpg" if valid_cover else thumb_file)
                     else:
                         if False and self.verbose:
                             self.opts.log.warn(" generating new thumbnail_default.jpg")
-                        #title['cover'] = "%s/DefaultCover.jpg" % self.catalogPath
-                        title['cover'] = cover
-                        self.generateThumbnail(title, image_dir, "thumbnail_default.jpg")
+                        self.generateThumbnail(title, image_dir,
+                                                "thumbnail_default.jpg" if valid_cover else thumb_file)
+                    # Clear the book's cover property
+                    title['cover'] = None
 
-            # Write the thumb_width to the file validating cache contents
+
+            # Write thumb_width to the file, validating cache contents
             # Allows detection of aborted catalog builds
             with ZipFile(self.__archive_path, mode='a') as zfw:
                 zfw.writestr('thumb_width', self.opts.thumb_width)
@@ -3094,10 +3094,36 @@ class EPUB_MOBI(CatalogPlugin):
             textTag.insert(0, NavigableString(self.title))
             navLabelTag.insert(0, textTag)
             navPointTag.insert(0, navLabelTag)
-            contentTag = Tag(soup, 'content')
-            #contentTag['src'] = "content/book_%d.html" % int(self.booksByTitle[0]['id'])
-            contentTag['src'] = "content/ByAlphaAuthor.html"
-            navPointTag.insert(1, contentTag)
+
+            if self.opts.generate_authors:
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/ByAlphaAuthor.html"
+                navPointTag.insert(1, contentTag)
+            elif self.opts.generate_titles:
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/ByAlphaTitle.html"
+                navPointTag.insert(1, contentTag)
+            elif self.opts.generate_series:
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/BySeries.html"
+                navPointTag.insert(1, contentTag)
+            elif self.opts.generate_genres:
+                contentTag = Tag(soup, 'content')
+                #contentTag['src'] = "content/ByGenres.html"
+                contentTag['src'] = "%s" % self.genres[0]['file']
+                navPointTag.insert(1, contentTag)
+            elif self.opts.generate_recently_added:
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/ByDateAdded.html"
+                navPointTag.insert(1, contentTag)
+            else:
+                # Descriptions only
+                sort_descriptions_by = self.booksByAuthor if self.opts.sort_descriptions_by_author \
+                                                          else self.booksByTitle
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/book_%d.html" % int(sort_descriptions_by[0]['id'])
+                navPointTag.insert(1, contentTag)
+
             cmiTag = Tag(soup, '%s' % 'calibre:meta-img')
             cmiTag['name'] = "mastheadImage"
             cmiTag['src'] = "images/mastheadImage.gif"
@@ -3105,7 +3131,6 @@ class EPUB_MOBI(CatalogPlugin):
             navMapTag.insert(0,navPointTag)
 
             ncx.insert(0,navMapTag)
-
             self.ncxSoup = soup
 
         def generateNCXDescriptions(self, tocTitle):
@@ -3148,15 +3173,17 @@ class EPUB_MOBI(CatalogPlugin):
                 navLabelTag = Tag(ncx_soup, "navLabel")
                 textTag = Tag(ncx_soup, "text")
                 if book['series']:
-                    tokens = list(book['title'].partition(':'))
+                    series_index = str(book['series_index'])
+                    if series_index.endswith('.0'):
+                        series_index = series_index[:-2]
                     if self.generateForKindle:
                         # Don't include Author for Kindle
-                        textTag.insert(0, NavigableString(self.formatNCXText('%s (%s)' % \
-                                                      (tokens[2].strip(), tokens[0]), dest='title')))
+                        textTag.insert(0, NavigableString(self.formatNCXText('%s (%s [%s])' %
+                                       (book['title'], book['series'], series_index), dest='title')))
                     else:
                         # Include Author for non-Kindle
-                        textTag.insert(0, NavigableString(self.formatNCXText('%s &middot; %s (%s)' % \
-                                                      (tokens[2].strip(), book['author'], tokens[0]), dest='title')))
+                        textTag.insert(0, NavigableString(self.formatNCXText('%s (%s [%s]) &middot; %s ' %
+                                       (book['title'], book['series'], series_index, book['author']), dest='title')))
                 else:
                     if self.generateForKindle:
                         # Don't include Author for Kindle
@@ -3185,8 +3212,13 @@ class EPUB_MOBI(CatalogPlugin):
                     # Add the author tag
                     cmTag = Tag(ncx_soup, '%s' % 'calibre:meta')
                     cmTag['name'] = "author"
-                    navStr = '%s | %s' % (self.formatNCXText(book['author'], dest='author'),
-                          book['date'].split()[1])
+
+                    if book['date']:
+                        navStr = '%s | %s' % (self.formatNCXText(book['author'], dest='author'),
+                              book['date'].split()[1])
+                    else:
+                        navStr = '%s' % (self.formatNCXText(book['author'], dest='author'))
+
                     if 'tags' in book and len(book['tags']):
                         navStr = self.formatNCXText(navStr + ' | ' + ' &middot; '.join(sorted(book['tags'])), dest='author')
                     cmTag.insert(0, NavigableString(navStr))
@@ -3245,7 +3277,7 @@ class EPUB_MOBI(CatalogPlugin):
             # Loop over the series titles, find start of each letter, add description_preview_count books
             # Special switch for using different title list
             title_list = self.booksBySeries
-            current_letter = self.letter_or_symbol(title_list[0]['series'][0])
+            current_letter = self.letter_or_symbol(self.generateSortTitle(title_list[0]['series'])[0])
             title_letters = [current_letter]
             current_series_list = []
             current_series = ""
@@ -3711,43 +3743,6 @@ class EPUB_MOBI(CatalogPlugin):
                     add_to_master_date_range_list(current_titles_list)
                 current_titles_list = [book['title']]
 
-            '''
-            # Add *article* entries for each populated date range
-            # master_date_range_list{}: [0]:titles list [1]:datestr
-            for books_by_date_range in master_date_range_list:
-                navPointByDateRangeTag = Tag(soup, 'navPoint')
-                navPointByDateRangeTag['class'] = "article"
-                navPointByDateRangeTag['id'] = "%s-ID" %  books_by_date_range[1].replace(' ','')
-                navPointTag['playOrder'] = self.playOrder
-                self.playOrder += 1
-                navLabelTag = Tag(soup, 'navLabel')
-                textTag = Tag(soup, 'text')
-                textTag.insert(0, NavigableString(books_by_date_range[1]))
-                navLabelTag.insert(0, textTag)
-                navPointByDateRangeTag.insert(0,navLabelTag)
-                contentTag = Tag(soup, 'content')
-                contentTag['src'] = "%s#bdr_%s" % (HTML_file,
-                    books_by_date_range[1].replace(' ',''))
-
-                navPointByDateRangeTag.insert(1,contentTag)
-
-                if self.generateForKindle:
-                    cmTag = Tag(soup, '%s' % 'calibre:meta')
-                    cmTag['name'] = "description"
-                    cmTag.insert(0, NavigableString(books_by_date_range[0]))
-                    navPointByDateRangeTag.insert(2, cmTag)
-
-                    cmTag = Tag(soup, '%s' % 'calibre:meta')
-                    cmTag['name'] = "author"
-                    navStr = '%d titles' % books_by_date_range[2] if books_by_date_range[2] > 1 else \
-                             '%d title' % books_by_date_range[2]
-                    cmTag.insert(0, NavigableString(navStr))
-                    navPointByDateRangeTag.insert(3, cmTag)
-
-                navPointTag.insert(nptc, navPointByDateRangeTag)
-                nptc += 1
-            '''
-
             # Create an NCX article entry for each populated day
             # Loop over the booksByDate list, find start of each month,
             # add description_preview_count titles
@@ -3921,7 +3916,6 @@ class EPUB_MOBI(CatalogPlugin):
             # Add this section to the body
             body.insert(btc, navPointTag)
             btc += 1
-
             self.ncxSoup = ncx_soup
 
         def writeNCX(self):
@@ -3930,7 +3924,8 @@ class EPUB_MOBI(CatalogPlugin):
             outfile = open("%s/%s.ncx" % (self.catalogPath, self.basename), 'w')
             outfile.write(self.ncxSoup.prettify())
 
-        # Helpers
+
+        # ======================== Helpers ========================
         def author_to_author_sort(self, author):
             tokens = author.split()
             tokens = tokens[-1:] + tokens[:-1]
@@ -3938,45 +3933,39 @@ class EPUB_MOBI(CatalogPlugin):
                 tokens[0] += ','
             return ' '.join(tokens).capitalize()
 
-        def author_compare(self,x,y):
-            # Return -1 if x<y
-            # Return  0 if x==y
-            # Return  1 if x>y
-
-            # Different authors - sort by author_sort
-            if x['author_sort'].capitalize() > y['author_sort'].capitalize():
-                return 1
-            elif x['author_sort'].capitalize() < y['author_sort'].capitalize():
-                return -1
+        def booksByAuthorSorter_author_sort(self, book):
+            '''
+            Sort non-series books before series books
+            '''
+            if not book['series']:
+                key = '%s %s' % (capitalize(book['author_sort']),
+                                 capitalize(book['title_sort']))
             else:
-                # Same author
-                if x['series'] != y['series']:
-                    # One title is a series, the other is not
-                    if not x['series']:
-                        # Sort regular titles < series titles
-                        return -1
-                    elif not y['series']:
-                        return 1
+                index = book['series_index']
+                integer = int(index)
+                fraction = index-integer
+                series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
+                key = '%s ~%s %s' % (capitalize(book['author_sort']),
+                                     self.generateSortTitle(book['series']),
+                                     series_index)
+            return key
 
-                    # Different series
-                    if x['title_sort'].lstrip() > y['title_sort'].lstrip():
-                        return 1
-                    else:
-                        return -1
-                else:
-                    # Same series
-                    if x['series'] == y['series']:
-                        if float(x['series_index']) > float(y['series_index']):
-                            return 1
-                        elif float(x['series_index']) < float(y['series_index']):
-                            return -1
-                        else:
-                            return 0
-                    else:
-                        if x['series'] > y['series']:
-                            return 1
-                        else:
-                            return -1
+        def booksByAuthorSorter_author(self, book):
+            '''
+            Sort non-series books before series books
+            '''
+            if not book['series']:
+                key = '%s %s' % (self.author_to_author_sort(book['author']),
+                                 capitalize(book['title_sort']))
+            else:
+                index = book['series_index']
+                integer = int(index)
+                fraction = index-integer
+                series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
+                key = '%s ~%s %s' % (self.author_to_author_sort(book['author']),
+                                     self.generateSortTitle(book['series']),
+                                     series_index)
+            return key
 
         def calculateThumbnailSize(self):
             ''' Calculate thumbnail dimensions based on device DPI.  Scale Kindle by 50% '''
@@ -4070,12 +4059,34 @@ class EPUB_MOBI(CatalogPlugin):
             # Remove the special marker tags from the database's tag list,
             # return sorted list of normalized genre tags
 
+            def format_tag_list(tags, indent=5, line_break=70, header='Tag list'):
+                def next_tag(sorted_tags):
+                    for (i, tag) in enumerate(sorted_tags):
+                        if i < len(tags) - 1:
+                            yield tag + ", "
+                        else:
+                            yield tag
+
+                ans = '%s%d %s:\n' %  (' ' * indent, len(tags), header)
+                ans += ' ' * (indent + 1)
+                out_str = ''
+                sorted_tags = sorted(tags)
+                for tag in next_tag(sorted_tags):
+                    out_str += tag
+                    if len(out_str) >= line_break:
+                        ans += out_str + '\n'
+                        out_str = ' ' * (indent + 1)
+                return ans + out_str
+
             normalized_tags = []
             friendly_tags = []
+            excluded_tags = []
             for tag in tags:
-                if tag[0] in self.markerTags:
+                if tag in self.markerTags:
+                    excluded_tags.append(tag)
                     continue
                 if re.search(self.opts.exclude_genre, tag):
+                    excluded_tags.append(tag)
                     continue
                 if tag == ' ':
                     continue
@@ -4094,32 +4105,8 @@ class EPUB_MOBI(CatalogPlugin):
                         if genre_tags_dict[key] == normalized:
                             self.opts.log.warn("       %s" % key)
             if self.verbose:
-                def next_tag(tags):
-                    for (i, tag) in enumerate(tags):
-                        if i < len(tags) - 1:
-                            yield tag + ", "
-                        else:
-                            yield tag
-
-                self.opts.log.info(u'     %d genre tags in database (excluding genres matching %s):' % \
-                                     (len(genre_tags_dict), self.opts.exclude_genre))
-
-                # Display friendly/normalized genres
-                # friendly => normalized
-                if False:
-                    sorted_tags = ['%s => %s' % (key, genre_tags_dict[key]) for key in sorted(genre_tags_dict.keys())]
-                    for tag in next_tag(sorted_tags):
-                        self.opts.log(u'      %s' % tag)
-                else:
-                    sorted_tags = ['%s' % (key) for key in sorted(genre_tags_dict.keys())]
-                    out_str = ''
-                    line_break = 70
-                    for tag in next_tag(sorted_tags):
-                        out_str += tag
-                        if len(out_str) >= line_break:
-                            self.opts.log.info('      %s' % out_str)
-                            out_str = ''
-                    self.opts.log.info('      %s' % out_str)
+                self.opts.log.info('%s' % format_tag_list(genre_tags_dict, header="enabled genre tags in database"))
+                self.opts.log.info('%s' % format_tag_list(excluded_tags, header="excluded genre tags"))
 
             return genre_tags_dict
 
@@ -4140,6 +4127,20 @@ class EPUB_MOBI(CatalogPlugin):
         def generateAuthorAnchor(self, author):
             # Strip white space to ''
             return re.sub("\W","", author)
+
+        def generateFormatArgs(self, book):
+            series_index = str(book['series_index'])
+            if series_index.endswith('.0'):
+                series_index = series_index[:-2]
+            args = dict(
+                    title = book['title'],
+                    series = book['series'],
+                    series_index = series_index,
+                    rating = self.generateRatingString(book),
+                    rating_parens = '(%s)' % self.generateRatingString(book) if 'rating' in book else '',
+                    pubyear = book['date'].split()[1] if book['date'] else '',
+                    pubyear_parens = "(%s)" % book['date'].split()[1] if book['date'] else '')
+            return args
 
         def generateHTMLByGenre(self, genre, section_head, books, outfile):
             # Write an HTML file of this genre's book list
@@ -4181,21 +4182,12 @@ class EPUB_MOBI(CatalogPlugin):
                     pAuthorTag = Tag(soup, "p")
                     pAuthorTag['class'] = "author_index"
                     aTag = Tag(soup, "a")
-                    aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(book['author']))
+                    if self.opts.generate_authors:
+                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(book['author']))
                     aTag.insert(0, book['author'])
                     pAuthorTag.insert(0,aTag)
                     divTag.insert(dtc,pAuthorTag)
                     dtc += 1
-
-                '''
-                # Insert an <hr /> between non-series and series
-                if not current_series and non_series_books and book['series']:
-                    # Insert an <hr />
-                    hrTag = Tag(soup,'hr')
-                    hrTag['class'] = "series_divider"
-                    divTag.insert(dtc,hrTag)
-                    dtc += 1
-                '''
 
                 # Check for series
                 if book['series'] and book['series'] != current_series:
@@ -4220,17 +4212,6 @@ class EPUB_MOBI(CatalogPlugin):
                 # Add books
                 pBookTag = Tag(soup, "p")
                 ptc = 0
-
-                '''
-                # This if clause does not display MISSING_SYMBOL for wishlist items
-                # If this is the wishlist_tag genre, don't show missing symbols
-                # normalized_wishlist_tag = self.genre_tags_dict[self.opts.wishlist_tag]
-                if self.opts.wishlist_tag in book['tags'] and \
-                   self.genre_tags_dict[self.opts.wishlist_tag] != genre:
-                    pBookTag['class'] = "wishlist_item"
-                    pBookTag.insert(ptc,NavigableString(self.MISSING_SYMBOL))
-                    ptc += 1
-                '''
 
                 #  book with read|reading|unread symbol or wishlist item
                 if self.opts.wishlist_tag in book.get('tags', []):
@@ -4257,12 +4238,18 @@ class EPUB_MOBI(CatalogPlugin):
                 aTag = Tag(soup, "a")
                 if self.opts.generate_descriptions:
                     aTag['href'] = "book_%d.html" % (int(float(book['id'])))
-                # Use series, series index if avail else just title
+
+                # Generate the title from the template
+                args = self.generateFormatArgs(book)
                 if current_series:
-                    aTag.insert(0,escape(book['title'][len(book['series'])+1:]))
+                    #aTag.insert(0,escape(book['title'][len(book['series'])+1:]))
+                    formatted_title = self.by_genres_series_title_template.format(**args).rstrip()
                 else:
-                    aTag.insert(0,escape(book['title']))
+                    #aTag.insert(0,escape(book['title']))
+                    formatted_title = self.by_genres_normal_title_template.format(**args).rstrip()
                     non_series_books += 1
+                aTag.insert(0,NavigableString(escape(formatted_title)))
+
                 pBookTag.insert(ptc, aTag)
                 ptc += 1
 
@@ -4313,31 +4300,16 @@ class EPUB_MOBI(CatalogPlugin):
                 generated_html = substitute_entites(generated_html)
                 return BeautifulSoup(generated_html)
 
-            if False:
-                print "title metadata:\n%s" % ', '.join(sorted(book.keys()))
-            if False:
-                for item in sorted(book.keys()):
-                    try:
-                        print "%s: %s%s" % (item, book[item][:50], '...' if len(book[item])>50 else '')
-                    except:
-                        print "%s: %s" % (item, book[item])
-
             # Generate the template arguments
             css = P('catalog/stylesheet.css', data=True).decode('utf-8')
-            title_str = escape(book['title'])
-
-            # Title/series
+            title_str = title = escape(book['title'])
+            series = ''
+            series_index = ''
             if book['series']:
-                series_id, _, title = book['title'].partition(':')
-                title = escape(title.strip())
                 series = escape(book['series'])
                 series_index = str(book['series_index'])
                 if series_index.endswith('.0'):
                     series_index = series_index[:-2]
-            else:
-                title = escape(book['title'])
-                series = ''
-                series_index = ''
 
             # Author, author_prefix (read|reading|none symbol or missing symbol)
             author = book['author']
@@ -4357,7 +4329,7 @@ class EPUB_MOBI(CatalogPlugin):
                 _soup = BeautifulSoup('')
                 genresTag = Tag(_soup,'p')
                 gtc = 0
-                for (i, tag) in enumerate(book.get('tags', [])):
+                for (i, tag) in enumerate(sorted(book.get('tags', []))):
                     aTag = Tag(_soup,'a')
                     if self.opts.generate_genres:
                         aTag['href'] = "Genre_%s.html" % re.sub("\W","",tag.lower())
@@ -4376,13 +4348,17 @@ class EPUB_MOBI(CatalogPlugin):
                     formats.append(format.rpartition('.')[2].upper())
                 formats = ' &middot; '.join(formats)
 
-            pubdate = book['date']
-            pubmonth, pubyear = pubdate.split(' ')
+            # Date of publication
+            if book['date']:
+                pubdate = book['date']
+                pubmonth, pubyear = pubdate.split()
+            else:
+                pubdate = pubyear = pubmonth = ''
 
             # Thumb
             _soup = BeautifulSoup('<html>',selfClosingTags=['img'])
             thumb = Tag(_soup,"img")
-            if 'cover' in book:
+            if 'cover' in book and book['cover']:
                 thumb['src']  = "../images/thumbnail_%d.jpg" % int(book['id'])
             else:
                 thumb['src']  = "../images/thumbnail_default.jpg"
@@ -4438,7 +4414,8 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Insert the author link (always)
             aTag = body.find('a', attrs={'class':'author'})
-            aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
+            if self.opts.generate_authors:
+                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
                                             self.generateAuthorAnchor(book['author']))
 
             if publisher == ' ':
@@ -4547,16 +4524,19 @@ class EPUB_MOBI(CatalogPlugin):
             draw.text((left, top), text, fill=(0,0,0), font=font)
             img.save(open(out_path, 'wb'), 'GIF')
 
-        def generateSeriesTitle(self, title):
-            if float(title['series_index']) - int(title['series_index']):
-                series_title = '%s %4.2f: %s' % (title['series'],
-                                                title['series_index'],
-                                                title['title'])
-            else:
-                series_title = '%s %d: %s' % (title['series'],
-                                             title['series_index'],
-                                             title['title'])
-            return series_title
+        def generateRatingString(self, book):
+            rating = ''
+            try:
+                if 'rating' in book:
+                    stars = int(book['rating']) / 2
+                    if stars:
+                        star_string = self.FULL_RATING_SYMBOL * stars
+                        empty_stars = self.EMPTY_RATING_SYMBOL * (5 - stars)
+                        rating = '%s%s' % (star_string,empty_stars)
+            except:
+                # Rating could be None
+                pass
+            return rating
 
         def generateShortDescription(self, description, dest=None):
             # Truncate the description, on word boundaries if necessary
@@ -4595,9 +4575,11 @@ class EPUB_MOBI(CatalogPlugin):
                 raise RuntimeError
 
         def generateSortTitle(self, title):
-            # Generate a string suitable for sorting from the title
-            # Ignore leading stop words
-            # Optionally convert leading numbers to strings
+            '''
+            Generate a string suitable for sorting from the title
+            Ignore leading stop words
+            Optionally convert leading numbers to strings
+            '''
             from calibre.ebooks.metadata import title_sort
 
             # Strip stop words
@@ -4626,7 +4608,7 @@ class EPUB_MOBI(CatalogPlugin):
                         if self.letter_or_symbol(word[0]) != word[0]:
                             if word[0] > 'A' or (ord('9') < ord(word[0]) < ord('A')) :
                                 translated.append('/')
-                        translated.append(word.capitalize())
+                        translated.append(capitalize(word))
 
                 else:
                     if re.search('[0-9]+',word[0]):
@@ -4895,13 +4877,6 @@ class EPUB_MOBI(CatalogPlugin):
             self.progressInt = coarse_progress + fine_progress
             self.reporter(self.progressInt, self.progressString)
 
-        class NotImplementedError:
-            def __init__(self, error):
-                self.error = error
-
-            def logerror(self):
-                self.opts.log.info('%s not implemented' % self.error)
-
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
         opts.log = log
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
@@ -4929,6 +4904,8 @@ class EPUB_MOBI(CatalogPlugin):
 
         opts.basename = "Catalog"
         opts.cli_environment = not hasattr(opts,'sync')
+
+        # Hard-wired to always sort descriptions by author, with series after non-series
         opts.sort_descriptions_by_author = True
 
         build_log = []
@@ -4967,17 +4944,41 @@ class EPUB_MOBI(CatalogPlugin):
         if opts_dict['ids']:
             build_log.append(" book count: %d" % len(opts_dict['ids']))
 
-        sections_list = ['Authors']
+        sections_list = []
+        if opts.generate_authors:
+            sections_list.append('Authors')
         if opts.generate_titles:
             sections_list.append('Titles')
-        if opts.generate_recently_added:
-            sections_list.append('Recently Added')
+        if opts.generate_series:
+            sections_list.append('Series')
         if opts.generate_genres:
             sections_list.append('Genres')
+        if opts.generate_recently_added:
+            sections_list.append('Recently Added')
         if opts.generate_descriptions:
             sections_list.append('Descriptions')
 
-        build_log.append(u" Sections: %s" % ', '.join(sections_list))
+        if not sections_list:
+            if opts.cli_environment:
+                opts.log.warn('*** No Section switches specified, enabling all Sections ***')
+                opts.generate_authors = True
+                opts.generate_titles = True
+                opts.generate_series = True
+                opts.generate_genres = True
+                opts.generate_recently_added = True
+                opts.generate_descriptions = True
+                sections_list = ['Authors','Titles','Series','Genres','Recently Added','Descriptions']
+            else:
+                opts.log.warn('\n*** No enabled Sections, terminating catalog generation ***')
+                return ["No Included Sections","No enabled Sections.\nCheck E-book options tab\n'Included sections'\n"]
+        if opts.fmt == 'mobi' and sections_list == ['Descriptions']:
+                warning = _("\n*** Adding 'By Authors' Section required for MOBI output ***")
+                opts.log.warn(warning)
+                sections_list.insert(0,'Authors')
+                opts.generate_authors = True
+
+        opts.log(u" Sections: %s" % ', '.join(sections_list))
+        opts.section_list = sections_list
 
         # Limit thumb_width to 1.0" - 2.0"
         try:
@@ -5012,6 +5013,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         # Launch the Catalog builder
         catalog = self.CatalogBuilder(db, opts, self, report_progress=notification)
+
         if opts.verbose:
             log.info(" Begin catalog source generation")
         catalog.createDirectoryStructure()
@@ -5023,7 +5025,7 @@ class EPUB_MOBI(CatalogPlugin):
             if catalog_source_built:
                 log.info(" Completed catalog source generation\n")
             else:
-                log.warn(" No database hits with supplied criteria")
+                log.error(" *** Terminated catalog generation, check log for details ***")
 
         if catalog_source_built:
             recommendations = []
@@ -5053,6 +5055,6 @@ class EPUB_MOBI(CatalogPlugin):
                             abort_after_input_dump=False)
             plumber.merge_ui_recommendations(recommendations)
             plumber.run()
-            return 0
-        else:
-            return 1
+
+        # returns to gui2.actions.catalog:catalog_generated()
+        return catalog.error

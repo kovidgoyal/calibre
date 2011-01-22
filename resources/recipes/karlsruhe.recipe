@@ -6,6 +6,7 @@ class KANewsRecipe(BasicNewsRecipe):
     description = u'Nachrichten aus Karlsruhe, Deutschland und der Welt.'
     __author__ = 'tfeld'
     lang='de'
+    language = 'de'
     no_stylesheets = True
 
     oldest_article = 7

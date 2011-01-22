@@ -12,6 +12,7 @@ from PyQt4.Qt import QDialog, QApplication
 from calibre.gui2.dialogs.add_from_isbn_ui import Ui_Dialog
 from calibre.ebooks.metadata import check_isbn
 from calibre.constants import iswindows
+from calibre.gui2 import gprefs
 
 class AddFromISBN(QDialog, Ui_Dialog):
 
@@ -25,7 +26,9 @@ class AddFromISBN(QDialog, Ui_Dialog):
 
         self.isbns = []
         self.books = []
+        self.set_tags = []
         self.paste_button.clicked.connect(self.paste)
+        self.add_tags.setText(', '.join(gprefs.get('add from ISBN tags', [])))
 
     def paste(self, *args):
         app = QApplication.instance()
@@ -37,6 +40,10 @@ class AddFromISBN(QDialog, Ui_Dialog):
             self.isbn_box.setPlainText(new)
 
     def accept(self, *args):
+        tags = unicode(self.add_tags.text()).strip().split(',')
+        tags = list(filter(None, [x.strip() for x in tags]))
+        gprefs['add from ISBN tags'] = tags
+        self.set_tags = tags
         for line in unicode(self.isbn_box.toPlainText()).strip().splitlines():
             line = line.strip()
             if not line:

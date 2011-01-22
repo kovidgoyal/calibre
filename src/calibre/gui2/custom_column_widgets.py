@@ -14,7 +14,7 @@ from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
         QPushButton
 
 from calibre.utils.date import qt_to_dt, now
-from calibre.gui2.widgets import TagsLineEdit, EnComboBox
+from calibre.gui2.widgets import CompleteLineEdit, EnComboBox
 from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.utils.config import tweaks
@@ -212,7 +212,7 @@ class Text(Base):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
-            w = TagsLineEdit(parent, values)
+            w = CompleteLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         else:
             w = EnComboBox(parent)
@@ -226,7 +226,7 @@ class Text(Base):
         val = self.normalize_db_val(val)
         if self.col_metadata['is_multiple']:
             self.setter(val)
-            self.widgets[1].update_tags_cache(self.all_values)
+            self.widgets[1].update_items_cache(self.all_values)
         else:
             idx = None
             for i, c in enumerate(self.all_values):
@@ -379,7 +379,8 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
             w = bulk_widgets[type](db, col, parent)
         else:
             w = widgets[type](db, col, parent)
-        w.initialize(book_id)
+        if book_id is not None:
+            w.initialize(book_id)
         return w
     x = db.custom_column_num_map
     cols = list(x)
@@ -599,7 +600,7 @@ class BulkEnumeration(BulkBase, Enumeration):
         value = None
         ret_value = None
         dialog_shown = False
-        for book_id in book_ids:
+        for i,book_id in enumerate(book_ids):
             val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
             if val and val not in self.col_metadata['display']['enum_values']:
                 if not dialog_shown:
@@ -610,7 +611,7 @@ class BulkEnumeration(BulkBase, Enumeration):
                             show=True, show_copy_button=False)
                     dialog_shown = True
                 ret_value = ' nochange '
-            elif value is not None and value != val:
+            elif (value is not None and value != val) or (val and i != 0):
                 ret_value = ' nochange '
             value = val
         if ret_value is None:
@@ -656,7 +657,7 @@ class RemoveTags(QWidget):
         layout.setSpacing(5)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.tags_box = TagsLineEdit(parent, values)
+        self.tags_box = CompleteLineEdit(parent, values)
         layout.addWidget(self.tags_box, stretch = 1)
         # self.tags_box.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
 
@@ -678,7 +679,7 @@ class BulkText(BulkBase):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
-            w = TagsLineEdit(parent, values)
+            w = CompleteLineEdit(parent, values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             self.widgets = [QLabel('&'+self.col_metadata['name']+': ' +
                                    _('tags to add'), parent), w]
@@ -697,7 +698,7 @@ class BulkText(BulkBase):
 
     def initialize(self, book_ids):
         if self.col_metadata['is_multiple']:
-            self.widgets[1].update_tags_cache(self.all_values)
+            self.widgets[1].update_items_cache(self.all_values)
         else:
             val = self.get_initial_value(book_ids)
             self.initial_val = val = self.normalize_db_val(val)

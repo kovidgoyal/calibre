@@ -10,7 +10,7 @@ from contextlib import closing
 from operator import attrgetter
 
 from PyQt4.Qt import QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, \
-        QModelIndex, QVariant, QDate
+        QModelIndex, QVariant, QDate, QColor
 
 from calibre.gui2 import NONE, config, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
@@ -93,6 +93,10 @@ class BooksModel(QAbstractTableModel): # {{{
         self.bool_no_icon = QIcon(I('list_remove.png'))
         self.bool_blank_icon = QIcon(I('blank.png'))
         self.device_connected = False
+        self.ids_to_highlight = []
+        self.ids_to_highlight_set = set()
+        self.current_highlighted_idx = None
+        self.highlight_only = False
         self.read_config()
 
     def change_alignment(self, colname, alignment):
@@ -127,6 +131,9 @@ class BooksModel(QAbstractTableModel): # {{{
         self.book_on_device = func
 
     def set_database(self, db):
+        self.ids_to_highlight = []
+        self.ids_to_highlight_set = set()
+        self.current_highlighted_idx = None
         self.db = db
         self.custom_columns = self.db.field_metadata.custom_field_metadata()
         self.column_map = list(self.orig_headers.keys()) + \
@@ -229,9 +236,61 @@ class BooksModel(QAbstractTableModel): # {{{
             self.endInsertRows()
             self.count_changed()
 
+    def set_highlight_only(self, toWhat):
+        self.highlight_only = toWhat
+        if self.last_search:
+            self.research()
+
+    def get_current_highlighted_id(self):
+        if len(self.ids_to_highlight) == 0 or self.current_highlighted_idx is None:
+            return None
+        try:
+            return self.ids_to_highlight[self.current_highlighted_idx]
+        except:
+            return None
+
+    def get_next_highlighted_id(self, current_row, forward):
+        if len(self.ids_to_highlight) == 0 or self.current_highlighted_idx is None:
+            return None
+        if current_row is None:
+            row_ = self.current_highlighted_idx
+        else:
+            row_ = current_row
+        while True:
+            row_ += 1 if forward else -1
+            if row_ < 0:
+                row_ = self.count() - 1;
+            elif row_ >= self.count():
+                row_ = 0
+            if self.id(row_) in self.ids_to_highlight_set:
+                break
+        try:
+            self.current_highlighted_idx = self.ids_to_highlight.index(self.id(row_))
+        except:
+            # This shouldn't happen ...
+            return None
+        return self.get_current_highlighted_id()
+
     def search(self, text, reset=True):
         try:
-            self.db.search(text)
+            if self.highlight_only:
+                self.db.search('')
+                if not text:
+                    self.ids_to_highlight = []
+                    self.ids_to_highlight_set = set()
+                    self.current_highlighted_idx = None
+                else:
+                    self.ids_to_highlight = self.db.search(text, return_matches=True)
+                    self.ids_to_highlight_set = set(self.ids_to_highlight)
+                    if self.ids_to_highlight:
+                        self.current_highlighted_idx = 0
+                    else:
+                        self.current_highlighted_idx = None
+            else:
+                self.ids_to_highlight = []
+                self.ids_to_highlight_set = set()
+                self.current_highlighted_idx = None
+                self.db.search(text)
         except ParseException as e:
             self.searched.emit(e.msg)
             return
@@ -337,8 +396,9 @@ class BooksModel(QAbstractTableModel): # {{{
             name, val = mi.format_field(key)
             if mi.metadata_for_field(key)['datatype'] == 'comments':
                 name += ':html'
-            if val:
+            if val and name not in data:
                 data[name] = val
+
         return data
 
 
@@ -651,6 +711,9 @@ class BooksModel(QAbstractTableModel): # {{{
             return NONE
         if role in (Qt.DisplayRole, Qt.EditRole):
             return self.column_to_dc_map[col](index.row())
+        elif role == Qt.BackgroundColorRole:
+            if self.id(index) in self.ids_to_highlight_set:
+                return QColor('lightgreen')
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
                 return self.column_to_dc_decorator_map[index.column()](index.row())

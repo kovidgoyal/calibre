@@ -13,7 +13,7 @@ from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
     QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect
 
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
-    TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
+    TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate, \
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate, \
     CcEnumDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
@@ -76,8 +76,8 @@ class BooksView(QTableView): # {{{
         self.rating_delegate = RatingDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
-        self.tags_delegate = TagsDelegate(self)
-        self.authors_delegate = TextDelegate(self)
+        self.tags_delegate = CompleteDelegate(self, ',', 'all_tags')
+        self.authors_delegate = CompleteDelegate(self, '&', 'all_author_names', True)
         self.series_delegate = TextDelegate(self)
         self.publisher_delegate = TextDelegate(self)
         self.text_delegate = TextDelegate(self)
@@ -410,8 +410,7 @@ class BooksView(QTableView): # {{{
         self.save_state()
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
-        self.authors_delegate.set_auto_complete_function(
-                lambda: [(x, y.replace('|', ',')) for (x, y) in db.all_authors()])
+        self.authors_delegate.set_database(db)
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
 
@@ -612,7 +611,7 @@ class BooksView(QTableView): # {{{
         if row > -1:
             h = self.horizontalHeader()
             for i in range(h.count()):
-                if not h.isSectionHidden(i):
+                if not h.isSectionHidden(i) and h.sectionViewportPosition(i) >= 0:
                     self.scrollTo(self.model().index(row, i))
                     break
 
@@ -680,8 +679,25 @@ class BooksView(QTableView): # {{{
     def set_editable(self, editable, supports_backloading):
         self._model.set_editable(editable)
 
+    def move_highlighted_row(self, forward):
+        rows = self.selectionModel().selectedRows()
+        if len(rows) > 0:
+            current_row = rows[0].row()
+        else:
+            current_row = None
+        id_to_select = self._model.get_next_highlighted_id(current_row, forward)
+        if id_to_select is not None:
+            self.select_rows([id_to_select], using_ids=True)
+
+    def search_proxy(self, txt):
+        self._model.search(txt)
+        id_to_select = self._model.get_current_highlighted_id()
+        if id_to_select is not None:
+            self.select_rows([id_to_select], using_ids=True)
+        self.setFocus(Qt.OtherFocusReason)
+
     def connect_to_search_box(self, sb, search_done):
-        sb.search.connect(self._model.search)
+        sb.search.connect(self.search_proxy)
         self._search_done = search_done
         self._model.searched.connect(self.search_done)
 

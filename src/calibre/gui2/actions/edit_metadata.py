@@ -94,12 +94,12 @@ class EditMetadataAction(InterfaceAction):
             get_social_metadata = config['get_social_metadata']
         else:
             get_social_metadata = set_social_metadata
-        from calibre.gui2.metadata import DoDownload
+        from calibre.gui2.metadata.bulk_download import DoDownload
         if set_social_metadata is not None and set_social_metadata:
             x = _('social metadata')
         else:
             x = _('covers') if covers and not set_metadata else _('metadata')
-        title = _('Downloading %s for %d book(s)')%(x, len(ids))
+        title = _('Downloading {0} for {1} book(s)').format(x, len(ids))
         self._download_book_metadata = DoDownload(self.gui, title, db, ids,
                 get_covers=covers, set_metadata=set_metadata,
                 get_social_metadata=get_social_metadata)

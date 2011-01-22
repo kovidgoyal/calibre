@@ -181,7 +181,7 @@ class ResultCache(SearchQueryParser): # {{{
         self.search_restriction = ''
         self.field_metadata = field_metadata
         self.all_search_locations = field_metadata.get_search_terms()
-        SearchQueryParser.__init__(self, self.all_search_locations)
+        SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
 
@@ -264,7 +264,7 @@ class ResultCache(SearchQueryParser): # {{{
                             '<=':[2, relop_le]
                         }
 
-    def get_dates_matches(self, location, query):
+    def get_dates_matches(self, location, query, candidates):
         matches = set([])
         if len(query) < 2:
             return matches
@@ -274,13 +274,15 @@ class ResultCache(SearchQueryParser): # {{{
         loc = self.field_metadata[location]['rec_index']
 
         if query == 'false':
-            for item in self._data:
+            for id_ in candidates:
+                item = self._data[id_]
                 if item is None: continue
                 if item[loc] is None or item[loc] <= UNDEFINED_DATE:
                     matches.add(item[0])
             return matches
         if query == 'true':
-            for item in self._data:
+            for id_ in candidates:
+                item = self._data[id_]
                 if item is None: continue
                 if item[loc] is not None and item[loc] > UNDEFINED_DATE:
                     matches.add(item[0])
@@ -319,7 +321,8 @@ class ResultCache(SearchQueryParser): # {{{
                 field_count = query.count('-') + 1
             else:
                 field_count = query.count('/') + 1
-        for item in self._data:
+        for id_ in candidates:
+            item = self._data[id_]
             if item is None or item[loc] is None: continue
             if relop(item[loc], qd, field_count):
                 matches.add(item[0])
@@ -335,7 +338,7 @@ class ResultCache(SearchQueryParser): # {{{
                         '<=':[2, lambda r, q: r <= q]
                     }
 
-    def get_numeric_matches(self, location, query, val_func = None):
+    def get_numeric_matches(self, location, query, candidates, val_func = None):
         matches = set([])
         if len(query) == 0:
             return matches
@@ -381,7 +384,8 @@ class ResultCache(SearchQueryParser): # {{{
         except:
             return matches
 
-        for item in self._data:
+        for id_ in candidates:
+            item = self._data[id_]
             if item is None:
                 continue
             v = val_func(item)
@@ -393,8 +397,13 @@ class ResultCache(SearchQueryParser): # {{{
                 matches.add(item[0])
         return matches
 
-    def get_matches(self, location, query, allow_recursion=True):
+    def get_matches(self, location, query, allow_recursion=True, candidates=None):
         matches = set([])
+        if candidates is None:
+            candidates = self.universal_set()
+        if len(candidates) == 0:
+            return matches
+
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
@@ -402,7 +411,8 @@ class ResultCache(SearchQueryParser): # {{{
             if isinstance(location, list):
                 if allow_recursion:
                     for loc in location:
-                        matches |= self.get_matches(loc, query, allow_recursion=False)
+                        matches |= self.get_matches(loc, query, candidates,
+                                                    allow_recursion=False)
                     return matches
                 raise ParseException(query, len(query), 'Recursive query group detected', self)
 
@@ -410,11 +420,11 @@ class ResultCache(SearchQueryParser): # {{{
                 fm = self.field_metadata[location]
                 # take care of dates special case
                 if fm['datatype'] == 'datetime':
-                    return self.get_dates_matches(location, query.lower())
+                    return self.get_dates_matches(location, query.lower(), candidates)
 
                 # take care of numbers special case
                 if fm['datatype'] in ('rating', 'int', 'float'):
-                    return self.get_numeric_matches(location, query.lower())
+                    return self.get_numeric_matches(location, query.lower(), candidates)
 
                 # take care of the 'count' operator for is_multiples
                 if fm['is_multiple'] and \
@@ -422,7 +432,8 @@ class ResultCache(SearchQueryParser): # {{{
                         query[1:1] in '=<>!':
                     vf = lambda item, loc=fm['rec_index'], ms=fm['is_multiple']:\
                             len(item[loc].split(ms)) if item[loc] is not None else 0
-                    return self.get_numeric_matches(location, query[1:], val_func=vf)
+                    return self.get_numeric_matches(location, query[1:],
+                                                    candidates, val_func=vf)
 
             # everything else, or 'all' matches
             matchkind = CONTAINS_MATCH
@@ -476,7 +487,8 @@ class ResultCache(SearchQueryParser): # {{{
                 else:
                     q = query
 
-                for item in self._data:
+                for id_ in candidates:
+                    item = self._data[id_]
                     if item is None: continue
 
                     if col_datatype[loc] == 'bool': # complexity caused by the two-/three-value tweak
@@ -588,7 +600,6 @@ class ResultCache(SearchQueryParser): # {{{
 
     def set(self, row, col, val, row_is_id=False):
         id = row if row_is_id else self._map_filtered[row]
-        self._data[id][self.FIELD_MAP['all_metadata']] = None
         self._data[id][col] = val
 
     def get(self, row, col, row_is_id=False):
@@ -619,7 +630,6 @@ class ResultCache(SearchQueryParser): # {{{
                 self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
                 self._data[id].append(db.book_on_device_string(id))
-                self._data[id].append(None)
             except IndexError:
                 return None
         try:
@@ -636,7 +646,6 @@ class ResultCache(SearchQueryParser): # {{{
             self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
             self._data[id].append(db.book_on_device_string(id))
-            self._data[id].append(None)
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -661,7 +670,6 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
-                item.append(None)
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)

@@ -251,7 +251,7 @@ class Serializer(object):
         tag = prefixname(elem.tag, nsrmap)
         # Previous layers take care of @name
         id = elem.attrib.pop('id', None)
-        if id is not None:
+        if id:
             href = '#'.join((item.href, id))
             offset = self.anchor_offset or buffer.tell()
             self.id_offsets[urlnormalize(href)] = offset
@@ -1541,7 +1541,10 @@ class MobiWriter(object):
                 exth.write(data)
                 nrecs += 1
             if term == 'rights' :
-                rights = unicode(oeb.metadata.rights[0]).encode('utf-8')
+                try:
+                    rights = unicode(oeb.metadata.rights[0]).encode('utf-8')
+                except:
+                    rights = 'Unknown'
                 exth.write(pack('>II', EXTH_CODES['rights'], len(rights) + 8))
                 exth.write(rights)
 
