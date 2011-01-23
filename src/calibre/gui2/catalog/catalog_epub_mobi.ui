@@ -35,7 +35,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Sections to include in catalog.  All catalogs include 'Books by Author'.</string>
+      <string>Sections to include in catalog.</string>
      </property>
      <property name="title">
       <string>Included sections</string>
@@ -79,13 +79,13 @@
       <item row="0" column="0">
        <widget class="QCheckBox" name="generate_authors">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Books by Author</string>
         </property>
         <property name="checked">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>

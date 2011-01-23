@@ -724,7 +724,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             au = _('Unknown')
         au = ' & '.join([a.strip().replace('|', ',') for a in au.split(',')])
         self.authors.setEditText(au)
-        
+
         self.authors.set_separator('&')
         self.authors.set_space_before_sep(True)
         self.authors.update_items_cache(self.db.all_author_names())
@@ -775,7 +775,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 self.original_tags = unicode(self.tags.text())
             else:
                 self.tags.setText(self.original_tags)
-        d = TagEditor(self, self.db, self.row)
+        d = TagEditor(self, self.db, self.id)
         d.exec_()
         if d.result() == QDialog.Accepted:
             tag_string = ', '.join(d.tags)

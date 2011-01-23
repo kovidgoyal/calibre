@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 blic.rs
 '''
@@ -21,21 +21,53 @@ class Blic(BasicNewsRecipe):
     masthead_url          = 'http://www.blic.rs/resources/images/header/header_back.png'
     language              = 'sr'
     publication_type      = 'newspaper'
-    extra_css             = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Georgia, serif1, serif} .article_description{font-family: Arial, sans1, sans-serif} .img_full{float: none} img{margin-bottom: 0.8em} '
+    extra_css             = """ 
+                               @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} 
+                               @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} 
+                               body{font-family: Georgia, serif1, serif} 
+                               .articledescription,#nadnaslov,.article_info{font-family: Arial, sans1, sans-serif} 
+                               .img_full{float: none}
+                               #nadnaslov{font-size: small}
+                               #article_lead{font-size: 1.5em}
+                               h1{color: red}
+                               .potpis{font-size: x-small; color: gray}
+                               .article_info{font-size: small}
+                               img{margin-bottom: 0.8em; margin-top: 0.8em; display: block} 
+                            """
 
     conversion_options = {
                           'comment'  : description
                         , 'tags'     : category
                         , 'publisher': publisher
                         , 'language' : language
+                        , 'linearize_tables' : True
                         }
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
     remove_tags_before = dict(name='div', attrs={'id':'article_info'})
-    remove_tags        = [dict(name=['object','link'])]
-    remove_attributes  = ['width','height']
+    remove_tags        = [dict(name=['object','link','meta','base','object','embed'])]
+    remove_attributes  = ['width','height','m_id','m_ext','mlg_id','poll_id','v_id']
 
-    feeds              = [(u'Danasnje Vesti', u'http://www.blic.rs/rss/danasnje-vesti')]
+    feeds              = [
+                            (u'Politika'         , u'http://www.blic.rs/rss/Vesti/Politika')
+                           ,(u'Tema Dana'        , u'http://www.blic.rs/rss/Vesti/Tema-Dana')
+                           ,(u'Svet'             , u'http://www.blic.rs/rss/Vesti/Svet')
+                           ,(u'Drustvo'          , u'http://www.blic.rs/rss/Vesti/Drustvo')
+                           ,(u'Ekonomija'        , u'http://www.blic.rs/rss/Vesti/Ekonomija')
+                           ,(u'Hronika'          , u'http://www.blic.rs/rss/Vesti/Hronika')
+                           ,(u'Beograd'          , u'http://www.blic.rs/rss/Vesti/Beograd')
+                           ,(u'Srbija'           , u'http://www.blic.rs/rss/Vesti/Srbija')
+                           ,(u'Vojvodina'        , u'http://www.blic.rs/rss/Vesti/Vojvodina')
+                           ,(u'Republika Srpska' , u'http://www.blic.rs/rss/Vesti/Republika-Srpska')
+                           ,(u'Reportaza'        , u'http://www.blic.rs/rss/Vesti/Reportaza')
+                           ,(u'Dodatak'          , u'http://www.blic.rs/rss/Vesti/Dodatak')
+                           ,(u'Zabava'           , u'http://www.blic.rs/rss/Zabava')
+                           ,(u'Kultura'          , u'http://www.blic.rs/rss/Kultura')
+                           ,(u'Slobodno Vreme'   , u'http://www.blic.rs/rss/Slobodno-vreme')
+                           ,(u'IT'               , u'http://www.blic.rs/rss/IT')
+                           ,(u'Komentar'         , u'http://www.blic.rs/rss/Komentar')
+                           ,(u'Intervju'         , u'http://www.blic.rs/rss/Intervju')
+                         ]
 
 
     def print_version(self, url):
@@ -44,4 +76,4 @@ class Blic(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']    
-        return self.adeify_images(soup)
+        return soup

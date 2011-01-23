@@ -150,13 +150,13 @@ class GuiRunner(QObject):
         if DEBUG:
             prints('Starting up...')
 
-    def start_gui(self):
+    def start_gui(self, db):
         from calibre.gui2.ui import Main
         main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.showMessage(_('Initializing user interface...'))
             self.splash_screen.finish(main)
-        main.initialize(self.library_path, self.db, self.listener, self.actions)
+        main.initialize(self.library_path, db, self.listener, self.actions)
         if DEBUG:
             prints('Started up in', time.time() - self.startup_time)
         add_filesystem_book = partial(main.iactions['Add Books'].add_filesystem_book, allow_device=False)
@@ -200,8 +200,7 @@ class GuiRunner(QObject):
                     det_msg=traceback.format_exc(), show=True)
                 self.initialization_failed()
 
-        self.db = db
-        self.start_gui()
+        self.start_gui(db)
 
     def initialize_db(self):
         db = None

@@ -255,6 +255,100 @@ you are producing are meant for a particular device type, choose the correspondi
 
 The Output profile also controls the screen size. This will cause, for example, images to be auto-resized to be fit to the screen in some output formats. So choose a profile of a device that has a screen size similar to your device.
 
+.. _heuristic-processing:
+
+Heuristic Processing
+---------------------
+
+Heuristic Processing provides a variety of functions which can be used to try and detect and correct 
+common problems in poorly formatted input documents.  Use these functions if your input document suffers 
+from poor formatting. Because these functions rely on common patterns, be aware that in some cases an 
+option may lead to worse results, so use with care.  As an example, several of these options will
+remove all non-breaking-space entities, or may include false positive matches relating to the function.
+
+:guilabel:`Enable heuristic processing`
+    This option activates |app|'s Heuristic Processing stage of the conversion pipeline.
+    This must be enabled in order for various sub-functions to be applied
+
+:guilabel:`Unwrap lines`
+    Enabling this option will cause |app| to attempt to detect and correct hard line breaks that exist 
+    within a document using punctuation clues and line length. |app| will first attempt to detect whether 
+    hard line breaks exist, if they do not appear to exist |app| will not attempt to unwrap lines. The 
+    line-unwrap factor can be reduced if you want to 'force' |app| to unwrap lines.
+
+:guilabel:`Line-unwrap factor`
+    This option controls the algorithm |app| uses to remove hard line breaks. For example, if the value of this
+    option is 0.4, that means calibre will remove hard line breaks from the end of lines whose lengths are less
+    than the length of 40% of all lines in the document.  If your document only has a few line breaks which need
+    correction, then this value should be reduced to somewhere between 0.1 and 0.2.
+    
+:guilabel:`Detect and markup unformatted chapter headings and sub headings`
+    If your document does not have chapter headings and titles formatted differently from the rest of the text,
+    |app| can use this option to attempt detection them and surround them with heading tags. <h2> tags are used 
+    for chapter headings; <h3> tags are used for any titles that are detected.  
+    
+    This function will not create a TOC, but in many cases it will cause |app|'s default chapter detection settings 
+    to correctly detect chapters and build a TOC.  Adjust the XPath under Structure Detection if a TOC is not automatically
+    created.  If there are no other headings used in the document then setting "//h:h2" under Structure Detection would
+    be the easiest way to create a TOC for the document.
+    
+    The inserted headings are not formatted, to apply formatting use the :guilabel:`Extra CSS` option under
+    the Look and Feel conversion settings.  For example, to center heading tags, use the following::
+
+        h2, h3 { text-align: center }
+
+:guilabel:`Renumber sequences of <h1> or <h2> tags`
+    Some publishers format chapter headings using multiple <h1> or <h2> tags sequentially.  
+    |app|'s default conversion settings will cause such titles to be split into two pieces.  This option 
+    will re-number the heading tags to prevent splitting.
+
+:guilabel:`Delete blank lines between paragraphs`
+    This option will cause |app| to analyze blank lines included within the document.  If every paragraph is interleaved
+    with a blank line, then |app| will remove all those blank paragraphs.  Sequences of multiple blank lines will be
+    considered scene breaks and retained as a single paragraph.  This option differs from the 'Remove Paragraph Spacing' 
+    option under 'Look and Feel' in that it actually modifies the HTML content, while the other option modifies the document
+    styles.  This option can also remove paragraphs which were inserted using |app|'s 'Insert blank line' option.
+
+:guilabel:`Ensure scene breaks are consistently formatted`
+    With this option |app| will attempt to detect common scene-break markers and ensure that they are center aligned.  
+    It also attempts to detect scene breaks defined by white space and replace them with a horizontal rule 15% of the
+    page width.  Some readers may find this desirable as these 'soft' scene breaks often become page breaks on readers, and 
+    thus become difficult to distinguish.
+
+:guilabel:`Remove unnecessary hyphens`
+    |app| will analyze all hyphenated content in the document when this option is enabled.  The document itself is used
+    as a dictionary for analysis.  This allows |app| to accurately remove hyphens for any words in the document in any language, 
+    along with made-up and obscure scientific words.  The primary drawback is words appearing only a single time in the document 
+    will not be changed.  Analysis happens in two passes, the first pass analyzes line endings.  Lines are only unwrapped if the 
+    word exists with or without a hyphen in the document.  The second pass analyzes all hyphenated words throughout the document, 
+    hyphens are removed if the word exists elsewhere in the document without a match.
+
+:guilabel:`Italicize common words and patterns`
+    When enabled, |app| will look for common words and patterns that denote italics and italicize them.  Examples are common text
+    conventions such as ~word~ or phrases that should generally be italicized, e.g. latin phrases like 'etc.' or 'et cetera'.
+
+:guilabel:`Replace entity indents with CSS indents`
+    Some documents use a convention of defining text indents using non-breaking space entities.  When this option is enabled |app| will
+    attempt to detect this sort of formatting and convert them to a 3% text indent using css.
+
+.. _search-replace:
+
+Search & Replace
+---------------------
+
+These options are useful primarily for conversion of PDF documents or OCR conversions, though they can 
+also be used to fix many document specific problems. As an example, some conversions can leaves behind page  
+headers and footers in the text. These options use regular expressions to try and detect headers, footers, 
+or other arbitrary text and remove or replace them. Remember that they operate on the intermediate XHTML produced 
+by the conversion pipeline. There is a wizard to help you customize the regular expressions for 
+your document.  Click the magic wand beside the expression box, and click the 'Test' button after composing 
+your search expression.  Successful matches will be highlighted in Yellow.
+
+The search works by using a python regular expression. All matched text is simply removed from 
+the document or replaced using the replacement pattern. The replacement pattern is optional, if left blank 
+then text matching the search pattern will be deleted from the document.  You can learn more about regular expressions  
+and their syntax at :ref:`regexptutorial`.
+
 .. _structure-detection:
 
 Structure Detection
@@ -298,21 +392,6 @@ which means that |app| will insert page breaks before every `<h1>` and `<h2>` ta
     
     The default expressions may change depending on the input format you are converting.
 
-Removing headers and footers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-These options are useful primarily for conversion of PDF documents. Often, the conversion leaves
-behind page headers and footers in the text. These options use regular expressions to try and detect
-the headers and footers and remove them. Remember that they operate on the intermediate XHTML produced
-by the conversion pipeline. There is also a wizard to help you customize the regular expressions for
-your document.
-
-The header and footer regular expressions are used in conjunction with the remove header and footer options.
-If the remove option is not enabled the regular expression will not be applied to remove the matched text.
-The removal works by using a python regular expression. All matched text is simply removed from
-the document. You can learn more about regular expressions and their syntax at
-http://docs.python.org/library/re.html.
-
 Miscellaneous
 ~~~~~~~~~~~~~~
 
@@ -330,16 +409,6 @@ There are a few more options in this section.
     two covers. This option will simply remove the first image from the source document, thereby
     ensuring that the converted book has only one cover, the one specified in |app|.
 
-:guilabel:`Preprocess input`
-    This option activates various algorithms that try to detect and correct common cases of
-    badly formatted input documents. Things like hard line breaks, large blocks of text with no formatting, etc.
-    Turn this option on if your input document suffers from bad formatting. But be aware that in
-    some cases, this option can lead to worse results, so use with care.
-
-:guilabel:`Line-unwrap factor`
-    This option control the algorithm |app| uses to remove hard line breaks. For example, if the value of this
-    option is 0.4, that means calibre will remove hard line breaks from the end of lines whose lengths are less
-    than the length of 40% of all lines in the document. 
     
 Table of Contents
 ------------------
@@ -488,26 +557,33 @@ at `mobileread <http://www.mobileread.com/forums/showthread.php?t=28313>`_.
 Convert TXT documents
 ~~~~~~~~~~~~~~~~~~~~~~
 
-TXT documents have no well defined way to specify formatting like bold, italics, etc, or document structure like paragraphs, headings, sections and so on.
-Since TXT documents provide no way to explicitly mark parts of
-the text, by default |app| only groups lines in the input document into paragraphs. The default is to assume one or
-more blank lines are a paragraph boundary::
-
-    This is the first.
-    
-    This is the
-    second paragraph.
+TXT documents have no well defined way to specify formatting like bold, italics, etc, or document 
+structure like paragraphs, headings, sections and so on, but there are a variety of conventions commonly 
+used.  By default |app| attempts automatic detection of the correct formatting and markup based on those
+conventions.
 
 TXT input supports a number of options to differentiate how paragraphs are detected.
 
-    :guilabel:`Treat each line as a paragraph`
+    :guilabel:`Paragraph Style: Auto`
+        Analyzes the text file and attempts to automatically determine how paragraphs are defined.  This
+        option will generally work fine, if you achieve undesirable results try one of the manual options.
+
+    :guilabel:`Paragraph Style: Block`
+        Assumes one or more blank lines are a paragraph boundary::
+        
+            This is the first.
+    
+            This is the
+            second paragraph.
+
+    :guilabel:`Paragraph Style: Single`
         Assumes that every line is a paragraph::
 
             This is the first.
             This is the second.
             This is the third.
         
-    :guilabel:`Assume print formatting`
+    :guilabel:`Paragraph Style: Print`
         Assumes that every paragraph starts with an indent (either a tab or 2+ spaces). Paragraphs end when
         the next line that starts with an indent is reached::
 
@@ -518,12 +594,27 @@ TXT input supports a number of options to differentiate how paragraphs are detec
             This is the
             third.
 
-    :guilabel:`Process using markdown`
+    :guilabel:`Paragraph Style: Unformatted`
+        Assumes that the document has no formatting, but does use hard line breaks.  Punctuation
+        and median line length are used to attempt to re-create paragraphs.
+
+    :guilabel:`Formatting Style: Auto`
+        Attemtps to detect the type of formatting markup being used.  If no markup is used then heuristic
+        formatting will be applied.
+
+    :guilabel:`Formatting Style: Heuristic`
+        Analyses the document for common chapter headings, scene breaks, and italicized words and applies the
+        appropriate html markup during conversion.
+
+    :guilabel:`Formatting Style: Markdown`
         |app| also supports running TXT input though a transformation preprocessor known as markdown. Markdown
         allows for basic formatting to be added to TXT documents, such as bold, italics, section headings, tables,
         lists, a Table of Contents, etc. Marking chapter headings with a leading # and setting the chapter XPath detection
         expression to "//h:h1" is the easiest way to have a proper table of contents generated from a TXT document.
         You can learn more about the markdown syntax at `daringfireball <http://daringfireball.net/projects/markdown/syntax>`_.
+
+    :guilabel:`Formatting Style: None`
+        Applies no special formatting to the text, the document is converted to html with no other changes.
 
 
 Convert PDF documents

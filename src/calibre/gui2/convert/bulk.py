@@ -11,6 +11,8 @@ from calibre.gui2.convert.single import Config, sort_formats_by_preference, \
 from calibre.customize.ui import available_output_formats
 from calibre.gui2 import ResizableDialog
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.gui2.convert.heuristics import HeuristicsWidget
+from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
@@ -69,6 +71,8 @@ class BulkConfig(Config):
 
         self.setWindowTitle(_('Bulk Convert'))
         lf = widget_factory(LookAndFeelWidget)
+        hw = widget_factory(HeuristicsWidget)
+        sr = widget_factory(SearchAndReplaceWidget)
         ps = widget_factory(PageSetupWidget)
         sd = widget_factory(StructureDetectionWidget)
         toc = widget_factory(TOCWidget)
@@ -90,7 +94,7 @@ class BulkConfig(Config):
             if not c: break
             self.stack.removeWidget(c)
 
-        widgets = [lf, ps, sd, toc]
+        widgets = [lf, hw, ps, sd, toc, sr]
         if output_widget is not None:
             widgets.append(output_widget)
         for w in widgets:

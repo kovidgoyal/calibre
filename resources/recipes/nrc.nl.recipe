@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 nrc.nl
 '''
@@ -15,13 +15,18 @@ class Pagina12(BasicNewsRecipe):
     oldest_article        = 2
     max_articles_per_feed = 200
     no_stylesheets        = True
-    encoding              = 'cp1252'
+    encoding              = 'utf8'
     use_embedded_content  = False
     language              = 'nl'
     country               = 'NL'
     remove_empty_feeds    = True
     masthead_url          = 'http://www.nrc.nl/nrc.nl/images/logo_nrc.png'
-    extra_css             = ' body{font-family: Verdana,Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} h1,h2,h3{text-align:left} '
+    extra_css             = """ 
+                                body{font-family: Georgia,serif } 
+                                img{margin-bottom: 0.4em; display: block}
+                                .bijschrift,.sectie{font-size: x-small}
+                                .sectie{color: gray}
+                            """
 
     conversion_options = {
                           'comment'   : description
@@ -30,21 +35,42 @@ class Pagina12(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    keep_only_tags = [dict(name='div',attrs={'class':'article clearfix'})]
-
-
+    keep_only_tags = [dict(attrs={'class':'uitstekendekeus'})]
+    remove_tags    = [
+                        dict(name=['meta','base','link','object','embed'])
+                       ,dict(attrs={'class':['reclamespace','tags-and-sharing']})
+                     ]
+    remove_attributes=['lang']
+    
     feeds = [
-              (u'Voorpagina'   , u'http://feeds.feedburner.com/NRCHandelsbladVoorpagina'     )
-             ,(u'Binnenland'   , u'http://feeds.feedburner.com/NRCHandelsbladBinnenland'     )
-             ,(u'Buitenland'   , u'http://feeds.feedburner.com/NRCHandelsbladBuitenland'     )
-             ,(u'Economie'     , u'http://feeds.feedburner.com/NRCHandelsbladEconomie'       )
-             ,(u'Kunst & Film' , u'http://feeds.feedburner.com/nrc/NRCHandelsbladKunstEnFilm')
-             ,(u'Sport'        , u'http://feeds.feedburner.com/NRCHandelsbladSport'          )
-             ,(u'Wetenschap '  , u'http://www.nrc.nl/rss/wetenschap'                         )
+              (u'Voor nieuws', u'http://www.nrc.nl/nieuws/categorie/nieuws/rss.php'           )
+             ,(u'Binnenland' , u'http://www.nrc.nl/nieuws/categorie/binnenland/rss.php'       )
+             ,(u'Buitenland' , u'http://www.nrc.nl/nieuws/categorie/buitenland/rss.php'       )
+             ,(u'Economie'   , u'http://www.nrc.nl/nieuws/categorie/economie/rss.php'         )
+             ,(u'Cultuur'    , u'http://www.nrc.nl/nieuws/categorie/cultuur/rss.php'          )
+             ,(u'Sport'      , u'http://www.nrc.nl/nieuws/categorie/sport/rss.php'            )
+             ,(u'Wetenschap ', u'http://www.nrc.nl/nieuws/categorie/wetenschap-nieuws/rss.php')
             ]
 
-    def print_version(self, url):
-        return url + '?service=Print'
-
     def preprocess_html(self, soup):
-        return self.adeify_images(soup)
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  atritems =['href','target','rel']
+                  for atit in atritems:
+                      if item.has_key(atit):
+                         del item[atit]
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)            
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'               
+        return soup

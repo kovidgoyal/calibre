@@ -123,6 +123,8 @@ IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
 
 class FormatList(QListWidget):
     DROPABBLE_EXTENSIONS = BOOK_EXTENSIONS
+    formats_dropped = pyqtSignal(object, object)
+    delete_format = pyqtSignal()
 
     @classmethod
     def paths_from_event(cls, event):
@@ -146,15 +148,14 @@ class FormatList(QListWidget):
     def dropEvent(self, event):
         paths = self.paths_from_event(event)
         event.setDropAction(Qt.CopyAction)
-        self.emit(SIGNAL('formats_dropped(PyQt_PyObject,PyQt_PyObject)'),
-                event, paths)
+        self.formats_dropped.emit(event, paths)
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
-            self.emit(SIGNAL('delete_format()'))
+            self.delete_format.emit()
         else:
             return QListWidget.keyPressEvent(self, event)
 
@@ -162,6 +163,7 @@ class FormatList(QListWidget):
 class ImageView(QWidget):
 
     BORDER_WIDTH = 1
+    cover_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -201,8 +203,7 @@ class ImageView(QWidget):
             if not pmap.isNull():
                 self.setPixmap(pmap)
                 event.accept()
-                self.emit(SIGNAL('cover_changed(PyQt_PyObject)'), open(path,
-                    'rb').read())
+                self.cover_changed.emit(open(path, 'rb').read())
                 break
 
     def dragMoveEvent(self, event):
@@ -271,7 +272,7 @@ class ImageView(QWidget):
             pmap = cb.pixmap(cb.Selection)
         if not pmap.isNull():
             self.setPixmap(pmap)
-            self.emit(SIGNAL('cover_changed(PyQt_PyObject)'),
+            self.cover_changed.emit(
                     pixmap_to_data(pmap))
     # }}}
 
@@ -310,32 +311,6 @@ class FontFamilyModel(QAbstractListModel):
 
     def index_of(self, family):
         return self.families.index(family.strip())
-
-class BasicComboModel(QAbstractListModel):
-
-    def __init__(self, items, *args):
-        QAbstractListModel.__init__(self, *args)
-        self.items = [i for i in items]
-        self.items.sort()
-
-    def rowCount(self, *args):
-        return len(self.items)
-
-    def data(self, index, role):
-        try:
-            item = self.items[index.row()]
-        except:
-            traceback.print_exc()
-            return NONE
-        if role == Qt.DisplayRole:
-            return QVariant(item)
-        if role == Qt.FontRole:
-            return QVariant(QFont(item))
-        return NONE
-
-    def index_of(self, item):
-        return self.items.index(item.strip())
-
 
 class BasicListItem(QListWidgetItem):
 
@@ -479,10 +454,10 @@ class CompleteLineEdit(EnLineEdit):
 
     def update_items_cache(self, complete_items):
         self.completer.update_items_cache(complete_items)
-        
+
     def set_separator(self, sep):
         self.separator = sep
-        
+
     def set_space_before_sep(self, space_before):
         self.space_before_sep = space_before
 
@@ -527,7 +502,7 @@ class EnComboBox(QComboBox):
     def __init__(self, *args):
         QComboBox.__init__(self, *args)
         self.setLineEdit(EnLineEdit(self))
-        self.setAutoCompletionCaseSensitivity(Qt.CaseSensitive)
+        self.setAutoCompletionCaseSensitivity(Qt.CaseInsensitive)
         self.setMinimumContentsLength(20)
 
     def text(self):
@@ -541,17 +516,17 @@ class EnComboBox(QComboBox):
         self.setCurrentIndex(idx)
 
 class CompleteComboBox(EnComboBox):
-    
+
     def __init__(self, *args):
         EnComboBox.__init__(self, *args)
         self.setLineEdit(CompleteLineEdit(self))
 
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)
-        
+
     def set_separator(self, sep):
         self.lineEdit().set_separator(sep)
-        
+
     def set_space_before_sep(self, space_before):
         self.lineEdit().set_space_before_sep(space_before)
 

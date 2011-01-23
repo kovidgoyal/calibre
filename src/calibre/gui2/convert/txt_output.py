@@ -4,10 +4,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+from PyQt4.Qt import Qt
+
 from calibre.gui2.convert.txt_output_ui import Ui_Form
 from calibre.gui2.convert import Widget
-from calibre.ebooks.txt.newlines import TxtNewlines
-from calibre.gui2.widgets import BasicComboModel
 
 newline_model = None
 
@@ -24,16 +24,23 @@ class PluginWidget(Widget, Ui_Form):
         'inline_toc', 'markdown_format', 'keep_links', 'keep_image_references',
         'txt_output_encoding'])
         self.db, self.book_id = db, book_id
+        for x in get_option('newline').option.choices:
+            self.opt_newline.addItem(x)
         self.initialize_options(get_option, get_help, db, book_id)
 
-        default = self.opt_newline.currentText()
+        self.opt_markdown_format.stateChanged.connect(self.enable_markdown_format)
+        self.enable_markdown_format(self.opt_markdown_format.checkState())
 
-        global newline_model
-        if newline_model is None:
-            newline_model = BasicComboModel(TxtNewlines.NEWLINE_TYPES.keys())
-        self.newline_model = newline_model
-        self.opt_newline.setModel(self.newline_model)
+    def break_cycles(self):
+        Widget.break_cycles(self)
 
-        default_index = self.opt_newline.findText(default)
-        system_index = self.opt_newline.findText('system')
-        self.opt_newline.setCurrentIndex(default_index if default_index != -1 else system_index if system_index != -1 else 0)
+        try:
+            self.opt_markdown_format.stateChanged.disconnect()
+        except:
+            pass
+
+    def enable_markdown_format(self, state):
+        state = state == Qt.Checked
+        self.opt_keep_links.setEnabled(state)
+        self.opt_keep_image_references.setEnabled(state)
+
