@@ -10,11 +10,11 @@ class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
 
     def __init__(self, window, msg, formats):
         '''
-        formats is a list of tuples: [(format, exists, convertable)].
+        formats is a list of tuples: [(format, exists, convertible)].
             format: Lower case format identifier. E.G. mobi
             exists: String representing the number of books that
                     exist in the format.
-            convertable: True if the format is a convertable format.
+            convertible: True if the format is a convertible format.
         formats should be ordered in the device's preferred format ordering.
         '''
         QDialog.__init__(self, window)
@@ -29,7 +29,7 @@ class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
             t_item.setIcon(0, file_icon_provider().icon_from_ext(format.lower()))
             t_item.setText(0, format.upper())
             t_item.setText(1, exists)
-            if convertable:
+            if convertible:
                 t_item.setIcon(2, QIcon(I('ok.png')))
             self.formats.addTopLevelItem(t_item)
             if i == 0:

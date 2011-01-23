@@ -54,7 +54,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Convertable</string>
+       <string>Convertible</string>
       </property>
      </column>
     </widget>
