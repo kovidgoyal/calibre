@@ -515,8 +515,8 @@ class TagsModel(QAbstractItemModel): # {{{
         QAbstractItemModel.__init__(self, parent)
 
         # must do this here because 'QPixmap: Must construct a QApplication
-        # before a QPaintDevice'. The ':' at the end avoids polluting either the
-        # user-defined categories (':' at front) or columns namespaces (no ':').
+        # before a QPaintDevice'. The ':' at the end avoids polluting either of
+        # the other namespaces (alpha, '#', or '@')
         iconmap = {}
         for key in category_icon_map:
             iconmap[key] = QIcon(I(category_icon_map[key]))
@@ -690,7 +690,7 @@ class TagsModel(QAbstractItemModel): # {{{
         tb_cats = self.db.field_metadata
         for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys(),
                                key=sort_key):
-            cat_name = ':' + user_cat # add the ':' to avoid name collision
+            cat_name = '@' + user_cat # add the '@' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
@@ -997,7 +997,7 @@ class TagsModel(QAbstractItemModel): # {{{
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
             row_index += 1
-            if key.startswith(':'):
+            if key.startswith('@'):
                 # User category, so skip it. The tag will be marked in its real category
                 continue
             category_item = self.root_item.children[row_index]

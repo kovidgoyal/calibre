@@ -319,7 +319,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.field_metadata.remove_dynamic_categories()
         tb_cats = self.field_metadata
         for user_cat in sorted(self.prefs.get('user_categories', {}).keys(), key=sort_key):
-            cat_name = ':' + user_cat # add the ':' to avoid name collision
+            cat_name = '@' + user_cat # add the '@' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
@@ -1339,7 +1339,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if label in taglist and name in taglist[label]:
                     items.append(taglist[label][name])
                 # else: do nothing, to not include nodes w zero counts
-            cat_name = ':' + user_cat # add the ':' to avoid name collision
+            cat_name = '@' + user_cat # add the '@' to avoid name collision
             # Not a problem if we accumulate entries in the icon map
             if icon_map is not None:
                 icon_map[cat_name] = icon_map['user:']
