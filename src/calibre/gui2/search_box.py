@@ -76,10 +76,7 @@ class SearchBox2(QComboBox): # {{{
         c.setCompletionMode(c.PopupCompletion)
         c.highlighted[QString].connect(self.completer_used)
         c.activated[QString].connect(self.history_selected)
-        self.esc_action = QAction(self)
-        self.addAction(self.esc_action)
-        self.esc_action.setShortcut(QKeySequence(Qt.Key_Escape))
-        self.esc_action.triggered.connect(self.esc)
+
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
         self.activated.connect(self.history_selected)
         self.setEditable(True)
@@ -93,9 +90,6 @@ class SearchBox2(QComboBox): # {{{
         self.setMinimumContentsLength(25)
         self._in_a_search = False
         self.tool_tip_text = self.toolTip()
-
-    def esc(self, *args):
-        self.clear()
 
     def initialize(self, opt_name, colorize=False, help_text=_('Search')):
         self.as_you_type = config['search_as_you_type']
