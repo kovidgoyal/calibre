@@ -981,7 +981,7 @@ not multiple and the destination field is multiple</string>
            <item row="3" column="2">
             <widget class="QComboBox" name="query_field">
              <property name="toolTip">
-              <string>The name of the field that you want to search</string>
+              <string>Select query to load.</string>
              </property>
             </widget>
            </item>
@@ -1012,6 +1012,9 @@ not multiple and the destination field is multiple</string>
              </item>
              <item>
               <widget class="QPushButton" name="save_button">
+               <property name="toolTip">
+                <string>Save current query.</string>
+               </property>
                <property name="text">
                 <string>Save</string>
                </property>
@@ -1019,6 +1022,9 @@ not multiple and the destination field is multiple</string>
              </item>
              <item>
               <widget class="QPushButton" name="remove_button">
+               <property name="toolTip">
+                <string>Remove loadded query.</string>
+               </property>
                <property name="text">
                 <string>Remove</string>
                </property>
