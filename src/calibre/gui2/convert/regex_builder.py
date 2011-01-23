@@ -166,6 +166,8 @@ class RegexEdit(QWidget, Ui_Edit):
 
     def builder(self):
         bld = RegexBuilder(self.db, self.book_id, self.edit.text(), self)
+        if bld.cancelled:
+            return
         if bld.exec_() == bld.Accepted:
             self.edit.setText(bld.regex.text())
 
