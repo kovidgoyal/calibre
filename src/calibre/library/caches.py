@@ -42,6 +42,9 @@ class MetadataBackup(Thread): # {{{
 
     def stop(self):
         self.keep_running = False
+        # Break cycles so that this object doesn't hold references to db
+        self.do_write = self.get_metadata_for_dump = self.clear_dirtied = \
+            self.set_dirtied = self.db = None
 
     def run(self):
         while self.keep_running:
@@ -184,6 +187,11 @@ class ResultCache(SearchQueryParser): # {{{
         SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
+
+    def break_cycles(self):
+        self._data = self.field_metadata = self.FIELD_MAP = \
+            self.numeric_search_relops = self.date_search_relops = \
+            self.all_search_locations = None
 
 
     def __getitem__(self, row):

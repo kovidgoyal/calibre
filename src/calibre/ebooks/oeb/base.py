@@ -221,7 +221,10 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                         el.text):
             stylesheet = parseString(el.text)
             replaceUrls(stylesheet, link_repl_func)
-            el.text = '\n'+stylesheet.cssText + '\n'
+            repl = stylesheet.cssText
+            if isbytestring(repl):
+                repl = repl.decode('utf-8')
+            el.text = '\n'+ repl + '\n'
 
         if 'style' in el.attrib:
             text = el.attrib['style']
@@ -234,8 +237,11 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                             set_property(item)
                     elif v.CSS_PRIMITIVE_VALUE == v.cssValueType:
                         set_property(v)
-                el.attrib['style'] = stext.cssText.replace('\n', ' ').replace('\r',
+                repl = stext.cssText.replace('\n', ' ').replace('\r',
                         ' ')
+                if isbytestring(repl):
+                    repl = repl.decode('utf-8')
+                el.attrib['style'] = repl
 
 
 

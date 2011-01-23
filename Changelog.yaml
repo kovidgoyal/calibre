@@ -4,10 +4,12 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
-- version: 0.7.41
+- version: 0.7.42
   date: 2011-01-21
 
   new features:
+    - title: "0.7.42 is a re-release of 0.7.41, because conversion to MOBI was broken in 0.7.41"
+
     - title: "Conversions: Replace the remove header/footer options with a more geenric search replace option, that allows you to not only remove but also replace text"
 
     - title: "Conversion: The preprocess html option has now become a new 'Heuristic Processing' option which allows you to control exactly which heuristics are used"
