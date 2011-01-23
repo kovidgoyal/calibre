@@ -24,7 +24,7 @@ class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
                 self.activated_slot)
 
         self.msg.setText(msg)
-        for i, (format, exists, convertable) in enumerate(formats):
+        for i, (format, exists, convertible) in enumerate(formats):
             t_item = QTreeWidgetItem()
             t_item.setIcon(0, file_icon_provider().icon_from_ext(format.lower()))
             t_item.setText(0, format.upper())
