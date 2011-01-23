@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-21 23:34+0000\n"
-"PO-Revision-Date: 2011-01-22 01:11+0000\n"
+"PO-Revision-Date: 2011-01-22 17:11+0000\n"
 "Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-22 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-01-23 04:51+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -4130,7 +4130,7 @@ msgstr "Lägg till tom bok (bokpost utan format)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:46
 msgid "Shift+Ctrl+E"
-msgstr ""
+msgstr "Skift + Ctrl + E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add from ISBN"
@@ -5708,7 +5708,7 @@ msgstr "Alternativ för e-böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Sections to include in catalog."
-msgstr ""
+msgstr "Sektioner som ska ingå i katalogen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "Included sections"
@@ -6901,6 +6901,11 @@ msgid ""
 "clicking the wizard buttons below will allow you to test your regular "
 "expression against the current input document."
 msgstr ""
+"<p> Sök och ersätt använder <i> vanliga uttryck </i>. Se <a "
+"href=\"http://calibre-ebook.com/user_manual/regexp.html\"> vanliga uttryck "
+"tutorial </a> för att komma igång med reguljära uttryck. Klicka också på "
+"guideknapparna nedan så kan du testa din vanliga uttrycket mot strömmen "
+"ingång dokumentet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:173
 msgid "Convert"
@@ -7260,6 +7265,8 @@ msgid ""
 "The enumeration \"{0}\" contains invalid values that will not appear in the "
 "list"
 msgstr ""
+"Uppräkningen \"{0}\" innehåller ogiltiga värden som inte kommer att visas i "
+"listan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:664
 msgid "Remove all tags"
@@ -7497,11 +7504,11 @@ msgstr "Hur många tomma böcker ska läggas till?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:32
 msgid "Set the author of the new books to:"
-msgstr ""
+msgstr "Ange författaren av nya böcker till:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:44
 msgid "Reset author to Unknown"
-msgstr ""
+msgstr "Återställ författaren okänd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:63
 msgid "Add books by ISBN"
@@ -7521,6 +7528,14 @@ msgid ""
 "enter the full path to the file after a <code>>></code>.  For example:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 msgstr ""
+"<p> Ange en lista med ISBN i rutan till vänster, en per rad. Caliber "
+"automatiskt skapa poster för böcker baserade på ISBN och hämta metadata och "
+"omslag för dem. </p>\n"
+"<p> Alla ogiltiga ISBN-nummer i förteckningen kommer att ignoreras. </p>\n"
+"<p> Du kan också ange en fil som läggs med varje ISBN. För att göra detta "
+"ange den fullständiga sökvägen till filen efter en <code>>> </code>. Till "
+"exempel: </p>\n"
+"<p> <code> 9788842915232>> %s </ <koden> /p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:69
 msgid "&Tags to set on created book entries:"
@@ -7711,6 +7726,9 @@ msgid ""
 "Copy the custom columns, saved searches, column widths, plugboards,\n"
 "user categories, and other information from the old to the new library"
 msgstr ""
+"Kopiera anpassade kolumner, sparade sökningar, kolumnbredd, kontrollpanel,\n"
+"kategorier av användare och annan information från det gamla till det nya "
+"biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:85
 msgid "&Move current library to new location"
@@ -7759,7 +7777,7 @@ msgstr "Redigera kommentarer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:62
 msgid "Where do you want to delete from?"
-msgstr ""
+msgstr "Var vill du vill ta bort från?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:63
@@ -7816,7 +7834,7 @@ msgstr "Ta bort från enhet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:54
 msgid "This book is DRMed"
-msgstr ""
+msgstr "Denna bok är DRMed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:55
 msgid ""
@@ -7824,6 +7842,9 @@ msgid ""
 "cannot read or convert this book in calibre, \n"
 "<a href=\"http://bugs.calibre-ebook.com/wiki/DRM\">click here</a>."
 msgstr ""
+"<p> Denna bok är låst av DRM <b> </b>. Om du vill veta mer om DRM och varför "
+"du inte kan läsa eller konvertera denna bok i Caliber, \n"
+"<a href=\"http://bugs.calibre-ebook.com/wiki/DRM\"> klicka här </a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:35
 msgid "Author sort"
@@ -7875,11 +7896,11 @@ msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:66
 msgid "Has Cover"
-msgstr ""
+msgstr "Har omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:67
 msgid "Has Summary"
-msgstr ""
+msgstr "Har sammanfattning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:192
 msgid "Finding metadata..."
@@ -8016,7 +8037,7 @@ msgstr "Varje Ord Med Stor Begynnelsebokstav"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:259
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:364
 msgid "Capitalize"
-msgstr ""
+msgstr "Inledande stor bokstav"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:262
 msgid "Character match"
@@ -8047,6 +8068,8 @@ msgid ""
 "Immediately make all changes without closing the dialog. This operation "
 "cannot be canceled or undone"
 msgstr ""
+"Omedelbart gör alla ändringar utan att stänga dialogrutan. Denna operation "
+"kan inte annulleras eller ångras"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:369
 msgid "Book %d:"
@@ -8107,7 +8130,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:458
 msgid "S/R TEMPLATE ERROR"
-msgstr ""
+msgstr "S/R MALLFEL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:578
 msgid "You must specify a destination when source is a composite field"
@@ -8251,7 +8274,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:482
 msgid "&Force numbers to start with:"
-msgstr ""
+msgstr "&Tvinga nummer att börja med:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:483
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:440
@@ -8292,7 +8315,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:495
 msgid "Change title to title &case"
-msgstr ""
+msgstr "Ändra titel till titelformat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:496
 msgid ""
@@ -8444,36 +8467,41 @@ msgid ""
 "is\n"
 "not multiple and the destination field is multiple"
 msgstr ""
+"Anger om resultatposter bör vara uppdelade i flera värden eller\n"
+"kvar som enskilda värden. Detta alternativ har mest effekt när källfältet\n"
+"inte är en flera och målfältet är flera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:529
 msgid "Split &result"
-msgstr ""
+msgstr "Dela upp &resultat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:530
 msgid "For multiple-valued fields, sho&w"
-msgstr ""
+msgstr "För flera värdefulla områden, &visa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:531
 msgid "values starting a&t"
-msgstr ""
+msgstr "värden startar &på"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:532
 msgid "with values separated b&y"
-msgstr ""
+msgstr "med värden avgränsade &med"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:533
 msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
 msgstr ""
+"Används vid visning av testresultat för att separera värden i "
+"flervärderadesområden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:534
 msgid "Test text"
-msgstr ""
+msgstr "Testtext"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:535
 msgid "Test result"
-msgstr ""
+msgstr "Testresultat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:536
 msgid "Your test:"
@@ -8629,6 +8657,8 @@ msgid ""
 " The red color warns that the current title sort does not match the current "
 "title. No action is required if this is what you want."
 msgstr ""
+" Den röda färgen varnar för att den aktuella titelsorteringen inte stämmer "
+"med den aktuella titeln. Ingen åtgärd krävs om detta är vad du vill."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:468
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:47
@@ -8687,6 +8717,8 @@ msgid ""
 "The download of social metadata timed out, the servers are probably busy. "
 "Try again later."
 msgstr ""
+"Tidgräns för nedladdning av sociala metadata har gått ut, servrarna är "
+"förmodligen upptagen. Försök igen senare."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:813
 msgid "There were errors"
@@ -8729,6 +8761,9 @@ msgid ""
 "Using this button to create title sort will change title sort from red to "
 "green."
 msgstr ""
+"Automatiskt skapa posten titelsortera baserat på den aktuella titelposten.\n"
+"Med den här knappen för att skapa titelsortering som kommer att ändra "
+"titelsortera från rött till grönt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:413
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:109
@@ -8750,7 +8785,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:418
 msgid "Title &sort: "
-msgstr ""
+msgstr "Titel &sortering: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:419
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:109
@@ -8758,6 +8793,8 @@ msgid ""
 "Specify how this book should be sorted when by title. For example, The "
 "Exorcist might be sorted as Exorcist, The."
 msgstr ""
+"Ange hur denna bok ska sorteras efter titel. Till exempel kan Exorcisten "
+"sorteras som Exorcisten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:421
 msgid "Author S&ort: "
@@ -8822,7 +8859,7 @@ msgstr "Återställ omslaget"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:452
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:613
 msgid "&Remove"
-msgstr ""
+msgstr "&Ta bort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:453
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:619
@@ -10397,7 +10434,7 @@ msgstr "&Utgivare:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:978
 msgid "Clear date"
-msgstr ""
+msgstr "Klar datum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:109
 msgid "Book has neither title nor ISBN"
@@ -10444,7 +10481,7 @@ msgstr "Detaljinformation"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:208
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Redigera metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:426
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:587
@@ -10457,15 +10494,15 @@ msgstr "Ko&mmentarer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:496
 msgid "&Metadata"
-msgstr ""
+msgstr "&Metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:501
 msgid "&Cover and formats"
-msgstr ""
+msgstr "&Omslag och format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:556
 msgid "C&ustom metadata"
-msgstr ""
+msgstr "&Anpassa eget metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:36
 msgid ""
@@ -10869,6 +10906,9 @@ msgid ""
 "included, and is the default. For example, the list 'one,two,three' has\n"
 "four values, the first of them being the empty value."
 msgstr ""
+"En kommaseparerad lista över tillåtna värden. Det tomma värde ingår alltid\n"
+", och är standard. Till exempel listan \"ett, två, tre\" har\n"
+"fyra värden, den första av dessa är tomt värde."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:169
 msgid "The empty string is always the first value"
@@ -11030,7 +11070,7 @@ msgstr "Sök &medan du skriver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Tags browser category partitioning method:"
-msgstr ""
+msgstr "Etikettläsare kategoripartitioneringsmetoden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:153
 msgid ""
@@ -11040,6 +11080,11 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
+"Välj hur etikettläsarens underkategorier visas när\n"
+"det finns fler objekt än de gränsvärden. Välj genom att först\n"
+"brev för att se ett A, B, C listan. Välj partitioneras till\n"
+"har en lista med fast storlek grupper. Välj inställning inaktiverad.\n"
+"Om du vill aldrig underkategorier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:158
 msgid "Collapse when more items than:"
@@ -11051,6 +11096,10 @@ msgid ""
 "up into sub-categories. If the partition method is set to disable, this "
 "value is ignored."
 msgstr ""
+"Om en etikettbläddrarkategori har mer än detta antal objekt, är det "
+"uppdelat\n"
+"i underkategorier. Om partitioneringsmetoden är inställt på inaktivera, "
+"ignoreras detta värde."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:161
 msgid "&Toolbar"
@@ -11284,6 +11333,9 @@ msgid ""
 "virus/malware. Only install it if you got it from a trusted source. Are you "
 "sure you want to proceed?"
 msgstr ""
+"Installation av tillägg är en <b> säkerhetsrisk </b>. Tillägg kan innehålla "
+"ett virus / malware. Installera bara den om du fick den från en betrodd "
+"källa. Är du säker på att du vill fortsätta?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:231
@@ -11295,6 +11347,8 @@ msgid ""
 "Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
 "have to restart calibre for the plugin to take effect."
 msgstr ""
+"Tillägg <b> {0} </b> har installerats under <b> {1} plugins </ b>. Du kanske "
+"måste starta Caliber för tillägget ska börja gälla."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:192
 msgid "No valid plugin path"
@@ -11306,7 +11360,7 @@ msgstr "%s är inte en giltig sökväg till ett tillägg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:202
 msgid "Select an actual plugin under <b>%s</b> to customize"
-msgstr ""
+msgstr "Välj ett aktuellt tillägg under <b>% s </b> för att anpassa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:208
 msgid "Plugin cannot be disabled"
@@ -11326,7 +11380,7 @@ msgstr "Tillägget: %s behöver inte anpassas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:226
 msgid "Plugin {0} successfully removed"
-msgstr ""
+msgstr "Tillägg {0} har tagits bort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:234
 msgid "Cannot remove builtin plugin"
@@ -11360,7 +11414,7 @@ msgstr "Ta bort tillägg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:63
 msgid "&Add a new plugin"
-msgstr ""
+msgstr "&Lägg till ett nytt tillägg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
@@ -11675,6 +11729,69 @@ msgid ""
 "        </p>\n"
 "        "
 msgstr ""
+"\n"
+"        <p> Här kan du lägga till och ta bort funktioner som används i "
+"mallen bearbetning. En\n"
+"        mallfunktion är skriven i Python. Den tar information från\n"
+"        bok, processer det på något sätt, sedan returnerar en sträng "
+"resultat. Funktioner\n"
+"        definieras här användbara i mallar på samma sätt som inbyggda\n"
+"        funktioner är användbara. Funktionen måste namnges <b> utvärdera "
+"</b> och\n"
+"        måste ha signaturen nedan. </ p>\n"
+"        <p> <code> utvärdera (self, Formatter, kwargs, MI, "
+"lokalbefolkningen, dina parametrar)\n"
+"        → återvänder en Unicode-sträng </ code> </p>\n"
+"        <p> parametrar utvärdera funktion är:\n"
+"        <ul>\n"
+"        <li> <b> formatenheten </b>: den instans av formatenheten används "
+"för att\n"
+"        utvärdera den aktuella mallen. Du kan använda detta för att göra "
+"rekursiva\n"
+"        mall utvärdering. </ li>\n"
+"        <li> <b> kwargs </b>: ett lexikon av metadata. Fältvärden i detta\n"
+"        ordlistan.\n"
+"        <li> <b> mi </b>: en Metadata instans. Används för att få "
+"områdesinformation.\n"
+"        Denna parameter kan Ingen i vissa fall, t.ex. vid bedömning\n"
+"        icke-bok mallar. </li>\n"
+"        <li> <b> lokalbefolkningen </b>: den lokala variabler tilldelats av "
+"den aktuella\n"
+"        mall programmet. </ li>\n"
+"        <li> <b> dina parametrar </b>: Du måste lämna ett eller flera "
+"formella\n"
+"        parametrar. Antalet skall matcha argumentantalet rutan, såvida "
+"argumentantalet är\n"
+"        -1 (Varierande antal eller argument), i vilket fall det sista "
+"argumentet\n"
+"        vara * args. Minst ett argument krävs, och är vanligtvis värdet av\n"
+"        området drivs på. Observera att när du skriver i grundmall\n"
+"        läge, ger användaren inte detta första argument. Istället är det\n"
+"        tillhandahålls av Formatter. </li>\n"
+"        </ui> </p>\n"
+"        <p>\n"
+"        I följande exempel kontrollerar funktionen värdet i fältet. Om\n"
+"        inte är tomt, är det fältets värde som returneras, annars värdet\n"
+"        TOM returneras.\n"
+"        <pre>\n"
+"        Namn: my_ifempty\n"
+"        argumentantalet: 1\n"
+"        doc: my_ifempty(val) - Räntabiliteten Val om den inte är tom, annars "
+"strängen \"tom\"\n"
+"        programkod:\n"
+"        def eval(self, Formatter, kwargs, MI, lokalbefolkningen, Val):\n"
+"            om val:\n"
+"                avkastning Val\n"
+"            annat:\n"
+"                tillbaka på \"Empty\" </pre>\n"
+"        Denna funktion kan anropas i någon av de tre lägen mall programmet:\n"
+"        <ul>\n"
+"        <li> enda funktion läge: {Tags: my_ifempty ()}</li>\n"
+"        <li> mall program läge: {Tags: \"my_ifempty ($)'}</li>\n"
+"        <li> allmänna programmet läge: program: my_ifempty (fält "
+"(\"taggar'))</li>\n"
+"        </p>\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:143
@@ -11686,7 +11803,7 @@ msgstr "Mallfunktioner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:134
 msgid "You cannot delete a built-in function"
-msgstr ""
+msgstr "Du kan inte ta bort en inbyggd funktion"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:144
 msgid "Function not defined"
@@ -12000,7 +12117,7 @@ msgstr "Namnet %s för den sparade sökningen används redan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1232
 msgid "Find item in tag browser"
-msgstr ""
+msgstr "Hitta objekt med etikettläsare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1235
 msgid ""
@@ -12011,6 +12128,14 @@ msgid ""
 "*foo will filter all categories at once, showing only those items\n"
 "containing the text \"foo\""
 msgstr ""
+"Sök efter objekt. Detta är en \"innehålls\" sökning, artiklar som "
+"innehåller\n"
+"text någonstans i namnet kommer att hittas. Du kan begränsa sökningen\n"
+"för särskilda kategorier med syntax som liknar sökningen. Till exempel,\n"
+"Etikett: foo hittar foo i varje etikett, men inte i författare etc. Ange\n"
+"* Foo kommer att filtrera alla kategorier på en gång, endast visar de "
+"poster\n"
+"som innehåller texten \"foo\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1244
 msgid "ALT+f"
@@ -12073,7 +12198,7 @@ msgstr "Lägg till egna kategorier i etikettbläddraren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:64
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
-msgstr ""
+msgstr "Konvertera bok %(num) av %(total) d (%(title)ar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:204
@@ -12355,7 +12480,7 @@ msgstr "inaktiverad"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid " secs"
-msgstr ""
+msgstr " sek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
 msgid "Mouse &wheel flips pages"
@@ -12383,10 +12508,14 @@ msgid ""
 "For examples, click <a "
 "href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">here</a>."
 msgstr ""
+"<p> En CSS-formatmall som kan användas för att styra utseendet på böcker. "
+"För exempel, "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=51500\"> klicka <a "
+"här </a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:207
 msgid "User &Stylesheet"
-msgstr ""
+msgstr "Användare & Stylesheet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
@@ -12430,7 +12559,7 @@ msgstr "Standardspråk för avstavningsregler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:58
 msgid "Save the current position in the document, when quitting"
-msgstr ""
+msgstr "Spara nuvarande position i dokumentet, när de slutar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:60
 msgid "Have the mouse wheel turn pages"
@@ -12480,6 +12609,8 @@ msgid ""
 "You are in the middle of editing a keyboard shortcut first complete that, by "
 "clicking outside the  shortcut editing box."
 msgstr ""
+"Du är mitt i redigering av ett kortkommando först avsluta det, genom att "
+"klicka utanför den genvägen redigering rutan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:514
 msgid "&Lookup in dictionary"
@@ -12910,6 +13041,8 @@ msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
+"<p> Välj en plats för dina böcker. När du lägger böcker i Caliber, kommer de "
+"att kopieras här. Använd en <b> tom mapp </b> för en ny kaliber biblioteket:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -12958,25 +13091,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:150
 msgid "Setup sending email using"
-msgstr ""
+msgstr "Ställ in skicka e-post med"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:152
 msgid ""
 "If you don't have an account, you can sign up for a free {name} email "
 "account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
+"Om du inte har ett konto, kan du registrera dig för ett gratis {namn} e-"
+"postkonto på <a href=\"http://{url}\"> http:// {url} </a>. {Extra}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:159
 msgid "Your %s &email address:"
-msgstr ""
+msgstr "Din %s &e-postadress:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:160
 msgid "Your %s &username:"
-msgstr ""
+msgstr "Ditt %s &användarnamn:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:161
 msgid "Your %s &password:"
-msgstr ""
+msgstr "Ditt %s & lösenord:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:179
 msgid ""
@@ -12984,10 +13119,13 @@ msgid ""
 "your %s email address to the allowed email addresses in your Amazon.com "
 "Kindle management page."
 msgstr ""
+"Om du planerar att använda e-post för att skicka böcker till din Kindle, kom "
+"ihåg att lägga till din %s e-postadress till de tillåtna e-postadresser för "
+"din Amazon.com Kindle hanteringsida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:186
 msgid "Setup"
-msgstr ""
+msgstr "Ställ in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:208
@@ -13086,11 +13224,11 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr ""
+msgstr "VARNING: Att inte använda kryptering är högst osäkert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
-msgstr ""
+msgstr "&Ingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:145
 msgid "Use Gmail"
@@ -13176,6 +13314,12 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Fälten till utdata vid katalogisering av böcker i databasen. Bör vara en "
+"kommaseparerad lista med fält.\n"
+"Tillgängliga fält:%s,\n"
+"plus användarskapade egna fält.\n"
+"Standard: \"%%default\"\n"
+"Gäller för: CSV, XML-utdata format"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:64
 msgid ""
@@ -13294,6 +13438,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Spara resultatet från olika stadier av konverteringssekvensen till den "
+"angivna katalogen. Användbart om du är osäker på vilket stadium av "
+"konverteringsprocessen en bugg sker.\n"
+"Standard: '%default \"\n"
+"Gäller för: ePub, MOBI output format"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:589
 msgid ""
@@ -13302,6 +13451,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"fält: mönster anger eget fält / innehåll indikerar bok som bör uteslutas.\n"
+"Standard: '%default\"\n"
+"Gäller ePub, MOBI output format"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:596
 msgid ""
@@ -13321,6 +13473,10 @@ msgid ""
 "this'.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Kommaseparerad lista med etikettord indikerar att bok bör undantas från "
+"utdata. För t.ex.: \"hoppa över\" ge träff på \"hoppa över den här boken\" "
+"och \"Hoppa över kommer att gilla detta\" Standard:. '%default\"\n"
+"Gäller för: ePub, MOBI formaterat utdata"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:610
 msgid ""
@@ -13328,6 +13484,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Inkludera \"författare\" avsnitt i katalogen.\n"
+"Standard: '%default\"\n"
+"Gäller för: ePub, MOBI formaterat utdata"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:617
 msgid ""
@@ -13335,6 +13494,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Inkludera \"beskrivnings\" avsnitt i katalogen.\n"
+"Standard: '%default\"\n"
+"Gäller för: ePub, MOBI formaterat utdata"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:624
 msgid ""
@@ -13342,6 +13504,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Inkludera \"Genrer\" avsnitt i katalogen.\n"
+"Standard: '%default\"\n"
+"Gäller för: ePub, MOBI formaterat utdata"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:631
 msgid ""
@@ -13379,6 +13544,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Anpassat fält innehållande noteringen att infoga i Beskrivning sidhuvudet.\n"
+"Standard: '%default\"\n"
+"Gäller för: ePub, MOBI formaterat utdata"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:659
 msgid ""
@@ -13389,6 +13557,14 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"<custom field>: [före | efter]: [True | false] anger följande:\n"
+" <custom field> Anpassat fält innehåller anteckningar att gå samman med "
+"kommentarer\n"
+" [Före | efter] Placering av noter med avseende på kommentarer\n"
+" [True | False] - En horisontell regel skall införas mellan noter och "
+"kommentarer\n"
+"Standard: '%default\"\n"
+"Gäller ePub, MOBI formaterat utdata"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:669
 msgid ""
@@ -13411,6 +13587,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"fält: mönster som tyder på boken har lästs.\n"
+"Standard: '%default\"\n"
+"Gäller ePub, MOBI formaterat utdata"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:682
 msgid ""
@@ -13419,6 +13598,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"Storlek tips (i inches) för bokomslag i katalogen.\n"
+"Räckvidd: 1,0 till 2,0\n"
+"Standard: '%default\"\n"
+"Gäller ePub, MOBI formaterat utdata"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:690
 msgid ""
@@ -13426,14 +13609,17 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Tag visar boken som ska visas som önskelista objekt.\n"
+"Standard: '%default\"\n"
+"Gäller för: ePub, MOBI formaterat utdata"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1373
 msgid "No enabled genres found to catalog.\n"
-msgstr ""
+msgstr "Inga aktiverade genrer hittades för att katalogisera.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1377
 msgid "No books available to catalog"
-msgstr ""
+msgstr "Inga böcker tillgängliga för att katalogisera"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1451
 msgid ""
@@ -13446,12 +13632,22 @@ msgid ""
 "dialog,\n"
 "then rebuild the catalog.\n"
 msgstr ""
+"\n"
+"Inkonsistent Författaresorteringsvärden för Författare '{0}':\n"
+"'{1}' <> '{2} \",\n"
+"inte kan bygga katalog.\n"
+"\n"
+"Välj alla böcker med \"{0} ', tillämpa korrekta Författaresorteringsvärdet "
+"på Redigera metadatadialogrutan\n"
+"Bygg sedan om katalogen.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1652
 msgid ""
 "No books found to catalog.\n"
 "Check 'Excluded books' criteria in E-book options.\n"
 msgstr ""
+"Inga böcker finns att katalogisera.\n"
+"Markera \"Uteslutna böcker\" kriterierna i E-bok alternativ.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1654
 msgid "No books available to include in catalog"
@@ -13462,6 +13658,8 @@ msgid ""
 "\n"
 "*** Adding 'By Authors' Section required for MOBI output ***"
 msgstr ""
+"\n"
+"*** Tillägg \"av författare\" Avsnitt krävs för MOBI utgång ***"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -13827,6 +14025,9 @@ msgid ""
 "interpreted. This is a JSON  string. For enumeration columns, use --"
 "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 msgstr ""
+"En ordbok med alternativ för att anpassa hur informationen i denna kolumn "
+"skall tolkas. Detta är en JSON sträng. För uppräkningskolumner använd - "
+"display = '{\"enum_values\": [\"val1\", \"val2\"]}'"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:581
 msgid "You must specify label, name and datatype"
@@ -13842,6 +14043,14 @@ msgid ""
 "ouput.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog katalog / sökväg / till / destination. (CSV | EPUB | MOBI | XML "
+"...) [flaggor]\n"
+"\n"
+"    Exportera en katalog i format som anges av sökvägen / till / destination "
+"förlängning.\n"
+"    Val styra hur posterna visas i de genererade utdatakatalogen.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:656
 msgid ""
@@ -14521,7 +14730,7 @@ msgstr "Andra format"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:643
 msgid "Read %(title)s in the %(fmt)s format"
-msgstr ""
+msgstr "Läs %(title)ar på %(FMT)  format"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:648
 msgid "Get"
@@ -14708,11 +14917,11 @@ msgstr "Hur och när Calibre uppdaterar metadata på enheten."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:27
 msgid "failed to scan program. Invalid input {0}"
-msgstr ""
+msgstr "misslyckades att skanna programmet. Ogiltig inmatning {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:32
 msgid " near "
-msgstr ""
+msgstr " nära "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:38
 msgid "end of program"
@@ -14724,85 +14933,101 @@ msgstr "syntaxfel - programmet avslutas innan EOF"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:101
 msgid "unknown id "
-msgstr ""
+msgstr "okänt id "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:107
 msgid "unknown function {0}"
-msgstr ""
+msgstr "okänd funktion {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:126
 msgid "missing closing parenthesis"
-msgstr ""
+msgstr "högerparentes saknas"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:145
 msgid "expression is not function or constant"
-msgstr ""
+msgstr "uttryck är inte funktion eller konstant"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:179
 msgid "format: type {0} requires an integer value, got {1}"
-msgstr ""
+msgstr "Format: typen {0} kräver ett heltalsvärde, fick {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:185
 msgid "format: type {0} requires a decimal (float) value, got {1}"
-msgstr ""
+msgstr "Format: typen {0} kräver ett decimaltal (float) värde, fick {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:296
 msgid "%s: unknown function"
-msgstr ""
+msgstr "%s: okänd funktion"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:343
 msgid "No such variable "
-msgstr ""
+msgstr "Ingen sådan variabel "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:57
 msgid "No documentation provided"
-msgstr ""
+msgstr "Ingen dokumentation"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:78
 msgid "Exception "
-msgstr ""
+msgstr "Undantag "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:96
 msgid ""
 "strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x and y as "
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"strcmp (x, y, LT, eq, GT) - gör en skiftlägeskänslig jämförelse mellan X och "
+"Y som strängar. Returnerar LT om x <y. Returnerar eq om x == y. Annars "
+"returneras gt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:111
 msgid ""
 "cmp(x, y, lt, eq, gt) -- compares x and y after converting both to numbers. "
 "Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"CMP (x, y, LT, eq, GT) - jämför x-och y efter konvertering till både "
+"siffror. Returnerar LT om x <y. Returnerar eq om x == y. Annars returneras "
+"gt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:126
 msgid ""
 "strcat(a, b, ...) -- can take any number of arguments. Returns a string "
 "formed by concatenating all the arguments"
 msgstr ""
+"strcat (a, b, ...) - kan ta valfritt antal argument. Returnerar en sträng "
+"som bildas av sammanfogning med alla argument"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:139
 msgid ""
 "add(x, y) -- returns x + y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"add(x, y) - returnerar x + y. Ger ett undantag om antingen x eller y är inte "
+"siffror."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:149
 msgid ""
 "subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"subtract(x, y) - returnerar x - y. Ger ett undantag om antingen x eller y är "
+"inte siffror."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:159
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"multiply(x, y) - returnerar x * y. Ger ett undantag om antingen x eller y är "
+"inte siffror."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:169
 msgid ""
 "divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"divide(x, y) - returnerar x / y. Ger ett undantag om antingen x eller y är "
+"inte siffror."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:179
 msgid ""
@@ -14813,6 +15038,12 @@ msgid ""
 "automatically. For example, template('[[title_sort]]') will evaluate the "
 "template {title_sort} and return its value."
 msgstr ""
+"template(x) - utvärderar x som en mall. Bedömningen görs i sitt sammanhang, "
+"vilket innebär att variabler inte delas mellan den som anroppar och "
+"mallutvärderingen. Eftersom {och} tecken är speciella, måste du använda "
+"[[för {karaktär och]] för} karaktär, de har konverterats automatiskt. Till "
+"exempel mall (\"[[title_sort]]\") kommer att utvärdera mallen {} title_sort "
+"och returnera dess värde."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:194
 msgid ""
@@ -14820,12 +15051,17 @@ msgid ""
 "'assign'ed to) instead of the book metadata.  This permits using the "
 "template processor to construct complex results from local variables."
 msgstr ""
+"eval(mall) - utvärderar mallen, passerar lokala variabler (de \"assign'ed "
+"till) i stället för bokens metadata. Detta möjliggör att använda mallen "
+"processorn att konstruera komplexa resultat från lokala variabler."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:207
 msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr ""
+"assign(id, Val) - tilldelar val till id, sedan återgår val. id måste vara en "
+"identifierare, inte ett uttryck"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:217
 msgid ""
@@ -14833,10 +15069,13 @@ msgid ""
 "start calibre from the command line (calibre-debug -g), the output will go "
 "to a black hole."
 msgstr ""
+"print(a, b, ...) - skriver ut argument till standard ut. Såvida du startar "
+"Caliber från kommandoraden (caliber-debug-g), kommer utdata att gå till ett "
+"svart hål."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:228
 msgid "field(name) -- returns the metadata field named by name"
-msgstr ""
+msgstr "field(namn) - returnerar metadatafält med namnet efter namn"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:236
 msgid ""
@@ -14847,6 +15086,11 @@ msgid ""
 "substr('12345', 1, 0) returns '2345', and substr('12345', 1, -1) returns "
 "'234'."
 msgstr ""
+"substr(str, start, slut) - returnerar starttecknet till och med sluttecknet "
+"i str. Det första tecknet i STR är nollkaraktär. Om slutet är negativt, då "
+"det tyder på att för många tecken räknat från höger. Om slutet är noll, "
+"indikerar det sista tecknet. Till exempel substr ('12345 ', 1, 0) returnerar "
+"'2345', och substr ('12345 ', 1, -1) returnerar '234'."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:249
 msgid ""
@@ -14857,6 +15101,12 @@ msgid ""
 "the value of some other composite field. This is extremely useful when "
 "constructing variable save paths"
 msgstr ""
+"lookup(val, mönster, fält, mönster, fält, ..., else_field) - som switch, "
+"förutom argumenten fält (metadata) namn, inte text. Värdet på lämpligt fält "
+"kommer att hämtas och användas. Observera att eftersom sammansatta kolumn är "
+"fält, kan du använda denna funktion i ett sammansatt fält och använda värdet "
+"av vissa andra sammansatta området. Detta är mycket användbart vid "
+"konstruerandet av variabla sparvägar"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:264
 msgid "lookup requires either 2 or an odd number of arguments"
@@ -14867,6 +15117,8 @@ msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
+"test(val, text om inte tom, text om den är tom) - returvärde \"text om inte "
+"tom\" Om fältet inte är tomt, annars returnera \"texten om den är tom\""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:288
 msgid ""
@@ -14874,6 +15126,10 @@ msgid ""
 "contains matches for the regular expression `pattern`. Returns `text if "
 "match` if matches are found, otherwise it returns `text if no match`"
 msgstr ""
+"contains(val, mönster, text om matchen, text om inte matchen) - kontrollerar "
+"om fältet innehåller träffar för det reguljära uttrycket \"mönster\". "
+"Returnerar \"text om matchen\" om träffar hittas annars returnerar \"text om "
+"ingen träff\""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:303
 msgid ""
@@ -14883,6 +15139,11 @@ msgid ""
 "else_value is returned. You can have as many `pattern, value` pairs as you "
 "want"
 msgstr ""
+"switch(val, mönster, värde, mönster, värde, ..., else_value) - för varje "
+"\"mönster, värde\" par, kontrollerar om fältet överensstämmer med det "
+"reguljära uttrycket \"mönster\" och i så fall avkastning som \"värde\". Om "
+"inget mönster passar, då returneras else_value . Du kan ha så många "
+"\"mönster, värdes\" par som du vill"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:311
 msgid "switch requires an odd number of arguments"
@@ -14894,12 +15155,18 @@ msgid ""
 "expression. All instances of `pattern` are replaced with `replacement`. As "
 "in all of calibre, these are python-compatible regular expressions"
 msgstr ""
+"re(val, mönster, ersättning) - Returvärdet på området efter applicering av "
+"reguljära uttryck. Alla förekomster av \"mönster\" ersättas med "
+"\"ersättning\". Som allid i Caliber, dessa är python-kompatibla reguljära "
+"uttryck"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:334
 msgid ""
 "ifempty(val, text if empty) -- return val if val is not empty, otherwise "
 "return `text if empty`"
 msgstr ""
+"ifempty(val, text om den är tom) - Returnerar val om val inte är tom, annars "
+"returneras \"texten om den är tom\""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:346
 msgid ""
@@ -14914,6 +15181,16 @@ msgid ""
 "chars + the length of `middle text`, then the field will be used intact. For "
 "example, the title `The Dome` would not be changed."
 msgstr ""
+"shorten(val, vänster tecken, mitten text, rätt tecken) - Returnerar en "
+"förkortad version av området, som består av \"vänster tecken` \", tecken "
+"från början av fältet, följt av\" mitten text följt av \"rätt tecken\" "
+"tecken från slutet av strängen. \"Vänster tecken\" och \"rätt\" tecken måste "
+"vara heltal. Antag exempelvis titeln på boken är \"Ancient engelska lag i "
+"Times of Ivanhoe\", och du vill att den ska passa i ett utrymme på högst 15 "
+"tecken. Om du använder {titel: förkorta (9, -, 5)}, kommer resultatet att "
+"bli \"Ancient E-nhoe\". Om fältets längd är mindre än vänster chars + höger "
+"chars + längden på \"mitt text\", då området kommer att användas intakt. "
+"Till exempel titeln \"The Dome\" inte skulle ändras."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:371
 msgid ""
@@ -14922,6 +15199,10 @@ msgid ""
 "comma as the separator, but authors uses an ampersand. Examples: "
 "{tags:count(,)}, {authors:count(&)}"
 msgstr ""
+"count(val, separator) - tolkar värdet som en lista av element åtskilda av "
+"\"separator\", returnerar antalet objekt i listan. De flesta listor använder "
+"kommatecken som avgränsare, men författarna använder ett et-tecken. Exempel: "
+"{Tags: (,)}, räkna {författare: räknare (&)}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:382
 msgid ""
@@ -14931,22 +15212,28 @@ msgid ""
 "If the item is not in the list, then the empty value is returned. The "
 "separator has the same meaning as in the count function."
 msgstr ""
+"list_item(val, index, separator) - tolka värdet som en lista av element "
+"åtskilda av \"separator\", returnerar \"indexet\":e objekt. Den första "
+"punkten är siffran noll. Den sista komponenten kan återsändas med hjälp av "
+"`list_item (-1, separator).\" Om objektet inte finns i listan, kommer det "
+"tomma värdet returneras. Avskiljaren har samma betydelse som i funktionen "
+"ANTAL."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:402
 msgid "uppercase(val) -- return value of the field in upper case"
-msgstr ""
+msgstr "uppercase(val) - Returnerar värdet i fältet med versaler"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:410
 msgid "lowercase(val) -- return value of the field in lower case"
-msgstr ""
+msgstr "lowercase(val) - Returnerar värdet i fältet med gemener"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:418
 msgid "titlecase(val) -- return value of the field in title case"
-msgstr ""
+msgstr "titlecase(val) - returvärde på fältet i titelformat"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:426
 msgid "capitalize(val) -- return value of the field capitalized"
-msgstr ""
+msgstr "capitalize(Val) - Returnerar värdet av fältet med versaler"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -15188,15 +15475,15 @@ msgstr "\tMisslyckade länkar:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:842
 msgid "Could not fetch article."
-msgstr ""
+msgstr "Kunde inte hämta artikeln."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:844
 msgid "The debug traceback is available earlier in this log"
-msgstr ""
+msgstr "Den felsökningsspårning finns tidigare i denna logg"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:846
 msgid "Run with -vv to see the reason"
-msgstr ""
+msgstr "Kör med -vv för att se orsaken"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
 msgid "Fetching feeds..."
@@ -15284,32 +15571,32 @@ msgstr "Anpassad"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:118
 msgid "Next section"
-msgstr ""
+msgstr "Nästa avsnitt"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:121
 msgid "Main menu"
-msgstr ""
+msgstr "Huvudmeny"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:125
 msgid "Previous section"
-msgstr ""
+msgstr "Föregående avsnitt"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:214
 msgid "Section Menu"
-msgstr ""
+msgstr "Avsnittsmeny"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:217
 msgid "Main Menu"
-msgstr ""
+msgstr "Huvudmeny"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:303
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:393
 msgid "Sections"
-msgstr ""
+msgstr "Avsnitten"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:390
 msgid "Articles"
-msgstr ""
+msgstr "Artiklar"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:476
 msgid ""
@@ -15381,6 +15668,11 @@ msgid ""
 "a link, it will be ignored.By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"Varje länk som passar reguljärt uttryck kommer att ignoreras. Detta "
+"alternativ kan anges flera gånger, i vilket fall så länge någon regexp "
+"passar en länk blir det ignorat. Som standard ignoreras inga länkar. Om både "
+"filter regexp och träffen regexp anges, är sedan filtrera regexp tillämpas "
+"först."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."

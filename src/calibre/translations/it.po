@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-21 23:34+0000\n"
-"PO-Revision-Date: 2011-01-16 06:56+0000\n"
-"Last-Translator: MeltingShell <Unknown>\n"
+"PO-Revision-Date: 2011-01-23 00:09+0000\n"
+"Last-Translator: Andrea Marenghi <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-22 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-01-23 04:46+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -214,17 +214,17 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Segue tutti i collegamenti in un file HTML e crea un file ZIP contenente "
-"tutti i file collegati. Questo plug-in viene eseguito ogni volta che si "
-"aggiunge un file HTML alla biblioteca."
+"Esamina tutti i collegamenti locali in un file HTML e crea un file ZIP "
+"contenente tutti i file collegati. Questo plug-in viene eseguito ogni volta "
+"che si aggiunge un file HTML alla biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:51
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
-"Codifica dei caratteri nei file HTML in ingresso. Scelte comuni includono: "
-"cp1252, latin1, iso-8859-1 e utf-8."
+"Codifica dei caratteri nei file HTML in ingresso. Normalmente vengono "
+"utilizzati: cp1252, latin1, iso-8859-1 e utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:58
 msgid ""
@@ -260,15 +260,15 @@ msgstr "Estrae le copertine dai file dei fumetti"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:311
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:321
 msgid "Read metadata from %s files"
-msgstr "Leggi i metadati dai file %s"
+msgstr "Legge i metadati dai file %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:269
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Leggi i metadati dei libri negli archivi RAR"
+msgstr "Legge i metadati dei libri negli archivi RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:332
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Leggi i metadati dei libri negli archivi ZIP"
+msgstr "Legge i metadati dei libri negli archivi ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:345
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:355
@@ -399,7 +399,7 @@ msgstr "Controlla come calibre trasferisce i file al lettore di ebook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "Pannello di controllo metadati"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid "Change metadata fields before saving/sending"
@@ -1255,6 +1255,12 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"Normalmente, i lettori SONY utilizzano la copertina contenuta nel file "
+"dell'ebook. Selezionando questa opzione, calibre invierà separatamente la "
+"copertina al lettore, opzione utile se state trasferendo libri protetti da "
+"DRM ai quali non potete cambiare la copertina. ATTENZIONE: Questa opzione "
+"dovrebbe essere usata solo con i nuovi modelli SONY: 350, 650, 950 e più "
+"recenti."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:79
 msgid ""
