@@ -166,10 +166,13 @@ class RegexEdit(QWidget, Ui_Edit):
 
     def builder(self):
         bld = RegexBuilder(self.db, self.book_id, self.edit.text(), self)
-        if bld.cancelled:
-            return
         if bld.exec_() == bld.Accepted:
             self.edit.setText(bld.regex.text())
+
+    def setObjectName(self, *args):
+        QWidget.setObjectName(self, *args)
+        if hasattr(self, 'edit'):
+            self.edit.initialize('regex_edit_'+unicode(self.objectName()))
 
     def set_msg(self, msg):
         self.msg.setText(msg)
