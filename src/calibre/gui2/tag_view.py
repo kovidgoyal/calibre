@@ -515,8 +515,8 @@ class TagsModel(QAbstractItemModel): # {{{
         QAbstractItemModel.__init__(self, parent)
 
         # must do this here because 'QPixmap: Must construct a QApplication
-        # before a QPaintDevice'. The ':' in front avoids polluting either the
-        # user-defined categories (':' at end) or columns namespaces (no ':').
+        # before a QPaintDevice'. The ':' at the end avoids polluting either the
+        # user-defined categories (':' at front) or columns namespaces (no ':').
         iconmap = {}
         for key in category_icon_map:
             iconmap[key] = QIcon(I(category_icon_map[key]))
@@ -690,7 +690,7 @@ class TagsModel(QAbstractItemModel): # {{{
         tb_cats = self.db.field_metadata
         for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys(),
                                key=sort_key):
-            cat_name = user_cat+':' # add the ':' to avoid name collision
+            cat_name = ':' + user_cat # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
@@ -997,7 +997,7 @@ class TagsModel(QAbstractItemModel): # {{{
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
             row_index += 1
-            if key.endswith(':'):
+            if key.startswith(':'):
                 # User category, so skip it. The tag will be marked in its real category
                 continue
             category_item = self.root_item.children[row_index]
@@ -1016,7 +1016,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
         return ans
 
-    def find_node(self, key, txt, start_path):
+    def find_item_node(self, key, txt, start_path):
         '''
         Search for an item (a node) in the tags browser list that matches both
         the key (exact case-insensitive match) and txt (contains case-
@@ -1069,6 +1069,22 @@ class TagsModel(QAbstractItemModel): # {{{
             if process_level(0, self.index(i, 0, QModelIndex()), start_path):
                 break
         return self.path_found
+
+    def find_category_node(self, key):
+        '''
+        Search for an category node (a top-level node) in the tags browser list
+        that matches the key (exact case-insensitive match). Returns the path to
+        the node. Paths are as in find_item_node.
+        '''
+        if not key:
+            return None
+
+        for i in xrange(self.rowCount(QModelIndex())):
+            idx = self.index(i, 0, QModelIndex())
+            ckey = idx.internalPointer().category_key
+            if strcmp(ckey, key) == 0:
+                return self.path_for_index(idx)
+        return None
 
     def show_item_at_path(self, path, box=False):
         '''
@@ -1355,15 +1371,15 @@ class TagBrowserWidget(QWidget): # {{{
         self.search_button.setFocus(True)
         self.item_search.lineEdit().blockSignals(False)
 
-        colon = txt.find(':')
         key = None
+        colon = txt.rfind(':') if len(txt) > 2 else 0
         if colon > 0:
             key = self.parent.library_view.model().db.\
                         field_metadata.search_term_to_field_key(txt[:colon])
             txt = txt[colon+1:]
 
-        self.current_find_position = model.find_node(key, txt,
-                                                     self.current_find_position)
+        self.current_find_position = \
+            model.find_item_node(key, txt, self.current_find_position)
         if self.current_find_position:
             model.show_item_at_path(self.current_find_position, box=True)
         elif self.item_search.text():

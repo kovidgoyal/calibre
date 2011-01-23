@@ -319,7 +319,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.field_metadata.remove_dynamic_categories()
         tb_cats = self.field_metadata
         for user_cat in sorted(self.prefs.get('user_categories', {}).keys(), key=sort_key):
-            cat_name = user_cat+':' # add the ':' to avoid name collision
+            cat_name = ':' + user_cat # add the ':' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
@@ -1243,7 +1243,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     if category in icon_map:
                         icon = icon_map[label]
                 else:
-                    icon = icon_map[':custom']
+                    icon = icon_map['custom:']
                     icon_map[category] = icon
 
             datatype = cat['datatype']
@@ -1339,20 +1339,19 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if label in taglist and name in taglist[label]:
                     items.append(taglist[label][name])
                 # else: do nothing, to not include nodes w zero counts
-            if len(items):
-                cat_name = user_cat+':' # add the ':' to avoid name collision
-                # Not a problem if we accumulate entries in the icon map
-                if icon_map is not None:
-                    icon_map[cat_name] = icon_map[':user']
-                if sort == 'popularity':
-                    categories[cat_name] = \
-                        sorted(items, key=lambda x: x.count, reverse=True)
-                elif sort == 'name':
-                    categories[cat_name] = \
-                        sorted(items, key=lambda x: sort_key(x.sort))
-                else:
-                    categories[cat_name] = \
-                        sorted(items, key=lambda x:x.avg_rating, reverse=True)
+            cat_name = ':' + user_cat # add the ':' to avoid name collision
+            # Not a problem if we accumulate entries in the icon map
+            if icon_map is not None:
+                icon_map[cat_name] = icon_map['user:']
+            if sort == 'popularity':
+                categories[cat_name] = \
+                    sorted(items, key=lambda x: x.count, reverse=True)
+            elif sort == 'name':
+                categories[cat_name] = \
+                    sorted(items, key=lambda x: sort_key(x.sort))
+            else:
+                categories[cat_name] = \
+                    sorted(items, key=lambda x:x.avg_rating, reverse=True)
 
         #### Finally, the saved searches category ####
         items = []
