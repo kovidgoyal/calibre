@@ -67,17 +67,21 @@ class FilenamePattern(QWidget, Ui_Form):
         self.setupUi(self)
 
         self.connect(self.test_button, SIGNAL('clicked()'), self.do_test)
-        self.connect(self.re, SIGNAL('returnPressed()'), self.do_test)
-        self.initialize()
-        self.re.textChanged.connect(lambda x: self.changed_signal.emit())
+        self.connect(self.re.lineEdit(), SIGNAL('returnPressed()'), self.do_test)
+        self.re.lineEdit().textChanged.connect(lambda x: self.changed_signal.emit())
 
     def initialize(self, defaults=False):
         if defaults:
             val = prefs.defaults['filename_pattern']
         else:
             val = prefs['filename_pattern']
-        self.re.setText(val)
-
+        if isinstance(val, list):
+            if len(val) > 0:
+                for v in val:
+                    self.re.addItem(v)
+                self.re.setCurrentIndex(0)
+        else:
+            self.re.lineEdit().setText(val if val else '')
 
     def do_test(self):
         try:
@@ -110,12 +114,16 @@ class FilenamePattern(QWidget, Ui_Form):
 
 
     def pattern(self):
-        pat = unicode(self.re.text())
+        pat = unicode(self.re.lineEdit().text())
         return re.compile(pat)
 
     def commit(self):
-        pat = self.pattern().pattern
-        prefs['filename_pattern'] = pat
+        pat = []
+        patterns = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
+        for p in patterns[:14]:
+            if p not in pat:
+                pat.append(p)
+        prefs['filename_pattern'] = pat 
         return pat
 
 
