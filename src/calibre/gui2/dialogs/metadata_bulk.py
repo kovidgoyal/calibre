@@ -6,8 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, os
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
-                     pyqtSignal, QDialogButtonBox
-from PyQt4 import QtGui
+                     pyqtSignal, QDialogButtonBox, QDate, QLineEdit
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -302,6 +301,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.pubdate.setSpecialValueText(_('Undefined'))
         self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
         self.pubdate.dateChanged.connect(self.do_apply_pubdate)
+        self.adddate.setDate(QDate.currentDate())
         self.adddate.setMinimumDate(UNDEFINED_QDATE)
         self.adddate.setSpecialValueText(_('Undefined'))
         self.clear_adddate_button.clicked.connect(self.clear_adddate)
@@ -365,16 +365,16 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         offset = 10
         self.s_r_number_of_books = min(10, len(self.ids))
         for i in range(1,self.s_r_number_of_books+1):
-            w = QtGui.QLabel(self.tabWidgetPage3)
+            w = QLabel(self.tabWidgetPage3)
             w.setText(_('Book %d:')%i)
             self.testgrid.addWidget(w, i+offset, 0, 1, 1)
-            w = QtGui.QLineEdit(self.tabWidgetPage3)
+            w = QLineEdit(self.tabWidgetPage3)
             w.setReadOnly(True)
             name = 'book_%d_text'%i
             setattr(self, name, w)
             self.book_1_text.setObjectName(name)
             self.testgrid.addWidget(w, i+offset, 1, 1, 1)
-            w = QtGui.QLineEdit(self.tabWidgetPage3)
+            w = QLineEdit(self.tabWidgetPage3)
             w.setReadOnly(True)
             name = 'book_%d_result'%i
             setattr(self, name, w)
