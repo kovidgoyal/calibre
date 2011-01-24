@@ -25,13 +25,15 @@ class HeuristicProcessor(object):
         self.chapters_with_title = 0
         self.blanks_deleted = False
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
-        self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sid=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
+        self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
+        self.softbreak = re.compile(r'\s*(?P<openline><p(?=\sclass=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
 
     def chapter_head(self, match):
+        from calibre.utils.html2text import html2text
         chap = match.group('chap')
         title = match.group('title')
         if not title:
@@ -40,10 +42,12 @@ class HeuristicProcessor(object):
                     " chapters. - " + unicode(chap))
             return '<h2>'+chap+'</h2>\n'
         else:
+            txt_chap = html2text(chap)
+            txt_title = html2text(title)
             self.html_preprocess_sections = self.html_preprocess_sections + 1
             self.log.debug("marked " + unicode(self.html_preprocess_sections) +
                     " chapters & titles. - " + unicode(chap) + ", " + unicode(title))
-            return '<h2 title="'+chap+', '+title+'">'+chap+'</h2>\n<h3 class="sigilNotInTOC">'+title+'</h3>\n'
+            return '<h2 title="'+txt_chap+', '+txt_title+'">'+chap+'</h2>\n<h3 class="sigilNotInTOC">'+title+'</h3>\n'
 
     def chapter_break(self, match):
         chap = match.group('section')
@@ -469,7 +473,7 @@ class HeuristicProcessor(object):
         if blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
             self.log.debug("deleting blank lines")
             self.blanks_deleted = True
-            html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
+            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
             html = self.blankreg.sub('', html)
 
         # Determine line ending type
@@ -524,11 +528,11 @@ class HeuristicProcessor(object):
             # Center separator lines
             html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em">' + '\g<break>' + '</p>', html)
             if not self.blanks_deleted:
-                html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
-            html = re.sub('<p\s+id="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
+                html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
+            html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs to preserve original formatting
             html = self.blankreg.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
-
+            html = self.softbreak.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
         return html
