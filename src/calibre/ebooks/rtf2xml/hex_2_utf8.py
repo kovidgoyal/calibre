@@ -115,7 +115,7 @@ class Hex2Utf8:
             """
         self.__file=file
         self.__copy = copy
-        if area_to_convert != 'preamble' and area_to_convert != 'body':
+        if area_to_convert not in ('preamble', 'body'):
             msg = (
             'in module "hex_2_utf8.py\n'
             '"area_to_convert" must be "body" or "preamble"\n'
@@ -143,18 +143,19 @@ class Hex2Utf8:
         Set values, including those for the dictionaries.
         The file that contains the maps is broken down into many different
         sets. For example, for the Symbol font, there is the standard part for
-        hexidecimal numbers, and the the part for Microsoft charcters. Read
+        hexidecimal numbers, and the part for Microsoft characters. Read
         each part in, and then combine them.
         """
         # the default encoding system, the lower map for characters 0 through
         # 128, and the encoding system for Microsoft characters.
-        # New on 2004-05-8: the self.__char_map is not in diretory with other
+        # New on 2004-05-8: the self.__char_map is not in directory with other
         # modules
         self.__char_file = cStringIO.StringIO(char_set)
         char_map_obj =  get_char_map.GetCharMap(
                 char_file = self.__char_file,
                 bug_handler = self.__bug_handler,
                 )
+        print self.__default_char_map
         up_128_dict = char_map_obj.get_char_map(map=self.__default_char_map)
         bt_128_dict = char_map_obj.get_char_map(map = 'bottom_128')
         ms_standard_dict = char_map_obj.get_char_map(map = 'ms_standard')
@@ -195,7 +196,6 @@ class Hex2Utf8:
             'body'          :       self.__body_func,
             'mi<mk<body-open_'  :   self.__found_body_func,
             'tx<hx<__________'  :   self.__hex_text_func,
-            # 'tx<nu<__________'  :   self.__text_func,
             }
         self.__body_state_dict = {
             'preamble'      :       self.__preamble_for_body_func,
@@ -235,9 +235,7 @@ class Hex2Utf8:
                 font = self.__current_dict_name
                 if self.__convert_caps\
                 and self.__caps_list[-1] == 'true'\
-                and font != 'Symbol'\
-                and font != 'Wingdings'\
-                and font != 'Zapf Dingbats':
+                and font not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
                     converted = self.__utf_token_to_caps_func(converted)
                 self.__write_obj.write(
                 'tx<ut<__________<%s\n' % converted
@@ -247,9 +245,7 @@ class Hex2Utf8:
                 font = self.__current_dict_name
                 if self.__convert_caps\
                 and self.__caps_list[-1] == 'true'\
-                and font != 'Symbol'\
-                and font != 'Wingdings'\
-                and font != 'Zapf Dingbats':
+                and font not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
                     converted = converted.upper()
                 self.__write_obj.write(
                 'tx<nu<__________<%s\n' % converted
@@ -289,17 +285,16 @@ class Hex2Utf8:
 
     def __convert_preamble(self):
         self.__state = 'preamble'
-        self.__write_obj = open(self.__write_to, 'w')
-        with open(self.__file, 'r') as read_obj:
-           for line in read_obj:
-                self.__token_info = line[:16]
-                action = self.__preamble_state_dict.get(self.__state)
-                if action is None:
-                    sys.stderr.write('error no state found in hex_2_utf8',
-                    self.__state
-                    )
-                action(line)
-        self.__write_obj.close()
+        with open(self.__write_to, 'w') as self.__write_obj:
+            with open(self.__file, 'r') as read_obj:
+               for line in read_obj:
+                    self.__token_info = line[:16]
+                    action = self.__preamble_state_dict.get(self.__state)
+                    if action is None:
+                        sys.stderr.write('error no state found in hex_2_utf8',
+                        self.__state
+                        )
+                    action(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "preamble_utf_convert.data")
@@ -468,9 +463,9 @@ class Hex2Utf8:
         if len(self.__caps_list) > 1:
             self.__caps_list.pop()
         else:
-            sys.stderr.write('Module is hex_2_utf8\n')
-            sys.stderr.write('method is __end_caps_func\n')
-            sys.stderr.write('caps list should be more than one?\n') #self.__in_caps not set
+            sys.stderr.write('Module is hex_2_utf8\n'
+            'method is __end_caps_func\n'
+            'caps list should be more than one?\n') #self.__in_caps not set
 
     def __text_func(self, line):
         """
@@ -493,8 +488,7 @@ class Hex2Utf8:
                 hex_num = '\'%s' % hex_num
                 converted = self.__current_dict.get(hex_num)
                 if converted is None:
-                    sys.stderr.write('module is hex_2_ut8\n')
-                    sys.stderr.write('method is __text_func\n')
+                    sys.stderr.write('module is hex_2_ut8\nmethod is __text_func\n')
                     sys.stderr.write('no hex value for "%s"\n' % hex_num)
                 else:
                     the_string += converted
@@ -550,16 +544,15 @@ class Hex2Utf8:
     def __convert_body(self):
         self.__state = 'body'
         with open(self.__file, 'r') as read_obj:
-            self.__write_obj = open(self.__write_to, 'w')
-            for line in read_obj:
-                self.__token_info = line[:16]
-                action = self.__body_state_dict.get(self.__state)
-                if action is None:
-                    sys.stderr.write('error no state found in hex_2_utf8',
-                    self.__state
-                    )
-                action(line)
-        self.__write_obj.close()
+            with open(self.__write_to, 'w') as self.__write_obj:
+                for line in read_obj:
+                    self.__token_info = line[:16]
+                    action = self.__body_state_dict.get(self.__state)
+                    if action is None:
+                        sys.stderr.write('error no state found in hex_2_utf8',
+                        self.__state
+                        )
+                    action(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "body_utf_convert.data")
