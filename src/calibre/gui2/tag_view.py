@@ -186,7 +186,7 @@ class TagsView(QTreeView): # {{{
             self.clear()
 
     def context_menu_handler(self, action=None, category=None,
-                             key=None, index=None):
+                             key=None, index=None, negate=None):
         if not action:
             return
         try:
@@ -198,6 +198,9 @@ class TagsView(QTreeView): # {{{
                 return
             if action == 'manage_categories':
                 self.user_category_edit.emit(category)
+                return
+            if action == 'search_category':
+                self.tags_marked.emit(category + ':' + str(not negate))
                 return
             if action == 'manage_searches':
                 self.saved_search_edit.emit(category)
@@ -268,6 +271,15 @@ class TagsView(QTreeView): # {{{
                         m.addAction(col,
                             partial(self.context_menu_handler, action='show', category=col))
 
+                # search by category
+                self.context_menu.addAction(
+                        _('Search for books in category %s')%category,
+                        partial(self.context_menu_handler, action='search_category',
+                                category=key, negate=False))
+                self.context_menu.addAction(
+                        _('Search for books not in category %s')%category,
+                        partial(self.context_menu_handler, action='search_category',
+                                category=key, negate=True))
                 # Offer specific editors for tags/series/publishers/saved searches
                 self.context_menu.addSeparator()
                 if key in ['tags', 'publisher', 'series'] or \

@@ -332,7 +332,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 traceback.print_exc()
 
         self.book_on_device_func = None
-        self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
+        self.data    = ResultCache(self.FIELD_MAP, self.field_metadata, db_prefs=self.prefs)
         self.search  = self.data.search
         self.search_getting_ids  = self.data.search_getting_ids
         self.refresh = functools.partial(self.data.refresh, self)

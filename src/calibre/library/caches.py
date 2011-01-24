@@ -172,8 +172,9 @@ class ResultCache(SearchQueryParser): # {{{
     '''
     Stores sorted and filtered metadata in memory.
     '''
-    def __init__(self, FIELD_MAP, field_metadata):
+    def __init__(self, FIELD_MAP, field_metadata, db_prefs = None):
         self.FIELD_MAP = FIELD_MAP
+        self.db_prefs = db_prefs
         self.composites = {}
         for key in field_metadata:
             if field_metadata[key]['datatype'] == 'composite':
@@ -405,6 +406,22 @@ class ResultCache(SearchQueryParser): # {{{
                 matches.add(item[0])
         return matches
 
+    def get_user_category_matches(self, location, query, candidates):
+        res = set([])
+        if self.db_prefs is None:
+            return  res
+        user_cats = self.db_prefs['user_categories']
+        if location not in user_cats:
+            return res
+        c = set(candidates)
+        for (item, category, ign) in user_cats[location]:
+            s = self.get_matches(category, '=' + item, candidates=c)
+            c -= s
+            res |= s
+        if query == 'false':
+            return candidates - res
+        return res
+
     def get_matches(self, location, query, allow_recursion=True, candidates=None):
         matches = set([])
         if candidates is None:
@@ -443,6 +460,10 @@ class ResultCache(SearchQueryParser): # {{{
                     return self.get_numeric_matches(location, query[1:],
                                                     candidates, val_func=vf)
 
+            # check for user categories
+            if len(location) >= 2 and location.startswith('@'):
+                return self.get_user_category_matches(location[1:], query.lower(),
+                                                      candidates)
             # everything else, or 'all' matches
             matchkind = CONTAINS_MATCH
             if (len(query) > 1):
@@ -468,6 +489,8 @@ class ResultCache(SearchQueryParser): # {{{
             for x in range(len(self.FIELD_MAP)):
                 col_datatype.append('')
             for x in self.field_metadata:
+                if x.startswith('@'):
+                    continue
                 if len(self.field_metadata[x]['search_terms']):
                     db_col[x] = self.field_metadata[x]['rec_index']
                     if self.field_metadata[x]['datatype'] not in \
