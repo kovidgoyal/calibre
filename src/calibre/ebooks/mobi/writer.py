@@ -1541,7 +1541,10 @@ class MobiWriter(object):
                 exth.write(data)
                 nrecs += 1
             if term == 'rights' :
-                rights = unicode(oeb.metadata.rights[0]).encode('utf-8')
+                try:
+                    rights = unicode(oeb.metadata.rights[0]).encode('utf-8')
+                except:
+                    rights = 'Unknown'
                 exth.write(pack('>II', EXTH_CODES['rights'], len(rights) + 8))
                 exth.write(rights)
 

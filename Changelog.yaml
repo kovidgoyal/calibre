@@ -4,6 +4,122 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.7.42
+  date: 2011-01-21
+
+  new features:
+    - title: "0.7.42 is a re-release of 0.7.41, because conversion to MOBI was broken in 0.7.41"
+
+    - title: "Conversions: Replace the remove header/footer options with a more geenric search replace option, that allows you to not only remove but also replace text"
+
+    - title: "Conversion: The preprocess html option has now become a new 'Heuristic Processing' option which allows you to control exactly which heuristics are used"
+
+    - title: "Conversion: Various improvements to Heuristic Processing (used to be preprocess HTML)"
+
+    - title: "When adding empty books to calibre, optionally set the author to the author of the currently selected book"
+      tickets: [7702]
+
+    - title: "Device drivers for the Archos 101, SmatQ T7 and Acer Lumiread"
+
+    - title: "Catalog generation: Make By Authors optional"
+
+    - title: "Allow bulk editing of Date and Published columns."
+
+    - title: "Add a little button to clear date and published values to the edit metadata dialogs"
+
+    - title: "When adding books by ISBN, allow the specification of special tags that will be added to the new book entries"
+      tickets: [8436]
+
+    - title: "Completion on multiple authors"
+      tickets: [8405]
+
+    - title: "Add AZW to default list of internally viewed formats, a I am tired of getting tickets about it"
+
+    - title: "Nicer error message when catalog generation fails"
+
+    - title: "Add capitalize option to context menus in the edit metadata dialog"
+
+  bug fixes:
+    - title: "RTF Input: Fix regression in 0.7.40 that broke conversion of some old style RTF files"
+
+    - title: "Fix Tag editor forgets position"
+      tickets: [8271]
+
+    - title: "When converting books in the calibre GUI, override metadata from the input document, even when empty."
+      description: >
+        "So if you have removed all the tags and comments in the calibre GUI for the book in the calibre GUI, but the actual file that is being converted still has tags and comments, they are ignored. This affects only conversions in the calibre GUI, not from the command line via ebook-convert."
+      tickets: [8390]
+
+    - title: "Fix memory leak when switching libraries"
+
+    - title: "RTF Output: Fix incorrent spacing between letters."
+      tickets: [8422]
+
+    - title: "Catalog generation: Add composite columns to Merge Comments eligible types"
+
+    - title: "Add a confirmation when closing the add a custom news source dialog."
+      tickets: [8460]
+
+    - title: "Another workaround for LibraryThing UA sniffing that was preventing series metadata download, sigh."
+      tickets: [8477]
+
+    - title: "PD Novel driver: Put books on the SD card into the eBooks folder"
+
+    - title: "When shortening filepaths to conform to windows path length limitations, remove text from the middle of each component instead of the ends."
+      tickets: [8451]
+
+    - title: "Make completion in most places case insensitive"
+      tickets: [8441]
+
+    - title: "Fix regression that caused the N key to stop working when editing a Yes/no column"
+      tickets: [8417]
+
+    - title: "Email: Fix bug when connecting to SMTP relays that use MD5 auth"
+
+    - title: "MOBI Output: Fix bug that could cause a link pointing to the start of a section to go to a point later in the section is the section contained an empty id attribute"
+
+    - title: "When auto converting books and the device is unplugged, do not raise an error."
+      tickets: [8426]
+
+    - title: "Ebook-viewer: Display cover when viewing FB2 files"
+
+    - title: "MOBI Input: Special case handling of emptu div tags with a defined height used as paragraph separators."
+      tickets: [8391]
+
+    - title: "Fix sorting of author names into sub categories by first letter in the Tag Browser when the first letter has diacritics"
+      tickets: [8378]
+
+    - title: "Fix regression in 0.7.40 that caused commas in author names to become | when converting/saving to disk"
+
+    - title: "Fix view specific format on a book with no formats gives an error"
+      tickets: [8352]
+
+
+  improved recipes:
+    - Blic
+    - Las Vegas Review Journal
+    - La Vanguardia
+    - New York Times
+    - El Pais
+    - Seattle Times
+    - Ars Technica
+    - Dilbert
+    - Nature News
+
+  new recipes:
+    - title: "kath.net"
+      author: "Bobus"
+
+    - title: "iHNed"
+      author: "Karel Bilek"
+
+    - title: "Gulf News"
+      author: "Darko Miletic"
+
+    - title: "South Africa Mail and Guardian"
+      author: "77ja65"
+
+
 - version: 0.7.40
   date: 2011-01-14
 

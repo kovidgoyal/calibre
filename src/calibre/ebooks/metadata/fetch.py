@@ -373,7 +373,7 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
                     r.pubdate = pubdate
 
     def fix_case(x):
-        if x and x.isupper():
+        if x:
             x = titlecase(x)
         return x
 
