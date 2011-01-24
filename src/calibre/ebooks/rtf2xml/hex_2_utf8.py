@@ -155,7 +155,6 @@ class Hex2Utf8:
                 char_file = self.__char_file,
                 bug_handler = self.__bug_handler,
                 )
-        print self.__default_char_map
         up_128_dict = char_map_obj.get_char_map(map=self.__default_char_map)
         bt_128_dict = char_map_obj.get_char_map(map = 'bottom_128')
         ms_standard_dict = char_map_obj.get_char_map(map = 'ms_standard')

@@ -30,8 +30,6 @@ class GetCharMap:
 
             'char_file'--the file with the mappings
 
-
-
         Returns:
 
             nothing
@@ -61,7 +59,6 @@ class GetCharMap:
                 fields = line.split(':')
                 fields[1].replace('\\colon', ':')
                 map_dict[fields[1]] = fields[3]
-
 
         if not found_map:
             msg = 'no map found\nmap is "%s"\n'%(map,)

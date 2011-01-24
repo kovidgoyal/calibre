@@ -757,7 +757,7 @@ class ProcessTokens:
     def process_cw(self, token):
         """Change the value of the control word by determining what dictionary
         it belongs to"""
-        special = [  '*', ':', '}', '{',   '~', '_', '-', ';' ]
+        special = [ '*', ':', '}', '{', '~', '_', '-', ';' ]
         ##if token != "{" or token != "}":
         token = token[1:] # strip off leading \
         token = token.replace(" ", "")
@@ -793,7 +793,7 @@ class ProcessTokens:
                             raise self.__exception_handler, msg
 
                     the_index = token.find('\\ ')
-                    if token is not None and  the_index > -1:
+                    if token is not None and the_index > -1:
                         msg = 'Invalid RTF: token "\\ " not valid.\n'
                         raise self.__exception_handler, msg
                     elif token[:1] == "\\":
