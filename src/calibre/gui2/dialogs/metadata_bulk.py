@@ -6,7 +6,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, os
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
-                     pyqtSignal, QDialogButtonBox, QDate, QLineEdit
+                     pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
+                     QMessageBox, QDate, QLineEdit
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -16,7 +17,7 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.utils.config import dynamic
+from calibre.utils.config import dynamic, JSONConfig
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import sort_key, capitalize
 from calibre.utils.config import prefs, tweaks
@@ -451,6 +452,18 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.results_count.valueChanged[int].connect(self.s_r_display_bounds_changed)
         self.starting_from.valueChanged[int].connect(self.s_r_display_bounds_changed)
 
+        self.save_button.clicked.connect(self.save_query)
+        self.remove_button.clicked.connect(self.remove_query)
+        self.query_field.currentIndexChanged[str].connect(self.query_change)
+
+        self.queries = JSONConfig("queries")
+
+        self.query_field.addItem("")
+        for item in self.queries:
+            self.query_field.addItem(item)
+
+        self.query_field.setCurrentIndex(0)
+
     def s_r_get_field(self, mi, field):
         if field:
             if field == '{template}':
@@ -861,4 +874,106 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
     def series_changed(self, *args):
         self.write_series = True
+
+    def remove_query(self, *args):
+        if not self.query_field.currentText():
+            return
+
+        ret = QMessageBox.question(self, _("Delete query"), 
+                _("Selected query will be deleted. Are You sure?"),
+                QMessageBox.Ok, QMessageBox.Cancel)
+
+        if ret == QMessageBox.Cancel:
+            return
+
+        item_id = self.query_field.currentIndex()
+        item_name = self.query_field.currentText()
+        
+        self.query_field.removeItem(item_id)
+
+        if item_name in self.queries.keys():
+            del(self.queries[str(item_name)])
+            self.queries.commit()
+
+    def save_query(self, *args):
+        query = {}
+        query['name'], ok =  QInputDialog.getText(self, _('Save query'), 
+                _('Query name:'))
+        if not ok:
+            return
+        query['name'] = str(query['name'])
+
+        new = True
+        if query['name'] in self.queries.keys():
+            ret = QMessageBox.question(self, _("Save query"), 
+                    _("Query already exists, old one would be overwritten." \
+                            " Are You sure?"),
+                    QMessageBox.Ok, QMessageBox.Cancel)
+            if ret == QMessageBox.Cancel:
+                return
+            new = False
+
+        query['search_field'] = str(self.search_field.currentText())
+        query['search_mode'] = str(self.search_mode.currentText())
+        query['s_r_template'] = str(self.s_r_template.text())
+        query['search_for'] = str(self.search_for.text())
+        query['case_sensitive'] = self.case_sensitive.isChecked()
+        query['replace_with'] = str(self.replace_with.text())
+        query['replace_func'] = str(self.replace_func.currentText())
+        query['destination_field'] = str(self.destination_field. \
+                currentText())
+        query['replace_mode'] = str(self.replace_mode.currentText())
+        query['comma_separated'] = self.comma_separated.isChecked()
+        query['results_count'] = self.results_count.value()
+        query['starting_from'] = self.starting_from.value()
+        query['multiple_separator'] = str(self.multiple_separator.text())
+
+        self.queries[query['name']] = query
+        self.queries.commit()
+
+        if new:
+            self.query_field.addItem(query['name'])
+        self.query_field.setCurrentIndex(self.query_field.findText(query['name']))
+
+    def query_change(self, item_name):
+        item = self.queries.get(str(item_name), None)
+        if item is None:
+            self.reset_query_fields()
+            return
+
+        self.search_field.setCurrentIndex(
+                self.search_field.findText(item['search_field']))
+        self.search_mode.setEditText(item['search_mode'])
+        self.search_mode.setCurrentIndex(
+                self.search_mode.findText(item['search_mode']))
+        self.s_r_template.setText(item['search_mode'])
+        self.search_for.setText(item['search_for'])
+        self.case_sensitive.setChecked(item['case_sensitive'])
+        self.replace_with.setText(item['replace_with'])
+        self.replace_func.setCurrentIndex(
+                self.replace_func.findText(item['replace_func']))
+        self.destination_field.setCurrentIndex(
+                self.destination_field.findText(item['destination_field']))
+        self.replace_mode.setCurrentIndex(
+                self.replace_mode.findText(item['replace_mode']))
+        self.comma_separated.setChecked(item['comma_separated'])
+        self.results_count.setValue(int(item['results_count']))
+        self.starting_from.setValue(int(item['starting_from']))
+        self.multiple_separator.setText(item['multiple_separator'])
+
+    def reset_query_fields(self):
+        self.search_field.setCurrentIndex(0)
+        self.search_mode.setEditText("")
+        self.search_mode.setCurrentIndex(0)
+        self.s_r_template.setText("")
+        self.search_for.setText("")
+        self.case_sensitive.setChecked(False)
+        self.replace_with.setText("")
+        self.replace_func.setCurrentIndex(0)
+        self.destination_field.setCurrentIndex(0)
+        self.replace_mode.setCurrentIndex(0)
+        self.comma_separated.setChecked(True)
+        self.results_count.setValue(999)
+        self.starting_from.setValue(1)
+        self.multiple_separator.setText(" ::: ")
 
