@@ -43,7 +43,7 @@ class HeuristicProcessor(object):
             self.html_preprocess_sections = self.html_preprocess_sections + 1
             self.log.debug("marked " + unicode(self.html_preprocess_sections) +
                     " chapters & titles. - " + unicode(chap) + ", " + unicode(title))
-            return '<h2>'+chap+'</h2>\n<h3>'+title+'</h3>\n'
+            return '<h2 title="'+chap+', '+title+'">'+chap+'</h2>\n<h3 class="sigilNotInTOC">'+title+'</h3>\n'
 
     def chapter_break(self, match):
         chap = match.group('section')
