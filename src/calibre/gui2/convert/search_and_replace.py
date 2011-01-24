@@ -35,12 +35,25 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.opt_sr3_search.set_book_id(book_id)
         self.opt_sr3_search.set_db(db)
 
+        self.opt_sr1_search.doc_update.connect(self.update_doc)
+        self.opt_sr2_search.doc_update.connect(self.update_doc)
+        self.opt_sr3_search.doc_update.connect(self.update_doc)
+
     def break_cycles(self):
         Widget.break_cycles(self)
+
+        self.opt_sr1_search.doc_update.disconnect()
+        self.opt_sr2_search.doc_update.disconnect()
+        self.opt_sr3_search.doc_update.disconnect()
 
         self.opt_sr1_search.break_cycles()
         self.opt_sr2_search.break_cycles()
         self.opt_sr3_search.break_cycles()
+
+    def update_doc(self, doc):
+        self.opt_sr1_search.set_doc(doc)
+        self.opt_sr2_search.set_doc(doc)
+        self.opt_sr3_search.set_doc(doc)
 
     def pre_commit_check(self):
         for x in ('sr1_search', 'sr2_search', 'sr3_search'):
