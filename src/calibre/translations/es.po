@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-21 23:34+0000\n"
-"PO-Revision-Date: 2011-01-22 09:08+0000\n"
+"PO-Revision-Date: 2011-01-23 13:42+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-23 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-01-24 04:52+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:511
@@ -196,7 +196,7 @@ msgstr "Personalizar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:294
 msgid "File type"
-msgstr "Tipo de archivo"
+msgstr "Tipo de fichero"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:330
 msgid "Metadata reader"
@@ -1437,21 +1437,21 @@ msgid ""
 "of less than 256 may result in blurred text on your device if you are "
 "creating your comics in EPUB format."
 msgstr ""
-"Número de colores para conversión de imágenes a escala de grises. Valor por "
-"defecto: %default. Los valores menores de 256 pueden hacer que el texto se "
-"vea borroso en su dispositivo si crea los cómics en formato EPUB."
+"Número de colores para conversión de imágenes a escala de grises. Valor "
+"predeterminado %default. Los valores menores de 256 pueden hacer que el "
+"texto se vea borroso en su dispositivo si crea los cómics en formato EPUB."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:262
 msgid ""
 "Disable normalize (improve contrast) color range for pictures. Default: False"
 msgstr ""
 "Deshabilitar normalizar (mejora el contraste) el rango de color para "
-"imágenes. Por defecto: desactivado"
+"imágenes. Predeterminado: desactivado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:265
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
 msgstr ""
-"Mantener la proporción de la imagen. El valor por defecto es rellenar la "
+"Mantener la proporción de la imagen. El valor predeterminado es rellenar la "
 "pantalla."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:267
@@ -1623,8 +1623,9 @@ msgid ""
 "source file has a Table of Contents, it will be used in preference to the "
 "automatically generated one."
 msgstr ""
-"Controla la generación automática del Índice. Por defecto, si el archivo de "
-"entrada tiene un Índice, se usará éste en lugar del generado automáticamente."
+"Controla la generación automática del Índice. De manera predeterminada, si "
+"el archivo de entrada tiene un Índice, se usará éste en lugar del generado "
+"automáticamente."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:178
 msgid "Options to set metadata in the output"
@@ -1690,9 +1691,9 @@ msgid ""
 msgstr ""
 "El tamaño de letra base en pt. Todos los tamaños de letra en el libro "
 "generado se pondrán en relación a este tamaño. Eligiendo un tamaño mayor se "
-"pueden hacer todas las letras de la salida más grandes, o al contrario. Por "
-"defecto, el tamaño de letra base se decide basándose en perfil de salida "
-"seleccionado."
+"pueden hacer todas las letras de la salida más grandes, o al contrario. De "
+"manera predeterminada, el tamaño de letra base se decide basándose en perfil "
+"de salida seleccionado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:150
 msgid ""
@@ -1706,8 +1707,8 @@ msgstr ""
 "ejemplo podría ser 12,12,14,16,18,20,22,24. Éstas son las correspondencias "
 "para los tamaños de xx-small a xx-large, y el último tamaño para letras "
 "enormes. El algoritmo para ampliar o reducir el texto emplea estos tamaños "
-"para determinar el tamaño de letra de manera inteligente. El valor por "
-"defecto es usar una correspondencia basada en el perfil de salida "
+"para determinar el tamaño de letra de manera inteligente. El comportamiento "
+"predeterminado es usar una correspondencia basada en el perfil de salida "
 "seleccionado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:162
@@ -1726,10 +1727,10 @@ msgstr ""
 "La altura mínima de la línea, como porcentaje del tamaño de fuente del "
 "elemento calculado. calibre asegurará que cada elemento tendrá ésta altura "
 "de línea como mínimo, a pesar de lo que indique el documento de entrada. "
-"Asignar 0 para desactivar. Por defecto es 120%. Utiliza esta opción "
-"preferentemente a la especificación directa de la altura de línea, a menos "
-"que sepas lo que estás haciendo. Por ejemplo, puedes conseguir texto \"doble "
-"espaciado\" asignándole un valor de 240."
+"Asignar 0 para desactivar. El valor predeterminado es 120%. Utiliza esta "
+"opción preferentemente a la especificación directa de la altura de línea, a "
+"menos que sepas lo que estás haciendo. Por ejemplo, puedes conseguir texto "
+"\"doble espaciado\" asignándole un valor de 240."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:183
 msgid ""
@@ -1741,7 +1742,7 @@ msgstr ""
 "La altura de línea en pt. Controla el espacio entre líneas consecutivas de "
 "texto. Sólo se aplica a elementos que no definen su propia altura de línea. "
 "En la mayoría de los casos la opción de altura de línea mínima es más útil. "
-"Por defecto no se modifica la altura de línea."
+"De manera predeterminada no se modifica la altura de línea."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:194
 msgid ""
@@ -1804,7 +1805,7 @@ msgid ""
 "the Table of Contents. Default: %default"
 msgstr ""
 "Si se detecta menos de este número de capítulos, entonces se añaden enlaces "
-"al Índice. Valor por defecto: %default"
+"al Índice. Valor predeterminado: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:251
 msgid ""
@@ -1813,8 +1814,8 @@ msgid ""
 "number of chapters were detected."
 msgstr ""
 "Número máximo de enlaces que se incluirán en el Índice. El valor 0 desactiva "
-"la opción Valor por defecto: %default. Sólo se añadirán enlaces al Índice si "
-"se detecta un número de capítulos menor que el umbral."
+"la opción Valor predeterminado: %default. Sólo se añadirán enlaces al Índice "
+"si se detecta un número de capítulos menor que el umbral."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:259
 msgid ""
@@ -1833,11 +1834,11 @@ msgid ""
 "detection, use the expression \"/\". See the XPath Tutorial in the calibre "
 "User Manual for further help on using this feature."
 msgstr ""
-"Expresión XPath para detectar títulos de capítulo. El comportamiento por "
-"defecto es considerar como títulos de capítulo las etiquetas <h1> o <h2> que "
-"contengan las palabras «chapter», «book», «section» o «part», así como "
-"cualquier etiqueta que tenga class=\"chapter\". La expresión debe dar una "
-"lista de elementos. Para desactivar la detección de capítulos use la "
+"Expresión XPath para detectar títulos de capítulo. El comportamiento "
+"predeterminado es considerar como títulos de capítulo las etiquetas <h1> o "
+"<h2> que contengan las palabras «chapter», «book», «section» o «part», así "
+"como cualquier etiqueta que tenga class=\"chapter\". La expresión debe dar "
+"una lista de elementos. Para desactivar la detección de capítulos use la "
 "expresión \"/\". Véase el Tutorial de XPath en el Manual de usuario de "
 "calibre para obtener más ayuda sobre el uso de esta opción."
 
@@ -1874,29 +1875,29 @@ msgstr ""
 msgid ""
 "Set the top margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Establecer el margen superior en pt. Valor por defecto: %default. 72 pt son "
-"una pulgada (2,54 cm)."
+"Establecer el margen superior en pt. Valor predeterminado: %default. 72 pt "
+"son una pulgada (2,54 cm)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:314
 msgid ""
 "Set the bottom margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Establecer el margen inferior en pt. Valor por defecto: %default. 72 pt son "
-"una pulgada (2,54 cm)."
+"Establecer el margen inferior en pt. Valor predeterminado: %default. 72 pt "
+"son una pulgada (2,54 cm)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:319
 msgid ""
 "Set the left margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Establecer el margen izquierdo en pt. Valor por defecto: %default. 72 pt son "
-"una pulgada (2,54 cm)."
+"Establecer el margen izquierdo en pt. Valor predeterminado: %default. 72 pt "
+"son una pulgada (2,54 cm)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:324
 msgid ""
 "Set the right margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Establecer el margen derecho en pt. Valor por defecto: %default. 72 pt son "
-"una pulgada (2,54 cm)."
+"Establecer el margen derecho en pt. Valor predeterminado: %default. 72 pt "
+"son una pulgada (2,54 cm)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:330
 msgid ""
@@ -2010,11 +2011,11 @@ msgid ""
 "instead."
 msgstr ""
 "Mantener las ligaduras presentes en el documento de entrada. Una ligadura es "
-"una forma especial de escribir un par de caracteres como ff, fi, fl, etc. La "
-"mayoría de los lectores no soportan ligaduras en sus tipografías por "
-"defecto, por lo que no pueden mostrarlas correctamente. Por defecto, calibre "
-"convertirá una ligadura en sus dos caracteres separados. Por lo contrario, "
-"seleccionar esta opción las mantendrá."
+"una forma especial de escribir una secuencia de caracteres como ff, fi, ffl, "
+"etc. La mayoría de los lectores no soportan ligaduras en sus tipografías "
+"predeterminadas, por lo que no pueden mostrarlas correctamente. De manera "
+"predeterminada, calibre convertirá una ligadura en sus caracteres separados. "
+"Por lo contrario, seleccionar esta opción las mantendrá."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:426
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -2263,14 +2264,14 @@ msgid ""
 "By default, no fixing is done and messages are printed out for each error "
 "detected. Use the options to control which errors are automatically fixed."
 msgstr ""
-"%prog [options] file.epub\n"
+"%prog [opciones] fichero.epub\n"
 "\n"
-"Corrige problemas comunes en archivos EPUB que puedan hacer que se rechacen "
-"por servicios de publicación mal diseñados.\n"
+"Corrige problemas comunes en archivos EPUB que puedan hacer que sean "
+"rechazados por servicios de publicación mal diseñados.\n"
 "\n"
-"Por defecto, no se realiza ninguna corrección y se imprimen mensajes para "
-"cada error detectado. Use las opciones para controlar qué errores se han de "
-"corregir automáticamente."
+"De manera predeterminada no se realiza ninguna corrección y se imprimen "
+"mensajes para cada error detectado. Use las opciones para controlar qué "
+"errores se han de corregir automáticamente."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
@@ -2321,9 +2322,9 @@ msgid ""
 "is the size required for Adobe Digital Editions."
 msgstr ""
 "Dividir todos los archivos HTML mayores de este tamaño (en kB). Esto es "
-"necesario porque la mayor parte de los lectores EPUB no pueden manejar "
-"archivos muy grandes. El valor por defecto de %defaultKB is el tamaño "
-"requerido por Adobe Digital Editions."
+"necesario porque algunos lectores ePub no pueden manejar archivos muy "
+"grandes. El valor predeterminado de %defaultKB es el tamaño requerido por "
+"Adobe Digital Editions."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:80
 msgid ""
@@ -2415,7 +2416,7 @@ msgid ""
 msgstr ""
 "Nivel de recursión máximo para segir enlaces en archivos HTML. No debe ser "
 "negativo. El valor 0 implica que no se seguirá ningún enlace en el archivo "
-"HTML raíz. El valor por defecto es %default."
+"HTML raíz. El valor predeterminado es %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:264
 msgid ""
@@ -2688,7 +2689,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:94
 msgid "Set the space between words in pts. Default is %default"
-msgstr "Fija el espacio entre palabras en pt. Valor por defecto: %default"
+msgstr "Fija el espacio entre palabras en pt. Valor predeterminado: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:97
 msgid "Add a header to all the pages with title and author."
@@ -2700,12 +2701,13 @@ msgid ""
 "title. Default is %default"
 msgstr ""
 "Establecer el formato del encabezado. %a se reemplaza por el autor y %t por "
-"el título. Por defecto: %default"
+"el título. Valor predeterminado: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:104
 msgid "Add extra spacing below the header. Default is %default pt."
 msgstr ""
-"Añadir espacio adicional bajo el encabezado. Valor por defecto: %default pt."
+"Añadir espacio adicional bajo el encabezado. Valor predeterminado: %default "
+"pt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:107
 msgid ""
@@ -2713,7 +2715,7 @@ msgid ""
 "pts. Default: %default"
 msgstr ""
 "Sangrado mínimo para párrafos (el sangrado de la primera línea de cada "
-"párrafo) en pt. Valor por defecto: %default"
+"párrafo) en pt. Valor predeterminado: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:112
 msgid ""
@@ -2729,7 +2731,7 @@ msgid ""
 "%default"
 msgstr ""
 "Multiplicar el tamaño del texto en las tablas convertidas en imágenes por "
-"este factor. Valor por defecto %default"
+"este factor. Valor predeterminado %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:121
 msgid "The serif family of fonts to embed"
@@ -3499,7 +3501,7 @@ msgstr "Opciones de generación de OPF/NCX/etc."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:35
 msgid "OPF version to generate. Default is %default."
-msgstr "Versión de OPF a generar. Valor por defecto: %default."
+msgstr "Versión de OPF a generar. Valor predeterminado: %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:37
 msgid ""
@@ -3525,8 +3527,8 @@ msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
-"Especificar la codificación del documento de salida. El valor por defecto es "
-"cp1252. Nota: Esta opción no tiene efecto en todos los formatos."
+"Especificar la codificación del documento de salida. El valor predeterminado "
+"es cp1252. Nota: Esta opción no tiene efecto en todos los formatos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:32
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:37
@@ -3594,24 +3596,32 @@ msgstr ""
 msgid ""
 "Path to output file. By default a file is created in the current directory."
 msgstr ""
-"Ruta al fichero de salida. Por defecto el fichero se crea en el directorio "
-"actual."
+"Ruta al fichero de salida. De manera predeterminada el fichero se crea en el "
+"directorio actual."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
 msgid "Number of pixels to crop from the left most x (default is %s)"
-msgstr "Número de píxeles a recortar del x de la izquierda (por defecto %s)"
+msgstr ""
+"Número de píxeles a recortar del x de la izquierda (el valor predeterminado "
+"es %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:44
 msgid "Number of pixels to crop from the left most y (default is %s)"
-msgstr "Número de píxeles a recortar del y de la izquierda (por defecto %s)"
+msgstr ""
+"Número de píxeles a recortar del y de la izquierda (el valor predeterminado "
+"es %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:47
 msgid "Number of pixels to crop from the right most x (default is %s)"
-msgstr "Número de píxeles a recortar del x de la derecha (por defecto %s)"
+msgstr ""
+"Número de píxeles a recortar del x de la derecha (el valor predeterminado es "
+"%s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:50
 msgid "Number of pixels to crop from the right most y (default is %s)"
-msgstr "Número de píxeles a recortar del y de la derecha (por defecto %s)"
+msgstr ""
+"Número de píxeles a recortar del y de la derecha (el valor predeterminado es "
+"%s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:53
 msgid ""
@@ -3780,8 +3790,8 @@ msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
 "override the unit for margins!"
 msgstr ""
-"Unidad de medida. Por defecto es la pulgada. Las posibilidades son %s Nota: "
-"¡Esta opción no afecta a las unidades de los márgenes!"
+"Unidad de medida. De manera predeterminada es la pulgada. Las posibilidades "
+"son %s Nota: ¡Esta opción no afecta a las unidades de los márgenes!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
 msgid ""
@@ -3789,7 +3799,7 @@ msgid ""
 "is used. Default is letter. Choices are %s"
 msgstr ""
 "Tamaño de la página. El tamaño especificado en un perfil de salida tiene "
-"preferencia. Por defecto: tamaño folio (letter). Las opciones son %s"
+"preferencia. Valor predeterminado: tamaño folio (letter). Las opciones son %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
 msgid ""
@@ -3803,8 +3813,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
 msgid "The orientation of the page. Default is portrait. Choices are %s"
 msgstr ""
-"La orientación de la página. Por defecto es vertical (portrait). Las "
-"opciones son %s"
+"La orientación de la página. El valor predeterminado es vertical (portrait). "
+"Las opciones son %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:49
 msgid ""
@@ -3822,8 +3832,8 @@ msgstr "No fue posible encontrar pdftohtml, compruebe que está en el PATH"
 msgid ""
 "Specify the character encoding of the output document. The default is cp1252."
 msgstr ""
-"Especificar la codificación del documento de salida. El valor por defecto es "
-"cp1252."
+"Especificar la codificación del documento de salida. El valor predeterminado "
+"es cp1252."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:40
 msgid ""
@@ -3852,7 +3862,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/hex_2_utf8.py:296
 msgid "error no state found in hex_2_utf8"
-msgstr ""
+msgstr "error: no se encontró el estado en hex_2_utf8"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -3860,8 +3870,8 @@ msgstr ""
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
 msgstr ""
-"Especificar la codificación del documento de salida. El valor por defecto es "
-"utf-8."
+"Especificar la codificación del documento de salida. El valor predeterminado "
+"es utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
@@ -3976,10 +3986,10 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
-"Tipo de fin de línea. Las opciones son %s. El valor por defecto es 'system'. "
-"Usar 'old_mac' para compatibilidad con Mac OS 9 y anteriores. Para Mac OS X "
-"usar 'unix'. Con 'system' se empleará el final de linea usado por este "
-"sistema operativo."
+"Tipo de fin de línea. Las opciones son %s. El valor predeterminado es "
+"«system». Usar «old_mac» para compatibilidad con Mac OS 9 y anteriores. Para "
+"Mac OS X usar «unix». Con «system» se empleará el final de linea usado por "
+"el actual sistema operativo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:45
 msgid ""
@@ -4017,8 +4027,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:70
 msgid "Send file to storage card instead of main memory by default"
 msgstr ""
-"Por defecto, enviar fichero a tarjeta de almacenamiento en vez de a memoria "
-"principal"
+"Enviar fichero a tarjeta de almacenamiento en vez de a memoria principal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:72
 msgid "Confirm before deleting"
@@ -4047,7 +4056,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:84
 msgid "Defaults for conversion to LRF"
-msgstr "Opciones por defecto para la conversión a LRF"
+msgstr "Opciones predeterminadas para la conversión a LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:86
 msgid "Options for the LRF ebook viewer"
@@ -4097,7 +4106,7 @@ msgstr "Desactivar las notificaciones del icono de la bandeja del sistema"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:104
 msgid "Default action to perform when send to device button is clicked"
 msgstr ""
-"Acción por defecto que se ejecutará cuando se pulse el botón de enviar al "
+"Acción predeterminada que se ejecutará cuando se pulse el botón de enviar al "
 "dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:124
@@ -6260,7 +6269,7 @@ msgstr "No &dividir en saltos de página"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:58
 msgid "No default &cover"
-msgstr "Sin &portada por defecto"
+msgstr "Sin &portada predeterminada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:59
 msgid "No &SVG cover"
@@ -6324,9 +6333,9 @@ msgstr ""
 "letra. Puede ajustar el algoritmo cambiando el tamaño de letra base de "
 "salida y la clave de tamaño más abajo. Cuando encuentre valores "
 "satisfactorios, pulse OK.</p>\n"
-"<p>Por defecto, si el tamaño de letra base de salida es cero o si no se "
-"especifica ninguna clave de tamaño, calibre usará los valores del Perfil de "
-"Salida actual.</p>\n"
+"<p>De manera predeterminada, si el tamaño de letra base de salida es cero o "
+"si no se especifica ninguna clave de tamaño, calibre usará los valores del "
+"Perfil de Salida actual.</p>\n"
 "<p>Véase el <a href=\"http://calibre-"
 "ebook.com/user_manual/conversion.html#font-size-rescaling\">Manual de "
 "usuario</a> para una discusión de cómo funciona el redimensionado de tipos "
@@ -6406,15 +6415,16 @@ msgid ""
 "the <a href=\"http://calibre-ebook.com/user_manual/conversion.html#heuristic-"
 "processing\">User Manual</a>."
 msgstr ""
-"<b>Procesado heurístico</b> significa que Calibre buscará patrones "
+"<b>Procesado heurístico</b> significa que calibre buscará patrones "
 "habituales en un libro y los arreglará. Como el nombre indica, este proceso "
 "se basa en conjeturas, con lo que podría terminar empeorando el resultado de "
-"una conversión si Calibre se equivoca en sus conjeturas. Por este motivo, "
-"esta opción está desactiva por defecto. A menudo, si una conversión no "
-"ocurre como se espera, activar la heurística puede mejorar el resultado. Lea "
-"más acerca de las distintas opciones de procesamiento heurístico en el <a "
-"href=\"http://calibre-ebook.com/user_manual/conversion.html#heuristic-"
-"processing\">Manual del usuario.</a>"
+"una conversión si calibre se equivoca en sus conjeturas. Por este motivo, "
+"esta opción está desactiva de manera predeterminada. A menudo, si una "
+"conversión no ocurre como se espera, activar la heurística puede mejorar el "
+"resultado. Lea más acerca de las distintas opciones de procesado heurístico "
+"en el <a href=\"http://calibre-"
+"ebook.com/user_manual/conversion.html#heuristic-processing\">Manual del "
+"usuario</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:91
 msgid "Enable &heuristic processing"
@@ -7416,7 +7426,7 @@ msgstr "Ver libro en el dispositvo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:452
 msgid "Set default send to device action"
-msgstr "Asignar acción de enviar al dispositivo por defecto"
+msgstr "Asignar acción predeterminada de enviar al dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:458
 msgid "Send to main memory"
@@ -7834,7 +7844,7 @@ msgstr "&Mover la biblioteca actual a la nueva ubicación"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
 msgstr ""
-"Establecer opciones por defecto para la conversión de cómics (ficheros "
+"Establecer opciones predeterminadas para la conversión de cómics (ficheros "
 "CBR/CBZ)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
@@ -8973,7 +8983,7 @@ msgstr "&Recortar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:451
 msgid "Reset cover to default"
-msgstr "Volver a la portada por defecto"
+msgstr "Restablecer la portada predeterminada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:452
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:613
@@ -9596,7 +9606,7 @@ msgstr "&Documentación:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:73
 msgid "Python &code:"
-msgstr "&Códico Python:"
+msgstr "&Código Python:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:56
 msgid "Test email settings"
@@ -10298,7 +10308,7 @@ msgstr "Mostrar columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:210
 msgid "Restore default layout"
-msgstr "Restaurar formato por defecto"
+msgstr "Restaurar formato predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:781
 msgid ""
@@ -10740,7 +10750,8 @@ msgstr "&Reemplazar el autor y el título al adquirir metadatos"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:138
 msgid "Download &social metadata (tags/ratings/etc.) by default"
 msgstr ""
-"Descargar metadatos &sociales (etiquetas/valoraciones/etc...) por defecto"
+"Descargar metadatos &sociales (etiquetas/valoraciones/etc...) de manera "
+"predeterminada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:139
 msgid "Show notification when &new version is available"
@@ -10759,7 +10770,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:142
 msgid "Default network &timeout:"
-msgstr "&Tiempo de espera máximo por defecto de la red:"
+msgstr "&Tiempo de espera máximo predeterminado de la red:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:143
 msgid ""
@@ -10968,7 +10979,8 @@ msgstr "Debe introducir al menos un valor para las columnas de enumeración"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:172
 msgid "You cannot provide the empty value, as it is included by default"
-msgstr "No puede añadir el valor nulo, ya que se incluye por defecto"
+msgstr ""
+"No puede añadir el valor nulo, ya que se incluye de manera predeterminada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:176
 msgid "The value \"{0}\" is in the list more than once"
@@ -11071,7 +11083,7 @@ msgid ""
 msgstr ""
 "Una lista de valores permitidos separados por comas. El valor vacío está "
 "siempre\n"
-"incluído, y es el valor por defecto. Por ejemplo, la lista 'uno,dos,tres' "
+"incluido, y es el valor predeterminado. Por ejemplo, la lista «uno,dos,tres» "
 "tiene\n"
 "cuatro valores, siendo el primero de ellos el valor vacío."
 
@@ -11905,6 +11917,57 @@ msgid ""
 "        </p>\n"
 "        "
 msgstr ""
+"\n"
+"        <p>Aquí puede añadir o eliminar funciones usadas en el procesamiento "
+"de plantillas. Una función de plantilla debe estar escrita en python. Toma "
+"información del libro, la procesa de alguna forma y devuelve un resultado en "
+"forma de texto. Las funciones definidas aquí pueden usarse en las plantillas "
+"de igual manera que las funciones predefinidas. La función debe llamarse "
+"<b>evaluate</b>, y debe seguir la forma descrita más abajo.</p>\n"
+"<p><code>evaluate(self, formatter, kwargs, mi, locals, sus parámetros) "
+"&rarr; devuelve un texto unicode</code></p>\n"
+"<p>Los parámetros de la función «evaluate» son:\n"
+"<ul>\n"
+"<li><b>formatter</b>: el formateador que se usa para evaluar la plantilla "
+"actual. Puede usarlo para hacer una evaluación recursiva de la "
+"plantilla.</li>\n"
+"<li><b>kwargs</b>: un diccionario de metadatos. Los valores del campo están "
+"en este diccionario.</li>\n"
+"<li><b>mi</b>: un espéciment de metadatos. Se usa para obtener información "
+"del campo. Este parámetro puede ser «None» en algunos casos, como cuando se "
+"evalúa una plantilla que no es de libro.</li>\n"
+"<li><b>locals</b>: las variables locales asignadas por la programación de "
+"plantilla actual.</li>\n"
+"<li<b>sus parámetros</b>: Debe proporcionor uno o más parámetros formales. "
+"El número debe coincidir con el cuadro de número de argumentos, a no ser que "
+"el número de argumentos sea -1 (número variable), en tal caso el último "
+"argumento debe ser «*args». Se requiere al menos un argumento, y normalmente "
+"se trata del valor del campo sobre el que se actúa. Tenga en cuenta que "
+"cuando se escribe en el modo de plantilla básico, el usuario no aporta el "
+"primer argumento, sino que viene dado por el formateador.</li>\n"
+"</ul></p>\n"
+"<p>La siguiente función de ejemplo comprueba el valor del campo. Si el campo "
+"no está vacío, devuelve el valor del campo, en caso contrario, devuelve el "
+"valor «VACÍO».\n"
+"<pre>\n"
+"nombre: mi_vacio\n"
+"número de argumentos: 1\n"
+"documentación: mi_vacio(val) -- devuelve «val» si no está vacío, si no, "
+"devuelve «VACÍO»\n"
+"código del programa:\n"
+"def evaluate(self, formatter, kwargs, mi, locals, val):\n"
+"    if val:\n"
+"        return val\n"
+"    else:\n"
+"        return 'VACÍO'</pre>\n"
+"Esta función pude invocarse desde cualquiera de los modos de programación de "
+"plantilla:\n"
+"<ul>\n"
+"<li>modo de función única: {tags:mi_vacio()}</li>\n"
+"<li>modo de programación de plantilla: {tags:'mi_vacio($)'}</li>\n"
+"<li>modo de programación general: program: mi_vacio(field('tags'))</li>\n"
+"</ul></p>\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:143
@@ -12534,7 +12597,7 @@ msgstr "Tipo de letra &monoespaciada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:183
 msgid "&Default font size:"
-msgstr "Tamaño de letra por &defecto"
+msgstr "Tamaño de letra pre&determinado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:186
@@ -12579,12 +12642,12 @@ msgid ""
 "The default language to use for hyphenation rules. If the book does not "
 "specify a language, this will be used."
 msgstr ""
-"El idioma por defecto para las reglas de división de palabras. Si el libro "
-"no tiene un idioma especificado, se usará éste."
+"El idioma predeterminado para las reglas de división de palabras. Si el "
+"libro no tiene un idioma especificado, se usará éste."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:195
 msgid "Default &language for hyphenation:"
-msgstr "&Idioma por defecto para división de palabras:"
+msgstr "&Idioma predeterminado para división de palabras:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:196
 msgid "&Resize images larger than the viewer window (needs restart)"
@@ -12676,7 +12739,7 @@ msgstr "Dividir palabras"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:56
 msgid "Default language for hyphenation rules"
-msgstr "Idioma por defecto para las reglas de división de palabras"
+msgstr "Idioma predeterminado para las reglas de división de palabras"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:58
 msgid "Save the current position in the document, when quitting"
@@ -13316,8 +13379,8 @@ msgstr "Puert&o:"
 msgid ""
 "The port your mail server listens for connections on. The default is 25"
 msgstr ""
-"Puerto en el que su servidor de correo espera las conexiones. Por defecto es "
-"el 25"
+"Puerto en el que su servidor de correo espera las conexiones. El valor "
+"predeterminado es 25"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:134
 msgid "Your username on the mail server"
@@ -13464,7 +13527,7 @@ msgstr ""
 "Campo de salida por el que se ordenará.\n"
 "Los campos disponibles son: author_sort, id, rating, size, timestamp, "
 "title.\n"
-"Valor por defecto: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Aplicable a: formatos de salida CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:231
@@ -13564,8 +13627,8 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 "Título del catálogo generado, se usará como título en los metadatos.\n"
-"Valor por defecto: '%default'\n"
-"Aplicable a: formatos de salida ePub, MOBI"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:579
 msgid ""
@@ -13601,9 +13664,9 @@ msgid ""
 msgstr ""
 "Expresión regular que describe las etiquetas que no se considerarán como "
 "géneros.\n"
-"Valor por defecto: '%default' excluye las etiquetas entre corchetes, por "
-"ejemplo '[<etiqueta>]'\n"
-"Aplicable a: formatos de salida ePub, MOBI"
+"Valor predeterminado: «%default» excluye las etiquetas entre corchetes, por "
+"ejemplo «[<etiqueta>]»\n"
+"Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:602
 msgid ""
@@ -13653,9 +13716,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Incluir la sección 'Títulos' en el catálogo.\n"
-"Valor por defecto: '%default'\n"
-"Aplicable a: formatos de salida ePub, MOBI"
+"Incluir la sección «Títulos» en el catálogo.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:638
 msgid ""
@@ -13663,9 +13726,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Incluir la sección 'Series' en el catálogo.\n"
-"Por defecto: '%default'\n"
-"Aplicar a: formatos de salida ePub, MOBI"
+"Incluir la sección «Series» en el catálogo.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:645
 msgid ""
@@ -13673,9 +13736,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Incluir la sección 'Añadidos recientemente' en el catálogo.\n"
-"Valor por defecto: '%default'\n"
-"Aplicable a: formatos de salida ePub, MOBI"
+"Incluir la sección «Añadidos recientemente» en el catálogo.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:652
 msgid ""
@@ -13717,10 +13780,10 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 "Especifica el perfil de salida. En algunos casos, se requiere un perfil de "
-"salida para optimizar el catálogo para un dispositivo. Por ejemplo, 'kindle' "
-"o 'kindle_dx' crea un Índice estructurado con secciones y artículos.\n"
-"Valor por defecto: '%default'\n"
-"Aplicable a: formatos de salida ePub y MOBI"
+"salida para optimizar el catálogo para un dispositivo. Por ejemplo, «kindle» "
+"o «kindle_dx» crea un Índice estructurado con secciones y artículos.\n"
+"Valor predeterminado: «%default»\n"
+"Se aplica a: formatos de salida ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:676
 msgid ""
@@ -13847,8 +13910,8 @@ msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
 msgstr ""
-"Ruta de la biblioteca de calibre. Por defecto se usa la ruta almacenada en "
-"las preferencias."
+"Ruta de la biblioteca de calibre. De manera predeterminada se usa la ruta "
+"almacenada en las preferencias."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:122
 msgid ""
@@ -13871,7 +13934,7 @@ msgstr ""
 "Los campos que se mostrarán cuando se listen los libros en la base de datos. "
 "Debe ser una lista de campos separada por comas.\n"
 "Campos disponibles: %s\n"
-"Por defecto: %%default. El campos especial \"all\" puede usarse para "
+"Valor predeterminado: %%default. El campos especial «all» puede usarse para "
 "seleccionar todos los campos. Sólo tiene efecto en el formato de salida de "
 "texto."
 
@@ -13883,7 +13946,7 @@ msgid ""
 msgstr ""
 "Campos por los que ordenar el resultado.\n"
 "Campos disponibles: %s\n"
-"Por defecto: %%default"
+"Valor predeterminado: %%default"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:139
 msgid "Sort results in ascending order"
@@ -13896,8 +13959,8 @@ msgid ""
 "to do no filtering."
 msgstr ""
 "Filtrar los resultados según la consulta de búsqueda. Para el formato de la "
-"consulta de búsqueda consulte la documentación relacionada con la búsqueda "
-"en el Manual de usuario. Por defecto no se hace el filtrado."
+"consulta de búsqueda acuda a la documentación relacionada con la búsqueda en "
+"el Manual de usuario. De manera predeterminada no se realiza el filtrado."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:143
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1042
@@ -13905,12 +13968,13 @@ msgid ""
 "The maximum width of a single line in the output. Defaults to detecting "
 "screen size."
 msgstr ""
-"La longitud máxima de las líneas en la salida. Por defecto, se toma la "
-"anchura de la pantalla."
+"La longitud máxima de las líneas en la salida. De manera predeterminada se "
+"toma la anchura de la pantalla."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:144
 msgid "The string used to separate fields. Default is a space."
-msgstr "El texto usado para separar campos. Por defecto es un espacio."
+msgstr ""
+"El texto usado para separar campos. El valor predeterminado es un espacio."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:145
 msgid ""
@@ -14129,7 +14193,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:509
 msgid "Export books to the specified directory. Default is"
 msgstr ""
-"Exportar los libros al directorio especificado. El valor por defecto es"
+"Exportar los libros al directorio especificado. El valor predeterminado es"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:511
 msgid "Export all books into a single directory"
@@ -14210,7 +14274,7 @@ msgstr ""
 "Lista de ID de la base de dato, separadas por comas, para incluir en el "
 "catálogo.\n"
 "Si se declara, no se usará --search.\n"
-"Valor por defecto: todas"
+"Valor predeterminado: todas"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:660
 msgid ""
@@ -14220,7 +14284,7 @@ msgid ""
 msgstr ""
 "Filtrar los resultados según la búsqueda. Para el formato de la búsqueda, "
 "véase la documentación relativa a búsquedas en el Manual de usuario.\n"
-"Valor por defecto: sin filtrado"
+"Valor predeterminado: sin filtrado"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:666
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:499
@@ -14481,21 +14545,21 @@ msgid ""
 "quotes (\")."
 msgstr ""
 "El carácter que se pondrá alrededor del valor de la categoría en modo CSV. "
-"Por defecto son las comillas ('')."
+"El valor predeterminado son las comillas ('')."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1039
 msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
-"Lista separada por comas de los nombres de las categorías a buscar.\n"
-"Valor predeterminado: all"
+"Lista de los nombres de las categorías a buscar, separados por comas.\n"
+"Valor predeterminado: todas"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1045
 msgid "The string used to separate fields in CSV mode. Default is a comma."
 msgstr ""
-"La cadena que se usará para separar los campos en el modo CSV. Por defecto "
-"es una coma."
+"El texto que se usará para separar los campos en el modo CSV. El valor "
+"predeterminado es una coma."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1083
 msgid "CATEGORY ITEMS"
@@ -14674,8 +14738,8 @@ msgid ""
 "Comma separated list of formats to save for each book. By default all "
 "available formats are saved."
 msgstr ""
-"Lista de formatos, separados por comas, para guardar cada libro. Por defecto "
-"se guardan todos los formatos disponibles."
+"Lista de formatos, separados por comas, para guardar cada libro. De manera "
+"predeterminada se guardan todos los formatos disponibles."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:75
 msgid ""
@@ -14685,7 +14749,7 @@ msgid ""
 "are: {%s}"
 msgstr ""
 "La plantilla para controlar el nombre y la estructura de directorios de los "
-"ficheros guardados. El valor por defecto es \"%s\", lo que guardará los "
+"ficheros guardados. El valor predeterminado es «%s», lo que guardará los "
 "libros en un subdirectorio por autor con nombres de fichero que contienen el "
 "título y el autor. Las variables de control disponibles son: {%s}"
 
@@ -14697,9 +14761,10 @@ msgid ""
 "are: {%s}"
 msgstr ""
 "La plantilla para controlar el nombre de archivo y la estructura de "
-"directorio de los archivos enviados al dispositivo. Por defecto es \"%s\" lo "
-"que guardará los libros en un directorio por autor con el título y el nombre "
-"del autor en el nombre de cada archivo. Los controles disponibles son: {%s}"
+"directorio de los archivos enviados al dispositivo. El valor predeterminado "
+"es «%s» lo que guardará los libros en un directorio por autor con el título "
+"y el nombre del autor en el nombre de cada archivo. Los controles "
+"disponibles son: {%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:87
 msgid ""
@@ -14720,7 +14785,7 @@ msgid ""
 "Default is: %b, %Y"
 msgstr ""
 "El formato con que se muestran las fechas: %d - día, %b - mes, %Y - año. El "
-"valor por defecto es: %b, %Y"
+"valor predeterminado es: %b, %Y"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:99
 msgid "Convert paths to lowercase."
@@ -14741,31 +14806,32 @@ msgstr "Opciones para el control del servidor de contenidos de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:25
 msgid "The port on which to listen. Default is %default"
-msgstr "El puerto en el que esperar conexiones. Valor por defecto: %default"
+msgstr ""
+"El puerto en el que esperar conexiones. Valor predeterminado: %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:27
 msgid "The server timeout in seconds. Default is %default"
 msgstr ""
-"Tiempo de vencimiento del servidor en segundos. Valor por defecto: %default"
+"Tiempo de espera del servidor en segundos. Valor predeterminado: %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:29
 msgid "The max number of worker threads to use. Default is %default"
 msgstr ""
-"El máximo número de procesos que se usarán. Valor por defecto: %default"
+"El máximo número de procesos que se usarán. Valor predeterminado: %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:31
 msgid "Set a password to restrict access. By default access is unrestricted."
 msgstr ""
-"Establecer una contraseña para restringir el acceso. Por defecto el acceso "
-"no está restringido."
+"Establecer una contraseña para restringir el acceso. De manera "
+"predeterminada el acceso no está restringido."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:33
 msgid "Username for access. By default, it is: %default"
-msgstr "Nombre de usuario para acceder. Por defecto es: %default"
+msgstr "Nombre de usuario para acceder. Valor predeterminado: %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:37
 msgid "The maximum size for displayed covers. Default is %default."
-msgstr "Máximo tamaño para las portadas. Valor por defecto: %default."
+msgstr "Tamaño máximo para las portadas. Valor predeterminado: %default."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:39
 msgid ""
@@ -14927,7 +14993,7 @@ msgstr ""
 "\n"
 "Inicia el servidor de contenidos de calibre. El servidor de contenidos de "
 "calibre\n"
-"expone su biblioteca de calibre por internet. La interfaz por defecto\n"
+"expone su biblioteca de calibre por internet. La interfaz predeterminada\n"
 "le permite navegar por su biblioteca por categorías. También puede\n"
 "acceder a una interfaz optimizada para navegadores móviles en /mobile y\n"
 "una interfaz basada en OPDS para que la use con aplicaciones de lectura en "
@@ -15023,7 +15089,7 @@ msgstr "Clave de acceso a isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:703
 msgid "Default timeout for network operations (seconds)"
-msgstr "Tiempo de vencimiento por defecto para operaciones de red (segundos)"
+msgstr "Tiempo de espera predeterminado para operaciones de red (segundos)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:705
 msgid "Path to directory in which your library of books is stored"
@@ -15036,7 +15102,8 @@ msgstr "El idioma en que se muestra la interfaz de usuario"
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:709
 msgid "The default output format for ebook conversions."
 msgstr ""
-"El formato de salida por defecto de las conversiones de libros electrónicos."
+"El formato de salida predeterminado de las conversiones de libros "
+"electrónicos."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:713
 msgid "Ordered list of formats to prefer for input."
@@ -15770,15 +15837,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
 msgid "Base directory into which URL is saved. Default is %default"
 msgstr ""
-"Directorio base en el cual se almacena la URL. Por defecto es %default"
+"Directorio base en el cual se almacena la URL. El valor predeterminado es "
+"%default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
 msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
 msgstr ""
-"Tiempo máximo de espera de respuesta del servidor (en segundos). Valor por "
-"defecto: %default s"
+"Tiempo máximo de espera de respuesta del servidor (en segundos). Valor "
+"predeterminado: %default s"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:485
 msgid ""
@@ -15786,7 +15854,7 @@ msgid ""
 "%default"
 msgstr ""
 "Máximo número de niveles de recursión, es decir, profundidad de los enlaces "
-"a seguir. Valor por defecto: %default"
+"a seguir. Valor predeterminado: %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:488
 msgid ""
@@ -15794,23 +15862,24 @@ msgid ""
 "href> tags. Default is %default"
 msgstr ""
 "El número máximo de ficheros a descargar. Esto se aplica solamente a "
-"ficheros procedentes de etiquetas <a href>. Por defecto es %default"
+"ficheros procedentes de etiquetas <a href>. El valor predeterminado es "
+"%default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:490
 msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
 msgstr ""
-"Intervalo minimo en segundos entre adquisiciones de datos consecutivas. "
-"Valor defecto: %default s"
+"Intervalo mínimo en segundos entre adquisiciones de datos consecutivas. "
+"Valor predeterminado: %default s"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:492
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
 msgstr ""
-"Codificación para los sitios web que está intentando descargar. Por defecto "
-"se intentará averiguar la codificación."
+"Codificación para los sitios web que está intentando descargar. De manera "
+"predeterminada se intentará averiguar la codificación."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:494
 msgid ""
@@ -15820,8 +15889,8 @@ msgid ""
 msgstr ""
 "Sólo se seguirán los enlaces que cumplan la expresión regular. Esta opción "
 "se puede usar varias veces, en tal caso, siempre que el elace cumpla alguna "
-"de las expresiones regulares, se seguirá el enlace. Por defecto todos los "
-"enlaces se siguen."
+"de las expresiones regulares, se seguirá el enlace. De manera predeterminada "
+"se siguen todos los enlaces."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:496
 msgid ""
