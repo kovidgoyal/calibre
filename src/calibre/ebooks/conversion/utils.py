@@ -203,8 +203,8 @@ class HeuristicProcessor(object):
             blank_lines = ""
         opt_title_open = "("
         opt_title_close = ")?"
-        n_lookahead_open = "\s+(?!"
-        n_lookahead_close = ")"
+        n_lookahead_open = "(?!\s*"
+        n_lookahead_close = ")\s*"
 
         default_title = r"(<[ibu][^>]*>)?\s{0,3}(?!Chapter)([\w\:\'’\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
         simple_title = r"(<[ibu][^>]*>)?\s{0,3}(?!(Chapter|\s+<)).{0,65}?(</[ibu][^>]*>)?(?=<)"
