@@ -135,7 +135,7 @@ def _match(query, value, matchkind):
             pass
     return False
 
-class CacheRow(list):
+class CacheRow(list): # {{{
 
     def __init__(self, db, composites, val):
         self.db = db
@@ -166,13 +166,14 @@ class CacheRow(list):
     def __getslice__(self, i, j):
         return self.__getitem__(slice(i, j))
 
+# }}}
 
 class ResultCache(SearchQueryParser): # {{{
 
     '''
     Stores sorted and filtered metadata in memory.
     '''
-    def __init__(self, FIELD_MAP, field_metadata, db_prefs = None):
+    def __init__(self, FIELD_MAP, field_metadata, db_prefs=None):
         self.FIELD_MAP = FIELD_MAP
         self.db_prefs = db_prefs
         self.composites = {}
@@ -192,7 +193,7 @@ class ResultCache(SearchQueryParser): # {{{
     def break_cycles(self):
         self._data = self.field_metadata = self.FIELD_MAP = \
             self.numeric_search_relops = self.date_search_relops = \
-            self.all_search_locations = None
+            self.all_search_locations = self.db_prefs = None
 
 
     def __getitem__(self, row):
@@ -410,7 +411,7 @@ class ResultCache(SearchQueryParser): # {{{
         res = set([])
         if self.db_prefs is None:
             return  res
-        user_cats = self.db_prefs['user_categories']
+        user_cats = self.db_prefs.get('user_categories', [])
         if location not in user_cats:
             return res
         c = set(candidates)

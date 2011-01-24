@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
-    <height>650</height>
+    <width>962</width>
+    <height>727</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -44,8 +44,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>832</width>
-        <height>574</height>
+        <width>954</width>
+        <height>666</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -55,7 +55,7 @@
        <item>
         <widget class="QTabWidget" name="central_widget">
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabWidgetPage1">
           <attribute name="title">
@@ -996,8 +996,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>810</width>
-                <height>264</height>
+                <width>197</width>
+                <height>60</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">

@@ -7,7 +7,7 @@ import re, os
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
-                     QMessageBox, QDate, QLineEdit
+                     QMessageBox, QDate
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -15,7 +15,7 @@ from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import composite_formatter
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
-from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE
+from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE, gprefs
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic, JSONConfig
 from calibre.utils.titlecase import titlecase
@@ -321,7 +321,14 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             'This operation cannot be canceled or undone'))
         self.do_again = False
         self.central_widget.setCurrentIndex(tab)
+        geom = gprefs.get('bulk_metadata_window_geometry', None)
+        if geom is not None:
+            self.restoreGeometry(bytes(geom))
         self.exec_()
+
+    def save_state(self, *args):
+        gprefs['bulk_metadata_window_geometry'] = \
+            bytearray(self.saveGeometry())
 
     def do_apply_pubdate(self, *args):
         self.apply_pubdate.setChecked(True)
@@ -790,7 +797,12 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.series_start_number.setEnabled(False)
             self.series_start_number.setValue(1)
 
+    def reject(self):
+        self.save_state()
+        ResizableDialog.reject(self)
+
     def accept(self):
+        self.save_state()
         if len(self.ids) < 1:
             return QDialog.accept(self)
 

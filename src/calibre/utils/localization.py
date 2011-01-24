@@ -105,6 +105,7 @@ _extra_lang_codes = {
         'en_TH' : _('English (Thailand)'),
         'en_CY' : _('English (Cyprus)'),
         'en_PK' : _('English (Pakistan)'),
+        'en_HR' : _('English (Croatia)'),
         'en_IL' : _('English (Israel)'),
         'en_SG' : _('English (Singapore)'),
         'en_YE' : _('English (Yemen)'),

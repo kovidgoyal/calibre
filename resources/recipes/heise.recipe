@@ -52,6 +52,7 @@ class heiseDe(BasicNewsRecipe):
 		   dict(id='navi_login'),
 		   dict(id='navigation'),
 		   dict(id='breadcrumb'),
+		   dict(id='adblockerwarnung'),
 		   dict(id=''),
 		   dict(id='sitemap'),
 		   dict(id='bannerzone'),
@@ -64,6 +65,7 @@ class heiseDe(BasicNewsRecipe):
     remove_tags_after = [dict(name='div', attrs={'class':'news_foren'})]
 
     feeds =  [ ('heise', 'http://www.heise.de/newsticker/heise.rdf') ]
+
 
 
 
