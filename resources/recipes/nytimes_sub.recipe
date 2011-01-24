@@ -1,6 +1,5 @@
 #!/usr/bin/env  python
 # -*- coding: utf-8 -*-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -27,6 +26,10 @@ class NYTimes(BasicNewsRecipe):
     # replace paid Kindle Version:  the name will be changed to "The New York Times" to cause
     # previous paid versions of the new york times to best sent to the back issues folder on the kindle
     replaceKindleVersion = False
+
+    # download higher resolution images than the small thumbnails typically included in the article
+    # the down side of having large beautiful images is the file size is much larger, on the order of 7MB per paper
+    useHighResImages = True
 
     # includeSections: List of sections to include. If empty, all sections found will be included.
     # Otherwise, only the sections named will be included. For example,
@@ -90,7 +93,6 @@ class NYTimes(BasicNewsRecipe):
                     (u'Sunday Magazine',u'magazine'),
                     (u'Week in Review',u'weekinreview')]
 
-
     if headlinesOnly:
         title='New York Times Headlines'
         description = 'Headlines from the New York Times'
@@ -127,7 +129,7 @@ class NYTimes(BasicNewsRecipe):
 
     earliest_date = date.today() - timedelta(days=oldest_article)
 
-    __author__  = 'GRiker/Kovid Goyal/Nick Redding'
+    __author__  = 'GRiker/Kovid Goyal/Nick Redding/Ben Collier'
     language = 'en'
     requires_version = (0, 7, 5)
 
@@ -149,7 +151,7 @@ class NYTimes(BasicNewsRecipe):
                             'dottedLine',
                             'entry-meta',
                             'entry-response module',
-                            'icon enlargeThis',
+                            #'icon enlargeThis', #removed to provide option for high res images
                             'leftNavTabs',
                             'metaFootnote',
                             'module box nav',
@@ -163,7 +165,23 @@ class NYTimes(BasicNewsRecipe):
                             'entry-tags', #added for DealBook
                             'footer promos clearfix', #added for DealBook
                             'footer links clearfix', #added for DealBook
-                            'inlineImage module', #added for DealBook
+                            'tabsContainer', #added for other blog downloads
+                            'column lastColumn', #added for other blog downloads
+                            'pageHeaderWithLabel', #added for other gadgetwise downloads
+                            'column two', #added for other blog downloads
+                            'column two last', #added for other blog downloads
+                            'column three', #added for other blog downloads
+                            'column three last', #added for other blog downloads
+                            'column four',#added for other blog downloads
+                            'column four last',#added for other blog downloads
+                            'column last', #added for other blog downloads
+                            'timestamp published', #added for other blog downloads
+                            'entry entry-related',
+                            'subNavigation tabContent active', #caucus blog navigation
+                            'columnGroup doubleRule',
+                            'mediaOverlay slideshow',
+                            'headlinesOnly multiline flush',
+                            'wideThumb',
                             re.compile('^subNavigation'),
                             re.compile('^leaderboard'),
                             re.compile('^module'),
@@ -254,7 +272,7 @@ class NYTimes(BasicNewsRecipe):
     def exclude_url(self,url):
         if not url.startswith("http"):
             return True
-        if not url.endswith(".html") and 'dealbook.nytimes.com' not in url: #added for DealBook
+        if not url.endswith(".html") and 'dealbook.nytimes.com' not in url and 'blogs.nytimes.com' not in url: #added for DealBook
             return True
         if 'nytimes.com' not in url:
             return True
@@ -480,7 +498,7 @@ class NYTimes(BasicNewsRecipe):
                 for lidiv in div.findAll('li'):
                     if not skipping:
                         self.handle_article(lidiv)
-
+            
         self.ans = [(k, self.articles[k]) for k in self.ans if self.articles.has_key(k)]
         return self.filter_ans(self.ans)
 
@@ -591,20 +609,85 @@ class NYTimes(BasicNewsRecipe):
                 if article_date < self.earliest_date:
                     self.log("Skipping article dated %s" % date_str)
                     return None
+                    
+        #all articles are from today, no need to print the date on every page
+        try:
+            if not self.webEdition:
+                date_tag = soup.find(True,attrs={'class': ['dateline','date']})
+                if date_tag:
+                    date_tag.extract()
+        except:
+            self.log("Error removing the published date")
 
-        kicker_tag = soup.find(attrs={'class':'kicker'})
-        if kicker_tag: # remove Op_Ed author head shots
-            tagline = self.tag_to_string(kicker_tag)
-            if tagline=='Op-Ed Columnist':
-                img_div = soup.find('div','inlineImage module')
-                if img_div:
-                    img_div.extract()
-
+        if self.useHighResImages:
+            try:
+                #open up all the "Enlarge this Image" pop-ups and download the full resolution jpegs
+                enlargeThisList = soup.findAll('div',{'class':'icon enlargeThis'})
+                if enlargeThisList:
+                    for popupref in enlargeThisList:
+                        popupreflink = popupref.find('a')
+                        if popupreflink:
+                            reflinkstring = str(popupreflink['href'])
+                            refstart = reflinkstring.find("javascript:pop_me_up2('") + len("javascript:pop_me_up2('")
+                            refend = reflinkstring.find(".html", refstart) + len(".html")
+                            reflinkstring = reflinkstring[refstart:refend]
+                            
+                            popuppage = self.browser.open(reflinkstring)
+                            popuphtml = popuppage.read()
+                            popuppage.close()
+                            if popuphtml:
+                                st = time.localtime()
+                                year = str(st.tm_year)
+                                month = "%.2d" % st.tm_mon
+                                day = "%.2d" % st.tm_mday
+                                imgstartpos = popuphtml.find('http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/') + len('http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/')                                
+                                highResImageLink = 'http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/' + popuphtml[imgstartpos:popuphtml.find('.jpg',imgstartpos)+4]
+                                popupSoup = BeautifulSoup(popuphtml)
+                                highResTag = popupSoup.find('img', {'src':highResImageLink})
+                                if highResTag:
+                                    try:
+                                        newWidth = highResTag['width']
+                                        newHeight = highResTag['height']
+                                        imageTag = popupref.parent.find("img")
+                                    except:
+                                        self.log("Error: finding width and height of img")
+                                    popupref.extract()
+                                    if imageTag:
+                                        try:
+                                            imageTag['src'] = highResImageLink
+                                            imageTag['width'] = newWidth
+                                            imageTag['height'] = newHeight
+                                        except:
+                                            self.log("Error setting the src width and height parameters")
+            except Exception as e:
+                self.log("Error pulling high resolution images")
+                
+            try:
+                #remove "Related content" bar
+                runAroundsFound = soup.findAll('div',{'class':['articleInline runaroundLeft','articleInline doubleRule runaroundLeft','articleInline runaroundLeft firstArticleInline']})
+                if runAroundsFound:
+                    for runAround in runAroundsFound:
+                        #find all section headers
+                        hlines = runAround.findAll(True ,{'class':['sectionHeader','sectionHeader flushBottom']})
+                        if hlines:
+                            for hline in hlines:
+                                hline.extract()
+            except:
+                self.log("Error removing related content bar")
+     
+                
+            try:
+                #in case pulling images failed, delete the enlarge this text
+                enlargeThisList = soup.findAll('div',{'class':'icon enlargeThis'})
+                if enlargeThisList:
+                    for popupref in enlargeThisList:
+                        popupref.extract()
+            except:
+                self.log("Error removing Enlarge this text")
 
         return self.strip_anchors(soup)
 
     def postprocess_html(self,soup, True):
-
         try:
                 if self.one_picture_per_article:
                         # Remove all images after first
@@ -766,6 +849,8 @@ class NYTimes(BasicNewsRecipe):
         try:
             if len(article.text_summary.strip()) == 0:
                 articlebodies = soup.findAll('div',attrs={'class':'articleBody'})
+                if not articlebodies: #added to account for blog formats
+                    articlebodies = soup.findAll('div', attrs={'class':'entry-content'}) #added to account for blog formats
                 if articlebodies:
                     for articlebody in articlebodies:
                         if articlebody:
@@ -774,13 +859,14 @@ class NYTimes(BasicNewsRecipe):
                                 refparagraph = self.massageNCXText(self.tag_to_string(p,use_alt=False)).strip()
                                 #account for blank paragraphs and short paragraphs by appending them to longer ones
                                 if len(refparagraph) > 0:
-                                    if len(refparagraph) > 70: #approximately one line of text
+                                    if len(refparagraph) > 140: #approximately two lines of text
                                         article.summary = article.text_summary = shortparagraph + refparagraph
                                         return
                                     else:
                                         shortparagraph = refparagraph + " "
                                         if shortparagraph.strip().find(" ") == -1 and not shortparagraph.strip().endswith(":"):
                                             shortparagraph = shortparagraph + "- "
+
         except:
             self.log("Error creating article descriptions")
             return
