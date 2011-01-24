@@ -1,0 +1,17 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1295310874(BasicNewsRecipe):
+    title          = u'20 Minutos (Boletin)'
+    __author__            = 'Luis Hernandez'
+    description           = 'Periódico gratuito en español'
+    cover_url     = 'http://estaticos.20minutos.es/mmedia/especiales/corporativo/css/img/logotipos_grupo20minutos.gif'
+    language      = 'es'
+
+    oldest_article = 2
+    max_articles_per_feed = 50
+
+    feeds          = [(u'VESPERTINO', u'http://20minutos.feedsportal.com/c/32489/f/478284/index.rss')
+                        , (u'DEPORTES', u'http://20minutos.feedsportal.com/c/32489/f/478286/index.rss')
+                        , (u'CULTURA', u'http://www.20minutos.es/rss/ocio/')
+                        , (u'TV', u'http://20minutos.feedsportal.com/c/32489/f/490877/index.rss')
+]
