@@ -452,16 +452,13 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.results_count.valueChanged[int].connect(self.s_r_display_bounds_changed)
         self.starting_from.valueChanged[int].connect(self.s_r_display_bounds_changed)
 
-        self.save_button.clicked.connect(self.save_query)
-        self.remove_button.clicked.connect(self.remove_query)
-        self.query_field.currentIndexChanged[str].connect(self.query_change)
+        self.save_button.clicked.connect(self.s_r_save_query)
+        self.remove_button.clicked.connect(self.s_r_remove_query)
 
-        self.queries = JSONConfig("queries")
-
+        self.queries = JSONConfig("search_replace_queries")
         self.query_field.addItem("")
-        for item in self.queries:
-            self.query_field.addItem(item)
-
+        self.query_field.addItems(sorted([q for q in self.queries], key=sort_key))
+        self.query_field.currentIndexChanged[str].connect(self.s_r_query_change)
         self.query_field.setCurrentIndex(0)
 
     def s_r_get_field(self, mi, field):
@@ -875,96 +872,108 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def series_changed(self, *args):
         self.write_series = True
 
-    def remove_query(self, *args):
-        if not self.query_field.currentText():
+    def s_r_remove_query(self, *args):
+        if self.query_field.currentIndex() == 0:
             return
 
-        ret = QMessageBox.question(self, _("Delete query"), 
-                _("Selected query will be deleted. Are You sure?"),
+        ret = QMessageBox.question(self, _("Delete saved search/replace"),
+                _("The selected saved search/replace will be deleted. "
+                  "Are you sure?"),
                 QMessageBox.Ok, QMessageBox.Cancel)
 
         if ret == QMessageBox.Cancel:
             return
 
         item_id = self.query_field.currentIndex()
-        item_name = self.query_field.currentText()
-        
+        item_name = unicode(self.query_field.currentText())
+
+        self.query_field.blockSignals(True)
         self.query_field.removeItem(item_id)
+        self.query_field.blockSignals(False)
+        self.query_field.setCurrentIndex(0)
 
         if item_name in self.queries.keys():
-            del(self.queries[str(item_name)])
+            del(self.queries[item_name])
             self.queries.commit()
 
-    def save_query(self, *args):
-        query = {}
-        query['name'], ok =  QInputDialog.getText(self, _('Save query'), 
-                _('Query name:'))
+    def s_r_save_query(self, *args):
+        name, ok =  QInputDialog.getText(self, _('Save search/replace'),
+                _('Search/replace name:'))
         if not ok:
             return
-        query['name'] = str(query['name'])
 
         new = True
-        if query['name'] in self.queries.keys():
-            ret = QMessageBox.question(self, _("Save query"), 
-                    _("Query already exists, old one would be overwritten." \
-                            " Are You sure?"),
+        name = unicode(name)
+        if name in self.queries.keys():
+            ret = QMessageBox.question(self, _("Save search/replace"),
+                    _("That saved search/replace already exists and will be overwritten. "
+                      "Are you sure?"),
                     QMessageBox.Ok, QMessageBox.Cancel)
             if ret == QMessageBox.Cancel:
                 return
             new = False
 
-        query['search_field'] = str(self.search_field.currentText())
-        query['search_mode'] = str(self.search_mode.currentText())
-        query['s_r_template'] = str(self.s_r_template.text())
-        query['search_for'] = str(self.search_for.text())
+        query = {}
+        query['name'] = name
+        query['search_field'] = unicode(self.search_field.currentText())
+        query['search_mode'] = unicode(self.search_mode.currentText())
+        query['s_r_template'] = unicode(self.s_r_template.text())
+        query['search_for'] = unicode(self.search_for.text())
         query['case_sensitive'] = self.case_sensitive.isChecked()
-        query['replace_with'] = str(self.replace_with.text())
-        query['replace_func'] = str(self.replace_func.currentText())
-        query['destination_field'] = str(self.destination_field. \
-                currentText())
-        query['replace_mode'] = str(self.replace_mode.currentText())
+        query['replace_with'] = unicode(self.replace_with.text())
+        query['replace_func'] = unicode(self.replace_func.currentText())
+        query['destination_field'] = unicode(self.destination_field.currentText())
+        query['replace_mode'] = unicode(self.replace_mode.currentText())
         query['comma_separated'] = self.comma_separated.isChecked()
         query['results_count'] = self.results_count.value()
         query['starting_from'] = self.starting_from.value()
-        query['multiple_separator'] = str(self.multiple_separator.text())
+        query['multiple_separator'] = unicode(self.multiple_separator.text())
 
-        self.queries[query['name']] = query
+        self.queries[name] = query
         self.queries.commit()
 
         if new:
-            self.query_field.addItem(query['name'])
-        self.query_field.setCurrentIndex(self.query_field.findText(query['name']))
+            self.query_field.blockSignals(True)
+            self.query_field.clear()
+            self.query_field.addItem('')
+            self.query_field.addItems(sorted([q for q in self.queries], key=sort_key))
+            self.query_field.blockSignals(False)
+        self.query_field.setCurrentIndex(self.query_field.findText(name))
 
-    def query_change(self, item_name):
-        item = self.queries.get(str(item_name), None)
+    def s_r_query_change(self, item_name):
+        if not item_name:
+            self.s_r_reset_query_fields()
+            return
+        item = self.queries.get(unicode(item_name), None)
         if item is None:
-            self.reset_query_fields()
+            self.s_r_reset_query_fields()
             return
 
-        self.search_field.setCurrentIndex(
-                self.search_field.findText(item['search_field']))
-        self.search_mode.setEditText(item['search_mode'])
-        self.search_mode.setCurrentIndex(
-                self.search_mode.findText(item['search_mode']))
-        self.s_r_template.setText(item['search_mode'])
+        def set_index(attr, txt):
+            try:
+                attr.setCurrentIndex(attr.findText(txt))
+            except:
+                attr.setCurrentIndex(0)
+
+        set_index(self.search_mode, item['search_mode'])
+        set_index(self.search_field, item['search_field'])
+        self.s_r_template.setText(item['s_r_template'])
+        self.s_r_template_changed() #simulate gain/loss of focus
         self.search_for.setText(item['search_for'])
         self.case_sensitive.setChecked(item['case_sensitive'])
         self.replace_with.setText(item['replace_with'])
-        self.replace_func.setCurrentIndex(
-                self.replace_func.findText(item['replace_func']))
-        self.destination_field.setCurrentIndex(
-                self.destination_field.findText(item['destination_field']))
-        self.replace_mode.setCurrentIndex(
-                self.replace_mode.findText(item['replace_mode']))
+        set_index(self.replace_func, item['replace_func'])
+        set_index(self.destination_field, item['destination_field'])
+        set_index(self.replace_mode, item['replace_mode'])
         self.comma_separated.setChecked(item['comma_separated'])
         self.results_count.setValue(int(item['results_count']))
         self.starting_from.setValue(int(item['starting_from']))
         self.multiple_separator.setText(item['multiple_separator'])
 
-    def reset_query_fields(self):
+    def s_r_reset_query_fields(self):
+        # Don't reset the search mode. The user will probably want to use it
+        # as it was
         self.search_field.setCurrentIndex(0)
-        self.search_mode.setEditText("")
-        self.search_mode.setCurrentIndex(0)
         self.s_r_template.setText("")
         self.search_for.setText("")
         self.case_sensitive.setChecked(False)
