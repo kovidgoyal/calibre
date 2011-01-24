@@ -12,7 +12,8 @@ from lxml.html import soupparser
 
 from PyQt4.Qt import QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit, \
     QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, \
-    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QInputDialog
+    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QInputDialog, \
+    QHBoxLayout
 from PyQt4.QtWebKit import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
@@ -488,7 +489,7 @@ class Highlighter(QSyntaxHighlighter):
 
 class Editor(QWidget): # {{{
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, one_line_toolbar=False):
         QWidget.__init__(self, parent)
         self.toolbar1 = QToolBar(self)
         self.toolbar2 = QToolBar(self)
@@ -508,9 +509,14 @@ class Editor(QWidget): # {{{
         self.wyswyg.layout = l = QVBoxLayout(self.wyswyg)
         self.setLayout(self._layout)
         l.setContentsMargins(0, 0, 0, 0)
-        l.addWidget(self.toolbar1)
-        l.addWidget(self.toolbar2)
-        l.addWidget(self.toolbar3)
+        if one_line_toolbar:
+            tb = QHBoxLayout()
+            l.addLayout(tb)
+        else:
+            tb = l
+        tb.addWidget(self.toolbar1)
+        tb.addWidget(self.toolbar2)
+        tb.addWidget(self.toolbar3)
         l.addWidget(self.editor)
         self._layout.addWidget(self.tabs)
         self.tabs.addTab(self.wyswyg, _('Normal view'))
