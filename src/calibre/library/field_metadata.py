@@ -7,7 +7,6 @@ import copy
 
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.config import tweaks
-from calibre.utils.icu import lower
 
 class TagsIcons(dict):
     '''
@@ -476,8 +475,6 @@ class FieldMetadata(dict):
             val = self._tb_cats[key]
             if val['is_category'] and val['kind'] in ('user', 'search'):
                 del self._tb_cats[key]
-                if key in self._search_term_map:
-                    del self._search_term_map[key]
                 if key in self._search_term_map:
                     del self._search_term_map[key]
 
