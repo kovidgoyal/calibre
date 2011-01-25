@@ -1,17 +1,67 @@
+# -*- coding: utf-8
+__license__   = 'GPL v3'
+__author__    = 'Luis Hernandez'
+__copyright__ = 'Luis Hernandez<tolyluis@gmail.com>'
+description   = 'Periódico gratuito en español - v0.5 - 25 Jan 2011'
+
+'''
+www.20minutos.es
+'''
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class AdvancedUserRecipe1295310874(BasicNewsRecipe):
-    title          = u'20 Minutos (Boletin)'
-    __author__            = 'Luis Hernandez'
-    description           = 'Periódico gratuito en español'
+class AdvancedUserRecipe1294946868(BasicNewsRecipe):
+
+    title          = u'20 Minutos'
+    publisher      = u'Grupo 20 Minutos'
+
+    __author__            = u'Luis Hernández'
+    description           = u'Periódico gratuito en español'
     cover_url     = 'http://estaticos.20minutos.es/mmedia/especiales/corporativo/css/img/logotipos_grupo20minutos.gif'
-    language      = 'es'
 
-    oldest_article = 2
-    max_articles_per_feed = 50
+    oldest_article = 5
+    max_articles_per_feed = 100
 
-    feeds          = [(u'VESPERTINO', u'http://20minutos.feedsportal.com/c/32489/f/478284/index.rss')
-                        , (u'DEPORTES', u'http://20minutos.feedsportal.com/c/32489/f/478286/index.rss')
-                        , (u'CULTURA', u'http://www.20minutos.es/rss/ocio/')
-                        , (u'TV', u'http://20minutos.feedsportal.com/c/32489/f/490877/index.rss')
-]
+    remove_javascript = True
+    no_stylesheets        = True
+    use_embedded_content  = False
+
+    encoding              = 'ISO-8859-1'
+    language              = 'es'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    keep_only_tags     = [dict(name='div', attrs={'id':['content']})
+                                  ,dict(name='div', attrs={'class':['boxed','description','lead','article-content']})
+                                  ,dict(name='span', attrs={'class':['photo-bar']})
+                                  ,dict(name='ul', attrs={'class':['article-author']})
+                                ]
+
+    remove_tags_before = dict(name='ul' , attrs={'class':['servicios-sub']})
+    remove_tags_after  = dict(name='div' , attrs={'class':['related-news','col']})
+
+    remove_tags = [
+                     dict(name='ol', attrs={'class':['navigation',]})
+                    ,dict(name='span', attrs={'class':['action']})
+                    ,dict(name='div', attrs={'class':['twitter comments-list hidden','related-news','col']})
+                    ,dict(name='div', attrs={'id':['twitter-destacados']})
+                    ,dict(name='ul', attrs={'class':['article-user-actions','stripped-list']})
+                                          ]
+
+    feeds = [
+              (u'Portada'              , u'http://www.20minutos.es/rss/')
+             ,(u'Nacional'             , u'http://www.20minutos.es/rss/nacional/')
+             ,(u'Internacional'       , u'http://www.20minutos.es/rss/internacional/')
+             ,(u'Economia'           , u'http://www.20minutos.es/rss/economia/')
+             ,(u'Deportes'            , u'http://www.20minutos.es/rss/deportes/')
+             ,(u'Tecnologia'          , u'http://www.20minutos.es/rss/tecnologia/')
+             ,(u'Gente - TV'         , u'http://www.20minutos.es/rss/gente-television/')
+             ,(u'Motor'                 , u'http://www.20minutos.es/rss/motor/')
+             ,(u'Salud'                 , u'http://www.20minutos.es/rss/belleza-y-salud/')
+             ,(u'Viajes'                , u'http://www.20minutos.es/rss/viajes/')
+             ,(u'Vivienda'             , u'http://www.20minutos.es/rss/vivienda/')
+             ,(u'Empleo'              , u'http://www.20minutos.es/rss/empleo/')
+             ,(u'Cine'                  , u'http://www.20minutos.es/rss/cine/')
+             ,(u'Musica'               , u'http://www.20minutos.es/rss/musica/')
+             ,(u'Comunidad20'     , u'http://www.20minutos.es/rss/zona20/')
+            ]
+

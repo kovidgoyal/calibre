@@ -9,7 +9,7 @@ import os, datetime
 
 from PyQt4.Qt import pyqtSignal, QModelIndex, QThread, Qt
 
-from calibre.gui2 import error_dialog, gprefs
+from calibre.gui2 import error_dialog
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 from calibre import strftime
 from calibre.gui2.actions import InterfaceAction
