@@ -727,7 +727,11 @@ class TagsModel(QAbstractItemModel): # {{{
         for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys(),
                                key=sort_key):
             cat_name = '@' + user_cat # add the '@' to avoid name collision
-            tb_cats.add_user_category(label=cat_name, name=user_cat)
+            try:
+                tb_cats.add_user_category(label=cat_name, name=user_cat)
+            except ValueError:
+                import traceback
+                traceback.print_exc()
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
 

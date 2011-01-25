@@ -42,7 +42,8 @@ class MetadataBackup(Thread): # {{{
 
     def stop(self):
         self.keep_running = False
-        self.flush()
+
+    def break_cycles(self):
         # Break cycles so that this object doesn't hold references to db
         self.do_write = self.get_metadata_for_dump = self.clear_dirtied = \
             self.set_dirtied = self.db = None
@@ -111,6 +112,8 @@ class MetadataBackup(Thread): # {{{
                     continue
 
             self.in_limbo = None
+        self.flush()
+        self.break_cycles()
 
     def flush(self):
         'Used during shutdown to ensure that a dirtied book is not missed'
