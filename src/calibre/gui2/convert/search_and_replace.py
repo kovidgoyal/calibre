@@ -42,9 +42,15 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
     def break_cycles(self):
         Widget.break_cycles(self)
 
-        self.opt_sr1_search.doc_update.disconnect()
-        self.opt_sr2_search.doc_update.disconnect()
-        self.opt_sr3_search.doc_update.disconnect()
+        def d(x):
+            try:
+                x.disconnect()
+            except:
+                pass
+
+        d(self.opt_sr1_search)
+        d(self.opt_sr2_search)
+        d(self.opt_sr3_search)
 
         self.opt_sr1_search.break_cycles()
         self.opt_sr2_search.break_cycles()
