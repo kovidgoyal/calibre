@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-21 23:34+0000\n"
-"PO-Revision-Date: 2011-01-10 23:52+0000\n"
-"Last-Translator: David Rodrigues <david.rodrigues@gmail.com>\n"
+"PO-Revision-Date: 2011-01-24 16:19+0000\n"
+"Last-Translator: Alberto Ferreira <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-23 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-01-25 04:51+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
@@ -1270,6 +1270,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:72
 msgid "Upload separate cover thumbnails for books (newer readers)"
 msgstr ""
+"Carregar miniaturas de capas individuais para os livros (leitores mais "
+"recentes)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid ""
@@ -1284,6 +1286,8 @@ msgstr ""
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Actualizar capas individuais ao utilizar a gestão automática (leitores mais "
+"recentes)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:81
 msgid ""
@@ -1610,11 +1614,16 @@ msgid ""
 "default. Use %s to enable.  Individual actions can be disabled with the %s "
 "options."
 msgstr ""
+"Modificar o texto e estrutura do documento de acordo com padrões comuns. "
+"Desactivado por predefinição. Utilize o parâmetro \"%s\" para activar a "
+"opção. É possível desactivar acções individuais com as opções \"%s\"."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:16
 msgid "Modify the document text and structure using user defined patterns."
 msgstr ""
+"Modificar o texto e estrutura do documento de acordo com padrões definidos "
+"pelo utilizador."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:159
 msgid "Control auto-detection of document structure."

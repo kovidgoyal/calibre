@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-21 23:34+0000\n"
-"PO-Revision-Date: 2011-01-22 21:00+0000\n"
-"Last-Translator: Marek Rygielski <Unknown>\n"
+"PO-Revision-Date: 2011-01-24 13:29+0000\n"
+"Last-Translator: Łukasz Świątkowski <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-23 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-01-25 04:50+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -211,7 +211,7 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Podąż za wszystkimi lokalnymi linkami w pliku HTML i stwórz plik ZIP "
+"Podążaj za wszystkimi lokalnymi linkami w pliku HTML i stwórz plik ZIP "
 "zawierający wszystkie podlinkowane pliki. Ta wtyczka jest uruchamiana za "
 "każdym razem, gdy dodasz plik HTML do biblioteki."
 
@@ -229,8 +229,8 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Stwórz archiwum PMLZ zawierające plik PML i wszystkie obrazy z katalogu "
-"pmlname_img lub images. Plugin ten jest uruchamiany przy każdym dodaniu "
+"Stwórz archiwum PMLZ zawierające plik PML i wszystkie obrazy w katalogu "
+"pmlname_img lub images. Wtyczka ta jest uruchamiana przy każdym dodaniu "
 "pliku PML do biblioteki."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:92
@@ -293,15 +293,15 @@ msgstr "Interfejs"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:733
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr "Dostosowanie wyglądu interfejsu Calibre do indywidualnych upodobań"
+msgstr "Dostosuj wygląd interfejsu calibre do indywidualnych upodobań"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:739
 msgid "Behavior"
-msgstr "Działanie"
+msgstr "Zachowanie"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Change the way calibre behaves"
-msgstr "Zmień zachowanie programu"
+msgstr "Zmień zachowanie calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:217
@@ -314,15 +314,15 @@ msgstr "Dodaj/usuń swoje kolumny do/z listy książek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Customize the toolbar"
-msgstr "Dopasuj pasek narzędziowy"
+msgstr "Dostosuj pasek narzędzi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
-"Dopasuj paski narzędzi i menu kontekstowe, zmieniając czynności, jakie są im "
-"przypisane"
+"Dostosuj paski narzędzi i menu kontekstowe, wybierając, jakie polecenia są w "
+"nich dostępne"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:773
 msgid "Input Options"
@@ -336,7 +336,7 @@ msgstr "Konwersja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:779
 msgid "Set conversion options specific to each input format"
-msgstr "Zmień ustawienia konwersji specyficzne dla każdego formatu"
+msgstr "Ustaw opcje konwersji dla poszczególnych formatów wejściowych"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:784
 msgid "Common Options"
@@ -352,7 +352,7 @@ msgstr "Opcje wyjściowe"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:801
 msgid "Set conversion options specific to each output format"
-msgstr "Ustaw opcje konwersji dla poszczególnych formatów"
+msgstr "Ustaw opcje konwersji dla poszczególnych formatów wyjściowych"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 msgid "Adding books"
@@ -368,8 +368,8 @@ msgstr "Importuj/Eksportuj"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
-"Ustaw sposób, w jaki calibre odczytuje metadane z plików podczas dodawania "
-"książek"
+"Skonfiguruj sposób, w jaki calibre odczytuje metadane z plików podczas "
+"dodawania książek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:818
 msgid "Saving books to disk"
@@ -380,14 +380,16 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
+"Skonfiguruj sposób, w jaki calibre eksportuje pliki ze swojej bazy danych "
+"podczas zapisywania na dysk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Sending books to devices"
-msgstr "Przesyłanie książek na urządzenie"
+msgstr "Przesyłanie książek na urządzenia"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:836
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr "Zarządzaj sposobem przesyłania książek do Twojego czytnika"
+msgstr "Skonfiguruj sposób przesyłania książek do czytnika"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Metadata plugboards"
@@ -395,7 +397,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "Zmień pola metadanych przed zapisaniem/wysłaniem"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Template Functions"
@@ -414,7 +416,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Sharing books by email"
-msgstr "Dzielenie się książkami poprzez email"
+msgstr "Udostępnianie książek poprzez email"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:866
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:878
@@ -426,8 +428,8 @@ msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
-"Ustaw uwspólnianie książek za pomocą e-mail. Możesz użyć tej opcji do "
-"automatycznego wysyłania newsów na Twoje urządzenia"
+"Skonfiguruj udostępnianie książek poprzez email. Możesz użyć tej opcji do "
+"automatycznego wysyłania newsów na swoje urządzenia"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:876
 msgid "Sharing over the net"
@@ -438,6 +440,8 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"Skonfiguruj serwer calibre Content Server, aby z każdego miejsca i "
+"urządzenia mieć dostęp przez Internet do swojej biblioteki calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:889
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:163
@@ -446,7 +450,7 @@ msgstr "Wtyczki"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
+msgstr "Dodaj/usuń/dostosuj różne funkcje calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:901
 msgid "Tweaks"
@@ -668,7 +672,7 @@ msgstr "Nie znaleziono wtyczki w "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:508
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "Inicjacja wtyczki %s nie udała się - prześledź komunikaty:"
+msgstr "Inicjowanie wtyczki %s nie udało się – prześledź komunikaty:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:541
 msgid ""
@@ -679,12 +683,12 @@ msgid ""
 msgstr ""
 "    %prog options\n"
 "\n"
-"    Spersonalizuj calibre poprzez załadowanie zewnętrznych wtyczek\n"
+"    Dostosuj calibre poprzez załadowanie zewnętrznych wtyczek.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:547
 msgid "Add a plugin by specifying the path to the zip file containing it."
-msgstr "Dodaj wtyczkę przez podanie ścieżki do pliku, który ją zawiera."
+msgstr "Dodaj wtyczkę podając ścieżkę do pliku, który ją zawiera."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:549
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -697,7 +701,7 @@ msgid ""
 "by a comma."
 msgstr ""
 "Dostosuj wtyczkę. Wprowadź nazwę wtyczki i polecenie dostosowujące "
-"oddzielając przecinkami."
+"oddzielając je przecinkiem."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:553
 msgid "List all installed plugins"
@@ -741,7 +745,7 @@ msgstr "Umożliwia komunikację z aplikacjami iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:98
 msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr "Urządzenie Apple wykryte, uruchamianie iTunes, proszę czekać..."
+msgstr "Wykryto urządzenie Apple, uruchamianie iTunes, proszę czekać..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:100
 msgid ""
@@ -850,9 +854,9 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
-"Nie można połączyć się z czytnikiem Bambook.\n"
-"Jeśli próbujesz połączyć się przez sieć WiFi, upewnij się, że adres IP na "
-"czytniku jest prawidłowo skonfigurowany."
+"Nie można połączyć się z czytnikiem Bambook. \n"
+"Jeśli próbujesz połączyć się przez sieć WiFi, upewnij się, że adres IP "
+"czytnika jest prawidłowo skonfigurowany."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:111
 msgid "Bambook"
@@ -871,7 +875,7 @@ msgstr "Bambook"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:143
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:166
 msgid "Getting list of books on device..."
-msgstr "Pobieranie listy książek znajdujących się na urządzeniu"
+msgstr "Pobieranie listy książek znajdujących się na urządzeniu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:263
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:267
@@ -888,7 +892,7 @@ msgstr "Przenoszenie książek na urządzenie..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:219
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:250
 msgid "Adding books to device metadata listing..."
-msgstr "Dodanie książki do urządzenia metadanych lista..."
+msgstr "Dodawanie książek do listy metadanych urządzenia..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:306
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:308
@@ -908,12 +912,12 @@ msgstr "Usuwanie książek z urządzenia..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:281
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:286
 msgid "Removing books from device metadata listing..."
-msgstr "Usuwanie książki z urządzenia metadanych lista"
+msgstr "Usuwanie książek z listy metadanych urządzenia..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:396
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:316
 msgid "Sending metadata to device..."
-msgstr "Przesyłanie danych meta do urządzenia..."
+msgstr "Przesyłanie metadanych do urządzenia..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:132
 msgid "Bambook SDK has not been installed."
@@ -982,7 +986,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek Sigmatek."
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:32
 msgid "Use an arbitrary folder as a device."
-msgstr "Użyj dowolnego folderu jako urządzenia."
+msgstr "Użyj wybranego folderu jako urządzenia."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:28
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:14
@@ -1041,7 +1045,7 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:44
 msgid "Cannot get files from this device"
-msgstr "Nie można pobrać listy plików na urządzeniu"
+msgstr "Nie można pobrać listy plików z urządzenia"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -1276,25 +1280,28 @@ msgstr "Umożliwia komunikację z czytnikiem książek Sunstech EB700"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:261
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr "Wykrycie dysku %s niemożliwe. Spróbuj ponownie uruchomić komputer."
+msgstr "Nie wykryto dysku %s. Spróbuj uruchomić ponownie komputer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:441
 msgid "Unable to detect the %s mount point. Try rebooting."
-msgstr "Nie można wykryć %s punkt montowania. Spróbuj zrestartować system."
+msgstr ""
+"Nie wykryto punktu montowania %s. Spróbuj uruchomić ponownie komputer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:506
 msgid "Unable to detect the %s disk drive."
-msgstr "Nie można wykryć %s dysku."
+msgstr "Nie wykryto dysku %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:599
 msgid "Could not find mount helper: %s."
-msgstr "Nie można znaleźć pomocnika montowania: %s."
+msgstr "Nie znaleziono pomocnika montowania: %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:611
 msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"Nie wykryto dysku %s. Urządzenie zostało już odłączone albo kernel "
+"eksportuje przestarzałą wersję SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:620
 msgid "Unable to mount main memory (Error code: %d)"
@@ -1311,11 +1318,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:819
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:821
 msgid "The reader has no storage card in this slot."
-msgstr "Brak pamięci na karcie urządzenia w tym wejściu."
+msgstr "Brak karty pamięci w tym gnieździe urządzenia."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:823
 msgid "Selected slot: %s is not supported."
-msgstr "Wybrane gniazda: %s nie jest obsługiwany."
+msgstr "Wybrane gniazdo: %s nie jest obsługiwane."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:852
 msgid "There is insufficient free space in main memory"
@@ -1353,7 +1360,7 @@ msgstr "Użyj sortowania według autora zamiast autora"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:61
 msgid "Template to control how books are saved"
-msgstr "Szablon do kontrolowania sposobu, w jaki książki są zapisywane"
+msgstr "Szablon konfigurujący sposób zapisywania książek"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:64
 msgid "Extra customization"
@@ -1861,8 +1868,8 @@ msgid ""
 "Insert a blank line between paragraphs. Will not work if the source file "
 "does not use paragraphs (<p> or <div> tags)."
 msgstr ""
-"Wstaw pusta linię pomiędzy paragrafami. Ustawienie nie będzie działać, jeśli "
-"plik źródłowy nie używa pragrafów (znaczników <p> lub <div>)."
+"Wstaw pusta linię pomiędzy akapitami. Ustawienie nie będzie działać, jeśli "
+"plik źródłowy nie używa akapitów (znaczników <p> lub <div>)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:367
 msgid ""
@@ -2539,7 +2546,7 @@ msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
 msgstr ""
-"Minimalne wcięcie paragrafu (wcięcie pierwszej linii paragrafu) w pts. "
+"Minimalne wcięcie akapitu (wcięcie pierwszej linii akapitu) w punktach. "
 "Domyślnie: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:112
@@ -6019,7 +6026,7 @@ msgstr "&Kodowanie znaków w pliku źródłowym:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:147
 msgid "Remove &spacing between paragraphs"
-msgstr "Usuń &odstępy pomiędzy paragrafami"
+msgstr "Usuń &odstępy pomiędzy akapitami"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:148
 msgid "Indent size:"
@@ -6086,7 +6093,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:124
 msgid "Minimum para. &indent:"
-msgstr "Minimalne wcięcie paragrafu:"
+msgstr "Minimalne wcięcie akapitu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:126
 msgid "Render &tables as images"
@@ -6345,7 +6352,7 @@ msgstr "&Dolny:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:37
 msgid "Treat each &line as a paragraph"
-msgstr "Traktuj każdą &linię jako paragraf"
+msgstr "Traktuj każdą &linię jako akapit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:38
 msgid "Assume print formatting"
@@ -8932,12 +8939,12 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:71
 msgid "Function &name:"
-msgstr ""
+msgstr "&Nazwa funkcji:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:100
 msgid "&Documentation:"
-msgstr ""
+msgstr "&Dokumentacja:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:73
 msgid "Python &code:"

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-21 23:34+0000\n"
-"PO-Revision-Date: 2011-01-23 22:30+0000\n"
+"PO-Revision-Date: 2011-01-24 21:23+0000\n"
 "Last-Translator: Vincent Coiffier <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-24 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-01-25 04:49+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -263,11 +263,13 @@ msgstr "Lecture des métadonnées depuis les fichiers %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:269
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Lecture des métadonnées des ebooks contenus dans les archives RAR"
+msgstr ""
+"Lecture des métadonnées des livres numériques contenus dans les archives RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:332
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Lecture des métadonnées des ebooks contenus dans les archives ZIP"
+msgstr ""
+"Lecture des métadonnées des livres numériques contenus dans les archives ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:345
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:355
@@ -10550,31 +10552,31 @@ msgstr "ERREUR : Exception non traitée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:111
 msgid "Title &sort:"
-msgstr ""
+msgstr "Tri par titre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:216
 msgid "Author s&ort:"
-msgstr ""
+msgstr "Tri par auteur:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:339
 msgid "&Number:"
-msgstr ""
+msgstr "&Nombre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:704
 msgid "Invalid cover"
-msgstr ""
+msgstr "Couverture invalide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:705
 msgid "Could not change cover as the image is invalid."
-msgstr ""
+msgstr "Impossible de modifier la couverture car l'image est invalide."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:732
 msgid "This book has no cover"
-msgstr ""
+msgstr "Ce livre n'a pas de couverture"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:782
 msgid "stars"
-msgstr ""
+msgstr "Notes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:816
 msgid ""
@@ -10584,11 +10586,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:913
 msgid "&Publisher:"
-msgstr ""
+msgstr "&Éditeur:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:978
 msgid "Clear date"
-msgstr ""
+msgstr "Effacer la date"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:109
 msgid "Book has neither title nor ISBN"
@@ -10635,28 +10637,28 @@ msgstr "Détails"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:208
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Éditer les métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:426
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:587
 msgid "Change cover"
-msgstr ""
+msgstr "Changer la couverture"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:474
 msgid "Co&mments"
-msgstr ""
+msgstr "Co&mmentaires"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:496
 msgid "&Metadata"
-msgstr ""
+msgstr "&Métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:501
 msgid "&Cover and formats"
-msgstr ""
+msgstr "&Couverture et formats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:556
 msgid "C&ustom metadata"
-msgstr ""
+msgstr "Métadonnées personnalisées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:36
 msgid ""
@@ -11268,6 +11270,12 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
+"Choisir comment le navigateur de sous-catégories d'étiquettes sont affichés "
+"quand\n"
+"il y a plus d'articles que la limite. Sélectionner par la première\n"
+"lettre pour visualiser une liste A, B, C. Choisir partionné pour\n"
+"avoir une liste de groupes de tailles fixes. Indiquer désactiver\n"
+" si vous ne voulez pas de sous-catégories."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:158
 msgid "Collapse when more items than:"
@@ -11279,6 +11287,9 @@ msgid ""
 "up into sub-categories. If the partition method is set to disable, this "
 "value is ignored."
 msgstr ""
+"Si un navigateur de catégories d'étiquettes en a plus que ce nombre "
+"d'articles, ceci est divisé en sous-catégories. Si la méthode partition est "
+"désactivée, cette valeur est ignorée."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:161
 msgid "&Toolbar"
@@ -12021,7 +12032,7 @@ msgstr "Exception lors de la compilation de la fonction"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:194
 msgid "function source code not available"
-msgstr ""
+msgstr "code source de la fonction non disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:96
 msgid "&Function:"
@@ -13298,7 +13309,7 @@ msgstr "Le courrier a été envoyé avec succès"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
 msgid "OK to proceed?"
-msgstr ""
+msgstr "OK pour lancer le traitement?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:96
 msgid ""
@@ -13671,6 +13682,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Sauvegarder la sortie à différentes étapes du processus de conversion vers "
+"le répertoire spécifié. Utile si vous n'êtes pas sûr de l'étape de la "
+"conversion à laquelle se produit le bogue.\n"
+"Par défaut: '%default'\n"
+"Appliquer à: formats de sortie ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:589
 msgid ""
@@ -13702,6 +13718,10 @@ msgid ""
 "this'.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Liste séparée par des virgules d'étiquettes indiquant les livres devant être "
+"exclus de la sortie.Par exemple: 'passer' correspondra à 'passer ce livre' "
+"et 'passer sera comme ceci'.Par défaut: '%default'\n"
+"Appliquer à: formats de sortie ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:610
 msgid ""
@@ -13709,6 +13729,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Inclure la section 'Auteurs' dans le catalogue.\n"
+"Par défaut: '%default'\n"
+"Appliquer à: formats de sortie ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:617
 msgid ""
@@ -13716,6 +13739,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Inclure la section 'Descriptions' dans le catalogue.\n"
+"Par défaut: '%default'\n"
+"Appliquer à: formats de sortie ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:624
 msgid ""
@@ -13838,7 +13864,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1373
 msgid "No enabled genres found to catalog.\n"
-msgstr ""
+msgstr "Aucun genre actif trouvé dans le catalogue.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1377
 msgid "No books available to catalog"
@@ -13855,6 +13881,14 @@ msgid ""
 "dialog,\n"
 "then rebuild the catalog.\n"
 msgstr ""
+"\n"
+"Valeurs de tri par auteurs contradictoires pour l'auteur '{0}':\n"
+"'{1}' <> '{2}',\n"
+"impossible de construire le catalogue.\n"
+"\n"
+"Sélectionner tous les livres à l'aide de '{0}', appliquer la valeur de tri "
+"par auteur correcte dans la boite de dialogue d'édition des métadonnées, et "
+"reconstruire le catalogue.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1652
 msgid ""
@@ -15286,6 +15320,13 @@ msgid ""
 "automatically. For example, template('[[title_sort]]') will evaluate the "
 "template {title_sort} and return its value."
 msgstr ""
+"template(x) -- évalue x comme un modèle. L'évaluation est effectuée dans son "
+"propre contexte, cela veut dire que les variables ne sont pas partagées "
+"entre l'appelant et l'évaluation du modèle. Comme les caractères { et } sont "
+"spéciaux, vous devez utiliser [[ pour le caractère { et ]] pour le caractère "
+"}; ils sont convertit automatiquement. Par exemple, "
+"template('[[title_sort]]') évaluera le modèle {title_sort} et retournera sa "
+"valeur."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:194
 msgid ""
@@ -15329,6 +15370,12 @@ msgid ""
 "substr('12345', 1, 0) returns '2345', and substr('12345', 1, -1) returns "
 "'234'."
 msgstr ""
+"substr(ch, debut, fin) -- renvoie les caractères de debut jusqu'à fin de la "
+"chaine ch. Le premier caractère dans la chaine ch est le caractère 0. Si fin "
+"est négatif, cela indique que le comptage des caractères est effectué à "
+"partir de la droite. Si end est à zéro, cela indique le dernier caractère. "
+"Par exemple, substr('12345', 1, 0) renvoie '2345', et substr('12345', 1, -1) "
+"renvoie '234'."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:249
 msgid ""
@@ -15339,6 +15386,13 @@ msgid ""
 "the value of some other composite field. This is extremely useful when "
 "constructing variable save paths"
 msgstr ""
+"lookup(val, modele, champ, modele, champ, ..., sinon_champ) -- comme switch, "
+"sauf que les arguments sont des noms de champs (métadonnées), et pas du "
+"texte. La valeur du champ approprié sera récupéré et utilisé. Notez que vu "
+"que les colonnes composées sont des champs, vous pouvez utiliser cette "
+"fonction dans un champ composé pour utiliser la valeur d'autres champs "
+"composés. C'est extrêmement utile dans la construction des chemins de "
+"sauvegarde variables."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:264
 msgid "lookup requires either 2 or an odd number of arguments"
@@ -15451,7 +15505,7 @@ msgstr "lowercase(val) -- renvoie la valeur du champ en miniscule"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:418
 msgid "titlecase(val) -- return value of the field in title case"
-msgstr ""
+msgstr "titlecase(val) -- renvoie la valeur du champ pour le titre"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:426
 msgid "capitalize(val) -- return value of the field capitalized"
@@ -15895,6 +15949,11 @@ msgid ""
 "a link, it will be ignored.By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"Tout lien correspondant avec cette expression régulière sera ignoré. Cette "
+"option peut être spécifiée plusieurs fois, dans le cas et tant que "
+"l'expression régulière correspond à un lien, il sera ignoré. Par défaut, "
+"aucun lien est ignoré. Si le filtre regexp et la correspondance regexp sont "
+"spécifiés, alors le filtre regexp est appliqué en premier."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
