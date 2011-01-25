@@ -472,15 +472,14 @@ class FieldMetadata(dict):
             self.custom_label_to_key_map[label+'_index'] = key
 
     def remove_dynamic_categories(self):
-        keys = list(self._tb_cats.keys())[:]
-        for key in keys:
+        for key in list(self._tb_cats.keys()):
             val = self._tb_cats[key]
             if val['is_category'] and val['kind'] in ('user', 'search'):
                 del self._tb_cats[key]
                 if key in self._search_term_map:
                     del self._search_term_map[key]
-                if key.lower() in self._search_term_map:
-                    del self._search_term_map[key.lower()]
+                if key in self._search_term_map:
+                    del self._search_term_map[key]
 
     def cc_series_index_column_for(self, key):
         return self._tb_cats[key]['rec_index'] + 1
