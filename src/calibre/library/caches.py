@@ -42,6 +42,8 @@ class MetadataBackup(Thread): # {{{
 
     def stop(self):
         self.keep_running = False
+
+    def break_cycles(self):
         # Break cycles so that this object doesn't hold references to db
         self.do_write = self.get_metadata_for_dump = self.clear_dirtied = \
             self.set_dirtied = self.db = None
@@ -57,7 +59,10 @@ class MetadataBackup(Thread): # {{{
             except:
                 # Happens during interpreter shutdown
                 break
+            if not self.keep_running:
+                break
 
+            self.in_limbo = id_
             try:
                 path, mi = self.get_metadata_for_dump(id_)
             except:
@@ -72,10 +77,10 @@ class MetadataBackup(Thread): # {{{
                     continue
 
             # at this point the dirty indication is off
-
             if mi is None:
                 continue
-            self.in_limbo = id_
+            if not self.keep_running:
+                break
 
             # Give the GUI thread a chance to do something. Python threads don't
             # have priorities, so this thread would naturally keep the processor
@@ -88,6 +93,9 @@ class MetadataBackup(Thread): # {{{
                 prints('Failed to convert to opf for id:', id_)
                 traceback.print_exc()
                 continue
+
+            if not self.keep_running:
+                break
 
             time.sleep(0.1) # Give the GUI thread a chance to do something
             try:
@@ -102,7 +110,10 @@ class MetadataBackup(Thread): # {{{
                     prints('Failed to write backup metadata for id:', id_,
                             'again, giving up')
                     continue
-        self.in_limbo = None
+
+            self.in_limbo = None
+        self.flush()
+        self.break_cycles()
 
     def flush(self):
         'Used during shutdown to ensure that a dirtied book is not missed'
@@ -111,6 +122,7 @@ class MetadataBackup(Thread): # {{{
                 self.db.dirtied([self.in_limbo])
             except:
                 traceback.print_exc()
+            self.in_limbo = None
 
     def write(self, path, raw):
         with lopen(path, 'wb') as f:
