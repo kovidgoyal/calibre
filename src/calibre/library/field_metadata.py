@@ -7,7 +7,6 @@ import copy
 
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.config import tweaks
-from calibre.utils.icu import lower
 
 class TagsIcons(dict):
     '''
@@ -485,7 +484,6 @@ class FieldMetadata(dict):
         return self._tb_cats[key]['rec_index'] + 1
 
     def add_user_category(self, label, name):
-        label = lower(label)
         if label in self._tb_cats:
             raise ValueError('Duplicate user field [%s]'%(label))
         self._tb_cats[label] = {'table':None,          'column':None,
@@ -525,7 +523,6 @@ class FieldMetadata(dict):
     def _add_search_terms_to_map(self, key, terms):
         if terms is not None:
             for t in terms:
-                t = t.lower()
                 if t in self._search_term_map:
                     raise ValueError('Attempt to add duplicate search term "%s"'%t)
                 self._search_term_map[t] = key

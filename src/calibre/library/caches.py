@@ -424,6 +424,11 @@ class ResultCache(SearchQueryParser): # {{{
         if self.db_prefs is None:
             return  res
         user_cats = self.db_prefs.get('user_categories', [])
+        # translate the case of the location
+        for loc in user_cats:
+            if location == icu_lower(loc):
+                location = loc
+                break
         if location not in user_cats:
             return res
         c = set(candidates)
@@ -445,7 +450,7 @@ class ResultCache(SearchQueryParser): # {{{
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
-            location = self.field_metadata.search_term_to_field_key(location.lower().strip())
+            location = self.field_metadata.search_term_to_field_key(icu_lower(location.strip()))
             if isinstance(location, list):
                 if allow_recursion:
                     for loc in location:
