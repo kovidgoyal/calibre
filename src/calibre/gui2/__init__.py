@@ -550,6 +550,14 @@ def choose_dir(window, name, title, default_dir='~'):
     if dir:
         return dir[0]
 
+def choose_osx_app(window, name, title, default_dir='/Applications'):
+    fd = FileDialog(title=title, parent=window, name=name, mode=QFileDialog.ExistingFile,
+            default_dir=default_dir)
+    app = fd.get_files()
+    fd.setParent(None)
+    if app:
+        return app
+
 def choose_files(window, name, title,
                  filters=[], all_files=True, select_only_single_file=False):
     '''
