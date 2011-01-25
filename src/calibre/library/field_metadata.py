@@ -7,6 +7,7 @@ import copy
 
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.config import tweaks
+from calibre.utils.icu import lower
 
 class TagsIcons(dict):
     '''
@@ -477,8 +478,8 @@ class FieldMetadata(dict):
                 del self._tb_cats[key]
                 if key in self._search_term_map:
                     del self._search_term_map[key]
-                if key.lower() in self._search_term_map:
-                    del self._search_term_map[key.lower()]
+                if key in self._search_term_map:
+                    del self._search_term_map[key]
 
     def cc_series_index_column_for(self, key):
         return self._tb_cats[key]['rec_index'] + 1
@@ -523,7 +524,6 @@ class FieldMetadata(dict):
     def _add_search_terms_to_map(self, key, terms):
         if terms is not None:
             for t in terms:
-                t = t.lower()
                 if t in self._search_term_map:
                     raise ValueError('Attempt to add duplicate search term "%s"'%t)
                 self._search_term_map[t] = key
