@@ -22,7 +22,7 @@ class FOLDER_DEVICE_FOR_CONFIG(USBMS):
     PRODUCT_ID  = [0xffff]
     BCD         = [0xffff]
     DEVICE_PLUGBOARD_NAME = 'FOLDER_DEVICE'
-
+    SUPPORTS_SUB_DIRS = True
 
 class FOLDER_DEVICE(USBMS):
     type = _('Device Interface')
