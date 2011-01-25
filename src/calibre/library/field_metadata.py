@@ -7,6 +7,7 @@ import copy
 
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.config import tweaks
+from calibre.utils.icu import lower
 
 class TagsIcons(dict):
     '''
@@ -471,7 +472,8 @@ class FieldMetadata(dict):
             self.custom_label_to_key_map[label+'_index'] = key
 
     def remove_dynamic_categories(self):
-        for key in list(self._tb_cats.keys()):
+        keys = list(self._tb_cats.keys())[:]
+        for key in keys:
             val = self._tb_cats[key]
             if val['is_category'] and val['kind'] in ('user', 'search'):
                 del self._tb_cats[key]
@@ -482,6 +484,7 @@ class FieldMetadata(dict):
         return self._tb_cats[key]['rec_index'] + 1
 
     def add_user_category(self, label, name):
+        label = lower(label)
         if label in self._tb_cats:
             raise ValueError('Duplicate user field [%s]'%(label))
         self._tb_cats[label] = {'table':None,          'column':None,
