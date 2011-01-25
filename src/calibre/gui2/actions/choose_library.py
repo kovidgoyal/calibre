@@ -390,7 +390,7 @@ class ChooseLibraryAction(InterfaceAction):
         #self.dbref = weakref.ref(self.gui.library_view.model().db)
         #self.before_mem = memory()/1024**2
         self.gui.library_moved(loc)
-        #QTimer.singleShot(1000, self.debug_leak)
+        #QTimer.singleShot(5000, self.debug_leak)
 
     def debug_leak(self):
         import gc
@@ -398,7 +398,7 @@ class ChooseLibraryAction(InterfaceAction):
         ref = self.dbref
         for i in xrange(3): gc.collect()
         if ref() is not None:
-            print 11111, ref()
+            print 'DB object alive:', ref()
             for r in gc.get_referrers(ref())[:10]:
                 print r
                 print

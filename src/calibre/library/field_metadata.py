@@ -479,6 +479,8 @@ class FieldMetadata(dict):
                 del self._tb_cats[key]
                 if key in self._search_term_map:
                     del self._search_term_map[key]
+                if key.lower() in self._search_term_map:
+                    del self._search_term_map[key.lower()]
 
     def cc_series_index_column_for(self, key):
         return self._tb_cats[key]['rec_index'] + 1

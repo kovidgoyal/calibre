@@ -1376,10 +1376,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def tags_older_than(self, tag, delta):
         tag = tag.lower().strip()
         now = nowf()
+        tindex = self.FIELD_MAP['timestamp']
+        gindex = self.FIELD_MAP['tags']
         for r in self.data._data:
             if r is not None:
-                if (now - r[self.FIELD_MAP['timestamp']]) > delta:
-                    tags = r[self.FIELD_MAP['tags']]
+                if (now - r[tindex]) > delta:
+                    tags = r[gindex]
                     if tags and tag in [x.strip() for x in
                             tags.lower().split(',')]:
                         yield r[self.FIELD_MAP['id']]
