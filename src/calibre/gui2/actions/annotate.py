@@ -9,7 +9,7 @@ import os, datetime
 
 from PyQt4.Qt import pyqtSignal, QModelIndex, QThread, Qt
 
-from calibre.gui2 import error_dialog, gprefs
+from calibre.gui2 import error_dialog
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 from calibre import strftime
 from calibre.gui2.actions import InterfaceAction
@@ -165,10 +165,12 @@ class FetchAnnotationsAction(InterfaceAction):
                 ka_soup.insert(0,divTag)
                 return ka_soup
 
+            '''
             def mark_book_as_read(self,id):
                 read_tag = gprefs.get('catalog_epub_mobi_read_tag')
                 if read_tag:
                     self.db.set_tags(id, [read_tag], append=True)
+            '''
 
             def canceled(self):
                 self.pd.hide()
@@ -201,10 +203,12 @@ class FetchAnnotationsAction(InterfaceAction):
                         # Update library comments
                         self.db.set_comment(id, mi.comments)
 
+                        '''
                         # Update 'read' tag except for Catalogs/Clippings
                         if bm.value.percent_read >= self.FINISHED_READING_PCT_THRESHOLD:
                             if not set(mi.tags).intersection(ignore_tags):
                                 self.mark_book_as_read(id)
+                        '''
 
                         # Add bookmark file to id
                         self.db.add_format_with_hooks(id, bm.value.bookmark_extension,

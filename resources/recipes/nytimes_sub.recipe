@@ -498,7 +498,7 @@ class NYTimes(BasicNewsRecipe):
                 for lidiv in div.findAll('li'):
                     if not skipping:
                         self.handle_article(lidiv)
-            
+
         self.ans = [(k, self.articles[k]) for k in self.ans if self.articles.has_key(k)]
         return self.filter_ans(self.ans)
 
@@ -609,7 +609,7 @@ class NYTimes(BasicNewsRecipe):
                 if article_date < self.earliest_date:
                     self.log("Skipping article dated %s" % date_str)
                     return None
-                    
+
         #all articles are from today, no need to print the date on every page
         try:
             if not self.webEdition:
@@ -631,7 +631,7 @@ class NYTimes(BasicNewsRecipe):
                             refstart = reflinkstring.find("javascript:pop_me_up2('") + len("javascript:pop_me_up2('")
                             refend = reflinkstring.find(".html", refstart) + len(".html")
                             reflinkstring = reflinkstring[refstart:refend]
-                            
+
                             popuppage = self.browser.open(reflinkstring)
                             popuphtml = popuppage.read()
                             popuppage.close()
@@ -640,7 +640,7 @@ class NYTimes(BasicNewsRecipe):
                                 year = str(st.tm_year)
                                 month = "%.2d" % st.tm_mon
                                 day = "%.2d" % st.tm_mday
-                                imgstartpos = popuphtml.find('http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/') + len('http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/')                                
+                                imgstartpos = popuphtml.find('http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/') + len('http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/')
                                 highResImageLink = 'http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/' + popuphtml[imgstartpos:popuphtml.find('.jpg',imgstartpos)+4]
                                 popupSoup = BeautifulSoup(popuphtml)
                                 highResTag = popupSoup.find('img', {'src':highResImageLink})
@@ -659,9 +659,9 @@ class NYTimes(BasicNewsRecipe):
                                             imageTag['height'] = newHeight
                                         except:
                                             self.log("Error setting the src width and height parameters")
-            except Exception as e:
+            except Exception:
                 self.log("Error pulling high resolution images")
-                
+
             try:
                 #remove "Related content" bar
                 runAroundsFound = soup.findAll('div',{'class':['articleInline runaroundLeft','articleInline doubleRule runaroundLeft','articleInline runaroundLeft firstArticleInline']})
@@ -674,8 +674,8 @@ class NYTimes(BasicNewsRecipe):
                                 hline.extract()
             except:
                 self.log("Error removing related content bar")
-     
-                
+
+
             try:
                 #in case pulling images failed, delete the enlarge this text
                 enlargeThisList = soup.findAll('div',{'class':'icon enlargeThis'})
