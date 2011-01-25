@@ -62,6 +62,18 @@ div.description {
 	text-indent: 1em;
 	}
 
+/*
+* 	Attempt to minimize widows and orphans by logically grouping chunks
+* 	Recommend enabling for iPad
+*   Some reports of problems with Sony ereaders, presumably ADE engines
+*/
+/*
+div.logical_group {
+	display:inline-block;
+	width:100%;
+	}
+*/
+
 p.date_index {
 	font-size:x-large;
 	text-align:center;

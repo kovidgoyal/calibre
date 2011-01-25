@@ -1820,6 +1820,9 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 self.booksByTitle_noSeriesPrefix = nspt
 
             # Loop through the books by title
+            # Generate one divRunningTag per initial letter for the purposes of
+            # minimizing widows and orphans on readers that can handle large
+            # <divs> styled as inline-block
             title_list = self.booksByTitle
             if not self.useSeriesPrefixInTitlesSection:
                 title_list = self.booksByTitle_noSeriesPrefix
@@ -1832,7 +1835,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         divTag.insert(dtc, divRunningTag)
                         dtc += 1
                     divRunningTag = Tag(soup, 'div')
-                    divRunningTag['style'] = 'display:inline-block;width:100%'
+                    divRunningTag['class'] = "logical_group"
                     drtc = 0
                     current_letter = self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag = Tag(soup, "p")
@@ -1954,6 +1957,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             drtc = 0
 
             # Loop through booksByAuthor
+            # Each author/books group goes in an openingTag div (first) or
+            # a runningTag div (subsequent)
             book_count = 0
             current_author = ''
             current_letter = ''
@@ -1977,7 +1982,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
                     author_count = 0
                     divOpeningTag = Tag(soup, 'div')
-                    divOpeningTag['style'] = 'display:inline-block;width:100%'
+                    divOpeningTag['class'] = "logical_group"
                     dotc = 0
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "letter_index"
@@ -2001,7 +2006,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
                         # Create a divRunningTag for the rest of the authors in this letter
                         divRunningTag = Tag(soup, 'div')
-                        divRunningTag['style'] = 'display:inline-block;width:100%'
+                        divRunningTag['class'] = "logical_group"
                         drtc = 0
 
                     non_series_books = 0
