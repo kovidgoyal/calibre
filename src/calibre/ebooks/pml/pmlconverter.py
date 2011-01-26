@@ -576,10 +576,15 @@ class PML_HTMLizer(object):
                         if indent_state[c]:
                             basic_indent = True
                     elif c == 'T':
-                        indent_state[c] = not indent_state[c]
-                        if indent_state[c]:
+                        # Ensure we only store the value on the first T set for the line.
+                        if not indent_state['T']:
                             adv_indent = True
                             adv_indent_val = self.code_value(line)
+                        else:
+                            # We detected a T previously on this line.
+                            # Don't replace the first detected value.
+                            self.code_value(line)
+                        indent_state['T'] = True
                     elif c == '-':
                         empty = False
                         text = '&shy;'
