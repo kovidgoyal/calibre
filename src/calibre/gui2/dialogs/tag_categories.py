@@ -9,7 +9,7 @@ from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.constants import islinux
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, strcmp
 
 class Item:
     def __init__(self, name, label, index, icon, exists):
@@ -160,15 +160,17 @@ class TagCategories(QDialog, Ui_TagCategories):
         cat_name = unicode(self.input_box.text()).strip()
         if cat_name == '':
             return False
+        for c in self.categories:
+            if strcmp(c, cat_name) == 0:
+                cat_name = c
         if cat_name not in self.categories:
             self.category_box.clear()
             self.current_cat_name = cat_name
             self.categories[cat_name] = []
             self.applied_items = []
             self.populate_category_list()
-            self.category_box.setCurrentIndex(self.category_box.findText(cat_name))
-        else:
-            self.select_category(self.category_box.findText(cat_name))
+        self.input_box.clear()
+        self.category_box.setCurrentIndex(self.category_box.findText(cat_name))
         return True
 
     def del_category(self):
@@ -196,7 +198,6 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def accept(self):
         self.save_category()
-        self.db.prefs['user_categories'] = self.categories
         QDialog.accept(self)
 
     def save_category(self):
