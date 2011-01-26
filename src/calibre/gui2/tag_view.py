@@ -1186,14 +1186,12 @@ class TagBrowserMixin(object): # {{{
     def do_user_categories_edit(self, on_category=None):
         db = self.library_view.model().db
         d = TagCategories(self, db, on_category)
-        d.exec_()
-        if d.result() == d.Accepted:
+        if d.exec_() == d.Accepted:
             db.prefs.set('user_categories', d.categories)
             db.field_metadata.remove_user_categories()
             for k in d.categories:
                 db.field_metadata.add_user_category('@' + k, k)
-            db.data.sqp_initialize(db.field_metadata.get_search_terms(),
-                                        optimize=True)
+            db.data.sqp_change_locations(db.field_metadata.get_search_terms())
             self.tags_view.set_new_model()
             self.tags_view.recount()
 
