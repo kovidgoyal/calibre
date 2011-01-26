@@ -343,7 +343,7 @@ class ChooseLibraryAction(InterfaceAction):
         db.dirtied(list(db.data.iterallids()))
         info_dialog(self.gui, _('Backup metadata'),
             _('Metadata will be backed up while calibre is running, at the '
-              'rate of approximately 1 book per second.'), show=True)
+              'rate of approximately 1 book every three seconds.'), show=True)
 
     def check_library(self):
         db = self.gui.library_view.model().db

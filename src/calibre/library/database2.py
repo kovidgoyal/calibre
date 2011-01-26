@@ -117,6 +117,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def __init__(self, library_path, row_factory=False, default_prefs=None,
             read_only=False):
         self.field_metadata = FieldMetadata()
+        # Create the lock to be used to guard access to the metadata writer
+        # queues. This must be an RLock, not a Lock
+        self.dirtied_lock = threading.RLock()
         if not os.path.exists(library_path):
             os.makedirs(library_path)
         self.listeners = set([])
@@ -167,10 +170,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return row[loc]
 
     def initialize_dynamic(self):
-        # Create the lock to be used to guard access to the metadata writer
-        # queues. This must be an RLock, not a Lock
-        self.dirtied_lock = threading.RLock()
-
         self.field_metadata = FieldMetadata() #Ensure we start with a clean copy
         self.prefs = DBPrefs(self)
         defs = self.prefs.defaults
@@ -624,6 +623,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 #                print 'needs to be cleaned'
                 self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                         (book_id,))
+                self.conn.commit()
                 try:
                     del self.dirtied_cache[book_id]
                 except:
@@ -631,7 +631,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             elif dc_sequence is not None:
 #                print 'book needs to be done again'
                 pass
-        self.conn.commit()
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
             commit=True):
@@ -659,6 +658,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn.commit()
 
     def dirtied(self, book_ids, commit=True):
+        changed = False
         for book in book_ids:
             with self.dirtied_lock:
 #                print 'dirtied: check id', book
@@ -671,6 +671,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     self.conn.execute(
                         'INSERT INTO metadata_dirtied (book) VALUES (?)',
                             (book,))
+                    changed = True
                 except IntegrityError:
                     # Already in table
                     pass
@@ -680,7 +681,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # could lead to a problem because on restart, we won't put the book back
         # into the dirtied_cache. We deal with this by writing the dirtied_cache
         # back to the table on GUI exit. Not perfect, but probably OK
-        if commit:
+        if commit and changed:
             self.conn.commit()
 
     def get_a_dirtied_book(self):

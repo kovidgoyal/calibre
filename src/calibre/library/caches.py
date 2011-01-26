@@ -10,7 +10,6 @@ import re, itertools, time, traceback
 from itertools import repeat
 from datetime import timedelta
 from threading import Thread
-from Queue import Empty
 
 from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
@@ -54,7 +53,7 @@ class MetadataBackup(Thread): # {{{
                 (id_, sequence) = self.db.get_a_dirtied_book()
                 if id_ is None:
                     continue
-                print 'writer thread', id_, sequence
+                # print 'writer thread', id_, sequence
             except:
                 # Happens during interpreter shutdown
                 break
