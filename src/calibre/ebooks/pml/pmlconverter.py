@@ -499,14 +499,15 @@ class PML_HTMLizer(object):
 
         indent_state = {'t': False, 'T': False}
         adv_indent_val = ''
+        # Keep track of the number of empty lines
+        # between paragraphs. When we reach a set number
+        # we assume it's a soft scene break.
+        empty_count = 0
 
         for s in self.STATES:
             self.state[s] = [False, ''];
 
         for line in pml.splitlines():
-            if not line:
-                continue
-
             parsed = []
             empty = True
             basic_indent = indent_state['t']
@@ -592,7 +593,12 @@ class PML_HTMLizer(object):
                 parsed.append(text)
                 c = line.read(1)
 
-            if not empty:
+            if empty:
+                empty_count += 1
+                if empty_count == 3:
+                    output.append('<p>&nbsp;</p>')
+            else:
+                empty_count = 0
                 text = self.end_line()
                 parsed.append(text)
                 
