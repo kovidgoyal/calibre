@@ -99,7 +99,10 @@ class FB2MLizer(object):
         metadata['appname'] = __appname__
         metadata['version'] = __version__
         metadata['date'] = '%i.%i.%i' % (datetime.now().day, datetime.now().month, datetime.now().year)
-        metadata['lang'] = u''.join(self.oeb_book.metadata.lang) if self.oeb_book.metadata.lang else 'en'
+        if self.oeb_book.metadata.language:
+            metadata['lang'] = self.oeb_book.metadata.language[0].value
+        else:
+            metadata['lang'] = u'en'
         metadata['id'] = None
         metadata['cover'] = self.get_cover()
 
