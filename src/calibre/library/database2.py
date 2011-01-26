@@ -319,7 +319,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.field_metadata.remove_dynamic_categories()
         tb_cats = self.field_metadata
         for user_cat in sorted(self.prefs.get('user_categories', {}).keys(), key=sort_key):
-            cat_name = user_cat+':' # add the ':' to avoid name collision
+            cat_name = '@' + user_cat # add the '@' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
@@ -332,7 +332,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 traceback.print_exc()
 
         self.book_on_device_func = None
-        self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
+        self.data    = ResultCache(self.FIELD_MAP, self.field_metadata, db_prefs=self.prefs)
         self.search  = self.data.search
         self.search_getting_ids  = self.data.search_getting_ids
         self.refresh = functools.partial(self.data.refresh, self)
@@ -362,7 +362,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.last_update_check = self.last_modified()
 
     def break_cycles(self):
-        self.data = self.field_metadata = self.prefs = self.listeners = None
+        self.data.break_cycles()
+        self.data = self.field_metadata = self.prefs = self.listeners = \
+            self.refresh_ondevice = None
 
     def initialize_database(self):
         metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
@@ -1241,7 +1243,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     if category in icon_map:
                         icon = icon_map[label]
                 else:
-                    icon = icon_map[':custom']
+                    icon = icon_map['custom:']
                     icon_map[category] = icon
 
             datatype = cat['datatype']
@@ -1337,20 +1339,19 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if label in taglist and name in taglist[label]:
                     items.append(taglist[label][name])
                 # else: do nothing, to not include nodes w zero counts
-            if len(items):
-                cat_name = user_cat+':' # add the ':' to avoid name collision
-                # Not a problem if we accumulate entries in the icon map
-                if icon_map is not None:
-                    icon_map[cat_name] = icon_map[':user']
-                if sort == 'popularity':
-                    categories[cat_name] = \
-                        sorted(items, key=lambda x: x.count, reverse=True)
-                elif sort == 'name':
-                    categories[cat_name] = \
-                        sorted(items, key=lambda x: sort_key(x.sort))
-                else:
-                    categories[cat_name] = \
-                        sorted(items, key=lambda x:x.avg_rating, reverse=True)
+            cat_name = '@' + user_cat # add the '@' to avoid name collision
+            # Not a problem if we accumulate entries in the icon map
+            if icon_map is not None:
+                icon_map[cat_name] = icon_map['user:']
+            if sort == 'popularity':
+                categories[cat_name] = \
+                    sorted(items, key=lambda x: x.count, reverse=True)
+            elif sort == 'name':
+                categories[cat_name] = \
+                    sorted(items, key=lambda x: sort_key(x.sort))
+            else:
+                categories[cat_name] = \
+                    sorted(items, key=lambda x:x.avg_rating, reverse=True)
 
         #### Finally, the saved searches category ####
         items = []
@@ -1375,10 +1376,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def tags_older_than(self, tag, delta):
         tag = tag.lower().strip()
         now = nowf()
+        tindex = self.FIELD_MAP['timestamp']
+        gindex = self.FIELD_MAP['tags']
         for r in self.data._data:
             if r is not None:
-                if (now - r[self.FIELD_MAP['timestamp']]) > delta:
-                    tags = r[self.FIELD_MAP['tags']]
+                if (now - r[tindex]) > delta:
+                    tags = r[gindex]
                     if tags and tag in [x.strip() for x in
                             tags.lower().split(',')]:
                         yield r[self.FIELD_MAP['id']]

@@ -16,7 +16,7 @@ from PyQt4.Qt import Qt, SIGNAL, QTimer, \
                      QPixmap, QMenu, QIcon, pyqtSignal, \
                      QDialog, \
                      QSystemTrayIcon, QApplication, QKeySequence, \
-                     QMessageBox, QHelpEvent
+                     QMessageBox, QHelpEvent, QAction
 
 from calibre import  prints
 from calibre.constants import __appname__, isosx
@@ -198,6 +198,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.system_tray_icon.activated.connect(
             self.system_tray_icon_activated)
 
+        self.esc_action = QAction(self)
+        self.addAction(self.esc_action)
+        self.esc_action.setShortcut(QKeySequence(Qt.Key_Escape))
+        self.esc_action.triggered.connect(self.esc)
 
         ####################### Start spare job server ########################
         QTimer.singleShot(1000, self.add_spare_server)
@@ -294,6 +298,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                         'the file: %s<p>The '
                         'log will be displayed automatically.')%self.gui_debug, show=True)
 
+    def esc(self, *args):
+        self.search.clear()
 
     def start_content_server(self):
         from calibre.library.server.main import start_threaded_server
@@ -304,7 +310,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.iactions['Connect Share'].content_server_state_changed)
         self.content_server.state_callback(True)
         self.test_server_timer = QTimer.singleShot(10000, self.test_server)
-
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -633,8 +638,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         except KeyboardInterrupt:
             pass
         time.sleep(2)
-        if mb is not None:
-            mb.flush()
         self.hide_windows()
         return True
 

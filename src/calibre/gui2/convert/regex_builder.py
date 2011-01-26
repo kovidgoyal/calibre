@@ -31,10 +31,10 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         elif not doc and not self.select_format(db, book_id):
             self.cancelled = True
             return
-        
+
         if doc:
             self.preview.setPlainText(doc)
-            
+
         self.cancelled = False
         self.connect(self.button_box, SIGNAL('clicked(QAbstractButton*)'), self.button_clicked)
         self.connect(self.regex, SIGNAL('textChanged(QString)'), self.regex_valid)
@@ -156,7 +156,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 self.open_book(files[0])
         if button == self.button_box.button(QDialogButtonBox.Ok):
             self.accept()
-    
+
     def doc(self):
         return unicode(self.preview.toPlainText())
 
@@ -200,12 +200,12 @@ class RegexEdit(QWidget, Ui_Edit):
 
     def set_db(self, db):
         self.db = db
-        
+
     def set_doc(self, doc):
         self.doc_cache = doc
 
     def break_cycles(self):
-        self.db = None
+        self.db = self.doc_cache = None
 
     @property
     def text(self):

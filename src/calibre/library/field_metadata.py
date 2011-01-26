@@ -16,7 +16,7 @@ class TagsIcons(dict):
     '''
 
     category_icons = ['authors', 'series', 'formats', 'publisher', 'rating',
-                      'news',    'tags',   ':custom', ':user',     'search',]
+                      'news',    'tags',   'custom:', 'user:',     'search',]
     def __init__(self, icon_dict):
         for a in self.category_icons:
             if a not in icon_dict:
@@ -31,8 +31,8 @@ category_icon_map = {
                     'rating'    : 'rating.png',
                     'news'      : 'news.png',
                     'tags'      : 'tags.png',
-                    ':custom'   : 'column.png',
-                    ':user'     : 'drawer.png',
+                    'custom:'   : 'column.png',
+                    'user:'     : 'drawer.png',
                     'search'    : 'search.png'
             }
 
@@ -475,6 +475,8 @@ class FieldMetadata(dict):
             val = self._tb_cats[key]
             if val['is_category'] and val['kind'] in ('user', 'search'):
                 del self._tb_cats[key]
+                if key in self._search_term_map:
+                    del self._search_term_map[key]
 
     def cc_series_index_column_for(self, key):
         return self._tb_cats[key]['rec_index'] + 1
@@ -482,11 +484,12 @@ class FieldMetadata(dict):
     def add_user_category(self, label, name):
         if label in self._tb_cats:
             raise ValueError('Duplicate user field [%s]'%(label))
-        self._tb_cats[label] = {'table':None,        'column':None,
-                                'datatype':None,     'is_multiple':None,
-                                'kind':'user',       'name':name,
-                                'search_terms':[],    'is_custom':False,
+        self._tb_cats[label] = {'table':None,          'column':None,
+                                'datatype':None,       'is_multiple':None,
+                                'kind':'user',         'name':name,
+                                'search_terms':[label],'is_custom':False,
                                 'is_category':True}
+        self._add_search_terms_to_map(label, [label])
 
     def add_search_category(self, label, name):
         if label in self._tb_cats:
@@ -518,7 +521,6 @@ class FieldMetadata(dict):
     def _add_search_terms_to_map(self, key, terms):
         if terms is not None:
             for t in terms:
-                t = t.lower()
                 if t in self._search_term_map:
                     raise ValueError('Attempt to add duplicate search term "%s"'%t)
                 self._search_term_map[t] = key

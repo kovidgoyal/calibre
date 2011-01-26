@@ -14,14 +14,14 @@
    <string>Choose Format</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/mimetypes/unknown.png</normaloff>:/images/mimetypes/unknown.png</iconset>
   </property>
   <layout class="QVBoxLayout">
    <item>
     <widget class="QLabel" name="msg">
      <property name="text">
-      <string>TextLabel</string>
+      <string/>
      </property>
     </widget>
    </item>

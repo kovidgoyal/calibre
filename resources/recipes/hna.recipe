@@ -21,7 +21,7 @@ class hnaDe(BasicNewsRecipe):
     max_articles_per_feed = 40
     no_stylesheets = True
     remove_javascript = True
-    encoding = 'iso-8859-1'
+    encoding = 'utf-8'
 
     remove_tags = [dict(id='topnav'),
 		   dict(id='nav_main'),
@@ -59,4 +59,5 @@ class hnaDe(BasicNewsRecipe):
 
     feeds =  [ ('hna_soehre', 'http://feeds2.feedburner.com/hna/soehre'),
 	       ('hna_kassel', 'http://feeds2.feedburner.com/hna/kassel') ]
+
 

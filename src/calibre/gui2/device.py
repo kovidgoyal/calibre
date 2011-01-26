@@ -830,12 +830,14 @@ class DeviceMixin(object): # {{{
             aval_out_formats = available_output_formats()
             format_count = {}
             for row in rows:
-                for f in self.library_view.model().db.formats(row.row()).split(','):
-                    f = f.lower()
-                    if format_count.has_key(f):
-                        format_count[f] += 1
-                    else:
-                        format_count[f] = 1
+                fmts = self.library_view.model().db.formats(row.row())
+                if fmts:
+                    for f in fmts.split(','):
+                        f = f.lower()
+                        if format_count.has_key(f):
+                            format_count[f] += 1
+                        else:
+                            format_count[f] = 1
             for f in self.device_manager.device.settings().format_map:
                 if f in format_count.keys():
                     formats.append((f, _('%i of %i Books' % (format_count[f], len(rows))), True if f in aval_out_formats else False))
