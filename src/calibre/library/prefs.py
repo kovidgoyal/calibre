@@ -9,6 +9,7 @@ import json
 
 from calibre.constants import preferred_encoding
 from calibre.utils.config import to_json, from_json
+from calibre import prints
 
 class DBPrefs(dict):
 
@@ -17,7 +18,11 @@ class DBPrefs(dict):
         self.db = db
         self.defaults = {}
         for key, val in self.db.conn.get('SELECT key,val FROM preferences'):
-            val = self.raw_to_object(val)
+            try:
+                val = self.raw_to_object(val)
+            except:
+                prints('Failed to read value for:', key, 'from db')
+                continue
             dict.__setitem__(self, key, val)
 
     def raw_to_object(self, raw):
