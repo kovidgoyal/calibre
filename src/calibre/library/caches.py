@@ -197,15 +197,15 @@ class ResultCache(SearchQueryParser): # {{{
         self.first_sort = True
         self.search_restriction = ''
         self.field_metadata = field_metadata
-        self.all_search_locations = field_metadata.get_search_terms()
-        SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
+        all_search_locations = field_metadata.get_search_terms()
+        SearchQueryParser.__init__(self, all_search_locations, optimize=True)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
 
     def break_cycles(self):
         self._data = self.field_metadata = self.FIELD_MAP = \
             self.numeric_search_relops = self.date_search_relops = \
-            self.all_search_locations = self.db_prefs = None
+            self.db_prefs = None
 
 
     def __getitem__(self, row):
@@ -424,11 +424,6 @@ class ResultCache(SearchQueryParser): # {{{
         if self.db_prefs is None:
             return  res
         user_cats = self.db_prefs.get('user_categories', [])
-        # translate the case of the location
-        for loc in user_cats:
-            if location == icu_lower(loc):
-                location = loc
-                break
         if location not in user_cats:
             return res
         c = set(candidates)

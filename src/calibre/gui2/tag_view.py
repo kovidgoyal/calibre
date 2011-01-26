@@ -576,10 +576,7 @@ class TagsModel(QAbstractItemModel): # {{{
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
-            if self.db.field_metadata[r]['kind'] != 'user':
-                tt = _('The lookup/search name is "{0}"').format(r)
-            else:
-                tt = ''
+            tt = _(u'The lookup/search name is "{0}"').format(r)
             TagTreeItem(parent=self.root_item,
                     data=self.categories[i],
                     category_icon=self.category_icon_map[r],
@@ -1187,9 +1184,14 @@ class TagBrowserMixin(object): # {{{
                 self.do_user_categories_edit())
 
     def do_user_categories_edit(self, on_category=None):
-        d = TagCategories(self, self.library_view.model().db, on_category)
-        d.exec_()
-        if d.result() == d.Accepted:
+        db = self.library_view.model().db
+        d = TagCategories(self, db, on_category)
+        if d.exec_() == d.Accepted:
+            db.prefs.set('user_categories', d.categories)
+            db.field_metadata.remove_user_categories()
+            for k in d.categories:
+                db.field_metadata.add_user_category('@' + k, k)
+            db.data.sqp_change_locations(db.field_metadata.get_search_terms())
             self.tags_view.set_new_model()
             self.tags_view.recount()
 
