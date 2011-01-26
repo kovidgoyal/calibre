@@ -38,7 +38,6 @@ class MetadataBackup(Thread): # {{{
         self.get_metadata_for_dump = FunctionDispatcher(db.get_metadata_for_dump)
         self.clear_dirtied = FunctionDispatcher(db.clear_dirtied)
         self.set_dirtied = FunctionDispatcher(db.dirtied)
-        self.in_limbo = None
 
     def stop(self):
         self.keep_running = False
@@ -50,34 +49,33 @@ class MetadataBackup(Thread): # {{{
 
     def run(self):
         while self.keep_running:
-            self.in_limbo = None
             try:
-                time.sleep(0.5) # Limit to two per second
-                id_ = self.db.dirtied_queue.get(True, 1.45)
-            except Empty:
-                continue
+                time.sleep(2) # Limit to two per second
+                (id_, sequence) = self.db.get_a_dirtied_book()
+                if id_ is None:
+                    continue
+                print 'writer thread', id_, sequence
             except:
                 # Happens during interpreter shutdown
                 break
             if not self.keep_running:
                 break
 
-            self.in_limbo = id_
             try:
-                path, mi = self.get_metadata_for_dump(id_)
+                path, mi, sequence = self.get_metadata_for_dump(id_)
             except:
                 prints('Failed to get backup metadata for id:', id_, 'once')
                 traceback.print_exc()
                 time.sleep(2)
                 try:
-                    path, mi = self.get_metadata_for_dump(id_)
+                    path, mi, sequence = self.get_metadata_for_dump(id_)
                 except:
                     prints('Failed to get backup metadata for id:', id_, 'again, giving up')
                     traceback.print_exc()
                     continue
 
-            # at this point the dirty indication is off
             if mi is None:
+                self.clear_dirtied(id_, sequence)
                 continue
             if not self.keep_running:
                 break
@@ -89,7 +87,6 @@ class MetadataBackup(Thread): # {{{
             try:
                 raw = metadata_to_opf(mi)
             except:
-                self.set_dirtied([id_])
                 prints('Failed to convert to opf for id:', id_)
                 traceback.print_exc()
                 continue
@@ -106,23 +103,12 @@ class MetadataBackup(Thread): # {{{
                 try:
                     self.do_write(path, raw)
                 except:
-                    self.set_dirtied([id_])
                     prints('Failed to write backup metadata for id:', id_,
                             'again, giving up')
                     continue
 
-            self.in_limbo = None
-        self.flush()
+            self.clear_dirtied(id_, sequence)
         self.break_cycles()
-
-    def flush(self):
-        'Used during shutdown to ensure that a dirtied book is not missed'
-        if self.in_limbo is not None:
-            try:
-                self.db.dirtied([self.in_limbo])
-            except:
-                traceback.print_exc()
-            self.in_limbo = None
 
     def write(self, path, raw):
         with lopen(path, 'wb') as f:
