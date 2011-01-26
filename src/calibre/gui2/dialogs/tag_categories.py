@@ -2,12 +2,14 @@ __license__   = 'GPL v3'
 
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from functools import partial
 
 from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2 import error_dialog
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key, strcmp
 
@@ -102,12 +104,13 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.category_filter_box.addItem(v)
         self.current_cat_name = None
 
-        self.connect(self.apply_button,   SIGNAL('clicked()'), self.apply_tags)
-        self.connect(self.unapply_button, SIGNAL('clicked()'), self.unapply_tags)
-        self.connect(self.add_category_button, SIGNAL('clicked()'), self.add_category)
-        self.connect(self.category_box, SIGNAL('currentIndexChanged(int)'), self.select_category)
-        self.connect(self.category_filter_box, SIGNAL('currentIndexChanged(int)'), self.display_filtered_categories)
-        self.connect(self.delete_category_button, SIGNAL('clicked()'), self.del_category)
+        self.apply_button.clicked.connect(partial(self.apply_tags, node=None))
+        self.unapply_button.clicked.connect(partial(self.unapply_tags, node=None))
+        self.add_category_button.clicked.connect(self.add_category)
+        self.rename_category_button.clicked.connect(self.rename_category)
+        self.category_box.currentIndexChanged[int].connect(self.select_category)
+        self.category_filter_box.currentIndexChanged[int].connect(self.display_filtered_categories)
+        self.delete_category_button.clicked.connect(self.del_category)
         if islinux:
             self.available_items_box.itemDoubleClicked.connect(self.apply_tags)
         else:
@@ -119,6 +122,9 @@ class TagCategories(QDialog, Ui_TagCategories):
             l = self.category_box.findText(on_category)
             if l >= 0:
                 self.category_box.setCurrentIndex(l)
+        if self.current_cat_name is None:
+            self.category_box.setCurrentIndex(0)
+            self.select_category(0)
 
     def make_list_widget(self, item):
         n = item.name if item.exists else item.name + _(' (not on any book)')
@@ -162,13 +168,36 @@ class TagCategories(QDialog, Ui_TagCategories):
             return False
         for c in self.categories:
             if strcmp(c, cat_name) == 0:
-                cat_name = c
+                error_dialog(self, _('Name already used'),
+                        _('That name is already used, perhaps with different case.')).exec_()
+                return False
         if cat_name not in self.categories:
             self.category_box.clear()
             self.current_cat_name = cat_name
             self.categories[cat_name] = []
             self.applied_items = []
             self.populate_category_list()
+        self.input_box.clear()
+        self.category_box.setCurrentIndex(self.category_box.findText(cat_name))
+        return True
+
+    def rename_category(self):
+        self.save_category()
+        cat_name = unicode(self.input_box.text()).strip()
+        if cat_name == '':
+            return False
+        if not self.current_cat_name:
+            return False
+        for c in self.categories:
+            if strcmp(c, cat_name) == 0:
+                error_dialog(self, _('Name already used'),
+                        _('That name is already used, perhaps with different case.')).exec_()
+                return False
+        # The order below is important because of signals
+        self.categories[cat_name] = self.categories[self.current_cat_name]
+        del self.categories[self.current_cat_name]
+        self.current_cat_name = None
+        self.populate_category_list()
         self.input_box.clear()
         self.category_box.setCurrentIndex(self.category_box.findText(cat_name))
         return True
@@ -209,5 +238,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.categories[self.current_cat_name] = l
 
     def populate_category_list(self):
-        for n in sorted(self.categories.keys(), key=sort_key):
-            self.category_box.addItem(n)
+        self.category_box.blockSignals(True)
+        self.category_box.clear()
+        self.category_box.addItems(sorted(self.categories.keys(), key=sort_key))
+        self.category_box.blockSignals(False)

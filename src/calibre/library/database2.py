@@ -186,6 +186,29 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         migrate_preference('saved_searches', {})
         set_saved_searches(self, 'saved_searches')
 
+        # Rename any user categories with names that differ only in case
+        user_cats = self.prefs.get('user_categories', [])
+        catmap = {}
+        for uc in user_cats:
+            ucl = icu_lower(uc)
+            if ucl not in catmap:
+                catmap[ucl] = []
+            catmap[ucl].append(uc)
+        cats_changed = False
+        for uc in catmap:
+            if len(catmap[uc]) > 1:
+                prints('found user category case overlap', catmap[uc])
+                cat = catmap[uc][0]
+                suffix = 1
+                while icu_lower((cat + unicode(suffix))) in catmap:
+                    suffix += 1
+                prints('Renaming user category %s to %s'%(cat, cat+unicode(suffix)))
+                user_cats[cat + unicode(suffix)] = user_cats[cat]
+                del user_cats[cat]
+                cats_changed = True
+        if cats_changed:
+            self.prefs.set('user_categories', user_cats)
+
         load_user_template_functions(self.prefs.get('user_template_functions', []))
 
         self.conn.executescript('''

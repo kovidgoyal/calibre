@@ -479,6 +479,15 @@ class FieldMetadata(dict):
                         del self._search_term_map[k]
                 del self._tb_cats[key]
 
+    def remove_user_categories(self):
+        for key in list(self._tb_cats.keys()):
+            val = self._tb_cats[key]
+            if val['is_category'] and val['kind']  == 'user':
+                for k in self._tb_cats[key]['search_terms']:
+                    if k in self._search_term_map:
+                        del self._search_term_map[k]
+                del self._tb_cats[key]
+
     def cc_series_index_column_for(self, key):
         return self._tb_cats[key]['rec_index'] + 1
 
@@ -526,7 +535,6 @@ class FieldMetadata(dict):
         if terms is not None:
             for t in terms:
                 if t in self._search_term_map:
-                    print self._search_term_map
                     raise ValueError('Attempt to add duplicate search term "%s"'%t)
                 self._search_term_map[t] = key
 
