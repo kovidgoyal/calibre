@@ -2,8 +2,6 @@ __license__   = 'GPL v3'
 
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from functools import partial
-
 from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem
 
@@ -104,8 +102,8 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.category_filter_box.addItem(v)
         self.current_cat_name = None
 
-        self.apply_button.clicked.connect(partial(self.apply_tags, node=None))
-        self.unapply_button.clicked.connect(partial(self.unapply_tags, node=None))
+        self.apply_button.clicked.connect(self.apply_button_clicked)
+        self.unapply_button.clicked.connect(self.unapply_button_clicked)
         self.add_category_button.clicked.connect(self.add_category)
         self.rename_category_button.clicked.connect(self.rename_category)
         self.category_box.currentIndexChanged[int].connect(self.select_category)
@@ -143,6 +141,9 @@ class TagCategories(QDialog, Ui_TagCategories):
         for index in self.applied_items:
             self.applied_items_box.addItem(self.make_list_widget(self.all_items[index]))
 
+    def apply_button_clicked(self):
+        self.apply_tags(node=None)
+
     def apply_tags(self, node=None):
         if self.current_cat_name is None:
             return
@@ -153,6 +154,9 @@ class TagCategories(QDialog, Ui_TagCategories):
                 self.applied_items.append(index)
         self.applied_items.sort(key=lambda x:sort_key(self.all_items[x].name))
         self.display_filtered_categories(None)
+
+    def unapply_button_clicked(self):
+        self.unapply_tags(node=None)
 
     def unapply_tags(self, node=None):
         nodes = self.applied_items_box.selectedItems() if node is None else [node]
