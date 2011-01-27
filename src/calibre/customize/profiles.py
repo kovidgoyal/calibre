@@ -495,6 +495,22 @@ class SonyReader900Output(SonyReaderOutput):
     screen_size               = (600, 999)
     comic_screen_size = screen_size
 
+class GenericEink(SonyReaderOutput):
+
+    name = 'Generic e-ink'
+    short_name = 'generic_eink'
+    description = _('Suitable for use with any e-ink device')
+    epub_periodical_format = None
+
+class GenericEinkLarge(GenericEink):
+
+    name = 'Generic e-ink large'
+    short_name = 'generic_eink_large'
+    description = _('Suitable for use with any large screen e-ink device')
+
+    screen_size               = (600, 999)
+    comic_screen_size = screen_size
+
 class JetBook5Output(OutputProfile):
 
     name        = 'JetBook 5-inch'
@@ -719,6 +735,6 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         iPadOutput, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-        BambookOutput, NookColorOutput]
+        BambookOutput, NookColorOutput, GenericEink, GenericEinkLarge]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
