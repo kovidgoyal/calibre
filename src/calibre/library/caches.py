@@ -10,7 +10,6 @@ import re, itertools, time, traceback
 from itertools import repeat
 from datetime import timedelta
 from threading import Thread
-from Queue import Empty
 
 from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
@@ -38,7 +37,6 @@ class MetadataBackup(Thread): # {{{
         self.get_metadata_for_dump = FunctionDispatcher(db.get_metadata_for_dump)
         self.clear_dirtied = FunctionDispatcher(db.clear_dirtied)
         self.set_dirtied = FunctionDispatcher(db.dirtied)
-        self.in_limbo = None
 
     def stop(self):
         self.keep_running = False
@@ -50,34 +48,33 @@ class MetadataBackup(Thread): # {{{
 
     def run(self):
         while self.keep_running:
-            self.in_limbo = None
             try:
-                time.sleep(0.5) # Limit to two per second
-                id_ = self.db.dirtied_queue.get(True, 1.45)
-            except Empty:
-                continue
+                time.sleep(2) # Limit to one book per two seconds
+                (id_, sequence) = self.db.get_a_dirtied_book()
+                if id_ is None:
+                    continue
+                # print 'writer thread', id_, sequence
             except:
                 # Happens during interpreter shutdown
                 break
             if not self.keep_running:
                 break
 
-            self.in_limbo = id_
             try:
-                path, mi = self.get_metadata_for_dump(id_)
+                path, mi, sequence = self.get_metadata_for_dump(id_)
             except:
                 prints('Failed to get backup metadata for id:', id_, 'once')
                 traceback.print_exc()
                 time.sleep(2)
                 try:
-                    path, mi = self.get_metadata_for_dump(id_)
+                    path, mi, sequence = self.get_metadata_for_dump(id_)
                 except:
                     prints('Failed to get backup metadata for id:', id_, 'again, giving up')
                     traceback.print_exc()
                     continue
 
-            # at this point the dirty indication is off
             if mi is None:
+                self.clear_dirtied(id_, sequence)
                 continue
             if not self.keep_running:
                 break
@@ -89,7 +86,6 @@ class MetadataBackup(Thread): # {{{
             try:
                 raw = metadata_to_opf(mi)
             except:
-                self.set_dirtied([id_])
                 prints('Failed to convert to opf for id:', id_)
                 traceback.print_exc()
                 continue
@@ -106,23 +102,12 @@ class MetadataBackup(Thread): # {{{
                 try:
                     self.do_write(path, raw)
                 except:
-                    self.set_dirtied([id_])
                     prints('Failed to write backup metadata for id:', id_,
                             'again, giving up')
                     continue
 
-            self.in_limbo = None
-        self.flush()
+            self.clear_dirtied(id_, sequence)
         self.break_cycles()
-
-    def flush(self):
-        'Used during shutdown to ensure that a dirtied book is not missed'
-        if self.in_limbo is not None:
-            try:
-                self.db.dirtied([self.in_limbo])
-            except:
-                traceback.print_exc()
-            self.in_limbo = None
 
     def write(self, path, raw):
         with lopen(path, 'wb') as f:
@@ -197,15 +182,15 @@ class ResultCache(SearchQueryParser): # {{{
         self.first_sort = True
         self.search_restriction = ''
         self.field_metadata = field_metadata
-        self.all_search_locations = field_metadata.get_search_terms()
-        SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
+        all_search_locations = field_metadata.get_search_terms()
+        SearchQueryParser.__init__(self, all_search_locations, optimize=True)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
 
     def break_cycles(self):
         self._data = self.field_metadata = self.FIELD_MAP = \
             self.numeric_search_relops = self.date_search_relops = \
-            self.all_search_locations = self.db_prefs = None
+            self.db_prefs = None
 
 
     def __getitem__(self, row):
@@ -424,11 +409,6 @@ class ResultCache(SearchQueryParser): # {{{
         if self.db_prefs is None:
             return  res
         user_cats = self.db_prefs.get('user_categories', [])
-        # translate the case of the location
-        for loc in user_cats:
-            if location == icu_lower(loc):
-                location = loc
-                break
         if location not in user_cats:
             return res
         c = set(candidates)
