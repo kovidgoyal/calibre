@@ -4,14 +4,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch cover from LibraryThing.com based on ISBN number.
 '''
 
-import sys, socket, os, re, random
+import sys, re, random
 
 from lxml import html
 import mechanize
 
 from calibre import browser, prints
 from calibre.utils.config import OptionParser
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import strip_encoding_declarations
 
 OPENLIBRARY = 'http://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
@@ -28,6 +27,12 @@ def get_ua():
     ]
     return choices[random.randint(0, len(choices)-1)]
 
+_lt_br = None
+def get_browser():
+    global _lt_br
+    if _lt_br is None:
+        _lt_br = browser(user_agent=get_ua())
+    return _lt_br.clone_browser()
 
 class HeadRequest(mechanize.Request):
 
@@ -35,7 +40,7 @@ class HeadRequest(mechanize.Request):
         return 'HEAD'
 
 def check_for_cover(isbn, timeout=5.):
-    br = browser(user_agent=get_ua())
+    br = get_browser()
     br.set_handle_redirect(False)
     try:
         br.open_novisit(HeadRequest(OPENLIBRARY%isbn), timeout=timeout)
@@ -54,46 +59,16 @@ class ISBNNotFound(LibraryThingError):
 class ServerBusy(LibraryThingError):
     pass
 
-def login(br, username, password, force=True):
-    br.open('http://www.librarything.com')
+def login(br, username, password):
+    raw = br.open('http://www.librarything.com').read()
+    if '>Sign out' in raw:
+        return
     br.select_form('signup')
     br['formusername'] = username
     br['formpassword'] = password
-    br.submit()
-
-
-def cover_from_isbn(isbn, timeout=5., username=None, password=None):
-    src = None
-    br = browser(user_agent=get_ua())
-    try:
-        return br.open(OPENLIBRARY%isbn, timeout=timeout).read(), 'jpg'
-    except:
-        pass # Cover not found
-    if username and password:
-        try:
-            login(br, username, password, force=False)
-        except:
-            pass
-    try:
-        src = br.open_novisit('http://www.librarything.com/isbn/'+isbn,
-                timeout=timeout).read().decode('utf-8', 'replace')
-    except Exception, err:
-        if isinstance(getattr(err, 'args', [None])[0], socket.timeout):
-            err = LibraryThingError(_('LibraryThing.com timed out. Try again later.'))
-        raise err
-    else:
-        s = BeautifulSoup(src)
-        url = s.find('td', attrs={'class':'left'})
-        if url is None:
-            if s.find('div', attrs={'class':'highloadwarning'}) is not None:
-                raise ServerBusy(_('Could not fetch cover as server is experiencing high load. Please try again later.'))
-            raise ISBNNotFound('ISBN: '+isbn+_(' not found.'))
-        url = url.find('img')
-        if url is None:
-            raise LibraryThingError(_('LibraryThing.com server error. Try again later.'))
-        url = re.sub(r'_S[XY]\d+', '', url['src'])
-        cover_data = br.open_novisit(url).read()
-        return cover_data, url.rpartition('.')[-1]
+    raw = br.submit().read()
+    if '>Sign out' not in raw:
+        raise ValueError('Failed to login as %r:%r'%(username, password))
 
 def option_parser():
     parser = OptionParser(usage=\
@@ -113,15 +88,16 @@ def get_social_metadata(title, authors, publisher, isbn, username=None,
     from calibre.ebooks.metadata import MetaInformation
     mi = MetaInformation(title, authors)
     if isbn:
-        br = browser(user_agent=get_ua())
-        if username and password:
-            try:
-                login(br, username, password, force=False)
-            except:
-                pass
+        br = get_browser()
+        try:
+            login(br, username, password)
 
-        raw = br.open_novisit('http://www.librarything.com/isbn/'
-                    +isbn).read()
+            raw = br.open_novisit('http://www.librarything.com/isbn/'
+                        +isbn).read()
+        except:
+            return mi
+        if '/wiki/index.php/HelpThing:Verify' in raw:
+            raise Exception('LibraryThing is blocking your computer.')
         if not raw:
             return mi
         raw = raw.decode('utf-8', 'replace')
@@ -172,15 +148,46 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     isbn = args[1]
-    mi = get_social_metadata('', [], '', isbn)
+    from calibre.customize.ui import metadata_sources, cover_sources
+    lt = None
+    for x in metadata_sources('social'):
+        if x.name == 'LibraryThing':
+            lt = x
+            break
+    lt('', '', '', isbn, True)
+    lt.join()
+    if lt.exception:
+        print lt.tb
+        return 1
+    mi = lt.results
     prints(mi)
-    cover_data, ext = cover_from_isbn(isbn, username=opts.username,
-            password=opts.password)
-    if not ext:
-        ext = 'jpg'
-    oname = os.path.abspath(isbn+'.'+ext)
-    open(oname, 'w').write(cover_data)
-    print 'Cover saved to file', oname
+    mi.isbn = isbn
+
+    lt = None
+    for x in cover_sources():
+        if x.name == 'librarything.com covers':
+            lt = x
+            break
+
+    from threading import Event
+    from Queue import Queue
+    ev = Event()
+    lt.has_cover(mi, ev)
+    hc = ev.is_set()
+    print 'Has cover:', hc
+    if hc:
+        abort = Event()
+        temp = Queue()
+        lt.get_covers(mi, temp, abort)
+
+        cover = temp.get_nowait()
+        if cover[0]:
+            open(isbn + '.jpg', 'wb').write(cover[1])
+            print 'Cover saved to:', isbn+'.jpg'
+        else:
+            print 'Cover download failed'
+            print cover[2]
+
     return 0
 
 if __name__ == '__main__':
