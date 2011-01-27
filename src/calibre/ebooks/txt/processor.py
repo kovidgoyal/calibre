@@ -91,7 +91,6 @@ def normalize_line_endings(txt):
     return txt
 
 def separate_paragraphs_single_line(txt):
-    #txt = re.sub(u'(?<=.)\n(?=.)', '\n\n', txt)
     txt = txt.replace('\n', '\n\n')
     return txt
 
