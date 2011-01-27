@@ -43,7 +43,17 @@ p, li { white-space: pre-wrap; }
      </property>
      <layout class="QVBoxLayout">
       <item>
-       <widget class="QLineEdit" name="re"/>
+       <widget class="QComboBox" name="re">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="maxCount">
+         <number>10</number>
+        </property>
+        <property name="insertPolicy">
+         <enum>QComboBox::InsertAtTop</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -94,8 +104,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>301</width>
-             <height>234</height>
+             <width>277</width>
+             <height>276</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">

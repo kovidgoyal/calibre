@@ -16,7 +16,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.setupUi(self)
 
         self.db = db
-        self.index = db.row(id_)
+        self.index = db.row(id_) if id_ is not None else None
         if self.index is not None:
             tags = self.db.tags(self.index)
         else:

@@ -1,0 +1,39 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1289939440(BasicNewsRecipe):
+  __author__  = 'FunThomas'
+  title       = u'Root.cz'
+  description = u'Zprávičky a články z Root.cz'
+  publisher   = u'Internet Info, s.r.o'
+  oldest_article = 2               #max stari clanku ve dnech
+  max_articles_per_feed = 50       #max pocet clanku na feed
+
+  feeds = [
+    (u'Články', u'http://www.root.cz/rss/clanky/'),
+    (u'Zprávičky', u'http://www.root.cz/rss/zpravicky/')
+  ]
+
+  publication_type = u'magazine'
+  language = u'cs'
+  no_stylesheets = True
+  remove_javascript = True
+  cover_url = u'http://i.iinfo.cz/urs/logo-root-bila-oranzova-cerna-111089527143118.gif'
+
+  remove_attributes = ['width','height','href'] #,'href'
+  keep_only_tags = [
+    dict(name='h1'),
+    dict(name='a',attrs={'class':'author'}),
+    dict(name='p', attrs={'class':'intro'}),
+    dict(name='div',attrs={'class':'urs'})
+  ]
+
+  preprocess_regexps = [
+    (re.compile(u'<p class="perex[^"]*">[^<]*<img[^>]*>', re.DOTALL),lambda match: '<p class="intro">'),
+    (re.compile(u'<h3><a name="tucnak">Tričko tučňák.*</body>', re.DOTALL),lambda match: '<!--deleted-->')
+  ]
+
+  extra_css = '''
+                h1 {font-size:130%; font-weight:bold}
+                h3 {font-size:111%; font-weight:bold}
+              '''

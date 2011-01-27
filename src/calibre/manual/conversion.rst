@@ -587,11 +587,11 @@ TXT input supports a number of options to differentiate how paragraphs are detec
         Assumes that every paragraph starts with an indent (either a tab or 2+ spaces). Paragraphs end when
         the next line that starts with an indent is reached::
 
-            This is the
+              This is the
             first.
-            This is the second.
+              This is the second.
             
-            This is the
+              This is the
             third.
 
     :guilabel:`Paragraph Style: Unformatted`
@@ -603,7 +603,7 @@ TXT input supports a number of options to differentiate how paragraphs are detec
         formatting will be applied.
 
     :guilabel:`Formatting Style: Heuristic`
-        Analyses the document for common chapter headings, scene breaks, and italicized words and applies the
+        Analyzes the document for common chapter headings, scene breaks, and italicized words and applies the
         appropriate html markup during conversion.
 
     :guilabel:`Formatting Style: Markdown`

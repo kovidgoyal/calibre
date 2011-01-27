@@ -98,6 +98,7 @@ class TagsView(QTreeView): # {{{
             self.collapse_model = 'disable'
         else:
             self.collapse_model = gprefs['tags_browser_partition_method']
+        self.search_icon = QIcon(I('search.png'))
 
     def set_pane_is_visible(self, to_what):
         pv = self.pane_is_visible
@@ -186,7 +187,7 @@ class TagsView(QTreeView): # {{{
             self.clear()
 
     def context_menu_handler(self, action=None, category=None,
-                             key=None, index=None):
+                             key=None, index=None, negate=None):
         if not action:
             return
         try:
@@ -199,12 +200,20 @@ class TagsView(QTreeView): # {{{
             if action == 'manage_categories':
                 self.user_category_edit.emit(category)
                 return
+            if action == 'search':
+                self.tags_marked.emit(('not ' if negate else '') +
+                                      category + ':"=' + key + '"')
+                return
+            if action == 'search_category':
+                self.tags_marked.emit(category + ':' + str(not negate))
+                return
             if action == 'manage_searches':
                 self.saved_search_edit.emit(category)
                 return
             if action == 'edit_author_sort':
                 self.author_sort_edit.emit(self, index)
                 return
+
             if action == 'hide':
                 self.hidden_categories.add(category)
             elif action == 'show':
@@ -245,19 +254,36 @@ class TagsView(QTreeView): # {{{
                 if key not in self.db.field_metadata:
                     return True
 
-                # If the user right-clicked on an editable item, then offer
-                # the possibility of renaming that item
-                if tag_name and \
-                        (key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
-                        self.db.field_metadata[key]['is_custom'] and \
-                        self.db.field_metadata[key]['datatype'] != 'rating'):
-                    self.context_menu.addAction(_('Rename \'%s\'')%tag_name,
-                            partial(self.context_menu_handler, action='edit_item',
-                                    category=tag_item, index=index))
-                    if key == 'authors':
-                        self.context_menu.addAction(_('Edit sort for \'%s\'')%tag_name,
-                                partial(self.context_menu_handler,
-                                        action='edit_author_sort', index=tag_id))
+                # Did the user click on a leaf node?
+                if tag_name:
+                    # If the user right-clicked on an editable item, then offer
+                    # the possibility of renaming that item.
+                    if key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
+                            (self.db.field_metadata[key]['is_custom'] and \
+                             self.db.field_metadata[key]['datatype'] != 'rating'):
+                        # Add the 'rename' items
+                        self.context_menu.addAction(_('Rename %s')%tag_name,
+                                partial(self.context_menu_handler, action='edit_item',
+                                        category=tag_item, index=index))
+                        if key == 'authors':
+                            self.context_menu.addAction(_('Edit sort for %s')%tag_name,
+                                    partial(self.context_menu_handler,
+                                            action='edit_author_sort', index=tag_id))
+                    # Add the search for value items
+                    n = tag_name
+                    c = category
+                    if self.db.field_metadata[key]['datatype'] == 'rating':
+                        n = str(len(tag_name))
+                    elif self.db.field_metadata[key]['kind'] in ['user', 'search']:
+                        c = tag_item.tag.category
+                    self.context_menu.addAction(self.search_icon,
+                            _('Search for %s')%tag_name,
+                            partial(self.context_menu_handler, action='search',
+                                    category=c, key=n, negate=False))
+                    self.context_menu.addAction(self.search_icon,
+                            _('Search for everything but %s')%tag_name,
+                            partial(self.context_menu_handler, action='search',
+                                    category=c, key=n, negate=True))
                     self.context_menu.addSeparator()
                 # Hide/Show/Restore categories
                 self.context_menu.addAction(_('Hide category %s') % category,
@@ -268,6 +294,16 @@ class TagsView(QTreeView): # {{{
                         m.addAction(col,
                             partial(self.context_menu_handler, action='show', category=col))
 
+                # search by category
+                if key != 'search':
+                    self.context_menu.addAction(self.search_icon,
+                            _('Search for books in category %s')%category,
+                            partial(self.context_menu_handler, action='search_category',
+                                    category=key, negate=False))
+                    self.context_menu.addAction(self.search_icon,
+                            _('Search for books not in category %s')%category,
+                            partial(self.context_menu_handler, action='search_category',
+                                    category=key, negate=True))
                 # Offer specific editors for tags/series/publishers/saved searches
                 self.context_menu.addSeparator()
                 if key in ['tags', 'publisher', 'series'] or \
@@ -540,10 +576,7 @@ class TagsModel(QAbstractItemModel): # {{{
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
-            if self.db.field_metadata[r]['kind'] != 'user':
-                tt = _('The lookup/search name is "{0}"').format(r)
-            else:
-                tt = ''
+            tt = _(u'The lookup/search name is "{0}"').format(r)
             TagTreeItem(parent=self.root_item,
                     data=self.categories[i],
                     category_icon=self.category_icon_map[r],
@@ -691,7 +724,11 @@ class TagsModel(QAbstractItemModel): # {{{
         for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys(),
                                key=sort_key):
             cat_name = '@' + user_cat # add the '@' to avoid name collision
-            tb_cats.add_user_category(label=cat_name, name=user_cat)
+            try:
+                tb_cats.add_user_category(label=cat_name, name=user_cat)
+            except ValueError:
+                import traceback
+                traceback.print_exc()
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
 
@@ -1147,9 +1184,14 @@ class TagBrowserMixin(object): # {{{
                 self.do_user_categories_edit())
 
     def do_user_categories_edit(self, on_category=None):
-        d = TagCategories(self, self.library_view.model().db, on_category)
-        d.exec_()
-        if d.result() == d.Accepted:
+        db = self.library_view.model().db
+        d = TagCategories(self, db, on_category)
+        if d.exec_() == d.Accepted:
+            db.prefs.set('user_categories', d.categories)
+            db.field_metadata.remove_user_categories()
+            for k in d.categories:
+                db.field_metadata.add_user_category('@' + k, k)
+            db.data.sqp_change_locations(db.field_metadata.get_search_terms())
             self.tags_view.set_new_model()
             self.tags_view.recount()
 
