@@ -31,7 +31,7 @@ def clean_txt(txt):
     txt = re.sub('^\s+(?=.)', '', txt)
     txt = re.sub('(?<=.)\s+$', '', txt)
     # Remove excessive line breaks.
-    txt = re.sub('\n{3,}', '\n\n', txt)
+    txt = re.sub('\n{5,}', '\n\n\n\n', txt)
     #remove ASCII invalid chars : 0 to 8 and 11-14 to 24
     txt = clean_ascii_chars(txt)
 
@@ -59,10 +59,16 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     txt = split_txt(txt, epub_split_size_kb)
 
     lines = []
+    blank_count = 0
     # Split into paragraphs based on having a blank line between text.
-    for line in txt.split('\n\n'):
+    for line in txt.split('\n'):
         if line.strip():
+            blank_count = 0
             lines.append(u'<p>%s</p>' % prepare_string_for_xml(line.replace('\n', ' ')))
+        else:
+            blank_count += 1
+            if blank_count == 2:
+                lines.append(u'<p>&nbsp;</p>')
 
     return HTML_TEMPLATE % (title, u'\n'.join(lines))
 
@@ -85,7 +91,7 @@ def normalize_line_endings(txt):
     return txt
 
 def separate_paragraphs_single_line(txt):
-    txt = re.sub(u'(?<=.)\n(?=.)', '\n\n', txt)
+    txt = txt.replace('\n', '\n\n')
     return txt
 
 def separate_paragraphs_print_formatted(txt):
