@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-21 23:34+0000\n"
-"PO-Revision-Date: 2011-01-17 11:42+0000\n"
+"PO-Revision-Date: 2011-01-26 13:17+0000\n"
 "Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-23 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-01-27 04:33+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1115,7 +1115,7 @@ msgstr "Kommuniser med Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:37
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Kommuniser med Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:58
 msgid "Communicate with the Sweex MM300"
@@ -1577,11 +1577,15 @@ msgid ""
 "default. Use %s to enable.  Individual actions can be disabled with the %s "
 "options."
 msgstr ""
+"Modifiserer dokumentets tekst og struktur ved å benytte vanlige mønstre. "
+"Avslått som standard. Bruk %s for å slå på. Individuelle oppgaver kan slåes "
+"av med %s valget."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:16
 msgid "Modify the document text and structure using user defined patterns."
 msgstr ""
+"Modifiser dokumentets tekst og struktur ved å benytte egendefinerte mønstre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:159
 msgid "Control auto-detection of document structure."
@@ -2063,6 +2067,8 @@ msgid ""
 "Enable heuristic processing. This option must be set for any heuristic "
 "processing to take place."
 msgstr ""
+"Slå på heuristisk oppgavekjøring. Dette valget må legges inn før noen "
+"heuristiske oppgaver kan kjøres."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:496
 msgid ""
@@ -2070,17 +2076,22 @@ msgid ""
 "h3 tags.  This setting will not create a TOC, but can be used in conjunction "
 "with structure detection to create one."
 msgstr ""
+"Finn uformaterte kapitteloverskrifter og undertekst til overskrifter. "
+"Forandre dem til h2 og h3 nøkkelord. Denne innstillingen vil ikke lage en "
+"TOC, men kan benyttes i sammenheng med strukturdeteksjon for å lage en."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:503
 msgid ""
 "Look for common words and patterns that denote italics and italicize them."
 msgstr ""
+"Søk etter vanlige ord og mønstre som noterer seg skråskrift og gjør dem om "
+"til skråskrift."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:508
 msgid ""
 "Turn indentation created from multiple non-breaking space entities into CSS "
 "indents."
-msgstr ""
+msgstr "Gjør om innrykk laget fra flere sidebrytinger til CSS-innrykk."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:513
 msgid ""

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-21 23:34+0000\n"
-"PO-Revision-Date: 2011-01-24 21:23+0000\n"
-"Last-Translator: Vincent Coiffier <Unknown>\n"
+"PO-Revision-Date: 2011-01-27 02:33+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-25 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-01-27 04:33+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -2103,6 +2103,8 @@ msgid ""
 "Enable heuristic processing. This option must be set for any heuristic "
 "processing to take place."
 msgstr ""
+"Activer le processeur heuristique. Cette option doit être activée avant que "
+"n'importe quel processus heuristique puisse être effectué."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:496
 msgid ""
@@ -2129,10 +2131,17 @@ msgid ""
 "the median line length.  If only a few lines in the document require "
 "unwrapping this value should be reduced"
 msgstr ""
+"Echelle utilisée pour déterminer la longueur à partir de laquelle une ligne "
+"doit être déroulée. Les valeurs acceptables sont les décimaux compris entre "
+"0 et 1. La valeur pas défaut est de 0.4, juste en dessous de la valeur "
+"médiane de la longueur de ligne. Si seules quelques lignes dans le document "
+"nécessitent d'être déroulé cette valeur devrait être réduite."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:521
 msgid "Unwrap lines using punctuation and other formatting clues."
 msgstr ""
+"Dérouler les lignes en utilisant la ponctuation et d'autres indices de "
+"présentation."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:525
 msgid ""
@@ -4368,7 +4377,7 @@ msgstr "Créer le catalogue des livres dans votre bibliothèque Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:31
 msgid "No books selected for catalog generation"
-msgstr ""
+msgstr "Pas de livres sélectionnés pour la génération du catalogue"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:54
 msgid "Generating %s catalog..."
@@ -5290,7 +5299,7 @@ msgstr "Format indisponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:99
 msgid "Selected books have no formats"
-msgstr ""
+msgstr "Les livres sélectionnés n'ont pas de format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:79
@@ -5872,7 +5881,7 @@ msgstr "Modéle d'exclusion"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Matching books will be displayed with a check mark"
-msgstr ""
+msgstr "Les livres correspondant vont être cochés à l'affichage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
@@ -5897,6 +5906,8 @@ msgstr "Etiquette Liste de &voeux"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Books tagged as Wishlist items will be displayed with an X"
 msgstr ""
+"Les livres étiquettés comme membres de la Liste de souhaits seront affichés "
+"avec un X"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Thumbnail width"
@@ -6420,11 +6431,11 @@ msgstr "Traitement Heuristique"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:93
 msgid "Unwrap lines"
-msgstr ""
+msgstr "Dérouler les lignes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:94
 msgid "Line &un-wrap factor :"
-msgstr ""
+msgstr "Facteur de &déroulement de ligne :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:95
 msgid "Detect and markup unformatted chapter headings and sub headings"
@@ -6436,7 +6447,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:97
 msgid "Delete blank lines between paragraphs"
-msgstr ""
+msgstr "Supprimer les lignes blanches entre les paragraphes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:98
 msgid "Ensure scene breaks are consistently formatted"
@@ -6444,7 +6455,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:99
 msgid "Remove unnecessary hyphens"
-msgstr ""
+msgstr "Enlever les traits d'union superflus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:100
 msgid "Italicize common words and patterns"
@@ -7623,7 +7634,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:69
 msgid "&Tags to set on created book entries:"
-msgstr ""
+msgstr "&Etiquettes à ajouter aux entrées livre crées :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:80
 msgid "Fit &cover within view"
@@ -8347,7 +8358,7 @@ msgstr "Si cette case n'est pas cochée, les séries seront effacées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:473
 msgid "&Clear series"
-msgstr ""
+msgstr "&Effacer les séries"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:474
 msgid ""
@@ -8366,7 +8377,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:478
 msgid "&Automatically number books in this series"
-msgstr ""
+msgstr "Numéroter &automatiquement les livres de cette série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:479
 msgid ""
@@ -8397,7 +8408,7 @@ msgstr "d MMM yyyy"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:486
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:491
 msgid "&Apply date"
-msgstr ""
+msgstr "&Appliquer la date"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:487
 msgid "&Published:"
@@ -8424,7 +8435,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:495
 msgid "Change title to title &case"
-msgstr ""
+msgstr "Changer le titre en titre &majuscule"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:496
 msgid ""
@@ -11624,7 +11635,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:57
 msgid "Constant template"
-msgstr ""
+msgstr "Modéle constant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:58
 msgid ""
@@ -12423,7 +12434,7 @@ msgstr "Ajouter vos propres catégories au navigateur d'étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:64
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
-msgstr ""
+msgstr "Conversion du livre %(num)d sur %(total)d (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:204
@@ -15759,6 +15770,7 @@ msgstr "Impossible de récupérer l'article."
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:844
 msgid "The debug traceback is available earlier in this log"
 msgstr ""
+"Les informations de débogage sont disponibles précédement dans ce journal"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:846
 msgid "Run with -vv to see the reason"
@@ -20095,5 +20107,15 @@ msgstr "Ne pas télécharger les feuilles de style CSS."
 #~ "Applies to: ePub, MOBI output formats"
 #~ msgstr ""
 #~ "Inclu les descriptions des livres par défaut dans le catalogue.\n"
+#~ "Par défaut : '%default'\n"
+#~ "S'applique aux formats : ePub, MOBI"
+
+#~ msgid ""
+#~ "Include 'Authors' section in catalog.This switch is ignored - Books By "
+#~ "Author section is always generated.Default: '%default'\n"
+#~ "Applies to: ePub, MOBI output formats"
+#~ msgstr ""
+#~ "Inclure la section 'Auteurs' dans le catalogue. Ce commutateur est ignoré - "
+#~ "La section Livres Par Auteurs est toujours générée.\n"
 #~ "Par défaut : '%default'\n"
 #~ "S'applique aux formats : ePub, MOBI"

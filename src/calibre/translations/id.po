@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-21 23:34+0000\n"
-"PO-Revision-Date: 2010-04-18 10:40+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-01-27 01:59+0000\n"
+"Last-Translator: Santoso Wijaya <Unknown>\n"
 "Language-Team: Indonesian <id@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-23 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-01-27 04:33+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -165,7 +165,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:55
 msgid "Unknown"
-msgstr ""
+msgstr "Tidak Dikenal"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
@@ -177,15 +177,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:294
 msgid "File type"
-msgstr ""
+msgstr "Jenis file"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:330
 msgid "Metadata reader"
-msgstr ""
+msgstr "Pembaca metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:360
 msgid "Metadata writer"
-msgstr ""
+msgstr "Penulis metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:390
 msgid "Catalog generator"
@@ -203,7 +203,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:301
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr ""
+msgstr "Preferensi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:15
 msgid ""
@@ -217,6 +217,8 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
+"Encoding untuk karakter di dalam input HTML file. Contoh pemilihan: cp1252, "
+"latin1, iso-8859-1, dan utf-8/"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:58
 msgid ""
@@ -274,14 +276,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:727
 msgid "Look and Feel"
-msgstr ""
+msgstr "Tampilan dan Rasa"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:741
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:752
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:763
 msgid "Interface"
-msgstr ""
+msgstr "Interface"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:733
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
@@ -289,16 +291,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:739
 msgid "Behavior"
-msgstr ""
+msgstr "Perilaku"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Change the way calibre behaves"
-msgstr ""
+msgstr "Ganti perilaku calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:217
 msgid "Add your own columns"
-msgstr ""
+msgstr "Tambah kolom sendiri"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Add/remove your own columns to the calibre book list"
@@ -306,7 +308,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Customize the toolbar"
-msgstr ""
+msgstr "Konfigurasikan toolbar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
 msgid ""
@@ -330,15 +332,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:784
 msgid "Common Options"
-msgstr ""
+msgstr "Opsi umum"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Set conversion options common to all formats"
-msgstr ""
+msgstr "Sesuaikan opsi konversi yang umum untuk semua format"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Output Options"
-msgstr ""
+msgstr "Opsi Output"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:801
 msgid "Set conversion options specific to each output format"
@@ -346,14 +348,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 msgid "Adding books"
-msgstr ""
+msgstr "Tambah buku"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:808
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:820
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:832
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:844
 msgid "Import/Export"
-msgstr ""
+msgstr "Impor/Expor"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Control how calibre reads metadata from files when adding books"
@@ -361,7 +363,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:818
 msgid "Saving books to disk"
-msgstr ""
+msgstr "Simpan buku ke dalam disk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:824
 msgid ""
@@ -371,7 +373,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Sending books to devices"
-msgstr ""
+msgstr "Kirim buku ke dalam alat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:836
 msgid "Control how calibre transfers files to your ebook reader"
@@ -387,14 +389,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Template Functions"
-msgstr ""
+msgstr "Fungsi Templat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:855
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:903
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:914
 msgid "Advanced"
-msgstr ""
+msgstr "Lanjutan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 msgid "Create your own template functions"
@@ -444,11 +446,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:912
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Serbaneka"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:918
 msgid "Miscellaneous advanced configuration"
-msgstr ""
+msgstr "Configurasi lanjutan serbaneka"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -487,74 +489,75 @@ msgstr ""
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
+"Profil ini adalah untuk alat seri SONY PRS. Contohnya 500/505/600/700 dll."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:73
 msgid "This profile is intended for the SONY PRS 300."
-msgstr ""
+msgstr "Profil ini adalah untuk alat SONY PRS 300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:82
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:493
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "Profil ini adalah untuk alat SONY PRS 900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:90
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:522
 msgid "This profile is intended for the Microsoft Reader."
-msgstr ""
+msgstr "Profil ini adalah untuk alat Microsoft Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:101
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:533
 msgid "This profile is intended for the Mobipocket books."
-msgstr ""
+msgstr "Profil ini adalah untuk buku-buku Mobipocket."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:114
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:546
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr ""
+msgstr "Profil ini adalah untuk alat Hanlin V3 dan kembarannya."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:126
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:558
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr ""
+msgstr "Profil ini adalah untuk alat Hanlin V5 dan kembarannya."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:136
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:566
 msgid "This profile is intended for the Cybook G3."
-msgstr ""
+msgstr "Profil ini adalah untuk alat Cybook G3."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:149
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:579
 msgid "This profile is intended for the Cybook Opus."
-msgstr ""
+msgstr "Profil ini adalah untuk alat Cybook Opus."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:161
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:592
 msgid "This profile is intended for the Amazon Kindle."
-msgstr ""
+msgstr "Profil ini adalah untuk alat Amazon Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:173
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:642
 msgid "This profile is intended for the Irex Illiad."
-msgstr ""
+msgstr "Profil ini adalah untuk alat Irex Illiad."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:185
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:655
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr ""
+msgstr "Profil ini adalah untuk alat IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:198
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:669
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr ""
+msgstr "Profil ini adalah untuk alat IRex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:210
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:683
 msgid "This profile is intended for the B&N Nook."
-msgstr ""
+msgstr "Profil ini adalah untuk alat B&N Nook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:232
 msgid "Output profile"
-msgstr ""
+msgstr "Profil output"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:236
 msgid ""
@@ -566,7 +569,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:278
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr ""
+msgstr "Diperuntukan iPad and alat-alat yang mirip dengan resolusi 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:437
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -577,14 +580,16 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Diperuntukan Samsung Galaxy dan alat-alat tablet yang mirip dengan resolusi "
+"600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "Profil ini adalah untuk alat Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the SONY PRS-300."
-msgstr ""
+msgstr "Profil ini adalah untuk alat SONY PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "This profile is intended for the 5-inch JetBook."
