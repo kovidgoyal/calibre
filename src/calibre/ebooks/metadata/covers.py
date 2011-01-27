@@ -131,7 +131,7 @@ class LibraryThingCovers(CoverDownload): # {{{
             raise err
         else:
             if '/wiki/index.php/HelpThing:Verify' in src:
-                raise Exception('LibraryThing is blocking your computer.')
+                raise Exception('LibraryThing is blocking calibre.')
             s = BeautifulSoup(src)
             url = s.find('td', attrs={'class':'left'})
             if url is None:

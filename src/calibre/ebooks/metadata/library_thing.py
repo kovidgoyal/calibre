@@ -97,7 +97,7 @@ def get_social_metadata(title, authors, publisher, isbn, username=None,
         except:
             return mi
         if '/wiki/index.php/HelpThing:Verify' in raw:
-            raise Exception('LibraryThing is blocking your computer.')
+            raise Exception('LibraryThing is blocking calibre.')
         if not raw:
             return mi
         raw = raw.decode('utf-8', 'replace')
