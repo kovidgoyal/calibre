@@ -49,7 +49,7 @@ class MetadataBackup(Thread): # {{{
     def run(self):
         while self.keep_running:
             try:
-                time.sleep(2) # Limit to two per second
+                time.sleep(2) # Limit to one book per two seconds
                 (id_, sequence) = self.db.get_a_dirtied_book()
                 if id_ is None:
                     continue

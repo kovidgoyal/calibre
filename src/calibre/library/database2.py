@@ -618,9 +618,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         with self.dirtied_lock:
             dc_sequence = self.dirtied_cache.get(book_id, None)
-#            print 'clear_dirty: check book', book_id, dc_sequence
+            # print 'clear_dirty: check book', book_id, dc_sequence
             if dc_sequence is None or sequence is None or dc_sequence == sequence:
-#                print 'needs to be cleaned'
+                # print 'needs to be cleaned'
                 self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                         (book_id,))
                 self.conn.commit()
@@ -629,7 +629,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 except:
                     pass
             elif dc_sequence is not None:
-#                print 'book needs to be done again'
+                # print 'book needs to be done again'
                 pass
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
@@ -661,12 +661,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         changed = False
         for book in book_ids:
             with self.dirtied_lock:
-#                print 'dirtied: check id', book
+                # print 'dirtied: check id', book
                 if book in self.dirtied_cache:
                     self.dirtied_cache[book] = self.dirtied_sequence
                     self.dirtied_sequence += 1
                     continue
-#                print 'book not already dirty'
+                # print 'book not already dirty'
                 try:
                     self.conn.execute(
                         'INSERT INTO metadata_dirtied (book) VALUES (?)',
@@ -720,7 +720,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # thread has not done the work between the put and the get_metadata
         with self.dirtied_lock:
             sequence = self.dirtied_cache.get(idx, None)
-#        print 'get_md_for_dump', idx, sequence
+        # print 'get_md_for_dump', idx, sequence
         try:
             # While a book is being created, the path is empty. Don't bother to
             # try to write the opf, because it will go to the wrong folder.
@@ -827,7 +827,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             try:
                 book_ids = self.data.parse(query)
             except:
-                import traceback
                 traceback.print_exc()
                 return identical_book_ids
             for book_id in book_ids:
