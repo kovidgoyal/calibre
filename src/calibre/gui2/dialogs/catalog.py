@@ -125,6 +125,10 @@ class Catalog(QDialog, Ui_Dialog):
                      self.apply)
         self.show_plugin_tab(None)
 
+        geom = dynamic.get('catalog_window_geom', None)
+        if geom is not None:
+            self.restoreGeometry(bytes(geom))
+
     def show_plugin_tab(self, idx):
         cf = unicode(self.format.currentText()).lower()
         while self.tabs.count() > 1:
@@ -157,6 +161,7 @@ class Catalog(QDialog, Ui_Dialog):
         dynamic.set('catalog_last_used_title', self.catalog_title)
         self.catalog_sync = bool(self.sync.isChecked())
         dynamic.set('catalog_sync_to_device', self.catalog_sync)
+        dynamic.set('catalog_window_geom', bytearray(self.saveGeometry()))
 
     def apply(self):
         # Store current values without building catalog
@@ -167,3 +172,8 @@ class Catalog(QDialog, Ui_Dialog):
     def accept(self):
         self.save_catalog_settings()
         return QDialog.accept(self)
+
+    def reject(self):
+        dynamic.set('catalog_window_geom', bytearray(self.saveGeometry()))
+        QDialog.reject(self)
+
