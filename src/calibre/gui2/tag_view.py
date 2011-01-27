@@ -64,6 +64,8 @@ class TagDelegate(QItemDelegate): # {{{
 
     # }}}
 
+TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_minus': 2}
+
 class TagsView(QTreeView): # {{{
 
     refresh_required    = pyqtSignal()
@@ -177,9 +179,16 @@ class TagsView(QTreeView): # {{{
         return joiner.join(tokens)
 
     def toggle(self, index):
+        self._toggle(index, None)
+
+    def _toggle(self, index, set_to):
+        '''
+        set_to: if None, advance the state. Otherwise must be one of the values
+        in TAG_SEARCH_STATES
+        '''
         modifiers = int(QApplication.keyboardModifiers())
         exclusive = modifiers not in (Qt.CTRL, Qt.SHIFT)
-        if self._model.toggle(index, exclusive):
+        if self._model.toggle(index, exclusive, set_to=set_to):
             self.tags_marked.emit(self.search_string)
 
     def conditional_clear(self, search_string):
@@ -187,7 +196,7 @@ class TagsView(QTreeView): # {{{
             self.clear()
 
     def context_menu_handler(self, action=None, category=None,
-                             key=None, index=None, negate=None):
+                             key=None, index=None, search_state=None):
         if not action:
             return
         try:
@@ -201,11 +210,10 @@ class TagsView(QTreeView): # {{{
                 self.user_category_edit.emit(category)
                 return
             if action == 'search':
-                self.tags_marked.emit(('not ' if negate else '') +
-                                      category + ':"=' + key + '"')
+                self._toggle(index, set_to=search_state)
                 return
             if action == 'search_category':
-                self.tags_marked.emit(category + ':' + str(not negate))
+                self.tags_marked.emit(key + ':' + search_state)
                 return
             if action == 'manage_searches':
                 self.saved_search_edit.emit(category)
@@ -270,20 +278,16 @@ class TagsView(QTreeView): # {{{
                                     partial(self.context_menu_handler,
                                             action='edit_author_sort', index=tag_id))
                     # Add the search for value items
-                    n = tag_name
-                    c = category
-                    if self.db.field_metadata[key]['datatype'] == 'rating':
-                        n = str(len(tag_name))
-                    elif self.db.field_metadata[key]['kind'] in ['user', 'search']:
-                        c = tag_item.tag.category
                     self.context_menu.addAction(self.search_icon,
                             _('Search for %s')%tag_name,
                             partial(self.context_menu_handler, action='search',
-                                    category=c, key=n, negate=False))
+                                    search_state=TAG_SEARCH_STATES['mark_plus'],
+                                    index=index))
                     self.context_menu.addAction(self.search_icon,
                             _('Search for everything but %s')%tag_name,
                             partial(self.context_menu_handler, action='search',
-                                    category=c, key=n, negate=True))
+                                    search_state=TAG_SEARCH_STATES['mark_minus'],
+                                    index=index))
                     self.context_menu.addSeparator()
                 # Hide/Show/Restore categories
                 self.context_menu.addAction(_('Hide category %s') % category,
@@ -299,11 +303,11 @@ class TagsView(QTreeView): # {{{
                     self.context_menu.addAction(self.search_icon,
                             _('Search for books in category %s')%category,
                             partial(self.context_menu_handler, action='search_category',
-                                    category=key, negate=False))
+                                    key=key, search_state='true'))
                     self.context_menu.addAction(self.search_icon,
                             _('Search for books not in category %s')%category,
                             partial(self.context_menu_handler, action='search_category',
-                                    category=key, negate=True))
+                                    key=key, search_state='false'))
                 # Offer specific editors for tags/series/publishers/saved searches
                 self.context_menu.addSeparator()
                 if key in ['tags', 'publisher', 'series'] or \
@@ -528,9 +532,15 @@ class TagTreeItem(object): # {{{
                 return QVariant(self.tooltip)
         return NONE
 
-    def toggle(self):
+    def toggle(self, set_to=None):
+        '''
+        set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
+        '''
         if self.type == self.TAG:
-            self.tag.state = (self.tag.state + 1)%3
+            if set_to is None:
+                self.tag.state = (self.tag.state + 1)%3
+            else:
+                self.tag.state = set_to
 
     def child_tags(self):
         res = []
@@ -1014,11 +1024,15 @@ class TagsModel(QAbstractItemModel): # {{{
     def clear_state(self):
         self.reset_all_states()
 
-    def toggle(self, index, exclusive):
+    def toggle(self, index, exclusive, set_to=None):
+        '''
+        exclusive: clear all states before applying this one
+        set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
+        '''
         if not index.isValid(): return False
         item = index.internalPointer()
         if item.type == TagTreeItem.TAG:
-            item.toggle()
+            item.toggle(set_to=set_to)
             if exclusive:
                 self.reset_all_states(except_=item.tag)
             self.dataChanged.emit(index, index)
@@ -1040,8 +1054,9 @@ class TagsModel(QAbstractItemModel): # {{{
             category_item = self.root_item.children[row_index]
             for tag_item in category_item.child_tags():
                 tag = tag_item.tag
-                if tag.state > 0:
-                    prefix = ' not ' if tag.state == 2 else ''
+                if tag.state != TAG_SEARCH_STATES['clear']:
+                    prefix = ' not ' if tag.state == TAG_SEARCH_STATES['mark_minus'] \
+                                     else ''
                     category = key if key != 'news' else 'tag'
                     if tag.name and tag.name[0] == u'\u2605': # char is a star. Assume rating
                         ans.append('%s%s:%s'%(prefix, category, len(tag.name)))
