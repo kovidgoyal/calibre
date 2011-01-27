@@ -24,7 +24,7 @@ class N516(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'prc', 'html', 'pdf', 'txt']
+    FORMATS     = ['epub', 'prc', 'mobi', 'html', 'pdf', 'txt']
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]

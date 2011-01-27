@@ -8,12 +8,12 @@ from urllib import unquote
 from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
                          QByteArray, QTranslator, QCoreApplication, QThread, \
                          QEvent, QTimer, pyqtSignal, QDate, QDesktopServices, \
-                         QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                         QIcon, QApplication, QDialog, QPushButton, QUrl, QFont
+                         QFileDialog, QFileIconProvider, \
+                         QIcon, QApplication, QDialog, QUrl, QFont
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre.constants import islinux, iswindows, isosx, isfreebsd, isfrozen
+from calibre.constants import islinux, iswindows, isfreebsd, isfrozen
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
@@ -178,104 +178,40 @@ def is_widescreen():
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()
 
-class CopyButton(QPushButton):
-
-    ACTION_KEYS = [Qt.Key_Enter, Qt.Key_Return, Qt.Key_Space]
-
-    def copied(self):
-        self.emit(SIGNAL('copy()'))
-        self.setDisabled(True)
-        self.setText(_('Copied'))
-
-
-    def keyPressEvent(self, ev):
-        try:
-            if ev.key() in self.ACTION_KEYS:
-                self.copied()
-                return
-        except:
-            pass
-        QPushButton.keyPressEvent(self, ev)
-
-
-    def keyReleaseEvent(self, ev):
-        try:
-            if ev.key() in self.ACTION_KEYS:
-                return
-        except:
-            pass
-        QPushButton.keyReleaseEvent(self, ev)
-
-    def mouseReleaseEvent(self, ev):
-        ev.accept()
-        self.copied()
-
-class MessageBox(QMessageBox):
-
-    def __init__(self, type_, title, msg, buttons, parent, det_msg=''):
-        QMessageBox.__init__(self, type_, title, msg, buttons, parent)
-        self.title = title
-        self.msg = msg
-        self.det_msg = det_msg
-        self.setDetailedText(det_msg)
-        # Cannot set keyboard shortcut as the event is not easy to filter
-        self.cb = CopyButton(_('Copy') if isosx else _('Copy to Clipboard'))
-        self.connect(self.cb, SIGNAL('copy()'), self.copy_to_clipboard)
-        self.addButton(self.cb, QMessageBox.ActionRole)
-        default_button = self.button(self.Ok)
-        if default_button is None:
-            default_button = self.button(self.Yes)
-        if default_button is not None:
-            self.setDefaultButton(default_button)
-
-    def copy_to_clipboard(self):
-        QApplication.clipboard().setText('%s: %s\n\n%s' %
-                (self.title, self.msg, self.det_msg))
-
-
 
 def warning_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
-    d = MessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
-                    parent, det_msg)
-    d.setEscapeButton(QMessageBox.Ok)
-    d.setIconPixmap(QPixmap(I('dialog_warning.png')))
-    if not show_copy_button:
-        d.cb.setVisible(False)
+    from calibre.gui2.dialogs.message_box import MessageBox
+    d = MessageBox(MessageBox.WARNING, 'WARNING: '+title, msg, det_msg, parent=parent,
+            show_copy_button=show_copy_button)
     if show:
         return d.exec_()
     return d
 
 def error_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
-    d = MessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
-                    parent, det_msg)
-    d.setIconPixmap(QPixmap(I('dialog_error.png')))
-    d.setEscapeButton(QMessageBox.Ok)
-    if not show_copy_button:
-        d.cb.setVisible(False)
+    from calibre.gui2.dialogs.message_box import MessageBox
+    d = MessageBox(MessageBox.ERROR, 'ERROR: '+title, msg, det_msg, parent=parent,
+                    show_copy_button=show_copy_button)
     if show:
         return d.exec_()
     return d
 
-def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
-        buttons=QMessageBox.Yes|QMessageBox.No, yes_button=QMessageBox.Yes):
-    d = MessageBox(QMessageBox.Question, title, msg, buttons,
-                    parent, det_msg)
-    d.setIconPixmap(QPixmap(I('dialog_question.png')))
-    d.setEscapeButton(QMessageBox.No)
-    if not show_copy_button:
-        d.cb.setVisible(False)
+def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
+        buttons=None, yes_button=None):
+    from calibre.gui2.dialogs.message_box import MessageBox
+    d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
+                    show_copy_button=show_copy_button)
+    if buttons is not None:
+        d.bb.setStandardButtons(buttons)
 
-    return d.exec_() == yes_button
+    return d.exec_() == d.Accepted
 
 def info_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
-    d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.Ok,
-                    parent, det_msg)
-    d.setIconPixmap(QPixmap(I('dialog_information.png')))
-    if not show_copy_button:
-        d.cb.setVisible(False)
+    from calibre.gui2.dialogs.message_box import MessageBox
+    d = MessageBox(MessageBox.INFO, title, msg, det_msg, parent=parent,
+                    show_copy_button=show_copy_button)
 
     if show:
         return d.exec_()
@@ -549,6 +485,14 @@ def choose_dir(window, name, title, default_dir='~'):
     fd.setParent(None)
     if dir:
         return dir[0]
+
+def choose_osx_app(window, name, title, default_dir='/Applications'):
+    fd = FileDialog(title=title, parent=window, name=name, mode=QFileDialog.ExistingFile,
+            default_dir=default_dir)
+    app = fd.get_files()
+    fd.setParent(None)
+    if app:
+        return app
 
 def choose_files(window, name, title,
                  filters=[], all_files=True, select_only_single_file=False):

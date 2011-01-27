@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from PyQt4.QtCore import SIGNAL, Qt
+from PyQt4.QtCore import SIGNAL, Qt, pyqtSignal
 from PyQt4.QtGui import QDialog, QWidget, QDialogButtonBox, \
                         QBrush, QTextCursor, QTextEdit
 
@@ -19,8 +19,8 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
 
-    def __init__(self, db, book_id, regex, *args):
-        QDialog.__init__(self, *args)
+    def __init__(self, db, book_id, regex, doc=None, parent=None):
+        QDialog.__init__(self, parent)
         self.setupUi(self)
 
         self.regex.setText(regex)
@@ -28,9 +28,13 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
         if not db or not book_id:
             self.button_box.addButton(QDialogButtonBox.Open)
-        elif not self.select_format(db, book_id):
+        elif not doc and not self.select_format(db, book_id):
             self.cancelled = True
             return
+
+        if doc:
+            self.preview.setPlainText(doc)
+
         self.cancelled = False
         self.connect(self.button_box, SIGNAL('clicked(QAbstractButton*)'), self.button_clicked)
         self.connect(self.regex, SIGNAL('textChanged(QString)'), self.regex_valid)
@@ -153,7 +157,12 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         if button == self.button_box.button(QDialogButtonBox.Ok):
             self.accept()
 
+    def doc(self):
+        return unicode(self.preview.toPlainText())
+
 class RegexEdit(QWidget, Ui_Edit):
+
+    doc_update = pyqtSignal(unicode)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -161,15 +170,22 @@ class RegexEdit(QWidget, Ui_Edit):
 
         self.book_id = None
         self.db = None
+        self.doc_cache = None
 
         self.connect(self.button, SIGNAL('clicked()'), self.builder)
 
     def builder(self):
-        bld = RegexBuilder(self.db, self.book_id, self.edit.text(), self)
+        bld = RegexBuilder(self.db, self.book_id, self.edit.text(), self.doc_cache, self)
         if bld.cancelled:
             return
+        if not self.doc_cache:
+            self.doc_cache = bld.doc()
+            self.doc_update.emit(self.doc_cache)
         if bld.exec_() == bld.Accepted:
             self.edit.setText(bld.regex.text())
+
+    def doc(self):
+        return self.doc_cache
 
     def setObjectName(self, *args):
         QWidget.setObjectName(self, *args)
@@ -185,8 +201,11 @@ class RegexEdit(QWidget, Ui_Edit):
     def set_db(self, db):
         self.db = db
 
+    def set_doc(self, doc):
+        self.doc_cache = doc
+
     def break_cycles(self):
-        self.db = None
+        self.db = self.doc_cache = None
 
     @property
     def text(self):

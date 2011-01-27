@@ -335,7 +335,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
 
         return
-
+        '''
         if new_state == 0:
             # unchecked
             self.merge_source_field.setEnabled(False)
@@ -348,6 +348,7 @@ class PluginWidget(QWidget,Ui_Form):
             self.merge_before.setEnabled(True)
             self.merge_after.setEnabled(True)
             self.include_hr.setEnabled(True)
+        '''
 
     def header_note_source_field_changed(self,new_index):
         '''

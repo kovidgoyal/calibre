@@ -576,10 +576,12 @@ OptionRecommendation(name='sr3_replace',
         if not input_fmt:
             raise ValueError('Input file must have an extension')
         input_fmt = input_fmt[1:].lower()
+        self.archive_input_tdir = None
         if input_fmt in ('zip', 'rar', 'oebzip'):
             self.log('Processing archive...')
-            tdir = PersistentTemporaryDirectory('_plumber')
+            tdir = PersistentTemporaryDirectory('_plumber_archive')
             self.input, input_fmt = self.unarchive(self.input, tdir)
+            self.archive_input_tdir = tdir
         if os.access(self.input, os.R_OK):
             nfp = run_plugins_on_preprocess(self.input, input_fmt)
             if nfp != self.input:
