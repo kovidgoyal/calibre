@@ -20,9 +20,13 @@ HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html
 def clean_txt(txt):
     if isbytestring(txt):
         txt = txt.decode('utf-8', 'replace')
-    # Strip whitespace from the beginning and end of the line. Also replace
+    # Strip whitespace from the end of the line. Also replace
     # all line breaks with \n.
-    txt = '\n'.join([line.strip() for line in txt.splitlines()])
+    txt = '\n'.join([line.rstrip() for line in txt.splitlines()])
+    
+    # Replace whitespace at the beginning of the list with &nbsp;
+    txt = re.sub('(?m)(?P<space>[ ]+)', lambda mo: '&nbsp;' * mo.groups('space').count(' '), txt)
+    txt = re.sub('(?m)(?P<space>[\t]+)', lambda mo: '&nbsp;' * 4 * mo.groups('space').count('\t'), txt)
 
     # Condense redundant spaces
     txt = re.sub('[ ]{2,}', ' ', txt)
