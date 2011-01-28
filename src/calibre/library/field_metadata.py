@@ -474,11 +474,19 @@ class FieldMetadata(dict):
         for key in list(self._tb_cats.keys()):
             val = self._tb_cats[key]
             if val['is_category'] and val['kind'] in ('user', 'search'):
+                for k in self._tb_cats[key]['search_terms']:
+                    if k in self._search_term_map:
+                        del self._search_term_map[k]
                 del self._tb_cats[key]
-                if key in self._search_term_map:
-                    del self._search_term_map[key]
-                if key.lower() in self._search_term_map:
-                    del self._search_term_map[key.lower()]
+
+    def remove_user_categories(self):
+        for key in list(self._tb_cats.keys()):
+            val = self._tb_cats[key]
+            if val['is_category'] and val['kind']  == 'user':
+                for k in self._tb_cats[key]['search_terms']:
+                    if k in self._search_term_map:
+                        del self._search_term_map[k]
+                del self._tb_cats[key]
 
     def cc_series_index_column_for(self, key):
         return self._tb_cats[key]['rec_index'] + 1
@@ -486,12 +494,15 @@ class FieldMetadata(dict):
     def add_user_category(self, label, name):
         if label in self._tb_cats:
             raise ValueError('Duplicate user field [%s]'%(label))
+        st = [label]
+        if icu_lower(label) != label:
+            st.append(icu_lower(label))
         self._tb_cats[label] = {'table':None,          'column':None,
                                 'datatype':None,       'is_multiple':None,
                                 'kind':'user',         'name':name,
-                                'search_terms':[label],'is_custom':False,
+                                'search_terms':st,     'is_custom':False,
                                 'is_category':True}
-        self._add_search_terms_to_map(label, [label])
+        self._add_search_terms_to_map(label, st)
 
     def add_search_category(self, label, name):
         if label in self._tb_cats:
@@ -523,7 +534,6 @@ class FieldMetadata(dict):
     def _add_search_terms_to_map(self, key, terms):
         if terms is not None:
             for t in terms:
-                t = t.lower()
                 if t in self._search_term_map:
                     raise ValueError('Attempt to add duplicate search term "%s"'%t)
                 self._search_term_map[t] = key

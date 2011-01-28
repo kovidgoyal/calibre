@@ -4,6 +4,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import shutil
+
 from PyQt4.Qt import QString, SIGNAL
 
 from calibre.gui2.convert.single import Config, sort_formats_by_preference, \
@@ -108,6 +110,11 @@ class BulkConfig(Config):
         idx = oidx if -1 < oidx < self._groups_model.rowCount() else 0
         self.groups.setCurrentIndex(self._groups_model.index(idx))
         self.stack.setCurrentIndex(idx)
+        try:
+            shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
+        except:
+            pass
+
 
     def setup_output_formats(self, db, preferred_output_format):
         if preferred_output_format:

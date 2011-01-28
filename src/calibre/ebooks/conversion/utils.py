@@ -155,7 +155,7 @@ class HeuristicProcessor(object):
         ]
 
         for word in ITALICIZE_WORDS:
-            html = html.replace(word, '<i>%s</i>' % word)
+            html = re.sub(r'(?<=\s|>)' + word + r'(?=\s|<)', '<i>%s</i>' % word, html)
 
         for pat in ITALICIZE_STYLE_PATS:
             html = re.sub(pat, lambda mo: '<i>%s</i>' % mo.group('words'), html)

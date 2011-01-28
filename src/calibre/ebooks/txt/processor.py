@@ -21,9 +21,13 @@ HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html
 def clean_txt(txt):
     if isbytestring(txt):
         txt = txt.decode('utf-8', 'replace')
-    # Strip whitespace from the beginning and end of the line. Also replace
+    # Strip whitespace from the end of the line. Also replace
     # all line breaks with \n.
-    txt = '\n'.join([line.strip() for line in txt.splitlines()])
+    txt = '\n'.join([line.rstrip() for line in txt.splitlines()])
+    
+    # Replace whitespace at the beginning of the list with &nbsp;
+    txt = re.sub('(?m)(?P<space>[ ]+)', lambda mo: '&nbsp;' * mo.groups('space').count(' '), txt)
+    txt = re.sub('(?m)(?P<space>[\t]+)', lambda mo: '&nbsp;' * 4 * mo.groups('space').count('\t'), txt)
 
     # Condense redundant spaces
     txt = re.sub('[ ]{2,}', ' ', txt)
@@ -32,7 +36,7 @@ def clean_txt(txt):
     txt = re.sub('^\s+(?=.)', '', txt)
     txt = re.sub('(?<=.)\s+$', '', txt)
     # Remove excessive line breaks.
-    txt = re.sub('\n{3,}', '\n\n', txt)
+    txt = re.sub('\n{5,}', '\n\n\n\n', txt)
     #remove ASCII invalid chars : 0 to 8 and 11-14 to 24
     txt = clean_ascii_chars(txt)
 
@@ -60,10 +64,16 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     txt = split_txt(txt, epub_split_size_kb)
 
     lines = []
+    blank_count = 0
     # Split into paragraphs based on having a blank line between text.
-    for line in txt.split('\n\n'):
+    for line in txt.split('\n'):
         if line.strip():
+            blank_count = 0
             lines.append(u'<p>%s</p>' % prepare_string_for_xml(line.replace('\n', ' ')))
+        else:
+            blank_count += 1
+            if blank_count == 2:
+                lines.append(u'<p>&nbsp;</p>')
 
     return HTML_TEMPLATE % (title, u'\n'.join(lines))
 
@@ -86,7 +96,7 @@ def normalize_line_endings(txt):
     return txt
 
 def separate_paragraphs_single_line(txt):
-    txt = re.sub(u'(?<=.)\n(?=.)', '\n\n', txt)
+    txt = txt.replace('\n', '\n\n')
     return txt
 
 def separate_paragraphs_print_formatted(txt):
@@ -94,7 +104,7 @@ def separate_paragraphs_print_formatted(txt):
     return txt
 
 def preserve_spaces(txt):
-    txt = txt.replace(' ', '&nbsp;')
+    txt = re.sub('(?P<space>[ ]{2,})', lambda mo: ' ' + ('&nbsp;' * (len(mo.group('space')) - 1)), txt)
     txt = txt.replace('\t', '&nbsp;&nbsp;&nbsp;&nbsp;')
     return txt
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>962</width>
-    <height>727</height>
+    <height>645</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,7 +45,7 @@
         <x>0</x>
         <y>0</y>
         <width>954</width>
-        <height>666</height>
+        <height>584</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -996,8 +996,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>197</width>
-                <height>60</height>
+                <width>938</width>
+                <height>268</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">

@@ -408,7 +408,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-    def library_moved(self, newloc, copy_structure=False):
+    def library_moved(self, newloc, copy_structure=False, call_close=True):
         if newloc is None: return
         default_prefs = None
         try:
@@ -441,7 +441,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.apply_named_search_restriction(db.prefs['gui_restriction'])
         if olddb is not None:
             try:
-                olddb.conn.close()
+                if call_close:
+                    olddb.conn.close()
             except:
                 import traceback
                 traceback.print_exc()

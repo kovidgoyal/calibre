@@ -31,7 +31,7 @@ class ConvertAction(InterfaceAction):
                 partial(self.convert_ebook, False, bulk=True))
         cm.addSeparator()
         ac = cm.addAction(
-                _('Create catalog of books in your calibre library'))
+                _('Create a catalog of the books in your calibre library'))
         ac.triggered.connect(self.gui.iactions['Generate Catalog'].generate_catalog)
         self.qaction.setMenu(cm)
         self.qaction.triggered.connect(self.convert_ebook)

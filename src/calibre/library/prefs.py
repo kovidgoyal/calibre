@@ -9,6 +9,7 @@ import json
 
 from calibre.constants import preferred_encoding
 from calibre.utils.config import to_json, from_json
+from calibre import prints
 
 class DBPrefs(dict):
 
@@ -16,8 +17,13 @@ class DBPrefs(dict):
         dict.__init__(self)
         self.db = db
         self.defaults = {}
+        self.disable_setting = False
         for key, val in self.db.conn.get('SELECT key,val FROM preferences'):
-            val = self.raw_to_object(val)
+            try:
+                val = self.raw_to_object(val)
+            except:
+                prints('Failed to read value for:', key, 'from db')
+                continue
             dict.__setitem__(self, key, val)
 
     def raw_to_object(self, raw):
@@ -40,6 +46,8 @@ class DBPrefs(dict):
         self.db.conn.commit()
 
     def __setitem__(self, key, val):
+        if self.disable_setting:
+            return
         raw = self.to_raw(val)
         self.db.conn.execute('DELETE FROM preferences WHERE key=?', (key,))
         self.db.conn.execute('INSERT INTO preferences (key,val) VALUES (?,?)', (key,
