@@ -8,15 +8,12 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys
 
-from PyQt4 import QtGui
-from PyQt4.Qt import QDialog, SIGNAL
-
 from calibre.customize.ui import config
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
-from calibre.gui2 import dynamic
+from calibre.gui2 import dynamic, ResizableDialog
 from calibre.customize.ui import catalog_plugins
 
-class Catalog(QDialog, Ui_Dialog):
+class Catalog(ResizableDialog, Ui_Dialog):
     ''' Catalog Dialog builder'''
 
     def __init__(self, parent, dbspec, ids, db):
@@ -24,10 +21,8 @@ class Catalog(QDialog, Ui_Dialog):
         from calibre import prints as info
         from PyQt4.uic import compileUi
 
-        QDialog.__init__(self, parent)
+        ResizableDialog.__init__(self, parent)
 
-        # Run the dialog setup generated from catalog.ui
-        self.setupUi(self)
         self.dbspec, self.ids = dbspec, ids
 
         # Display the number of books we've been passed
@@ -120,10 +115,12 @@ class Catalog(QDialog, Ui_Dialog):
             self.sync.setChecked(dynamic.get('catalog_sync_to_device', True))
 
         self.format.currentIndexChanged.connect(self.show_plugin_tab)
-        self.connect(self.buttonBox.button(QtGui.QDialogButtonBox.Apply),
-                     SIGNAL("clicked()"),
-                     self.apply)
+        self.buttonBox.button(self.buttonBox.Apply).clicked.connect(self.apply)
         self.show_plugin_tab(None)
+
+        geom = dynamic.get('catalog_window_geom', None)
+        if geom is not None:
+            self.restoreGeometry(bytes(geom))
 
     def show_plugin_tab(self, idx):
         cf = unicode(self.format.currentText()).lower()
@@ -157,8 +154,9 @@ class Catalog(QDialog, Ui_Dialog):
         dynamic.set('catalog_last_used_title', self.catalog_title)
         self.catalog_sync = bool(self.sync.isChecked())
         dynamic.set('catalog_sync_to_device', self.catalog_sync)
+        dynamic.set('catalog_window_geom', bytearray(self.saveGeometry()))
 
-    def apply(self):
+    def apply(self, *args):
         # Store current values without building catalog
         self.save_catalog_settings()
         if self.tabs.count() > 1:
@@ -166,4 +164,9 @@ class Catalog(QDialog, Ui_Dialog):
 
     def accept(self):
         self.save_catalog_settings()
-        return QDialog.accept(self)
+        return ResizableDialog.accept(self)
+
+    def reject(self):
+        dynamic.set('catalog_window_geom', bytearray(self.saveGeometry()))
+        ResizableDialog.reject(self)
+
