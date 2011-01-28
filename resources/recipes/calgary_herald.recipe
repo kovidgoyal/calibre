@@ -98,7 +98,9 @@ class CanWestPaper(BasicNewsRecipe):
                 atag = h1tag.find('a',href=True)
                 if not atag:
                     continue
-                url = self.url_prefix+'/news/todays-paper/'+atag['href']
+                url = atag['href']
+                if not url.startswith('http:'):
+                    url = self.url_prefix+'/news/todays-paper/'+atag['href']
                 #self.log("Section %s" % key)
                 #self.log("url %s" % url)
                 title = self.tag_to_string(atag,False)
