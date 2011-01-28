@@ -225,13 +225,12 @@ Replace ``192.168.1.2`` with the local IP address of the computer running |app|.
 You wills ee a list of books in Safari, just click on the epub link for whichever book you want to read, Safari will then prompt you to open it with iBooks.
 
 
-With the USB cable
+With the USB cable + iTunes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As of |app| version 0.7.0, you can plug your iDevice into the computer using its charging cable, and |app| will detect it and show you a list of books on the device. You can then use the *Send to device button* to send books directly to iBooks on the device. Note that you must have at least iOS 4 installed on your iPhone/iTouch for this to work.
+If you are connected an Apple iDevice (iPad, iPod Touch, iPhone), use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
 
-This method only works on Windows XP and higher and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported.
-For more details on how this works, see `this forum post <http://www.mobileread.com/forums/showpost.php?p=944079&postcount=1>`_.
+This method only works on Windows XP and higher, and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported.
 
 How do I use |app| with my Android phone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
