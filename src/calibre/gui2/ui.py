@@ -12,11 +12,9 @@ __docformat__ = 'restructuredtext en'
 import collections, os, sys, textwrap, time
 from Queue import Queue, Empty
 from threading import Thread
-from PyQt4.Qt import Qt, SIGNAL, QTimer, \
-                     QPixmap, QMenu, QIcon, pyqtSignal, \
-                     QDialog, \
-                     QSystemTrayIcon, QApplication, QKeySequence, \
-                     QMessageBox, QHelpEvent, QAction
+from PyQt4.Qt import Qt, SIGNAL, QTimer, QHelpEvent, QAction, \
+                     QMenu, QIcon, pyqtSignal, \
+                     QDialog, QSystemTrayIcon, QApplication, QKeySequence
 
 from calibre import  prints
 from calibre.constants import __appname__, isosx
@@ -357,11 +355,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def is_minimized_to_tray(self):
         return getattr(self, '__systray_minimized', False)
 
-    def ask_a_yes_no_question(self, title, msg, **kwargs):
-        awu = kwargs.pop('ans_when_user_unavailable', True)
+    def ask_a_yes_no_question(self, title, msg, det_msg='',
+            show_copy_button=False, ans_when_user_unavailable=True):
         if self.is_minimized_to_tray:
-            return awu
-        return question_dialog(self, title, msg, **kwargs)
+            return ans_when_user_unavailable
+        return question_dialog(self, title, msg, det_msg=det_msg,
+                show_copy_button=show_copy_button)
 
     def hide_windows(self):
         for window in QApplication.topLevelWidgets():
@@ -601,11 +600,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                       Quitting may cause corruption on the device.<br>
                       Are you sure you want to quit?''')+'</p>'
 
-            d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
-                            QMessageBox.Yes|QMessageBox.No, self)
-            d.setIconPixmap(QPixmap(I('dialog_warning.png')))
-            d.setDefaultButton(QMessageBox.No)
-            if d.exec_() != QMessageBox.Yes:
+            if not question_dialog(self, _('Active jobs'), msg):
                 return False
         return True
 

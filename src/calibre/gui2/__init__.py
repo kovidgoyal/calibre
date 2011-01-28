@@ -197,8 +197,7 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
         return d.exec_()
     return d
 
-def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
-        buttons=None, yes_button=None):
+def question_dialog(parent, title, msg, det_msg='', show_copy_button=False):
     from calibre.gui2.dialogs.message_box import MessageBox
     d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
                     show_copy_button=show_copy_button)
