@@ -75,13 +75,13 @@ class FilenamePattern(QWidget, Ui_Form):
         # has added.
         val_hist = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
         self.re.clear()
-        
+
         if defaults:
             val = prefs.defaults['filename_pattern']
         else:
             val = prefs['filename_pattern']
         self.re.lineEdit().setText(val)
-        
+
         val_hist += gprefs.get('filename_pattern_history', ['(?P<title>.+)', '(?P<author>[^_-]+) -?\s*(?P<series>[^_0-9-]*)(?P<series_index>[0-9]*)\s*-\s*(?P<title>[^_].+) ?'])
         if val in val_hist:
             del val_hist[val_hist.index(val)]
@@ -129,15 +129,15 @@ class FilenamePattern(QWidget, Ui_Form):
     def commit(self):
         pat = self.pattern().pattern
         prefs['filename_pattern'] = pat
-        
+
         history = []
         history_pats = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
         for p in history_pats[:14]:
             # Ensure we don't have duplicate items.
             if p and p not in history:
                 history.append(p)
-        gprefs['filename_pattern_history'] = history 
-        
+        gprefs['filename_pattern_history'] = history
+
         return pat
 
 
