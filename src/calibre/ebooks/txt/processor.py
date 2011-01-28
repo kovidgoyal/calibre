@@ -103,7 +103,7 @@ def separate_paragraphs_print_formatted(txt):
     return txt
 
 def preserve_spaces(txt):
-    txt = txt.replace(' ', '&nbsp;')
+    txt = re.sub('(?P<space>[ ]{2,})', lambda mo: ' ' + ('&nbsp;' * (len(mo.group('space')) - 1)), txt)
     txt = txt.replace('\t', '&nbsp;&nbsp;&nbsp;&nbsp;')
     return txt
 
