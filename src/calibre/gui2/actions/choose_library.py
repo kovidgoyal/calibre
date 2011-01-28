@@ -295,8 +295,12 @@ class ChooseLibraryAction(InterfaceAction):
             return error_dialog(self.gui, _('Failed'),
                     _('Database integrity check failed, click Show details'
                         ' for details.'), show=True, det_msg=d.error[1])
+
         d = CheckLibraryDialog(self.gui, m.db)
-        d.exec_()
+        if not d.do_exec():
+            info_dialog(self.gui, _('No problems found'),
+                    _('The files in your library match the information '
+                      'in the database.'), show=True)
 
     def switch_requested(self, location):
         if not self.change_library_allowed():

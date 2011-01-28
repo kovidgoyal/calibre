@@ -188,6 +188,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         self.plugin_view.PositionAtCenter)
                 self.plugin_view.scrollTo(idx,
                         self.plugin_view.PositionAtCenter)
+                self.plugin_view.selectionModel().select(idx,
+                        self.plugin_view.selectionModel().ClearAndSelect)
+                self.plugin_view.setCurrentIndex(idx)
         else:
             error_dialog(self, _('No valid plugin path'),
                          _('%s is not a valid plugin path')%path).exec_()
@@ -220,10 +223,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         _('Plugin: %s does not need customization')%plugin.name).exec_()
                     return
                 self.changed_signal.emit()
+                from calibre.customize import InterfaceActionBase
+                if isinstance(plugin, InterfaceActionBase) and not getattr(plugin,
+                        'actual_iaction_plugin_loaded', False):
+                    return error_dialog(self, _('Must restart'),
+                            _('You must restart calibre before you can'
+                                ' configure the <b>%s</b> plugin')%plugin.name, show=True)
                 if plugin.do_user_config():
                     self._plugin_model.refresh_plugin(plugin)
             elif op == 'remove':
-                msg = _('Plugin {0} successfully removed').format(plugin.name)
+                msg = _('Plugin <b>{0}</b> successfully removed').format(plugin.name)
                 if remove_plugin(plugin):
                     self._plugin_model.populate()
                     self._plugin_model.reset()

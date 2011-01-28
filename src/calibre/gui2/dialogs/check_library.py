@@ -139,7 +139,7 @@ class CheckLibraryDialog(QDialog):
         QDialog.__init__(self, parent)
         self.db = db
 
-        self.setWindowTitle(_('Check Library'))
+        self.setWindowTitle(_('Check Library -- Problems Found'))
 
         self._layout = QVBoxLayout(self)
         self.setLayout(self._layout)
@@ -148,7 +148,7 @@ class CheckLibraryDialog(QDialog):
         self.log.itemChanged.connect(self.item_changed)
         self._layout.addWidget(self.log)
 
-        self.check_button = QPushButton(_('&Run the check'))
+        self.check_button = QPushButton(_('&Run the check again'))
         self.check_button.setDefault(False)
         self.check_button.clicked.connect(self.run_the_check)
         self.copy_button = QPushButton(_('Copy &to clipboard'))
@@ -196,7 +196,16 @@ class CheckLibraryDialog(QDialog):
         self.resize(750, 500)
         self.bbox.setEnabled(True)
 
+    def do_exec(self):
         self.run_the_check()
+
+        probs = 0
+        for c in self.problem_count:
+            probs += self.problem_count[c]
+        if probs == 0:
+            return False
+        self.exec_()
+        return True
 
     def accept(self):
         self.db.prefs['check_library_ignore_extensions'] = \
@@ -219,7 +228,10 @@ class CheckLibraryDialog(QDialog):
             attr, h, checkable, fixable = check
             list = getattr(checker, attr, None)
             if list is None:
+                self.problem_count[attr] = 0
                 return
+            else:
+                self.problem_count[attr] = len(list)
 
             tl = Item()
             tl.setText(0, h)
@@ -250,6 +262,7 @@ class CheckLibraryDialog(QDialog):
         t.setHeaderLabels([_('Name'), _('Path from library')])
         self.all_items = []
         self.top_level_items = {}
+        self.problem_count = {}
         for check in CHECKS:
             builder(t, checker, check)
 

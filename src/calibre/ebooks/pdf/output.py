@@ -47,7 +47,7 @@ class PDFOutput(OutputFormatPlugin):
                     OptionRecommendation(name='preserve_cover_aspect_ratio',
                         recommended_value=False,
                         help=_('Preserve the aspect ratio of the cover, instead'
-                            ' of stretching it to fill the ull first page of the'
+                            ' of stretching it to fill the full first page of the'
                             ' generated pdf.')
                         ),
                  ])

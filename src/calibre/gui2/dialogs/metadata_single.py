@@ -209,7 +209,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         title = unicode(self.title.text()).strip()
         author = unicode(self.authors.text()).strip()
         if author.endswith('&'):
-            author = author[:-1]
+            author = author[:-1].strip()
         if not title or not author:
             return error_dialog(self, _('Specify title and author'),
                     _('You must specify a title and author before generating '
