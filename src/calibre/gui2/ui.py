@@ -101,28 +101,40 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.opts = opts
         self.device_connected = None
         self.gui_debug = gui_debug
-        acmap = OrderedDict()
+        self.iactions = OrderedDict()
         for action in interface_actions():
             if opts.ignore_plugins and action.plugin_path is not None:
                 continue
             try:
-                ac = action.load_actual_plugin(self)
+                ac = self.init_iaction(action)
             except:
                 # Ignore errors in loading user supplied plugins
                 import traceback
                 traceback.print_exc()
-                if ac.plugin_path is None:
+                if action.plugin_path is None:
                     raise
+                continue
 
             ac.plugin_path = action.plugin_path
             ac.interface_action_base_plugin = action
-            if ac.name in acmap:
-                if ac.priority >= acmap[ac.name].priority:
-                    acmap[ac.name] = ac
-            else:
-                acmap[ac.name] = ac
 
-        self.iactions = acmap
+            self.add_iaction(ac)
+
+    def init_iaction(self, action):
+        ac = action.load_actual_plugin(self)
+        ac.plugin_path = action.plugin_path
+        ac.interface_action_base_plugin = action
+        action.actual_iaction_plugin_loaded = True
+        return ac
+
+    def add_iaction(self, ac):
+        acmap = self.iactions
+        if ac.name in acmap:
+            if ac.priority >= acmap[ac.name].priority:
+                acmap[ac.name] = ac
+        else:
+            acmap[ac.name] = ac
+
 
     def initialize(self, library_path, db, listener, actions, show_gui=True):
         opts = self.opts

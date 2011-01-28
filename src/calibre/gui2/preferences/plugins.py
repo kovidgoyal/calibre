@@ -220,6 +220,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         _('Plugin: %s does not need customization')%plugin.name).exec_()
                     return
                 self.changed_signal.emit()
+                from calibre.customize import InterfaceActionBase
+                if isinstance(plugin, InterfaceActionBase) and not getattr(plugin,
+                        'actual_iaction_plugin_loaded', False):
+                    return error_dialog(self, _('Must restart'),
+                            _('You must restart calibre before you can'
+                                ' configure this plugin'), show=True)
                 if plugin.do_user_config():
                     self._plugin_model.refresh_plugin(plugin)
             elif op == 'remove':
