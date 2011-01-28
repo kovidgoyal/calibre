@@ -583,6 +583,7 @@ class CybookG3Output(OutputProfile):
 
     # Screen size is a best guess
     screen_size               = (600, 800)
+    comic_screen_size         = (600, 757)
     dpi                       = 168.451
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
