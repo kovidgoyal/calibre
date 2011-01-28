@@ -11,9 +11,9 @@ Based on unidecoder.
 '''
 
 import re
-from unihandecode.unidecoder import Unidecoder
-from unihandecode.krcodepoints import CODEPOINTS as HANCODES
-from unihandecode.unicodepoints import CODEPOINTS
+from calibre.ebooks.unihandecode.unidecoder import Unidecoder
+from calibre.ebooks.unihandecode.krcodepoints import CODEPOINTS as HANCODES
+from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
 
 class Krdecoder(Unidecoder):
 

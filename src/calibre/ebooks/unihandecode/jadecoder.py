@@ -18,10 +18,10 @@ Copyright (c) 2010 Hiroshi Miura
 '''
 
 import os, re
-from unihandecode.unidecoder import Unidecoder
-from unihandecode.unicodepoints import CODEPOINTS
-from unihandecode.jacodepoints import CODEPOINTS as JACODES
-from unihandecode.pykakasi import kakasi
+from calibre.ebooks.unihandecode.unidecoder import Unidecoder
+from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
+from calibre.ebooks.unihandecode.jacodepoints import CODEPOINTS as JACODES
+from calibre.ebooks.unihandecode.pykakasi import kakasi
 
 class Jadecoder(Unidecoder):
     kakasi = None

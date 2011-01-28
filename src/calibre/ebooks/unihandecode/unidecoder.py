@@ -59,8 +59,8 @@ it under the same terms as Perl itself.
 '''
 
 import re
-from unihandecode.unicodepoints import CODEPOINTS
-from unihandecode.zhcodepoints import CODEPOINTS as HANCODES
+from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
+from calibre.ebooks.unihandecode.zhcodepoints import CODEPOINTS as HANCODES
 
 class Unidecoder(object):
 

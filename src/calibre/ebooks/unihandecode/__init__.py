@@ -16,10 +16,10 @@ Tranliterate the string from unicode characters to ASCII in Chinese and others.
 
 '''
 
-from unihandecode.unidecoder import Unidecoder
-from unihandecode.jadecoder import Jadecoder
-from unihandecode.krdecoder import Krdecoder
-from unihandecode.vndecoder import Vndecoder
+from calibre.ebooks.unihandecode.unidecoder import Unidecoder
+from calibre.ebooks.unihandecode.jadecoder import Jadecoder
+from calibre.ebooks.unihandecode.krdecoder import Krdecoder
+from calibre.ebooks.unihandecode.vndecoder import Vndecoder
 
 class Unihandecoder(object):
     preferred_encoding = None
