@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-21 23:34+0000\n"
-"PO-Revision-Date: 2011-01-23 00:09+0000\n"
-"Last-Translator: Andrea Marenghi <Unknown>\n"
+"PO-Revision-Date: 2011-01-27 21:34+0000\n"
+"Last-Translator: spino <spino1970@gmail.com>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-24 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-01-28 04:40+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -314,8 +314,7 @@ msgstr "Aggiungi colonne personalizzate"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Add/remove your own columns to the calibre book list"
-msgstr ""
-"Aggiunge/Rimuove colonne personalizzate dalla lista dei libri di calibre"
+msgstr "Aggiunge/Rimuove colonne personalizzate dalla lista dei libri"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Customize the toolbar"
@@ -446,8 +445,8 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
-"Imposta il Server di Contenuti calibre che da accesso alla biblioteca di "
-"calibre da ogni luogo, su ogni dispositivo, su internet"
+"Imposta il Server di Contenuti calibre che vi da accesso alla vostra "
+"biblioteca da ogni luogo, su ogni dispositivo, atrraverso internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:889
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:163
@@ -457,7 +456,7 @@ msgstr "Plugin"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr ""
-"Aggiungi/rimuovi/personalizza varie opzioni delle funzionalità di calibre"
+"Aggiungi/rimuovi/personalizza vari dettagli delle funzionalità di calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:901
 msgid "Tweaks"
@@ -465,7 +464,7 @@ msgstr "Ottimizzazioni"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:907
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr "Modifica in dettaglio come si comporta calibre in vari contesti"
+msgstr "Regolazione del comportamento di calibre in diversi contesti"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:912
 msgid "Miscellaneous"
@@ -500,8 +499,8 @@ msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"Se specificato, il plugin tenta di creare un output il più possibile "
-"leggibile da occhi umani. Potrebbe non avere effetto per alcuni plugin."
+"Se specificato, il plugin tenta di creare un output il più leggibile "
+"possibile. Potrebbe non avere effetto per alcuni plugin."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -1130,7 +1129,7 @@ msgstr "Comunica con il Palm Pre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:37
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Comunica con il Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:58
 msgid "Communicate with the Sweex MM300"
@@ -1245,7 +1244,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:72
 msgid "Upload separate cover thumbnails for books (newer readers)"
-msgstr ""
+msgstr "Invia copertine aggiuntive al lettore (per lettori recenti)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid ""
@@ -1266,6 +1265,8 @@ msgstr ""
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Aggiorna le copertine aggiuntive se la gestione automatica è abilitata (per "
+"lettori recenti)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:81
 msgid ""
@@ -1273,6 +1274,9 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
+"Selezionare questa opzione per inviare le copertine aggiuntive ogni volta "
+"che collegate il lettore. Deselezionare l'opzione se avete tanti libri sul "
+"lettore da rendere le performance inaccettabili"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1591,11 +1595,15 @@ msgid ""
 "default. Use %s to enable.  Individual actions can be disabled with the %s "
 "options."
 msgstr ""
+"Modifica il testo e la struttura del documento usando dei pattern comuni. "
+"Normalmente disbilitato. Usa %s per abilitarlo. Azioni specifiche possono "
+"essere disabilitate con l'opzione %s."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:16
 msgid "Modify the document text and structure using user defined patterns."
 msgstr ""
+"Modifica il testo e la struttura del documento usando pattern definiti."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:159
 msgid "Control auto-detection of document structure."
@@ -1716,6 +1724,11 @@ msgid ""
 "cases, the minimum line height option is more useful. By default no line "
 "height manipulation is performed."
 msgstr ""
+"Altezza della linea, espressa in punti. Gestisce la spaziatura tra linee "
+"consecutive di testo. Si applica solo ad elementi che con definiscono la "
+"propria altezza. I molti casi, l'opzione che definisce l'altezza minima "
+"della riga è più utile. Per default non viene applicata nessuna "
+"manipolazione di altezza della riga."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:194
 msgid ""
@@ -4125,7 +4138,7 @@ msgstr "Aggiungi un libro vuoto (Libro senza formati iniziali)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:46
 msgid "Shift+Ctrl+E"
-msgstr ""
+msgstr "Shift+Ctrl+E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add from ISBN"
@@ -4302,7 +4315,7 @@ msgstr "Crea un catologo di libri dalla biblioteca di Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:31
 msgid "No books selected for catalog generation"
-msgstr ""
+msgstr "Non sono stati scelti libri per generare il catalogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:54
 msgid "Generating %s catalog..."
@@ -5189,7 +5202,7 @@ msgstr "Formato non disponibile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:99
 msgid "Selected books have no formats"
-msgstr ""
+msgstr "I libri selezionati non hanno formati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:79
@@ -5689,7 +5702,7 @@ msgstr "Opzioni per il libro elettronico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Sections to include in catalog."
-msgstr ""
+msgstr "Sezioni da includere nel catalogo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "Included sections"
@@ -5760,7 +5773,7 @@ msgstr "&Colonna/valore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:316
 msgid "Column containing additional exclusion criteria"
-msgstr ""
+msgstr "Colonne contenenti criteri di esclusione addizionali"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 msgid "Exclusion pattern"
@@ -5768,7 +5781,7 @@ msgstr "Regola di esclusione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Matching books will be displayed with a check mark"
-msgstr ""
+msgstr "I libri corrispondenti verrano evidenziati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
@@ -6282,7 +6295,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics.py:15
 msgid "Modify the document text and structure using common patterns."
-msgstr ""
+msgstr "Modifica il testo e la struttura del documento usando pattern comuni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:90
 msgid ""
@@ -6322,7 +6335,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:97
 msgid "Delete blank lines between paragraphs"
-msgstr ""
+msgstr "Cancella le linee vuote tra paragrafi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:98
 msgid "Ensure scene breaks are consistently formatted"
@@ -6821,6 +6834,9 @@ msgid ""
 "&\n"
 "Replace"
 msgstr ""
+"Cerca\n"
+"&\n"
+"Sostituisci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:31
@@ -6840,7 +6856,7 @@ msgstr "Espressione regolare non valida: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:148
 msgid "First expression"
-msgstr ""
+msgstr "Prima espressione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:151
@@ -6850,11 +6866,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Second Expression"
-msgstr ""
+msgstr "Seconda espressione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:152
 msgid "Third expression"
-msgstr ""
+msgstr "Terza espressione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:154
 msgid ""
@@ -7001,7 +7017,7 @@ msgstr "Input TXT"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:59
 msgid "Paragraph style:"
-msgstr ""
+msgstr "Stile paragrafo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:60
 msgid "Preserve &spaces"
@@ -7009,7 +7025,7 @@ msgstr "Mantieni gli &spazi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:61
 msgid "Formatting style:"
-msgstr ""
+msgstr "Stile formattazione:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:62
 msgid "Markdown Options"
@@ -7798,7 +7814,7 @@ msgstr "Elimina dal dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:54
 msgid "This book is DRMed"
-msgstr ""
+msgstr "Questo libro è protetto da DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:55
 msgid ""
@@ -8240,21 +8256,21 @@ msgstr "&data"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:484
 msgid "d MMM yyyy"
-msgstr ""
+msgstr "gg MM aaaa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:486
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:491
 msgid "&Apply date"
-msgstr ""
+msgstr "&Applica data"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:487
 msgid "&Published:"
-msgstr ""
+msgstr "&Pubblicato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:489
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:444
 msgid "Clear published date"
-msgstr ""
+msgstr "Elimina la data di pubblicazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:492
 msgid "Remove &format:"
@@ -8404,6 +8420,8 @@ msgid ""
 "The field that the text will be put into after all replacements.\n"
 "If blank, the source field is used if the field is modifiable"
 msgstr ""
+"Campo nel quale il testo sarà immesso dopo le sostituzioni. \n"
+"Se lasciato vuoto, verrà usato il campo sorgente (se modificabile)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:524
 msgid "M&ode:"

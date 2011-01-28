@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-21 23:34+0000\n"
-"PO-Revision-Date: 2011-01-27 02:33+0000\n"
+"PO-Revision-Date: 2011-01-27 08:00+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-27 04:33+0000\n"
+"X-Launchpad-Export-Date: 2011-01-28 04:39+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -12043,7 +12043,7 @@ msgstr "Exception lors de la compilation de la fonction"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:194
 msgid "function source code not available"
-msgstr "code source de la fonction non disponible"
+msgstr "code source de la fonction indisponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:96
 msgid "&Function:"
@@ -13729,10 +13729,12 @@ msgid ""
 "this'.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Liste séparée par des virgules d'étiquettes indiquant les livres devant être "
-"exclus de la sortie.Par exemple: 'passer' correspondra à 'passer ce livre' "
-"et 'passer sera comme ceci'.Par défaut: '%default'\n"
-"Appliquer à: formats de sortie ePub, MOBI"
+"Liste séparée par des virgules des étiquettes indiquant que le livre doit "
+"être exclu de la sortie.\n"
+"Par exemple : 'skip' correspondra à 'skip this book' et 'Skip will like "
+"this'.\n"
+"Par défaut : '%default'\n"
+"S'applique aux formats : ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:610
 msgid ""
@@ -13907,7 +13909,7 @@ msgid ""
 "Check 'Excluded books' criteria in E-book options.\n"
 msgstr ""
 "Aucun livre trouvé à cataloguer.\n"
-"Vérifier le critère 'Livres exclus' dans les option E-book.\n"
+"Vérifiez le critère 'Livres exclus' dans les options de l'E-book\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1654
 msgid "No books available to include in catalog"
@@ -15251,7 +15253,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:296
 msgid "%s: unknown function"
-msgstr "%s: fonction inconnue"
+msgstr "%s : fonction inconnue"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:343
 msgid "No such variable "
@@ -15774,7 +15776,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:846
 msgid "Run with -vv to see the reason"
-msgstr "Démarrer avec -vv pour voir la raison"
+msgstr "Lancer avec -vv pour voir la raison"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
 msgid "Fetching feeds..."
