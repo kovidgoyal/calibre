@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import functools, re
 
 from calibre import entity_to_unicode
-from calibre.utils.config import prefs
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'
@@ -525,6 +524,7 @@ class HTMLPreProcessor(object):
 
         if getattr(self.extra_opts, 'asciiize', False):
             from calibre.ebooks.unihandecode import Unihandecoder
+            from calibre.utils.config import prefs
             unihandecoder = Unihandecoder(lang=prefs['language'])
             html = unihandecoder.decode(html)
 
