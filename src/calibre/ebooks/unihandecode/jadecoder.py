@@ -17,70 +17,26 @@ This functionality is owned by Kakasi Japanese processing engine.
 Copyright (c) 2010 Hiroshi Miura
 '''
 
-from ctypes import *
 import os, re
 from unihandecode.unidecoder import Unidecoder
 from unihandecode.unicodepoints import CODEPOINTS
 from unihandecode.jacodepoints import CODEPOINTS as JACODES
+from unihandecode.pykakasi import kakasi
 
 class Jadecoder(Unidecoder):
-
-    #kakasi instance
     kakasi = None
-
     codepoints = {}
 
     def __init__(self):
         self.codepoints = CODEPOINTS
         self.codepoints.update(JACODES)
-
-        try:
-            kakasi_location = os.environ['KAKASILIB'] 
-                # May be "C:\\kakasi\\lib\\" in WIndows
-                # "/opt/local/lib/" in Mac OS X
-            kakasi_location = re.sub(r'/$', '', kakasi_location)
-        except KeyError:
-            if os.name is "nt":
-                kakasi_location = "c:\\kakasi\\lib\\kakasi"
-            elif os.name is "Darwin":
-                kakasi_location = 'opt/local/lib'
-            else:
-                kakasi_location = ''
-
-        if os.name is "nt":
-            kakasi_libname = "kakasi"
-        elif os.name is "Darwin":
-            kakasi_libname = "libkakasi.dylib"
-        elif os.name is "posix":
-            kakasi_libname = "libkakasi.so.2"
-        else:
-            self.kakasi = None
-            return
-
-        try:
-            self.kakasi = CDLL(os.path.join(kakasi_location, kakasi_libname))
-        except:
-            self.kakasi = None
+        self.kakasi = kakasi()
 
     def decode(self, text):
-
-        # if there is not kakasi library, we fall down to use unidecode
-        if self.kakasi is None:
-            return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),text)
-
-        numopt = 9
-        argArray = c_char_p * numopt
-        args =  argArray( c_char_p("kakasi")
-                               ,c_char_p("-Ja"),c_char_p("-Ha"),c_char_p("-Ka"),c_char_p("-Ea")
-                               ,c_char_p("-ka"),c_char_p("-C"),c_char_p("-s")
-                               ,c_char_p("-ieuc")
-                              )
-        self.kakasi.kakasi_getopt_argv(numopt, args)
-        kakasi_do = self.kakasi.kakasi_do
-        kakasi_do.restype = c_char_p
-
         try:
-            cstr = c_char_p(text.encode("eucjp"))
-            return kakasi_do(cstr).decode("eucjp")
+            dummy = text.encode('euc-jp') # test if text contains only Japanese and ASCII characters.
+            result=self.kakasi.do(text)
+            return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),result)
         except:
             return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),text)
+
