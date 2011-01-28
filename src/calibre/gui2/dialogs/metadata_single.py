@@ -208,6 +208,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         from calibre.gui2 import config
         title = unicode(self.title.text()).strip()
         author = unicode(self.authors.text()).strip()
+        if author.endswith('&'):
+            author = author[:-1]
         if not title or not author:
             return error_dialog(self, _('Specify title and author'),
                     _('You must specify a title and author before generating '

@@ -100,6 +100,9 @@ class AddAction(InterfaceAction):
                 mi = MetaInformation(_('Unknown'), dlg.selected_authors)
                 self.gui.library_view.model().db.import_book(mi, [])
             self.gui.library_view.model().books_added(num)
+            if hasattr(self.gui, 'db_images'):
+                self.gui.db_images.reset()
+            self.gui.tags_view.recount()
 
     def add_isbns(self, books, add_tags=[]):
         from calibre.ebooks.metadata import MetaInformation

@@ -259,14 +259,14 @@ class Scheduler(QObject):
         if self.oldest > 0:
             delta = timedelta(days=self.oldest)
             try:
-                ids = self.recipe_model.db.tags_older_than(_('News'), delta)
+                ids = list(self.recipe_model.db.tags_older_than(_('News'),
+                    delta))
             except:
                 # Should never happen
                 ids = []
                 import traceback
                 traceback.print_exc()
             if ids:
-                ids = list(ids)
                 if ids:
                     self.delete_old_news.emit(ids)
         QTimer.singleShot(60 * 60 * 1000, self.oldest_check)

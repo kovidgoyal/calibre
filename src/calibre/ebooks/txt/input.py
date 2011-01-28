@@ -83,7 +83,6 @@ class TXTInput(InputFormatPlugin):
             setattr(options, 'markup_chapter_headings', True)
             setattr(options, 'italicize_common_cases', True)
             setattr(options, 'fix_indents', True)
-            setattr(options, 'preserve_spaces', True)
             setattr(options, 'delete_blank_paragraphs', True)
             setattr(options, 'format_scene_breaks', True)
             setattr(options, 'dehyphenate', True)

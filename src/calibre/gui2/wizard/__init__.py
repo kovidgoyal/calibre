@@ -33,10 +33,10 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 
 class Device(object):
 
-    output_profile = 'default'
+    output_profile = 'generic_eink'
     output_format = 'EPUB'
-    name = 'Default'
-    manufacturer = 'Default'
+    name = 'Generic e-ink device'
+    manufacturer = 'Generic'
     id = 'default'
     supports_color = False
 
@@ -63,6 +63,18 @@ class Device(object):
             recs['dont_grayscale'] = True
             save_defaults('comic_input', recs)
 
+class Smartphone(Device):
+
+    id = 'smartphone'
+    name = 'Smartphone'
+    supports_color = True
+
+class Tablet(Device):
+
+    id = 'tablet'
+    name = 'iPad like tablet'
+    output_profile = 'tablet'
+    supports_color = True
 
 class Kindle(Device):
 
@@ -206,11 +218,20 @@ class iPhone(Device):
 
 class Android(Device):
 
-    name = 'Adroid phone + WordPlayer/Aldiko'
+    name = 'Android phone'
     output_format = 'EPUB'
     manufacturer = 'Android'
     id = 'android'
     supports_color = True
+
+class AndroidTablet(Device):
+
+    name = 'Android tablet'
+    output_format = 'EPUB'
+    manufacturer = 'Android'
+    id = 'android_tablet'
+    supports_color = True
+    output_profile = 'tablet'
 
 class HanlinV3(Device):
 
@@ -268,9 +289,9 @@ def get_manufacturers():
     mans = set([])
     for x in get_devices():
         mans.add(x.manufacturer)
-    if 'Default' in mans:
-        mans.remove('Default')
-    return ['Default'] + sorted(mans)
+    if Device.manufacturer in mans:
+        mans.remove(Device.manufacturer)
+    return [Device.manufacturer] + sorted(mans)
 
 def get_devices_of(manufacturer):
     ans = [d for d in get_devices() if d.manufacturer == manufacturer]
@@ -402,22 +423,6 @@ class StanzaPage(QWizardPage, StanzaUI):
                 except:
                     continue
 
-class WordPlayerPage(StanzaPage):
-
-    ID = 6
-
-    def __init__(self):
-        StanzaPage.__init__(self)
-        self.label.setText('<p>'+_('If you use the WordPlayer e-book app on '
-            'your Android phone, you can access your calibre book collection '
-            'directly on the device. To do this you have to turn on the '
-            'content server.'))
-        self.instructions.setText('<p>'+_('Remember to leave calibre running '
-            'as the server only runs as long as calibre is running.')+'<br><br>'
-            + _('You have to add the URL http://myhostname:8080 as your '
-            'calibre library in WordPlayer. Here myhostname should be the fully '
-            'qualified hostname or the IP address of the computer calibre is running on.'))
-
 
 class DevicePage(QWizardPage, DeviceUI):
 
@@ -430,6 +435,8 @@ class DevicePage(QWizardPage, DeviceUI):
         self.registerField("device", self.device_view)
 
     def initializePage(self):
+        self.label.setText(_('Choose you e-book device. If your device is'
+            ' not in the list, choose a "%s" device.')%Device.manufacturer)
         self.man_model = ManufacturerModel()
         self.manufacturer_view.setModel(self.man_model)
         previous = dynamic.get('welcome_wizard_device', False)
@@ -477,8 +484,6 @@ class DevicePage(QWizardPage, DeviceUI):
             return KindlePage.ID
         if dev is iPhone:
             return StanzaPage.ID
-        if dev is Android:
-            return WordPlayerPage.ID
         return FinishPage.ID
 
 class MoveMonitor(QObject):
@@ -753,13 +758,11 @@ class Wizard(QWizard):
         self.set_finish_text()
         self.kindle_page = KindlePage()
         self.stanza_page = StanzaPage()
-        self.word_player_page = WordPlayerPage()
         self.setPage(self.library_page.ID, self.library_page)
         self.setPage(self.device_page.ID, self.device_page)
         self.setPage(self.finish_page.ID, self.finish_page)
         self.setPage(self.kindle_page.ID, self.kindle_page)
         self.setPage(self.stanza_page.ID, self.stanza_page)
-        self.setPage(self.word_player_page.ID, self.word_player_page)
 
         self.device_extra_page = None
         nh, nw = min_available_height()-75, available_width()-30

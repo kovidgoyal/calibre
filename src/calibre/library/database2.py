@@ -21,7 +21,7 @@ from calibre.library.field_metadata import FieldMetadata, TagsIcons
 from calibre.library.schema_upgrades import SchemaUpgrade
 from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
-from calibre.library.sqlite import connect, IntegrityError, DBThread
+from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
@@ -2796,82 +2796,3 @@ books_series_link      feeds
             yield id, title, script
 
 
-    def check_integrity(self, callback):
-        callback(0., _('Checking SQL integrity...'))
-        self.clean()
-        user_version = self.user_version
-        sql = '\n'.join(self.conn.dump())
-        self.conn.close()
-        dest = self.dbpath+'.tmp'
-        if os.path.exists(dest):
-            os.remove(dest)
-        conn = None
-        try:
-            ndb = DBThread(dest, None)
-            ndb.connect()
-            conn = ndb.conn
-            conn.execute('create table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
-            conn.commit()
-            conn.executescript(sql)
-            conn.commit()
-            conn.execute('pragma user_version=%d'%user_version)
-            conn.commit()
-            conn.execute('drop table temp_sequence')
-            conn.commit()
-            conn.close()
-        except:
-            if conn is not None:
-                try:
-                    conn.close()
-                except:
-                    pass
-            if os.path.exists(dest):
-                os.remove(dest)
-            raise
-        else:
-            shutil.copyfile(dest, self.dbpath)
-            self.connect()
-            self.initialize_dynamic()
-            self.refresh()
-        if os.path.exists(dest):
-            os.remove(dest)
-        callback(0.1, _('Checking for missing files.'))
-        bad = {}
-        us = self.data.universal_set()
-        total = float(len(us))
-        for i, id in enumerate(us):
-            formats = self.data.get(id, self.FIELD_MAP['formats'], row_is_id=True)
-            if not formats:
-                formats = []
-            else:
-                formats = [x.lower() for x in formats.split(',')]
-            actual_formats = self.formats(id, index_is_id=True)
-            if not actual_formats:
-                actual_formats = []
-            else:
-                actual_formats = [x.lower() for x in actual_formats.split(',')]
-
-            for fmt in formats:
-                if fmt in actual_formats:
-                    continue
-                if id not in bad:
-                    bad[id] = []
-                bad[id].append(fmt)
-            has_cover = self.data.get(id, self.FIELD_MAP['cover'],
-                    row_is_id=True)
-            if has_cover and self.cover(id, index_is_id=True, as_path=True) is None:
-                if id not in bad:
-                    bad[id] = []
-                bad[id].append('COVER')
-            callback(0.1+0.9*(1+i)/total, _('Checked id') + ' %d'%id)
-
-        for id in bad:
-            for fmt in bad[id]:
-                if fmt != 'COVER':
-                    self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, fmt.upper()))
-                else:
-                    self.conn.execute('UPDATE books SET has_cover=0 WHERE id=?', (id,))
-        self.conn.commit()
-        self.refresh_ids(list(bad.keys()))
-
-        return bad

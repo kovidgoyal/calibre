@@ -17,6 +17,7 @@ class DBPrefs(dict):
         dict.__init__(self)
         self.db = db
         self.defaults = {}
+        self.disable_setting = False
         for key, val in self.db.conn.get('SELECT key,val FROM preferences'):
             try:
                 val = self.raw_to_object(val)
@@ -45,6 +46,8 @@ class DBPrefs(dict):
         self.db.conn.commit()
 
     def __setitem__(self, key, val):
+        if self.disable_setting:
+            return
         raw = self.to_raw(val)
         self.db.conn.execute('DELETE FROM preferences WHERE key=?', (key,))
         self.db.conn.execute('INSERT INTO preferences (key,val) VALUES (?,?)', (key,
