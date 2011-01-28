@@ -92,7 +92,10 @@ class MessageBox(QDialog, Ui_Dialog):
     def showEvent(self, ev):
         ret = QDialog.showEvent(self, ev)
         if self.is_question:
-            self.bb.button(self.bb.Yes).setFocus(Qt.OtherFocusReason)
+            try:
+                self.bb.button(self.bb.Yes).setFocus(Qt.OtherFocusReason)
+            except:
+                pass# Buttons were changed
         else:
             self.bb.button(self.bb.Ok).setFocus(Qt.OtherFocusReason)
         return ret
