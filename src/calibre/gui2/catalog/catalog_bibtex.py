@@ -19,7 +19,9 @@ class PluginWidget(QWidget, Ui_Form):
                      ('bib_entry', 0), #mixed
                      ('bibfile_enc', 0), #utf-8
                      ('bibfile_enctag', 0), #strict
-                     ('impcit', True) ]
+                     ('impcit', True),
+                     ('addfiles', False),
+                     ]
 
     sync_enabled = False
     formats = set(['bib'])
@@ -49,7 +51,7 @@ class PluginWidget(QWidget, Ui_Form):
             opt_value = gprefs.get(self.name + '_' + opt[0], opt[1])
             if opt[0] in ['bibfile_enc', 'bibfile_enctag', 'bib_entry']:
                 getattr(self, opt[0]).setCurrentIndex(opt_value)
-            elif opt[0] == 'impcit' :
+            elif opt[0] in ['impcit', 'addfiles'] :
                 getattr(self, opt[0]).setChecked(opt_value)
             else:
                 getattr(self, opt[0]).setText(opt_value)
@@ -76,7 +78,7 @@ class PluginWidget(QWidget, Ui_Form):
         for opt in self.OPTION_FIELDS:
             if opt[0] in ['bibfile_enc', 'bibfile_enctag', 'bib_entry']:
                 opt_value = getattr(self,opt[0]).currentIndex()
-            elif opt[0] == 'impcit' :
+            elif opt[0] in ['impcit', 'addfiles'] :
                 opt_value = getattr(self, opt[0]).isChecked()
             else :
                 opt_value = unicode(getattr(self, opt[0]).text())

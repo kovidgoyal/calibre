@@ -27,7 +27,7 @@
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Choose your book reader. This will set the conversion options to produce books optimized for your device.</string>
+      <string/>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

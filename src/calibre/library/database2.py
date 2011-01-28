@@ -21,7 +21,7 @@ from calibre.library.field_metadata import FieldMetadata, TagsIcons
 from calibre.library.schema_upgrades import SchemaUpgrade
 from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
-from calibre.library.sqlite import connect, IntegrityError, DBThread
+from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
@@ -618,9 +618,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         with self.dirtied_lock:
             dc_sequence = self.dirtied_cache.get(book_id, None)
-#            print 'clear_dirty: check book', book_id, dc_sequence
+            # print 'clear_dirty: check book', book_id, dc_sequence
             if dc_sequence is None or sequence is None or dc_sequence == sequence:
-#                print 'needs to be cleaned'
+                # print 'needs to be cleaned'
                 self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                         (book_id,))
                 self.conn.commit()
@@ -629,7 +629,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 except:
                     pass
             elif dc_sequence is not None:
-#                print 'book needs to be done again'
+                # print 'book needs to be done again'
                 pass
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
@@ -661,12 +661,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         changed = False
         for book in book_ids:
             with self.dirtied_lock:
-#                print 'dirtied: check id', book
+                # print 'dirtied: check id', book
                 if book in self.dirtied_cache:
                     self.dirtied_cache[book] = self.dirtied_sequence
                     self.dirtied_sequence += 1
                     continue
-#                print 'book not already dirty'
+                # print 'book not already dirty'
                 try:
                     self.conn.execute(
                         'INSERT INTO metadata_dirtied (book) VALUES (?)',
@@ -720,7 +720,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # thread has not done the work between the put and the get_metadata
         with self.dirtied_lock:
             sequence = self.dirtied_cache.get(idx, None)
-#        print 'get_md_for_dump', idx, sequence
+        # print 'get_md_for_dump', idx, sequence
         try:
             # While a book is being created, the path is empty. Don't bother to
             # try to write the opf, because it will go to the wrong folder.
@@ -827,7 +827,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             try:
                 book_ids = self.data.parse(query)
             except:
-                import traceback
                 traceback.print_exc()
                 return identical_book_ids
             for book_id in book_ids:
@@ -2797,82 +2796,3 @@ books_series_link      feeds
             yield id, title, script
 
 
-    def check_integrity(self, callback):
-        callback(0., _('Checking SQL integrity...'))
-        self.clean()
-        user_version = self.user_version
-        sql = '\n'.join(self.conn.dump())
-        self.conn.close()
-        dest = self.dbpath+'.tmp'
-        if os.path.exists(dest):
-            os.remove(dest)
-        conn = None
-        try:
-            ndb = DBThread(dest, None)
-            ndb.connect()
-            conn = ndb.conn
-            conn.execute('create table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
-            conn.commit()
-            conn.executescript(sql)
-            conn.commit()
-            conn.execute('pragma user_version=%d'%user_version)
-            conn.commit()
-            conn.execute('drop table temp_sequence')
-            conn.commit()
-            conn.close()
-        except:
-            if conn is not None:
-                try:
-                    conn.close()
-                except:
-                    pass
-            if os.path.exists(dest):
-                os.remove(dest)
-            raise
-        else:
-            shutil.copyfile(dest, self.dbpath)
-            self.connect()
-            self.initialize_dynamic()
-            self.refresh()
-        if os.path.exists(dest):
-            os.remove(dest)
-        callback(0.1, _('Checking for missing files.'))
-        bad = {}
-        us = self.data.universal_set()
-        total = float(len(us))
-        for i, id in enumerate(us):
-            formats = self.data.get(id, self.FIELD_MAP['formats'], row_is_id=True)
-            if not formats:
-                formats = []
-            else:
-                formats = [x.lower() for x in formats.split(',')]
-            actual_formats = self.formats(id, index_is_id=True)
-            if not actual_formats:
-                actual_formats = []
-            else:
-                actual_formats = [x.lower() for x in actual_formats.split(',')]
-
-            for fmt in formats:
-                if fmt in actual_formats:
-                    continue
-                if id not in bad:
-                    bad[id] = []
-                bad[id].append(fmt)
-            has_cover = self.data.get(id, self.FIELD_MAP['cover'],
-                    row_is_id=True)
-            if has_cover and self.cover(id, index_is_id=True, as_path=True) is None:
-                if id not in bad:
-                    bad[id] = []
-                bad[id].append('COVER')
-            callback(0.1+0.9*(1+i)/total, _('Checked id') + ' %d'%id)
-
-        for id in bad:
-            for fmt in bad[id]:
-                if fmt != 'COVER':
-                    self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, fmt.upper()))
-                else:
-                    self.conn.execute('UPDATE books SET has_cover=0 WHERE id=?', (id,))
-        self.conn.commit()
-        self.refresh_ids(list(bad.keys()))
-
-        return bad
