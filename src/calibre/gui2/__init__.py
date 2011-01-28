@@ -202,9 +202,6 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
     from calibre.gui2.dialogs.message_box import MessageBox
     d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
                     show_copy_button=show_copy_button)
-    if buttons is not None:
-        d.bb.setStandardButtons(buttons)
-
     return d.exec_() == d.Accepted
 
 def info_dialog(parent, title, msg, det_msg='', show=False,
