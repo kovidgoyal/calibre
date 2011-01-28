@@ -44,6 +44,7 @@ class CanWestPaper(BasicNewsRecipe):
 
     language = 'en_CA'
     __author__ = 'Nick Redding'
+    encoding = 'latin1'
     no_stylesheets = True
     timefmt = ' [%b %d]'
     extra_css = '''
