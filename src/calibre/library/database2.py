@@ -2795,6 +2795,11 @@ books_series_link      feeds
         for id, title, script in self.conn.get('SELECT id,title,script FROM feeds'):
             yield id, title, script
 
+    def reconnect(self):
+        'Used to reconnect after calling self.conn.close()'
+        self.connect()
+        self.initialize_dynamic()
+        self.refresh()
 
     def check_integrity(self, callback):
         callback(0., _('Checking SQL integrity...'))
@@ -2830,9 +2835,7 @@ books_series_link      feeds
             raise
         else:
             shutil.copyfile(dest, self.dbpath)
-            self.connect()
-            self.initialize_dynamic()
-            self.refresh()
+            self.reconnect()
         if os.path.exists(dest):
             os.remove(dest)
         callback(0.1, _('Checking for missing files.'))
