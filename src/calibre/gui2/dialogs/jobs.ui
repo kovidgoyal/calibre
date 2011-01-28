@@ -14,7 +14,7 @@
    <string>Active Jobs</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../resources/images.qrc">
+   <iconset>
     <normaloff>:/images/jobs.png</normaloff>:/images/jobs.png</iconset>
   </property>
   <layout class="QVBoxLayout">
@@ -44,16 +44,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="kill_button">
+    <widget class="QPushButton" name="details_button">
      <property name="text">
-      <string>&amp;Stop selected job</string>
+      <string>Show job &amp;details</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="details_button">
+    <widget class="QPushButton" name="kill_button">
      <property name="text">
-      <string>Show job &amp;details</string>
+      <string>&amp;Stop selected job</string>
      </property>
     </widget>
    </item>
