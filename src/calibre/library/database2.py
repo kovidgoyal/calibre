@@ -21,7 +21,7 @@ from calibre.library.field_metadata import FieldMetadata, TagsIcons
 from calibre.library.schema_upgrades import SchemaUpgrade
 from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
-from calibre.library.sqlite import connect, IntegrityError, DBThread
+from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
