@@ -188,6 +188,24 @@ License: GPL-3
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL-3 on Debian systems.
 
+Files: src/calibre/ebooks/unihandecode/pykakasi/*
+Files: resources/kanwadict2.db
+Files: resources/itaijidict2.pickle
+Copyright: 2011, Hiroshi Miura <miurahr@linux.com>
+Copyright: 1992, Hironobu Takahashi
+License: GPL-2+
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL on Debian systems.
+
+Files: src/calibre/ebooks/unihandecode/*
+Copyright: 2010-2011, Hiroshi Miura <miurahr@linux.com>
+Copyright: 2009, John Schember
+Copyright: 2007, Russell Norris
+Copyright: 2001, Sean M. Burke
+License: GPL-3, Perl
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
 Files: src/encutils/__init__.py
 Copyright: 2005-2008: Christof Hoeke
 License: LGPL-3+, CC-BY-3.0
