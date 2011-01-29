@@ -30,6 +30,7 @@ TAGS = {
     'h4': '\\b \\par \\pard \\hyphpar',
     'h5': '\\b \\par \\pard \\hyphpar',
     'h6': '\\b \\par \\pard \\hyphpar',
+    'i': '\\i',
     'li': '\\par \\pard \\hyphpar \t',
     'p': '\\par \\pard \\hyphpar \t',
     'sub': '\\sub',
@@ -117,6 +118,7 @@ class RTFMLizer(object):
             self.log.debug('Converting %s to RTF markup...' % item.href)
             content = unicode(etree.tostring(item.data, encoding=unicode))
             content = self.remove_newlines(content)
+            content = self.remove_tabs(content)
             content = etree.fromstring(content)
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             output += self.dump_text(content.find(XHTML('body')), stylizer)
@@ -132,6 +134,12 @@ class RTFMLizer(object):
         text = text.replace('\n', ' ')
         text = text.replace('\r', ' ')
 
+        return text
+    
+    def remove_tabs(self, text):
+        self.log.debug('\Replace tabs with space for processing...')
+        text = text.replace('\t', ' ')
+        
         return text
 
     def header(self):
@@ -170,19 +178,15 @@ class RTFMLizer(object):
         return (hex_string, width, height)
 
     def clean_text(self, text):
-        # Remove excess spaces at beginning and end of lines
-        text = re.sub('(?m)^[ ]+', '', text)
-        text = re.sub('(?m)[ ]+$', '', text)
-
         # Remove excessive newlines
-        #text = re.sub('%s{1,1}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
         text = re.sub('%s{3,}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
 
         # Remove excessive spaces
         text = re.sub('[ ]{2,}', ' ', text)
+        text = re.sub('\t{2,}', '\t', text)
 
+        # Remove excessive line breaks
         text = re.sub(r'(\{\\line \}\s*){3,}', r'{\\line }{\\line }', text)
-        #text = re.compile(r'(\{\\line \}\s*)+(?P<brackets>}*)\s*\{\\par').sub(lambda mo: r'%s{\\par' % mo.group('brackets'), text)
 
         # Remove non-breaking spaces
         text = text.replace(u'\xa0', ' ')
@@ -245,7 +249,7 @@ class RTFMLizer(object):
                 tag_stack.append(style_tag)
 
         # Proccess tags that contain text.
-        if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+        if hasattr(elem, 'text') and elem.text:
             text += txt2rtf(elem.text)
 
         for item in elem:
@@ -260,7 +264,7 @@ class RTFMLizer(object):
         if single_tag_end:
             text += single_tag_end
 
-        if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
+        if hasattr(elem, 'tail') and elem.tail:
             if 'block' in tag_stack:
                 text += '%s' % txt2rtf(elem.tail)
             else:
