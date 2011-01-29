@@ -7,6 +7,8 @@ import anydbm,marshal
 from zlib import decompress
 import os
 
+from calibre.utils.resources import resources
+
 class jisyo (object):
     kanwadict = None
     itaijidict = None
@@ -14,10 +16,10 @@ class jisyo (object):
 
     def __init__(self):
         if self.kanwadict is None:
-            dictpath = os.path.join('calibre','ebooks','unihandecode','pykakasi','kanwadict2.db')
+            dictpath = resources.get_path('kanwadict2.db')
             self.kanwadict = anydbm.open(dictpath,'r')
         if self.itaijidict is  None:
-            itaijipath = os.path.join('calibre','ebooks','unihandecode','pykakasi','itaijidict2.pickle')
+            itaijipath = resources.get_path('itaijidict2.pickle')
             itaiji_pkl = open(itaijipath, 'rb')
             self.itaijidict = load(itaiji_pkl)
 
