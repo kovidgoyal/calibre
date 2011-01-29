@@ -189,10 +189,19 @@ License: GPL-3
  /usr/share/common-licenses/GPL-3 on Debian systems.
 
 Files: src/calibre/ebooks/unihandecode/pykakasi/*
+Copyright: 2011, Hiroshi Miura <miurahr@linux.com>
+Copyright: 1992, Hironobu Takahashi
+License: GPL-2+
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL on Debian systems.
+
 Files: resources/kanwadict2.db
 Files: resources/itaijidict2.pickle
 Copyright: 2011, Hiroshi Miura <miurahr@linux.com>
-Copyright: 1992, Hironobu Takahashi
+Copyright: 1992 1993 1994, Hironobu Takahashi (takahasi@tiny.or.jp),
+Copyright: 1992 1993 1994, Masahiko Sato (masahiko@sato.riec.tohoku.ac.jp),
+Copyright: 1992 1993 1994, Yukiyoshi Kameyama, Miki Inooka, Akihiko Sasaki, Dai Ando, Junichi Okukawa,
+Copyright: 1992 1993 1994, Katsushi Sato and Nobuhiro Yamagishi
 License: GPL-2+
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL on Debian systems.
