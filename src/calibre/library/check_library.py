@@ -30,8 +30,8 @@ CHECKS = [('invalid_titles',    _('Invalid titles'), True, False),
           ('missing_formats',   _('Missing book formats'), False, False),
           ('extra_formats',     _('Extra book formats'), True, False),
           ('extra_files',       _('Unknown files in books'), True, False),
-          ('missing_covers',    _('Missing covers in books'), False, True),
-          ('extra_covers',      _('Extra covers in books'), True, True),
+          ('missing_covers',    _('Missing covers files'), False, True),
+          ('extra_covers',      _('Cover files not in database'), True, True),
           ('failed_folders',    _('Folders raising exception'), False, False)
       ]
 

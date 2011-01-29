@@ -104,7 +104,7 @@ def restore_database(db, parent=None):
     else:
         if r.errors_occurred:
             warning_dialog(parent, _('Success'),
-                    _('Restoring the database succeeded with some warnings',
+                    _('Restoring the database succeeded with some warnings'
                         ' click Show details to see the details.'),
                     det_msg=r.report, show=True)
         else:
