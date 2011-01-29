@@ -9,6 +9,8 @@ __description__   = 'Canadian Paper '
 http://www.ledevoir.com/
 '''
 
+import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ledevoir(BasicNewsRecipe):
@@ -31,6 +33,8 @@ class ledevoir(BasicNewsRecipe):
 
     remove_javascript     = True
     no_stylesheets        = True
+
+    preprocess_regexps = [(re.compile(r'(title|alt)=".*?>.*?"', re.DOTALL), lambda m: '')]
 
     keep_only_tags  = [
                         dict(name='div', attrs={'id':'article'}),
