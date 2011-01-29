@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>392</width>
-    <height>343</height>
+    <height>346</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,10 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Output Encoding:</string>
+         <string>Output &amp;Encoding:</string>
+        </property>
+        <property name="buddy">
+         <cstring>opt_txt_output_encoding</cstring>
         </property>
        </widget>
       </item>
@@ -50,7 +53,10 @@
       <item row="2" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Formatting</string>
+         <string>&amp;Formatting:</string>
+        </property>
+        <property name="buddy">
+         <cstring>opt_txt_output_formatting</cstring>
         </property>
        </widget>
       </item>

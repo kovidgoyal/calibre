@@ -8,8 +8,6 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.txt.markdownml import MarkdownMLizer
-from calibre.ebooks.txt.textileml import TextileMLizer
 from calibre.ebooks.txt.txtml import TXTMLizer
 from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 
@@ -66,8 +64,10 @@ class TXTOutput(OutputFormatPlugin):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         if opts.txt_output_formatting.lower() == 'markdown':
+            from calibre.ebooks.txt.markdownml import MarkdownMLizer
             writer = MarkdownMLizer(log)
         elif opts.txt_output_formatting.lower() == 'textile':
+            from calibre.ebooks.txt.textileml import TextileMLizer
             writer = TextileMLizer(log)
         else:
             writer = TXTMLizer(log)

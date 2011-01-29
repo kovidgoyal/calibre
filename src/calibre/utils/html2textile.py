@@ -30,7 +30,7 @@ from lxml import etree
 from calibre.ebooks.oeb.base import barename
 
 class EchoTarget:
-    
+
     def __init__(self):
         self.final_output = []
         self.block = False
@@ -38,14 +38,14 @@ class EchoTarget:
         self.ul_ident = 0
         self.list_types = []
         self.haystack = []
-    
-    def start(self, tag, attrib):    
+
+    def start(self, tag, attrib):
         tag = barename(tag)
-        
+
         newline = '\n'
         dot = ''
         new_tag = ''
-                    
+
         if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
             new_tag = tag
             dot = '. '
@@ -86,35 +86,35 @@ class EchoTarget:
                                'href':attrib.get('href', '')}
             else:
                 self.a_part = {'title':None, 'href':attrib.get('href', '')}
-            new_tag = ''    
+            new_tag = ''
             newline = ''
-            
+
         elif tag == 'img':
             if 'alt' in attrib:
                 new_tag = ' !%s(%s)' % (attrib.get('src'), attrib.get('title'),)
             else:
                 new_tag = ' !%s' % attrib.get('src')
             newline = ''
-            
+
         elif tag in ('ul', 'ol'):
-            new_tag = ''    
+            new_tag = ''
             newline = ''
             self.list_types.append(tag)
             if tag == 'ul':
                 self.ul_ident += 1
             else:
                 self.ol_ident += 1
-            
+
         elif tag == 'li':
             indent = self.ul_ident + self.ol_ident
             if self.list_types[-1] == 'ul':
                 new_tag = '*' * indent + ' '
                 newline = '\n'
             else:
-                new_tag = '#' * indent + ' '    
+                new_tag = '#' * indent + ' '
                 newline = '\n'
-        
-        
+
+
         if tag not in ('ul', 'ol'):
             textile = '%(newline)s%(tag)s%(dot)s' % \
                                  {
@@ -126,10 +126,10 @@ class EchoTarget:
                 self.final_output.append(textile)
             else:
                 self.haystack.append(textile)
-        
+
     def end(self, tag):
         tag = barename(tag)
-        
+
         if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'):
             self.final_output.append('\n')
         elif tag in ('b', 'strong'):
@@ -161,7 +161,7 @@ class EchoTarget:
                                                  ''.join(self.haystack),
                                                  self.a_part.get('href'),
                                                  )
-                self.haystack = []            
+                self.haystack = []
             self.final_output.append(textilized)
             self.block = False
         elif tag == 'img':
@@ -176,7 +176,7 @@ class EchoTarget:
             self.list_types.pop()
             if len(self.list_types) == 0:
                 self.final_output.append('\n')
-        
+
     def data(self, data):
         #we dont want any linebreaks inside our tags
         node_data = data.replace('\n','')
@@ -191,7 +191,7 @@ class EchoTarget:
     def close(self):
         return "closed!"
 
- 
+
 def html2textile(html):
     #1st pass
     #clean the whitespace and convert html to xhtml

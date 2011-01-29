@@ -120,6 +120,8 @@ def _config():
         help='Search history for the LRF viewer')
     c.add_opt('scheduler_search_history', default=[],
         help='Search history for the recipe scheduler')
+    c.add_opt('plugin_search_history', default=[],
+        help='Search history for the recipe scheduler')
     c.add_opt('worker_limit', default=6,
             help=_('Maximum number of waiting worker processes'))
     c.add_opt('get_social_metadata', default=True,
@@ -138,6 +140,7 @@ def _config():
             help=_('Show the average rating per item indication in the tag browser'))
     c.add_opt('disable_animations', default=False,
             help=_('Disable UI animations'))
+    c.add_opt
     return ConfigProxy(c)
 
 config = _config()
