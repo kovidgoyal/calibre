@@ -47,9 +47,9 @@ class TXTOutput(OutputFormatPlugin):
             'is present. Also allows max-line-length to be below the minimum')),
         OptionRecommendation(name='txt_output_formatting',
              recommended_value='none',
-             choices=['none', 'markdown', 'textile'],
+             choices=['plain', 'markdown', 'textile'],
              help=_('Formatting used within the document.\n'
-                    '* none: Produce plain text.\n'
+                    '* plain: Produce plain text.\n'
                     '* markdown: Produce Markdown formatted text.\n'
                     '* textile: Produce Textile formatted text.')),
         OptionRecommendation(name='keep_links',
