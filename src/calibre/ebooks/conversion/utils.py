@@ -554,7 +554,7 @@ class HeuristicProcessor(object):
             html = self.detect_soft_breaks(html)
             # Center separator lines
             html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em; page-break-before:avoid">' + '\g<break>' + '</p>', html)
-            html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
+            #html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs to preserve original formatting
