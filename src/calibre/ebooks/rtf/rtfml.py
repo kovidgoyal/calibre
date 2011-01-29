@@ -178,10 +178,6 @@ class RTFMLizer(object):
         return (hex_string, width, height)
 
     def clean_text(self, text):
-        # Remove excess spaces at beginning and end of lines
-        text = re.sub('(?m)^[ ]+', '', text)
-        text = re.sub('(?m)[ ]+$', '', text)
-
         # Remove excessive newlines
         text = re.sub('%s{3,}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
 
@@ -189,6 +185,7 @@ class RTFMLizer(object):
         text = re.sub('[ ]{2,}', ' ', text)
         text = re.sub('\t{2,}', '\t', text)
 
+        # Remove excessive line breaks
         text = re.sub(r'(\{\\line \}\s*){3,}', r'{\\line }{\\line }', text)
 
         # Remove non-breaking spaces
