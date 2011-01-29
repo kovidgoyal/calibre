@@ -9,6 +9,7 @@ import os
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ebooks.txt.markdownml import MarkdownMLizer
+from calibre.ebooks.txt.textileml import TextileMLizer
 from calibre.ebooks.txt.txtml import TXTMLizer
 from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 
@@ -44,24 +45,30 @@ class TXTOutput(OutputFormatPlugin):
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Force splitting on the max-line-length value when no space '
             'is present. Also allows max-line-length to be below the minimum')),
-        OptionRecommendation(name='markdown_format',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Produce Markdown formatted text.')),
+        OptionRecommendation(name='txt_output_formatting',
+             recommended_value='none',
+             choices=['none', 'markdown', 'textile'],
+             help=_('Formatting used within the document.\n'
+                    '* none: Produce plain text.\n'
+                    '* markdown: Produce Markdown formatted text.\n'
+                    '* textile: Produce Textile formatted text.')),
         OptionRecommendation(name='keep_links',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Do not remove links within the document. This is only ' \
-            'useful when paired with the markdown-format option because' \
-            ' links are always removed with plain text output.')),
+            'useful when paired with a txt-output-formatting option that '
+            'is not none because links are always removed with plain text output.')),
         OptionRecommendation(name='keep_image_references',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Do not remove image references within the document. This is only ' \
-            'useful when paired with the markdown-format option because' \
-            ' image references are always removed with plain text output.')),
+            'useful when paired with a txt-output-formatting option that '
+            'is not none because links are always removed with plain text output.')),
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        if opts.markdown_format:
+        if opts.txt_output_formatting.lower() == 'markdown':
             writer = MarkdownMLizer(log)
+        elif opts.txt_output_formatting.lower() == 'textile':
+            writer = TextileMLizer(log)
         else:
             writer = TXTMLizer(log)
 
