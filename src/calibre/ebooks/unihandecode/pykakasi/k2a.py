@@ -25,7 +25,7 @@
 # * 02111-1307, USA.
 # */
 
-from jisyo import jisyo
+from calibre.ebooks.unihandecode.pykakasi.jisyo import jisyo
 
 class K2a (object):
 

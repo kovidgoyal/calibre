@@ -16,24 +16,23 @@ Tranliterate the string from unicode characters to ASCII in Chinese and others.
 
 '''
 
-from calibre.ebooks.unihandecode.unidecoder import Unidecoder
-from calibre.ebooks.unihandecode.jadecoder import Jadecoder
-from calibre.ebooks.unihandecode.krdecoder import Krdecoder
-from calibre.ebooks.unihandecode.vndecoder import Vndecoder
-
 class Unihandecoder(object):
     preferred_encoding = None
     decoder = None
 
     def __init__(self, lang="zh", encoding='utf-8'):
         self.preferred_encoding = encoding
-        if lang is "ja":
+        if lang is u"ja":
+            from calibre.ebooks.unihandecode.jadecoder import Jadecoder
             self.decoder = Jadecoder()
-        elif lang is "kr":
+        elif lang is u"kr":
+            from calibre.ebooks.unihandecode.krdecoder import Krdecoder
             self.decoder = Krdecoder()
-        elif lang is "vn":
+        elif lang is u"vn":
+            from calibre.ebooks.unihandecode.vndecoder import Vndecoder
             self.decoder = Vndecoder()
         else: #zh and others
+            from calibre.ebooks.unihandecode.unidecoder import Unidecoder
             self.decoder = Unidecoder()
 
     def decode(self, text):
@@ -55,5 +54,6 @@ def unidecode(text):
     '''
     backword compatibility to unidecode
     '''
+    from calibre.ebooks.unihandecode.unidecoder import Unidecoder
     decoder = Unihandecoder()
     return decoder.decode(text)

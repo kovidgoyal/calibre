@@ -14,10 +14,10 @@ class jisyo (object):
 
     def __init__(self):
         if self.kanwadict is None:
-            dictpath = os.path.join('unihandecode','pykakasi','kanwadict2.db')
+            dictpath = os.path.join('calibre','ebooks','unihandecode','pykakasi','kanwadict2.db')
             self.kanwadict = anydbm.open(dictpath,'r')
         if self.itaijidict is  None:
-            itaijipath = os.path.join('unihandecode','pykakasi','itaijidict2.pickle')
+            itaijipath = os.path.join('calibre','ebooks','unihandecode','pykakasi','itaijidict2.pickle')
             itaiji_pkl = open(itaijipath, 'rb')
             self.itaijidict = load(itaiji_pkl)
 
