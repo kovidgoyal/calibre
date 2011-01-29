@@ -27,7 +27,7 @@ class HeuristicProcessor(object):
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
         self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.softbreak = re.compile(r'\s*(?P<openline><p(?=\sclass=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
-        self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
+        self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}(?!\s*<h\d)', re.IGNORECASE)
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
@@ -42,8 +42,10 @@ class HeuristicProcessor(object):
                     " chapters. - " + unicode(chap))
             return '<h2>'+chap+'</h2>\n'
         else:
-            txt_chap = html2text(chap)
-            txt_title = html2text(title)
+            delete_whitespace = re.compile('^\s*(?P<c>.*?)\s*$')
+            delete_quotes = re.compile('\'\"')
+            txt_chap = delete_quotes.sub('', delete_whitespace.sub('\g<c>', html2text(chap)))
+            txt_title = delete_quotes.sub('', delete_whitespace.sub('\g<c>', html2text(title)))
             self.html_preprocess_sections = self.html_preprocess_sections + 1
             self.log.debug("marked " + unicode(self.html_preprocess_sections) +
                     " chapters & titles. - " + unicode(chap) + ", " + unicode(title))
@@ -416,6 +418,12 @@ class HeuristicProcessor(object):
                 return True
         return False
 
+    def detect_blank_formatting(self, html):
+        blanks_before_headings = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}(?=\s*<h\d)', re.IGNORECASE)
+        return html
+
+    def detect_soft_breaks(self, html):
+        return html
 
     def __call__(self, html):
         self.log.debug("*********  Heuristic processing HTML  *********")
@@ -464,6 +472,8 @@ class HeuristicProcessor(object):
 
         if getattr(self.extra_opts, 'markup_chapter_headings', False):
             html = self.markup_chapters(html, self.totalwords, blanks_between_paragraphs)
+
+        self.dump(html, 'after_chapter_markup')
 
         if getattr(self.extra_opts, 'italicize_common_cases', False):
             html = self.markup_italicis(html)
@@ -525,6 +535,8 @@ class HeuristicProcessor(object):
             html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
 
         if getattr(self.extra_opts, 'format_scene_breaks', False):
+            html = self.detect_blank_formatting(html)
+            html = self.detect_soft_breaks(html)
             # Center separator lines
             html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em">' + '\g<break>' + '</p>', html)
             if not self.blanks_deleted:
