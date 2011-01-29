@@ -275,7 +275,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):
 
     if device_manager.is_device_connected:
         device = device_manager.device
-        connected_device['name'] = device.gui_name
+        connected_device['name'] = device.get_gui_name()
         try:
             storage = []
             if device._main_prefix:
