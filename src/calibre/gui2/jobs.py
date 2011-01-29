@@ -425,7 +425,6 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             for index in self.jobs_view.selectedIndexes():
                 row = index.row()
                 self.model.kill_job(row, self)
-                return
 
     def kill_all_jobs(self, *args):
         if question_dialog(self, _('Are you sure?'), _('Do you really want to stop all non-device jobs?')):

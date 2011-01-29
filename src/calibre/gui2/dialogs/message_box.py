@@ -39,6 +39,12 @@ class MessageBox(QDialog, Ui_Dialog):
         self.det_msg.setPlainText(det_msg)
         self.det_msg.setVisible(False)
 
+        if show_copy_button:
+            self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),
+                    self.bb.ActionRole)
+            self.ctc_button.clicked.connect(self.copy_to_clipboard)
+
+
         if det_msg:
             self.show_det_msg = _('Show &details')
             self.hide_det_msg = _('Hide &details')
@@ -46,11 +52,6 @@ class MessageBox(QDialog, Ui_Dialog):
             self.det_msg_toggle.clicked.connect(self.toggle_det_msg)
             self.det_msg_toggle.setToolTip(
                     _('Show detailed information about this error'))
-
-        if show_copy_button:
-            self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),
-                    self.bb.ActionRole)
-            self.ctc_button.clicked.connect(self.copy_to_clipboard)
 
 
         self.copy_action = QAction(self)
@@ -91,7 +92,10 @@ class MessageBox(QDialog, Ui_Dialog):
     def showEvent(self, ev):
         ret = QDialog.showEvent(self, ev)
         if self.is_question:
-            self.bb.button(self.bb.Yes).setFocus(Qt.OtherFocusReason)
+            try:
+                self.bb.button(self.bb.Yes).setFocus(Qt.OtherFocusReason)
+            except:
+                pass# Buttons were changed
         else:
             self.bb.button(self.bb.Ok).setFocus(Qt.OtherFocusReason)
         return ret

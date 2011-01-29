@@ -7,7 +7,7 @@ import re, os
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
-                     QMessageBox, QDate
+                     QDate
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -15,7 +15,8 @@ from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import composite_formatter
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
-from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE, gprefs
+from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE, \
+    gprefs, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic, JSONConfig
 from calibre.utils.titlecase import titlecase
@@ -888,12 +889,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         if self.query_field.currentIndex() == 0:
             return
 
-        ret = QMessageBox.question(self, _("Delete saved search/replace"),
+        if not question_dialog(self, _("Delete saved search/replace"),
                 _("The selected saved search/replace will be deleted. "
-                  "Are you sure?"),
-                QMessageBox.Ok, QMessageBox.Cancel)
-
-        if ret == QMessageBox.Cancel:
+                    "Are you sure?")):
             return
 
         item_id = self.query_field.currentIndex()
@@ -917,11 +915,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         new = True
         name = unicode(name)
         if name in self.queries.keys():
-            ret = QMessageBox.question(self, _("Save search/replace"),
+            if not question_dialog(self, _("Save search/replace"),
                     _("That saved search/replace already exists and will be overwritten. "
-                      "Are you sure?"),
-                    QMessageBox.Ok, QMessageBox.Cancel)
-            if ret == QMessageBox.Cancel:
+                        "Are you sure?")):
                 return
             new = False
 

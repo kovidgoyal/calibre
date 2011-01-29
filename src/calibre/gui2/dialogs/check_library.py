@@ -3,16 +3,132 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
-import os
+import os, shutil
 
 from PyQt4.Qt import QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, \
             QPushButton, QDialogButtonBox, QApplication, QTreeWidgetItem, \
-            QLineEdit, Qt
+            QLineEdit, Qt, QProgressBar, QSize, QTimer
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
 from calibre.library.database2 import delete_file, delete_tree
-from calibre import prints
+from calibre import prints, as_unicode
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.library.sqlite import DBThread, OperationalError
+
+class DBCheck(QDialog):
+
+    def __init__(self, parent, db):
+        QDialog.__init__(self, parent)
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+        self.l1 = QLabel(_('Checking database integrity')+'...')
+        self.setWindowTitle(_('Checking database integrity'))
+        self.l.addWidget(self.l1)
+        self.pb = QProgressBar(self)
+        self.l.addWidget(self.pb)
+        self.pb.setMaximum(0)
+        self.pb.setMinimum(0)
+        self.msg = QLabel('')
+        self.l.addWidget(self.msg)
+        self.msg.setWordWrap(True)
+        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
+        self.l.addWidget(self.bb)
+        self.bb.rejected.connect(self.reject)
+        self.resize(self.sizeHint() + QSize(100, 50))
+        self.error = None
+        self.db = db
+        self.closed_orig_conn = False
+
+    def start(self):
+        self.user_version = self.db.user_version
+        self.rejected = False
+        self.db.clean()
+        self.db.conn.close()
+        self.closed_orig_conn = True
+        t = DBThread(self.db.dbpath, False)
+        t.connect()
+        self.conn = t.conn
+        self.dump = self.conn.iterdump()
+        self.statements = []
+        self.count = 0
+        self.msg.setText(_('Dumping database to SQL'))
+        # Give the backup thread time to stop
+        QTimer.singleShot(2000, self.do_one_dump)
+        self.exec_()
+
+    def do_one_dump(self):
+        if self.rejected:
+            return
+        try:
+            try:
+                self.statements.append(self.dump.next())
+                self.count += 1
+            except StopIteration:
+                self.start_load()
+                return
+            QTimer.singleShot(0, self.do_one_dump)
+        except Exception, e:
+            import traceback
+            self.error = (as_unicode(e), traceback.format_exc())
+            self.reject()
+
+    def start_load(self):
+        self.conn.close()
+        self.pb.setMaximum(self.count)
+        self.pb.setValue(0)
+        self.msg.setText(_('Loading database from SQL'))
+        self.db.conn.close()
+        self.ndbpath = PersistentTemporaryFile('.db')
+        self.ndbpath.close()
+        self.ndbpath = self.ndbpath.name
+        t = DBThread(self.ndbpath, False)
+        t.connect()
+        self.conn = t.conn
+        self.conn.execute('create temporary table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
+        self.conn.commit()
+
+        QTimer.singleShot(0, self.do_one_load)
+
+    def do_one_load(self):
+        if self.rejected:
+            return
+        if self.count > 0:
+            try:
+                try:
+                    self.conn.execute(self.statements.pop(0))
+                except OperationalError:
+                    if self.count > 1:
+                        # The last statement in the dump could be an extra
+                        # commit, so ignore it.
+                        raise
+                self.pb.setValue(self.pb.value() + 1)
+                self.count -= 1
+                QTimer.singleShot(0, self.do_one_load)
+            except Exception, e:
+                import traceback
+                self.error = (as_unicode(e), traceback.format_exc())
+                self.reject()
+
+        else:
+            self.replace_db()
+
+    def replace_db(self):
+        self.conn.commit()
+        self.conn.execute('pragma user_version=%d'%int(self.user_version))
+        self.conn.commit()
+        self.conn.close()
+        shutil.copyfile(self.ndbpath, self.db.dbpath)
+        self.db = None
+        self.accept()
+
+    def break_cycles(self):
+        self.statements = self.unpickler = self.db = self.conn = None
+
+    def reject(self):
+        self.rejected = True
+        QDialog.reject(self)
+
 
 class Item(QTreeWidgetItem):
     pass
@@ -23,7 +139,7 @@ class CheckLibraryDialog(QDialog):
         QDialog.__init__(self, parent)
         self.db = db
 
-        self.setWindowTitle(_('Check Library'))
+        self.setWindowTitle(_('Check Library -- Problems Found'))
 
         self._layout = QVBoxLayout(self)
         self.setLayout(self._layout)
@@ -32,7 +148,7 @@ class CheckLibraryDialog(QDialog):
         self.log.itemChanged.connect(self.item_changed)
         self._layout.addWidget(self.log)
 
-        self.check_button = QPushButton(_('&Run the check'))
+        self.check_button = QPushButton(_('&Run the check again'))
         self.check_button.setDefault(False)
         self.check_button.clicked.connect(self.run_the_check)
         self.copy_button = QPushButton(_('Copy &to clipboard'))
@@ -80,7 +196,16 @@ class CheckLibraryDialog(QDialog):
         self.resize(750, 500)
         self.bbox.setEnabled(True)
 
+    def do_exec(self):
         self.run_the_check()
+
+        probs = 0
+        for c in self.problem_count:
+            probs += self.problem_count[c]
+        if probs == 0:
+            return False
+        self.exec_()
+        return True
 
     def accept(self):
         self.db.prefs['check_library_ignore_extensions'] = \
@@ -103,7 +228,10 @@ class CheckLibraryDialog(QDialog):
             attr, h, checkable, fixable = check
             list = getattr(checker, attr, None)
             if list is None:
+                self.problem_count[attr] = 0
                 return
+            else:
+                self.problem_count[attr] = len(list)
 
             tl = Item()
             tl.setText(0, h)
@@ -134,6 +262,7 @@ class CheckLibraryDialog(QDialog):
         t.setHeaderLabels([_('Name'), _('Path from library')])
         self.all_items = []
         self.top_level_items = {}
+        self.problem_count = {}
         for check in CHECKS:
             builder(t, checker, check)
 
