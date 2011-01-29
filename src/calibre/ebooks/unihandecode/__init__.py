@@ -22,13 +22,13 @@ class Unihandecoder(object):
 
     def __init__(self, lang="zh", encoding='utf-8'):
         self.preferred_encoding = encoding
-        if lang is u"ja":
+        if lang in [u"ja","ja",u"Ja","Ja",u"Japanese"]:
             from calibre.ebooks.unihandecode.jadecoder import Jadecoder
             self.decoder = Jadecoder()
-        elif lang is u"kr":
+        elif lang in [u"kr", "kr", u"Kr", "Kr", u"Korean"]:
             from calibre.ebooks.unihandecode.krdecoder import Krdecoder
             self.decoder = Krdecoder()
-        elif lang is u"vn":
+        elif lang in [u"vn", "vn", u"Vietnum"]:
             from calibre.ebooks.unihandecode.vndecoder import Vndecoder
             self.decoder = Vndecoder()
         else: #zh and others
