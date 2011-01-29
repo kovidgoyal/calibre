@@ -26,7 +26,7 @@ class BBC(BasicNewsRecipe):
     extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }'
 
     feeds          = [
-                      ('Interviews', 'http://www.avclub.com/feed/interview/'),
+                      ('TV', 'http://www.avclub.com/feed/tv/'),
                       ('AV Club Daily', 'http://www.avclub.com/feed/daily'),
                       ('Film', 'http://www.avclub.com/feed/film/'),
                       ('Music', 'http://www.avclub.com/feed/music/'),

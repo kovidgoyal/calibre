@@ -503,7 +503,7 @@ class CompleteLineEdit(EnLineEdit):
         cursor_pos = self.cursorPosition()
         before_text = unicode(self.text())[:cursor_pos]
         after_text = unicode(self.text())[cursor_pos:]
-        prefix_len = len(before_text.split(self.separator)[-1].strip())
+        prefix_len = len(before_text.split(self.separator)[-1].lstrip())
         if self.space_before_sep:
             complete_text_pat = '%s%s %s %s'
             len_extra = 3
