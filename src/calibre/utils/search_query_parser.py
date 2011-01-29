@@ -260,12 +260,12 @@ class SearchQueryParser(object):
         '''
         Should return the set of matches for :param:'location` and :param:`query`.
 
-        The search must be performed over all entries is :param:`candidates` is
+        The search must be performed over all entries if :param:`candidates` is
         None otherwise only over the items in candidates.
 
         :param:`location` is one of the items in :member:`SearchQueryParser.DEFAULT_LOCATIONS`.
         :param:`query` is a string literal.
-        :param: None or a subset of the set returned by :meth:`universal_set`.
+        :return: None or a subset of the set returned by :meth:`universal_set`.
         '''
         return set([])
 
