@@ -7,7 +7,7 @@ import anydbm,marshal
 from zlib import decompress
 import os
 
-from calibre.utils.resources import resources
+import calibre.utils.resources as resources
 
 class jisyo (object):
     kanwadict = None
