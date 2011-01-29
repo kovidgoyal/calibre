@@ -46,7 +46,7 @@ class TXTOutput(OutputFormatPlugin):
             help=_('Force splitting on the max-line-length value when no space '
             'is present. Also allows max-line-length to be below the minimum')),
         OptionRecommendation(name='txt_output_formatting',
-             recommended_value='none',
+             recommended_value='plain',
              choices=['plain', 'markdown', 'textile'],
              help=_('Formatting used within the document.\n'
                     '* plain: Produce plain text.\n'
