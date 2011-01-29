@@ -687,7 +687,7 @@ class DeviceMixin(object): # {{{
         except:
             pass
         if not self.device_error_dialog.isVisible():
-            self.device_error_dialog.setDetailedText(job.details)
+            self.device_error_dialog.set_details(job.details)
             self.device_error_dialog.show()
 
     # Device connected {{{

@@ -74,21 +74,27 @@ class DBCheck(QDialog):
             self.reject()
 
     def start_load(self):
-        self.conn.close()
-        self.pb.setMaximum(self.count)
-        self.pb.setValue(0)
-        self.msg.setText(_('Loading database from SQL'))
-        self.db.conn.close()
-        self.ndbpath = PersistentTemporaryFile('.db')
-        self.ndbpath.close()
-        self.ndbpath = self.ndbpath.name
-        t = DBThread(self.ndbpath, False)
-        t.connect()
-        self.conn = t.conn
-        self.conn.execute('create temporary table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
-        self.conn.commit()
+        try:
+            self.conn.close()
+            self.pb.setMaximum(self.count)
+            self.pb.setValue(0)
+            self.msg.setText(_('Loading database from SQL'))
+            self.db.conn.close()
+            self.ndbpath = PersistentTemporaryFile('.db')
+            self.ndbpath.close()
+            self.ndbpath = self.ndbpath.name
+            t = DBThread(self.ndbpath, False)
+            t.connect()
+            self.conn = t.conn
+            self.conn.execute('create temporary table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
+            self.conn.commit()
 
-        QTimer.singleShot(0, self.do_one_load)
+            QTimer.singleShot(0, self.do_one_load)
+        except Exception, e:
+            import traceback
+            self.error = (as_unicode(e), traceback.format_exc())
+            self.reject()
+
 
     def do_one_load(self):
         if self.rejected:
